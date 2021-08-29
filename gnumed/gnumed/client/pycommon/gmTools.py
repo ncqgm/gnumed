@@ -175,7 +175,7 @@ def mkdir(directory=None, mode=None) -> bool:
 	Args:
 		mode: numeric, say 0o0700 for "-rwx------"
 
-	Results:
+	Returns:
 		True/False based on success
 	"""
 	if os.path.isdir(directory):
@@ -205,8 +205,11 @@ def mkdir(directory=None, mode=None) -> bool:
 	return True
 
 #---------------------------------------------------------------------------
-def create_directory_description_file(directory=None, readme=None, suffix=None):
+def create_directory_description_file(directory:str=None, readme:str=None, suffix:str=None) -> bool:
 	"""Create a directory description file.
+
+		Returns:
+			<False> if it cannot create the description file.
 	"""
 	assert (directory is not None), '<directory> must not be None'
 
@@ -399,7 +402,13 @@ class gmPaths(gmBorg.cBorg):
 
 	- .working_dir: current dir
 
-	- .user_config_dir
+	- .user_config_dir, in the following order:
+		- ~/.config/gnumed/
+		- ~/
+
+	- .user_appdata_dir, in the following order:
+		- ~/.local/gnumed/
+		- ~/
 
 	- .system_config_dir
 
@@ -473,15 +482,25 @@ class gmPaths(gmBorg.cBorg):
 		# the current working dir at the OS
 		self.working_dir = os.path.abspath(os.curdir)
 
-		# user-specific config dir, usually below the home dir
-		mkdir(os.path.join(self.home_dir, '.%s' % app_name))
-		self.user_config_dir = os.path.join(self.home_dir, '.%s' % app_name)
+		# user-specific config dir, usually below the home dir, default to $XDG_CONFIG_HOME
+		_dir = os.path.join(self.home_dir, '.config', app_name)
+		if not mkdir(_dir):
+			_log.error('cannot make config dir [%s], falling back to home dir', _dir)
+			_dir = self.home_dir
+		self.user_config_dir = _dir
 
 		# user-specific app dir, usually below the home dir
 		mkdir(os.path.join(self.home_dir, app_name))
 		self.user_work_dir = os.path.join(self.home_dir, app_name)
 
-		# system-wide config dir, usually below /etc/ under UN*X
+		# user-specific app data/state dir, usually below home dir
+		_dir = os.path.join(self.home_dir, '.local', app_name)
+		if not mkdir(_dir):
+			_log.error('cannot make data/state dir [%s], falling back to home dir', _dir)
+			_dir = self.home_dir
+		self.user_appdata_dir = _dir
+
+		# system-wide config dir, under UN*X usually below /etc/
 		try:
 			self.system_config_dir = os.path.join('/etc', app_name)
 		except ValueError:
@@ -535,8 +554,15 @@ class gmPaths(gmBorg.cBorg):
 		_log.info('wxPython app name is [%s]', wx.GetApp().GetAppName())
 
 		# user-specific config dir, usually below the home dir
-		mkdir(os.path.join(std_paths.GetUserConfigDir(), '.%s' % app_name))
-		self.user_config_dir = os.path.join(std_paths.GetUserConfigDir(), '.%s' % app_name)
+		_dir = std_paths.UserConfigDir
+		if _dir == self.home_dir:
+			_dir = os.path.join(self.home_dir, '.config', app_name)
+		else:
+			_dir = os.path.join(_dir, '.%s' % app_name)
+		if not mkdir(_dir):
+			_log.error('cannot make config dir [%s], falling back to home dir', _dir)
+			_dir = self.home_dir
+		self.user_config_dir = _dir
 
 		# system-wide config dir, usually below /etc/ under UN*X
 		try:
@@ -573,6 +599,7 @@ class gmPaths(gmBorg.cBorg):
 		_log.debug('current working dir: %s', self.working_dir)
 		_log.debug('user home dir: %s', self.home_dir)
 		_log.debug('user-specific config dir: %s', self.user_config_dir)
+		_log.debug('user-specific application data dir: %s', self.user_appdata_dir)
 		_log.debug('system-wide config dir: %s', self.system_config_dir)
 		_log.debug('system-wide application data dir: %s', self.system_app_data_dir)
 		_log.debug('temporary dir (user): %s', self.user_tmp_dir)
@@ -586,7 +613,7 @@ class gmPaths(gmBorg.cBorg):
 	#--------------------------------------
 	def _set_user_config_dir(self, path):
 		if not (os.access(path, os.R_OK) and os.access(path, os.X_OK)):
-			msg = '[%s:user_config_dir]: invalid path [%s]' % (self.__class__.__name__, path)
+			msg = '[%s:user_config_dir]: unusable path [%s]' % (self.__class__.__name__, path)
 			_log.error(msg)
 			raise ValueError(msg)
 		self.__user_config_dir = path
@@ -596,6 +623,7 @@ class gmPaths(gmBorg.cBorg):
 		return self.__user_config_dir
 
 	user_config_dir = property(_get_user_config_dir, _set_user_config_dir)
+
 	#--------------------------------------
 	def _set_system_config_dir(self, path):
 		if not (os.access(path, os.R_OK) and os.access(path, os.X_OK)):
@@ -733,6 +761,9 @@ def remove_file(filename:str, log_error:bool=True, force:bool=False) -> bool:
 	Args:
 		filename: file to remove
 		force: if remove does not work attempt to rename the file
+
+	Returns:
+		True/False: Removed or not.
 	"""
 	if not os.path.lexists(filename):
 		return True
@@ -745,16 +776,76 @@ def remove_file(filename:str, log_error:bool=True, force:bool=False) -> bool:
 	except Exception:
 		if log_error:
 			_log.exception('cannot os.remove(%s)', filename)
-	if force:
-		tmp_name = get_unique_filename(tmp_dir = fname_dir(filename))
-		_log.debug('attempting os.replace(%s -> %s)', filename, tmp_name)
-		try:
-			os.replace(filename, tmp_name)
-			return True
+	if not force:
+		return False
 
-		except Exception:
-			if log_error:
-				_log.exception('cannot os.replace(%s)', filename)
+	tmp_name = get_unique_filename(tmp_dir = fname_dir(filename))
+	_log.debug('attempting os.replace(%s -> %s)', filename, tmp_name)
+	try:
+		os.replace(filename, tmp_name)
+		return True
+
+	except Exception:
+		if log_error:
+			_log.exception('cannot os.replace(%s)', filename)
+	return False
+
+#---------------------------------------------------------------------------
+def rename_file(filename:str, new_filename:str, overwrite:bool=False, allow_symlink:bool=False) -> bool:
+	"""Rename a file.
+
+	Args:
+		filename: source filename
+		new_filename: target filename
+		overwrite: overwrite existing target ?
+		allow_symlink: allow soft links ?
+
+	Returns:
+		True/False: Renamed or not.
+	"""
+	_log.debug('renaming: source [%s] -> target [%s]', filename, new_filename)
+	if filename == new_filename:
+		return True
+
+	if not os.path.lexists(filename):
+		_log.error('source does not exist')
+		return False
+
+	if overwrite and not remove_file(new_filename, force = True):
+		_log.error('cannot remove existing target')
+		return False
+
+	try:
+		shutil.move(filename, new_filename)
+		return True
+
+	except OSError:
+		_log.exception('shutil.move() failed')
+
+	try:
+		os.replace(filename, new_filename)
+		return True
+
+	except Exception:
+		_log.exception('os.replace() failed')
+
+	try:
+		os.link(filename, new_filename)
+		return True
+
+	except Exeption:
+		_log.exception('os.link() failed')
+
+	if not allow_symlink:
+		return False
+
+	try:
+		os.symlink(filename, new_filename)
+		return True
+
+	except Exeption:
+		_log.exception('os.symlink() failed')
+
 	return False
 
 #---------------------------------------------------------------------------
@@ -2256,6 +2347,7 @@ if __name__ == '__main__':
 		paths = gmPaths(wx=None, app_name='gnumed')
 		print("user       home dir:", paths.home_dir)
 		print("user     config dir:", paths.user_config_dir)
+		print("user    appdata dir:", paths.user_appdata_dir)
 		print("user       work dir:", paths.user_work_dir)
 		print("user       temp dir:", paths.user_tmp_dir)
 		print("user+app   temp dir:", paths.tmp_dir)

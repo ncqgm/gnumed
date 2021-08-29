@@ -772,7 +772,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.__on_email_log_file, item)
 		item = menu_debugging.Append(-1, _('Browse tmp dir'), _('Browse temporary directory [%s].') % gmTools.gmPaths().tmp_dir)
 		self.Bind(wx.EVT_MENU, self.__on_browse_tmp_dir, item)
-		item = menu_debugging.Append(-1, _('Browse internal work dir'), _('Browse internal working directory [%s].') % gmTools.gmPaths().user_config_dir)
+		item = menu_debugging.Append(-1, _('Browse internal work dir'), _('Browse internal working directory [%s].') % gmTools.gmPaths().user_appdata_dir)
 		self.Bind(wx.EVT_MENU, self.__on_browse_internal_work_dir, item)
 		item = menu_debugging.Append(-1, _('Bug tracker'), _('Go to the GNUmed bug tracker on the web.'))
 		self.Bind(wx.EVT_MENU, self.__on_display_bugtracker, item)
@@ -2252,7 +2252,7 @@ class gmTopLevelFrame(wx.Frame):
 			gmDispatcher.send(signal = 'statustext', msg = _('ACS risk assessment calculator not configured.'), beep = True)
 			return
 
-		cwd = gmTools.gmPaths().user_config_dir
+		cwd = gmTools.gmPaths().user_tmp_dir
 		try:
 			subprocess.check_call (
 				args = (cmd,),
@@ -2510,7 +2510,7 @@ class gmTopLevelFrame(wx.Frame):
 
 	#----------------------------------------------
 	def __on_browse_internal_work_dir(self, evt):
-		gmMimeLib.call_viewer_on_file(gmTools.gmPaths().user_config_dir, block = False)
+		gmMimeLib.call_viewer_on_file(gmTools.gmPaths().user_appdata_dir, block = False)
 
 	#----------------------------------------------
 	# GNUmed /

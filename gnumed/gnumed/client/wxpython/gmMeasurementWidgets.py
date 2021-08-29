@@ -153,7 +153,7 @@ def stage_hl7_file(parent=None):
 	if choice != wx.ID_OK:
 		return False
 
-	target_dir = os.path.join(paths.user_config_dir, 'hl7')
+	target_dir = os.path.join(paths.user_tmp_dir, 'hl7')
 	success, PID_names = gmHL7.split_hl7_file(hl7_name, target_dir = target_dir, encoding = 'utf8')
 	if not success:
 		gmGuiHelpers.gm_show_error (

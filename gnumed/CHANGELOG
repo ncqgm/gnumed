@@ -40,6 +40,10 @@ FIX: documentation: links (wiki -> static pages)
 # rel-1-8-maint
 ------------------------------------------------
 
+	1.8.7
+
+FIX: export area: dumping encrypted/PDFed image to disk
+
 	1.8.6
 
 FIX: unlocking encounters (missing import)
@@ -60,6 +64,8 @@ IMPROVED: measurement EA: previous result formatting
 IMPROVED: DB: login problem logging
 IMPROVED: top pane: show age of results in tooltip
 IMPROVED: paperwork: LaTeX formatting of text
+IMPROVED: EMR: extend search to select demographics [thanks brulefa]
+IMPROVED: startup: bash code [thanks shellcheck]
 
 	1.8.5
 
@@ -2212,6 +2218,10 @@ IMRPOVED: clin.v_narrative4search: add some demographics (port from 1.8.6)
 ------------------------------------------------
 # gnumed_v22
 ------------------------------------------------
+
+	22.17
+
+FIX: CREATE FUNCTION ... RETURNS OPAQUE -> TRIGGER [thanks SantyCW@es_AR]
 
 	22.16
 

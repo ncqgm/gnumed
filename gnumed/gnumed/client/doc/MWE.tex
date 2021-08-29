@@ -1,0 +1,72 @@
+%------------------------------------------------------------------
+% LaTeX MWE for testing packages and code snippets
+%
+% Author: Karsten Hilbert
+% Author: karsten.hilbert@gmx.net
+% License: GPL v2 or later
+%
+% requires pdflatex to be run with -recorder option
+% typically also use -shell-escape
+%------------------------------------------------------------------
+
+\documentclass{article}
+
+
+% debugging
+%\usepackage{interfaces}				% provides \papergraduate
+%\usepackage{showkeys}				% print labels (anchors and stuff) as margin notes
+%\usepackage[noframe]{showframe}		% show page margins as boxes
+%\usepackage[verbose]{layout}			% generate a page with the current layout
+%\usepackage[pass]{geometry}			% nicely display geometry in log file
+%\usepackage{afterpage}				% add stuff after next page bread
+
+
+
+% test package gitver --------------------------------
+% result: not useful (it provides git version access at *compile* - not at checkout - time):
+%\usepackage[noheader]{gitver}
+%\usepackage{gitver}
+% test package gitver --------------------------------
+
+
+
+% test package pdfcrypt --------------------------------
+% result: standard Debian pdflatex does not support PDF encryption
+%\usepackage{pdfcrypt}
+% test package pdfcrypt --------------------------------
+
+
+
+% package setup:
+% - debugging
+\listfiles																% list all input files used
+\errorcontextlines 10000												% list lots of context lines with errors
+%\RequirePackage[l2tabu, orthodox]{nag}									% show unorthodox/faulty/obsolete uses
+%\hypersetup{debug=true}													% extra debugging log messages
+% %\tracingtabu=3														% trace tabu tables if using tabu package
+%\usetikz{basic}									% needed for \papergraduate from package interfaces
+%\overfullrule=2cm								% mark overfull horizontal boxes
+%\geometry{pass,verbose}							% put geometry into log file
+%\renewcommand\ShowFrameLinethickness{0.25pt}		% configure showframe
+%\renewcommand*\ShowFrameColor{\color{red}}		% configure showframe
+
+%------------------------------------------------------------------
+\begin{document}
+%------------------------------------------------------------------
+
+
+% test package gitver --------------------------------
+%GIT state: ---------\gitVer{}---------
+%---------\versionBox{}---------
+% test package gitver --------------------------------
+
+
+
+%------------------------------------------------------------------
+
+% debugging
+%\layout				% show page layout page
+
+%------------------------------------------------------------------
+\end{document}
+%------------------------------------------------------------------

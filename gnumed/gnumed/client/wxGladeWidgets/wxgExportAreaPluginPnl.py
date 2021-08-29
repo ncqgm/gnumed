@@ -73,6 +73,10 @@ class wxgExportAreaPluginPnl(wx.Panel):
 		self._BTN_export_items.SetToolTip(_("Export all/selected items to removable media (CD/DVD/USB)."))
 		__szr_buttons_right.Add(self._BTN_export_items, 0, wx.BOTTOM | wx.EXPAND, 3)
 
+		self._BTN_encrypt_items = wx.Button(self, wx.ID_ANY, _("Encrypt"), style=wx.BU_EXACTFIT)
+		self._BTN_encrypt_items.SetToolTip(_("Encrypt selected items in-place."))
+		__szr_buttons_right.Add(self._BTN_encrypt_items, 0, wx.BOTTOM | wx.EXPAND, 3)
+
 		self._BTN_pdfjoin_items = wx.Button(self, wx.ID_ANY, _(u"⇶❭ PDF"), style=wx.BU_EXACTFIT)
 		self._BTN_pdfjoin_items.SetToolTip(_("Join selected items into one PDF."))
 		__szr_buttons_right.Add(self._BTN_pdfjoin_items, 0, wx.BOTTOM | wx.EXPAND, 3)
@@ -118,6 +122,7 @@ class wxgExportAreaPluginPnl(wx.Panel):
 		self.Bind(wx.EVT_BUTTON, self._on_show_item_button_pressed, self._BTN_show_item)
 		self.Bind(wx.EVT_BUTTON, self._on_save_items_button_pressed, self._BTN_save_items)
 		self.Bind(wx.EVT_BUTTON, self._on_export_items_button_pressed, self._BTN_export_items)
+		self.Bind(wx.EVT_BUTTON, self._on_encrypt_items_button_pressed, self._BTN_encrypt_items)
 		self.Bind(wx.EVT_BUTTON, self._on_pdfjoin_button_pressed, self._BTN_pdfjoin_items)
 		self.Bind(wx.EVT_BUTTON, self._on_archive_items_button_pressed, self._BTN_archive_items)
 		self.Bind(wx.EVT_BUTTON, self._on_remove_items_button_pressed, self._BTN_remove_items)
@@ -164,6 +169,10 @@ class wxgExportAreaPluginPnl(wx.Panel):
 
 	def _on_export_items_button_pressed(self, event):
 		print("Event handler '_on_export_items_button_pressed' not implemented!")
+		event.Skip()
+
+	def _on_encrypt_items_button_pressed(self, event):
+		print("Event handler '_on_encrypt_items_button_pressed' not implemented!")
 		event.Skip()
 
 	def _on_pdfjoin_button_pressed(self, event):

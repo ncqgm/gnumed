@@ -77,7 +77,7 @@ def print_generic_document(parent=None, jobtype:str=None, episode=None):
 
 		does.
 	"""
-	sandbox = os.path.join(gmTools.gmPaths().user_config_dir, 'libreoffice')
+	sandbox = os.path.join(gmTools.gmPaths().user_tmp_dir, 'libreoffice')
 	gmTools.mkdir(sandbox)
 	fpath = gmTools.get_unique_filename(suffix = '.txt', tmp_dir = sandbox)
 	doc_file = open(fpath, mode = 'wt')

@@ -110,6 +110,9 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 	def update_data(self, data=None):
 		assert (data is not None), '<data> must not be <None>'
 
+		if self.is_DIRENTRY or self.is_document_part:
+			return False
+
 		SQL = """
 			UPDATE clin.export_item SET
 				data = %(data)s::bytea,
@@ -122,7 +125,15 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		return True
 
 	#--------------------------------------------------------
-	def update_data_from_file(self, filename=None):
+	def update_data_from_file(self, filename=None, convert_document_part=False):
+
+		if self.is_DIRENTRY:
+			return False
+
+		if self.is_document_part:
+			if not convert_document_part:
+				return False
+
 		# sanity check
 		if not (os.access(filename, os.R_OK) and os.path.isfile(filename)):
 			_log.error('[%s] is not a readable file' % filename)
@@ -153,7 +164,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			convert2pdf: Convert file(s) to PDF on the way out. Before encryption, that is.
 
 		Returns:
-			Directory for DIRENTRIES, or filename.
+			Directory for DIRENTRIES, or filename, or None on failure.
 		"""
 		if self.is_DIRENTRY and convert2pdf:
 			# cannot convert dir entries to PDF
@@ -258,44 +269,49 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 	# helpers
 	#--------------------------------------------------------
 	def __save_normal_item(self, filename:str=None, directory:str=None, passphrase:str=None, convert2pdf:bool=False) -> str:
-		if filename is None:
-			filename = self.get_useful_filename(directory = directory)
+		_SQL = 'SELECT substring(data FROM %(start)s FOR %(size)s) FROM clin.export_item WHERE pk = %(pk)s'
+		tmp_fname = gmTools.get_unique_filename()
 		success = gmPG2.bytea2file (
-			data_query = {
-				'cmd': 'SELECT substring(data from %(start)s for %(size)s) FROM clin.export_item WHERE pk = %(pk)s',
-				'args': {'pk': self.pk_obj}
-			},
-			filename = filename,
+			data_query = {'cmd': _SQL, 'args': {'pk': self.pk_obj}},
+			filename = tmp_fname,
 			data_size = self._payload[self._idx['size']]
 		)
 		if not success:
 			return None
 
-		if filename.endswith('.dat'):
-			filename = gmMimeLib.adjust_extension_by_mimetype(filename)
+		tmp_fname = gmMimeLib.adjust_extension_by_mimetype(tmp_fname)
+		if convert2pdf:
+			tmp_fname = gmMimeLib.convert_file(filename = tmp_fname, target_mime = 'application/pdf', target_extension = '.pdf')
+		if filename is None:
+			target_fname = self.get_useful_filename(directory = directory)
+		else:
+			target_fname = filename
 		if passphrase is None:
-			if not convert2pdf:
-				return filename
+			if not gmTools.rename_file(tmp_fname, target_fname, overwrite = True, allow_symlink = True):
+				return None
 
-			return gmMimeLib.convert_file(filename = filename, target_mime = 'application/pdf', target_extension = '.pdf')
+			if filename is None:
+				return gmMimeLib.adjust_extension_by_mimetype(target_fname)
 
-		enc_filename = gmCrypto.encrypt_file (
-			filename = filename,
+			return target_filename
+
+		enc_fname = gmCrypto.encrypt_file (
+			filename = tmp_fname,
 			passphrase = passphrase,
 			verbose = _cfg.get(option = 'debug'),
 			remove_unencrypted = True,
-			convert2pdf = convert2pdf
+			convert2pdf = False	# already done, if desired
 		)
-		removed = gmTools.remove_file(filename)
-		if enc_filename is None:
+		removed = gmTools.remove_file(tmp_fname)
+		if enc_fname is None:
 			_log.error('cannot encrypt or, possibly, convert')
 			return None
 
 		if removed:
-			return enc_filename
+			return enc_fname
 
 		_log.error('cannot remove unencrypted file')
-		gmTools.remove(enc_filename)
+		gmTools.remove(enc_fname)
 		return None
 
 	#--------------------------------------------------------
@@ -320,14 +336,17 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			)
 		path, name = os.path.split(filename)
 		filename = os.path.join(path, '%s-%s' % (self._payload[self._idx['list_position']], name))
-		target_mime = 'application/pdf' if convert2pdf else None
-		target_ext = '.pdf' if convert2pdf else None
+		if convert2pdf:
+			target_mime = 'application/pdf'
+			target_ext = '.pdf'
+		else:
+			target_mime = None
+			target_ext = None
 		part_fname = part.save_to_file (
 			filename = filename,
 			target_mime = target_mime,
 			target_extension = target_ext,
-			ignore_conversion_problems = False,
-			adjust_extension = True
+			ignore_conversion_problems = False
 		)
 		if part_fname is None:
 			_log.error('cannot save document part to file')
@@ -342,7 +361,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			verbose = _cfg.get(option = 'debug'),
 			remove_unencrypted = True
 		)
-		removed = gmTools.remove_file(filename)
+		removed = gmTools.remove_file(part_fname)
 		if enc_filename is None:
 			_log.error('cannot encrypt')
 			return False
@@ -408,6 +427,12 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	# properties
+	#--------------------------------------------------------
+	def _get_is_doc_part(self):
+		return self._payload[self._idx['pk_doc_obj']] is not None
+
+	is_document_part = property(_get_is_doc_part)
+
 	#--------------------------------------------------------
 	def _get_doc_part(self):
 		if self._payload[self._idx['pk_doc_obj']] is None:
@@ -964,7 +989,7 @@ class cExportArea(object):
 		# - export mugshot
 		mugshot = pat.document_folder.latest_mugshot
 		if mugshot is not None:
-			mugshot_fname = mugshot.save_to_file(directory = doc_dir, adjust_extension = True)
+			mugshot_fname = mugshot.save_to_file(directory = doc_dir)
 			fname = os.path.split(mugshot_fname)[1]
 			html_data['mugshot_url'] = os.path.join(DOCUMENTS_SUBDIR, fname)
 			html_data['mugshot_alt'] =_('patient photograph from %s') % gmDateTime.pydt_strftime(mugshot['date_generated'], '%B %Y')
