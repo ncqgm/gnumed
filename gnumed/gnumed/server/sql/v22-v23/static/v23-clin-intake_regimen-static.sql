@@ -9,11 +9,19 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-alter table clin.substance_intake
-	add column fk_drug integer;
-
-alter table audit.log_substance_intake
-	add column fk_drug integer;
+create table clin.intake_regimen (
+	pk integer generated always as identity primary key,
+	fk_substance_intake
+		integer,
+	comment_on_start
+		gm.nonempty_text,
+	discontinued
+		timestamp with time zone,
+	discontinue_reason
+		gm.nonempty_text,
+	planned_duration
+		interval
+) inherits (clin.clin_root_item);
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v23-clin-substance_intake-static.sql', '23.0');
+select gm.log_script_insertion('v23-clin-intake_regimen-static.sql', '23.0');

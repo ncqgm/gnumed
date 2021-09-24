@@ -32,6 +32,7 @@ select * from (
 			'clin.test_result',
 			'clin.procedure',
 			'clin.substance_intake',
+			'clin.intake_regimen',
 			'clin.family_history'
 		)
 

@@ -9,11 +9,18 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-alter table clin.substance_intake
-	add column fk_drug integer;
+drop domain if exists gm.nonempty_text restrict;
 
-alter table audit.log_substance_intake
-	add column fk_drug integer;
+create domain gm.nonempty_text as text
+	-- a subsequent column default overrides this domain/type default
+	default NULL
+	constraint chk__verify_nonempty_text check (
+		-- do not concern ourselves with NULLness, leave that to SET (NOT) NULL
+		(VALUE IS NULL)
+			or
+		trim(VALUE) != ''
+	)
+;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v23-clin-substance_intake-static.sql', '23.0');
+select gm.log_script_insertion('v23-gm-nonempty_text-domain.sql', '23.0');

@@ -9,11 +9,7 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-alter table clin.substance_intake
-	add column fk_drug integer;
-
-alter table audit.log_substance_intake
-	add column fk_drug integer;
+drop table if exists clin.lnk_substance2episode cascade;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v23-clin-substance_intake-static.sql', '23.0');
+select gm.log_script_insertion('v23-clin-lnk_substance2episode-dynamic.sql', '23.0');
