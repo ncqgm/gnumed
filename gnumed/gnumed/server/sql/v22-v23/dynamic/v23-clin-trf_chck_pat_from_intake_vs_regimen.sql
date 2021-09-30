@@ -11,7 +11,7 @@
 set check_function_bodies to on;
 
 -- --------------------------------------------------------------
--- clin.substance_intake vs clin.intake_regimen
+-- clin.intake vs clin.intake_regimen
 drop function if exists clin.trf_chck_pat_from_intake_vs_regimen() cascade;
 
 
@@ -33,8 +33,8 @@ begin
 	-- patient of this intake regimen
 	SELECT fk_patient INTO _identity_from_regimen FROM clin.encounter where pk = NEW.fk_encounter;
 	-- patient of linked substance intake
-	SELECT fk_patient INTO _identity_from_intake  FROM clin.encounter where pk = (
-		select fk_encounter from clin.substance_intake where pk = NEW.fk_substance_intake
+	SELECT fk_patient INTO _identity_from_intake FROM clin.encounter where pk = (
+		select fk_encounter from clin.intake where pk = NEW.fk_intake
 	);
 
 	IF _identity_from_regimen = _identity_from_intake THEN
@@ -47,7 +47,7 @@ begin
 			TG_TABLE_NAME,
 			NEW.pk,
 			_identity_from_regimen,
-			NEW.fk_substance_intake,
+			NEW.fk_intake,
 			_identity_from_intake
 		USING ERRCODE = ''assert_failure''
 	;

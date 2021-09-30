@@ -21,19 +21,19 @@ alter table clin.intake_regimen
 		set default NULL;
 
 -- --------------------------------------------------------------
--- .fk_substance_intake
-comment on column clin.intake_regimen.fk_substance_intake is 'The intake this regimen applies to. Only one regimen per patient must be ongoing at any one time.';
+-- .fk_intake
+comment on column clin.intake_regimen.fk_intake is 'The intake this regimen applies to. Only one regimen per patient must be ongoing at any one time.';
 
 alter table clin.intake_regimen
-	alter column fk_substance_intake
+	alter column fk_intake
 		set not NULL;
 
 drop index if exists clin.idx_uniq_open_regimen_per_intake cascade;
-create unique index idx_uniq_open_regimen_per_intake on clin.intake_regimen(fk_substance_intake, discontinued) where (discontinued is not null);
+create unique index idx_uniq_open_regimen_per_intake on clin.intake_regimen(fk_intake, discontinued) where (discontinued is not null);
 
 -- --------------------------------------------------------------
 -- schedule: .narrative
-comment on column clin.intake_regimen.narrative is 'The schedule, if any, the substance is to be taken by. An XML snippet to be interpreted by the middleware.';
+comment on column clin.intake_regimen.narrative is 'The schedule, if any, the substance is to be taken by. Can be a snippet from a controlled vocabulary to be interpreted by the middleware.';
 
 alter table clin.intake_regimen
 	drop constraint if exists clin_intake_regimen_sane_schedule cascade;
@@ -79,7 +79,7 @@ alter table clin.intake_regimen
 
 alter table clin.intake_regimen
 	add constraint clin_intake_regimen_distinct_period exclude using GIST (
-		fk_substance_intake with =,
+		fk_intake with =,
 		(tstzrange(clin_when, discontinued, '()')) with &&
 	);
 
@@ -110,7 +110,7 @@ grant usage on ref.substance_pk_seq to "gm-doctors" ;
 -- --------------------------------------------------------------
 -- transfer data
 insert into clin.intake_regimen (
-	fk_substance_intake,
+	fk_intake,
 	fk_encounter,
 	fk_episode,
 	clin_when,
@@ -121,24 +121,25 @@ insert into clin.intake_regimen (
 	narrative
 )
 	select
-		c_si.pk,
-		c_si.fk_encounter,
-		c_si.fk_episode,
-		c_si.clin_when,
+		c_i.pk,
+		c_i.fk_encounter,
+		c_i.fk_episode,
+		c_i.clin_when,
 		c_si.comment_on_start,
 		c_si.discontinued,
 		c_si.discontinue_reason,
 		c_si.duration,
 		c_si.schedule
 	from
-		clin.substance_intake c_si
+		clin.intake c_i
+			inner join clin.substance_intake c_si on (c_si.pk = c_i._fk_s_i)
 	where not exists (
-		select 1 from clin.intake_regimen where fk_substance_intake = c_si.pk
+		select 1 from clin.intake_regimen where fk_intake = c_i.pk
 	)
 ;
 
 -- --------------------------------------------------------------
--- add clin.intake_regiment_journal
+-- add clin.intake_regimen_journal
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v23-clin-intake_regimen-dynamic.sql', '23.0');

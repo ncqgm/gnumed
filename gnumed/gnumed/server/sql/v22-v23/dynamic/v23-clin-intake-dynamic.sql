@@ -8,29 +8,59 @@
 \set ON_ERROR_STOP 1
 --set default_transaction_read_only to off;
 
-set check_function_bodies to on;
+-- --------------------------------------------------------------
+comment on table clin.intake is 'List of consumables a patient is/was taking.';
+
+select audit.register_table_for_auditing('clin', 'intake');
+select gm.register_notifying_table('clin', 'intake');
 
 -- --------------------------------------------------------------
-drop function if exists clin.trf_ins_intake_prevent_duplicate_component_links() cascade;
-drop function if exists clin.trf_insert_intake_links_all_drug_components() cascade;
+-- .clin_when
+comment on column clin.intake.clin_when is
+	'When was this intake started.';
 
-drop function if exists clin.trf_upd_intake_prevent_duplicate_component_links() cascade;
-drop function if exists clin.trf_upd_intake_updates_all_drug_components() cascade;
-drop function if exists clin.trf_upd_intake_must_link_all_drug_components() cascade;
+-- --------------------------------------------------------------
+-- .fk_encounter
+comment on column clin.intake.fk_encounter is
+	'The encounter under which this intake was documented.';
 
-drop function if exists clin.trf_del_intake_must_unlink_all_drug_components() cascade;
-drop function if exists clin.trf_DEL_intake_document_deleted() cascade;
+-- --------------------------------------------------------------
+-- .fk_episode
+comment on column clin.intake.fk_encounter is
+	'The episode under which this intake was documented.';
+
+-- --------------------------------------------------------------
+-- .narrative
+comment on column clin.intake.narrative is
+	'Clinical notes on this intake';
+
+-- --------------------------------------------------------------
+-- .soap_cat
+
+-- --------------------------------------------------------------
+-- .use_type
+comment on column clin.intake.use_type is
+	'
+<NULL>: medication, intended use,
+0: not used or non-harmful use,
+1: presently harmful use,
+2: presently addicted,
+3: previously addicted';
 
 -- --------------------------------------------------------------
 -- .fk_drug
-comment on column clin.substance_intake.fk_drug is
-	'Drug product being taken by patient.';
+comment on column clin.intake.fk_drug is
+	'Drug product/entity being taken by patient.';
 
-alter table clin.substance_intake
+alter table clin.intake
 	add foreign key (fk_drug)
 		references ref.drug_product(pk)
 		on delete restrict
 		on update cascade;
+
+alter table clin.intake
+	alter column fk_drug
+		set not null;
 
 -- --------------------------------------------------------------
 -- make (patient, fk_drug) unique
@@ -113,56 +143,59 @@ comment on function clin.map_enc_or_epi_to_patient(IN _enc integer, IN _epi INTE
 --selec 1;
 
 drop index if exists clin.idx_clin_subst_intake_uniq_drug_per_pat cascade;
-create index idx_clin_subst_intake_uniq_drug_per_pat on clin.substance_intake (fk_drug, clin.map_enc_or_epi_to_patient(fk_encounter, fk_episode));
+create index idx_clin_subst_intake_uniq_drug_per_pat on clin.intake (fk_drug, clin.map_enc_or_epi_to_patient(fk_encounter, fk_episode));
 
 -- --------------------------------------------------------------
--- fill in .fk_drug from .fk_substance
-drop function if exists staging._fill__fk_drug__from__fk_substance() cascade;
+-- fill in from clin.substance_intake
+drop function if exists staging._fill__intake__from__substance_intake() cascade;
 
-create function staging._fill__fk_drug__from__fk_substance()
+create function staging._fill__intake__from__substance_intake()
 	returns void
 	language 'plpgsql'
 	as '
 DECLARE
 	_intake clin.v_substance_intakes%rowtype;
 	_narratives TEXT;
-	_aims TEXT;
 BEGIN
 	-- loop over intakes:
 	-- for multi-component drugs only one intake will be updated,
 	-- the other ones are deleted later on
-	FOR _intake IN SELECT DISTINCT ON (pk_drug_product) * FROM clin.v_substance_intakes LOOP
+	FOR _intake IN SELECT DISTINCT ON (pk_patient, pk_drug_product) * FROM clin.v_substance_intakes LOOP
 		SELECT
-			NULLIF(string_agg(coalesce(notes, ''''), ''//''), ''''),
-			NULLIF(string_agg(coalesce(aim, ''''), ''//''), '''')
-			into _narratives, _aims
+			NULLIF (
+				string_agg(coalesce(notes, ''''), ''//'')
+				|| ''||||''
+				|| string_agg(coalesce(aim, ''''), ''//''),
+				''||||''
+			)
+			into _narratives
 			-- .fk_episode cannot be concatenated
 		FROM clin.v_substance_intakes
 		WHERE pk_drug_product = _intake.pk_drug_product;
 
-		UPDATE clin.substance_intake SET
-			fk_drug = _intake.pk_drug_product,
-			narrative = _narratives,
-			aim = _aims
-		WHERE
-			pk = _intake.pk_substance_intake;
+		INSERT INTO clin.intake (
+			fk_encounter,
+			fk_episode,
+			clin_when,
+			narrative,
+			use_type,
+			fk_drug,
+			_fk_s_i
+		) VALUES (
+			_intake.pk_encounter,
+			_intake.pk_episode,
+			coalesce(_intake.started, now()),
+			_narratives,
+			_intake.harmful_use_type,
+			_intake.pk_drug_product,
+			_intake.pk_substance_intake
+		);
 	END LOOP;
-	-- remove rows for "other" substances of multi-component drugs
-	DELETE FROM clin.substance_intake WHERE fk_drug IS NULL;
 END;';
 
-select staging._fill__fk_drug__from__fk_substance();
+select staging._fill__intake__from__substance_intake();
 
-drop function staging._fill__fk_drug__from__fk_substance() cascade;
-
--- --------------------------------------------------------------
-alter table clin.substance_intake
-	alter column fk_drug
-		set not null;
+drop function staging._fill__intake__from__substance_intake() cascade;
 
 -- --------------------------------------------------------------
-alter table clin.substance_intake
-	drop column if exists fk_drug_component cascade;
-
--- --------------------------------------------------------------
-select gm.log_script_insertion('v23-clin-substance_intake-dynamic_1.sql', '23.0');
+select gm.log_script_insertion('v23-clin-intake-dynamic.sql', '23.0');

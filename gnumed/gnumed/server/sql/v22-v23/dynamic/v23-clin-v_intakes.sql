@@ -12,17 +12,20 @@
 -- recreate views
 drop view if exists clin.v_substance_intakes cascade;
 
-create view clin.v_substance_intakes as
+
+drop view if exists clin.v_intakes cascade;
+
+create view clin.v_intakes as
 select
 	-- coalesced view
-	c_si.pk
-		as pk_substance_intake,
+	c_i.pk
+		as pk_intake,
 	c_ir.pk
 		as pk_intake_regimen,
-	coalesce(c_enc_ir.fk_patient, c_enc_si.fk_patient)
+	coalesce(c_enc_ir.fk_patient, c_enc_i.fk_patient)
 		as pk_patient,
 
-	c_si.soap_cat,
+	c_i.soap_cat,
 	r_dp.description
 		as product,
 	r_dp.preparation,
@@ -35,7 +38,7 @@ select
 	r_d.dose_unit,
 	case
 		when c_ir.comment_on_start = '?' then null
-		else coalesce(c_ir.clin_when, c_si.clin_when)
+		else coalesce(c_ir.clin_when, c_i.clin_when)
 	end::timestamp with time zone
 		as started,
 	c_ir.comment_on_start,
@@ -45,14 +48,14 @@ select
 	c_ir.discontinued,
 	c_ir.discontinue_reason,
 
-	c_si.aim,
-	c_si.narrative
+--	c_i.aim,
+	c_i.narrative
 		as notes,
 	r_s.intake_instructions,
-	c_si.harmful_use_type,
-	coalesce(c_epi_ir.description, c_epi_si.description)
+--	c_i.harmful_use_type,
+	coalesce(c_epi_ir.description, c_epi_i.description)
 		as episode,
-	coalesce(c_hi_ir.description, c_hi_si.description)
+	coalesce(c_hi_ir.description, c_hi_i.description)
 		as health_issue,
 
 	r_s.atc
@@ -90,56 +93,56 @@ select
 		as pk_substance,
 
 	-- denormalized
-	c_si.fk_encounter
+	c_i.fk_encounter
 		as pk_encounter__intake,
 	c_ir.fk_encounter
 		as pk_encounter__regimen,
 
-	c_si.fk_episode
+	c_i.fk_episode
 		as pk_episode__intake,
 	c_ir.fk_episode
 		as pk_episode__regimen,
 
-	c_epi_si.fk_health_issue
+	c_epi_i.fk_health_issue
 		as pk_health_issue__intake,
 	c_epi_ir.fk_health_issue
 		as pk_health_issue__regimen,
 
-	c_si.clin_when
+	c_i.clin_when
 		as clin_when__intake,
 	c_ir.clin_when
 		as clin_when__regimen,
 
-	c_si.modified_when,
-	c_si.modified_by
+	c_i.modified_when,
+	c_i.modified_by
 		as modified_by,
-	c_si.row_version
+	c_i.row_version
 		as row_version,
-	c_si.xmin
-		as xmin_substance_intake
+	c_i.xmin
+		as xmin_intake
 from
-	clin.substance_intake c_si
+	clin.intake c_i
 		-- pull in encounter/episode/issue details for intake
-		left join clin.encounter c_enc_si on (c_si.fk_encounter = c_enc_si.pk)
-		left join clin.episode c_epi_si on (c_si.fk_episode = c_epi_si.pk)
-			left join clin.health_issue c_hi_si on (c_hi_si.pk = c_epi_si.fk_health_issue)
+		left join clin.encounter c_enc_i on (c_i.fk_encounter = c_enc_i.pk)
+		left join clin.episode c_epi_i on (c_i.fk_episode = c_epi_i.pk)
+			left join clin.health_issue c_hi_i on (c_hi_i.pk = c_epi_i.fk_health_issue)
 		-- pull in regimen
-		left join clin.intake_regimen c_ir on (c_ir.fk_substance_intake = c_si.pk)
+		left join clin.intake_regimen c_ir on (c_ir.fk_intake = c_i.pk)
 			-- pull in encounter/episode/issue details for regimen
 			left join clin.encounter c_enc_ir on (c_ir.fk_encounter = c_enc_ir.pk)
 			left join clin.episode c_epi_ir on (c_ir.fk_episode = c_epi_ir.pk)
 				left join clin.health_issue c_hi_ir on (c_hi_ir.pk = c_epi_ir.fk_health_issue)
 		-- pull in substance details, generating one row per substance
-		inner join ref.drug_product r_dp on (c_si.fk_drug = r_dp.pk)
+		inner join ref.drug_product r_dp on (c_i.fk_drug = r_dp.pk)
 			inner join ref.lnk_dose2drug r_ld2d on (r_ld2d.fk_drug_product = r_dp.pk)
 				inner join ref.dose r_d on (r_d.pk = r_ld2d.fk_dose)
 					inner join ref.substance r_s on (r_s.pk = r_d.fk_substance)
 ;
 
-comment on view clin.v_substance_intakes is
+comment on view clin.v_intakes is
 	'Which substances the patient is/has ever been taking.';
 
-grant select on clin.v_substance_intakes to group "gm-doctors";
+grant select on clin.v_intakes to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v23-clin-v_substance_intakes.sql', '23.0');
+select gm.log_script_insertion('v23-clin-v_intakes.sql', '23.0');
