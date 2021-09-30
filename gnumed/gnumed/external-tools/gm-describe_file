@@ -17,7 +17,8 @@ echo "" >> "${DESCRIPTION_FILE}"
 # exiftool
 BIN=`which exiftool`
 if [ "x${BIN}x" != "xx" ]; then
-	exiftool -g1 -ee -m -u "${FILE_2_DESCRIBE}" >> "${DESCRIPTION_FILE}" 2>> "${DESCRIPTION_FILE}"
+	#exiftool -g1 -ee -m -u "${FILE_2_DESCRIBE}" >> "${DESCRIPTION_FILE}" 2>> "${DESCRIPTION_FILE}"
+	exiftool -g1 -ee3 -m -U -api RequestAll=3 -api LargeFileSupport "${FILE_2_DESCRIBE}" >> "${DESCRIPTION_FILE}" 2>> "${DESCRIPTION_FILE}"
 	echo "" >> "${DESCRIPTION_FILE}"
 fi
 
