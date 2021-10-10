@@ -48,11 +48,12 @@ select
 	c_ir.discontinued,
 	c_ir.discontinue_reason,
 
---	c_i.aim,
 	c_i.narrative
 		as notes,
+	c_i.notes4patient,
+	c_i.notes4provider,
 	r_s.intake_instructions,
---	c_i.harmful_use_type,
+	c_i.use_type,
 	coalesce(c_epi_ir.description, c_epi_i.description)
 		as episode,
 	coalesce(c_hi_ir.description, c_hi_i.description)

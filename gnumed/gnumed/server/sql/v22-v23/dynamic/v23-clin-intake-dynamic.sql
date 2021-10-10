@@ -32,7 +32,7 @@ comment on column clin.intake.fk_encounter is
 -- --------------------------------------------------------------
 -- .narrative
 comment on column clin.intake.narrative is
-	'Clinical notes on this intake';
+	'Clinical notes (praxis-internal, intra-documentation) on this intake.';
 
 -- --------------------------------------------------------------
 -- .soap_cat
@@ -61,6 +61,21 @@ alter table clin.intake
 alter table clin.intake
 	alter column fk_drug
 		set not null;
+
+-- --------------------------------------------------------------
+-- ._fk_s_i
+comment on column clin.intake._fk_s_i is
+	'temporary column pointing to clin.substance_intake.pk this clin.intake row came from during conversion, used to associate a clin.intake_regimen';
+
+-- --------------------------------------------------------------
+-- .notes4patient
+comment on column clin.intake.notes4patient is
+	'Comments on this intake (instructions, caveats, treatment goal, etc) intended for the patient, say, via a medication plan.';
+
+-- --------------------------------------------------------------
+-- .notes4provider
+comment on column clin.intake.notes4provider is
+	'Comments ("technical notes") on this intake (indication, caveats, reason for choice, etc) intended for other healthcare providers.';
 
 -- --------------------------------------------------------------
 -- make (patient, fk_drug) unique
@@ -156,19 +171,22 @@ create function staging._fill__intake__from__substance_intake()
 DECLARE
 	_intake clin.v_substance_intakes%rowtype;
 	_narratives TEXT;
+	_aims TEXT;
 BEGIN
 	-- loop over intakes:
-	-- for multi-component drugs only one intake will be updated,
+	-- for multi-component drugs only one intake will be retained,
 	-- the other ones are deleted later on
 	FOR _intake IN SELECT DISTINCT ON (pk_patient, pk_drug_product) * FROM clin.v_substance_intakes LOOP
 		SELECT
 			NULLIF (
-				string_agg(coalesce(notes, ''''), ''//'')
-				|| ''||||''
-				|| string_agg(coalesce(aim, ''''), ''//''),
-				''||||''
+				TRIM(BOTH ''/'' FROM string_agg(coalesce(notes, ''''), ''//'')),
+				''''
+			),
+			NULLIF (
+				TRIM(BOTH ''/'' FROM string_agg(coalesce(aim, ''''), ''//'')),
+				''''
 			)
-			into _narratives
+			INTO _narratives, _aims
 			-- .fk_episode cannot be concatenated
 		FROM clin.v_substance_intakes
 		WHERE pk_drug_product = _intake.pk_drug_product;
@@ -178,6 +196,7 @@ BEGIN
 			fk_episode,
 			clin_when,
 			narrative,
+			notes4patient,
 			use_type,
 			fk_drug,
 			_fk_s_i
@@ -186,6 +205,7 @@ BEGIN
 			_intake.pk_episode,
 			coalesce(_intake.started, now()),
 			_narratives,
+			_aims,
 			_intake.harmful_use_type,
 			_intake.pk_drug_product,
 			_intake.pk_substance_intake

@@ -16,6 +16,10 @@ create table clin.intake (
 		integer,
 	fk_drug
 		integer,
+	notes4patient
+		gm.nonempty_text,
+	notes4provider
+		gm.nonempty_text,
 	_fk_s_i
 		integer
 ) inherits (clin.clin_root_item);
