@@ -12,10 +12,10 @@ set check_function_bodies to on;
 
 -- --------------------------------------------------------------
 -- clin.intake vs clin.intake_regimen
-drop function if exists clin.trf_chck_pat_from_intake_vs_regimen() cascade;
+drop function if exists clin.trf_check_pat_from_intake_vs_regimen() cascade;
 
 
-create or replace function clin.trf_chck_pat_from_intake_vs_regimen()
+create or replace function clin.trf_check_pat_from_intake_vs_regimen()
 	returns trigger
 	language plpgsql
 	as '
@@ -55,11 +55,11 @@ begin
 end;';
 
 
-create trigger tr_chck_pat_from_intake_vs_regimen
+create trigger tr_check_pat_from_intake_vs_regimen
 	before insert or update
 	on clin.intake_regimen
 	for each row
-		execute procedure clin.trf_chck_pat_from_intake_vs_regimen();
+		execute procedure clin.trf_check_pat_from_intake_vs_regimen();
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v23-clin-trf_chck_pat_from_intake_vs_regimen.sql', '23.0');
+select gm.log_script_insertion('v23-clin-trf_check_pat_from_intake_vs_regimen.sql', '23.0');
