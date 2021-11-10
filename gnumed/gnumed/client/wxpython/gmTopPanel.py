@@ -211,8 +211,8 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 
 		HRs = self.curr_pat.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_heart_rate_quantity, max_no_of_results = 1)
 		if len(HRs) > 0:
-			tests2show.append('@ %s' % (HRs[0]['abbrev_tt'], HRs[0]['unified_val']))
-			tooltip_lines.append(_('%s (@): %s ago') % (
+			tests2show.append('@ %s' % HRs[0]['unified_val'])
+			tooltip_lines.append(_('%s (@) in bpm: %s ago') % (
 				HRs[0]['abbrev_tt'],
 				gmDateTime.format_apparent_age_medically (
 					age = gmDateTime.calculate_apparent_age(start = HRs[0]['clin_when'])
