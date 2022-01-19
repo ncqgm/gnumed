@@ -10,6 +10,7 @@
 
 FIX: export area: dumping encrypted/PDFed image to disk
 FIX: top panel: heart rate display
+FIX: paperwork: recalls list LaTeX template
 
 	1.8.6
 
