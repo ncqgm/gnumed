@@ -19,7 +19,7 @@ def run(conn=None):
 		query = u"""
 			UPDATE ref.paperwork_templates SET
 				data = %(data)s::bytea,
-				external_version = '18.0'
+				external_version = '22.17'
 			WHERE
 				name_long = 'Upcoming Recalls (GNUmed default)'""",
 		filename = os.path.join('..', 'sql', 'v21-v22', 'data', 'v22-GNUmed-default_recalls_template.tex'),
