@@ -27,6 +27,8 @@ NEXT_VER="$2"
 SKIP_BACKUP="$3"
 QUIET="$3"
 LOG_BASE="."
+FIXUP_LOG="${LOG_BASE}/fixup_db-v${PREV_VER}.log"
+FIXUP_CONF="fixup_db-v${PREV_VER}.conf"
 LOG="${LOG_BASE}/update_db-v${PREV_VER}_v${NEXT_VER}.log"
 CONF="update_db-v${PREV_VER}_v${NEXT_VER}.conf"
 TS=$(date +%Y-%m-%d-%H-%M-%S)
@@ -239,9 +241,21 @@ else
 fi ;
 
 
+# apply fixups to existing database
+echo_msg ""
+echo_msg "2) applying fixes to existing database"
+./bootstrap_gm_db_system.py --log-file=${FIXUP_LOG} --conf-file=${FIXUP_CONF} --${QUIET}
+if test "$?" != "0" ; then
+	echo "Fixing \"gnumed_v${PREV_VER}\" did not finish successfully."
+	read
+	exit 1
+fi
+
+
+
 # eventually attempt the upgrade
 echo_msg ""
-echo_msg "2) upgrading to new database ..."
+echo_msg "3) upgrading to new database ..."
 # fixup for schema hash function
 # - cannot be done inside bootstrapper
 # - only needed for converting anything below v6 with a v6 bootstrapper
@@ -256,7 +270,7 @@ fi
 
 
 #echo_msg ""
-#echo_msg "3) preparing new database for efficient use ..."
+#echo_msg "4) preparing new database for efficient use ..."
 #echo_msg "   If the database is large this may take quite a while!"
 #echo_msg "   You may need to type in the password for gm-dbo."
 #vacuumdb --full --analyze ${PORT_DEF} --username=gm-dbo --dbname=gnumed_v${NEXT_VER}

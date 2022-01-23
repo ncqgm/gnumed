@@ -2536,7 +2536,9 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 		E'\\\\2'						-- replacement
 	) AS foofoo
 ) AS foo"""
-		rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		cmd = u"SELECT 'infinity'::timestamp with time zone"
+		rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		print(idx)
 		print(rows)
 		print(rows[0])
 		print(rows[0][0])
@@ -2681,10 +2683,10 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_get_index_name()
 	#test_set_user_language()
 	#test_get_schema_revision_history()
-	#test_run_query()
+	test_run_query()
 	#test_schema_exists()
 	#test_get_foreign_key_names()
-	test_row_locks()
+	#test_row_locks()
 	#test_faulty_SQL()
 	#test_log_settings()
 	#test_get_db_fingerprint()

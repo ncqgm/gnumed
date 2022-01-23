@@ -1,0 +1,74 @@
+%------------------------------------------------------------------
+% Author: Karsten Hilbert
+% License: GPL v2 or later
+%------------------------------------------------------------------
+
+\documentclass[english]{article}
+\usepackage[T1]{fontenc}
+\usepackage[cjkjis,graphics]{ucs}
+\usepackage[utf8x]{inputenc}
+\usepackage{longtable}
+\usepackage{tabu}
+\usepackage{graphicx}
+\usepackage[space]{grffile}
+\usepackage[a4paper]{geometry}
+\usepackage{hyperref}
+
+%\geometry{verbose,lmargin=2.54cm}
+\geometry{verbose,lmargin=1cm}
+\pagestyle{empty}
+\setlength{\parskip}{\medskipamount}
+\setlength{\parindent}{0pt}
+
+\makeatletter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
+%% Because html converters don't know tabularnewline
+\providecommand{\tabularnewline}{\\}
+
+\makeatother
+
+\usepackage{babel}
+
+\begin{document}
+
+\footnotetext {\tiny \href{http://www.gnumed.org}{GNUmed} $<client_version::::>$ -- \href{http://www.gnumed.org}{www.gnumed.org}}
+\footnotetext {\tiny Template: $<form_name_long::::60>$ v$<form_version::::20>$}
+
+
+\noindent \begin{center}
+{\large Upcoming healthcare events } \\
+{\small $<current_provider::::>$ }
+\par\end{center}
+
+
+\noindent Patient: $<lastname::::>$, $<firstname::::>$ ($<date_of_birth::%Y %B %d::>$)
+
+{\footnotesize
+	$<adr_street::home::>$ $<adr_number::home//%s{}\\::>$
+	$<adr_postcode::home::>$ $<adr_location::home::>$
+}
+
+%\vspace*{\medskipamount}
+
+Your upcoming healthcare events ({\small as of $<today::%Y %B %d::>$}):
+
+\begin{longtabu} to \textwidth {|l|l|X[,L]|}
+\hline 
+Due & Type & \tabularnewline
+\hline
+\hline
+$<reminders::%(due_date)s & {\footnotesize %(l10n_type)s } & %(comment)s \tabularnewline \hline//%Y %b %d::>$
+\end{longtabu}
+
+
+\vfill{}
+
+
+\noindent \begin{flushright}
+%$ <data_snippet::autograph-LMcC//\includegraphics[width=30mm]{%s}//image/png//.png::250> $
+\texttt{\textsl{\footnotesize Practice Stamp / Physician Signature}}
+\par\end{flushright}
+\end{document}
+
+%------------------------------------------------------------------
