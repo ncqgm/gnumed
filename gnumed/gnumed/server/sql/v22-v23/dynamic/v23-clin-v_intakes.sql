@@ -6,16 +6,64 @@
 --
 -- ==============================================================
 \set ON_ERROR_STOP 1
---set default_transaction_read_only to off;
+set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
 -- recreate views
-drop view if exists clin.v_substance_intakes cascade;
-
-
 drop view if exists clin.v_intakes cascade;
 
 create view clin.v_intakes as
+select
+	c_i.pk
+		as pk_intake,
+	c_enc.fk_patient
+		as pk_patient,
+	c_i.fk_drug
+		as pk_drug,
+	c_i.clin_when
+		as clin_when,
+	c_i.use_type,
+	c_i.soap_cat,
+	coalesce(r_dp.description, c_i.narrative)
+		product,
+	r_dp.preparation,
+	_(r_dp.preparation)
+		as l10n_preparation,
+	c_i.notes4patient,
+	c_i.notes4provider,
+	r_dp.atc_code
+		as atc_drug,
+	r_dp.external_code
+		as external_code_product,
+	r_dp.external_code_type
+		as external_code_type_product,
+	r_dp.is_fake
+		as is_fake_product,
+	c_i.fk_encounter
+		as pk_encounter,
+	c_i.fk_episode
+		as pk_episode,
+	c_epi.fk_health_issue
+		as pk_health_issue,
+	c_i.modified_when,
+	c_i.modified_by
+		as modified_by,
+	c_i.row_version
+		as row_version,
+	c_i.xmin
+		as xmin_intake
+from
+	clin.intake c_i
+		left join clin.encounter c_enc on (c_enc.pk = c_i.fk_encounter)
+		left join clin.episode c_epi on (c_epi.pk = c_i.fk_episode)
+			left join clin.health_issue c_hi on (c_hi.pk = c_epi.fk_health_issue)
+		inner join ref.drug_product r_dp on (c_i.fk_drug = r_dp.pk)
+;
+
+-- --------------------------------------------------------------
+drop view if exists clin.v_substance_intakes cascade;
+
+create view clin.v_substance_intakes as
 select
 	-- coalesced view
 	c_i.pk
@@ -140,10 +188,10 @@ from
 					inner join ref.substance r_s on (r_s.pk = r_d.fk_substance)
 ;
 
-comment on view clin.v_intakes is
+comment on view clin.v_substance_intakes is
 	'Which substances the patient is/has ever been taking.';
 
-grant select on clin.v_intakes to group "gm-doctors";
+grant select on clin.v_substance_intakes to group "gm-doctors";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v23-clin-v_intakes.sql', '23.0');

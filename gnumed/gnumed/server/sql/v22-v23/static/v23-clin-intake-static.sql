@@ -14,11 +14,9 @@ create table clin.intake (
 		integer generated always as identity primary key,
 	use_type
 		integer,
-	fk_drug
+	fk_substance
 		integer,
 	notes4patient
-		gm.nonempty_text,
-	notes4provider
 		gm.nonempty_text,
 	_fk_s_i
 		integer

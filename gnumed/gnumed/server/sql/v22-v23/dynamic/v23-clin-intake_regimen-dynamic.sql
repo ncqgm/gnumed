@@ -8,17 +8,7 @@
 \set ON_ERROR_STOP 1
 --set default_transaction_read_only to off;
 
--- --------------------------------------------------------------
--- started: .clin_when
-comment on column clin.intake_regimen.clin_when is 'When this regimen is started. Can be in the future.';
-
--- --------------------------------------------------------------
--- .comment_on_start
-comment on column clin.intake_regimen.comment_on_start is 'Comment (uncertainty level) on .clin_when = started. "?" = "entirely unknown".';
-
-alter table clin.intake_regimen
-	alter column comment_on_start
-		set default NULL;
+set check_function_bodies to on;
 
 -- --------------------------------------------------------------
 -- .fk_intake
@@ -28,20 +18,79 @@ alter table clin.intake_regimen
 	alter column fk_intake
 		set not NULL;
 
+alter table clin.intake_regimen
+	add foreign key (fk_intake)
+		references clin.intake(pk)
+		on delete restrict
+		on update cascade;
+
 drop index if exists clin.idx_uniq_open_regimen_per_intake cascade;
-create unique index idx_uniq_open_regimen_per_intake on clin.intake_regimen(fk_intake, discontinued) where (discontinued is not null);
+create unique index idx_uniq_open_regimen_per_intake on clin.intake_regimen(fk_intake, discontinued) where (discontinued is null);
 
 -- --------------------------------------------------------------
--- schedule: .narrative
+-- .fk_dose
+comment on column clin.intake_regimen.fk_dose is 'The dose being taken. Must link to a dose with the same fk_substance as the fk_intake this row points to.';
+
+alter table clin.intake_regimen
+	add foreign key (fk_dose)
+		references ref.dose(pk)
+		on delete restrict
+		on update cascade;
+
+-- make unique(.fk_dose, patient):
+-- no, because one given dose may be used in different drugs ...
+
+-- --------------------------------------------------------------
+-- .fk_drug_component
+comment on column clin.intake_regimen.fk_drug_component is 'The drug component being taken. Must come from a drug whose components contain fk_dose.';
+
+alter table clin.intake_regimen
+	add foreign key (fk_drug_component)
+		references ref.lnk_dose2drug(pk)
+		on delete restrict
+		on update cascade;
+
+alter table clin.intake_regimen
+	drop constraint if exists clin_intake_regimen_fk_component_requires_fk_dose;
+
+alter table clin.intake_regimen
+	add constraint clin_intake_regimen_fk_component_requires_fk_dose check (
+		(fk_drug_component is NULL)
+			or
+		(fk_dose IS NOT NULL)
+	);
+
+-- make unique(.fk_drug_component, patient)
+--drop index if exists clin.idx_uniq_drug_per_patient cascade;
+--create unique index idx_uniq_drug_per_patient on clin.intake_regimen(fk_drug_component, xxxxxxxxxxx) where (drug_componenent is not null);
+
+-- --------------------------------------------------------------
+-- .narrative = schedule
 comment on column clin.intake_regimen.narrative is 'The schedule, if any, the substance is to be taken by. Can be a snippet from a controlled vocabulary to be interpreted by the middleware.';
 
 alter table clin.intake_regimen
-	drop constraint if exists clin_intake_regimen_sane_schedule cascade;
+	alter column narrative
+		set default NULL;
 
 alter table clin.intake_regimen
-	add constraint clin_intake_regimen_sane_schedule check (
-		gm.is_null_or_non_empty_string(narrative) is True
-	);
+	alter column narrative
+		set not NULL;
+
+-- --------------------------------------------------------------
+-- .clin_when = started
+comment on column clin.intake_regimen.clin_when is 'When this regimen is started. Can be in the future.';
+
+alter table clin.intake_regimen
+	alter column clin_when
+		set default NULL;
+
+-- --------------------------------------------------------------
+-- .comment_on_start
+comment on column clin.intake_regimen.comment_on_start is 'Comment (uncertainty level) on .clin_when. "?" = "entirely unknown".';
+
+alter table clin.intake_regimen
+	alter column comment_on_start
+		set default NULL;
 
 -- --------------------------------------------------------------
 -- .discontinued
@@ -106,37 +155,6 @@ create trigger tr_undiscontinue_unsets_reason
 
 grant select, insert, update, delete on ref.substance to "gm-doctors";
 grant usage on ref.substance_pk_seq to "gm-doctors" ;
-
--- --------------------------------------------------------------
--- transfer data
-insert into clin.intake_regimen (
-	fk_intake,
-	fk_encounter,
-	fk_episode,
-	clin_when,
-	comment_on_start,
-	discontinued,
-	discontinue_reason,
-	planned_duration,
-	narrative
-)
-	select
-		c_i.pk,
-		c_i.fk_encounter,
-		c_i.fk_episode,
-		c_i.clin_when,
-		c_si.comment_on_start,
-		c_si.discontinued,
-		c_si.discontinue_reason,
-		c_si.duration,
-		c_si.schedule
-	from
-		clin.intake c_i
-			inner join clin.substance_intake c_si on (c_si.pk = c_i._fk_s_i)
-	where not exists (
-		select 1 from clin.intake_regimen where fk_intake = c_i.pk
-	)
-;
 
 -- --------------------------------------------------------------
 -- add clin.intake_regimen_journal

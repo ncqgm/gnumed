@@ -19,13 +19,13 @@ drop function if exists clin.trf_upd_intake_must_link_all_drug_components() casc
 drop function if exists clin.trf_del_intake_must_unlink_all_drug_components() cascade;
 drop function if exists clin.trf_DEL_intake_document_deleted() cascade;
 
--- --------------------------------------------------------------
 drop table if exists clin.substance_intake cascade;
 
 delete from audit.audited_tables where schema = 'clin' and table_name = 'substance_intake';
 delete from gm.notifying_tables where schema_name = 'clin' and table_name = 'substance_intake';
 
 -- --------------------------------------------------------------
+-- clin.intake
 alter table clin.intake
 	drop column if exists
 		_fk_s_i cascade;
@@ -36,4 +36,4 @@ alter table clin.intake
 --view clin._view_emr_journal_without_suppressed_hints depends on view clin.v_emr_journal
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v23-clin-substance_intake-dynamic_1.sql', '23.0');
+select gm.log_script_insertion('v23-clin-substance_intake-dynamic.sql', '23.0');

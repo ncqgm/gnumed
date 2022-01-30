@@ -18,7 +18,7 @@ select
 		as pk_patient,
 	c_ir.soap_cat
 		as soap_cat,
-	coalesce(c_ir.narrative, '')			-- = schedule
+	coalesce(c_ir.narrative, '')
 		|| coalesce(' / ' || c_ir.comment_on_start, '')
 		|| coalesce(' / ' || c_ir.discontinue_reason, '')
 		as narrative,
@@ -35,7 +35,7 @@ select
 from
 	clin.intake_regimen c_ir
 		join clin.encounter c_enc on (c_ir.fk_encounter = c_enc.pk)
-			join clin.episode c_epi on (c_ir.fk_episode = c_epi.pk)
+		join clin.episode c_epi on (c_ir.fk_episode = c_epi.pk)
 ;
 
 grant select on clin.v_intake_regimen4narr_search to group "gm-doctors";
