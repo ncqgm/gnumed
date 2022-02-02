@@ -13,12 +13,13 @@ set check_function_bodies to on;
 
 -- --------------------------------------------------------------
 -- drop old function (and triggers)
-drop function if exists clin.trf_sanity_check_enc_epi_insert() cascade;
+drop function if exists clin.trf_sanity_check_enc_epi_insert() cascade; -- maybe old
+drop function if exists clin.trf_sanity_check_enc_epi_ins_upd() cascade;
 
 -- drop new function and triggers
-drop function if exists clin.trf_chck_pat_from_enc_vs_epi_on_ins_upd() cascade;
+drop function if exists clin.trf_INS_UPD__check_pat_on_enc_vs_epi() cascade;
 
-create or replace function clin.trf_chck_pat_from_enc_vs_epi_on_ins_upd()
+create or replace function clin.trf_INS_UPD__check_pat_on_enc_vs_epi()
 	returns trigger
 	language 'plpgsql'
 	as '
@@ -64,7 +65,7 @@ end;
 ';
 
 
-comment on function clin.trf_chck_pat_from_enc_vs_epi_on_ins_upd() is
+comment on function clin.trf_INS_UPD__check_pat_on_enc_vs_epi() is
 	'This function is used in triggers and checks whether foreign keys to clin.episode.pk and clin.encounter.pk on a single table ultimately point to the same patient.';
 
 -- --------------------------------------------------------------
@@ -160,13 +161,13 @@ BEGIN
 	execute _cmd;
 
 	-- re-create trigger
-	_cmd := ''drop trigger if exists tr_chck_pat_from_enc_vs_epi_on_ins_upd on '' || _qualified_table2check || '' cascade'';
+	_cmd := ''drop trigger if exists tr_INS_UPD__check_pat_on_enc_vs_epi on '' || _qualified_table2check || '' cascade'';
 	execute _cmd;
-	_cmd := ''create trigger tr_chck_pat_from_enc_vs_epi_on_ins_upd '';
+	_cmd := ''create trigger tr_INS_UPD__check_pat_on_enc_vs_epi '';
 	_cmd := _cmd || ''before insert or update '';
 	_cmd := _cmd || ''on '' || _qualified_table2check || '' '';
 	_cmd := _cmd || ''for each row when (NEW.fk_episode is not null) '';
-	_cmd := _cmd || ''execute procedure clin.trf_chck_pat_from_enc_vs_epi_on_ins_upd('''''' || _fk_encounter_col || '''''', '''''' || _fk_episode_col || '''''')'';
+	_cmd := _cmd || ''execute procedure clin.trf_INS_UPD__check_pat_on_enc_vs_epi('''''' || _fk_encounter_col || '''''', '''''' || _fk_episode_col || '''''')'';
 	execute _cmd;
 
 	return True;

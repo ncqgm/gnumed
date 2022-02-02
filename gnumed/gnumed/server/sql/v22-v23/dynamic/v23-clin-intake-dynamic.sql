@@ -58,6 +58,10 @@ alter table clin.intake
 		on delete restrict
 		on update cascade;
 
+alter table clin.intake
+	alter column fk_substance
+		set not NULL;
+
 -- --------------------------------------------------------------
 -- ._fk_s_i
 comment on column clin.intake._fk_s_i is

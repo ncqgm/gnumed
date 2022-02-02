@@ -31,9 +31,4 @@ alter table clin.intake
 		_fk_s_i cascade;
 
 -- --------------------------------------------------------------
---view clin.v_intake_journal depends on column comment_on_start of table clin.substance_intake
---view clin.v_emr_journal depends on view clin.v_intake_journal
---view clin._view_emr_journal_without_suppressed_hints depends on view clin.v_emr_journal
-
--- --------------------------------------------------------------
 select gm.log_script_insertion('v23-clin-substance_intake-dynamic.sql', '23.0');

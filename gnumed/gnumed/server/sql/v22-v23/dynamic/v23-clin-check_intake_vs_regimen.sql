@@ -11,10 +11,80 @@
 set check_function_bodies to on;
 
 -- --------------------------------------------------------------
--- clin.intake vs clin.intake_regimen
-drop function if exists clin.trf_check_subst_on_intake_vs_regimen_dose() cascade;
+-- After UPDATE of clin.intake check that the resulting row
+-- either points to the same substance as before OR any *active*
+-- (.discontinued = NULL) linked (clin.intake_regimen.fk_intake)
+-- row has also been updated accordingly regarding its .fk_dose.
+--
+-- The clin.intake_regimen.fk_dose/.fk_drug_component equivalence
+-- is asserted on that table directly so no need to check here.
+-- --------------------------------------------------------------
+drop function if exists clin.trf_UPD_intake___check_regimen_dose_subst() cascade;
 
-create function clin.trf_check_subst_on_intake_vs_regimen_dose()
+create function clin.trf_UPD_intake___check_regimen_dose_subst()
+	returns trigger
+	language plpgsql
+	as '
+declare
+	_pk_regimen integer;
+	_substance_from_intake integer;
+	_substance_from_regimen_dose integer;
+BEGIN
+	SELECT pk INTO _pk_regimen FROM clin.intake_regimen c_ir
+	WHERE
+		c_ir.fk_intakt = NEW.pk
+			AND
+		c_ir.discontinued IS NULL
+	;
+	IF NOT FOUND THEN
+		-- no regimen found, all is well
+		RETURN NEW;
+	END IF;
+
+	SELECT fk_substance into _substance_from_intake FROM clin.intake WHERE pk = NEW.pk;
+	SELECT fk_substance into _substance_from_regimen_dose FROM ref.dose WHERE
+		pk = (SELECT fk_dose FROM clin.intake_regimen WHERE pk = _pk_regimen)
+	;
+	IF _substance_from_intake = _substance_from_regimen_dose THEN
+		RETURN NEW;
+	END IF;
+
+	RAISE EXCEPTION
+		''[%] % on %.%: Substance mismatch. Intake % substance % / regimen % dose-substance %.'',
+			TG_NAME,
+			TG_OP,
+			TG_TABLE_SCHEMA,
+			TG_TABLE_NAME,
+			NEW.pk,
+			_substance_from_intake,
+			_pk_regimen,
+			_substance_from_regimen_dose
+		USING ERRCODE = ''assert_failure''
+	;
+	RETURN NULL;
+END;';
+
+comment on function clin.trf_UPD_intake___check_regimen_dose_subst() is
+	'If clin.intake.fk_substance is being updated then assert that any dependant *active* clin.intake_regimen rows still point to the same substance.';
+
+
+create constraint trigger tr_UPD_intake___check_regimen_dose_subst
+	after update
+	on clin.intake
+	deferrable initially deferred
+	for each row
+		when (NEW.fk_substance <> OLD.fk_substance)
+		execute procedure clin.trf_UPD_intake___check_regimen_dose_subst();
+
+-- --------------------------------------------------------------
+-- Before INSERT/UPDATE into/of clin.intake_regimen check that
+-- clin.intake_regimen.fk_dose is either NULL or points to
+-- the same substance (.fk_substance) as the corresponding
+-- (clin.intake_regimen.fk_intake) row of clin.intake does.
+-- --------------------------------------------------------------
+drop function if exists clin.trf_INS_UPD_regimen__check_intake_subst() cascade;
+
+create function clin.trf_INS_UPD_regimen__check_intake_subst()
 	returns trigger
 	language plpgsql
 	as '
@@ -29,7 +99,7 @@ BEGIN
 	END IF;
 
 	RAISE EXCEPTION
-		''[clin.trf_check_subst_on_intake_vs_regimen_dose]: INSERT/UPDATE into %.%: Sanity check failed. Regimen % dose-substance = %. Intake % substance = %.'',
+		''[clin.trf_INS_UPD_regimen__check_intake_subst]: INSERT/UPDATE into %.%: Sanity check failed. Regimen % dose-substance = %. Intake % substance = %.'',
 			TG_TABLE_SCHEMA,
 			TG_TABLE_NAME,
 			NEW.pk,
@@ -41,7 +111,7 @@ BEGIN
 	RETURN NULL;
 END;';
 
-comment on function clin.trf_check_subst_on_intake_vs_regimen_dose() is
+comment on function clin.trf_INS_UPD_regimen__check_intake_subst() is
 	'If clin.intake_regimen.fk_dose is not NULL then assert that both
 		clin.intake_regimen->ref.dose.pk->ref.dose.fk_substance
 	 and
@@ -49,20 +119,20 @@ comment on function clin.trf_check_subst_on_intake_vs_regimen_dose() is
 	 point to the same ref.substance.pk.';
 
 
-create trigger tr_check_subst_on_intake_vs_regimen_dose
+create trigger tr_INS_UPD_regimen__check_intake_subst
 	before insert or update
 	on clin.intake_regimen
 	for each row
 		when (NEW.fk_dose IS NOT NULL)
-		execute procedure clin.trf_check_subst_on_intake_vs_regimen_dose();
+		execute procedure clin.trf_INS_UPD_regimen__check_intake_subst();
 
 -- --------------------------------------------------------------
 -- check that fk_encounter/fk_episode of clin.intake and
 -- clin.intake_regimen belong to the same patient
 -- --------------------------------------------------------------
-drop function if exists clin.trf_ins_upd_check_pat_on_intake_vs_regimen() cascade;
+drop function if exists clin.trf_INS_UPD_regimen__check_intake_pat() cascade;
 
-create function clin.trf_ins_upd_check_pat_on_intake_vs_regimen()
+create function clin.trf_INS_UPD_regimen__check_intake_pat()
 	returns trigger
 	language plpgsql
 	as '
@@ -100,18 +170,18 @@ BEGIN
 	RETURN NULL;
 END;';
 
-comment on function clin.trf_ins_upd_check_pat_on_intake_vs_regimen() is
+comment on function clin.trf_INS_UPD_regimen__check_intake_pat() is
 	'Verifies that on INSERT/UPDATE the fk_encounter and fk_episode of
 	 both clin.intake and clin.intake_regimen belong to one and the
 	 same patient.';
 
 
-create constraint trigger tr_ins_upd_check_pat_on_intake_vs_regimen
+create constraint trigger tr_INS_UPD_regimen__check_intake_pat
 	after insert or update
 	on clin.intake_regimen
 	deferrable initially deferred
 	for each row
-	execute procedure clin.trf_ins_upd_check_pat_on_intake_vs_regimen();
+	execute procedure clin.trf_INS_UPD_regimen__check_intake_pat();
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v23-clin-check_intake_vs_regimen.sql', '23.0');

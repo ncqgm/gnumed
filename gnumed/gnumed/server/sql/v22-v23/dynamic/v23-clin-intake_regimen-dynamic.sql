@@ -157,7 +157,4 @@ grant select, insert, update, delete on ref.substance to "gm-doctors";
 grant usage on ref.substance_pk_seq to "gm-doctors" ;
 
 -- --------------------------------------------------------------
--- add clin.intake_regimen_journal
-
--- --------------------------------------------------------------
 select gm.log_script_insertion('v23-clin-intake_regimen-dynamic.sql', '23.0');
