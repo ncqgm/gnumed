@@ -29,20 +29,20 @@ QUIET="$3"
 LOG_BASE="."
 FIXUP_LOG="${LOG_BASE}/fixup_db-v${PREV_VER}.log"
 FIXUP_CONF="fixup_db-v${PREV_VER}.conf"
-LOG="${LOG_BASE}/update_db-v${PREV_VER}_v${NEXT_VER}.log"
-CONF="update_db-v${PREV_VER}_v${NEXT_VER}.conf"
+UPGRADE_LOG="${LOG_BASE}/update_db-v${PREV_VER}_v${NEXT_VER}.log"
+UPGRADE_CONF="update_db-v${PREV_VER}_v${NEXT_VER}.conf"
 TS=$(date +%Y-%m-%d-%H-%M-%S)
 BAK_FILE="backup-upgrade_v${PREV_VER}_to_v${NEXT_VER}-$(hostname)-${TS}.tar"
 
 
-if test ! -f $CONF ; then
+if test ! -f ${UPGRADE_CONF} ; then
 	echo ""
 	echo "Trying to upgrade from version <${PREV_VER}> to version <${NEXT_VER}> ..."
 	echo ""
 	echo "========================================="
 	echo "ERROR: The configuration file:"
 	echo "ERROR:"
-	echo "ERROR:  $CONF"
+	echo "ERROR:  ${UPGRADE_CONF}"
 	echo "ERROR"
 	echo "ERROR: does not exist. Aborting."
 	echo "========================================="
@@ -261,7 +261,7 @@ echo_msg "3) upgrading to new database ..."
 # - only needed for converting anything below v6 with a v6 bootstrapper
 #echo_msg "==> fixup for database hashing (will probably ask for gm-dbo password) ..."
 #psql --username=gm-dbo --dbname=gnumed_v${PREV_VER} ${PORT_DEF} -f ../sql/gmConcatTableStructureFutureStub.sql
-./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF} --${QUIET}
+./bootstrap_gm_db_system.py --log-file=${UPGRADE_LOG} --conf-file=${UPGRADE_CONF} --${QUIET}
 if test "$?" != "0" ; then
 	echo "Upgrading \"gnumed_v${PREV_VER}\" to \"gnumed_v${NEXT_VER}\" did not finish successfully."
 	read
