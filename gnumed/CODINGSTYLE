@@ -108,3 +108,26 @@ if __name__ == "__main__":
 LaTeX:
 
 	use {} after commands to prevent run-in with surrounding text
+
+
+#=== snip =========================================================================
+
+SQL
+
+	IN / OUT: _variable_name
+	DECLARE: __variable_name
+
+	primary key: .pk
+
+	foreign key in table: .fk_remote_column_name
+
+	foreign key in view: .pk_remote_column_name
+
+	table name: schema.table_name (singular, such that schema.table_name.column_name makes sense)
+
+	view name: schema.v_table_name+s_or_purpose
+
+plpgsql
+	USING HINT
+	USING ERRCODE
+	USING MESSAGE

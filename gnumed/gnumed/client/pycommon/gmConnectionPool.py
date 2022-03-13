@@ -120,6 +120,10 @@ _map_psyco_iso_level2str = {
 	4: 'ISOLATION_LEVEL_READ_UNCOMMITTED'
 }
 
+_connection_loss_markers = [
+	'terminating connection due to administrator command'
+]
+
 #============================================================
 class cPGCredentials:
 	"""Holds PostgreSQL credentials"""
@@ -664,25 +668,31 @@ class gmConnectionPool(gmBorg.cBorg):
 def exception_is_connection_loss(exc: Exception) -> bool:
 	"""Checks whether exception represents connection loss."""
 	if not isinstance(exc, dbapi.Error):
-		# not a PG exception
+		# not a PG/psycopg2 exception
 		return False
 
+	is_conn_loss = False
 	try:
 		if isinstance(exc, dbapi.errors.AdminShutdown):
 			_log.debug('indicates connection loss due to admin shutdown')
-			return True
-
-	except AttributeError:	# psycopg2 2.7/2.8 transition
+			is_conn_loss = True
+	except AttributeError:	# psycopg2 2.7/2.8 transition (no AdminShutdown exception)
 		pass
+	if is_conn_loss:
+		return True
 
 	try:
 		msg = '%s' % exc.args[0]
 	except (AttributeError, IndexError, TypeError):
 		_log.debug('cannot extract message from exception')
-		# cannot process message
 		return False
 
 	_log.debug('interpreting: %s', msg)
+	for snippet in _connection_loss_markers:
+		if snippet in msg:
+			_log.debug('indicates connection loss')
+			return True
+
 	is_conn_loss = (
 		# OperationalError
 		('erver' in msg)
