@@ -11,6 +11,16 @@
 set check_function_bodies to on;
 
 -- --------------------------------------------------------------
+-- .soap_cat
+alter table clin.intake_regimen
+	alter column soap_cat
+		set not NULL;
+
+alter table clin.intake_regimen
+	alter column soap_cat
+		set default 'p'::text;
+
+-- --------------------------------------------------------------
 -- .fk_intake
 comment on column clin.intake_regimen.fk_intake is 'The intake this regimen applies to. Only one regimen per patient must be ongoing at any one time.';
 
