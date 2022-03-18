@@ -33,9 +33,10 @@ select * from (
 			'clin.procedure',
 			'clin.intake',
 			'clin.intake_regimen',
-			'clin.family_history'
+			'clin.family_history',
+			'clin.intake',
+			'clin.intake_regimen'
 		)
-
 
 	union all
 		select * from clin.v_intake4narr_search

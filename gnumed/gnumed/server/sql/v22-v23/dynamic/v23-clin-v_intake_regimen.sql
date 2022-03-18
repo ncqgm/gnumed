@@ -31,6 +31,8 @@ select
 	r_d.amount,
 	r_d.unit,
 	r_d.dose_unit,
+	c_ir.narrative
+		as schedule,
 	r_dp.description
 		as drug_product,
 	r_dp.preparation,

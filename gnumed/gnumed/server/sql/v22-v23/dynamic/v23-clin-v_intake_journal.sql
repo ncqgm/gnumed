@@ -124,6 +124,8 @@ select
 	|| coalesce(' -- ' || r_dp.description || ' ' || r_dp.preparation, '')
 		|| coalesce(' [' || r_dp.atc_code || ']', '')
 		|| coalesce(' [' || r_dp.external_code_type || ' ' || r_dp.external_code || ']', '')
+	-- line: "0-1-1 every other day"
+	|| ' ' || _('schedule') || ': ' || c_ir.narrative
 	-- line: "take with water"
 	|| coalesce(E'\n' || _('intake instructions') || ': ' || r_s.intake_instructions, '')
 	-- line: "watch heart rate"
