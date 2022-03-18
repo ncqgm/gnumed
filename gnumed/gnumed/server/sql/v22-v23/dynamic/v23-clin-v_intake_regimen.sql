@@ -32,7 +32,7 @@ select
 	r_d.unit,
 	r_d.dose_unit,
 	r_dp.description
-		as product,
+		as drug_product,
 	r_dp.preparation,
 	r_dp.atc_code
 		as atc_product,
@@ -45,13 +45,21 @@ select
 		as notes4provider,
 	c_ir.modified_when,
 	c_ir.modified_by,
+	c_i.fk_substance
+		as pk_substance,
+	c_ir.fk_dose
+		as pk_dose,
+	c_ir.fk_drug_component
+		as pk_drug_component,
+	r_dp.pk
+		as pk_drug_product,
 	c_ir.fk_encounter
 		as pk_encounter,
 	c_ir.fk_episode
 		as pk_episode,
 	c_epi.fk_health_issue
 		as pk_health_issue,
-	c_i.pk
+	c_ir.fk_intake
 		as pk_intake,
 	c_ir.row_version
 from
