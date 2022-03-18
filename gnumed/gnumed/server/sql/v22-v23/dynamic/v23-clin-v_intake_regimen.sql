@@ -9,7 +9,6 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
--- start of intake regimen
 drop view if exists clin.v_intake_regimen cascade;
 
 create view clin.v_intake_regimen as
