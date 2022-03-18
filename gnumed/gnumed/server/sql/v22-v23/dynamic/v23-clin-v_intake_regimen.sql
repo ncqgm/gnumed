@@ -14,6 +14,8 @@ drop view if exists clin.v_intake_regimen cascade;
 
 create view clin.v_intake_regimen as
 select
+	c_ir.pk
+		as pk_intake_regimen,
 	c_enc.fk_patient
 		as pk_patient,
 	c_ir.soap_cat,
@@ -50,6 +52,8 @@ select
 		as pk_episode,
 	c_epi.fk_health_issue
 		as pk_health_issue,
+	c_i.pk
+		as pk_intake,
 	c_ir.row_version
 from
 	clin.intake_regimen c_ir
