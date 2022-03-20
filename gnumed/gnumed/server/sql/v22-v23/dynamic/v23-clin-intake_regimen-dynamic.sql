@@ -163,8 +163,7 @@ create trigger tr_undiscontinue_unsets_reason
 		execute procedure clin.trf_undiscontinue_unsets_reason();
 
 
-grant select, insert, update, delete on ref.substance to "gm-doctors";
-grant usage on ref.substance_pk_seq to "gm-doctors" ;
+grant select, insert, update, delete on clin.intake_regimen to "gm-doctors";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v23-clin-intake_regimen-dynamic.sql', '23.0');

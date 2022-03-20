@@ -14,6 +14,8 @@ comment on table clin.intake is 'List of consumables a patient is/was taking.';
 select audit.register_table_for_auditing('clin', 'intake');
 select gm.register_notifying_table('clin', 'intake');
 
+grant select, insert, update, delete on clin.intake to "gm-doctors";
+
 -- --------------------------------------------------------------
 -- .clin_when
 comment on column clin.intake.clin_when is

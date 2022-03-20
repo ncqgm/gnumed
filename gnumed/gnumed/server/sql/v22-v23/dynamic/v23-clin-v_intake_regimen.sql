@@ -63,7 +63,9 @@ select
 		as pk_health_issue,
 	c_ir.fk_intake
 		as pk_intake,
-	c_ir.row_version
+	c_ir.row_version,
+	c_ir.xmin
+		as xmin_intake_regimen
 from
 	clin.intake_regimen c_ir
 		inner join clin.intake c_i on (c_ir.fk_intake = c_i.pk)

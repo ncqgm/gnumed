@@ -58,9 +58,9 @@ comment on function clin.verify__multidrug_not_linked2patient(_pk_patient intege
 -- grant to clinical staff
 
 -- --------------------------------------------------------------
-drop function if exists clin.verify__all_multidrug_components_linked(_pk_patient integer, _pk_drug integer) cascade;
+drop function if exists clin.verify__all_multidrug_components_linked2patient(_pk_patient integer, _pk_drug integer) cascade;
 
-create function clin.verify__all_multidrug_components_linked(_pk_patient integer, _pk_drug integer)
+create function clin.verify__all_multidrug_components_linked2patient(_pk_patient integer, _pk_drug integer)
 	returns boolean
 	language plpgsql
 	as '
@@ -95,7 +95,7 @@ BEGIN
 	RETURN _component_count_linked = array_length(_components_in_drug, 1);
 END;';
 
-comment on function clin.verify__all_multidrug_components_linked(_pk_patient integer, _pk_drug integer) is
+comment on function clin.verify__all_multidrug_components_linked2patient(_pk_patient integer, _pk_drug integer) is
 	'Verifies that all components of a multi-component drug are linked
 	 to a patient, if at all.
 	 Arguments: patient PK, drug PK;
@@ -106,8 +106,8 @@ comment on function clin.verify__all_multidrug_components_linked(_pk_patient int
 -- grant to clinical staff
 
 -- --------------------------------------------------------------
--- after DELETE of multidrug *all* components must
--- have been removed from a patient
+-- after DELETE of multidrug intake regimen *all*
+-- components must have been removed from the patient
 -- --------------------------------------------------------------
 drop function if exists clin.trf_check_intake_regimen_on_del_multidrug() cascade;
 
@@ -165,7 +165,7 @@ create constraint trigger tr_check_intake_regimen_on_del_multidrug
 
 -- --------------------------------------------------------------
 -- after INSERT of a multidrug intake regimen *all*
--- components must be linked to the same patient
+-- components must be linked to that patient
 -- --------------------------------------------------------------
 drop function if exists clin.trf_check_intake_regimen_on_ins_multidrug() cascade;
 
@@ -186,7 +186,7 @@ BEGIN
 		NULL
 	) into _pk_patient;
 
-	IF clin.verify__all_multidrug_components_linked(_pk_patient, _pk_drug) IS TRUE THEN
+	IF clin.verify__all_multidrug_components_linked2patient(_pk_patient, _pk_drug) IS TRUE THEN
 		RETURN NULL;
 	END IF;
 
@@ -221,7 +221,7 @@ create constraint trigger tr_check_intake_regimen_on_ins_multidrug
 
 -- --------------------------------------------------------------
 -- after UPDATE of a multidrug intake regimen *all*
--- NEW components must be linked to the same patient
+-- NEW components must be linked to that patient
 -- and OLD components must have been removed from the
 -- patient
 -- --------------------------------------------------------------
@@ -271,7 +271,7 @@ BEGIN
 		SELECT fk_drug_product INTO _pk_drug
 		FROM ref.lnk_dose2drug r_ld2d
 		WHERE r_ld2d.pk = NEW.fk_drug_component;
-		IF clin.verify__all_multidrug_components_linked(_pk_patient, _pk_drug) IS TRUE THEN
+		IF clin.verify__all_multidrug_components_linked2patient(_pk_patient, _pk_drug) IS TRUE THEN
 			RETURN NULL;
 		END IF;
 		RAISE EXCEPTION
@@ -314,7 +314,7 @@ BEGIN
 	SELECT fk_drug_product INTO _pk_drug
 	FROM ref.lnk_dose2drug r_ld2d
 	WHERE r_ld2d.pk = NEW.fk_drug_component;
-	IF clin.verify__all_multidrug_components_linked(_pk_patient, _pk_drug) IS TRUE THEN
+	IF clin.verify__all_multidrug_components_linked2patient(_pk_patient, _pk_drug) IS TRUE THEN
 		RETURN NULL;
 	END IF;
 	RAISE EXCEPTION
