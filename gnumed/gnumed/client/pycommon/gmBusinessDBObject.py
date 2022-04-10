@@ -179,7 +179,7 @@ class cXxxXxx(gmBusinessDBObject.cBusinessDBObject):
 		u"" "
 			-- typically the underlying table name
 			UPDATE xxx.xxx SET
-				-- typically "table_col = %(view_col)s"
+				-- typically "table_col = % (view_col)s"
 				xxx = %(xxx)s,
 				xxx = gm.nullify_empty_string(%(xxx)s)
 			WHERE
@@ -215,20 +215,20 @@ def get_XXX(order_by=None):
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cXxxXxx(row = {'data': r, 'idx': idx, 'pk_field': 'pk_XXX'}) for r in rows ]
 #------------------------------------------------------------
-def create_xxx(xxx=None, xxx=None):
+def create_xxx(xxx1=None, xxx2=None):
 
 	args = {
-		u'xxx': xxx,
-		u'xxx': xxx
+		u'xxx1': xxx1,
+		u'xxx2': xxx2
 	}
 	cmd = u"" "
 		INSERT INTO xxx.xxx (
-			xxx,
-			xxx,
+			xxx1,
+			xxx2,
 			xxx
 		) VALUES (
-			%(xxx)s,
-			%(xxx)s,
+			%(xxx1)s,
+			%(xxx2)s,
 			gm.nullify_empty_string(%(xxx)s)
 		)
 		RETURNING pk
@@ -251,16 +251,19 @@ def delete_xxx(pk_XXX=None):
 #------------------------------------------------------------
 # widget code
 #------------------------------------------------------------
-def edit_xxx(parent=None, xxx=None, single_entry=False, presets=None):
+#def edit_xxx(parent=None, xxx=None, single_entry=False, presets=None):
+#	pass
 
 #------------------------------------------------------------
-def delete_xxx()
+#def delete_xxx():
+#	pass
 
 #------------------------------------------------------------
-def manage_xxx()
+#def manage_xxx():
+#	pass
 
 #------------------------------------------------------------
-# remember to add in clinical item generic workflows
+# remember to add in clinical item generic workflows and generic clinical item formatting
 """
 
 #============================================================
