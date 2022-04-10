@@ -175,8 +175,8 @@ from
 		inner join clin.episode c_epi on c_ir.fk_episode = c_epi.pk
 			left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
 		left join ref.dose r_d on (c_ir.fk_dose = r_d.pk)
-		left join ref.lnk_dose2drug r_ld2d on (c_ir.fk_drug_component = r_ld2d.pk)
-			inner join ref.drug_product r_dp on (r_ld2d.fk_drug_product = r_dp.pk)
+		left join ref.drug_product r_dp on (c_ir.fk_drug_product = r_dp.pk)
+			join ref.lnk_dose2drug r_ld2d on (r_dp.pk = r_ld2d.fk_drug_product)
 ;
 
 comment on view clin.v_intake_regimen_journal is

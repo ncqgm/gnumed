@@ -51,28 +51,28 @@ alter table clin.intake_regimen
 -- no, because one given dose may be used in different drugs ...
 
 -- --------------------------------------------------------------
--- .fk_drug_component
-comment on column clin.intake_regimen.fk_drug_component is 'The drug component being taken. Must come from a drug whose components contain fk_dose.';
+-- .fk_drug_product
+comment on column clin.intake_regimen.fk_drug_product is 'The drug being taken.';
 
 alter table clin.intake_regimen
-	add foreign key (fk_drug_component)
-		references ref.lnk_dose2drug(pk)
+	add foreign key (fk_drug_product)
+		references ref.drug_product(pk)
 		on delete restrict
 		on update cascade;
 
 alter table clin.intake_regimen
-	drop constraint if exists clin_intake_regimen_fk_component_requires_fk_dose;
+	drop constraint if exists clin_intake_regimen_fk_drug_product_requires_fk_dose;
 
 alter table clin.intake_regimen
-	add constraint clin_intake_regimen_fk_component_requires_fk_dose check (
-		(fk_drug_component is NULL)
-			or
-		(fk_dose IS NOT NULL)
+	add constraint clin_intake_regimen_fk_drug_product_requires_fk_dose check (
+		(fk_drug_product is NULL)
+			OR
+		((fk_drug_product is NOT NULL) AND (fk_dose IS NOT NULL))
 	);
 
--- make unique(.fk_drug_component, patient)
+-- make unique(.fk_drug, patient)
 --drop index if exists clin.idx_uniq_drug_per_patient cascade;
---create unique index idx_uniq_drug_per_patient on clin.intake_regimen(fk_drug_component, xxxxxxxxxxx) where (drug_componenent is not null);
+--create unique index idx_uniq_drug_per_patient on clin.intake_regimen(fk_drug_product, xxxxxxxxxxx) where (fk_drug_product is not null);
 
 -- --------------------------------------------------------------
 -- .narrative = schedule

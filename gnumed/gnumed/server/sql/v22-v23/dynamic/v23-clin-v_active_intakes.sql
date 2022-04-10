@@ -34,8 +34,6 @@ select
 		as pk_intake_regimen,
 	c_ir.fk_dose
 		as pk_dose,
-	c_ir.fk_drug_component
-		as pk_drug_component,
 	c_ir.narrative
 		as schedule,
 	c_ir.clin_when
@@ -66,14 +64,16 @@ select
 	r_dp.is_fake
 		as is_fake_product,
 	r_dp.external_code,
-	r_dp.external_code_type
+	r_dp.external_code_type,
+	r_ld2d.pk
+		as pk_drug_component
 from
 	clin.intake c_i
 		join ref.substance r_s on (r_s.pk = c_i.fk_substance)
 		left join clin.intake_regimen c_ir on (c_ir.fk_intake = c_i.pk)
 			join ref.dose r_d on (r_d.pk = c_ir.fk_dose)
-			left join ref.lnk_dose2drug r_ld2d on (r_ld2d.pk = c_ir.fk_drug_component)
-				join ref.drug_product r_dp on (r_dp.pk = r_ld2d.fk_drug_product)
+			left join ref.drug_product r_dp on (r_dp.pk = c_ir.fk_drug_product)
+				join ref.lnk_dose2drug r_ld2d on (r_dp.pk = r_ld2d.fk_drug_product)
 		join clin.encounter c_enc on (c_i.fk_encounter = c_enc.pk)
 where
 	c_ir.discontinued IS NULL
@@ -81,7 +81,7 @@ where
 
 
 comment on view clin.v_active_intakes is
-	'Which substances the patient is taking.';
+	'Which substances the patient is currently taking.';
 
 grant select on clin.v_active_intakes to group "gm-doctors";
 

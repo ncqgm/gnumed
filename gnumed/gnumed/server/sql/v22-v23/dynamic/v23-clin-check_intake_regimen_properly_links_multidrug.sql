@@ -7,7 +7,6 @@
 -- ==============================================================
 \set ON_ERROR_STOP 1
 --set default_transaction_read_only to off;
-
 set check_function_bodies to on;
 
 -- --------------------------------------------------------------
@@ -18,16 +17,16 @@ create function clin.verify__multidrug_not_linked2patient(_pk_patient integer, _
 	language plpgsql
 	as '
 DECLARE
-	_components_in_drug integer[];
+	_component_count_in_drug integer;
 	_multidrug_is_linked boolean;
 BEGIN
-	SELECT array_agg(pk) INTO _components_in_drug
+	SELECT COUNT(1) INTO _component_count_in_drug
 	FROM ref.lnk_dose2drug r_ld2d
 	WHERE r_ld2d.fk_drug_product = _pk_drug;
 
 	-- multi-drug at all ?
-	IF array_length(_components_in_drug, 1) < 2 THEN
-		-- no, so does_not_take is TRUE
+	IF _component_count_in_drug < 2 THEN
+		-- no further checks needed
 		RETURN TRUE;
 	END IF;
 
@@ -36,7 +35,7 @@ BEGIN
 		WHERE
 			c_ir.discontinued IS NULL
 				AND
-			c_ir.fk_drug_component = ANY(_components_in_drug)
+			c_ir.fk_drug_product = _pk_drug
 				AND
 			c_ir.fk_intake IN (
 				SELECT pk FROM clin.intake c_i
@@ -44,7 +43,6 @@ BEGIN
 					c_i.fk_encounter IN (SELECT pk FROM clin.encounter WHERE fk_patient = _pk_patient)
 			)
 	) into _multidrug_is_linked;
-
 	RETURN _multidrug_is_linked IS FALSE;
 END;';
 
@@ -65,15 +63,15 @@ create function clin.verify__all_multidrug_components_linked2patient(_pk_patient
 	language plpgsql
 	as '
 DECLARE
-	_components_in_drug integer[];
+	_component_count_in_drug integer;
 	_component_count_linked integer;
 BEGIN
-	SELECT array_agg(pk) INTO _components_in_drug
+	SELECT COUNT(1) INTO _component_count_in_drug
 	FROM ref.lnk_dose2drug r_ld2d
 	WHERE r_ld2d.fk_drug_product = _pk_drug;
 
 	-- multi-drug at all ?
-	IF array_length(_components_in_drug, 1) < 2 THEN
+	IF _component_count_in_drug < 2 THEN
 		-- no further checks needed
 		RETURN TRUE;
 	END IF;
@@ -83,7 +81,7 @@ BEGIN
 	WHERE
 		c_ir.discontinued IS NULL
 			AND
-		c_ir.fk_drug_component = ANY(_components_in_drug)
+		c_ir.fk_drug_product = _pk_drug
 			AND
 		c_ir.fk_intake IN (
 			SELECT pk FROM clin.intake c_i
@@ -91,8 +89,7 @@ BEGIN
 				c_i.fk_encounter IN (SELECT pk FROM clin.encounter WHERE fk_patient = _pk_patient)
 		)
 	;
-
-	RETURN _component_count_linked = array_length(_components_in_drug, 1);
+	RETURN _component_count_linked = _component_count_in_drug;
 END;';
 
 comment on function clin.verify__all_multidrug_components_linked2patient(_pk_patient integer, _pk_drug integer) is
@@ -116,34 +113,23 @@ create function clin.trf_check_intake_regimen_on_del_multidrug()
 	language plpgsql
 	as '
 DECLARE
-	_pk_drug integer;
-	_components_in_drug integer[];
 	_pk_patient integer;
-	_component_count_linked2patient integer;
 BEGIN
-	SELECT fk_drug_product INTO _pk_drug
-	FROM ref.lnk_dose2drug r_ld2d
-	WHERE r_ld2d.pk = OLD.fk_drug_component;
+	SELECT clin.map_enc_or_epi_to_patient(OLD.fk_encounter, OLD.fk_episode) INTO _pk_patient;
 
-	SELECT clin.map_enc_or_epi_to_patient (
-		(SELECT fk_encounter FROM clin.intake WHERE pk = OLD.fk_intake),
-		NULL
-	) into _pk_patient;
-
-	IF clin.verify__multidrug_not_linked2patient(_pk_patient, _pk_drug) IS TRUE THEN
+	IF clin.verify__multidrug_not_linked2patient(_pk_patient, OLD.fk_drug_product) IS TRUE THEN
 		RETURN NULL;
 	END IF;
 
 	RAISE EXCEPTION
-		''[%] - % on %.%: All components of multi-drug must be unlinked together. clin.intake_regimen.pk=% / clin.intake_regimen.fk_intake=% / clin.intake_regimen.fk_drug_component=% / ref.lnk_dose2drug.fk_drug_product=% / pk_patient=%'',
+		''[%] - % on %.%: All components of multi-drug must be unlinked together. clin.intake_regimen.pk=% / clin.intake_regimen.fk_intake=% / clin.intake_regimen.fk_drug_product=% / pk_patient=%'',
 			TG_NAME,
 			TG_OP,
 			TG_TABLE_SCHEMA,
 			TG_TABLE_NAME,
 			OLD.pk,
 			OLD.fk_intake,
-			OLD.fk_drug_component,
-			_pk_drug,
+			OLD.fk_drug_product,
 			_pk_patient
 		USING ERRCODE = ''assert_failure''
 	;
@@ -160,7 +146,7 @@ create constraint trigger tr_check_intake_regimen_on_del_multidrug
 	deferrable initially deferred
 	for each row
 	-- anything to check ?
-	when (OLD.fk_drug_component IS NOT NULL)
+	when (OLD.fk_drug_product IS NOT NULL)
 	execute procedure clin.trf_check_intake_regimen_on_del_multidrug();
 
 -- --------------------------------------------------------------
@@ -174,32 +160,23 @@ create function clin.trf_check_intake_regimen_on_ins_multidrug()
 	language plpgsql
 	as '
 DECLARE
-	_pk_drug integer;
 	_pk_patient integer;
 BEGIN
-	SELECT fk_drug_product INTO _pk_drug
-	FROM ref.lnk_dose2drug r_ld2d
-	WHERE r_ld2d.pk = NEW.fk_drug_component;
+	SELECT clin.map_enc_or_epi_to_patient(NEW.fk_encounter, NEW.fk_episode) INTO _pk_patient;
 
-	SELECT clin.map_enc_or_epi_to_patient (
-		(SELECT fk_encounter FROM clin.intake WHERE pk = NEW.fk_intake),
-		NULL
-	) into _pk_patient;
-
-	IF clin.verify__all_multidrug_components_linked2patient(_pk_patient, _pk_drug) IS TRUE THEN
+	IF clin.verify__all_multidrug_components_linked2patient(_pk_patient, NEW.fk_drug_product) IS TRUE THEN
 		RETURN NULL;
 	END IF;
 
 	RAISE EXCEPTION
-		''[%] - % on %.%: All components of multi-drug must be inserted together. clin.intake_regimen.pk=% / clin.intake_regimen.fk_intake=% / clin.intake_regimen.fk_drug_component=% / ref.lnk_dose2drug.fk_drug_product=% / pk_patient=%'',
+		''[%] - % on %.%: All components of multi-drug must be inserted together. clin.intake_regimen.pk=% / clin.intake_regimen.fk_intake=% / clin.intake_regimen.fk_drug_product=% / pk_patient=%'',
 			TG_NAME,
 			TG_OP,
 			TG_TABLE_SCHEMA,
 			TG_TABLE_NAME,
 			NEW.pk,
 			NEW.fk_intake,
-			NEW.fk_drug_component,
-			_pk_drug,
+			NEW.fk_drug_product,
 			_pk_patient
 		USING ERRCODE = ''assert_failure''
 	;
@@ -216,7 +193,7 @@ create constraint trigger tr_check_intake_regimen_on_ins_multidrug
 	deferrable initially deferred
 	for each row
 	-- anything to check ?
-	when (NEW.fk_drug_component IS NOT NULL)
+	when (NEW.fk_drug_product IS NOT NULL)
 	execute procedure clin.trf_check_intake_regimen_on_ins_multidrug();
 
 -- --------------------------------------------------------------
@@ -232,101 +209,81 @@ create function clin.trf_check_intake_regimen_on_upd_multidrug()
 	language plpgsql
 	as '
 DECLARE
-	_pk_drug integer;
 	_pk_patient integer;
 BEGIN
-	-- .fk_drug_component: NULL -> NULL: does not happen (trigger condition)
-	-- .fk_drug_component: OLD = NEW: does not happen (trigger condition)
+	-- .fk_drug_product: NULL -> NULL: does not occur (trigger condition)
+	-- .fk_drug_product: OLD = NEW: does not happen (trigger condition)
 
-	SELECT clin.map_enc_or_epi_to_patient (
-		(SELECT fk_encounter FROM clin.intake WHERE pk = OLD.fk_intake),
-		NULL
-	) into _pk_patient;
+	SELECT clin.map_enc_or_epi_to_patient(OLD.fk_encounter, OLD.fk_episode) into _pk_patient;
 
-	-- .fk_drug_component: OLD -> NULL: behaves like DELETE
-	IF NEW.fk_drug_component IS NULL THEN
-		SELECT fk_drug_product INTO _pk_drug
-		FROM ref.lnk_dose2drug r_ld2d
-		WHERE r_ld2d.pk = OLD.fk_drug_component;
-		IF clin.verify__multidrug_not_linked2patient(_pk_patient, _pk_drug) IS TRUE THEN
+	-- .fk_drug_product: OLD -> NULL: behaves like DELETE
+	IF NEW.fk_drug_product IS NULL THEN
+		IF clin.verify__multidrug_not_linked2patient(_pk_patient, OLD.fk_drug_product) IS TRUE THEN
 			RETURN NULL;
 		END IF;
 		RAISE EXCEPTION
-			''[%] - % on %.%: All components of multi-drug must be unlinked together. clin.intake_regimen.pk=% / clin.intake_regimen.fk_intake=% / clin.intake_regimen.fk_drug_component=% / ref.lnk_dose2drug.fk_drug_product=% / pk_patient=%'',
+			''[%] - % on %.%: All components of multi-drug must be unlinked together. clin.intake_regimen.pk=% / clin.intake_regimen.fk_intake=% / clin.intake_regimen.fk_drug_product=% / pk_patient=%'',
 				TG_NAME,
 				TG_OP,
 				TG_TABLE_SCHEMA,
 				TG_TABLE_NAME,
 				OLD.pk,
 				OLD.fk_intake,
-				OLD.fk_drug_component,
-				_pk_drug,
+				OLD.fk_drug_product,
 				_pk_patient
 			USING ERRCODE = ''assert_failure''
 		;
 	END IF;
 
-	-- .fk_drug_component: NULL -> NEW: behaves like INSERT
-	IF OLD.fk_drug_component IS NULL THEN
-		SELECT fk_drug_product INTO _pk_drug
-		FROM ref.lnk_dose2drug r_ld2d
-		WHERE r_ld2d.pk = NEW.fk_drug_component;
-		IF clin.verify__all_multidrug_components_linked2patient(_pk_patient, _pk_drug) IS TRUE THEN
+	-- .fk_drug_product: NULL -> NEW: behaves like INSERT
+	IF OLD.fk_drug_product IS NULL THEN
+		IF clin.verify__all_multidrug_components_linked2patient(_pk_patient, NEW.fk_drug_product) IS TRUE THEN
 			RETURN NULL;
 		END IF;
 		RAISE EXCEPTION
-			''[%] - % on %.%: All components of multi-drug must be inserted together. clin.intake_regimen.pk=% / clin.intake_regimen.fk_intake=% / clin.intake_regimen.fk_drug_component=% / ref.lnk_dose2drug.fk_drug_product=% / pk_patient=%'',
+			''[%] - % on %.%: All components of multi-drug must be inserted together. clin.intake_regimen.pk=% / clin.intake_regimen.fk_intake=% / clin.intake_regimen.fk_drug_product=% / pk_patient=%'',
 				TG_NAME,
 				TG_OP,
 				TG_TABLE_SCHEMA,
 				TG_TABLE_NAME,
 				NEW.pk,
 				NEW.fk_intake,
-				NEW.fk_drug_component,
-				_pk_drug,
+				NEW.fk_drug_product,
 				_pk_patient
 			USING ERRCODE = ''assert_failure''
 		;
 	END IF;
 
-	-- .fk_drug_component: OLD -> NEW: true UPDATE
+	-- .fk_drug_product: OLD -> NEW: true UPDATE
 	-- 1) assert DEL of OLD
-	SELECT fk_drug_product INTO _pk_drug
-	FROM ref.lnk_dose2drug r_ld2d
-	WHERE r_ld2d.pk = OLD.fk_drug_component;
-	IF clin.verify__multidrug_not_linked2patient(_pk_patient, _pk_drug) IS TRUE THEN
+	IF clin.verify__multidrug_not_linked2patient(_pk_patient, OLD.fk_drug_product) IS TRUE THEN
 		RETURN NULL;
 	END IF;
 	RAISE EXCEPTION
-		''[%] - % on %.%: All components of previous multi-drug must be unlinked together. clin.intake_regimen.pk=% / clin.intake_regimen.fk_intake=% / clin.intake_regimen.fk_drug_component=% / ref.lnk_dose2drug.fk_drug_product=% / pk_patient=%'',
+		''[%] - % on %.%: All components of previous multi-drug must be unlinked together. clin.intake_regimen.pk=% / clin.intake_regimen.fk_intake=% / clin.intake_regimen.fk_drug_product=% / pk_patient=%'',
 			TG_NAME,
 			TG_OP,
 			TG_TABLE_SCHEMA,
 			TG_TABLE_NAME,
 			OLD.pk,
 			OLD.fk_intake,
-			OLD.fk_drug_component,
-			_pk_drug,
+			OLD.fk_drug_product,
 			_pk_patient
 		USING ERRCODE = ''assert_failure''
 	;
 	-- 2) assert INS of NEW
-	SELECT fk_drug_product INTO _pk_drug
-	FROM ref.lnk_dose2drug r_ld2d
-	WHERE r_ld2d.pk = NEW.fk_drug_component;
-	IF clin.verify__all_multidrug_components_linked2patient(_pk_patient, _pk_drug) IS TRUE THEN
+	IF clin.verify__all_multidrug_components_linked2patient(_pk_patient, NEW.fk_drug_product) IS TRUE THEN
 		RETURN NULL;
 	END IF;
 	RAISE EXCEPTION
-		''[%] - % on %.%: All components of multi-drug must be updated to together. clin.intake_regimen.pk=% / clin.intake_regimen.fk_intake=% / clin.intake_regimen.fk_drug_component=% / ref.lnk_dose2drug.fk_drug_product=% / pk_patient=%'',
+		''[%] - % on %.%: All components of multi-drug must be updated to together. clin.intake_regimen.pk=% / clin.intake_regimen.fk_intake=% / clin.intake_regimen.fk_drug_product=% / pk_patient=%'',
 			TG_NAME,
 			TG_OP,
 			TG_TABLE_SCHEMA,
 			TG_TABLE_NAME,
 			NEW.pk,
 			NEW.fk_intake,
-			NEW.fk_drug_component,
-			_pk_drug,
+			NEW.fk_drug_product,
 			_pk_patient
 		USING ERRCODE = ''assert_failure''
 	;
@@ -344,7 +301,7 @@ create constraint trigger tr_check_intake_regimen_on_upd_multidrug
 	deferrable initially deferred
 	for each row
 	-- anything to check ?
-	when (NEW.fk_drug_component IS DISTINCT FROM OLD.fk_drug_component)
+	when (NEW.fk_drug_product IS DISTINCT FROM OLD.fk_drug_product)
 	execute procedure clin.trf_check_intake_regimen_on_upd_multidrug();
 
 -- --------------------------------------------------------------

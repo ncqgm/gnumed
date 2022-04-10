@@ -16,7 +16,7 @@ set check_function_bodies to on;
 -- (.discontinued = NULL) linked (clin.intake_regimen.fk_intake)
 -- row has also been updated accordingly regarding its .fk_dose.
 --
--- The clin.intake_regimen.fk_dose/.fk_drug_component equivalence
+-- The clin.intake_regimen.fk_dose/.fk_drug_product equivalence
 -- is asserted on that table directly so no need to check here.
 -- --------------------------------------------------------------
 drop function if exists clin.trf_UPD_intake___check_regimen_dose_subst() cascade;
@@ -32,12 +32,11 @@ declare
 BEGIN
 	SELECT pk INTO _pk_regimen FROM clin.intake_regimen c_ir
 	WHERE
-		c_ir.fk_intakt = NEW.pk
+		c_ir.fk_intake = NEW.pk
 			AND
 		c_ir.discontinued IS NULL
 	;
-	IF NOT FOUND THEN
-		-- no regimen found, all is well
+	IF NOT FOUND THEN --> no regimen found, all is well
 		RETURN NEW;
 	END IF;
 
@@ -65,7 +64,7 @@ BEGIN
 END;';
 
 comment on function clin.trf_UPD_intake___check_regimen_dose_subst() is
-	'If clin.intake.fk_substance is being updated then assert that any dependant *active* clin.intake_regimen rows still point to the same substance.';
+	'If clin.intake.fk_substance is being updated then assert that any dependant *active* clin.intake_regimen rows also point to the new substance.';
 
 
 create constraint trigger tr_UPD_intake___check_regimen_dose_subst
@@ -73,7 +72,7 @@ create constraint trigger tr_UPD_intake___check_regimen_dose_subst
 	on clin.intake
 	deferrable initially deferred
 	for each row
-		when (NEW.fk_substance <> OLD.fk_substance)
+		when (NEW.fk_substance IS DISTINCT FROM OLD.fk_substance)
 		execute procedure clin.trf_UPD_intake___check_regimen_dose_subst();
 
 -- --------------------------------------------------------------
@@ -147,9 +146,7 @@ BEGIN
 	);
 	SELECT fk_patient INTO _pk_pat_from_regimen
 	FROM clin.encounter c_enc
-	WHERE c_enc.pk = (
-		SELECT fk_encounter FROM clin.intake_regimen WHERE pk = NEW.pk
-	);
+	WHERE c_enc.pk = NEW.fk_encounter;
 
 	IF _pk_pat_from_intake = _pk_pat_from_regimen THEN
 		RETURN NULL;
@@ -171,9 +168,10 @@ BEGIN
 END;';
 
 comment on function clin.trf_INS_UPD_regimen__check_intake_pat() is
-	'Verifies that on INSERT/UPDATE the fk_encounter and fk_episode of
-	 both clin.intake and clin.intake_regimen belong to one and the
-	 same patient.';
+	'Verifies that on INSERT/UPDATE the fk_encounter of both
+	 clin.intake and clin.intake_regimen belong to one and the
+	 same patient. No need to check fk_episode because fk_encounter
+	 vs fk_episode is checked on each table elsewhere.';
 
 
 create constraint trigger tr_INS_UPD_regimen__check_intake_pat

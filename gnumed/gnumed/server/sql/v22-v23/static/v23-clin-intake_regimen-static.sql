@@ -15,7 +15,9 @@ create table clin.intake_regimen (
 		integer,
 	fk_dose
 		integer,
-	fk_drug_component
+	--fk_drug_component
+	--	integer,
+	fk_drug_product
 		integer,
 	--.narrative:
 	--schedule

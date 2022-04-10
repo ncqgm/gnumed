@@ -13,7 +13,7 @@ set check_function_bodies to on;
 
 -- --------------------------------------------------------------
 -- drop old function (and triggers)
-drop function if exists clin.trf_sanity_check_enc_epi_insert() cascade; -- maybe old
+drop function if exists clin.trf_sanity_check_enc_epi_insert() cascade; -- maybe old as of v23
 drop function if exists clin.trf_sanity_check_enc_epi_ins_upd() cascade;
 
 -- drop new function and triggers

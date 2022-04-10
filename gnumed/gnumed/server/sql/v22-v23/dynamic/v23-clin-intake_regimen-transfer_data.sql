@@ -13,7 +13,7 @@
 insert into clin.intake_regimen (
 	fk_intake,
 	fk_dose,
-	fk_drug_component,
+	fk_drug_product,
 	clin_when,
 	comment_on_start,
 	discontinued,
@@ -26,7 +26,7 @@ insert into clin.intake_regimen (
 	select
 		c_i.pk,
 		(select pk_dose from clin.v_substance_intakes where pk_substance_intake = c_i._fk_s_i),
-		(select pk_drug_component from clin.v_substance_intakes where pk_substance_intake = c_i._fk_s_i),
+		(select pk_drug_product from clin.v_substance_intakes where pk_substance_intake = c_i._fk_s_i),
 		c_i.clin_when,
 		c_si.comment_on_start,
 		c_si.discontinued,
