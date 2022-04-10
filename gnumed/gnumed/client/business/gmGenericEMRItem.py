@@ -12,7 +12,7 @@ import logging
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-	_ = lambda x:x
+	from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
@@ -27,7 +27,8 @@ from Gnumed.business.gmEMRStructItems import cPerformedProcedure
 from Gnumed.business.gmExternalCare import cExternalCareItem
 from Gnumed.business.gmVaccination import cVaccination
 from Gnumed.business.gmClinNarrative import cNarrative
-from Gnumed.business.gmMedication import cSubstanceIntakeEntry
+from Gnumed.business.gmMedication import cIntakeRegimen
+#from Gnumed.business.gmMedication import cSubstanceIntakeEntry
 from Gnumed.business.gmAllergy import cAllergy
 from Gnumed.business.gmAllergy import cAllergyState
 from Gnumed.business.gmFamilyHistory import cFamilyHistory
@@ -48,7 +49,8 @@ _MAP_generic_emr_item_table2type_str = {
 	'clin.vaccination': _('Vaccination'),
 	'clin.clin_narrative': _('Progress note'),
 	'clin.test_result': _('Test result'),
-	'clin.substance_intake': _('Substance intake'),
+	#'clin.substance_intake': _('Substance intake'),
+	'clin.intake_regimen': _('Substance intake regimen'),
 	'clin.hospital_stay': _('Hospital stay'),
 	'clin.procedure': _('Performed procedure'),
 	'clin.allergy': _('Allergy'),
@@ -67,7 +69,8 @@ _MAP_generic_emr_item_table2class = {
 	'clin.vaccination': cVaccination,
 	'clin.clin_narrative': cNarrative,
 	'clin.test_result': cTestResult,
-	'clin.substance_intake': cSubstanceIntakeEntry,
+	#'clin.substance_intake': cSubstanceIntakeEntry,
+	'clin.intake_regimen': cIntakeRegimen,
 	'clin.hospital_stay': cHospitalStay,
 	'clin.procedure': cPerformedProcedure,
 	'clin.allergy': cAllergy,
@@ -160,26 +163,6 @@ class cGenericEMRItem(gmBusinessDBObject.cBusinessDBObject):
 
 	_cmd_fetch_payload = _SQL_get_generic_emr_items + "WHERE src_table = %(src_table)s AND src_pk = %(src_pk)s"
 	_cmds_store_payload = []
-#	[	"""
-#			-- typically the underlying table name
-#			UPDATE xxx.xxx SET
-#				-- typically "table_col = %(view_col)s"
-#				xxx = %(xxx)s,
-#				xxx = gm.nullify_empty_string(%(xxx)s)
-#			WHERE
-#				pk = %(pk_XXX)s
-#					AND
-#				xmin = %(xmin_dummy)s
-#			RETURNING
-#				xmin AS xmin_dummy
-#				-- also return columns which are calculated in the view used by
-#				-- the initial SELECT such that they will further on contain their
-#				-- updated value:
-#				--, ...
-#				--, ...
-#		"""
-#	]
-	# view columns that can be updated:
 	_updatable_fields = ['']
 
 	#--------------------------------------------------------
@@ -355,33 +338,11 @@ def get_generic_emr_items(encounters=None, episodes=None, issues=None, patient=N
 	} ) for r in rows ]
 
 #------------------------------------------------------------
-def delete_xxx(pk_XXX=None):
-	# forward to specialized item
-	args = {'pk': pk_XXX}
-	cmd = u"DELETE FROM xxx.xxx WHERE pk = %(pk)s"
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-	return True
-
-#------------------------------------------------------------
 def generic_item_type_str(table):
 	try:
 		return _MAP_generic_emr_item_table2type_str[table]
 	except KeyError:
 		return _('unmapped entry type from table [%s]') % table
-
-#------------------------------------------------------------
-# widget code
-# remember to add in clinical item generic workflows
-#------------------------------------------------------------
-def edit_xxx(parent=None, xxx=None, single_entry=False, presets=None):
-	pass
-#------------------------------------------------------------
-def delete_xxx_xxx():
-	pass
-#------------------------------------------------------------
-def manage_xxx():
-	pass
-#------------------------------------------------------------
 
 #============================================================
 # main - unit testing
@@ -394,8 +355,10 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-#	gmI18N.activate_locale()
-#	gmI18N.install_domain('gnumed')
+	gmI18N.activate_locale()
+	gmI18N.install_domain('gnumed')
+
+	gmPG2.request_login_params(setup_pool = True)
 
 	#--------------------------------------------------------
 	def test_gen_item():

@@ -6,7 +6,21 @@ license: GPL v2 or later
 
 intake regimen:
 
-	beim Aufstehen / Frühstück / Mittag / abends / zum Schlafengehen / "19 Uhr" / "Mittwochs" / "1x/Monat" / "Mo Di Mi Do Fr Sa So" (Falithrom) / bei Bedarf
+	beim Aufstehen / Frühstück / Mittag / abends / zum Schlafengehen
+
+	"19 Uhr"
+
+	"Mittwochs"			(Alendronsäure)
+
+	"1x/Monat"			(Alendronsäure)
+
+	"Mo Di Mi Do Fr Sa So" (Falithrom)
+
+	"Tag 1: 4, Tag 2: 3, Tag 3: 2, Tag 4: 1"	(Prednisonstoß)
+
+	"1T:4, 1T:3, 2T:2, 3T:1, 4T:1/2"			(Prednisonstoß)
+
+	"bei Bedarf"
 """
 #============================================================
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -1841,6 +1855,148 @@ def delete_drug_product(pk_drug_product=None):
 	gmPG2.run_rw_queries(queries = queries)
 
 #============================================================
+# substance intake regimen
+#------------------------------------------------------------
+_SQL_get_intake_regimen = 'SELECT * FROM clin.v_intake_regimen WHERE %s'
+
+class cIntakeRegimen(gmBusinessDBObject.cBusinessDBObject):
+	"""Represents an intake regimen, either active or inactive."""
+
+	_cmd_fetch_payload = _SQL_get_intake_regimen % 'pk_intake_regimen = %s'
+	_cmds_store_payload = [
+		""" UPDATE clin.intake_regimen SET
+				clin_when = %(started)s,
+				comment_on_start = gm.nullify_empty_string(%(comment_on_start)s),
+				planned_duration = %(planned_duration)s,
+				discontinued = %(discontinued)s,
+				discontinue_reason = gm.nullify_empty_string(%(discontinue_reason)s),
+				narrative = gm.nullify_empty_string(%(schedule)s),
+				fk_encounter = %(pk_encounter)s,
+				fk_episode = %(pk_episode)s,
+				fk_dose = %(pk_dose)s,
+				fk_drug_product = %(pk_drug_product)s,
+				fk_intake = %(pk_intake)s
+			WHERE
+				pk = %(pk_intake_regimen)s
+					AND
+				xmin = %(xmin_intake_regimen)s
+			RETURNING
+				xmin AS xmin_intake_regimen
+				-- also return columns which are calculated in the view used by
+				-- the initial SELECT such that they will further on contain their
+				-- updated value:
+				--, ...
+				--, ...
+		"""
+	]
+	# view columns that can be updated:
+	_updatable_fields = [
+		'started',
+		'comment_on_start',
+		'planned_duration',
+		'discontinued',
+		'discontinue_reason',
+		'pk_encounter',
+		'pk_episode',
+		'pk_dose',
+		'pk_drug_product',
+		'pk_intake',
+		'schedule'
+	]
+	#--------------------------------------------------------
+#	def format(self):
+#		return u'%s' % self
+
+	#--------------------------------------------------------
+	def _get_parsed_schedule(self):
+		tests = [
+			# lead, trail
+			'	1-1-1-1 ',
+			# leading dose
+			'1-1-1-1',
+			'22-1-1-1',
+			'1/3-1-1-1',
+			'/4-1-1-1'
+		]
+		pattern = "^(\d\d|/\d|\d/\d|\d)[\s-]{1,5}\d{0,2}[\s-]{1,5}\d{0,2}[\s-]{1,5}\d{0,2}$"
+		for test in tests:
+			print(test.strip(), ":", regex.match(pattern, test.strip()))
+
+#------------------------------------------------------------
+def get_intake_regimen(order_by=None):
+	if order_by is None:
+		order_by = u'true'
+	else:
+		order_by = u'true ORDER BY %s' % order_by
+	cmd = _SQL_get_intake_regimen % order_by
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	return [ cIntakeRegimen(row = {'data': r, 'idx': idx, 'pk_field': 'pk_intake_regimen'}) for r in rows ]
+
+#------------------------------------------------------------
+def create_intake_regimen(pk_intake=None, started=None, pk_encounter=None, pk_episode=None, schedule=None, discontinued=None, link_obj=None):
+	cols = [
+		'fk_intake',
+		'clin_when',
+		'fk_encounter',
+		'fk_episode',
+		'narrative'
+	]
+	vals = [
+		'%(pk_intake)s',
+		'%(started)s',
+		'%(pk_encounter)s',
+		'%(pk_episode)s',
+		'gm.nullify_empty_string(%(schedule)s)'
+	]
+	query_args = {
+		'pk_intake': pk_intake,
+		'started': started,
+		'pk_encounter': pk_encounter,
+		'pk_episode': pk_episode,
+		'schedule': schedule
+	}
+	if discontinued:
+		cols.append('discontinued')
+		vals.append('%(discontinued)s')
+		query_args['discontinued'] = discontinued
+	cmd = u"""
+		INSERT INTO clin.intake_regimen (
+			%s
+		) VALUES (
+			%s
+		)
+		RETURNING pk
+	""" % (', '.join(cols), ', '.join(vals))
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': query_args}], return_data = True, get_col_idx = False, link_obj = link_obj)
+	return cIntakeRegimen(aPK_obj = rows[0]['pk'], link_obj = link_obj)
+
+#------------------------------------------------------------
+def delete_intake_regimen(pk_intake_regimen=None, link_obj=None):
+	args = {'pk': pk_intake_regimen}
+	cmd = 'DELETE FROM clin.intake_regimen WHERE pk = %(pk)s'
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], link_obj = link_obj)
+	return True
+
+#------------------------------------------------------------
+
+#------------------------------------------------------------
+# widget code
+#------------------------------------------------------------
+#def edit_xxx(parent=None, xxx=None, single_entry=False, presets=None):
+#	pass
+
+#------------------------------------------------------------
+#def delete_intake_regimen():
+#	pass
+
+#------------------------------------------------------------
+#def manage_xxx():
+#	pass
+
+#------------------------------------------------------------
+# remember to add in clinical item generic workflows and generic clinical item formatting
+
+#============================================================
 # substance intakes
 #------------------------------------------------------------
 _SQL_get_substance_intake = "SELECT * FROM clin.v_substance_intakes WHERE %s"
@@ -2509,21 +2665,6 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		return format_substance_intake_as_amts_data(intake = self, strict = strict)
 
 	as_amts_data = property(_get_as_amts_data, lambda x:x)
-
-	#--------------------------------------------------------
-	def _get_parsed_schedule(self):
-		tests = [
-			# lead, trail
-			'	1-1-1-1 ',
-			# leading dose
-			'1-1-1-1',
-			'22-1-1-1',
-			'1/3-1-1-1',
-			'/4-1-1-1'
-		]
-		pattern = "^(\d\d|/\d|\d/\d|\d)[\s-]{1,5}\d{0,2}[\s-]{1,5}\d{0,2}[\s-]{1,5}\d{0,2}$"
-		for test in tests:
-			print(test.strip(), ":", regex.match(pattern, test.strip()))
 
 #------------------------------------------------------------
 def get_substance_intakes(pk_patient=None, return_pks=False):
@@ -3275,6 +3416,8 @@ if __name__ == "__main__":
 
 	from Gnumed.pycommon import gmLog2
 
+	gmDateTime.init()
+
 	#--------------------------------------------------------
 	# generic
 	#--------------------------------------------------------
@@ -3334,6 +3477,51 @@ if __name__ == "__main__":
 				print(c.substance.format())
 
 	#--------------------------------------------------------
+	def test_intake_regimen():
+		conn = gmPG2.get_connection(readonly = False)
+#		for reg in get_intake_regimen():
+#			#print reg
+#			print('------------------------------------------------')
+#			#print('\n'.join(reg.format_maximum_information()))
+#			print('\n'.join(reg.format()))
+#			input()
+		start = gmDateTime.pydt_replace(gmDateTime.pydt_now_here(), year = 1965)
+		end = gmDateTime.pydt_replace(start, second = start.second + 1)
+		reg = create_intake_regimen (
+			pk_intake = 1,
+			started = start,
+			pk_encounter = 1,
+			pk_episode = 1,
+			schedule = 'test schedule',
+			discontinued = end,
+			link_obj = conn
+		)
+		print('\n'.join(reg.format()))
+		input()
+		reg['schedule'] = 'every now and then'
+		reg.save(conn=conn)
+		print('\n'.join(reg.format()))
+		input()
+		reg['pk_drug_product'] = 139
+		reg['pk_dose'] = 474
+		reg.save(conn=conn)
+		print('\n'.join(reg.format()))
+		input()
+		print(delete_intake_regimen(pk_intake_regimen = reg['pk_intake_regimen'], link_obj = conn))
+
+		conn.rollback()
+		conn.close()
+
+	#--------------------------------------------------------
+	def test_get_intake_regimen():
+		for i in get_intake_regimen():
+			#print i
+			print('------------------------------------------------')
+			#print('\n'.join(i.format_maximum_information()))
+			print('\n'.join(i.format()))
+			input()
+
+	#--------------------------------------------------------
 	def test_get_intakes():
 		for i in get_substance_intakes():
 			#print i
@@ -3380,13 +3568,16 @@ if __name__ == "__main__":
 	#test_interaction_check()
 	#test_medically_formatted_start_end()
 
+	gmPG2.request_login_params(setup_pool = True)
 	#test_get_substances()
 	#test_get_doses()
 	#test_get_components()
 	#test_get_drugs()
 	#test_get_intakes()
+	#test_get_intake_regimen()
+	test_intake_regimen()
 	#test_create_substance_intake()
-	test_delete_intake()
+	#test_delete_intake()
 
 	#test_get_habit_drugs()
 
