@@ -19,19 +19,18 @@ create function clin.trf_check_regimen_drug_vs_regimen_dose()
 	language plpgsql
 	as '
 BEGIN
-	PERFORM EXISTS (
-		SELECT 1 FROM ref.lnk_dose2drug r_ld2d
-		WHERE
-			r_ld2d.fk_drug_product = NEW.fk_drug_product
-				AND
-			r_ld2d.fk_dose = NEW.fk_dose
-	);
+	PERFORM 1 FROM ref.lnk_dose2drug r_ld2d
+	WHERE
+		r_ld2d.fk_drug_product = NEW.fk_drug_product
+			AND
+		r_ld2d.fk_dose = NEW.fk_dose
+	;
 	IF FOUND THEN
 		RETURN NEW;
 	END IF;
 
 	RAISE EXCEPTION
-		''[clin.trf_check_regimen_drug_vs_regimen_dose]: INSERT/UPDATE into %.%: Sanity check failed. clin.intake_regimen.pk=%, clin.intake_regimen.fk_dose=%, clin.intake_regimen.fk_drug_product=ref.lnk_dose2drug.fk_drug_product=%'',
+		''[clin.trf_check_regimen_drug_vs_regimen_dose]: INSERT/UPDATE into %.%: Dose does not belong to drug. clin.intake_regimen.pk=%, clin.intake_regimen.fk_dose=%, clin.intake_regimen.fk_drug_product=ref.lnk_dose2drug.fk_drug_product=%'',
 			TG_TABLE_SCHEMA,
 			TG_TABLE_NAME,
 			NEW.pk,
@@ -54,7 +53,6 @@ create trigger tr_check_regimen_drug_vs_regimen_dose
 	for each row
 		when (NEW.fk_drug_product IS NOT NULL)
 		execute procedure clin.trf_check_regimen_drug_vs_regimen_dose();
-
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v23-clin-tr_check_regimen_drug_vs_regimen_dose.sql', '23.0');
