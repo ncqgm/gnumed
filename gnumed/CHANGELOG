@@ -2213,6 +2213,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 ------------------------------------------------
 
 NEW: add list position to export items
+NEW: add intake regimen support
 
 IMPROVED: bootstrap script permissions warning
 IMRPOVED: clin.v_narrative4search: add some demographics (port from 1.8.6)
