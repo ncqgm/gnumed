@@ -17,7 +17,8 @@
 #  - don't create a database backup (you got faith)
 #  quiet
 #  - display failures only, don't chatter
-#
+#  no-check
+#  - do not use
 # ========================================================
 
 set -o pipefail
@@ -26,6 +27,14 @@ PREV_VER="$1"
 NEXT_VER="$2"
 SKIP_BACKUP="$3"
 QUIET="$3"
+SKIP_CHECK="$4"
+if test "$QUIET" != "quiet"; then
+	QUIET="$4"
+fi ;
+if test "$QUIET" != "quiet"; then
+	QUIET="$5"
+fi ;
+
 LOG_BASE="."
 FIXUP_LOG="${LOG_BASE}/fixup_db-v${PREV_VER}.log"
 FIXUP_CONF="fixup_db-v${PREV_VER}.conf"
@@ -76,9 +85,9 @@ else
 fi ;
 
 
-if test "$QUIET" != "quiet"; then
-	QUIET="$4"
-fi ;
+SYSTEM=$(uname -s)
+
+#--------------------------------------------------
 function echo_msg () {
 	if test "$QUIET" == "quiet"; then
 		return
@@ -86,11 +95,13 @@ function echo_msg () {
 	echo $1 ;
 }
 
-
-# Darwin/MacOSX ?
-# (MacOSX cannot "su -c" ...)
-SYSTEM=`uname -s`
-if test "${SYSTEM}" != "Darwin" ; then
+#--------------------------------------------------
+function assert_source_database_exists () {
+	# Darwin/MacOSX ?
+	if test "${SYSTEM}" == "Darwin" ; then
+		# (MacOSX cannot "su -c" ...)
+		return
+	fi ;
 	# Does source database exist ?
 	TEMPLATE_DB="gnumed_v${PREV_VER}"
 	VER_EXISTS=`su -c "psql -l ${PORT_DEF}" -l postgres | grep ${TEMPLATE_DB}`
@@ -108,31 +119,15 @@ if test "${SYSTEM}" != "Darwin" ; then
 		read
 		exit 1
 	fi ;
-fi ;
+}
 
-
-# show what we do
-echo_msg ""
-echo_msg "==========================================================="
-echo_msg "Upgrading GNUmed database: v${PREV_VER} -> v${NEXT_VER}"
-echo_msg ""
-echo_msg "This will create a new GNUmed v${NEXT_VER} database from an"
-echo_msg "existing v${PREV_VER} database. Patient data is transferred and"
-echo_msg "transformed as necessary. The old v${PREV_VER} database will"
-echo_msg "remain unscathed. For the upgrade to proceed there must"
-echo_msg "not be any connections to it by other users, however."
-echo_msg ""
-echo_msg "The name of the new database will be \"gnumed_v${NEXT_VER}\". Note"
-echo_msg "that any pre-existing v${NEXT_VER} database WILL BE DELETED"
-echo_msg "during the upgrade !"
-echo_msg ""
-echo_msg "(this script usually needs to be run as <root>)"
-echo_msg "==========================================================="
-
-
-
-# check for existing target database
-if test "${SYSTEM}" != "Darwin" ; then
+#--------------------------------------------------
+function warn_on_existing_target_database () {
+	# Darwin/MacOSX ?
+	if test "${SYSTEM}" == "Darwin" ; then
+		# (MacOSX cannot "su -c" ...)
+		return
+	fi ;
 	# Does TARGET database exist ?
 	VER_EXISTS=`su -c "psql -l ${PORT_DEF}" -l postgres | grep gnumed_v${NEXT_VER}`
 	if test "${VER_EXISTS}" != "" ; then
@@ -152,38 +147,50 @@ if test "${SYSTEM}" != "Darwin" ; then
 		if test "${REPLY}" != "yes" ; then
 			echo "Upgrading aborted by user."
 			exit 1
-		fi
+		fi ;
 		echo ""
-	fi
-fi
+	fi ;
+}
 
+#--------------------------------------------------
+function check_disk_space () {
+	# Darwin/MacOSX ?
+	if test "${SYSTEM}" == "Darwin" ; then
+		# (MacOSX cannot "su -c" ...)
+		return
+	fi ;
+	DATA_DIR=$(su -c "psql --no-align --tuples-only --quiet -c \"SELECT setting FROM pg_settings WHERE name = 'data_directory' \" " -l postgres)
+	BYTES_FREE=$(df --block-size=1 --output=avail ${DATA_DIR} | grep --only-matching -E '[[:digit:]]+')
+	DB_SIZE=$(su -c "psql --no-align --tuples-only --quiet -c \"SELECT pg_database_size('gnumed_v22') \" | grep --only-matching -E '[[:digit:]]+' " -l postgres)	#"
+	if [ ${DB_SIZE} -gt ${BYTES_FREE} ] ; then
+		echo ""
+		echo "WARNING: Disk space may be insufficient"
+		echo "WARNING:"
+		echo "WARNING:  Data directory : ${DATA_DIR}"
+		echo "WARNING:  Data directory : ${DB_SIZE}"
+		echo "WARNING:  Free disk space: ${BYTES_FREE}"
+		echo "WARNING:"
+		echo ""
+		echo "Continue and try upgrading anyway (may fail) ? "
+		echo ""
+		read -e -p "[y / N]: "
+		if test "${REPLY}" != "y" ; then
+			echo "Upgrading aborted by user."
+			exit 1
+		fi ;
+	fi ;
+}
 
-# check disk space
-DATA_DIR=$(su -c "psql --no-align --tuples-only --quiet -c \"SELECT setting FROM pg_settings WHERE name = 'data_directory' \" " -l postgres)
-BYTES_FREE=$(df --block-size=1 --output=avail ${DATA_DIR} | grep --only-matching -E '[[:digit:]]+')
-DB_SIZE=$(su -c "psql --no-align --tuples-only --quiet -c \"SELECT pg_database_size('gnumed_v22') \" | grep --only-matching -E '[[:digit:]]+' " -l postgres)	#"
-if [ ${DB_SIZE} -gt ${BYTES_FREE} ] ; then
-	echo ""
-	echo "WARNING: Disk space may be insufficient"
-	echo "WARNING:"
-	echo "WARNING:  Data directory : ${DATA_DIR}"
-	echo "WARNING:  Data directory : ${DB_SIZE}"
-	echo "WARNING:  Free disk space: ${BYTES_FREE}"
-	echo "WARNING:"
-	echo ""
-	echo "Continue upgrading (may fail) ? "
-	echo ""
-	read -e -p "[y / N]: "
-	if test "${REPLY}" != "y" ; then
-		echo "Upgrading aborted by user."
-		exit 1
-	fi
-fi
-
-
-# either backup or verify checksums
-echo_msg ""
-if test "$SKIP_BACKUP" != "no-backup" ; then
+#--------------------------------------------------
+function perhaps_backup_source_database () {
+	echo_msg ""
+	if test "$SKIP_BACKUP" == "no-backup" ; then
+		echo "   !!! SKIPPED backup !!!"
+		echo_msg ""
+		echo_msg "   This may prevent you from being able to restore your"
+		echo_msg "   database from an up-to-date backup should you need to."
+		return ;
+	fi;
 	echo_msg "1) creating backup of the database that is to be upgraded ..."
 	echo_msg "   This step may take a substantial amount of time and disk space."
 	echo_msg "   (you will be prompted if you need to type in the password for gm-dbo)"
@@ -202,16 +209,20 @@ if test "$SKIP_BACKUP" != "no-backup" ; then
 		echo "========================================="
 		read
 		exit 1
-	fi
-else
+	fi ;
+	# successfully backed up, no need for integrity checking
+	declare -g SKIP_CHECK="no-check" ;
+}
+
+#--------------------------------------------------
+function perhaps_verify_source_database_integrity () {
 	echo_msg ""
-	echo "   !!! SKIPPED backup !!!"
-	echo_msg ""
-	echo_msg "   This may prevent you from being able to restore your"
-	echo_msg "   database from an up-to-date backup should you need to."
-	echo_msg ""
-	echo_msg "   Be sure you really know what you are doing !"
-	echo_msg ""
+	if test "$SKIP_CHECK" == "no-check" ; then
+		echo "   !!! SKIPPED verification !!!"
+		echo_msg ""
+		echo_msg "   Be sure you really know what you are doing !"
+		return ;
+	fi;
 	echo_msg "1) Verifying checksums in source database (can take a while) ..."
 	# dump to /dev/null for checksum verification
 	#--no-unlogged-table-data
@@ -237,43 +248,78 @@ else
 		echo "Verifying checksums on \"gnumed_v${PREV_VER}\" failed (${RETCODE})."
 		read
 		exit 1
+	fi ;
+}
+
+#--------------------------------------------------
+function explain_planned_upgrade () {
+	echo_msg ""
+	echo_msg "==========================================================="
+	echo_msg "Upgrading GNUmed database: v${PREV_VER} -> v${NEXT_VER}"
+	echo_msg ""
+	echo_msg "This will create a new GNUmed v${NEXT_VER} database from an"
+	echo_msg "existing v${PREV_VER} database. Patient data is transferred and"
+	echo_msg "transformed as necessary. The old v${PREV_VER} database will"
+	echo_msg "remain unscathed. For the upgrade to proceed there must"
+	echo_msg "not be any connections to it by other users, however."
+	echo_msg ""
+	echo_msg "The name of the new database will be \"gnumed_v${NEXT_VER}\". Note"
+	echo_msg "that any pre-existing v${NEXT_VER} database WILL BE DELETED"
+	echo_msg "during the upgrade !"
+	echo_msg ""
+	echo_msg "(this script usually needs to be run as <root>)"
+	echo_msg "==========================================================="
+}
+
+#--------------------------------------------------
+function apply_source_database_fixups () {
+	echo_msg ""
+	echo_msg "2) applying fixes to existing database"
+	./bootstrap_gm_db_system.py --log-file=${FIXUP_LOG} --conf-file=${FIXUP_CONF} --${QUIET}
+	if test "$?" != "0" ; then
+		echo "Fixing \"gnumed_v${PREV_VER}\" did not finish successfully."
+		read
+		exit 1
 	fi
-fi ;
+}
 
+#--------------------------------------------------
+function upgrade_source_to_target_database () {
+	echo_msg ""
+	echo_msg "3) upgrading to new database ..."
+	# fixup for schema hash function
+	# - cannot be done inside bootstrapper
+	# - only needed for converting anything below v6 with a v6 bootstrapper
+	#echo_msg "==> fixup for database hashing (will probably ask for gm-dbo password) ..."
+	#psql --username=gm-dbo --dbname=gnumed_v${PREV_VER} ${PORT_DEF} -f ../sql/gmConcatTableStructureFutureStub.sql
+	./bootstrap_gm_db_system.py --log-file=${UPGRADE_LOG} --conf-file=${UPGRADE_CONF} --${QUIET}
+	if test "$?" != "0" ; then
+		echo "Upgrading \"gnumed_v${PREV_VER}\" to \"gnumed_v${NEXT_VER}\" did not finish successfully."
+		read
+		exit 1
+	fi
+}
 
-# apply fixups to existing database
-echo_msg ""
-echo_msg "2) applying fixes to existing database"
-./bootstrap_gm_db_system.py --log-file=${FIXUP_LOG} --conf-file=${FIXUP_CONF} --${QUIET}
-if test "$?" != "0" ; then
-	echo "Fixing \"gnumed_v${PREV_VER}\" did not finish successfully."
-	read
-	exit 1
-fi
+#--------------------------------------------------
+function vacuum_target_database () {
+	echo_msg ""
+	echo_msg "4) preparing new database for efficient use ..."
+	echo_msg "   If the database is large this may take quite a while!"
+	echo_msg "   You may need to type in the password for gm-dbo."
+	vacuumdb --full --analyze ${PORT_DEF} --username=gm-dbo --dbname=gnumed_v${NEXT_VER}
+}
 
-
-
-# eventually attempt the upgrade
-echo_msg ""
-echo_msg "3) upgrading to new database ..."
-# fixup for schema hash function
-# - cannot be done inside bootstrapper
-# - only needed for converting anything below v6 with a v6 bootstrapper
-#echo_msg "==> fixup for database hashing (will probably ask for gm-dbo password) ..."
-#psql --username=gm-dbo --dbname=gnumed_v${PREV_VER} ${PORT_DEF} -f ../sql/gmConcatTableStructureFutureStub.sql
-./bootstrap_gm_db_system.py --log-file=${UPGRADE_LOG} --conf-file=${UPGRADE_CONF} --${QUIET}
-if test "$?" != "0" ; then
-	echo "Upgrading \"gnumed_v${PREV_VER}\" to \"gnumed_v${NEXT_VER}\" did not finish successfully."
-	read
-	exit 1
-fi
-
-
-#echo_msg ""
-#echo_msg "4) preparing new database for efficient use ..."
-#echo_msg "   If the database is large this may take quite a while!"
-#echo_msg "   You may need to type in the password for gm-dbo."
-#vacuumdb --full --analyze ${PORT_DEF} --username=gm-dbo --dbname=gnumed_v${NEXT_VER}
+#---------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
+assert_source_database_exists
+explain_planned_upgrade
+warn_on_existing_target_database
+check_disk_space
+perhaps_backup_source_database
+perhaps_verify_source_database_integrity
+apply_source_database_fixups
+upgrade_source_to_target_database
+#vacuum_target_database
 
 
 echo_msg ""
