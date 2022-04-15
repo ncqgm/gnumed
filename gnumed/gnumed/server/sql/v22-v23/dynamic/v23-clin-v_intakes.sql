@@ -12,9 +12,9 @@ set default_transaction_read_only to off;
 drop view if exists clin.v_intakes cascade;
 
 create view clin.v_intakes as
-	select * from clin.v_most_recent_inactive_intakes
+	select * from clin.v_intakes__most_recent_inactive
 		union all
-	select * from clin.v_active_intakes
+	select * from clin.v_intakes__active
 ;
 
 comment on view clin.v_intakes is

@@ -9,9 +9,9 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-drop view if exists clin.v_inactive_intakes cascade;
+drop view if exists clin.v_intakes__active cascade;
 
-create view clin.v_inactive_intakes as
+create view clin.v_intakes__active as
 select
 	-- intake
 	c_i.pk
@@ -73,14 +73,14 @@ from
 			left join ref.drug_product r_dp on (r_dp.pk = c_ir.fk_drug_product)
 		join clin.encounter c_enc on (c_i.fk_encounter = c_enc.pk)
 where
-	c_ir.discontinued IS NOT NULL
+	c_ir.discontinued IS NULL
 ;
 
 
-comment on view clin.v_inactive_intakes is
-	'Which substances the patient has been taking.';
+comment on view clin.v_intakes__active is
+	'Which substances the patient is currently taking.';
 
-grant select on clin.v_inactive_intakes to group "gm-doctors";
+grant select on clin.v_intakes__active to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v23-clin-v_inactive_intakes.sql', '23.0');
+select gm.log_script_insertion('v23-clin-v_intakes__active.sql', '23.0');
