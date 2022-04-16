@@ -67,7 +67,9 @@ select
 	r_dp.is_fake
 		as is_fake_product,
 	r_dp.external_code,
-	r_dp.external_code_type
+	r_dp.external_code_type,
+	c_i.xmin
+		as xmin_intake
 from
 	clin.intake c_i
 		join ref.substance r_s on (r_s.pk = c_i.fk_substance)
