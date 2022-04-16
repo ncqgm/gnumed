@@ -34,8 +34,7 @@ select * from (
 			'clin.intake',
 			'clin.intake_regimen',
 			'clin.family_history',
-			'clin.intake',
-			'clin.intake_regimen'
+			'clin.intake'
 		)
 
 	union all

@@ -18,7 +18,10 @@ select
 	c_enc.fk_patient
 		as pk_patient,
 	c_ir.soap_cat,
-	c_ir.clin_when
+	case
+		when c_ir.comment_on_start = '?' then null
+		else c_ir.clin_when
+	end::timestamp with time zone
 		as started,
 	c_ir.comment_on_start,
 	c_ir.planned_duration,

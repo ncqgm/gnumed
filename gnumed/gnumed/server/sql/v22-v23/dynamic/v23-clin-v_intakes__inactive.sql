@@ -36,7 +36,10 @@ select
 		as pk_dose,
 	c_ir.narrative
 		as schedule,
-	c_ir.clin_when
+	case
+		when c_ir.comment_on_start = '?' then null
+		else c_ir.clin_when
+	end::timestamp with time zone
 		as started_regimen,
 	c_ir.comment_on_start,
 	c_ir.discontinued,
