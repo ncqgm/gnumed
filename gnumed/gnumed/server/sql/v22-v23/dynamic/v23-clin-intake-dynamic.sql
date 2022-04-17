@@ -19,7 +19,7 @@ grant select, insert, update, delete on clin.intake to "gm-doctors";
 -- --------------------------------------------------------------
 -- .clin_when
 comment on column clin.intake.clin_when is
-	'When was this intake started.';
+	'When was this intake last checked with the patient.';
 
 -- --------------------------------------------------------------
 -- .fk_encounter
