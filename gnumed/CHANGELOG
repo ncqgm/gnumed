@@ -2218,6 +2218,8 @@ NEW: add intake regimen support
 IMPROVED: bootstrap script permissions warning
 IMRPOVED: clin.v_narrative4search: add some demographics (port from 1.8.6)
 
+FIX: PG14 does not support IS OF anymore, use pg_typeof()
+
 ------------------------------------------------
 # gnumed_v22
 ------------------------------------------------

@@ -80,6 +80,8 @@ select
 	-- issue
 	c_hi.description
 		as health_issue,
+	c_hi.pk
+		as pk_health_issue,
 	-- LOINCS
 	ARRAY (
 		select row_to_json(loinc_row) from (
