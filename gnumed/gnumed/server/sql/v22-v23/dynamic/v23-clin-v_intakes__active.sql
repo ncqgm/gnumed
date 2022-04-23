@@ -102,11 +102,12 @@ from
 	clin.intake c_i
 		join ref.substance r_s on (r_s.pk = c_i.fk_substance)
 		join clin.encounter c_enc on (c_i.fk_encounter = c_enc.pk)
-		left join clin.intake_regimen c_ir on (c_ir.fk_intake = c_i.pk)
-			join ref.dose r_d on (r_d.pk = c_ir.fk_dose)
-			left join ref.drug_product r_dp on (r_dp.pk = c_ir.fk_drug_product)
 		join clin.episode c_epi on (c_i.fk_episode = c_epi.pk)
 			left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
+		left join clin.intake_regimen c_ir on (c_ir.fk_intake = c_i.pk)
+			left join ref.dose r_d on (r_d.pk = c_ir.fk_dose)
+			left join ref.drug_product r_dp on (r_dp.pk = c_ir.fk_drug_product)
+
 where
 	c_ir.discontinued IS NULL
 ;

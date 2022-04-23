@@ -20,7 +20,7 @@ select
 	c_i.clin_when,
 	c_i.modified_by,
 	c_i.soap_cat,
-	_('start of intake') || ': '
+	_('intake') || ': '
 		|| r_s.description
 		|| coalesce(' [' || r_s.atc || ']', '')
 		|| (case
@@ -33,7 +33,8 @@ select
 		|| coalesce(E'\n' || _('intake instructions') || ': ' || r_s.intake_instructions, '')
 		|| coalesce(E'\n' || _('patient notes') || ': ' || c_i.notes4patient, '')
 		|| coalesce(E'\n' || _('provider notes') || ': ' || c_i.narrative, '')
-	|| _('discontinued: unknown')
+	|| E'\n' || _('started: unknown')
+	|| E'\n' || _('discontinued: unknown')
 		as narrative,
 	c_i.fk_encounter
 		as pk_encounter,

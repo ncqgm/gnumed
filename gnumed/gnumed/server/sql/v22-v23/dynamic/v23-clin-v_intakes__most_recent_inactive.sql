@@ -6,7 +6,7 @@
 --
 -- ==============================================================
 \set ON_ERROR_STOP 1
-set default_transaction_read_only to off;
+--set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
 drop view if exists clin.v_intakes__most_recent_inactive cascade;
