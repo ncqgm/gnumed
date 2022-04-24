@@ -506,7 +506,7 @@ class DrugDisplay(wx.Panel):
 		self.mId = aId
 		# getProductInfo returns a HTML-formatted page 
 		(self.drugProductInfo,self.drugPIHeaders)=self.mDrugView.getProductInfo(aId)
-#		self.comboProduct.SetValue(result[0]['product'])
+#		self.comboProduct.SetValue(result[0]['drug_product'])
 		self.inDisplay_PI = 0
 		# show info page
 		self.html_viewer.SetPage(self.drugProductInfo)

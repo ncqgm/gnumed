@@ -117,7 +117,7 @@ def manage_vaccines(parent=None):
 #				u'Fully delete the vaccine (including the associated drug product) ?\n'
 #				u'\n'
 #				u' "%s" (%s)'
-#			) % (product['product'], product['l10n_preparation'])
+#			) % (product['drug_product'], product['l10n_preparation'])
 #		)
 #		if delete_product:
 #			pass
@@ -473,7 +473,7 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 	def _save_as_update(self):
 
 		drug = self.data.product
-		drug['product'] = self._PRW_drug_product.GetValue().strip()
+		drug['drug_product'] = self._PRW_drug_product.GetValue().strip()
 		drug['is_fake_product'] = self._CHBOX_fake.GetValue()
 		val = self._PRW_atc.GetData()
 		if val is not None:
