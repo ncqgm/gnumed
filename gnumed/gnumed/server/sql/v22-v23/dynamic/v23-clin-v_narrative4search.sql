@@ -31,13 +31,19 @@ select * from (
 			'clin.allergy',
 			'clin.test_result',
 			'clin.procedure',
-			'clin.substance_intake',
-			'clin.family_history'
+			'clin.intake',
+			'clin.intake_regimen',
+			'clin.family_history',
+			'clin.intake'
 		)
+
+	union all
+		select * from clin.v_intake4narr_search
+		where gm.is_null_or_blank_string(narrative) is FALSE
 
 
 	union all
-		select * from clin.v_subst_intake4narr_search
+		select * from clin.v_intake_regimen4narr_search
 		where gm.is_null_or_blank_string(narrative) is FALSE
 
 

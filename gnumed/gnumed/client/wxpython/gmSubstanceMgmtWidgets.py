@@ -717,7 +717,7 @@ def manage_drug_components(parent=None):
 		items = [ [
 			'%s%s' % (c['substance'], gmTools.coalesce(c['atc_substance'], '', ' [%s]')),
 			'%s %s' % (c['amount'], c.formatted_units),
-			'%s%s' % (c['product'], gmTools.coalesce(c['atc_drug'], '', ' [%s]')),
+			'%s%s' % (c['drug_product'], gmTools.coalesce(c['atc_drug'], '', ' [%s]')),
 			c['l10n_preparation'],
 			gmTools.coalesce(c['external_code'], '', '%%s [%s]' % c['external_code_type']),
 			c['pk_component']
@@ -853,7 +853,7 @@ class cDrugComponentEAPnl(wxgDrugComponentEAPnl.wxgDrugComponentEAPnl, gmEditAre
 
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
-		self._TCTRL_product_name.SetValue('%s (%s)' % (self.data['product'], self.data['l10n_preparation']))
+		self._TCTRL_product_name.SetValue('%s (%s)' % (self.data['drug_product'], self.data['l10n_preparation']))
 		self._TCTRL_components.SetValue(' / '.join(self.data.containing_drug['components']))
 		details = []
 		if self.data['atc_drug'] is not None:
@@ -909,7 +909,7 @@ def edit_drug_product(parent=None, drug_product=None, single_entry=False):
 					' "%s" (%s)\n'
 					'\n'
 					'because it is currently taken by patients.\n'
-				) % (drug_product['product'], drug_product['l10n_preparation'])
+				) % (drug_product['drug_product'], drug_product['l10n_preparation'])
 			)
 			return False
 
@@ -967,7 +967,7 @@ def manage_drug_products(parent=None, ignore_OK_button=False):
 						' "%s" (%s)\n'
 						'\n'
 						'because it is in use.'
-					) % (product['product'], product['l10n_preparation'])
+					) % (product['drug_product'], product['l10n_preparation'])
 				)
 				return False
 
@@ -984,7 +984,7 @@ def manage_drug_products(parent=None, ignore_OK_button=False):
 					' "%s" (%s)\n'
 					'\n'
 					'because it is in use.'
-				) % (product['product'], product['l10n_preparation'])
+				) % (product['drug_product'], product['l10n_preparation'])
 			)
 			return False
 
@@ -1000,7 +1000,7 @@ def manage_drug_products(parent=None, ignore_OK_button=False):
 		drugs = gmMedication.get_drug_products()
 		items = [ [
 			'%s%s' % (
-				d['product'],
+				d['drug_product'],
 				gmTools.bool2subst(d['is_fake_product'], ' (%s)' % _('fake'), '')
 			),
 			d['l10n_preparation'],
@@ -1046,7 +1046,7 @@ def manage_components_of_drug_product(parent=None, product=None):
 					' "%s" (%s)\n'
 					'\n'
 					'because it is currently taken by patients.\n'
-				) % (product['product'], product['l10n_preparation'])
+				) % (product['drug_product'], product['l10n_preparation'])
 			)
 			return False
 
@@ -1064,7 +1064,7 @@ def manage_components_of_drug_product(parent=None, product=None):
 		right_col = _('Components of drug')
 		comp_doses = []
 	else:
-		right_col = '%s (%s)' % (product['product'], product['l10n_preparation'])
+		right_col = '%s (%s)' % (product['drug_product'], product['l10n_preparation'])
 		msg = _(
 			'Adjust the components of "%s"\n'
 			'\n'
@@ -1224,7 +1224,7 @@ class cDrugProductEAPnl(wxgDrugProductEAPnl.wxgDrugProductEAPnl, gmEditArea.cGen
 
 	#----------------------------------------------------------------
 	def _save_as_update(self):
-		self.data['product'] = self._PRW_product_name.GetValue().strip()
+		self.data['drug_product'] = self._PRW_product_name.GetValue().strip()
 		self.data['preparation'] = gmTools.coalesce (
 			self._PRW_preparation.GetData(),
 			self._PRW_preparation.GetValue()
@@ -1263,7 +1263,7 @@ class cDrugProductEAPnl(wxgDrugProductEAPnl.wxgDrugProductEAPnl, gmEditArea.cGen
 
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
-		self._PRW_product_name.SetText(self.data['product'], self.data['pk_drug_product'])
+		self._PRW_product_name.SetText(self.data['drug_product'], self.data['pk_drug_product'])
 		self._PRW_preparation.SetText(self.data['preparation'], self.data['preparation'])
 		self._CHBOX_is_fake.SetValue(self.data['is_fake_product'])
 		comp_str = ''
@@ -1343,7 +1343,7 @@ def edit_single_component_generic_drug(parent=None, drug=None, single_entry=Fals
 #					' "%s" (%s)\n'
 #					'\n'
 #					'because it is currently taken by patients.\n'
-#				) % (drug['product'], drug['l10n_preparation'])
+#				) % (drug['drug_product'], drug['l10n_preparation'])
 #			)
 #			return False
 
@@ -1409,7 +1409,7 @@ def manage_single_component_generic_drugs(parent=None, ignore_OK_button=False):
 						'\n'
 						'because it is a vaccine. Please edit it\n'
 						'from the vaccine management section !\n'
-					) % (product['product'], product['l10n_preparation'])
+					) % (product['drug_product'], product['l10n_preparation'])
 				)
 				return False
 
@@ -1427,7 +1427,7 @@ def manage_single_component_generic_drugs(parent=None, ignore_OK_button=False):
 					'\n'
 					'because it is a vaccine. Please delete it\n'
 					'from the vaccine management section !\n'
-				) % (product['product'], product['l10n_preparation'])
+				) % (product['drug_product'], product['l10n_preparation'])
 			)
 			return False
 		gmMedication.delete_drug_product(pk_drug_product = product['pk_drug_product'])
@@ -1442,7 +1442,7 @@ def manage_single_component_generic_drugs(parent=None, ignore_OK_button=False):
 		drugs = gmMedication.get_drug_products()
 		items = [ [
 			'%s%s' % (
-				d['product'],
+				d['drug_product'],
 				gmTools.bool2subst(d['is_fake_product'], ' (%s)' % _('fake'), '')
 			),
 			d['l10n_preparation'],

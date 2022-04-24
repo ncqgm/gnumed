@@ -371,7 +371,7 @@ __known_variant_placeholders = {
 	'current_meds_for_rx': """formats substance intakes either by substance (non-product intakes) or by producdt (once per product intake, even if multi-component):
 		args: <line template>
 		<line_template>: template into which to insert each intake, keys from
-		clin.v_substance_intakes, special additional keys:
+		clin.v_intakes__active, special additional keys:
 			%(contains)s -- list of components
 			%(amount2dispense)s -- how much/many to dispense""",
 
@@ -2035,7 +2035,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			if intake['pk_drug_product'] is None:
 				unique_intakes[intake['pk_substance']] = intake
 			else:
-				unique_intakes[intake['product']] = intake
+				unique_intakes[intake['drug_product']] = intake
 		del intakes2export
 		unique_intakes = unique_intakes.values()
 
@@ -2211,13 +2211,13 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			fields_dict = intake.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style)
 			fields_dict['medically_formatted_start'] = self._escape(intake.medically_formatted_start)
 			if intake['pk_drug_product'] is None:
-				fields_dict['product'] = self._escape(_('generic %s') % fields_dict['substance'])
+				fields_dict['drug_product'] = self._escape(_('generic %s') % fields_dict['substance'])
 				fields_dict['contains'] = self._escape('%s %s%s' % (fields_dict['substance'], fields_dict['amount'], fields_dict['unit']))
-				intakes2show[fields_dict['product']] = fields_dict
+				intakes2show[fields_dict['drug_product']] = fields_dict
 			else:
 				comps = [ c.split('::') for c in intake.containing_drug['components'] ]
 				fields_dict['contains'] = self._escape('; '.join([ '%s %s%s' % (c[0], c[1], c[2]) for c in comps ]))
-				intakes2show[intake['product']] = fields_dict		# this will make multi-component drugs unique
+				intakes2show[intake['drug_product']] = fields_dict		# this will make multi-component drugs unique
 
 		intakes2dispense = {}
 		for product, intake in intakes2show.items():
@@ -2242,7 +2242,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		lines = []
 		for a in abuses:
 			fields = a.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style)
-			fields['harmful_use_type'] = a.harmful_use_type_string
+			fields['use_type'] = a.use_type_string
 			lines.append(template % fields)
 		return '\n'.join(lines)
 
@@ -2267,7 +2267,6 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		else:
 			current_meds = emr.get_current_medications (
 				include_inactive = False,
-				include_unapproved = True,
 				order_by = 'product, substance'
 			)
 			if len(current_meds) == 0:
@@ -3742,7 +3741,7 @@ if __name__ == '__main__':
 			#u'$<receiver_country::, %s::120>$',
 			#u'$<external_care::%(issue)s: %(provider)s of %(unit)s@%(organization)s (%(comment)s)::1024>$',
 			#u'$<url_escape::hello world ü::>$',
-			#u'$<substance_abuse::%(substance)s (%(harmful_use_type)s) last=%(last_checked_when)s stop=%(discontinued)s // %(notes)s::>$',
+			#u'$<substance_abuse::%(substance)s (%(use_type)s) last=%(last_checked_when)s stop=%(discontinued)s // %(notes)s::>$',
 			#u'bill_adr_region::region %s::1234',
 			#u'bill_adr_country::%s::1234',
 			#u'bill_adr_subunit::subunit: %s::1234',

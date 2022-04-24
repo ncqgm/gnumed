@@ -714,7 +714,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			data[sort_key] = [label, vacc]
 		del vaccs
 
-		for abuse in [ a for a in emr.abused_substances if a['harmful_use_type'] == 3 ]:
+		for abuse in [ a for a in emr.abused_substances if a['use_type'] == gmMedication.USE_TYPE_PREVIOUSLY_ADDICTED ]:
 			sort_key = '%s::%s' % (gmDateTime.pydt_strftime(abuse['last_checked_when'], format = date_format4sorting), abuse['substance'])
 			label = _('Hx of addiction: %s') % abuse['substance']
 			sort_key_list.append(sort_key)
@@ -833,12 +833,12 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		# harmful substance use ?
 		abuses = emr.abused_substances
-		if len([ a for a in abuses if a['harmful_use_type'] in [1, 2] ]) > 0:
+		if len([ a for a in abuses if a['use_type'] in gmMedication.USE_TYPES_ACTIVE_MISUSE ]) > 0:
 			list_items.append(_('active substance abuse'))
 			data_items.append('\n'.join([ a.format(left_margin=0, date_format='%Y %b %d', single_line=True) for a in abuses ]))
 
 		# list by product or substance:
-		intakes = emr.get_current_medications(include_inactive = False, include_unapproved = True, order_by = 'substance')
+		intakes = emr.get_current_medications(include_inactive = False, order_by = 'substance')
 		multi_products_already_seen = []
 		for intake in intakes:
 			drug = intake.containing_drug
@@ -851,11 +851,11 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				))
 				data_items.append(intake)
 			else:
-				if intake['product'] in multi_products_already_seen:
+				if intake['drug_product'] in multi_products_already_seen:
 					continue
-				multi_products_already_seen.append(intake['product'])
+				multi_products_already_seen.append(intake['drug_product'])
 				list_items.append(_('%s %s%s') % (
-					intake['product'],
+					intake['drug_product'],
 					drug['l10n_preparation'],
 					gmTools.coalesce(intake['schedule'], '', ': %s')
 				))
@@ -877,7 +877,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			atcs.append(data['atc_substance'])
 #		if data['atc_drug'] is not None:
 #			atcs.append(data['atc_drug'])
-#		allg = emr.is_allergic_to(atcs = atcs, inns = (data['substance'],), drug = data['product'])
+#		allg = emr.is_allergic_to(atcs = atcs, inns = (data['substance'],), drug = data['drug_product'])
 		allg = emr.is_allergic_to(atcs = atcs, inns = [data['substance']])
 		if allg is False:
 			allg = None

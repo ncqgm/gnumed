@@ -416,13 +416,13 @@ __xml_intake_template = """
 
 def __format_intake_as_timeline_xml(intake):
 	if intake['discontinued'] is None:
-		if intake['duration'] is None:
+		if intake['planned_duration'] is None:
 			if intake['seems_inactive']:
 				end = intake['started']
 			else:
 				end = now
 		else:
-			end = intake['started'] + intake['duration']
+			end = intake['started'] + intake['planned_duration']
 	else:
 		end = intake['discontinued']
 
@@ -556,7 +556,7 @@ def create_timeline_file(patient=None, filename=None, include_documents=False, i
 			timeline.write(__format_vaccination_as_timeline_xml(vacc))
 
 	timeline.write('\n<!--\n========================================\n Substance intakes\n======================================== -->')
-	for intake in emr.get_current_medications(include_inactive = True, include_unapproved = False):
+	for intake in emr.get_current_medications(include_inactive = True):
 		timeline.write(__format_intake_as_timeline_xml(intake))
 
 	if include_documents:

@@ -127,6 +127,8 @@ SQL
 
 	view name: schema.v_table_name+s_or_purpose
 
+	add identifying "-- this is a comment" comments to SQL being sent to the server
+
 plpgsql
 	USING HINT
 	USING ERRCODE

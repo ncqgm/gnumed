@@ -434,7 +434,7 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 
 		if cmd is None:
 			name = gmTools.coalesce (
-				substance['product'],
+				substance['drug_product'],
 				substance['substance']
 			)
 			cmd = '%s -NAME %s' % (self.path_to_binary, name)
@@ -698,16 +698,13 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 				return False
 			emr = self.patient.emr
 			substance_intakes = emr.get_current_medications (
-				include_inactive = False,
-				include_unapproved = True
+				include_inactive = False
 			)
 
 		drug_snippets = []
 
 		# process FD drugs
 		fd_intakes = [ i for i in substance_intakes if (
-			(i['intake_is_approved_of'] is True)
-				and
 			(i['external_code_type_product'] is not None)
 				and
 			(i['external_code_type_product'].startswith('FreeDiams::'))
@@ -717,7 +714,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		for intake in fd_intakes:
 			# this will leave only one entry per drug
 			# but FreeDiams knows the components ...
-			intakes_pooled_by_product[intake['product']] = intake
+			intakes_pooled_by_product[intake['drug_product']] = intake
 		del fd_intakes
 
 		drug_snippet = """<Prescription>
@@ -733,21 +730,20 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 				gmTools.xml_escape_string(text = intake['external_code_product'].strip()),
 				gmTools.xml_escape_string(text = intake['external_code_product'].strip()),
 				last_db_id,
-				gmTools.xml_escape_string(text = intake['product'].strip())
+				gmTools.xml_escape_string(text = intake['drug_product'].strip())
 			))
 
 		# process non-FD drugs
 		non_fd_intakes = [ i for i in substance_intakes if (
-			(i['intake_is_approved_of'] is True)
-			and (
+			(
 				(i['external_code_type_product'] is None)
 					or
 				(not i['external_code_type_product'].startswith('FreeDiams::'))
 			)
 		)]
 
-		non_fd_product_intakes = [ i for i in non_fd_intakes if i['product'] is not None ]
-		non_fd_substance_intakes = [ i for i in non_fd_intakes if i['product'] is None ]
+		non_fd_product_intakes = [ i for i in non_fd_intakes if i['drug_product'] is not None ]
+		non_fd_substance_intakes = [ i for i in non_fd_intakes if i['drug_product'] is None ]
 		del non_fd_intakes
 
 		drug_snippet = """<Prescription>
@@ -775,7 +771,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 
 		intakes_pooled_by_product = {}
 		for intake in non_fd_product_intakes:
-			prod = '%s %s' % (intake['product'], intake['l10n_preparation'])
+			prod = '%s %s' % (intake['drug_product'], intake['l10n_preparation'])
 			try:
 				intakes_pooled_by_product[prod].append(intake)
 			except KeyError:
@@ -1359,7 +1355,7 @@ if __name__ == "__main__":
 		gmPerson.set_active_patient(patient = gmPerson.cPerson(aPK_obj = 12))
 		fd = cFreeDiamsInterface()
 		fd.patient = gmPerson.gmCurrentPatient()
-		fd.check_interactions(substances = fd.patient.emr.get_current_medications(include_unapproved = True))
+		fd.check_interactions(substances = fd.patient.emr.get_current_medications())
 
 	#--------------------------------------------------------
 	# MMI/Gelbe Liste

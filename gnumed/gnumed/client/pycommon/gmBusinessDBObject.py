@@ -179,7 +179,7 @@ class cXxxXxx(gmBusinessDBObject.cBusinessDBObject):
 		u"" "
 			-- typically the underlying table name
 			UPDATE xxx.xxx SET
-				-- typically "table_col = %(view_col)s"
+				-- typically "table_col = % (view_col)s"
 				xxx = %(xxx)s,
 				xxx = gm.nullify_empty_string(%(xxx)s)
 			WHERE
@@ -215,20 +215,20 @@ def get_XXX(order_by=None):
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cXxxXxx(row = {'data': r, 'idx': idx, 'pk_field': 'pk_XXX'}) for r in rows ]
 #------------------------------------------------------------
-def create_xxx(xxx=None, xxx=None):
+def create_xxx(xxx1=None, xxx2=None):
 
 	args = {
-		u'xxx': xxx,
-		u'xxx': xxx
+		u'xxx1': xxx1,
+		u'xxx2': xxx2
 	}
 	cmd = u"" "
 		INSERT INTO xxx.xxx (
-			xxx,
-			xxx,
+			xxx1,
+			xxx2,
 			xxx
 		) VALUES (
-			%(xxx)s,
-			%(xxx)s,
+			%(xxx1)s,
+			%(xxx2)s,
 			gm.nullify_empty_string(%(xxx)s)
 		)
 		RETURNING pk
@@ -251,16 +251,19 @@ def delete_xxx(pk_XXX=None):
 #------------------------------------------------------------
 # widget code
 #------------------------------------------------------------
-def edit_xxx(parent=None, xxx=None, single_entry=False, presets=None):
+#def edit_xxx(parent=None, xxx=None, single_entry=False, presets=None):
+#	pass
 
 #------------------------------------------------------------
-def delete_xxx()
+#def delete_xxx():
+#	pass
 
 #------------------------------------------------------------
-def manage_xxx()
+#def manage_xxx():
+#	pass
 
 #------------------------------------------------------------
-# remember to add in clinical item generic workflows
+# remember to add in clinical item generic workflows and generic clinical item formatting
 """
 
 #============================================================
@@ -451,23 +454,24 @@ class cBusinessDBObject(object):
 		# use try: except KeyError: as it is faster and we want this as fast as possible
 
 		# 1) backend payload cache
-		try:
-			return self._payload[self._idx[attribute]]
-		except KeyError:
-			pass
-
-		# 2) extension method results ...
-		getter = getattr(self, 'get_%s' % attribute, None)
-		if not callable(getter):
-			_log.warning('[%s]: no attribute [%s]' % (self.__class__.__name__, attribute))
-			_log.warning('[%s]: valid attributes: %s', self.__class__.__name__, list(self._idx))
-			_log.warning('[%s]: no getter method [get_%s]' % (self.__class__.__name__, attribute))
-			methods = [ m for m in inspect.getmembers(self, inspect.ismethod) if m[0].startswith('get_') ]
-			_log.warning('[%s]: valid getter methods: %s' % (self.__class__.__name__, str(methods)))
-			raise KeyError('[%s]: cannot read from key [%s]' % (self.__class__.__name__, attribute))
-
-		self._ext_cache[attribute] = getter()
-		return self._ext_cache[attribute]
+		return self._payload[self._idx[attribute]]
+#		try:
+#			return self._payload[self._idx[attribute]]
+#		except KeyError:
+#			pass
+#
+#		# 2) extension method results ...
+#		getter = getattr(self, 'get_%s' % attribute, None)
+#		if not callable(getter):
+#			_log.warning('[%s]: no attribute [%s]' % (self.__class__.__name__, attribute))
+#			_log.warning('[%s]: valid attributes: %s', self.__class__.__name__, list(self._idx))
+#			_log.warning('[%s]: no getter method [get_%s]' % (self.__class__.__name__, attribute))
+#			methods = [ m for m in inspect.getmembers(self, inspect.ismethod) if m[0].startswith('get_') ]
+#			_log.warning('[%s]: valid getter methods: %s' % (self.__class__.__name__, str(methods)))
+#			raise KeyError('[%s]: cannot read from key [%s]' % (self.__class__.__name__, attribute))
+#
+#		self._ext_cache[attribute] = getter()
+#		return self._ext_cache[attribute]
 
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
@@ -479,35 +483,36 @@ class cBusinessDBObject(object):
 					self._payload[self._idx[attribute]] = value
 					self._is_modified = True
 				return
+
 			except KeyError:
 				_log.warning('[%s]: cannot set attribute <%s> despite marked settable' % (self.__class__.__name__, attribute))
 				_log.warning('[%s]: supposedly settable attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
 				raise KeyError('[%s]: cannot write to key [%s]' % (self.__class__.__name__, attribute))
 
-		# 2) setters providing extensions
-		if hasattr(self, 'set_%s' % attribute):
-			setter = getattr(self, "set_%s" % attribute)
-			if not callable(setter):
-				raise AttributeError('[%s] setter [set_%s] not callable' % (self.__class__.__name__, attribute))
-			try:
-				del self._ext_cache[attribute]
-			except KeyError:
-				pass
-			if type(value) == tuple:
-				if setter(*value):
-					self._is_modified = True
-					return
-				raise AttributeError('[%s]: setter [%s] failed for [%s]' % (self.__class__.__name__, setter, value))
-			if setter(value):
-				self._is_modified = True
-				return
+#		# 2) setters providing extensions
+#		if hasattr(self, 'set_%s' % attribute):
+#			setter = getattr(self, "set_%s" % attribute)
+#			if not callable(setter):
+#				raise AttributeError('[%s] setter [set_%s] not callable' % (self.__class__.__name__, attribute))
+#			try:
+#				del self._ext_cache[attribute]
+#			except KeyError:
+#				pass
+#			if type(value) == tuple:
+#				if setter(*value):
+#					self._is_modified = True
+#					return
+#				raise AttributeError('[%s]: setter [%s] failed for [%s]' % (self.__class__.__name__, setter, value))
+#			if setter(value):
+#				self._is_modified = True
+#				return
 
-		# 3) don't know what to do with <attribute>
-		_log.error('[%s]: cannot find attribute <%s> or setter method [set_%s]' % (self.__class__.__name__, attribute, attribute))
-		_log.warning('[%s]: settable attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
-		methods = [ m for m in inspect.getmembers(self, inspect.ismethod) if m[0].startswith('set_') ]
-		_log.warning('[%s]: valid setter methods: %s' % (self.__class__.__name__, str(methods)))
-		raise AttributeError('[%s]: cannot set [%s]' % (self.__class__.__name__, attribute))
+#		# 3) don't know what to do with <attribute>
+#		_log.error('[%s]: cannot find attribute <%s> or setter method [set_%s]' % (self.__class__.__name__, attribute, attribute))
+#		_log.warning('[%s]: settable attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
+#		methods = [ m for m in inspect.getmembers(self, inspect.ismethod) if m[0].startswith('set_') ]
+#		_log.warning('[%s]: valid setter methods: %s' % (self.__class__.__name__, str(methods)))
+#		raise AttributeError('[%s]: cannot set [%s]' % (self.__class__.__name__, attribute))
 
 	#--------------------------------------------------------
 	# external API
