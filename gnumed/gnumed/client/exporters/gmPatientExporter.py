@@ -939,7 +939,7 @@ class cEMRJournalExporter:
 		f.write(txt)
 		f.write('=' * (len(txt)-1))
 		f.write('\n')
-		f.write(_('Patient: %s (%s), No: %s\n') % (patient['description'], patient['gender'], patient['pk_identity']))
+		f.write(_('Patient: %s (%s), No: %s\n') % (patient.description, patient['gender'], patient['pk_identity']))
 		f.write(_('Born   : %s, age: %s\n\n') % (
 			patient.get_formatted_dob(format = '%Y %b %d'),
 			patient.get_medical_age()
@@ -1023,7 +1023,7 @@ class cEMRJournalExporter:
 		target.write('=' * (len(txt)-1))
 		target.write('\n')
 		# demographics
-		target.write(_('Patient: %s (%s), No: %s\n') % (patient['description'], patient['gender'], patient['pk_identity']))
+		target.write(_('Patient: %s (%s), No: %s\n') % (patient.description, patient['gender'], patient['pk_identity']))
 		target.write(_('Born   : %s, age: %s\n\n') % (
 			patient.get_formatted_dob(format = '%Y %b %d'),
 			patient.get_medical_age()

@@ -294,7 +294,7 @@ def select_patient_tags(parent=None, patient=None):
 		manage_tag_images(parent = parent)
 		return False
 	#--------------------------------------------------------
-	msg = _('Tags of patient: %s\n') % patient['description_gender']
+	msg = _('Tags of patient: %s\n') % patient.description_gender
 
 	return gmListWidgets.get_choices_from_list (
 		parent = parent,
@@ -1515,7 +1515,7 @@ class cPersonSocialNetworkManagerPnl(wxgPersonSocialNetworkManagerPnl.wxgPersonS
 			self._TCTRL_person.person = ident
 			tt = '%s\n\n%s\n\n%s' % (
 				tt,
-				ident['description_gender'],
+				ident.description_gender,
 				'\n'.join([
 					'%s: %s%s' % (
 						c['l10n_comm_type'],

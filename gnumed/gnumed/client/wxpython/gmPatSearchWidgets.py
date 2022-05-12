@@ -108,11 +108,11 @@ class cMergePatientsDlg(wxgMergePatientsDlg.wxgMergePatientsDlg):
 				'and the patients in question !\n'
 			) % (
 				patient2merge.ID,
-				patient2merge['description_gender'],
+				patient2merge.description_gender,
 				patient2merge['gender'],
 				patient2merge.get_formatted_dob(format = '%Y %b %d'),
 				patient2keep.ID,
-				patient2keep['description_gender'],
+				patient2keep.description_gender,
 				patient2keep['gender'],
 				patient2keep.get_formatted_dob(format = '%Y %b %d')
 			),
@@ -143,11 +143,11 @@ class cMergePatientsDlg(wxgMergePatientsDlg.wxgMergePatientsDlg):
 			' #%s: %s (%s, %s)'
 		) % (
 			patient2merge.ID,
-			patient2merge['description_gender'],
+			patient2merge.description_gender,
 			patient2merge['gender'],
 			patient2merge.get_formatted_dob(format = '%Y %b %d'),
 			patient2keep.ID,
-			patient2keep['description_gender'],
+			patient2keep.description_gender,
 			patient2keep['gender'],
 			patient2keep.get_formatted_dob(format = '%Y %b %d')
 		)
@@ -1199,7 +1199,7 @@ def _check_has_dob(patient=None):
 				'You can proceed to work on the patient but\n'
 				'GNUmed will be unable to assist you with\n'
 				'age-related decisions.\n'
-			) % patient['description_gender']
+			) % patient.description_gender
 		)
 
 #------------------------------------------------------------
@@ -1312,7 +1312,7 @@ class cActivePatientSelector(cPersonSearchCtrl):
 
 		curr_pat = gmPerson.gmCurrentPatient()
 		if curr_pat.connected:
-			name = curr_pat['description']
+			name = curr_pat.description
 			if curr_pat.locked:
 				name = _('%(name)s (locked)') % {'name': name}
 		else:

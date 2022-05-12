@@ -306,12 +306,12 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 		# patient is dead
 		if self.curr_pat['deceased'] is not None:
 			tt += _('Died: %s\n') % gmDateTime.pydt_strftime(self.curr_pat['deceased'], '%d %b %Y')
-			tt += _('At age: %s\n') % self.curr_pat['medical_age']
+			tt += _('At age: %s\n') % self.curr_pat.medical_age
 			age = '%s  %s - %s (%s)' % (
 				self.curr_pat.gender_symbol,
 				self.curr_pat.get_formatted_dob(format = '%d %b %Y'),
 				gmDateTime.pydt_strftime(self.curr_pat['deceased'], '%d %b %Y'),
-				self.curr_pat['medical_age']
+				self.curr_pat.medical_age
 			)
 			if self.curr_pat['dob_is_estimated']:
 				tt += _(' (date of birth and age are estimated)\n')
@@ -326,9 +326,9 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 		if self.curr_pat.get_formatted_dob(format = '%m-%d', honor_estimation = False) == now.strftime('%m-%d'):
 			template = _('%(sex)s  %(dob)s (%(age)s today !)')
 			tt += _("\nToday is the patient's birthday !\n\n")
-			tt += _('Age: %s\n') % self.curr_pat['medical_age']
+			tt += _('Age: %s\n') % self.curr_pat.medical_age
 		else:
-			tt += _('Age: %s, birthday:\n') % self.curr_pat['medical_age']
+			tt += _('Age: %s, birthday:\n') % self.curr_pat.medical_age
 			if self.curr_pat.current_birthday_passed is True:
 				template = '%(sex)s  %(dob)s%(l_arr)s (%(age)s)'
 				tt += ' ' + _('last: %s ago (this year)') % gmDateTime.format_apparent_age_medically (
@@ -353,7 +353,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 		age = template % {
 			'sex': self.curr_pat.gender_symbol,
 			'dob': self.curr_pat.get_formatted_dob(format = '%d %b %Y'),
-			'age': self.curr_pat['medical_age'],
+			'age': self.curr_pat.medical_age,
 			'r_arr': gmTools.u_arrow2right,
 			'l_arr': gmTools.u_left_arrow
 		}

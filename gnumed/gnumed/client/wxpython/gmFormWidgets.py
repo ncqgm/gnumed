@@ -877,7 +877,7 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 		adrs = self.__patient.get_addresses()
 		self.__populate_address_list(addresses = adrs)
 
-		self._TCTRL_final_name.SetValue(self.__patient['description'].strip())
+		self._TCTRL_final_name.SetValue(self.__patient.description.strip())
 
 		self.Layout()
 
@@ -891,8 +891,8 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 	#------------------------------------------------------------
 	def __populate_candidates_list(self):
 
-		list_items = [[_('Patient'), self.__patient['description_gender'].strip()]]
-		list_data = [(self.__patient['description'].strip(), self.__patient.get_addresses(), '', None)]
+		list_items = [[_('Patient'), self.__patient.description_gender.strip()]]
+		list_data = [(self.__patient.description.strip(), self.__patient.get_addresses(), '', None)]
 
 		candidate_type = _('Emergency contact')
 		if self.__patient['emergency_contact'] is not None:
@@ -901,15 +901,15 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 			list_data.append((name, [], '', None))
 		contact = self.__patient.emergency_contact_in_database
 		if contact is not None:
-			list_items.append([candidate_type, contact['description_gender']])
-			list_data.append((contact['description'].strip(), contact.get_addresses(), '', None))
+			list_items.append([candidate_type, contact.description_gender])
+			list_data.append((contact.description.strip(), contact.get_addresses(), '', None))
 
 		candidate_type = _('Primary doctor')
 		prov = self.__patient.primary_provider
 		if prov is not None:
 			ident = prov.identity
-			list_items.append([candidate_type, '%s: %s' % (prov['short_alias'], ident['description_gender'])])
-			list_data.append((ident['description'].strip(), ident.get_addresses(), _('in-praxis primary provider'), None))
+			list_items.append([candidate_type, '%s: %s' % (prov['short_alias'], ident.description_gender)])
+			list_data.append((ident.description.strip(), ident.get_addresses(), _('in-praxis primary provider'), None))
 
 		candidate_type = _('This praxis')
 		branches = gmPraxis.get_praxis_branches(order_by = 'branch')

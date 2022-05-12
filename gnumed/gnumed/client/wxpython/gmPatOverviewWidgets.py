@@ -932,7 +932,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		ident = patient.emergency_contact_in_database
 		if ident is not None:
-			list_items.append(_('emergency: %s') % ident['description_gender'])
+			list_items.append(_('emergency: %s') % ident.description_gender)
 			list_data.append(ident)
 
 		if patient['emergency_contact'] is not None:
@@ -983,7 +983,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		if isinstance(data, gmPerson.cPerson):
 			return '%s\n\n%s' % (
-				data['description_gender'],
+				data.description_gender,
 				'\n'.join([
 					'%s: %s%s' % (
 						c['l10n_comm_type'],
@@ -1001,7 +1001,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			ident = data.identity
 			return '%s: %s\n\n%s%s' % (
 				data['short_alias'],
-				ident['description_gender'],
+				ident.description_gender,
 				'\n'.join([
 					'%s: %s%s' % (
 						c['l10n_comm_type'],

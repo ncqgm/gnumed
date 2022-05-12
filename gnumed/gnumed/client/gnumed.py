@@ -1108,7 +1108,7 @@ def run_tool():
 		from Gnumed.exporters import gmTimelineExporter
 		from Gnumed.exporters import gmPatientExporter
 		while pat is not None:
-			print('patient:', pat['description_gender'])
+			print('patient:', pat.description_gender)
 			# as EMR structure
 			fname = os.path.expanduser('~/gnumed/gm-emr_structure-%s.txt' % pat.subdir_name)
 			print('EMR structure:', gmEMRStructItems.export_emr_structure(patient = pat, filename = fname))

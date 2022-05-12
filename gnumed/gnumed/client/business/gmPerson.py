@@ -23,7 +23,9 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmLog2
 if __name__ == '__main__':
-	_ = lambda x:x
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmBorg
 from Gnumed.pycommon import gmNull
@@ -672,6 +674,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 		names = [ cPersonName(row = {'idx': idx, 'data': r, 'pk_field': 'pk_name'}) for r in rows ]
 		return names
+
 	#--------------------------------------------------------
 	def get_description_gender(self, with_nickname=True):
 		if with_nickname:
@@ -686,6 +689,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			'sex': self.gender_symbol
 		}
 
+	description_gender = property(get_description_gender)
 	#--------------------------------------------------------
 	def get_description(self, with_nickname=True):
 		if with_nickname:
@@ -699,6 +703,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], '', " '%s'")
 		}
 
+	description = property(get_description)
 	#--------------------------------------------------------
 	def add_name(self, firstnames, lastnames, active=True):
 		"""Add a name.
@@ -1816,6 +1821,8 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			)
 		)
 
+	medical_age = property(get_medical_age)
+
 	#----------------------------------------------------------------------
 	def dob_in_range(self, min_distance='1 week', max_distance='1 week'):
 		if self['dob'] is None:
@@ -2647,10 +2654,6 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	del _
-	from Gnumed.pycommon import gmI18N
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
 	gmDateTime.init()
 
 	#--------------------------------------------------------
@@ -2658,14 +2661,17 @@ if __name__ == '__main__':
 
 		ident = cPerson(1)
 		print("setting active patient with", ident)
+		print(ident.description)
 		set_active_patient(patient=ident)
 
 		patient = cPatient(12)
 		print("setting active patient with", patient)
+		print(patient.description)
 		set_active_patient(patient=patient)
 
 		pat = gmCurrentPatient()
 		print(pat['dob'])
+		print(pat.description)
 		#pat['dob'] = 'test'
 
 #		staff = cStaff()
@@ -2828,7 +2834,6 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	#test_dto_person()
 	#test_identity()
-	#test_set_active_pat()
 	#test_search_by_dto()
 	#test_name()
 	#test_gender_list()
@@ -2843,7 +2848,8 @@ if __name__ == '__main__':
 	#test_vcf()
 
 	gmPG2.request_login_params(setup_pool = True)
-	test_mecard()
+	test_set_active_pat()
+	#test_mecard()
 	#test_ext_id()
 	#test_current_patient()
 	#test_assimilate_identity()

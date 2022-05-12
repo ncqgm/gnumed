@@ -232,7 +232,7 @@ def browse_incoming_unmatched(parent=None):
 						'Selecting [NO] makes GNUmed try to find a patient matching the HL7 data.\n'
 					) % (
 						staged_item.patient_identification,
-						pat['description_gender']
+						pat.description_gender
 					),
 					cancel_button = True
 				)

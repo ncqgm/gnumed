@@ -61,7 +61,7 @@ def _display_clinical_reminders():
 			exp,
 			gmTools.coalesce(msg['comment'], '', '\n%s\n'),
 			gmTools.coalesce(msg['data'], '', '\n%s\n'),
-			pat['description_gender'],
+			pat.description_gender,
 			msg['modified_by']
 		)
 		gmGuiHelpers.gm_show_warning (

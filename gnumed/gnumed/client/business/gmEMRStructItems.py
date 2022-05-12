@@ -3824,7 +3824,7 @@ def export_emr_structure(patient=None, filename=None):
 
 	f = io.open(filename, 'w+', encoding = 'utf8')
 
-	f.write('patient [%s]\n' % patient['description_gender'])
+	f.write('patient [%s]\n' % patient.description_gender)
 	emr = patient.emr
 	for issue in emr.health_issues:
 		f.write('\n')
@@ -3972,7 +3972,7 @@ def export_patient_emr_structure():
 	gmPraxis.gmCurrentPraxisBranch(branch = gmPraxis.get_praxis_branches()[0])
 	pat = gmPersonSearch.ask_for_patient()
 	while pat is not None:
-		print('patient:', pat['description_gender'])
+		print('patient:', pat.description_gender)
 		fname = os.path.expanduser('~/gnumed/gm-emr_structure-%s.txt' % pat.subdir_name)
 		print('exported into:', export_emr_structure(patient = pat, filename = fname))
 		pat = gmPersonSearch.ask_for_patient()

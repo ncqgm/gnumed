@@ -209,7 +209,7 @@ class cExportAreaExportToMediaDlg(wxgExportAreaExportToMediaDlg.wxgExportAreaExp
 			'Select the media to export onto below.\n'
 		) % (
 			self.__item_count,
-			self.__patient['description_gender']
+			self.__patient.description_gender
 		)
 		self._LBL_header.Label = msg
 		self._LCTRL_removable_media.set_columns([_('Type'), _('Medium'), _('Details')])
@@ -453,7 +453,7 @@ class cExportAreaSaveAsDlg(wxgExportAreaSaveAsDlg.wxgExportAreaSaveAsDlg):
 	def __init_ui(self):
 		msg = ('\n' + _('Number of entries to save: %s') + '\n\n' + _('Patient: %s') + '\n') % (
 			self.__item_count,
-			self.__patient['description_gender']
+			self.__patient.description_gender
 		)
 		self._LBL_header.Label = msg
 		self._LBL_directory.Label = os.path.join(gmTools.gmPaths().user_work_dir, self.__patient.subdir_name) + os.sep

@@ -270,18 +270,18 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		self.SetItemData(root_item, None)
 		self.SetItemHasChildren(root_item, True)
 
-		self.__root_tooltip = self.__pat['description_gender'] + '\n'
+		self.__root_tooltip = self.__pat.description_gender + '\n'
 		if self.__pat['deceased'] is None:
 			self.__root_tooltip += ' %s (%s)\n\n' % (
 				self.__pat.get_formatted_dob(format = '%d %b %Y'),
-				self.__pat['medical_age']
+				self.__pat.medical_age
 			)
 		else:
 			template = ' %s - %s (%s)\n\n'
 			self.__root_tooltip += template % (
 				self.__pat.get_formatted_dob(format = '%d.%b %Y'),
 				gmDateTime.pydt_strftime(self.__pat['deceased'], '%Y %b %d'),
-				self.__pat['medical_age']
+				self.__pat.medical_age
 			)
 		self.__root_tooltip += gmTools.coalesce(self.__pat['comment'], '', '%s\n\n')
 		doc = self.__pat.primary_provider
@@ -305,7 +305,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 				)
 			if self.__pat['pk_emergency_contact'] is not None:
 				contact = self.__pat.emergency_contact_in_database
-				self.__root_tooltip += ' %s\n' % contact['description_gender']
+				self.__root_tooltip += ' %s\n' % contact.description_gender
 		self.__root_tooltip = self.__root_tooltip.strip('\n')
 		if self.__root_tooltip == '':
 			self.__root_tooltip = ' '
