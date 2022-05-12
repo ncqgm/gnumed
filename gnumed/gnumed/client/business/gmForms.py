@@ -1528,18 +1528,18 @@ _GNUPLOT_WRAPPER_SCRIPT = """# -------------------------------------------------
 #
 # This script is used to make gnuplot
 #
-#	display some debugging information
+#	- display some debugging information,
 #
-#	load GNUmed specific settings such as the timestamp
-#	format, encoding, symbol for missing values,
+#	- load GNUmed specific settings such as the timestamp
+#	  format, encoding, symbol for missing values,
 #
-#	load data specific values such as y(2)label or plot
-#	title which GNUmed will have set up while exporting
-#	test results for plotting,
+#	- load data specific values such as y(2)label or plot
+#	  title which GNUmed will have set up while exporting
+#	  test results for plotting,
 #
-#	know the datafile name from the variable <gm2gpl_datafile>
-#	which the user provided plotting script can then use
-#	to access data like so:
+#	- learn the datafile name from the variable <gm2gpl_datafile>
+#	  which the user-provided plotting script can then use
+#	  to access data like so:
 #
 #		plot gm2gpl_datafile ...
 #
@@ -1561,7 +1561,7 @@ if (gmd_log_verbose == 1) {
 
 # -- data format setup ----
 set encoding utf8
-set timefmt "%%Y-%%m-%%d_%%H:%%M"		# timestamp input formatting, not for output
+set timefmt "%%Y-%%m-%%d_%%H:%%M"		# timestamp format in data (output format defined elsewhere)
 
 
 # -- data file setup ----
@@ -1615,6 +1615,7 @@ class cGnuplotForm(cFormEngine):
 	def substitute_placeholders(self, data_source=None):
 		"""Parse the template into an instance and replace placeholders with values."""
 		pass
+
 	#--------------------------------------------------------
 	def edit(self):
 		"""Allow editing the instance of the template."""
@@ -1627,6 +1628,15 @@ class cGnuplotForm(cFormEngine):
 
 		Expects .data_filename to be set.
 		"""
+		# append some metadata for debugging, if available
+		if self.template is not None:
+			f = open(self.template_filename, 'at', encoding = 'utf8')
+			f.write('\n')
+			f.write('# -- metadata ----------------------------------------------------------------\n')
+			for line in self.template.format():
+				f.write('# %s\n' % line)
+			f.write('# ----------------------------------------------------------------------------\n')
+			f.close()
 		wrapper_filename = gmTools.get_unique_filename (
 			prefix = 'gm2gpl-wrapper-',
 			suffix = '.gpl',
@@ -1652,14 +1662,14 @@ class cGnuplotForm(cFormEngine):
 		success, exit_code, stdout = gmShellAPI.run_process(cmd_line = cmd_line, encoding = 'utf8', verbose = _cfg.get(option = 'debug'))
 		if not success:
 			gmDispatcher.send(signal = 'statustext', msg = _('Error running gnuplot. Cannot plot data.'), beep = True)
-			return
+			return False
 
 		self.final_output_filenames = [
 			self.data_filename,
 			self.template_filename,
 			wrapper_filename
 		]
-		return
+		return True
 
 #------------------------------------------------------------
 form_engines['G'] = cGnuplotForm

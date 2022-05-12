@@ -1,0 +1,177 @@
+#----------------------------------------------------
+# GNUmed gnuplotting script example:
+#
+#	plot several test results vertically aligned
+#
+#----------------------------------------------------
+
+# -- plot appearance setup ----
+# x axis: tics for data only, not mirrored (x2 shows yearly tics), and rotated *inwards*
+set xtics nomirror
+set xtics scale 0,0.5
+set xtics format ""
+
+# x2 axis: yearly tics
+set x2tics out
+set x2tics scale 1,0
+set x2tics offset 2.5,-1
+set x2tics format "{/*0.9 %Y}{/*0.6 %m}"
+
+# y axis: left only
+set ytics nomirror
+set ytics out
+set ytics format "{/*0.9 %h}"
+
+# y2 axis: no labels
+unset y2label
+
+# grid: stripes per year
+set grid noxtics x2tics noytics noy2tics
+
+# key: no key, will be shown in ylabel
+set key off
+
+# title: no titles per-plot
+unset title
+
+# adjacency of subplots
+set bmargin 1	# move closer together
+set lmargin 8	# align
+#set tmargin 0
+#set rmargin 0
+
+# size of PNG output:
+png_min_plot_width = 800
+png_width_per_year = 150
+png_height_per_plot = 400
+
+
+# -- helper functions and variables ----
+min_of(n, m) = (n < m)?n:m
+max_of(n, m) = (n > m)?n:m
+
+x_min_all_plots = 1e38
+x_max_all_plots = -1e38
+array y_ranges_min[multiplot_no_of_tests]
+array y_ranges_max[multiplot_no_of_tests]
+
+
+# -- debugging ----
+print "-- <show all> before plotting ----"
+show all
+print "-- <show variables all> before plotting ----"
+show variables all
+
+
+# -- gather statistics ----
+# STATS does not yet work with timedata, so dummy-plot
+# as ASCII art for accessing GP_* values subsequently
+set terminal dumb size 120, 45 * multiplot_no_of_tests feed enhanced mono #ansirgb
+set output gm2gpl_datafile.'.txt'
+
+set multiplot layout multiplot_no_of_tests,1 title multiplot_title
+	do for [data_block_idx = 0:multiplot_no_of_tests-1] {
+		plot \
+			gm2gpl_datafile index data_block_idx using \
+				1: \
+				2: \
+				(valid(4) ? column(4) : column(2)): \
+				(valid(5) ? column(5) : column(2)) \
+			notitle with yerrorbars pointtype data_block_idx, \
+			gm2gpl_datafile index data_block_idx using \
+				1: \
+		    	2: \
+		    	(sprintf("%s%s", stringcolumn(2), stringcolumn(3))) \
+			notitle with labels right offset 0,1
+
+		x_min_all_plots = min_of(x_min_all_plots, GPVAL_X_MIN)
+		x_max_all_plots = max_of(x_max_all_plots, GPVAL_X_MAX)
+
+		y_ranges_min[data_block_idx + 1] = GPVAL_Y_MIN
+		y_ranges_max[data_block_idx + 1] = GPVAL_Y_MAX
+	}
+unset multiplot
+
+#print sprintf("x_min_all_plots: %d", x_min_all_plots)
+#print sprintf("x_max_all_plots: %d", x_max_all_plots)
+
+
+# -- detect x range and adjust by 10% of entire time span ----
+value_timerange = x_max_all_plots - x_min_all_plots
+timerange_offset = value_timerange * 10 / 100
+min_time_to_show = x_min_all_plots - timerange_offset
+max_time_to_show = x_max_all_plots + timerange_offset
+#print sprintf("min time: %d", min_time_to_show)
+#print sprintf("max time: %d", max_time_to_show)
+
+
+# -- replot as PNG ----
+secs_per_year = 365 * 24 * 60 * 60
+total_secs = max_time_to_show - min_time_to_show
+total_years = total_secs / secs_per_year
+#print sprintf("total secs: %d", total_secs)
+#print sprintf("total yrs : %d", total_years)
+width_for_stack = max_of(png_min_plot_width, (total_years * png_width_per_year))
+#print sprintf("width : %d", width_for_stack)
+height_for_stack = png_height_per_plot * multiplot_no_of_tests
+#print sprintf("png: %d x %d", width_for_stack, height_for_stack)
+
+
+set terminal png size width_for_stack,height_for_stack enhanced transparent nointerlace truecolor #medium #crop
+set output gm2gpl_datafile.'.png'
+
+
+set multiplot layout multiplot_no_of_tests,1 title multiplot_title
+	# adjust x/x2 range across all plots
+	set xrange [min_time_to_show:max_time_to_show]
+	set x2range [min_time_to_show:max_time_to_show]
+	do for [data_block_idx = 0:multiplot_no_of_tests - 1] {
+		if (data_block_idx > 0) {
+			# hide tic marks
+			set x2tics scale 0,0
+			# hide tic labels
+			set x2tics out format ""
+			# no top margin on lower plots
+			set tmargin 0
+		}
+		if (data_block_idx == (multiplot_no_of_tests - 1)) {
+			# lowest plot: rotate xtics down
+			set xtics rotate by -45
+			set bmargin 3
+		}
+		set ylabel multiplot_y_labels[data_block_idx + 1]
+		# adjust y range by 5% for this plot
+		five_percent = abs(y_ranges_max[data_block_idx + 1] * 5 / 100)
+		loffset = (y_ranges_min[data_block_idx + 1] == 0) ? 1 : five_percent
+		hoffset = (y_ranges_max[data_block_idx + 1] == 0) ? 1 : five_percent
+		min_y_to_show = y_ranges_min[data_block_idx + 1] - loffset
+		max_y_to_show = y_ranges_max[data_block_idx + 1] + hoffset
+		set yrange [min_y_to_show:max_y_to_show]
+		# now do the actual plotting:
+		# 1) plot datapoints and their normal range if any
+		# 2) connect datapoints by lines
+		# 3) plot "value+unit" labels for each timestamp (x), alternating ...
+		# 4) ... the label position between top and bottom of graph
+		plot \
+			gm2gpl_datafile index data_block_idx using \
+				1: \
+				2: \
+				(valid(4) ? column(4) : column(2)): \
+				(valid(5) ? column(5) : column(2)) \
+			notitle with yerrorbars pointtype 2, \
+			gm2gpl_datafile index data_block_idx using \
+				1: \
+				2 \
+			notitle with lines, \
+			gm2gpl_datafile index data_block_idx using \
+				1: \
+				(max_y_to_show): \
+				(sprintf("{/*.5 %s }{/*.4 %s}", stringcolumn(2), stringcolumn(3))) \
+			every 2::0 notitle with labels nobox rotate offset 0,-1, \
+			gm2gpl_datafile index data_block_idx using \
+				1: \
+				(min_y_to_show): \
+				(sprintf("{/*.5 %s }{/*.4 %s}", stringcolumn(2), stringcolumn(3))) \
+			every 2::1 notitle with labels nobox rotate offset 0,2
+	}
+unset multiplot
