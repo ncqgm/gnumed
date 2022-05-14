@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-27 23:39+0100\n"
+"POT-Creation-Date: 2022-05-12 19:42+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1824,7 +1824,7 @@ msgstr ""
 msgid ""
 "\n"
 "A milestone is a special case of a point event. It is rendered on the "
-"timescale of a timeline and it can have a desciption shown when hooverd "
+"timescale of a timeline and it can have a description shown when hooverd "
 "over. It can also have a one character label that is displayed in the "
 "milestone box.\n"
 "\n"
@@ -1940,7 +1940,7 @@ msgid ""
 "between them.\n"
 "\n"
 " You can also get to the duplication dialog from the event context menu, "
-"wich appears if you right-click an event with the mouse.\n"
+"which appears if you right-click an event with the mouse.\n"
 msgstr ""
 
 msgid "Search event"
@@ -2320,9 +2320,6 @@ msgstr ""
 msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
 msgstr ""
 
-msgid "Error running pdflatex. Cannot turn LaTeX template into PDF."
-msgstr ""
-
 #, python-format
 msgid "<%s(.bat)> not found"
 msgstr ""
@@ -2424,7 +2421,7 @@ msgid ""
 "be available *pre-packaged* for your system."
 msgstr ""
 
-msgid "Details are found on <http://wiki.gnumed.de>.\n"
+msgid "Details are found on <http://www.gnumed.de>.\n"
 msgstr ""
 
 #, python-format
@@ -2870,10 +2867,13 @@ msgstr ""
 msgid "<age>"
 msgstr ""
 
+msgid "The age."
+msgstr ""
+
 msgid "Caveat"
 msgstr ""
 
-msgid "The age."
+msgid "Vitals"
 msgstr ""
 
 msgid "Edit Document Types"
@@ -4026,67 +4026,66 @@ msgstr ""
 msgid "Programmer must override this text."
 msgstr ""
 
+msgid "Messages:"
+msgstr ""
+
 msgid "&Relevant"
-msgstr ""
-
-msgid "A&ll"
-msgstr ""
-
-msgid "&Overdue"
-msgstr ""
-
-msgid "&Scheduled"
-msgstr ""
-
-msgid "&Unscheduled"
-msgstr ""
-
-msgid "&Expired"
-msgstr ""
-
-msgid "Active patient"
-msgstr ""
-
-msgid "Yours"
-msgstr ""
-
-msgid "&Add"
 msgstr ""
 
 msgid ""
 "Show relevant messages only (excludes expired and not-yet-due messages)."
 msgstr ""
 
+msgid "A&ll"
+msgstr ""
+
 msgid "Show all (but expired) messages."
+msgstr ""
+
+msgid "&Overdue"
 msgstr ""
 
 msgid "Show overdue messages only."
 msgstr ""
 
+msgid "&Scheduled"
+msgstr ""
+
 msgid "Show scheduled (future-due) messages only."
+msgstr ""
+
+msgid "&Unscheduled"
 msgstr ""
 
 msgid "Show unscheduled (no due date) messages only."
 msgstr ""
 
+msgid "&Expired"
+msgstr ""
+
 msgid "Show expired (expiry date has passed) messages only."
+msgstr ""
+
+msgid "Limit to:"
+msgstr ""
+
+msgid "Active patient"
 msgstr ""
 
 msgid "Include only messages about the active patient."
 msgstr ""
 
+msgid "Yours"
+msgstr ""
+
 msgid ""
-"Include only messages explicitely for you (rather than also to all "
-"providers)."
+"Include only messages explicitly for you (rather than also to all providers)."
+msgstr ""
+
+msgid "&Add"
 msgstr ""
 
 msgid "Add a new message."
-msgstr ""
-
-msgid "Messages:"
-msgstr ""
-
-msgid "Limit to:"
 msgstr ""
 
 msgid "&Myself … or:"
@@ -4275,7 +4274,7 @@ msgid ""
 "subscribe."
 msgstr ""
 
-msgid "Find help on http://wiki.gnumed.de, too."
+msgid "Find help on http://www.gnumed.de, too."
 msgstr ""
 
 msgid ""
@@ -4331,7 +4330,7 @@ msgid ""
 "\n"
 "It should then be safe to restart GNUmed.\n"
 "\n"
-"Documentation can be found at <http://wiki.gnumed.de>."
+"Documentation can be found at <http://www.gnumed.de>."
 msgstr ""
 
 msgid ""
@@ -4382,7 +4381,7 @@ msgid ""
 msgstr ""
 
 msgid ""
-"Enlisting GNUmed users is a priviledged operation.\n"
+"Enlisting GNUmed users is a privileged operation.\n"
 "You must enter the password for the database administrator \"gm-dbo\" here."
 msgstr ""
 
@@ -4518,7 +4517,7 @@ msgstr ""
 msgid "Manage test types."
 msgstr ""
 
-msgid "Add measurments."
+msgid "Add measurements."
 msgstr ""
 
 msgid "Show all measurements in a chronological list."
@@ -4847,58 +4846,34 @@ msgstr ""
 msgid "▼"
 msgstr ""
 
-msgid "← &Files"
-msgstr ""
-
-msgid "← &Directory"
-msgstr ""
-
-msgid "← &Archive"
-msgstr ""
-
-msgid "← S&can"
-msgstr ""
-
-msgid "← C&lipboard"
-msgstr ""
-
-msgid "&Save as"
-msgstr ""
-
-msgid "E&xport"
-msgstr ""
-
-msgid "⇶❭ PDF"
-msgstr ""
-
-msgid "→ Archive"
-msgstr ""
-
-msgid "&Print"
-msgstr ""
-
-msgid "→ &Print Mgr"
-msgstr ""
-
-msgid "E-&Mail"
-msgstr ""
-
-msgid "&Fax"
-msgstr ""
-
 msgid "Move down topmost selected item."
+msgstr ""
+
+msgid "← &Files"
 msgstr ""
 
 msgid "Add document(s) from file(s)."
 msgstr ""
 
+msgid "← &Directory"
+msgstr ""
+
 msgid "Add a local directory."
+msgstr ""
+
+msgid "← &Archive"
 msgstr ""
 
 msgid "Add document(s) from archive."
 msgstr ""
 
+msgid "← S&can"
+msgstr ""
+
 msgid "Acquire images from image source (scanner, ...)."
+msgstr ""
+
+msgid "← C&lipboard"
 msgstr ""
 
 msgid "Acquire file or text from the clipboard."
@@ -4907,13 +4882,31 @@ msgstr ""
 msgid "Show the topmost selected document."
 msgstr ""
 
+msgid "&Save as"
+msgstr ""
+
 msgid "Save selected/all items to disk."
+msgstr ""
+
+msgid "E&xport"
 msgstr ""
 
 msgid "Export all/selected items to removable media (CD/DVD/USB)."
 msgstr ""
 
+msgid "Encrypt"
+msgstr ""
+
+msgid "Encrypt selected items in-place."
+msgstr ""
+
+msgid "⇶❭ PDF"
+msgstr ""
+
 msgid "Join selected items into one PDF."
+msgstr ""
+
+msgid "→ Archive"
 msgstr ""
 
 msgid "Store selected/all documents in document archive."
@@ -4922,13 +4915,25 @@ msgstr ""
 msgid "Remove the selected documents."
 msgstr ""
 
+msgid "&Print"
+msgstr ""
+
 msgid "Print selected/all documents."
+msgstr ""
+
+msgid "→ &Print Mgr"
 msgstr ""
 
 msgid "Put selected/all documents into remote print manager."
 msgstr ""
 
+msgid "E-&Mail"
+msgstr ""
+
 msgid "E-mail selected/all documents."
+msgstr ""
+
+msgid "&Fax"
 msgstr ""
 
 msgid "Fax selected/all documents."
@@ -5881,9 +5886,6 @@ msgstr ""
 msgid "Current waist circumference in cm."
 msgstr ""
 
-msgid "Vitals"
-msgstr ""
-
 msgid "RR left"
 msgstr ""
 
@@ -6168,7 +6170,7 @@ msgid ""
 msgstr ""
 
 msgid ""
-"A coment on the certainty of the start date, such as \"+/- 3 weeks\", "
+"A comment on the certainty of the start date, such as \"+/- 3 weeks\", "
 "\"spring of 2002\", \"shortly after Easter 1996\", ...."
 msgstr ""
 
@@ -6494,7 +6496,7 @@ msgstr ""
 msgid "Optional: An URL under which additional information can be found."
 msgstr ""
 
-msgid "Explicitely check the URL given."
+msgid "Explicitly check the URL given."
 msgstr ""
 
 msgid ""
@@ -9650,78 +9652,51 @@ msgstr ""
 msgid "units"
 msgstr ""
 
-msgid "long-term"
-msgstr ""
-
-msgid "short-term"
-msgstr ""
-
-msgid "?short-term"
-msgstr ""
-
-msgid "ongoing"
-msgstr ""
-
-msgid "inactive"
-msgstr ""
-
-msgid "?ongoing"
-msgstr ""
-
 #, python-format
 msgid ""
-"Substance abuse entry                                              [#%s]\n"
+"Substance abuse entry                                              [#%s]"
 msgstr ""
 
 #, python-format
-msgid "Substance: %s [#%s]%s\n"
+msgid "Substance: %s [#%s]%s"
 msgstr ""
 
 #, python-format
-msgid "Use type: %s\n"
+msgid "Use type: %s"
 msgstr ""
 
 #, python-format
-msgid "Last checked: %s\n"
+msgid "Last checked: %s"
 msgstr ""
 
 #, python-format
-msgid " Discontinued %s\n"
+msgid " Discontinued %s"
 msgstr ""
 
 #, python-format
-msgid " Notes: %s\n"
+msgid " Notes: %s"
 msgstr ""
 
 #, python-format
 msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
 msgstr ""
 
+msgid "inactive"
+msgstr ""
+
 #, python-format
-msgid "Substance intake entry (%s, %s)   [#%s]                     \n"
-msgstr ""
-
-msgid "active, needs check"
-msgstr ""
-
-msgid "assumed active"
-msgstr ""
-
-msgid "approved"
-msgstr ""
-
-msgid "unapproved"
+msgid "Substance intake entry (%s)   [#%s]                     "
 msgstr ""
 
 msgid "suspected"
 msgstr ""
 
 #, python-format
-msgid "Substance: %s   [#%s]\n"
+msgid "Substance: %s   [#%s]"
 msgstr ""
 
 #, python-format
-msgid "Preparation: %s\n"
+msgid "Preparation: %s"
 msgstr ""
 
 #, python-format
@@ -9729,19 +9704,19 @@ msgid "Amount per dose: %s %s"
 msgstr ""
 
 #, python-format
-msgid " ATC (substance): %s\n"
+msgid " ATC (substance): %s"
 msgstr ""
 
 #, python-format
-msgid " Product name: %s   [#%s]\n"
+msgid " Product name: %s   [#%s]"
 msgstr ""
 
 #, python-format
-msgid " ATC (drug): %s\n"
+msgid " ATC (drug): %s"
 msgstr ""
 
 #, python-format
-msgid "Other component: %s %s %s\n"
+msgid "Other component: %s %s %s"
 msgstr ""
 
 #, python-format
@@ -9749,37 +9724,31 @@ msgid "Intake: %s"
 msgstr ""
 
 #, python-format
-msgid " Regimen: %s\n"
+msgid " Regimen: %s"
 msgstr ""
 
 #, python-format
-msgid " Started %s%s%s\n"
-msgstr ""
-
-msgid " (long-term)"
-msgstr ""
-
-msgid " (short-term)"
+msgid " Started %s%s"
 msgstr ""
 
 #, python-format
-msgid " Reason: %s\n"
+msgid " Reason: %s"
 msgstr ""
 
 #, python-format
-msgid " Aim: %s\n"
+msgid " Episode: %s"
 msgstr ""
 
 #, python-format
-msgid " Episode: %s\n"
+msgid " Health issue: %s"
 msgstr ""
 
 #, python-format
-msgid " Health issue: %s\n"
+msgid " Provider notes: %s"
 msgstr ""
 
 #, python-format
-msgid " Advice: %s\n"
+msgid " Patient advice: %s"
 msgstr ""
 
 msgid "medication, not abuse"
@@ -10232,39 +10201,6 @@ msgstr ""
 msgid "False"
 msgstr ""
 
-msgid "unknown smoking status"
-msgstr ""
-
-msgid "non-smoker"
-msgstr ""
-
-msgid "current smoker"
-msgstr ""
-
-msgid "ex-smoker"
-msgstr ""
-
-msgid "tobacco addiction"
-msgstr ""
-
-msgid "no or non-harmful alcohol use"
-msgstr ""
-
-msgid "harmful alcohol use"
-msgstr ""
-
-msgid "unknown alcohol use"
-msgstr ""
-
-msgid "no or non-harmful drug use"
-msgstr ""
-
-msgid "harmful drug use"
-msgstr ""
-
-msgid "unknown drug use"
-msgstr ""
-
 msgid "original entry"
 msgstr ""
 
@@ -10534,7 +10470,7 @@ msgstr ""
 msgid "Test result"
 msgstr ""
 
-msgid "Substance intake"
+msgid "Substance intake regimen"
 msgstr ""
 
 msgid "Hospital stay"
@@ -10989,7 +10925,8 @@ msgid "unknown DOB"
 msgstr ""
 
 msgid ""
-"blank line inserted to allow for discontinued line drawing of same-day values"
+"blank line inserted to allow for discontinued-line style drawing of same-day "
+"values:"
 msgstr ""
 
 msgid "The lab request already exists but belongs to a different patient."
@@ -11063,6 +11000,10 @@ msgid ""
 " Created: %s\n"
 " Episode: %s\n"
 "%s%s%s%s%s"
+msgstr ""
+
+#, python-format
+msgid " Health issue: %s\n"
 msgstr ""
 
 #, python-format
@@ -11704,6 +11645,9 @@ msgstr ""
 
 #, python-format
 msgid "Episodes: %s (most recent: %s%s%s)"
+msgstr ""
+
+msgid "ongoing"
 msgstr ""
 
 msgid "No encounters found for this health issue."
@@ -12840,9 +12784,6 @@ msgid ""
 msgstr ""
 
 msgid "Enlisting person as user."
-msgstr ""
-
-msgid "Encrypt"
 msgstr ""
 
 msgid "Decrypt"
@@ -14129,111 +14070,6 @@ msgstr ""
 msgid "Select an address by postcode or street name."
 msgstr ""
 
-msgid "Population"
-msgstr ""
-
-msgid "Child"
-msgstr ""
-
-msgid "Adult"
-msgstr ""
-
-msgid "Elderly"
-msgstr ""
-
-msgid "Distribution"
-msgstr ""
-
-msgid "Truncal"
-msgstr ""
-
-msgid "Generalised"
-msgstr ""
-
-msgid "Face"
-msgstr ""
-
-msgid "Hands"
-msgstr ""
-
-msgid "Flexural"
-msgstr ""
-
-msgid "Sun-exposed"
-msgstr ""
-
-msgid "Colouring"
-msgstr ""
-
-msgid "Pigmented"
-msgstr ""
-
-msgid "Depigmented"
-msgstr ""
-
-msgid "Erythema"
-msgstr ""
-
-msgid "Purpura"
-msgstr ""
-
-msgid "Pattern"
-msgstr ""
-
-msgid "Confluent"
-msgstr ""
-
-msgid "Macular"
-msgstr ""
-
-msgid "Maculo-Papular"
-msgstr ""
-
-msgid "Papular"
-msgstr ""
-
-msgid "Bullous"
-msgstr ""
-
-msgid "Surface"
-msgstr ""
-
-msgid "Skin level"
-msgstr ""
-
-msgid "Eroded"
-msgstr ""
-
-msgid "Crust"
-msgstr ""
-
-msgid "Scale"
-msgstr ""
-
-msgid "Exudate"
-msgstr ""
-
-msgid "Sensation"
-msgstr ""
-
-msgid "Itchy"
-msgstr ""
-
-msgid "Painful"
-msgstr ""
-
-msgid "Occurrence"
-msgstr ""
-
-msgid "Evolving"
-msgstr ""
-
-msgid "Sudden"
-msgstr ""
-
-msgid "Type name of disease"
-msgstr ""
-
 msgid ""
 "Today is your lucky day !\n"
 "\n"
@@ -15241,19 +15077,10 @@ msgid ""
 "%s"
 msgstr ""
 
-#, python-format
-msgid ""
-"GNUmed has auto-selected the following\n"
-"praxis branch for you (which you can\n"
-"later configure as needed):\n"
-"\n"
-"%s"
-msgstr ""
-
 msgid ""
 "No praxis branches configured currently.\n"
 "\n"
-"You MUST select one unit of an organization to be the initial\n"
+"You MUST select one unit of one organization to be the\n"
 "branch (site, office) which you are logging in from."
 msgstr ""
 
@@ -16451,9 +16278,6 @@ msgid ""
 "Note that ALL components of this product were discontinued."
 msgstr ""
 
-msgid "disapproved"
-msgstr ""
-
 msgid "Substances consumed by the patient"
 msgstr ""
 
@@ -16631,7 +16455,61 @@ msgid "Cannot create allergy from more than one substance at once."
 msgstr ""
 
 #, python-format
+msgid "Substance intake entry (%s)   [#%s]                     \n"
+msgstr ""
+
+msgid "active, needs check"
+msgstr ""
+
+msgid "assumed active"
+msgstr ""
+
+#, python-format
+msgid "Substance: %s   [#%s]\n"
+msgstr ""
+
+#, python-format
+msgid "Preparation: %s\n"
+msgstr ""
+
+#, python-format
+msgid " ATC (substance): %s\n"
+msgstr ""
+
+#, python-format
 msgid " Product name: %%s   [#%s]\n"
+msgstr ""
+
+#, python-format
+msgid " ATC (drug): %s\n"
+msgstr ""
+
+#, python-format
+msgid " Regimen: %s\n"
+msgstr ""
+
+#, python-format
+msgid " Started %s%s\n"
+msgstr ""
+
+#, python-format
+msgid " Discontinued %s\n"
+msgstr ""
+
+#, python-format
+msgid " Reason: %s\n"
+msgstr ""
+
+#, python-format
+msgid " Aim: %s\n"
+msgstr ""
+
+#, python-format
+msgid " Episode: %s\n"
+msgstr ""
+
+#, python-format
+msgid " Advice: %s\n"
 msgstr ""
 
 msgid ""
@@ -17114,6 +16992,9 @@ msgstr ""
 msgid "Burning documents"
 msgstr ""
 
+msgid "Select items for encryption."
+msgstr ""
+
 msgid "Select items for PDF."
 msgstr ""
 
@@ -17506,7 +17387,7 @@ msgstr ""
 msgid "No parts to save. Really save an empty document as a reference ?"
 msgstr ""
 
-msgid "No parts to save. Aquire some parts first."
+msgid "No parts to save. Acquire some parts first."
 msgstr ""
 
 #, python-format
@@ -18263,6 +18144,21 @@ msgid ""
 "Please refer to the log file."
 msgstr ""
 
+msgid "&Vaccinations: by date"
+msgstr ""
+
+msgid "Vaccinations ordered by date."
+msgstr ""
+
+msgid "Vaccinations ordered by indication, showing all shots."
+msgstr ""
+
+msgid "&Vaccinations: latest per indication"
+msgstr ""
+
+msgid "Vaccinations ordered by indication, showing latest shot for each."
+msgstr ""
+
 msgid "&Write letter (template)"
 msgstr ""
 
@@ -18275,16 +18171,43 @@ msgstr ""
 msgid "Write a generic letter for the current patient."
 msgstr ""
 
+msgid "Documentation"
+msgstr ""
+
+msgid "GNUmed documentation (online)"
+msgstr ""
+
 msgid "Admin connection"
 msgstr ""
 
 msgid "Test connecting to the database as admin."
 msgstr ""
 
+msgid ""
+"GNUmed will use this URL to access an encyclopedia of\n"
+"measurement/lab methods from within the measurements grid.\n"
+"\n"
+"You can leave this empty but to set it to a specific\n"
+"address the URL must be accessible now."
+msgstr ""
+
+msgid "testing access check for non-existent <admin> role"
+msgstr ""
+
 msgid "Test for connecting as database admin (owner)."
 msgstr ""
 
 msgid "Successfully connected as database owner."
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot find configuration file in any of:\n"
+"\n"
+" %s\n"
+"You may need to use the command line option\n"
+"\n"
+"\t--conf-file=<FILE>"
 msgstr ""
 
 msgid "generic activity"
@@ -18394,14 +18317,30 @@ msgid ""
 "Please reconfigure."
 msgstr ""
 
-msgid "RR ?"
+msgid "BP ?"
+msgstr ""
+
+#, python-format
+msgid "BP: %s ago"
+msgstr ""
+
+#, python-format
+msgid "%s (@) in bpm: %s ago"
 msgstr ""
 
 #, python-format
 msgid "BMI %s"
 msgstr ""
 
+#, python-format
+msgid "BMI: %s ago"
+msgstr ""
+
 msgid "BMI ?"
+msgstr ""
+
+#, python-format
+msgid "weight: %s ago"
 msgstr ""
 
 msgid "GFR ?"
@@ -18409,6 +18348,14 @@ msgstr ""
 
 #, python-format
 msgid "GFR %s"
+msgstr ""
+
+#, python-format
+msgid "GFR: %s ago"
+msgstr ""
+
+#, python-format
+msgid "%s: %s ago"
 msgstr ""
 
 #, python-format
@@ -19058,7 +19005,7 @@ msgstr ""
 
 #, python-format
 msgid ""
-"There has not been a patient explicitely associated\n"
+"There has not been a patient explicitly associated\n"
 "with this chunk of HL7 data. However, the data file\n"
 "contains the following patient identification information:\n"
 "\n"
@@ -19324,7 +19271,7 @@ msgid "Please select (or create) a lab for the new test type [%s in %s]"
 msgstr ""
 
 #, python-format
-msgid "%s ago: %s%s%s - %s%s"
+msgid "%s ago: %s%s%s (%s%s)"
 msgstr ""
 
 msgid "Pick the relevant measurement types."
@@ -19935,7 +19882,6 @@ msgstr ""
 
 #, python-format
 msgid ""
-"\n"
 "GNUmed database version mismatch.\n"
 "\n"
 "This database version cannot be used with this client:\n"
@@ -19948,38 +19894,31 @@ msgid ""
 "\n"
 " host: %s\n"
 " database: %s\n"
-" user: %s\n"
+" user: %s"
 msgstr ""
 
 #, python-format
 msgid ""
-"The server and client clocks are off\n"
-"by more than %s minutes !\n"
+"The server and client clocks are off by more than %s minutes !\n"
 "\n"
-"You must fix the time settings before\n"
-"you can use this database with this\n"
+"You must fix the time settings before you can use this database with this "
 "client.\n"
 "\n"
-"You may have to contact your\n"
-"administrator for help."
+"You may have to contact your administrator for help."
 msgstr ""
 
 #, python-format
 msgid ""
-"The server and client clocks are off\n"
-"by more than %s minutes !\n"
+"The server and client clocks are off by more than %s minutes !\n"
 "\n"
 "You should fix the time settings.\n"
-"Otherwise clinical data may appear to\n"
-"have been entered at the wrong time.\n"
+"Otherwise clinical data may appear to have been entered at the wrong time.\n"
 "\n"
-"You may have to contact your\n"
-"administrator for help."
+"You may have to contact your administrator for help."
 msgstr ""
 
 #, python-format
 msgid ""
-"\n"
 "There is a serious problem with the database settings:\n"
 "\n"
 "%s\n"
@@ -19988,20 +19927,36 @@ msgid ""
 msgstr ""
 
 msgid ""
-"\n"
 "You must connect to a different database in order\n"
 "to use the GNUmed client. You may have to contact\n"
 "your administrator for help."
 msgstr ""
 
 msgid ""
-"\n"
 "The client will, however, continue to start up because\n"
 "you are running a development/test version of GNUmed.\n"
 "\n"
 "There may be schema related errors. Please report and/or\n"
 "fix them. Do not rely on this database to work properly\n"
 "in all cases !"
+msgstr ""
+
+#, python-format
+msgid ""
+"Unable to connect to database:\n"
+"\n"
+"%s\n"
+"\n"
+"Please retry with proper credentials or cancel.\n"
+"\n"
+"For the public and any new GNUmed databases the\n"
+"default user name and password are {any-doc, any-doc}.\n"
+"\n"
+"You may also need to check the PostgreSQL client\n"
+"authentication configuration in pg_hba.conf. For\n"
+"details see:\n"
+"\n"
+"https://www.gnumed.de/documentation/GNUmedConfigurePostgreSQL.html"
 msgstr ""
 
 #, python-format
@@ -20022,28 +19977,7 @@ msgid ""
 "authentication configuration in pg_hba.conf. For\n"
 "details see:\n"
 "\n"
-"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
-msgstr ""
-
-#, python-format
-msgid ""
-"Unable to connect to database:\n"
-"\n"
-"%s\n"
-"\n"
-"Please retry with proper credentials or cancel.\n"
-"\n"
-"For the public and any new GNUmed databases the\n"
-"default user name and password are {any-doc, any-doc}.\n"
-"\n"
-"You may also need to check the PostgreSQL client\n"
-"authentication configuration in pg_hba.conf. For\n"
-"details see:\n"
-"\n"
-"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
-msgstr ""
-
-msgid "Connecting to backend"
+"https://www.gnumed.de/documentation/GNUmedConfigurePostgreSQL.html"
 msgstr ""
 
 #, python-format
@@ -20069,7 +20003,7 @@ msgid ""
 "\n"
 "Further help can be found on the website at\n"
 "\n"
-"  http://wiki.gnumed.de\n"
+"  https://www.gnumed.de/documentation/\n"
 "\n"
 "or on the GNUmed mailing list."
 msgstr ""
@@ -20078,6 +20012,9 @@ msgid "Verifying database version"
 msgstr ""
 
 msgid "Verifying database settings"
+msgstr ""
+
+msgid "Connecting to backend"
 msgstr ""
 
 msgid "<restricted procedure>"
@@ -20170,11 +20107,11 @@ msgid ""
 "of their own, which you must do before you can connect to\n"
 "anything other than the public demonstration database, see\n"
 "\n"
-" http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerInstall\n"
+" https://www.gnumed.de/documentation/GNUmedDatabaseInstallation.html\n"
 "\n"
-"For assistance on using GNUmed please consult the wiki:\n"
+"For assistance on using GNUmed please consult the documentation:\n"
 "\n"
-" http://wiki.gnumed.de/bin/view/Gnumed/GnumedManual\n"
+" https://www.gnumed.de/documentation/\n"
 "\n"
 "For more help than the above, please contact:\n"
 "\n"
