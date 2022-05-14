@@ -818,8 +818,9 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.__on_about_database, item)
 		item = help_menu.Append(-1, _('About contributors'), _('Show GNUmed contributors'))
 		self.Bind(wx.EVT_MENU, self.__on_show_contributors, item)
+		item = help_menu.Append(-1, _('Git log'), _('Show full git commit log'))
+		self.Bind(wx.EVT_MENU, self.__on_show_git_log, item)
 		help_menu.AppendSeparator()
-
 		self.mainmenu.Append(help_menu, _("&Help"))
 		# among other things the Manual is added from a plugin
 		self.__gb['main.helpmenu'] = help_menu
@@ -1153,6 +1154,10 @@ class gmTopLevelFrame(wx.Frame):
 		)
 		contribs.ShowModal()
 		contribs.DestroyLater()
+
+	#----------------------------------------------
+	def __on_show_git_log(self, event):
+		gmNetworkTools.open_url_in_browser(url = 'https://www.gnumed.de/documentation/code-smell/commits.log')
 
 	#----------------------------------------------
 	# GNUmed menu

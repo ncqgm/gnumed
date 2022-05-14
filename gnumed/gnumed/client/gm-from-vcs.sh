@@ -49,7 +49,7 @@ TARBALL_OPTS="--local-import --debug"
 # eventually run it
 export PYTHONIOENCODING=utf-8:surrogateescape
 # - devel version:
-ACTIVE_BRANCH=$(git branch | grep '^\*' | cut -f 2 -d ' ')
+ACTIVE_BRANCH=$(git branch --show-current)
 RC=$?
 echo "-------------------------------------------------"
 if test ${RC} -eq 0 ; then
