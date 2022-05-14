@@ -46,7 +46,7 @@ class wxgUnhandledExceptionDlg(wx.Dialog):
 		self._TCTRL_comment.SetToolTip(_("Enter any additional data or commentary you wish to provide such as what you were about to do."))
 		self._TCTRL_comment.SetFocus()
 		self._TCTRL_sender.SetToolTip(_("Please enter your email address so we can provide help to you directly.\n\nOtherwise, feedback can be given on the GNUmed mailing list ONLY (http://lists.gnu.org/mailman/listinfo/gnumed-bugs) to which you will then have to subscribe."))
-		self._TCTRL_helpdesk.SetToolTip(_("Find help on http://www.gnumed.de, too."))
+		self._TCTRL_helpdesk.SetToolTip(_("Find help on https://www.gnumed.de, too."))
 		self._TCTRL_helpdesk.Enable(False)
 		self._TCTRL_logfile.Enable(False)
 		self._BTN_ok.SetToolTip(_("Close this dialog but keep open the GNUmed client.\n\nYou should manually restart the client as soon as possible, however."))
@@ -71,7 +71,8 @@ class wxgUnhandledExceptionDlg(wx.Dialog):
 		__szr_top_inner.Add(__lbl_top_message, 0, wx.ALL | wx.EXPAND, 10)
 		self.__pnl_top_message.SetSizer(__szr_top_inner)
 		__szr_main.Add(self.__pnl_top_message, 0, wx.EXPAND, 0)
-		__lbl_explanation = wx.StaticText(self, wx.ID_ANY, _("GNUmed detected an error for which no specific handling had been defined.\n\nDetails about the error can be found in the log file, a copy of which has\nbeen stored away in your home directory (see below). It may contain\nbits of sensitive information so you may want to screen the content\nbefore handing it to IT staff for debugging.\n\nYou can choose to keep open this GNUmed workplace. However, it is strongly\nadvised to restart this workplace as soon as possible. Meanwhile you can try\nto save unsaved data but don't count on it.\n\nIt should then be safe to restart GNUmed.\n\nDocumentation can be found at <http://www.gnumed.de>."))
+		__lbl_explanation = wx.StaticText(self, wx.ID_ANY, _("GNUmed detected an error for which no specific handling had been defined.\n\nDetails about the error can be found in the log file, a copy of which has\nbeen stored away in your home directory (see below). It may contain\nbits of sensitive information so you may want to screen the content\nbefore handing it to IT staff for debugging.\n\nYou can choose to keep open this GNUmed workplace. However, it is strongly\nadvised to restart this workplace as soon as possible. Meanwhile you can try\nto save unsaved data but don't count on it.\n\nIt should then be safe to restart GNUmed.\n\nDocumentation can be found at <https://www.gnumed
+		.de>."))
 		__szr_main.Add(__lbl_explanation, 0, wx.ALL | wx.EXPAND, 5)
 		__lbl_comment = wx.StaticText(self, wx.ID_ANY, _("Comment"))
 		__lbl_comment.SetToolTip(_("Enter a short comment on what you were trying to do with GNUmed. This information will be added to the logfile for easier identification later on."))

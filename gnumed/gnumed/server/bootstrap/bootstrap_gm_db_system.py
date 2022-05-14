@@ -1094,7 +1094,7 @@ class database:
 			print_msg('')
 			print_msg('For details refer to the GNUmed documentation at:')
 			print_msg('')
-			print_msg('  http://wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL')
+			print_msg('  https://www.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL')
 			print_msg('')
 
 	#--------------------------------------------------------------

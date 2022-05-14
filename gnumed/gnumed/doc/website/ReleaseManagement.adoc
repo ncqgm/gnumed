@@ -17,7 +17,7 @@ version.
 tracker
 * complete database schema changes
 * update link:GnumedManual[User Manual]
-* update http://wiki.gnumed.de/bin/view/Gnumed/PublishManual[manual
+* update https://www.gnumed.de/bin/view/Gnumed/PublishManual[manual
 publisher topic]
 * initial round of link:ReleaseTesting[testing] for release fitness
 
@@ -52,7 +52,7 @@ version _X.Y.rcN_
 * `wxpython/gnumed.py`: set client version _X.Y.rcN_
 * link:ReleaseTesting[test] basic functionality (startup )
 * tag tree: `git tag rel-X-Y-rcN`
-* http://wiki.gnumed.de/bin/view/Gnumed/PublishManual[re-publish manual]
+* https://www.gnumed.de/bin/view/Gnumed/PublishManual[re-publish manual]
 * create tarball
 * publish Release Candidate in our
 https://www.gnumed.de/downloads/[download area]
@@ -127,7 +127,7 @@ _(wash/rinse/repeat as needed)_
 * `git add make-release_tarball.sh`
 * `git commit -v` (suggested message "Prepare X.Y.N release")
 * `git tag -s rel-X-Y-N` (suggested message "Stamp X.Y.N release")
-* http://wiki.gnumed.de/bin/view/Gnumed/PublishManual[re-publish manual]
+* https://www.gnumed.de/bin/view/Gnumed/PublishManual[re-publish manual]
 
 * build tarball
 ** run `dists/Linux/make-release_tarball.sh`

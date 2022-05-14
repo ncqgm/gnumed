@@ -218,7 +218,7 @@ echo " local   samerole    +gm-logins   md5"
 echo ""
 echo "For details refer to the GNUmed documentation at:"
 echo ""
-echo " http://wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+echo " https://www.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
 echo ""
 
 

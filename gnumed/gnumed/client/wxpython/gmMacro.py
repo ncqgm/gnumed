@@ -561,7 +561,7 @@ def show_placeholders():
 	ph_file = io.open(fname, mode = 'wt', encoding = 'utf8', errors = 'replace')
 
 	ph_file.write('Here you can find some more documentation on placeholder use:\n')
-	ph_file.write('\n https://wiki.gnumed.de/bin/view/Gnumed/GmManualLettersForms\n\n\n')
+	ph_file.write('\n https://www.gnumed.de/bin/view/Gnumed/GmManualLettersForms\n\n\n')
 
 	ph_file.write('Variable placeholders:\n')
 	ph_file.write('Usage: $<PLACEHOLDER_NAME::ARGUMENTS::REGION_DEFINITION>$)\n')

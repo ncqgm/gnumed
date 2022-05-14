@@ -2330,7 +2330,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	#----------------------------------------------
 	def __on_medical_links(self, evt):
-		gmNetworkTools.open_url_in_browser(url = 'https://wiki.gnumed.de/bin/view/Gnumed/MedicalContentLinks#AnchorLocaleI%s' % gmI18N.system_locale_level['language'])
+		gmNetworkTools.open_url_in_browser(url = 'https://www.gnumed.de/bin/view/Gnumed/MedicalContentLinks#AnchorLocaleI%s' % gmI18N.system_locale_level['language'])
 
 	#----------------------------------------------
 	def __on_jump_to_drug_db(self, evt):
@@ -2417,7 +2417,7 @@ class gmTopLevelFrame(wx.Frame):
 
 #	#----------------------------------------------
 #	def __on_menu_reference(self, evt):
-#		gmNetworkTools.open_url_in_browser(url = 'https://wiki.gnumed.de/bin/view/Gnumed/MenuReference')
+#		gmNetworkTools.open_url_in_browser(url = 'https://www.gnumed.de/bin/view/Gnumed/MenuReference')
 
 	#----------------------------------------------
 	def __on_pgadmin3(self, evt):

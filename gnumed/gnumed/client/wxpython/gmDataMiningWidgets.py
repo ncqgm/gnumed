@@ -332,7 +332,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 	#--------------------------------------------------------
 	def _on_schema_button_pressed(self, evt):
 		# will block when called in text mode (that is, from a terminal, too !)
-		gmNetworkTools.open_url_in_browser(url = 'https://wiki.gnumed.de/bin/view/Gnumed/DatabaseSchema')
+		gmNetworkTools.open_url_in_browser(url = 'https://www.gnumed.de/bin/view/Gnumed/DatabaseSchema')
 	#--------------------------------------------------------
 	def _on_delete_button_pressed(self, evt):
 		report = self._PRW_report_name.GetValue().strip()

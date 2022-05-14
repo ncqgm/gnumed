@@ -23,7 +23,7 @@ SQL_start = """-- ---------------------------------------------------------
 -- license: GPL v2 or later, manually transferred 3rd party data
 -- provided by Vaibhav Banait
 --
--- http://wiki.gnumed.de/bin/view/Gnumed/GmManualReferenceData
+-- https://www.gnumed.de/bin/view/Gnumed/GmManualReferenceData
 -- ---------------------------------------------------------
 -- enable this if running locally via
 -- psql -d gnumed_vXX -U gm-dbo -f install-data-pack.sql
