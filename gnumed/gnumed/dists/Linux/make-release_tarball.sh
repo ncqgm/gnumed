@@ -328,9 +328,9 @@ cp -vf ../../client/wxpython/gui/*.py ./gnumed-client.$CLIENTREV/client/wxpython
 echo "picking up GNUmed User Manual from the web"
 mkdir -p ./gnumed-client.$CLIENTREV/client/doc/user-manual/
 cd ./gnumed-client.$CLIENTREV/client/doc/user-manual/
-#wget --verbose --output-document=./GNUmed-User-Manual.zip http://wiki.gnumed.de/pub/publish/Gnumed.zip
+#wget --verbose --output-document=./GNUmed-User-Manual.zip https://wiki.gnumed.de/pub/publish/Gnumed.zip
 #unzip GNUmed-User-Manual.zip
-#wget --tries=0 --read-timeout=2 --continue --verbose --output-document=./GNUmed-User-Manual.tgz http://wiki.gnumed.de/pub/publish/tgz.tgz
+#wget --tries=0 --read-timeout=2 --continue --verbose --output-document=./GNUmed-User-Manual.tgz https://wiki.gnumed.de/pub/publish/tgz.tgz
 wget --tries=0 --read-timeout=2 --continue --verbose https://www.gnumed.de/downloads/docs/GNUmed-User-Manual.tgz
 tar -xzf GNUmed-User-Manual.tgz
 rm -vf Release-02.html
@@ -343,7 +343,7 @@ cd -
 echo "downloading the API documentation"
 mkdir -p ./gnumed-client.$CLIENTREV/client/doc/api/
 cd ./gnumed-client.$CLIENTREV/client/doc/api/
-wget --tries=0 --read-timeout=2 --continue --verbose --recursive --convert-links --no-parent --no-directories http://www.gnumed.de/downloads/docs/api/
+wget --tries=0 --read-timeout=2 --continue --verbose --recursive --convert-links --no-parent --no-directories https://www.gnumed.de/downloads/docs/api/
 cd -
 
 
@@ -351,8 +351,8 @@ cd -
 echo "downloading SQL schema documentation"
 mkdir -p ./gnumed-client.$CLIENTREV/client/doc/schema/
 cd ./gnumed-client.$CLIENTREV/client/doc/schema/
-wget --tries=0 --read-timeout=2 --continue --verbose --recursive --convert-links --no-parent --no-directories http://www.gnumed.de/downloads/docs/schema/gnumed_v22/gnumed-entire_schema.html
-wget --tries=0 --read-timeout=2 --continue --verbose --recursive --convert-links --no-parent --no-directories http://www.gnumed.de/downloads/docs/schema/gnumed_v22/gnumed-entire_schema-no_audit.dot
+wget --tries=0 --read-timeout=2 --continue --verbose --recursive --convert-links --no-parent --no-directories https://www.gnumed.de/downloads/docs/schema/gnumed_v22/gnumed-entire_schema.html
+wget --tries=0 --read-timeout=2 --continue --verbose --recursive --convert-links --no-parent --no-directories https://www.gnumed.de/downloads/docs/schema/gnumed_v22/gnumed-entire_schema-no_audit.dot
 cd -
 
 

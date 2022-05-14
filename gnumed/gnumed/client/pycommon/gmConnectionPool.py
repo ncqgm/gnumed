@@ -9,7 +9,7 @@ This pool is (supposedly) thread safe.
 #============================================================
 # SPDX-License-Identifier: GPL-2.0-or-later
 __author__ = "karsten.hilbert@gmx.net"
-__license__ = "GPL v2 or later (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at https://www.gnu.org)"
 
 
 _DISABLE_CONNECTION_POOL = False		# set to True to disable the connection pool for debugging (= always return new connection)

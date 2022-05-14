@@ -3,15 +3,15 @@
 # ===========================================================
 # Fetch and install ARRIBA.
 #
-#	http://www.arriba-hausarzt.de
-#	http://www.arriba-hausarzt.de/material/software.html
+#	https://www.arriba-hausarzt.de
+#	https://www.arriba-hausarzt.de/material/software.html
 #
 # ===========================================================
 
 JAR_VER="2.4.1"
 
 # ===========================================================
-DL_SOURCE_URL="http://www.arriba-hausarzt.de/downloads/arriba.jar"
+DL_SOURCE_URL="https://www.arriba-hausarzt.de/downloads/arriba.jar"
 DL_JAR_NAME="arriba.jar"
 DL_TARGET_DIR="/tmp"
 APP_NAME="arriba"

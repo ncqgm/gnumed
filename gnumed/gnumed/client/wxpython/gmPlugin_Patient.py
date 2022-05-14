@@ -1,7 +1,7 @@
 """gmPlugin_Patient - base classes for GNUMed's patient plugin architecture.
 
 @copyright: author
-@license: GPL v2 or later (details at http://www.gnu.org)
+@license: GPL v2 or later (details at https://www.gnu.org)
 """
 ############################################################################
 __author__ = "H.Herb, I.Haywood, K.Hilbert"

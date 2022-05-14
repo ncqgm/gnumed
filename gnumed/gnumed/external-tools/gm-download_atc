@@ -3,11 +3,11 @@
 # ===========================================================
 # Fetch and unpack LOINC data.
 #
-# 	http://loinc.org
+# 	https://loinc.org
 #
 # ===========================================================
 ARCH_NAME="atc-data.zip"
-DL_URL="http://www.gnumed.de/downloads/data/atc/${ARCH_NAME}"
+DL_URL="https://www.gnumed.de/downloads/data/atc/${ARCH_NAME}"
 DL_DIR="/tmp"
 
 

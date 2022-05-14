@@ -18,7 +18,7 @@ print("===========================")
 #	print("")
 #	print("  ERROR: mxDateTime not installed")
 #	print("  ERROR: this is needed to handle dates and times")
-#	print("  ERROR: mxDateTime is available from http://www.egenix.com/files/python/")
+#	print("  ERROR: mxDateTime is available from https://www.egenix.com/files/python/")
 
 print(" psycopg2...", end=' ')
 try:
@@ -29,7 +29,7 @@ except ImportError:
 	print("")
 	print("  ERROR: psycopg2 not installed")
 	print("  ERROR: this is needed to access PostgreSQL")
-	print("  ERROR: psycopg2 is available from http://www.initd.org/")
+	print("  ERROR: psycopg2 is available from https://www.initd.org/")
 
 print(" wxPython...", end=' ')
 try:
@@ -45,7 +45,7 @@ except ImportError:
 		print("  INFO : you may have to explicitly set $DISPLAY")
 	print("  ERROR: wxPython not installed")
 	print("  ERROR: this is needed to show the GNUmed GUI")
-	print("  INFO : wxPython is available from http://www.wxpython.org")
+	print("  INFO : wxPython is available from https://www.wxpython.org")
 	print("  INFO : on Mac OSX Panther you may have to use 'export DISPLAY=:0'")
 
 # needs to check for uno3

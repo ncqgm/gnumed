@@ -2,7 +2,7 @@
 # gmLoginInfo - a class to encapsulate Postgres login information
 ############################################################################
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
-__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at https://www.gnu.org)'
 
 import logging
 

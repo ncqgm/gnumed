@@ -20,7 +20,7 @@ import xmlrpclib.client
 import socket
 
 print("=> setting up connection to GNUmed client on localhost:9999")
-srv = xmlrpclib.client.ServerProxy('http://localhost:9999')
+srv = xmlrpclib.client.ServerProxy('https://localhost:9999')
 
 print("=> showing macro processor version")
 try:

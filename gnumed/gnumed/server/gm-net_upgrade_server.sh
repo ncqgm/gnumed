@@ -6,7 +6,7 @@ PREV_VER="21"
 NEXT_VER="22"
 
 INSTALL_BASE=~/".gnumed/server-installation"
-DL_BASE="http://www.gnumed.de/downloads/server"
+DL_BASE="https://www.gnumed.de/downloads/server"
 
 OTHER_UPGRADE_OPTS="$1"
 
@@ -17,7 +17,7 @@ if test "${OTHER_UPGRADE_OPTS}" == "update" ; then
 	echo "Updating the upgrader itself."
 	echo ""
 	echo "The new version will be in $0.new."
-	wget http://www.gnumed.de/downloads/server/$0 -O $0.new
+	wget https://www.gnumed.de/downloads/server/$0 -O $0.new
 	chmod +x $0.new
 	exit 0
 fi

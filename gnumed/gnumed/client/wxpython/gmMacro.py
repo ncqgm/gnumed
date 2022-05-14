@@ -522,7 +522,7 @@ __known_variant_placeholders = {
 known_variant_placeholders = list(__known_variant_placeholders)
 
 
-# http://help.libreoffice.org/Common/List_of_Regular_Expressions
+# https://help.libreoffice.org/Common/List_of_Regular_Expressions
 # except that OOo cannot be non-greedy |-(
 #default_placeholder_regex = r'\$<.+?>\$'				# previous working placeholder
 	# regex logic:
@@ -561,7 +561,7 @@ def show_placeholders():
 	ph_file = io.open(fname, mode = 'wt', encoding = 'utf8', errors = 'replace')
 
 	ph_file.write('Here you can find some more documentation on placeholder use:\n')
-	ph_file.write('\n http://wiki.gnumed.de/bin/view/Gnumed/GmManualLettersForms\n\n\n')
+	ph_file.write('\n https://wiki.gnumed.de/bin/view/Gnumed/GmManualLettersForms\n\n\n')
 
 	ph_file.write('Variable placeholders:\n')
 	ph_file.write('Usage: $<PLACEHOLDER_NAME::ARGUMENTS::REGION_DEFINITION>$)\n')
@@ -3455,7 +3455,7 @@ if __name__ == '__main__':
 
 		listener = gmScriptingListener.cScriptingListener(macro_executor = cMacroPrimitives(personality='unit test'), port=9999)
 
-		s = xmlrpc.client.ServerProxy('http://localhost:9999')
+		s = xmlrpc.client.ServerProxy('https://localhost:9999')
 		print("should fail:", s.attach())
 		print("should fail:", s.attach('wrong cookie'))
 		print("should work:", s.version())

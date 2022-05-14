@@ -1,7 +1,7 @@
 """Widgets dealing with address/contact information."""
 #============================================================
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
-__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at https://www.gnu.org)'
 
 # standard library
 import sys

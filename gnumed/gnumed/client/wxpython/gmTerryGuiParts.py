@@ -12,7 +12,7 @@ dependencies: wxPython (>= version 2.3.1)
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTerryGuiParts.py,v $
 __version__ = "$Revision: 1.6 $"
 __author__  = 'Dr. Richard Terry'
-__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at https://www.gnu.org)'
 
 import wx
 

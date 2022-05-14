@@ -4,7 +4,7 @@
 
 #===========================================================================
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = "GPL v2 or later (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at https://www.gnu.org)"
 
 # std libs
 import sys
@@ -345,7 +345,7 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 	)
 
 	msg += '\n\n'
-	msg += _('Details are found on <http://www.gnumed.de>.\n')
+	msg += _('Details are found on <https://www.gnumed.de>.\n')
 	msg += '\n'
 	msg += _('Version information loaded from:\n\n %s') % url
 
@@ -534,7 +534,7 @@ if __name__ == '__main__':
 	def test_check_for_update():
 
 		test_data = [
-			('http://www.gnumed.de/downloads/gnumed-versions.txt', None, None, False),
+			('https://www.gnumed.de/downloads/gnumed-versions.txt', None, None, False),
 			('file:///home/ncq/gm-versions.txt', None, None, False),
 			('file:///home/ncq/gm-versions.txt', '0.2', '0.2.8.1', False),
 			('file:///home/ncq/gm-versions.txt', '0.2', '0.2.8.1', True),

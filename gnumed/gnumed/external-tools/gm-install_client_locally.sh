@@ -8,7 +8,7 @@
 # ===========================================================
 
 INSTALL_BASE=~/".gnumed/client-installation"
-DL_BASE="http://www.gnumed.de/downloads/client"
+DL_BASE="https://www.gnumed.de/downloads/client"
 
 # ===========================================================
 if test "$LOGNAME" == "root" ; then
@@ -49,7 +49,7 @@ if test "${ARG_ONE}" == "update" ; then
 	echo "Updating the installer itself."
 	echo ""
 	echo "The new version will be in $0.new."
-	wget http://www.gnumed.de/downloads/client/$0 -O $0.new
+	wget https://www.gnumed.de/downloads/client/$0 -O $0.new
 	chmod +x $0.new
 	exit 0
 fi

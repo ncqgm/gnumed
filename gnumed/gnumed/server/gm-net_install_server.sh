@@ -69,7 +69,7 @@ fi
 echo ""
 echo "Downloading package ..."
 echo ""
-wget -c http://www.gnumed.de/downloads/server/gnumed-server.latest.tgz
+wget -c https://www.gnumed.de/downloads/server/gnumed-server.latest.tgz
 tar -xzf gnumed-server.latest.tgz
 BASEDIR=`ls -1 -d gnumed-server.*`
 mv -f gnumed-server.latest.tgz ${BASEDIR}-server.tgz

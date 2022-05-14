@@ -6,7 +6,7 @@ functions for authenticating users.
 """
 #================================================================
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
-__license__ = "GPL v2 or later (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at https://www.gnu.org)"
 
 
 # stdlib
@@ -726,7 +726,7 @@ class cLoginPanel(wx.Panel):
 			profiles[label].database = current_db_name
 			profiles[label].encoding = 'UTF8'
 			profiles[label].public_db = True
-			profiles[label].helpdesk = 'http://www.gnumed.de'
+			profiles[label].helpdesk = 'https://www.gnumed.de'
 
 		return profiles
 	#----------------------------------------------------------

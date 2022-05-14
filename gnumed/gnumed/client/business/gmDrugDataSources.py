@@ -527,7 +527,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		)
 	#--------------------------------------------------------
 	def switch_to_frontend(self, blocking=False, mode='interactions'):
-		"""http://ericmaeker.fr/FreeMedForms/di-manual/en/html/ligne_commandes.html"""
+		"""https://ericmaeker.fr/FreeMedForms/di-manual/en/html/ligne_commandes.html"""
 
 		_log.debug('calling FreeDiams in [%s] mode', mode)
 

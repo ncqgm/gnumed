@@ -7,7 +7,7 @@
 # @copyright: author
 #======================================================================
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
-__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at https://www.gnu.org)'
 
 from Gnumed.wxpython import gmPlugin_Patient, gmVaccWidgets
 

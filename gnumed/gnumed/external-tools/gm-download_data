@@ -9,7 +9,7 @@
 #
 # Examples:
 #
-#	ATC: gm-download_data http://www.gnumed.de/downloads/data/atc/atc-data.zip /somewhere/
+#	ATC: gm-download_data https://www.gnumed.de/downloads/data/atc/atc-data.zip /somewhere/
 #
 # ===========================================================
 DL_URL="$1"			# the full URL of the zipped data pack GNUmed wants us to download

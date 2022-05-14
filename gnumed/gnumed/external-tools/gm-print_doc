@@ -109,7 +109,7 @@ echo ""
 
 exit 127
 # ===========================================================
-# http://lists.gnu.org/archive/html/gnumed-devel/2010-01/msg00112.html
+# https://lists.gnu.org/archive/html/gnumed-devel/2010-01/msg00112.html
 #
 # MacOSX:
 #
@@ -122,17 +122,17 @@ exit 127
 # method, in case we should in future (on Macs) pass
 # parameters into an AppleScript:
 #
-# 	http://developer.apple.com/mac/library/qa/qa2001/qa1111.html
+# 	https://developer.apple.com/mac/library/qa/qa2001/qa1111.html
 #
-#	http://forums.macosxhints.com/showthread.php?s=&threadid=19736
+#	https://forums.macosxhints.com/showthread.php?s=&threadid=19736
 #
 #
 # Windows:
 #
 # - freeware 'PrintFile" (as at 2009) supports batch command piping
 # - use "AcroRd32.exe /s /o /h /p $FILES" (requires Acrobat Reader to be installed)
-# - refer to http://www.robvanderwoude.com/printfiles.php#PrintPDF
-# - http://pages.cs.wisc.edu/~ghost/gsview/gsprint.htm
-# - http://stackoverflow.com/questions/4498099/silent-printing-of-a-pdf-in-python
+# - refer to https://www.robvanderwoude.com/printfiles.php#PrintPDF
+# - https://pages.cs.wisc.edu/~ghost/gsview/gsprint.htm
+# - https://stackoverflow.com/questions/4498099/silent-printing-of-a-pdf-in-python
 #
 # ===========================================================

@@ -601,7 +601,7 @@ def delete_export_item(pk_export_item=None):
 
 #============================================================
 _FRONTPAGE_HTML_CONTENT = """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-       "http://www.w3.org/TR/html4/loose.dtd">
+       "https://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
@@ -645,14 +645,14 @@ _FRONTPAGE_HTML_CONTENT = """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transi
 %(adr)s
 </p>
 
-<p>(<a href="http://www.gnumed.de">GNUmed</a> version %(gm_ver)s)</p>
+<p>(<a href="https://www.gnumed.de">GNUmed</a> version %(gm_ver)s)</p>
 
 </body>
 </html>
 """
 
 _INDEX_HTML_CONTENT = """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-       "http://www.w3.org/TR/html4/loose.dtd">
+       "https://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
@@ -705,7 +705,7 @@ For files ending in
 %(adr)s
 </p>
 
-<p>(<a href="http://www.gnumed.de">GNUmed</a> version %(gm_ver)s)</p>
+<p>(<a href="https://www.gnumed.de">GNUmed</a> version %(gm_ver)s)</p>
 
 </body>
 </html>

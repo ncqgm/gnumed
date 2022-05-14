@@ -36,7 +36,7 @@ def update_loinc_reference_data():
 	gmDispatcher.send(signal = 'statustext', msg = _('Updating LOINC data can take quite a while...'), beep = True)
 
 	# download
-	loinc_zip = gmNetworkTools.download_file(url = 'http://www.gnumed.de/downloads/data/loinc/loinctab.zip', suffix = '.zip')
+	loinc_zip = gmNetworkTools.download_file(url = 'https://www.gnumed.de/downloads/data/loinc/loinctab.zip', suffix = '.zip')
 	if loinc_zip is None:
 		wx.EndBusyCursor()
 		gmGuiHelpers.gm_show_warning (

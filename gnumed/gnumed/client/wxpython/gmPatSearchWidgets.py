@@ -10,7 +10,7 @@ generator.
 """
 #============================================================
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = 'GPL v2 or later (for details see http://www.gnu.org/)'
+__license__ = 'GPL v2 or later (for details see https://www.gnu.org/)'
 
 import sys
 import os.path
@@ -90,7 +90,7 @@ class cMergePatientsDlg(wxgMergePatientsDlg.wxgMergePatientsDlg):
 
 		if patient2merge['lastnames'] == 'Kirk':
 			if _cfg.get(option = 'debug'):
-				gmNetworkTools.open_url_in_browser(url = 'http://en.wikipedia.org/wiki/File:Picard_as_Locutus.jpg')
+				gmNetworkTools.open_url_in_browser(url = 'https://en.wikipedia.org/wiki/File:Picard_as_Locutus.jpg')
 				gmGuiHelpers.gm_show_info(_('\n\nYou will be assimilated.\n\n'), _('The Borg'))
 				return
 			else:

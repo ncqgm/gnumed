@@ -5,7 +5,7 @@ REM # on Windows seems to have problems importing
 REM # modules from directory links
 REM mklink /J ..\Gnumed ..\client
 
-REM # hence we use xcopy: http://commandwindows.com/xcopy.htm
+REM # hence we use xcopy: https://commandwindows.com/xcopy.htm
 REM # but need to remove old link first (if any)
 fsutil reparsepoint delete ..\Gnumed
 REM # if it still exists it shouldn't be a link, so remove the directory now

@@ -55,7 +55,7 @@ version _X.Y.rcN_
 * http://wiki.gnumed.de/bin/view/Gnumed/PublishManual[re-publish manual]
 * create tarball
 * publish Release Candidate in our
-http://www.gnumed.de/downloads/[download area]
+https://www.gnumed.de/downloads/[download area]
 * adjust `gm-versions.txt`
 * upgrade public database
 
@@ -132,8 +132,8 @@ _(wash/rinse/repeat as needed)_
 * build tarball
 ** run `dists/Linux/make-release_tarball.sh`
 
-* upload to http://www.gnumed.de/downloads/["Savannah"]
-* adjust http://www.gnumed.de/downloads/gnumed-versions.txt[`gnumed-versions.txt` ]
+* upload to https://www.gnumed.de/downloads/["Savannah"]
+* adjust https://www.gnumed.de/downloads/gnumed-versions.txt[`gnumed-versions.txt` ]
 * update link:ReleaseStatus[release status] page
 
 * build packages for version X.Y.N
@@ -170,8 +170,8 @@ lists.alioth.debian.org
 ==== portal sites
 
 * http://gnumed.blogspot.com
-* http://www.gnumed.org
-* http://www.gnumed.de
+* https://www.gnumed.org
+* https://www.gnumed.de
 * link:WebHome[gnumed Wiki]
 * http://www.linuxmednews.com
 * http://freshmeat.net

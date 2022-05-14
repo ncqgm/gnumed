@@ -49,7 +49,7 @@ If none of this works it will fall back to making _() a noop.
 """
 #===========================================================================
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = "GPL v2 or later (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at https://www.gnu.org)"
 
 
 # stdlib

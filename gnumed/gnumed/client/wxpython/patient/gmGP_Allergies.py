@@ -5,7 +5,7 @@
 # @dependencies: wxPython (>= version 2.3.1)
 #============================================================================
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at https://www.gnu.org)'
 
 
 from Gnumed.wxpython import gmPlugin_Patient, gmAllergyWidgets

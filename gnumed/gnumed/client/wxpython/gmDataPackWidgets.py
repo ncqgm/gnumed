@@ -1,7 +1,7 @@
 """GNUmed data pack related widgets."""
 #================================================================
 __author__ = 'karsten.hilbert@gmx.net'
-__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at https://www.gnu.org)'
 
 # stdlib
 import logging
@@ -32,7 +32,7 @@ _log = logging.getLogger('gm.ui')
 _cfg = gmCfg2.gmCfgData()
 
 
-default_dpl_url = 'http://www.gnumed.de/downloads/data/data-packs.conf'
+default_dpl_url = 'https://www.gnumed.de/downloads/data/data-packs.conf'
 dpl_url_option = 'horstspace.data_packs.url'
 #================================================================
 def install_data_pack(data_pack=None):

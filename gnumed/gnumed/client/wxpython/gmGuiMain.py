@@ -13,7 +13,7 @@ copyright: authors
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
-__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at https://www.gnu.org)'
 
 # stdlib
 import sys
@@ -1660,7 +1660,7 @@ class gmTopLevelFrame(wx.Frame):
 		gmBillingWidgets.configure_invoice_template(parent = self, with_vat = True)
 	#----------------------------------------------
 	def __on_configure_billing_catalogs_url(self, evt):
-		german_default = 'http://www.e-bis.de/goae/defaultFrame.htm'
+		german_default = 'https://www.e-bis.de/goae/defaultFrame.htm'
 
 		def is_valid(value):
 			value = value.strip()
@@ -1967,7 +1967,7 @@ class gmTopLevelFrame(wx.Frame):
 				'\n'
 				'The default URL is:\n'
 				'\n'
-				' http://www.gnumed.de/downloads/gnumed-versions.txt\n'
+				' https://www.gnumed.de/downloads/gnumed-versions.txt\n'
 				'\n'
 				'but you can configure any other URL locally. Note\n'
 				'that you must enter the location as a valid URL.\n'
@@ -1976,7 +1976,7 @@ class gmTopLevelFrame(wx.Frame):
 			),
 			option = 'horstspace.update.url',
 			bias = 'workplace',
-			default_value = 'http://www.gnumed.de/downloads/gnumed-versions.txt',
+			default_value = 'https://www.gnumed.de/downloads/gnumed-versions.txt',
 			validator = is_valid
 		)
 	#----------------------------------------------
@@ -2330,7 +2330,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	#----------------------------------------------
 	def __on_medical_links(self, evt):
-		gmNetworkTools.open_url_in_browser(url = 'http://wiki.gnumed.de/bin/view/Gnumed/MedicalContentLinks#AnchorLocaleI%s' % gmI18N.system_locale_level['language'])
+		gmNetworkTools.open_url_in_browser(url = 'https://wiki.gnumed.de/bin/view/Gnumed/MedicalContentLinks#AnchorLocaleI%s' % gmI18N.system_locale_level['language'])
 
 	#----------------------------------------------
 	def __on_jump_to_drug_db(self, evt):
@@ -2341,7 +2341,7 @@ class gmTopLevelFrame(wx.Frame):
 
 	#----------------------------------------------
 	def __on_kompendium_ch(self, evt):
-		gmNetworkTools.open_url_in_browser(url = 'http://www.kompendium.ch')
+		gmNetworkTools.open_url_in_browser(url = 'https://www.kompendium.ch')
 
 	#----------------------------------------------
 	# Office
@@ -2417,7 +2417,7 @@ class gmTopLevelFrame(wx.Frame):
 
 #	#----------------------------------------------
 #	def __on_menu_reference(self, evt):
-#		gmNetworkTools.open_url_in_browser(url = 'http://wiki.gnumed.de/bin/view/Gnumed/MenuReference')
+#		gmNetworkTools.open_url_in_browser(url = 'https://wiki.gnumed.de/bin/view/Gnumed/MenuReference')
 
 	#----------------------------------------------
 	def __on_pgadmin3(self, evt):

@@ -20,7 +20,7 @@ __version__ = "$Revision: 1.13 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>,\
 				Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = "GPL v2 or later (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at https://www.gnu.org)"
 
 import os.path
 

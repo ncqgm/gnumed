@@ -18,7 +18,7 @@ contain the hook that is being activated.
 """
 # ========================================================================
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = "GPL v2 or later (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at https://www.gnu.org)"
 
 # stdlib
 import os
@@ -100,7 +100,7 @@ HOOK_SCRIPT_EXAMPLE = """#!/usr/bin/python3
 #
 #===========================================================================
 # SPDX-License-Identifier: GPL-2.0-or-later
-__license__ = "GPL v2 or later (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at https://www.gnu.org)"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 

@@ -54,7 +54,7 @@ HL7_RESULT_STATI = {
 }
 
 URL_test_result_information = 'http://www.laborlexikon.de'
-URL_test_result_information_search = "http://www.google.de/search?as_oq=%(search_term)s&num=10&as_sitesearch=laborlexikon.de"
+URL_test_result_information_search = "https://www.google.de/search?as_oq=%(search_term)s&num=10&as_sitesearch=laborlexikon.de"
 
 #============================================================
 def _on_test_result_modified():

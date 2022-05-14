@@ -137,7 +137,7 @@ class AboutFrame (wx.Frame):
 			box.Add((0,0), 1)
 		else:
 			box.Add((0,0), 1)
-		info_txt=wx.StaticText(self, -1, _("Please visit http://www.gnumed.org"))
+		info_txt=wx.StaticText(self, -1, _("Please visit https://www.gnumed.org"))
 		info_txt.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.NORMAL))
 		box.Add(info_txt, 0, wx.ALIGN_CENTRE)
 		if wx.Platform == '__WXMAC__':

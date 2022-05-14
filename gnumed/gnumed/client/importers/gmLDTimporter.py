@@ -26,7 +26,7 @@ FIXME: check status on save_payload()s
 #===============================================================
 __version__ = "$Revision: 1.34 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = "GPL, details at http://www.gnu.org"
+__license__ = "GPL, details at https://www.gnu.org"
 
 # stdlib
 import glob, os.path, sys, tempfile, fileinput, time, copy, random, shutil

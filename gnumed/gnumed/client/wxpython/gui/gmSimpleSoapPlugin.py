@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #======================================================================
 __author__ = "Karsten Hilbert"
-__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at https://www.gnu.org)'
 
 # stdlib
 import logging

@@ -3,7 +3,7 @@
 
 #======================================================================
 __author__ = "S Tan"
-__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at https://www.gnu.org)'
 
 from Gnumed.wxpython import gmPlugin, gmAU_VaccV01
 
