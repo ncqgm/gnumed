@@ -151,12 +151,14 @@ class cCfgSQL:			# rename
 
 		1) specific to the workplace, if given, and the current user
 
-		2) either
+		2)		either
 			if bias is "user", specific to the current user, *regardless* of workplace
 			("Did *I* set the option anywhere on this site ? If so, use that value.")
-		   OR
+				OR
 			if bias is "workplace", specific to the given workplace, *regardless* of user
 			"Did anyone set the option for *this workplace* ? If so, use that value."
+				OR
+			if bias is None, skip biased search
 
 		3) explicitely not specific to any user or workplace (both being searched
 		   as NULL), IOW the site-wide default
@@ -176,10 +178,11 @@ class cCfgSQL:			# rename
 		Returns:
 			The configuration value found, or the default, or else None.
 		"""
-		if None in [option, workplace]:
-			raise ValueError('neither <option> (%s) nor <workplace> (%s) may be [None]' % (option, workplace))
-		if bias not in ['user', 'workplace']:
-			raise ValueError('<bias> must be "user" or "workplace"')
+		_log.debug('option [%s], workplace [%s], cookie [%s], bias [%s], default [%s]', option, workplace, cookie, bias, default)
+		if option is None:
+			raise ValueError('<option> (name) must not be None')
+		if bias not in ['user', 'workplace', None]:
+			raise ValueError('<bias> must be "user" or "workplace", or None')
 		if (bias == 'workplace') and not workplace:
 			raise ValueError('if <bias> is "workplace", then <workplace> must not be None or empty')
 		if (bias == 'workplace') and (workplace.strip() == ''):
@@ -219,36 +222,37 @@ class cCfgSQL:			# rename
 
 		# 2) search value with biased query
 		_log.warning('no user+workplace specific value for option [%s] in database', option)
-		where_parts = ['c_vco.option = %(opt)s']
-		if cookie:
-			where_parts.append('c_vco.cookie = %(cookie)s')
-		if bias == 'user':
-			# did *I* set this option for *any* workplace ?
-			where_parts.append('c_vco.owner = CURRENT_USER')
-		else:
-			# did *anyone* set this option for *this* workplace ?
-			where_parts.append('c_vco.workplace = %(wp)s')
-		cmd = 'SELECT * FROM cfg.v_cfg_options c_vco WHERE %s LIMIT 1' % (' AND '.join(where_parts))
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
-		if rows:
-			row = rows[0]
-			if row['value'] not in [0,1]:		# not pseudo boolean
+		if bias:
+			where_parts = ['c_vco.option = %(opt)s']
+			if cookie:
+				where_parts.append('c_vco.cookie = %(cookie)s')
+			if bias == 'user':
+				# did *I* set this option for *any* workplace ?
+				where_parts.append('c_vco.owner = CURRENT_USER')
+			else:
+				# did *anyone* set this option for *this* workplace ?
+				where_parts.append('c_vco.workplace = %(wp)s')
+			cmd = 'SELECT * FROM cfg.v_cfg_options c_vco WHERE %s LIMIT 1' % (' AND '.join(where_parts))
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+			if rows:
+				row = rows[0]
+				if row['value'] not in [0,1]:		# not pseudo boolean
+					return row['value']
+
+				# auto-heal pseudo booleans
+				if isinstance(default, bool):
+					_log.debug('auto-healing boolean from 0/1 to False/True')
+					self.set (
+						owner = row['owner'],
+						workplace = row['owner'],
+						cookie = row['cookie'],
+						option = option,
+						value = bool(row['value'])
+					)
 				return row['value']
 
-			# auto-heal pseudo booleans
-			if isinstance(default, bool):
-				_log.debug('auto-healing boolean from 0/1 to False/True')
-				self.set (
-					owner = row['owner'],
-					workplace = row['owner'],
-					cookie = row['cookie'],
-					option = option,
-					value = bool(row['value'])
-				)
-			return row['value']
-
 		# 3) search site-wide default value
-		_log.warning('no user-biased OR workplace-biased value for option [%s] in database', option)
+		_log.warning('no %s-biased value for option [%s] in database, or no bias given', bias, option)
 		where_parts = [
 			'c_vco.owner IS NULL',
 			'c_vco.workplace IS NULL',
@@ -307,13 +311,13 @@ class cCfgSQL:			# rename
 
 		args = {
 			'opt': option,
-			'val': value,
+			'val': gmPG2.dbapi.extras.Json(value),
 			'wp': workplace,
 			'cookie': cookie,
 			'usr': owner,
 			'desc': description
 		}
-		cmd = 'SELECT cfg.set_option(%%(opt)s, %%(val)s, %%(wp)s, %%(cookie)s, %%(usr)s, %%(desc)s)'
+		cmd = 'SELECT cfg.set_option(%(opt)s, %(val)s, %(wp)s, %(cookie)s, %(usr)s, %(desc)s)'
 		rw_conn = gmPG2.get_connection(readonly = False)
 		try:
 			rows, idx = gmPG2.run_rw_queries(link_obj=rw_conn, queries=[{'cmd': cmd, 'args': args}], return_data=True)
@@ -362,6 +366,12 @@ if __name__ == "__main__":
 			print('%s -- %s@%s -- "%s"' % (type(opt['value']), opt['owner'], opt['workplace'], opt['option']))
 			print('  value: %s' % opt['value'])
 			print('  descr: %s' % opt['description'])
+
+	#---------------------------------------------------------
+	def test_set():
+		print('set: ', set(option = 'test', value = 'mal sehen 4'))
+		print(get(option = 'test'))
+
 	#---------------------------------------------------------
 	def test_db_cfg():
 		print("testing database config")
@@ -401,5 +411,6 @@ if __name__ == "__main__":
 	#---------------------------------------------------------
 	gmPG2.request_login_params(setup_pool = True)
 
-	test_get_all_options()
+	#test_get_all_options()
+	test_set()
 	#test_db_cfg()
