@@ -248,26 +248,26 @@ class gmTopLevelFrame(wx.Frame):
 		"""Try to get previous window size from backend."""
 
 		cfg = gmCfg.cCfgSQL()
-		width = int(cfg.get2 (
+		width = int(cfg.get (
 			option = 'main.window.width',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'workplace',
 			default = 800
 		))
-		height = int(cfg.get2 (
+		height = int(cfg.get (
 			option = 'main.window.height',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'workplace',
 			default = 600
 		))
 		_log.debug('previous GUI size [%sx%s]', width, height)
-		pos_x = int(cfg.get2 (
+		pos_x = int(cfg.get (
 			option = 'main.window.position.x',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'workplace',
 			default = 0
 		))
-		pos_y = int(cfg.get2 (
+		pos_y = int(cfg.get (
 			option = 'main.window.position.y',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'workplace',
@@ -1463,14 +1463,14 @@ class gmTopLevelFrame(wx.Frame):
 
 		dbcfg = gmCfg.cCfgSQL()
 		# get list of possible plugins
-		plugin_list = gmTools.coalesce(dbcfg.get2 (
+		plugin_list = gmTools.coalesce(dbcfg.get (
 			option = 'horstspace.notebook.plugin_load_order',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
 		), [])
 
 		# get current setting
-		initial_plugin = gmTools.coalesce(dbcfg.get2 (
+		initial_plugin = gmTools.coalesce(dbcfg.get (
 			option = 'horstspace.plugin_to_raise_after_startup',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
@@ -1614,14 +1614,14 @@ class gmTopLevelFrame(wx.Frame):
 
 		dbcfg = gmCfg.cCfgSQL()
 		# get list of possible plugins
-		plugin_list = gmTools.coalesce(dbcfg.get2 (
+		plugin_list = gmTools.coalesce(dbcfg.get (
 			option = 'horstspace.notebook.plugin_load_order',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
 		), [])
 
 		# get current setting
-		initial_plugin = gmTools.coalesce(dbcfg.get2 (
+		initial_plugin = gmTools.coalesce(dbcfg.get (
 			option = 'patient_search.plugin_to_raise_after_search',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
@@ -2247,7 +2247,7 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_acs_risk_assessment(self, evt):
 
 		dbcfg = gmCfg.cCfgSQL()
-		cmd = dbcfg.get2 (
+		cmd = dbcfg.get (
 			option = 'external.tools.acs_risk_calculator_cmd',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
@@ -2951,12 +2951,12 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_load_external_patient(self, event):
 		dbcfg = gmCfg.cCfgSQL()
-		search_immediately = bool(dbcfg.get2 (
+		search_immediately = dbcfg.get (
 			option = 'patient_search.external_sources.immediately_search_if_single_source',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user',
-			default = 0
-		))
+			default = False
+		)
 		gmPatSearchWidgets.get_person_from_external_sources(parent = self, search_immediately = search_immediately, activate_immediately = True)
 
 	#----------------------------------------------
@@ -3628,12 +3628,12 @@ class gmApp(wx.App):
 	def __check_for_updates(self):
 
 		dbcfg = gmCfg.cCfgSQL()
-		do_check = bool(dbcfg.get2 (
+		do_check = dbcfg.get (
 			option = 'horstspace.update.autocheck_at_startup',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'workplace',
 			default = True
-		))
+		)
 		if not do_check:
 			return
 

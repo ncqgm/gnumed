@@ -6,8 +6,7 @@
 -- 
 -- ==============================================================
 \set ON_ERROR_STOP 1
-set default_transaction_read_only to off;
-set check_function_bodies to on;
+--set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
 drop table if exists cfg.config cascade;

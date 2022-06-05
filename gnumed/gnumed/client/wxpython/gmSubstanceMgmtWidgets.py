@@ -66,7 +66,7 @@ def get_drug_database(parent=None, patient=None):
 	dbcfg = gmCfg.cCfgSQL()
 
 	# load from option
-	default_db = dbcfg.get2 (
+	default_db = dbcfg.get (
 		option = 'external.drug_data.default_source',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'workplace'
@@ -76,7 +76,7 @@ def get_drug_database(parent=None, patient=None):
 	if default_db is None:
 		gmDispatcher.send('statustext', msg = _('No default drug database configured.'), beep = True)
 		configure_drug_data_source(parent = parent)
-		default_db = dbcfg.get2 (
+		default_db = dbcfg.get (
 			option = 'external.drug_data.default_source',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'workplace'
@@ -98,7 +98,7 @@ def get_drug_database(parent=None, patient=None):
 		_log.error('faulty default drug data source configuration: %s', default_db)
 		# try to configure
 		configure_drug_data_source(parent = parent)
-		default_db = dbcfg.get2 (
+		default_db = dbcfg.get (
 			option = 'external.drug_data.default_source',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'workplace'
@@ -131,7 +131,7 @@ def jump_to_ifap_deprecated(import_drugs=False, emr=None):
 
 	dbcfg = gmCfg.cCfgSQL()
 
-	ifap_cmd = dbcfg.get2 (
+	ifap_cmd = dbcfg.get (
 		option = 'external.ifap-win.shell_command',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'workplace',
@@ -144,7 +144,7 @@ def jump_to_ifap_deprecated(import_drugs=False, emr=None):
 	ifap_cmd = binary
 
 	if import_drugs:
-		transfer_file = os.path.expanduser(dbcfg.get2 (
+		transfer_file = os.path.expanduser(dbcfg.get (
 			option = 'external.ifap-win.transfer_file',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'workplace',

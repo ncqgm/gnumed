@@ -241,7 +241,7 @@ def move_episode_to_issue(episode=None, target_issue=None, save_to_backend=False
 
 	# try closing possibly expired episode on target issue if any
 	db_cfg = gmCfg.cCfgSQL()
-	epi_ttl = int(db_cfg.get2 (
+	epi_ttl = int(db_cfg.get (
 		option = 'episode.ttl',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'user',

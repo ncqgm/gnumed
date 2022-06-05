@@ -7,71 +7,81 @@
 -- ==============================================================
 \set ON_ERROR_STOP 1
 --set default_transaction_read_only to off;
+
 set check_function_bodies to on;
 
 -- --------------------------------------------------------------
-create or replace function cfg.set_option(text, anyelement, text, text, text)
+drop function if exists cfg.create_cfg_item(text, text, text, text, text);
+drop function if exists cfg.create_cfg_item(IN _option text, IN _workplace text, IN _cookie text, IN owner text, IN _description text);
+
+create or replace function cfg.create_cfg_item(IN _option text, IN _workplace text, IN _cookie text, IN _owner text, IN _description text)
+	returns integer
+	language 'plpgsql'
+	as '
+declare
+	__pk_template integer;
+	__pk_item integer;
+begin
+	-- check template
+	select into __pk_template pk from cfg.cfg_template where name = _option;
+	if not FOUND then
+		insert into cfg.cfg_template (name) values (_option) returning pk INTO __pk_template;
+	end if;
+	IF _description IS NOT NULL THEN
+		UPDATE cfg.cfg_template
+		SET description = _description
+		WHERE pk = __pk_template;
+	END IF;
+	IF trim(_owner) = '''' THEN
+		SELECT CURRENT_USER into _owner;
+	END IF;
+	-- check item
+	if _cookie is NULL then
+		select into __pk_item pk from cfg.cfg_item where
+			fk_template = __pk_template and
+			owner = _owner and
+			workplace = _workplace and
+			cookie is null;
+	else
+		select into __pk_item pk from cfg.cfg_item where
+			fk_template = __pk_template and
+			owner = _owner and
+			workplace = _workplace and
+			cookie = _cookie;
+	end if;
+	if FOUND then
+		return __pk_item;
+	end if;
+
+	insert into cfg.cfg_item (
+		fk_template, workplace, cookie, owner
+	) values (
+		__pk_template,
+		_workplace,
+		_cookie,
+		_owner
+	) returning pk_item into __pk_item;
+	return __pk_item;
+end;';
+
+-- --------------------------------------------------------------
+drop function if exists cfg.set_option(text, anyelement, text, text, text);
+drop function if exists cfg.set_option(IN _option text, IN _value anyelement, IN _workplace text, IN _cookie text, IN _owner text, IN _description text);
+
+create or replace function cfg.set_option(IN _option text, IN _value anyelement, IN _workplace text, IN _cookie text, IN _owner text, IN _description text)
 	returns boolean
 	language 'plpgsql'
 	as '
 declare
-	_option alias for $1;
-	_value alias for $2;
-	_workplace alias for $3;
-	_cookie alias for $4;
-	_owner alias for $5;
-	val_type text;
 	pk_item integer;
-	rows integer;
-	cmd text;
 begin
-	-- determine data type
-	if pg_typeof(_value) in (''text''::regtype, ''char''::regtype, ''varchar''::regtype, ''name''::regtype) then
-		val_type := ''string'';
-	elsif pg_typeof(_value) in (''smallint''::regtype, ''int''::regtype, ''bigint''::regtype, ''numeric''::regtype, ''boolean''::regtype) then
-		val_type := ''numeric'';
-	elsif pg_typeof(_value) in (''bytea''::regtype) then
-		val_type := ''data'';
-	elsif pg_typeof(_value) in (''text[]''::regtype) then
-		val_type := ''str_array'';
-	else
-		raise exception ''cfg.set_option(text, any, text, text, text): invalid type of value'';
-	end if;
-
-	-- create template/item if need be
-	select into pk_item cfg.create_cfg_item(_option, val_type, _workplace, _cookie, _owner);
-
-	-- set item value
-	cmd := ''select 1 from cfg.cfg_'' || val_type || '' where fk_item='' || pk_item || '';'';
-	execute cmd;
-	get diagnostics rows = row_count;
-	found := rows <> 0;
-
-	if FOUND then
-		if val_type = ''str_array'' then
-			cmd := ''update cfg.cfg_str_array set value=''''{"'' || array_to_string(_value, ''","'') || ''"}'''' where fk_item='' || pk_item || '';'';
-		elsif val_type = ''data'' then
-			cmd := ''update cfg.cfg_data set value='''''' || encode(_value, ''escape'') || '''''' where fk_item='' || pk_item || '';'';
-		else
-			cmd := ''update cfg.cfg_'' || val_type || '' set value='' || quote_literal(_value) || '' where fk_item='' || pk_item || '';'';
-		end if;
-		execute cmd;
-		return True;
-	end if;
-
-	if val_type = ''str_array'' then
-		cmd := ''insert into cfg.cfg_str_array(fk_item, value) values ('' || pk_item || '', ''''{"'' || array_to_string(_value, ''","'') || ''"}'''');'';
-	elsif val_type = ''data'' then
-		cmd := ''insert into cfg.cfg_data(fk_item, value) values ('' || pk_item || '', '''''' || encode(_value, ''escape'') || '''''');'';
-	else
-		cmd := ''insert into cfg.cfg_'' || val_type || '' (fk_item, value) values ('' || pk_item || '', '' || quote_literal(_value) || '');'';
-	end if;
-	execute cmd;
+	SELECT INTO pk_item cfg.create_cfg_item(_option, _workplace, _cookie, _owner, _description);
+	UPDATE cfg.cfg_item SET value = _value WHERE pk = pk_item;
 	return True;
 end;';
 
-comment on function cfg.set_option(text, anyelement, text, text, text) is
-	'set option, owner = NULL means CURRENT_USER';
+comment on function cfg.set_option(IN _option text, IN _value anyelement, IN _workplace text, IN _cookie text, IN _owner text, IN _description text) is
+	'set option, owner = empty means CURRENT_USER';
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v23-cfg-set_option.sql', 'v23');

@@ -559,7 +559,7 @@ def load_persons_from_pracsoft_au():
 def load_persons_from_kvks():
 
 	dbcfg = gmCfg.cCfgSQL()
-	kvk_dir = os.path.abspath(os.path.expanduser(dbcfg.get2 (
+	kvk_dir = os.path.abspath(os.path.expanduser(dbcfg.get (
 		option = 'DE.KVK.spool_dir',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'workplace',
@@ -1000,12 +1000,12 @@ class cPersonSearchCtrl(wx.TextCtrl):
 		if keycode == wx.WXK_F2:
 			evt.Skip()
 			dbcfg = gmCfg.cCfgSQL()
-			search_immediately = bool(dbcfg.get2 (
+			search_immediately = dbcfg.get (
 				option = 'patient_search.external_sources.immediately_search_if_single_source',
 				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 				bias = 'user',
-				default = 0
-			))
+				default = False
+			)
 			p = get_person_from_external_sources (
 				parent = wx.GetTopLevelParent(self),
 				search_immediately = search_immediately
@@ -1209,7 +1209,7 @@ def _check_birthday(patient=None):
 		return
 
 	dbcfg = gmCfg.cCfgSQL()
-	dob_distance = dbcfg.get2 (
+	dob_distance = dbcfg.get (
 		option = 'patient_search.dob_warn_interval',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'user',
@@ -1287,7 +1287,7 @@ class cActivePatientSelector(cPersonSearchCtrl):
 		cfg = gmCfg.cCfgSQL()
 
 		self.__always_dismiss_on_search = bool ( 
-			cfg.get2 (
+			cfg.get (
 				option = 'patient_search.always_dismiss_previous_patient',
 				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 				bias = 'user',
@@ -1296,7 +1296,7 @@ class cActivePatientSelector(cPersonSearchCtrl):
 		)
 
 		self.__always_reload_after_search = bool (
-			cfg.get2 (
+			cfg.get (
 				option = 'patient_search.always_reload_new_patient',
 				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 				bias = 'user',

@@ -1016,7 +1016,7 @@ def print_medication_list(parent=None):
 	dbcfg = gmCfg.cCfgSQL()
 	option = 'form_templates.medication_list'
 
-	template = dbcfg.get2 (
+	template = dbcfg.get (
 		option = option,
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'user'
@@ -1103,7 +1103,7 @@ def get_prescription_template(parent=None):
 
 	dbcfg = gmCfg.cCfgSQL()
 	option = 'form_templates.prescription'
-	template_name = dbcfg.get2 (
+	template_name = dbcfg.get (
 		option = option,
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'user'
@@ -1166,7 +1166,7 @@ def print_prescription(parent=None, emr=None):
 def prescribe_drugs(parent=None, emr=None):
 
 	dbcfg = gmCfg.cCfgSQL()
-	rx_mode = dbcfg.get2 (
+	rx_mode = dbcfg.get (
 		option = 'horst_space.default_prescription_mode',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'user',
@@ -1606,7 +1606,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 	#------------------------------------------------------------
 	def report_ADR(self):
 		dbcfg = gmCfg.cCfgSQL()
-		url = dbcfg.get2 (
+		url = dbcfg.get (
 			option = 'external.urls.report_ADR',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user',
@@ -2293,7 +2293,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 	#--------------------------------------------------------
 	def _on_pre_patient_unselection(self):
 		dbcfg = gmCfg.cCfgSQL()
-		pk_panel = dbcfg.get2 (
+		pk_panel = dbcfg.get (
 			option = 'horstspace.medications_plugin.lab_panel',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'

@@ -525,7 +525,7 @@ class gmOOoConnector(gmBorg.cBorg):
 	def __get_startup_settle_time(self):
 		# later factor this out !
 		dbcfg = gmCfg.cCfgSQL()
-		self.ooo_startup_settle_time = dbcfg.get2 (
+		self.ooo_startup_settle_time = dbcfg.get (
 			option = 'external.ooo.startup_settle_time',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'workplace',
@@ -1939,7 +1939,6 @@ class cIanLaTeXForm(cFormEngine):
 		return True
 
 	def printout (self):
-		command, set1 = gmCfg.getDBParam (workplace = self.workplace, option = 'main.comms.print')
 		self.exe (command)
 
 	def cleanup (self):

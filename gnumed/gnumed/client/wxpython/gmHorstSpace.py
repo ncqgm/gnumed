@@ -311,7 +311,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 	#----------------------------------------------
 	def _on_post_patient_selection(self, **kwargs):
 		db_cfg = gmCfg.cCfgSQL()
-		default_plugin = db_cfg.get2 (
+		default_plugin = db_cfg.get (
 			option = 'patient_search.plugin_to_raise_after_search',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user',

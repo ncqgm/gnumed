@@ -160,12 +160,12 @@ def sanity_check_encounter_of_active_patient(parent=None, msg=None):
 		return True
 
 	dbcfg = gmCfg.cCfgSQL()
-	check_enc = bool(dbcfg.get2 (
+	check_enc = dbcfg.get (
 		option = 'encounter.show_editor_before_patient_change',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'user',
 		default = True					# True: if needed, not always unconditionally
-	))
+	)
 
 	if not check_enc:
 		return True
@@ -244,7 +244,7 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 	#--------------------
 	def new():
 		cfg_db = gmCfg.cCfgSQL()
-		enc_type = cfg_db.get2 (
+		enc_type = cfg_db.get (
 			option = 'encounter.default_type',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'

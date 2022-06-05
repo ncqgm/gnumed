@@ -386,7 +386,7 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None, workplace=None):
 
 	if option is not None:
 		dbcfg = gmCfg.cCfgSQL()
-		p_list = dbcfg.get2 (
+		p_list = dbcfg.get (
 			option = option,
 			workplace = workplace,
 			bias = 'workplace',

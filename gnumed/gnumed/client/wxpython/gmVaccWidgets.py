@@ -650,7 +650,7 @@ def manage_vaccinations(parent=None, latest_only=False, expand_indications=False
 	#------------------------------------------------------------
 	def browse2schedules(vaccination=None):
 		dbcfg = gmCfg.cCfgSQL()
-		url = dbcfg.get2 (
+		url = dbcfg.get (
 			option = 'external.urls.vaccination_plans',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user',
@@ -1049,13 +1049,13 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 	def _on_report_button_pressed(self, event):
 		event.Skip()
 		dbcfg = gmCfg.cCfgSQL()
-		url = dbcfg.get2 (
+		url = dbcfg.get (
 			option = 'external.urls.report_vaccine_ADR',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
 		)
 		if url.strip() == '':
-			url = dbcfg.get2 (
+			url = dbcfg.get (
 				option = 'external.urls.report_ADR',
 				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 				bias = 'user'

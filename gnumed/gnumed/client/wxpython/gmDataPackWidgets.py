@@ -188,7 +188,7 @@ def install_data_pack(data_pack=None):
 def load_data_packs_list():
 
 	dbcfg = gmCfg.cCfgSQL()
-	dpl_url = dbcfg.get2 (
+	dpl_url = dbcfg.get (
 		option = dpl_url_option,
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'workplace',

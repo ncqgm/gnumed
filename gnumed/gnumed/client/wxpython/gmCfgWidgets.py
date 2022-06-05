@@ -33,18 +33,18 @@ _log = logging.getLogger('gm.ui')
 #==============================================================================
 def _get_update_status():
 	dbcfg = gmCfg.cCfgSQL()
-	url = dbcfg.get2 (
+	url = dbcfg.get (
 		option = 'horstspace.update.url',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'workplace',
 		default = 'https://www.gnumed.de/downloads/gnumed-versions.txt'
 	)
-	consider_latest_branch = bool(dbcfg.get2 (
+	consider_latest_branch = dbcfg.get (
 		option = 'horstspace.update.consider_latest_branch',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'workplace',
 		default = True
-	))
+	)
 	_cfg = gmCfg2.gmCfgData()
 	update_found, msg = gmNetworkTools.check_for_update (
 		url = url,
@@ -175,7 +175,7 @@ def configure_string_from_list_option(parent=None, message=None, option=None, bi
 
 	dbcfg = gmCfg.cCfgSQL()
 
-	current_value = dbcfg.get2 (
+	current_value = dbcfg.get (
 		option = option,
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = bias,
@@ -232,7 +232,7 @@ def configure_list_from_list_option(parent=None, message=None, option=None, bias
 
 	dbcfg = gmCfg.cCfgSQL()
 
-#	current_value = dbcfg.get2 (
+#	current_value = dbcfg.get (
 #		option = option,
 #		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 #		bias = bias,
@@ -271,7 +271,7 @@ def configure_string_option(parent=None, message=None, option=None, bias='user',
 
 	dbcfg = gmCfg.cCfgSQL()
 
-	current_value = dbcfg.get2 (
+	current_value = dbcfg.get (
 		option = option,
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = bias,

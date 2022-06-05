@@ -69,12 +69,12 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 		wxgProgressNotesEAPnl.wxgProgressNotesEAPnl.__init__(self, *args, **kwargs)
 
 		dbcfg = gmCfg.cCfgSQL()
-		self.__use_soap_fields = bool(dbcfg.get2 (
+		self.__use_soap_fields = dbcfg.get (
 			option = 'horstspace.soap_editor.use_one_field_per_soap_category',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user',
 			default = True
-		))
+		)
 
 		self.__soap_fields = [
 			self._TCTRL_Soap,

@@ -479,7 +479,7 @@ class ConfigDataDB(ConfigData):
 			cookie = self.mConfigData[aParameterName][1]
 #			print "name:", name
 #			print "cookie.", cookie
-			result = ConfigDataDB._dbcfg.get2 (
+			result = ConfigDataDB._dbcfg.get (
 				workplace=self.mWorkplace,
 #				self.mUser,
 				cookie = cookie,

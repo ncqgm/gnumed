@@ -201,7 +201,7 @@ def configure_workplace_plugins(parent=None):
 				return False
 			curr_plugins = []
 		else:
-			curr_plugins = gmTools.coalesce(dbcfg.get2 (
+			curr_plugins = gmTools.coalesce(dbcfg.get (
 				option = 'horstspace.notebook.plugin_load_order',
 				workplace = workplace,
 				bias = 'workplace'
@@ -267,7 +267,7 @@ def configure_workplace_plugins(parent=None):
 			curr_plugins = []
 			choices = available_plugins
 		else:
-			curr_plugins = gmTools.coalesce(dbcfg.get2 (
+			curr_plugins = gmTools.coalesce(dbcfg.get (
 				option = 'horstspace.notebook.plugin_load_order',
 				workplace = workplace,
 				bias = 'workplace'
@@ -327,7 +327,7 @@ def configure_workplace_plugins(parent=None):
 		dbcfg = gmCfg.cCfgSQL()
 		opt = 'horstspace.notebook.plugin_load_order'
 
-		plugins = dbcfg.get2 (
+		plugins = dbcfg.get (
 			option = opt,
 			workplace = workplace,
 			bias = 'workplace'

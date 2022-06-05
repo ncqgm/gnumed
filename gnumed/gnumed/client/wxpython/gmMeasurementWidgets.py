@@ -312,14 +312,14 @@ def call_browser_on_measurement_type(measurement_type=None):
 
 	dbcfg = gmCfg.cCfgSQL()
 
-	url = dbcfg.get2 (
+	url = dbcfg.get (
 		option = 'external.urls.measurements_search',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'user',
 		default = gmPathLab.URL_test_result_information_search
 	)
 
-	base_url = dbcfg.get2 (
+	base_url = dbcfg.get (
 		option = 'external.urls.measurements_encyclopedia',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'user',
@@ -499,7 +499,7 @@ def get_default_gnuplot_template(parent = None):
 	dbcfg = gmCfg.cCfgSQL()
 
 	# load from option
-	default_template_name = dbcfg.get2 (
+	default_template_name = dbcfg.get (
 		option = option,
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'user'
@@ -647,7 +647,7 @@ class cLabRelatedDocumentsPnl(wxgLabRelatedDocumentsPnl.wxgLabRelatedDocumentsPn
 			return
 
 		dbcfg = gmCfg.cCfgSQL()
-		lab_doc_types = dbcfg.get2 (
+		lab_doc_types = dbcfg.get (
 			option = 'horstspace.lab_doc_types',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
@@ -722,7 +722,7 @@ class cLabRelatedDocumentsPnl(wxgLabRelatedDocumentsPnl.wxgLabRelatedDocumentsPn
 	def _on_list_documents_button_pressed(self, event):
 		event.Skip()
 		dbcfg = gmCfg.cCfgSQL()
-		lab_doc_types = dbcfg.get2 (
+		lab_doc_types = dbcfg.get (
 			option = 'horstspace.lab_doc_types',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
@@ -2301,7 +2301,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		# add link to left upper corner
 		dbcfg = gmCfg.cCfgSQL()
-		url = dbcfg.get2 (
+		url = dbcfg.get (
 			option = 'external.urls.measurements_encyclopedia',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user',

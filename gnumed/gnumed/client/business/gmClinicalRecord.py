@@ -1933,7 +1933,7 @@ WHERE
 	    	True: success
 		"""
 		cfg_db = gmCfg.cCfgSQL()
-		min_ttl = cfg_db.get2 (
+		min_ttl = cfg_db.get (
 			option = 'encounter.minimum_ttl',
 			workplace = _here.active_workplace,
 			bias = 'user',
@@ -1966,13 +1966,13 @@ WHERE
 	#------------------------------------------------------------------
 	def __get_fairly_recent_encounter(self):
 		cfg_db = gmCfg.cCfgSQL()
-		min_ttl = cfg_db.get2 (
+		min_ttl = cfg_db.get (
 			option = 'encounter.minimum_ttl',
 			workplace = _here.active_workplace,
 			bias = 'user',
 			default = '1 hour 30 minutes'
 		)
-		max_ttl = cfg_db.get2 (
+		max_ttl = cfg_db.get (
 			option = 'encounter.maximum_ttl',
 			workplace = _here.active_workplace,
 			bias = 'user',
@@ -2005,13 +2005,13 @@ WHERE
 #	def __check_for_fairly_recent_encounter(self):
 #
 #		cfg_db = gmCfg.cCfgSQL()
-#		min_ttl = cfg_db.get2 (
+#		min_ttl = cfg_db.get (
 #			option = u'encounter.minimum_ttl',
 #			workplace = _here.active_workplace,
 #			bias = u'user',
 #			default = u'1 hour 30 minutes'
 #		)
-#		max_ttl = cfg_db.get2 (
+#		max_ttl = cfg_db.get (
 #			option = u'encounter.maximum_ttl',
 #			workplace = _here.active_workplace,
 #			bias = u'user',
@@ -2058,13 +2058,13 @@ WHERE
 #			return False
 #
 #		cfg_db = gmCfg.cCfgSQL()
-#		min_ttl = cfg_db.get2 (
+#		min_ttl = cfg_db.get (
 #			option = u'encounter.minimum_ttl',
 #			workplace = _here.active_workplace,
 #			bias = u'user',
 #			default = u'1 hour 30 minutes'
 #		)
-#		max_ttl = cfg_db.get2 (
+#		max_ttl = cfg_db.get (
 #			option = u'encounter.maximum_ttl',
 #			workplace = _here.active_workplace,
 #			bias = u'user',
@@ -2141,7 +2141,7 @@ WHERE
 	#------------------------------------------------------------------
 	def start_new_encounter(self):
 		cfg_db = gmCfg.cCfgSQL()
-		enc_type = cfg_db.get2 (
+		enc_type = cfg_db.get (
 			option = 'encounter.default_type',
 			workplace = _here.active_workplace,
 			bias = 'user'
@@ -2435,7 +2435,7 @@ SELECT MIN(earliest) FROM (
 	def remove_empty_encounters(self):
 		_log.debug('removing empty encounters for pk_identity [%s]', self.pk_patient)
 		cfg_db = gmCfg.cCfgSQL()
-		ttl = cfg_db.get2 (
+		ttl = cfg_db.get (
 			option = 'encounter.ttl_if_empty',
 			workplace = _here.active_workplace,
 			bias = 'user',

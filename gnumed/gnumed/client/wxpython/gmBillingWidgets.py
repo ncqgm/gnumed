@@ -104,7 +104,7 @@ def manage_billables(parent=None):
 	#------------------------------------------------------------
 	def browse_catalogs(billable):
 		dbcfg = gmCfg.cCfgSQL()
-		url = dbcfg.get2 (
+		url = dbcfg.get (
 			option = 'external.urls.schedules_of_fees',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user',
@@ -395,7 +395,7 @@ def get_invoice_template(parent=None, with_vat=True):
 	else:
 		option = 'form_templates.invoice_no_vat'
 
-	template = dbcfg.get2 (
+	template = dbcfg.get (
 		option = option,
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'user'
@@ -491,7 +491,7 @@ def create_bill_from_items(bill_items=None):
 	# create bill
 	person = gmPerson.cPerson(pk_pat)
 	dbcfg = gmCfg.cCfgSQL()
-	invoice_id_template = dbcfg.get2 (
+	invoice_id_template = dbcfg.get (
 		option = u'billing.invoice_id_template',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'user'

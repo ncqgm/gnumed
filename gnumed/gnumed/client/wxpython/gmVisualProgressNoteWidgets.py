@@ -196,7 +196,7 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 			return None
 
 	dbcfg = gmCfg.cCfgSQL()
-	editor = dbcfg.get2 (
+	editor = dbcfg.get (
 		option = 'external.tools.visual_soap_editor_cmd',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'user'
