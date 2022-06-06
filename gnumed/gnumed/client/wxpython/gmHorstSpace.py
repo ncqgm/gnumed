@@ -17,7 +17,7 @@ import sys, logging
 import wx
 
 
-from Gnumed.pycommon import gmGuiBroker, gmDispatcher, gmCfg, gmLog2
+from Gnumed.pycommon import gmGuiBroker, gmDispatcher, gmCfgDB, gmLog2
 from Gnumed.wxpython import gmPlugin, gmTopPanel
 from Gnumed.business import gmPerson, gmPraxis
 
@@ -310,7 +310,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 	# external callbacks
 	#----------------------------------------------
 	def _on_post_patient_selection(self, **kwargs):
-		default_plugin = gmCfg.get4user (
+		default_plugin = gmCfgDB.get4user (
 			option = 'patient_search.plugin_to_raise_after_search',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			default = 'gmPatientOverviewPlugin'

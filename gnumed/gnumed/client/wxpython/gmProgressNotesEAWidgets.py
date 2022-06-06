@@ -17,7 +17,7 @@ if __name__ == '__main__':
 
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmDateTime
-from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmCfgDB
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmPraxis
@@ -68,7 +68,7 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 
 		wxgProgressNotesEAPnl.wxgProgressNotesEAPnl.__init__(self, *args, **kwargs)
 
-		self.__use_soap_fields = gmCfg.get4user (
+		self.__use_soap_fields = gmCfgDB.get4user (
 			option = 'horstspace.soap_editor.use_one_field_per_soap_category',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			default = True

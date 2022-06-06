@@ -35,7 +35,7 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
-from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmTools
@@ -198,7 +198,7 @@ def configure_workplace_plugins(parent=None):
 				return False
 			curr_plugins = []
 		else:
-			curr_plugins = gmTools.coalesce(gmCfg.get4workplace (
+			curr_plugins = gmTools.coalesce(gmCfgDB.get4workplace (
 				option = 'horstspace.notebook.plugin_load_order',
 				workplace = workplace
 				), []
@@ -233,7 +233,7 @@ def configure_workplace_plugins(parent=None):
 		if new_plugins is None:
 			return True
 
-		gmCfg.set (
+		gmCfgDB.set (
 			option = 'horstspace.notebook.plugin_load_order',
 			value = new_plugins,
 			workplace = workplace
@@ -260,7 +260,7 @@ def configure_workplace_plugins(parent=None):
 			curr_plugins = []
 			choices = available_plugins
 		else:
-			curr_plugins = gmTools.coalesce(gmCfg.get4workplace (
+			curr_plugins = gmTools.coalesce(gmCfgDB.get4workplace (
 				option = 'horstspace.notebook.plugin_load_order',
 				workplace = workplace
 				), []
@@ -294,7 +294,7 @@ def configure_workplace_plugins(parent=None):
 		if new_plugins is None:
 			return True
 
-		gmCfg.set (
+		gmCfgDB.set (
 			option = 'horstspace.notebook.plugin_load_order',
 			value = new_plugins,
 			workplace = workplace
@@ -316,8 +316,8 @@ def configure_workplace_plugins(parent=None):
 			return False
 
 		opt = 'horstspace.notebook.plugin_load_order'
-		plugins = gmCfg.get4workplace(option = opt, workplace = workplace)
-		gmCfg.set (
+		plugins = gmCfgDB.get4workplace(option = opt, workplace = workplace)
+		gmCfgDB.set (
 			option = opt,
 			value = plugins,
 			workplace = new_name

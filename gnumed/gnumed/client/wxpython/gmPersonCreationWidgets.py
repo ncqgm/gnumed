@@ -17,7 +17,7 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
-from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
@@ -51,14 +51,14 @@ def create_new_person(parent=None, activate=False):
 
 		msg = _('Edit the current encounter of the patient you are ABOUT TO LEAVE:')
 
-	def_region = gmCfg.get4user (
+	def_region = gmCfgDB.get4user (
 		option = 'person.create.default_region',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 	)
 	def_country = None
 
 	if def_region is None:
-		def_country = gmCfg.get4user (
+		def_country = gmCfgDB.get4user (
 			option = 'person.create.default_country',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		)

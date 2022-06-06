@@ -18,7 +18,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
-from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmCfgDB
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmEMRStructItems
@@ -400,7 +400,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		if problem is None:
 			return True
 
-		allow_duplicate_editors = gmCfg.get4user (
+		allow_duplicate_editors = gmCfgDB.get4user (
 			option = 'horstspace.soap_editor.allow_same_episode_multiple_times',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			default = False
@@ -526,7 +526,7 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 		if self.__pat is None:
 			return
 
-#		auto_open_recent_problems = gmCfg.get4user (
+#		auto_open_recent_problems = gmCfgDB.get4user (
 #			option = 'horstspace.soap_editor.auto_open_latest_episodes',
 #			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 #			default = True

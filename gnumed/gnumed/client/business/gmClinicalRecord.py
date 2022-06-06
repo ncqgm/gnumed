@@ -25,7 +25,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmDispatcher
-from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmTools
 
 from Gnumed.business import gmGenericEMRItem
@@ -1932,7 +1932,7 @@ WHERE
 			False: no "very recent" encounter
 	    	True: success
 		"""
-		min_ttl = gmCfg.get4user (
+		min_ttl = gmCfgDB.get4user (
 			option = 'encounter.minimum_ttl',
 			workplace = _here.active_workplace,
 			default = '1 hour 30 minutes'
@@ -1963,12 +1963,12 @@ WHERE
 
 	#------------------------------------------------------------------
 	def __get_fairly_recent_encounter(self):
-		min_ttl = gmCfg.get4user (
+		min_ttl = gmCfgDB.get4user (
 			option = 'encounter.minimum_ttl',
 			workplace = _here.active_workplace,
 			default = '1 hour 30 minutes'
 		)
-		max_ttl = gmCfg.get4user (
+		max_ttl = gmCfgDB.get4user (
 			option = 'encounter.maximum_ttl',
 			workplace = _here.active_workplace,
 			default = '6 hours'
@@ -1999,12 +1999,12 @@ WHERE
 #	#------------------------------------------------------------------
 #	def __check_for_fairly_recent_encounter(self):
 #
-#		min_ttl = gmCfg.get4user (
+#		min_ttl = gmCfgDB.get4user (
 #			option = u'encounter.minimum_ttl',
 #			workplace = _here.active_workplace,
 #			default = u'1 hour 30 minutes'
 #		)
-#		max_ttl = gmCfg.get4user (
+#		max_ttl = gmCfgDB.get4user (
 #			option = u'encounter.maximum_ttl',
 #			workplace = _here.active_workplace,
 #			default = u'6 hours'
@@ -2049,12 +2049,12 @@ WHERE
 #			_log.exception('user interaction not desired, not looking for fairly recent encounter')
 #			return False
 #
-#		min_ttl = gmCfg.get4user (
+#		min_ttl = gmCfgDB.get4user (
 #			option = u'encounter.minimum_ttl',
 #			workplace = _here.active_workplace,
 #			default = u'1 hour 30 minutes'
 #		)
-#		max_ttl = gmCfg.get4user (
+#		max_ttl = gmCfgDB.get4user (
 #			option = u'encounter.maximum_ttl',
 #			workplace = _here.active_workplace,
 #			default = u'6 hours'
@@ -2129,7 +2129,7 @@ WHERE
 
 	#------------------------------------------------------------------
 	def start_new_encounter(self):
-		enc_type = gmCfg.get4user (
+		enc_type = gmCfgDB.get4user (
 			option = 'encounter.default_type',
 			workplace = _here.active_workplace
 		)
@@ -2421,7 +2421,7 @@ SELECT MIN(earliest) FROM (
 	#------------------------------------------------------------------
 	def remove_empty_encounters(self):
 		_log.debug('removing empty encounters for pk_identity [%s]', self.pk_patient)
-		ttl = gmCfg.get4user (
+		ttl = gmCfgDB.get4user (
 			option = 'encounter.ttl_if_empty',
 			workplace = _here.active_workplace,
 			default = '1 week'

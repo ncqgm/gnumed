@@ -16,7 +16,7 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
-from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmNetworkTools
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
@@ -32,12 +32,12 @@ _log = logging.getLogger('gm.ui')
 
 #==============================================================================
 def _get_update_status():
-	url = gmCfg.get4workplace (
+	url = gmCfgDB.get4workplace (
 		option = 'horstspace.update.url',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		default = 'https://www.gnumed.de/downloads/gnumed-versions.txt'
 	)
-	consider_latest_branch = gmCfg.get4workplace (
+	consider_latest_branch = gmCfgDB.get4workplace (
 		option = 'horstspace.update.consider_latest_branch',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		default = True
@@ -88,7 +88,7 @@ def list_configuration(parent=None):
 
 	#---------------
 	def refresh(lctrl):
-		opts = gmCfg.get_all_options(order_by = 'owner, workplace, option')
+		opts = gmCfgDB.get_all_options(order_by = 'owner, workplace, option')
 
 		items = [ [
 			o['owner'],
@@ -152,7 +152,7 @@ def list_configuration(parent=None):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot connect as database owner. Unable to delete option.'))
 			return False
 
-		gmCfg.delete(conn = conn, pk_option = item['pk_cfg_item'])
+		gmCfgDB.delete(conn = conn, pk_option = item['pk_cfg_item'])
 		return True
 
 	#---------------
@@ -170,7 +170,7 @@ def list_configuration(parent=None):
 #================================================================
 def configure_string_from_list_option(parent=None, message=None, option=None, bias='user', default_value='', choices=None, columns=None, data=None, caption=None):
 
-	current_value = gmCfg.get (
+	current_value = gmCfgDB.get (
 		option = option,
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = bias,
@@ -210,7 +210,7 @@ def configure_string_from_list_option(parent=None, message=None, option=None, bi
 	if choice == current_value:
 		return
 
-	gmCfg.set (
+	gmCfgDB.set (
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		option = option,
 		value = choice
@@ -222,7 +222,7 @@ def configure_list_from_list_option(parent=None, message=None, option=None, bias
 
 	if default_value is None:
 		default_value = []
-#	current_value = gmCfg.get (
+#	current_value = gmCfgDB.get (
 #		option = option,
 #		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 #		bias = bias,
@@ -247,7 +247,7 @@ def configure_list_from_list_option(parent=None, message=None, option=None, bias
 
 	picks = picker.get_picks()
 	picker.DestroyLater()
-	gmCfg.set (
+	gmCfgDB.set (
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		option = option,
 		value = picks
@@ -257,7 +257,7 @@ def configure_list_from_list_option(parent=None, message=None, option=None, bias
 
 #================================================================
 def configure_string_option(parent=None, message=None, option=None, bias='user', default_value='', validator=None):
-	current_value = gmCfg.get (
+	current_value = gmCfgDB.get (
 		option = option,
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = bias,
@@ -300,7 +300,7 @@ def configure_string_option(parent=None, message=None, option=None, bias='user',
 			msg = _('Value [%s] not valid for option <%s>.') % (user_val, option),
 			beep = True
 		)
-	gmCfg.set (
+	gmCfgDB.set (
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		option = option,
 		value = user_val
@@ -336,13 +336,13 @@ def configure_boolean_option(parent=None, question=None, option=None, button_too
 
 	decision = dlg.ShowModal()
 	if decision == wx.ID_YES:
-		gmCfg.set (
+		gmCfgDB.set (
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			option = option,
 			value = True
 		)
 	elif decision == wx.ID_NO:
-		gmCfg.set (
+		gmCfgDB.set (
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			option = option,
 			value = False

@@ -19,7 +19,7 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmDispatcher
-from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmPrinting
 from Gnumed.pycommon import gmNetworkTools
@@ -103,7 +103,7 @@ def manage_billables(parent=None):
 		return True
 	#------------------------------------------------------------
 	def browse_catalogs(billable):
-		url = gmCfg.get4user (
+		url = gmCfgDB.get4user (
 			option = 'external.urls.schedules_of_fees',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			default = 'http://www.e-bis.de/goae/defaultFrame.htm'
@@ -376,7 +376,7 @@ def configure_invoice_template(parent=None, with_vat=True):
 	else:
 		option = 'form_templates.invoice_no_vat'
 
-	gmCfg.set (
+	gmCfgDB.set (
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		option = option,
 		value = '%s - %s' % (template['name_long'], template['external_version'])
@@ -391,7 +391,7 @@ def get_invoice_template(parent=None, with_vat=True):
 	else:
 		option = 'form_templates.invoice_no_vat'
 
-	template = gmCfg.get4user (
+	template = gmCfgDB.get4user (
 		option = option,
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'user'
@@ -486,7 +486,7 @@ def create_bill_from_items(bill_items=None):
 
 	# create bill
 	person = gmPerson.cPerson(pk_pat)
-	invoice_id_template = gmCfg.get4user (
+	invoice_id_template = gmCfgDB.get4user (
 		option = u'billing.invoice_id_template',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 	)

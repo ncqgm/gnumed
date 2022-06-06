@@ -26,7 +26,7 @@ from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmShellAPI
-from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmWorkerThread
@@ -195,7 +195,7 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export visual progress note to file.'))
 			return None
 
-	editor = gmCfg.get4user (
+	editor = gmCfgDB.get4user (
 		option = 'external.tools.visual_soap_editor_cmd',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 	)

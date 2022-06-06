@@ -22,7 +22,7 @@ import wx.lib.mixins.treemixin as treemixin
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
-from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmMatchProvider
@@ -221,7 +221,7 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 		pat.locked = False
 	# inform user
 	gmDispatcher.send(signal = 'statustext', msg = _('Imported new document from %s.') % filenames, beep = True)
-	show_id = gmCfg.get4user (
+	show_id = gmCfgDB.get4user (
 		option = 'horstspace.scan_index.show_doc_id',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		default = False
@@ -1063,7 +1063,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		title = _('saving document')
 
 		if self._LCTRL_doc_pages.ItemCount == 0:
-			allow_empty = gmCfg.get4user (
+			allow_empty = gmCfgDB.get4user (
 				option =  'horstspace.scan_index.allow_partless_documents',
 				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 				default = False
@@ -1134,7 +1134,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 	def get_device_to_use(self, reconfigure=False):
 
 		if not reconfigure:
-			device = gmCfg.get4workplace (
+			device = gmCfgDB.get4workplace (
 				option =  'external.xsane.default_device',
 				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 				default = ''
@@ -1291,7 +1291,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			return False
 
 		# external reference
-		generate_uuid = gmCfg.get4user (
+		generate_uuid = gmCfgDB.get4user (
 			option = 'horstspace.scan_index.generate_doc_uuid',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			default = False
@@ -1411,13 +1411,13 @@ def display_document_part(parent=None, part=None):
 
 	wx.BeginBusyCursor()
 	# determine database export chunk size
-	chunksize = gmCfg.get4workplace (
+	chunksize = gmCfgDB.get4workplace (
 		option = "horstspace.blob_export_chunk_size",
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		default = 2048
 	)
 	# shall we force blocking during view ?
-	block_during_view = gmCfg.get4user (
+	block_during_view = gmCfgDB.get4user (
 		option = 'horstspace.document_viewer.block_during_view',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 	)
@@ -1441,7 +1441,7 @@ def display_document_part(parent=None, part=None):
 	# 2: if no review by myself exists yet
 	# 3: if no review at all exists yet
 	# 4: if no review by responsible reviewer
-	review_after_display = gmCfg.get4user (
+	review_after_display = gmCfgDB.get4user (
 		option = 'horstspace.document_viewer.review_after_display',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		default = 3
@@ -2566,13 +2566,13 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 		wx.BeginBusyCursor()
 		# determine database export chunk size
-		chunksize = gmCfg.get4workplace (
+		chunksize = gmCfgDB.get4workplace (
 			option = "horstspace.blob_export_chunk_size",
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			default = default_chunksize
 		)
 		# shall we force blocking during view ?
-		block_during_view = gmCfg.get4user (
+		block_during_view = gmCfgDB.get4user (
 			option = 'horstspace.document_viewer.block_during_view',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		)
@@ -2699,7 +2699,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			return
 
 		# determine database export chunk size
-		chunksize = gmCfg.get4workplace (
+		chunksize = gmCfgDB.get4workplace (
 			option = "horstspace.blob_export_chunk_size",
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			default = default_chunksize
@@ -2777,7 +2777,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		)
 
 		# determine database export chunk size
-		chunksize = gmCfg.get4workplace (
+		chunksize = gmCfgDB.get4workplace (
 			option = "horstspace.blob_export_chunk_size",
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			default = default_chunksize
@@ -2836,7 +2836,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			return
 
 		# determine database export chunk size
-		chunksize = gmCfg.get4workplace (
+		chunksize = gmCfgDB.get4workplace (
 			option = "horstspace.blob_export_chunk_size",
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			default = default_chunksize
@@ -2995,7 +2995,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 		wx.BeginBusyCursor()
 		# determine database export chunk size
-		chunksize = gmCfg.get4workplace (
+		chunksize = gmCfgDB.get4workplace (
 			option = "horstspace.blob_export_chunk_size",
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			default = default_chunksize

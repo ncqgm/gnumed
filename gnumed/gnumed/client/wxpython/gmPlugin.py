@@ -19,7 +19,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
 from Gnumed.pycommon import gmGuiBroker
-from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmTools
@@ -385,7 +385,7 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None, workplace=None):
 	p_list = None
 
 	if option is not None:
-		p_list = gmCfg.get4workplace (
+		p_list = gmCfgDB.get4workplace (
 			option = option,
 			workplace = workplace,
 			default = defaults
@@ -402,7 +402,7 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None, workplace=None):
 	else:
 		p_list = defaults
 	# store for current user/current workplace
-	gmCfg.set(option = option, value = p_list, workplace = workplace)
+	gmCfgDB.set(option = option, value = p_list, workplace = workplace)
 	_log.debug("plugin load list stored: %s" % str(p_list))
 	return p_list
 

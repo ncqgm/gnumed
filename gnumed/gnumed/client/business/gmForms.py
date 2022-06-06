@@ -38,7 +38,7 @@ from Gnumed.pycommon import gmBorg
 from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmShellAPI
-from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
@@ -524,7 +524,7 @@ class gmOOoConnector(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def __get_startup_settle_time(self):
 		# later factor this out !
-		self.ooo_startup_settle_time = gmCfg.get4workplace (
+		self.ooo_startup_settle_time = gmCfgDB.get4workplace (
 			option = 'external.ooo.startup_settle_time',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			default = 3.0

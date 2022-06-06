@@ -16,7 +16,7 @@ import wx
 from Gnumed.pycommon import gmGuiBroker
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmExceptions
@@ -146,7 +146,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 	#-------------------------------------------------------
 	def __get_lab_panel(self):
 		# get panel to use
-		pk_panel = gmCfg.get4user (
+		pk_panel = gmCfgDB.get4user (
 			option = u'horstspace.top_panel.lab_panel',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		)

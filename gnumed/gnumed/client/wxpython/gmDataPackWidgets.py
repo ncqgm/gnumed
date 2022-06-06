@@ -17,7 +17,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
 from Gnumed.pycommon import gmCfg2
-from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmNetworkTools
 from Gnumed.pycommon import gmPG2
@@ -186,7 +186,7 @@ def install_data_pack(data_pack=None):
 
 #----------------------------------------------------------------
 def load_data_packs_list():
-	dpl_url = gmCfg.get4workplace (
+	dpl_url = gmCfgDB.get4workplace (
 		option = dpl_url_option,
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		default = default_dpl_url

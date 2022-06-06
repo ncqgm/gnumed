@@ -19,7 +19,7 @@ if __name__ == '__main__':
 	_ = lambda x:x
 
 from Gnumed.pycommon import gmDispatcher
-from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmMatchProvider
@@ -997,7 +997,7 @@ def configure_medication_list_template(parent=None):
 		gmDispatcher.send(signal = 'statustext', msg = _('No medication list template configured.'), beep = True)
 		return None
 
-	gmCfg.set (
+	gmCfgDB.set (
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		option = option,
 		value = '%s - %s' % (template['name_long'], template['external_version'])
@@ -1012,7 +1012,7 @@ def print_medication_list(parent=None):
 
 	# 1) get template
 	option = 'form_templates.medication_list'
-	template = gmCfg.get4user (
+	template = gmCfgDB.get4user (
 		option = option,
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 	)
@@ -1081,7 +1081,7 @@ def configure_prescription_template(parent=None):
 		return None
 
 	option = 'form_templates.prescription'
-	gmCfg.set (
+	gmCfgDB.set (
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		option = option,
 		value = '%s - %s' % (template['name_long'], template['external_version'])
@@ -1096,7 +1096,7 @@ def get_prescription_template(parent=None):
 		parent = wx.GetApp().GetTopWindow()
 
 	option = 'form_templates.prescription'
-	template_name = gmCfg.get4user (
+	template_name = gmCfgDB.get4user (
 		option = option,
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 	)
@@ -1156,7 +1156,7 @@ def print_prescription(parent=None, emr=None):
 
 #------------------------------------------------------------
 def prescribe_drugs(parent=None, emr=None):
-	rx_mode = gmCfg.get4user (
+	rx_mode = gmCfgDB.get4user (
 		option = 'horst_space.default_prescription_mode',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		default = 'form'			# set to 'database' to access database
@@ -1594,7 +1594,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 	#------------------------------------------------------------
 	def report_ADR(self):
-		url = gmCfg.get4user (
+		url = gmCfgDB.get4user (
 			option = 'external.urls.report_ADR',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			default = gmMedication.URL_drug_adr_german_default
@@ -2279,7 +2279,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 
 	#--------------------------------------------------------
 	def _on_pre_patient_unselection(self):
-		pk_panel = gmCfg.get4user (
+		pk_panel = gmCfgDB.get4user (
 			option = 'horstspace.medications_plugin.lab_panel',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		)

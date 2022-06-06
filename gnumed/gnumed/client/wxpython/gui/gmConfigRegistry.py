@@ -13,13 +13,13 @@ import logging
 if __name__ == '__main__':
 	_ = lambda x:x
 
-from Gnumed.pycommon import gmCfg, gmConfigCommon
+from Gnumed.pycommon import gmCfgDB, gmConfigCommon
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.business import gmPraxis
 
 import wx
 
-_cfg = gmCfg.gmDefCfgFile
+_cfg = gmCfg2.gmDefCfgFile
 [	ConfigTreeCtrlID,
 	ConfigTreeBoxID,
 	ParamBoxID,

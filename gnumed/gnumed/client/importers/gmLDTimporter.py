@@ -32,13 +32,13 @@ __license__ = "GPL, details at https://www.gnu.org"
 import glob, os.path, sys, tempfile, fileinput, time, copy, random, shutil
 
 
-from Gnumed.pycommon import gmCfg, gmLoginInfo, gmExceptions, gmI18N
+from Gnumed.pycommon import gmCfgDB, gmLoginInfo, gmExceptions, gmI18N
 from Gnumed.business import gmPathLab, gmXdtMappings, gmPerson, gmPersonSearch
 
 import mx.DateTime as mxDT
 
 _log = gmLog.gmDefLog
-_cfg = gmCfg.gmDefCfgFile
+_cfg = gmCfg2.gmDefCfgFile
 #===============================================================
 class cLDTImporter:
 

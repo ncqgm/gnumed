@@ -54,7 +54,7 @@ if (version < 40) or ('unicode' not in wx.PlatformInfo):
 
 # GNUmed libs
 from Gnumed.pycommon import gmCfg2
-from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmGuiBroker
@@ -246,23 +246,23 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __set_GUI_size(self):
 		"""Try to get previous window size from backend."""
-		width = gmCfg.get4workplace (
+		width = gmCfgDB.get4workplace (
 			option = 'main.window.width',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			default = 800
 		)
-		height = gmCfg.get4workplace (
+		height = gmCfgDB.get4workplace (
 			option = 'main.window.height',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			default = 600
 		)
 		_log.debug('previous GUI size [%sx%s]', width, height)
-		pos_x = gmCfg.get4workplace (
+		pos_x = gmCfgDB.get4workplace (
 			option = 'main.window.position.x',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			default = 0
 		)
-		pos_y = gmCfg.get4workplace (
+		pos_y = gmCfgDB.get4workplace (
 			option = 'main.window.position.y',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			default = 0
@@ -1455,13 +1455,13 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_configure_startup_plugin(self, evt):
 		# get list of possible plugins
-		plugin_list = gmTools.coalesce(gmCfg.get4user (
+		plugin_list = gmTools.coalesce(gmCfgDB.get4user (
 			option = 'horstspace.notebook.plugin_load_order',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		), [])
 
 		# get current setting
-		initial_plugin = gmTools.coalesce(gmCfg.get4user (
+		initial_plugin = gmTools.coalesce(gmCfgDB.get4user (
 			option = 'horstspace.plugin_to_raise_after_startup',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		), 'gmEMRBrowserPlugin')
@@ -1492,7 +1492,7 @@ class gmTopLevelFrame(wx.Frame):
 		if plugin is None:
 			return
 
-		gmCfg.set (
+		gmCfgDB.set (
 			option = 'horstspace.plugin_to_raise_after_startup',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			value = plugin
@@ -1603,13 +1603,13 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_configure_initial_pat_plugin(self, evt):
 		# get list of possible plugins
-		plugin_list = gmTools.coalesce(gmCfg.get4user (
+		plugin_list = gmTools.coalesce(gmCfgDB.get4user (
 			option = 'horstspace.notebook.plugin_load_order',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		), [])
 
 		# get current setting
-		initial_plugin = gmTools.coalesce(gmCfg.get4user (
+		initial_plugin = gmTools.coalesce(gmCfgDB.get4user (
 			option = 'patient_search.plugin_to_raise_after_search',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		), 'gmPatientOverviewPlugin')
@@ -1637,7 +1637,7 @@ class gmTopLevelFrame(wx.Frame):
 		if plugin is None:
 			return
 
-		gmCfg.set (
+		gmCfgDB.set (
 			option = 'patient_search.plugin_to_raise_after_search',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			value = plugin
@@ -2233,7 +2233,7 @@ class gmTopLevelFrame(wx.Frame):
 		part.save()
 	#----------------------------------------------
 	def __on_acs_risk_assessment(self, evt):
-		cmd = gmCfg.get4user (
+		cmd = gmCfgDB.get4user (
 			option = 'external.tools.acs_risk_calculator_cmd',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		)
@@ -2935,7 +2935,7 @@ class gmTopLevelFrame(wx.Frame):
 
 	#----------------------------------------------
 	def __on_load_external_patient(self, event):
-		search_immediately = gmCfg.get4user (
+		search_immediately = gmCfgDB.get4user (
 			option = 'patient_search.external_sources.immediately_search_if_single_source',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			default = False
@@ -3115,22 +3115,22 @@ class gmTopLevelFrame(wx.Frame):
 		_log.info('GUI position at shutdown: [%s:%s]' % (curr_pos_x, curr_pos_y))
 		if 0 not in [curr_width, curr_height]:
 			try:
-				gmCfg.set (
+				gmCfgDB.set (
 					option = 'main.window.width',
 					value = curr_width,
 					workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 				)
-				gmCfg.set (
+				gmCfgDB.set (
 					option = 'main.window.height',
 					value = curr_height,
 					workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 				)
-				gmCfg.set (
+				gmCfgDB.set (
 					option = 'main.window.position.x',
 					value = curr_pos_x,
 					workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 				)
-				gmCfg.set (
+				gmCfgDB.set (
 					option = 'main.window.position.y',
 					value = curr_pos_y,
 					workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
@@ -3608,7 +3608,7 @@ class gmApp(wx.App):
 
 	#----------------------------------------------
 	def __check_for_updates(self):
-		do_check = gmCfg.get4workplace (
+		do_check = gmCfgDB.get4workplace (
 			option = 'horstspace.update.autocheck_at_startup',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			default = True

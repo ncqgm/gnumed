@@ -20,7 +20,7 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
-from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
@@ -159,7 +159,7 @@ def sanity_check_encounter_of_active_patient(parent=None, msg=None):
 	if not pat.connected:
 		return True
 
-	check_enc = gmCfg.get4user (
+	check_enc = gmCfgDB.get4user (
 		option = 'encounter.show_editor_before_patient_change',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		default = True					# True: if needed, not always unconditionally
@@ -241,7 +241,7 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 
 	#--------------------
 	def new():
-		enc_type = gmCfg.get4user (
+		enc_type = gmCfgDB.get4user (
 			option = 'encounter.default_type',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		)

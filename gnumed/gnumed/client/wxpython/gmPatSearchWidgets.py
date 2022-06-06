@@ -28,7 +28,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmNetworkTools
 
@@ -557,7 +557,7 @@ def load_persons_from_pracsoft_au():
 
 #============================================================
 def load_persons_from_kvks():
-	kvk_dir = os.path.abspath(os.path.expanduser(gmCfg.get4workplace (
+	kvk_dir = os.path.abspath(os.path.expanduser(gmCfgDB.get4workplace (
 		option = 'DE.KVK.spool_dir',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		default = '/var/spool/kvkd/'
@@ -996,7 +996,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 		# invoke external patient sources
 		if keycode == wx.WXK_F2:
 			evt.Skip()
-			search_immediately = gmCfg.get4user (
+			search_immediately = gmCfgDB.get4user (
 				option = 'patient_search.external_sources.immediately_search_if_single_source',
 				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 				default = False
@@ -1203,7 +1203,7 @@ def _check_birthday(patient=None):
 	if patient['dob'] is None:
 		return
 
-	dob_distance = gmCfg.get4user (
+	dob_distance = gmCfgDB.get4user (
 		option = 'patient_search.dob_warn_interval',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		default = '1 week'
@@ -1277,12 +1277,12 @@ class cActivePatientSelector(cPersonSearchCtrl):
 		cPersonSearchCtrl.__init__(self, *args, **kwargs)
 
 		# get configuration
-		self.__always_dismiss_on_search = gmCfg.get4user (
+		self.__always_dismiss_on_search = gmCfgDB.get4user (
 			option = 'patient_search.always_dismiss_previous_patient',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			default = False
 		)
-		self.__always_reload_after_search = gmCfg.get4user (
+		self.__always_reload_after_search = gmCfgDB.get4user (
 			option = 'patient_search.always_reload_new_patient',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			default = False

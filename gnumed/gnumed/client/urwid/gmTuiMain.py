@@ -44,7 +44,7 @@ except ImportError:
 	raise
 
 # more GNUmed libs
-#from Gnumed.pycommon import gmCfg
+#from Gnumed.pycommon import gmCfgDB
 #from Gnumed.pycommon import gmPG2
 #from Gnumed.pycommon import gmDispatcher
 #from Gnumed.pycommon import gmI18N

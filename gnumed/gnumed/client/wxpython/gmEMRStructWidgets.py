@@ -28,7 +28,7 @@ if __name__ == '__main__':
 
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmExceptions
-from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmMatchProvider
@@ -240,7 +240,7 @@ def move_episode_to_issue(episode=None, target_issue=None, save_to_backend=False
 		return True
 
 	# try closing possibly expired episode on target issue if any
-	epi_ttl = gmCfg.get4user (
+	epi_ttl = gmCfgDB.get4user (
 		option = 'episode.ttl',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		default = 60				# 2 months

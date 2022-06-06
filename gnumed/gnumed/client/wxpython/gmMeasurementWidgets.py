@@ -23,7 +23,7 @@ if __name__ == '__main__':
 	_ = lambda x:x
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmNetworkTools
-from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmDispatcher
@@ -309,12 +309,12 @@ def browse_incoming_unmatched(parent=None):
 # convenience functions
 #================================================================
 def call_browser_on_measurement_type(measurement_type=None):
-	url = gmCfg.get4user (
+	url = gmCfgDB.get4user (
 		option = 'external.urls.measurements_search',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		default = gmPathLab.URL_test_result_information_search
 	)
-	base_url = gmCfg.get4user (
+	base_url = gmCfgDB.get4user (
 		option = 'external.urls.measurements_encyclopedia',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		default = gmPathLab.URL_test_result_information
@@ -472,7 +472,7 @@ def configure_default_gnuplot_template(parent=None):
 		gmDispatcher.send(signal = 'statustext', msg = _('No default Gnuplot script template selected.'), beep = True)
 		return None
 
-	gmCfg.set (
+	gmCfgDB.set (
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		option = option,
 		value = '%s - %s' % (template['name_long'], template['external_version'])
@@ -484,7 +484,7 @@ def get_default_gnuplot_template(parent = None):
 
 	option = 'form_templates.default_gnuplot_template'
 	# load from option
-	default_template_name = gmCfg.get4user (
+	default_template_name = gmCfgDB.get4user (
 		option = option,
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 	)
@@ -629,7 +629,7 @@ class cLabRelatedDocumentsPnl(wxgLabRelatedDocumentsPnl.wxgLabRelatedDocumentsPn
 			self._LBL_no_of_docs.SetToolTip(_('There is no lab reference to find related documents for.'))
 			return
 
-		lab_doc_types = gmCfg.get4user (
+		lab_doc_types = gmCfgDB.get4user (
 			option = 'horstspace.lab_doc_types',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		)
@@ -702,7 +702,7 @@ class cLabRelatedDocumentsPnl(wxgLabRelatedDocumentsPnl.wxgLabRelatedDocumentsPn
 	#------------------------------------------------------------
 	def _on_list_documents_button_pressed(self, event):
 		event.Skip()
-		lab_doc_types = gmCfg.get4user (
+		lab_doc_types = gmCfgDB.get4user (
 			option = 'horstspace.lab_doc_types',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		)
@@ -2279,7 +2279,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.SetLabelFont(font)
 
 		# add link to left upper corner
-		url = gmCfg.get4user (
+		url = gmCfgDB.get4user (
 			option = 'external.urls.measurements_encyclopedia',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			default = gmPathLab.URL_test_result_information

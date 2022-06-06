@@ -22,7 +22,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmNetworkTools
@@ -649,7 +649,7 @@ def manage_vaccinations(parent=None, latest_only=False, expand_indications=False
 
 	#------------------------------------------------------------
 	def browse2schedules(vaccination=None):
-		url = gmCfg.get4user (
+		url = gmCfgDB.get4user (
 			option = 'external.urls.vaccination_plans',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			default = gmVaccination.URL_vaccination_plan
@@ -1045,12 +1045,12 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 	#----------------------------------------------------------------
 	def _on_report_button_pressed(self, event):
 		event.Skip()
-		url = gmCfg.get4user (
+		url = gmCfgDB.get4user (
 			option = 'external.urls.report_vaccine_ADR',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		)
 		if url.strip() == '':
-			url = gmCfg.get4user (
+			url = gmCfgDB.get4user (
 				option = 'external.urls.report_ADR',
 				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 			)
