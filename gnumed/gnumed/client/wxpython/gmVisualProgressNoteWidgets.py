@@ -195,11 +195,9 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export visual progress note to file.'))
 			return None
 
-	dbcfg = gmCfg.cCfgSQL()
-	editor = dbcfg.get (
+	editor = gmCfg.get4user (
 		option = 'external.tools.visual_soap_editor_cmd',
-		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-		bias = 'user'
+		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 	)
 
 	if editor is None:

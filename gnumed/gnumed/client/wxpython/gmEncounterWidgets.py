@@ -159,11 +159,9 @@ def sanity_check_encounter_of_active_patient(parent=None, msg=None):
 	if not pat.connected:
 		return True
 
-	dbcfg = gmCfg.cCfgSQL()
-	check_enc = dbcfg.get (
+	check_enc = gmCfg.get4user (
 		option = 'encounter.show_editor_before_patient_change',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-		bias = 'user',
 		default = True					# True: if needed, not always unconditionally
 	)
 
@@ -243,11 +241,9 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 
 	#--------------------
 	def new():
-		cfg_db = gmCfg.cCfgSQL()
-		enc_type = cfg_db.get (
+		enc_type = gmCfg.get4user (
 			option = 'encounter.default_type',
-			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'user'
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		)
 		if enc_type is None:
 			enc_type = gmEMRStructItems.get_most_commonly_used_encounter_type()

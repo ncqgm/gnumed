@@ -1932,11 +1932,9 @@ WHERE
 			False: no "very recent" encounter
 	    	True: success
 		"""
-		cfg_db = gmCfg.cCfgSQL()
-		min_ttl = cfg_db.get (
+		min_ttl = gmCfg.get4user (
 			option = 'encounter.minimum_ttl',
 			workplace = _here.active_workplace,
-			bias = 'user',
 			default = '1 hour 30 minutes'
 		)
 		cmd = gmEMRStructItems.SQL_get_encounters % """pk_encounter = (
@@ -1965,17 +1963,14 @@ WHERE
 
 	#------------------------------------------------------------------
 	def __get_fairly_recent_encounter(self):
-		cfg_db = gmCfg.cCfgSQL()
-		min_ttl = cfg_db.get (
+		min_ttl = gmCfg.get4user (
 			option = 'encounter.minimum_ttl',
 			workplace = _here.active_workplace,
-			bias = 'user',
 			default = '1 hour 30 minutes'
 		)
-		max_ttl = cfg_db.get (
+		max_ttl = gmCfg.get4user (
 			option = 'encounter.maximum_ttl',
 			workplace = _here.active_workplace,
-			bias = 'user',
 			default = '6 hours'
 		)
 
@@ -2004,17 +1999,14 @@ WHERE
 #	#------------------------------------------------------------------
 #	def __check_for_fairly_recent_encounter(self):
 #
-#		cfg_db = gmCfg.cCfgSQL()
-#		min_ttl = cfg_db.get (
+#		min_ttl = gmCfg.get4user (
 #			option = u'encounter.minimum_ttl',
 #			workplace = _here.active_workplace,
-#			bias = u'user',
 #			default = u'1 hour 30 minutes'
 #		)
-#		max_ttl = cfg_db.get (
+#		max_ttl = gmCfg.get4user (
 #			option = u'encounter.maximum_ttl',
 #			workplace = _here.active_workplace,
-#			bias = u'user',
 #			default = u'6 hours'
 #		)
 #
@@ -2057,17 +2049,14 @@ WHERE
 #			_log.exception('user interaction not desired, not looking for fairly recent encounter')
 #			return False
 #
-#		cfg_db = gmCfg.cCfgSQL()
-#		min_ttl = cfg_db.get (
+#		min_ttl = gmCfg.get4user (
 #			option = u'encounter.minimum_ttl',
 #			workplace = _here.active_workplace,
-#			bias = u'user',
 #			default = u'1 hour 30 minutes'
 #		)
-#		max_ttl = cfg_db.get (
+#		max_ttl = gmCfg.get4user (
 #			option = u'encounter.maximum_ttl',
 #			workplace = _here.active_workplace,
-#			bias = u'user',
 #			default = u'6 hours'
 #		)
 #		cmd = u"""
@@ -2140,11 +2129,9 @@ WHERE
 
 	#------------------------------------------------------------------
 	def start_new_encounter(self):
-		cfg_db = gmCfg.cCfgSQL()
-		enc_type = cfg_db.get (
+		enc_type = gmCfg.get4user (
 			option = 'encounter.default_type',
-			workplace = _here.active_workplace,
-			bias = 'user'
+			workplace = _here.active_workplace
 		)
 		if enc_type is None:
 			enc_type = gmEMRStructItems.get_most_commonly_used_encounter_type()
@@ -2434,11 +2421,9 @@ SELECT MIN(earliest) FROM (
 	#------------------------------------------------------------------
 	def remove_empty_encounters(self):
 		_log.debug('removing empty encounters for pk_identity [%s]', self.pk_patient)
-		cfg_db = gmCfg.cCfgSQL()
-		ttl = cfg_db.get (
+		ttl = gmCfg.get4user (
 			option = 'encounter.ttl_if_empty',
 			workplace = _here.active_workplace,
-			bias = 'user',
 			default = '1 week'
 		)
 #		# FIXME: this should be done async

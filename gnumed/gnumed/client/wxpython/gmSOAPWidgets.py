@@ -574,11 +574,9 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 		if len(epis) == 0:
 			value = True
 		else:
-			dbcfg = gmCfg.cCfgSQL()
-			value = dbcfg.get (
+			value = gmCfg.get4user (
 				option = 'horstspace.soap_editor.allow_same_episode_multiple_times',
 				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-				bias = 'user',
 				default = False
 			)
 

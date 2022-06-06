@@ -63,24 +63,15 @@ def configure_drug_data_source(parent=None):
 
 #============================================================
 def get_drug_database(parent=None, patient=None):
-	dbcfg = gmCfg.cCfgSQL()
-
+	opt = 'external.drug_data.default_source'
+	wp = gmPraxis.gmCurrentPraxisBranch().active_workplace
 	# load from option
-	default_db = dbcfg.get (
-		option = 'external.drug_data.default_source',
-		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-		bias = 'workplace'
-	)
-
+	default_db = gmCfg.get4workplace(option = opt, workplace = wp)
 	# not configured -> try to configure
 	if default_db is None:
 		gmDispatcher.send('statustext', msg = _('No default drug database configured.'), beep = True)
 		configure_drug_data_source(parent = parent)
-		default_db = dbcfg.get (
-			option = 'external.drug_data.default_source',
-			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'workplace'
-		)
+		default_db = gmCfg.get4workplace(option = opt, workplace = wp)
 		# still not configured -> return
 		if default_db is None:
 			gmGuiHelpers.gm_show_error (
@@ -98,11 +89,7 @@ def get_drug_database(parent=None, patient=None):
 		_log.error('faulty default drug data source configuration: %s', default_db)
 		# try to configure
 		configure_drug_data_source(parent = parent)
-		default_db = dbcfg.get (
-			option = 'external.drug_data.default_source',
-			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'workplace'
-		)
+		default_db = gmCfg.get4workplace(option = opt, workplace = wp)
 		# deconfigured or aborted (and thusly still misconfigured) ?
 		try:
 			drug_db = gmDrugDataSources.drug_data_source_interfaces[default_db]()
@@ -129,12 +116,9 @@ def jump_to_ifap_deprecated(import_drugs=False, emr=None):
 		gmDispatcher.send('statustext', msg = _('Cannot import drugs from IFAP into chart without chart.'))
 		return False
 
-	dbcfg = gmCfg.cCfgSQL()
-
-	ifap_cmd = dbcfg.get (
+	ifap_cmd = gmCfg.get4workplace (
 		option = 'external.ifap-win.shell_command',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-		bias = 'workplace',
 		default = 'wine "C:\Ifapwin\WIAMDB.EXE"'
 	)
 	found, binary = gmShellAPI.detect_external_binary(ifap_cmd)
@@ -144,10 +128,9 @@ def jump_to_ifap_deprecated(import_drugs=False, emr=None):
 	ifap_cmd = binary
 
 	if import_drugs:
-		transfer_file = os.path.expanduser(dbcfg.get (
+		transfer_file = os.path.expanduser(gmCfg.get4workplace (
 			option = 'external.ifap-win.transfer_file',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'workplace',
 			default = '~/.wine/drive_c/Ifapwin/ifap2gnumed.csv'
 		))
 		# file must exist for Ifap to write into it

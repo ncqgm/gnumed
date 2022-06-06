@@ -524,11 +524,9 @@ class gmOOoConnector(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def __get_startup_settle_time(self):
 		# later factor this out !
-		dbcfg = gmCfg.cCfgSQL()
-		self.ooo_startup_settle_time = dbcfg.get (
+		self.ooo_startup_settle_time = gmCfg.get4workplace (
 			option = 'external.ooo.startup_settle_time',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'workplace',
 			default = 3.0
 		)
 	#--------------------------------------------------------

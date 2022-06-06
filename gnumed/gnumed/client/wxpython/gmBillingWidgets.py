@@ -103,11 +103,9 @@ def manage_billables(parent=None):
 		return True
 	#------------------------------------------------------------
 	def browse_catalogs(billable):
-		dbcfg = gmCfg.cCfgSQL()
-		url = dbcfg.get (
+		url = gmCfg.get4user (
 			option = 'external.urls.schedules_of_fees',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'user',
 			default = 'http://www.e-bis.de/goae/defaultFrame.htm'
 		)
 		gmNetworkTools.open_url_in_browser(url = url)
@@ -378,8 +376,7 @@ def configure_invoice_template(parent=None, with_vat=True):
 	else:
 		option = 'form_templates.invoice_no_vat'
 
-	dbcfg = gmCfg.cCfgSQL()
-	dbcfg.set (
+	gmCfg.set (
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		option = option,
 		value = '%s - %s' % (template['name_long'], template['external_version'])
@@ -389,13 +386,12 @@ def configure_invoice_template(parent=None, with_vat=True):
 #----------------------------------------------------------------
 def get_invoice_template(parent=None, with_vat=True):
 
-	dbcfg = gmCfg.cCfgSQL()
 	if with_vat:
 		option = 'form_templates.invoice_with_vat'
 	else:
 		option = 'form_templates.invoice_no_vat'
 
-	template = dbcfg.get (
+	template = gmCfg.get4user (
 		option = option,
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'user'
@@ -490,11 +486,9 @@ def create_bill_from_items(bill_items=None):
 
 	# create bill
 	person = gmPerson.cPerson(pk_pat)
-	dbcfg = gmCfg.cCfgSQL()
-	invoice_id_template = dbcfg.get (
+	invoice_id_template = gmCfg.get4user (
 		option = u'billing.invoice_id_template',
-		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-		bias = 'user'
+		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 	)
 	invoice_id = None
 	max_attempts = 3

@@ -400,11 +400,9 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		if problem is None:
 			return True
 
-		dbcfg = gmCfg.cCfgSQL()
-		allow_duplicate_editors = dbcfg.get (
+		allow_duplicate_editors = gmCfg.get4user (
 			option = 'horstspace.soap_editor.allow_same_episode_multiple_times',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'user',
 			default = False
 		)
 		if self._PNL_editors.add_editor(problem = problem, allow_same_problem = allow_duplicate_editors):
@@ -528,11 +526,9 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 		if self.__pat is None:
 			return
 
-#		dbcfg = gmCfg.cCfgSQL()
-#		auto_open_recent_problems = dbcfg.get (
+#		auto_open_recent_problems = gmCfg.get4user (
 #			option = 'horstspace.soap_editor.auto_open_latest_episodes',
 #			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-#			bias = 'user',
 #			default = True
 #		)
 

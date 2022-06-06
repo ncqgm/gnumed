@@ -183,9 +183,6 @@ def configure_workplace_plugins(parent=None):
 		return True
 	#-----------------------------------
 	def edit(workplace=None):
-
-		dbcfg = gmCfg.cCfgSQL()
-
 		if workplace is None:
 			dlg = wx.TextEntryDialog (
 				parent,
@@ -201,10 +198,9 @@ def configure_workplace_plugins(parent=None):
 				return False
 			curr_plugins = []
 		else:
-			curr_plugins = gmTools.coalesce(dbcfg.get (
+			curr_plugins = gmTools.coalesce(gmCfg.get4workplace (
 				option = 'horstspace.notebook.plugin_load_order',
-				workplace = workplace,
-				bias = 'workplace'
+				workplace = workplace
 				), []
 			)
 
@@ -237,7 +233,7 @@ def configure_workplace_plugins(parent=None):
 		if new_plugins is None:
 			return True
 
-		dbcfg.set (
+		gmCfg.set (
 			option = 'horstspace.notebook.plugin_load_order',
 			value = new_plugins,
 			workplace = workplace
@@ -248,9 +244,6 @@ def configure_workplace_plugins(parent=None):
 	def edit_old(workplace=None):
 
 		available_plugins = gmPlugin.get_installed_plugins(plugin_dir='gui')
-
-		dbcfg = gmCfg.cCfgSQL()
-
 		if workplace is None:
 			dlg = wx.TextEntryDialog (
 				parent,
@@ -267,10 +260,9 @@ def configure_workplace_plugins(parent=None):
 			curr_plugins = []
 			choices = available_plugins
 		else:
-			curr_plugins = gmTools.coalesce(dbcfg.get (
+			curr_plugins = gmTools.coalesce(gmCfg.get4workplace (
 				option = 'horstspace.notebook.plugin_load_order',
-				workplace = workplace,
-				bias = 'workplace'
+				workplace = workplace
 				), []
 			)
 			choices = curr_plugins[:]
@@ -302,7 +294,7 @@ def configure_workplace_plugins(parent=None):
 		if new_plugins is None:
 			return True
 
-		dbcfg.set (
+		gmCfg.set (
 			option = 'horstspace.notebook.plugin_load_order',
 			value = new_plugins,
 			workplace = workplace
@@ -320,28 +312,19 @@ def configure_workplace_plugins(parent=None):
 			default_value = '%s-2' % workplace,
 			parent = parent
 		).strip()
-
 		if new_name == '':
 			return False
 
-		dbcfg = gmCfg.cCfgSQL()
 		opt = 'horstspace.notebook.plugin_load_order'
-
-		plugins = dbcfg.get (
-			option = opt,
-			workplace = workplace,
-			bias = 'workplace'
-		)
-
-		dbcfg.set (
+		plugins = gmCfg.get4workplace(option = opt, workplace = workplace)
+		gmCfg.set (
 			option = opt,
 			value = plugins,
 			workplace = new_name
 		)
-
 		# FIXME: clone cfg, too
-
 		return True
+
 	#-----------------------------------
 	def refresh(lctrl):
 		workplaces = gmPraxis.gmCurrentPraxisBranch().workplaces

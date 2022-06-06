@@ -649,14 +649,11 @@ def manage_vaccinations(parent=None, latest_only=False, expand_indications=False
 
 	#------------------------------------------------------------
 	def browse2schedules(vaccination=None):
-		dbcfg = gmCfg.cCfgSQL()
-		url = dbcfg.get (
+		url = gmCfg.get4user (
 			option = 'external.urls.vaccination_plans',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'user',
 			default = gmVaccination.URL_vaccination_plan
 		)
-
 		gmNetworkTools.open_url_in_browser(url = url)
 		return False
 
@@ -1048,17 +1045,14 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 	#----------------------------------------------------------------
 	def _on_report_button_pressed(self, event):
 		event.Skip()
-		dbcfg = gmCfg.cCfgSQL()
-		url = dbcfg.get (
+		url = gmCfg.get4user (
 			option = 'external.urls.report_vaccine_ADR',
-			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'user'
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		)
 		if url.strip() == '':
-			url = dbcfg.get (
+			url = gmCfg.get4user (
 				option = 'external.urls.report_ADR',
-				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-				bias = 'user'
+				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 			)
 		gmNetworkTools.open_url_in_browser(url = url)
 

@@ -557,12 +557,9 @@ def load_persons_from_pracsoft_au():
 
 #============================================================
 def load_persons_from_kvks():
-
-	dbcfg = gmCfg.cCfgSQL()
-	kvk_dir = os.path.abspath(os.path.expanduser(dbcfg.get (
+	kvk_dir = os.path.abspath(os.path.expanduser(gmCfg.get4workplace (
 		option = 'DE.KVK.spool_dir',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-		bias = 'workplace',
 		default = '/var/spool/kvkd/'
 		#default = u'/home/ncq/gnumed/'
 	)))
@@ -999,11 +996,9 @@ class cPersonSearchCtrl(wx.TextCtrl):
 		# invoke external patient sources
 		if keycode == wx.WXK_F2:
 			evt.Skip()
-			dbcfg = gmCfg.cCfgSQL()
-			search_immediately = dbcfg.get (
+			search_immediately = gmCfg.get4user (
 				option = 'patient_search.external_sources.immediately_search_if_single_source',
 				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-				bias = 'user',
 				default = False
 			)
 			p = get_person_from_external_sources (
@@ -1208,11 +1203,9 @@ def _check_birthday(patient=None):
 	if patient['dob'] is None:
 		return
 
-	dbcfg = gmCfg.cCfgSQL()
-	dob_distance = dbcfg.get (
+	dob_distance = gmCfg.get4user (
 		option = 'patient_search.dob_warn_interval',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-		bias = 'user',
 		default = '1 week'
 	)
 
@@ -1284,27 +1277,18 @@ class cActivePatientSelector(cPersonSearchCtrl):
 		cPersonSearchCtrl.__init__(self, *args, **kwargs)
 
 		# get configuration
-		cfg = gmCfg.cCfgSQL()
-
-		self.__always_dismiss_on_search = bool ( 
-			cfg.get (
-				option = 'patient_search.always_dismiss_previous_patient',
-				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-				bias = 'user',
-				default = 0
-			)
+		self.__always_dismiss_on_search = gmCfg.get4user (
+			option = 'patient_search.always_dismiss_previous_patient',
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
+			default = False
 		)
-
-		self.__always_reload_after_search = bool (
-			cfg.get (
-				option = 'patient_search.always_reload_new_patient',
-				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-				bias = 'user',
-				default = 0
-			)
+		self.__always_reload_after_search = gmCfg.get4user (
+			option = 'patient_search.always_reload_new_patient',
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
+			default = False
 		)
-
 		self.__register_events()
+
 	#--------------------------------------------------------
 	# utility methods
 	#--------------------------------------------------------

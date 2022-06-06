@@ -32,47 +32,68 @@ _DB_CFG = None
 def get(option:str=None, workplace:str=None, cookie:str=None, bias:str=None, default=None):
 	"""Return configuration value.
 
-	Calls cCfgSQL.get(...).
+	Calls get(...) on a module global instance of cCfgSQL().
 	"""
-	return db_cfg().get(option = option, workplace = workplace, cookie = cookie, bias = bias, default = default)
+	return __get_db_cfg_object().get (
+		option = option,
+		workplace = workplace,
+		cookie = cookie,
+		bias = bias,
+		default = default
+	)
 
 #------------------------------------------------------------------
 def get4user(option:str=None, workplace:str=None, cookie:str=None, default=None):
 	"""Return configuration value.
 
-	Calls cCfgSQL.get4user(...).
+	Calls get4user(...) on a module global instance of cCfgSQL().
 	"""
-	return db_cfg().get4user(option = option, workplace = workplace, cookie = cookie, default = default)
+	return __get_db_cfg_object().get4user (
+		option = option,
+		workplace = workplace,
+		cookie = cookie,
+		default = default
+	)
 
 #------------------------------------------------------------------
 def get4workplace(option:str=None, workplace:str=None, cookie:str=None, default=None):
 	"""Return configuration value.
 
-	Calls cCfgSQL.get4workplace(...).
+	Calls get4workplace(...) on a module global instance of cCfgSQL().
 	"""
-	db_cfg().get4workplace(option = option, workplace = workplace, cookie = cookie, default = default)
+	return __get_db_cfg_object().get4workplace (
+		option = option,
+		workplace = workplace,
+		cookie = cookie,
+		default = default
+	)
 
 #------------------------------------------------------------------
 def set(owner:str=None, workplace:str=None, cookie:str=None, option:str=None, value=None) -> bool:
 	"""Set configuration value.
 
-	Calls cCfgSQL.get4workplace(...).
+	Calls set(...) on a module global instance of cCfgSQL().
 	"""
-	return db_cfg().set(owner = owner, workplace = workplace, cookie = cookie, option = option, value = value)
+	return __get_db_cfg_object().set (
+		owner = owner,
+		workplace = workplace,
+		cookie = cookie,
+		option = option,
+		value = value
+	)
 
 #------------------------------------------------------------------
-def db_cfg():
-	"""Setup a module-global DB cfg object.
+def delete(conn=None, pk_option:int=None):
+	"""Delete configuration value.
 
-	Returns:
-		That object.
+	Calls delete(...) on a module global instance of cCfgSQL().
 	"""
-	global _DB_CFG
-	if _DB_CFG is None:
-		_DB_CFG = cCfgSQL()
-	return _DB_CFG
+	return __get_db_cfg_object().delete (
+		conn = conn,
+		pk_option = pk_option
+	)
 
-#==================================================================
+#------------------------------------------------------------------
 def get_all_options(order_by:str=None) -> list:
 	"""Return a list of all configuration items.
 
@@ -91,12 +112,16 @@ def get_all_options(order_by:str=None) -> list:
 	return rows
 
 #==================================================================
-class cCfgSQL:			# rename
-	"""Handles configuration options stored in a PostgreSQL database."""
+def __get_db_cfg_object():
+	"""Setup a module global instance of cCfgSQL()."""
+	global _DB_CFG
+	if _DB_CFG is None:
+		_DB_CFG = cCfgSQL()
+	return _DB_CFG
 
-	#-----------------------------------------------
-#	def __init__(self):
-#		pass
+#==================================================================
+class cCfgSQL:
+	"""Handles configuration options stored in a PostgreSQL database."""
 
 	#-----------------------------------------------
 	# external API
@@ -104,9 +129,9 @@ class cCfgSQL:			# rename
 	def get4user(self, option:str=None, workplace:str=None, cookie:str=None, default=None):
 		"""Retrieve configuration option from backend, biased to current user.
 
-		Calls self._get(..., bias = 'user', ...).
+		Calls self.get(..., bias = 'user', ...).
 		"""
-		return self._get (
+		return self.get (
 			option = option,
 			workplace = workplace,
 			cookie = cookie,
@@ -118,9 +143,9 @@ class cCfgSQL:			# rename
 	def get4workplace(self, option:str=None, workplace:str=None, cookie:str=None, default=None):
 		"""Retrieve configuration option from backend, biased to workplace.
 
-		Calls self._get(..., bias = 'workplace', ...).
+		Calls self.get(..., bias = 'workplace', ...).
 		"""
-		return self._get (
+		return self.get (
 			option = option,
 			workplace = workplace,
 			cookie = cookie,
@@ -129,21 +154,7 @@ class cCfgSQL:			# rename
 		)
 
 	#-----------------------------------------------
-	def get(self, option:str=None, workplace:str=None, cookie=None, bias:str=None, default=None):
-		"""Retrieve configuration option from backend.
-
-		Calls self._get(...).
-		"""
-		return self._get (
-			option = option,
-			workplace = workplace,
-			cookie = cookie,
-			bias = bias,
-			default = default
-		)
-
-	#-----------------------------------------------
-	def _get(self, option:str=None, workplace:str=None, cookie:str=None, bias:str=None, default=None):
+	def get(self, option:str=None, workplace:str=None, cookie:str=None, bias:str=None, default=None):
 		"""Retrieve configuration option from backend for current user.
 
 		The method will look for option values in a
@@ -163,7 +174,7 @@ class cCfgSQL:			# rename
 		3) explicitely not specific to any user or workplace (both being searched
 		   as NULL), IOW the site-wide default
 
-		When no value is found at all, <default> (if given) is stored in the
+		When no value is found at all, default (if given) is stored in the
 		database as site-wide default and returned.
 
 		Args:

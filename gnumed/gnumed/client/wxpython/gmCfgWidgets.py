@@ -32,17 +32,14 @@ _log = logging.getLogger('gm.ui')
 
 #==============================================================================
 def _get_update_status():
-	dbcfg = gmCfg.cCfgSQL()
-	url = dbcfg.get (
+	url = gmCfg.get4workplace (
 		option = 'horstspace.update.url',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-		bias = 'workplace',
 		default = 'https://www.gnumed.de/downloads/gnumed-versions.txt'
 	)
-	consider_latest_branch = dbcfg.get (
+	consider_latest_branch = gmCfg.get4workplace (
 		option = 'horstspace.update.consider_latest_branch',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-		bias = 'workplace',
 		default = True
 	)
 	_cfg = gmCfg2.gmCfgData()
@@ -155,9 +152,9 @@ def list_configuration(parent=None):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot connect as database owner. Unable to delete option.'))
 			return False
 
-		cfg = gmCfg.cCfgSQL()
-		cfg.delete(conn = conn, pk_option = item['pk_cfg_item'])
+		gmCfg.delete(conn = conn, pk_option = item['pk_cfg_item'])
 		return True
+
 	#---------------
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
@@ -173,9 +170,7 @@ def list_configuration(parent=None):
 #================================================================
 def configure_string_from_list_option(parent=None, message=None, option=None, bias='user', default_value='', choices=None, columns=None, data=None, caption=None):
 
-	dbcfg = gmCfg.cCfgSQL()
-
-	current_value = dbcfg.get (
+	current_value = gmCfg.get (
 		option = option,
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = bias,
@@ -215,13 +210,11 @@ def configure_string_from_list_option(parent=None, message=None, option=None, bi
 	if choice == current_value:
 		return
 
-	dbcfg = gmCfg.cCfgSQL()
-	dbcfg.set (
+	gmCfg.set (
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		option = option,
 		value = choice
 	)
-
 	return
 
 #================================================================
@@ -229,10 +222,7 @@ def configure_list_from_list_option(parent=None, message=None, option=None, bias
 
 	if default_value is None:
 		default_value = []
-
-	dbcfg = gmCfg.cCfgSQL()
-
-#	current_value = dbcfg.get (
+#	current_value = gmCfg.get (
 #		option = option,
 #		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 #		bias = bias,
@@ -257,8 +247,7 @@ def configure_list_from_list_option(parent=None, message=None, option=None, bias
 
 	picks = picker.get_picks()
 	picker.DestroyLater()
-
-	dbcfg.set (
+	gmCfg.set (
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		option = option,
 		value = picks
@@ -268,10 +257,7 @@ def configure_list_from_list_option(parent=None, message=None, option=None, bias
 
 #================================================================
 def configure_string_option(parent=None, message=None, option=None, bias='user', default_value='', validator=None):
-
-	dbcfg = gmCfg.cCfgSQL()
-
-	current_value = dbcfg.get (
+	current_value = gmCfg.get (
 		option = option,
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = bias,
@@ -314,14 +300,11 @@ def configure_string_option(parent=None, message=None, option=None, bias='user',
 			msg = _('Value [%s] not valid for option <%s>.') % (user_val, option),
 			beep = True
 		)
-
-	dbcfg = gmCfg.cCfgSQL()
-	dbcfg.set (
+	gmCfg.set (
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		option = option,
 		value = user_val
 	)
-
 	return user_val
 
 #================================================================
@@ -352,15 +335,14 @@ def configure_boolean_option(parent=None, question=None, option=None, button_too
 	)
 
 	decision = dlg.ShowModal()
-	dbcfg = gmCfg.cCfgSQL()
 	if decision == wx.ID_YES:
-		dbcfg.set (
+		gmCfg.set (
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			option = option,
 			value = True
 		)
 	elif decision == wx.ID_NO:
-		dbcfg.set (
+		gmCfg.set (
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			option = option,
 			value = False

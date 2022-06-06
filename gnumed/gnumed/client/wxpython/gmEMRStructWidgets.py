@@ -240,13 +240,11 @@ def move_episode_to_issue(episode=None, target_issue=None, save_to_backend=False
 		return True
 
 	# try closing possibly expired episode on target issue if any
-	db_cfg = gmCfg.cCfgSQL()
-	epi_ttl = int(db_cfg.get (
+	epi_ttl = gmCfg.get4user (
 		option = 'episode.ttl',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-		bias = 'user',
 		default = 60				# 2 months
-	))
+	)
 	if target_issue.close_expired_episode(ttl=epi_ttl) is True:
 		gmDispatcher.send(signal='statustext', msg=_('Closed episodes older than %s days on health issue [%s]') % (epi_ttl, target_issue['description']))
 	existing_epi = target_issue.get_open_episode()

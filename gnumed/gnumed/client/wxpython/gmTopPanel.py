@@ -146,11 +146,9 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 	#-------------------------------------------------------
 	def __get_lab_panel(self):
 		# get panel to use
-		dbcfg = gmCfg.cCfgSQL()
-		pk_panel = dbcfg.get (
+		pk_panel = gmCfg.get4user (
 			option = u'horstspace.top_panel.lab_panel',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'user'
 		)
 		if pk_panel is None:
 			return None

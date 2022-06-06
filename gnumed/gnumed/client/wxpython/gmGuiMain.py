@@ -246,33 +246,27 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __set_GUI_size(self):
 		"""Try to get previous window size from backend."""
-
-		cfg = gmCfg.cCfgSQL()
-		width = int(cfg.get (
+		width = gmCfg.get4workplace (
 			option = 'main.window.width',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'workplace',
 			default = 800
-		))
-		height = int(cfg.get (
+		)
+		height = gmCfg.get4workplace (
 			option = 'main.window.height',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'workplace',
 			default = 600
-		))
+		)
 		_log.debug('previous GUI size [%sx%s]', width, height)
-		pos_x = int(cfg.get (
+		pos_x = gmCfg.get4workplace (
 			option = 'main.window.position.x',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'workplace',
 			default = 0
-		))
-		pos_y = int(cfg.get (
+		)
+		pos_y = gmCfg.get4workplace (
 			option = 'main.window.position.y',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'workplace',
 			default = 0
-		))
+		)
 		_log.debug('previous GUI position [%s:%s]', pos_x, pos_y)
 
 		curr_disp_width = wx.DisplaySize()[0]
@@ -1460,20 +1454,16 @@ class gmTopLevelFrame(wx.Frame):
 	# submenu GNUmed / config / ui
 	#----------------------------------------------
 	def __on_configure_startup_plugin(self, evt):
-
-		dbcfg = gmCfg.cCfgSQL()
 		# get list of possible plugins
-		plugin_list = gmTools.coalesce(dbcfg.get (
+		plugin_list = gmTools.coalesce(gmCfg.get4user (
 			option = 'horstspace.notebook.plugin_load_order',
-			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'user'
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		), [])
 
 		# get current setting
-		initial_plugin = gmTools.coalesce(dbcfg.get (
+		initial_plugin = gmTools.coalesce(gmCfg.get4user (
 			option = 'horstspace.plugin_to_raise_after_startup',
-			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'user'
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		), 'gmEMRBrowserPlugin')
 		try:
 			selections = [plugin_list.index(initial_plugin)]
@@ -1502,11 +1492,12 @@ class gmTopLevelFrame(wx.Frame):
 		if plugin is None:
 			return
 
-		dbcfg.set (
+		gmCfg.set (
 			option = 'horstspace.plugin_to_raise_after_startup',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			value = plugin
 		)
+
 	#----------------------------------------------
 	# submenu GNUmed / config / ui / patient search
 	#----------------------------------------------
@@ -1611,20 +1602,16 @@ class gmTopLevelFrame(wx.Frame):
 
 	#----------------------------------------------
 	def __on_configure_initial_pat_plugin(self, evt):
-
-		dbcfg = gmCfg.cCfgSQL()
 		# get list of possible plugins
-		plugin_list = gmTools.coalesce(dbcfg.get (
+		plugin_list = gmTools.coalesce(gmCfg.get4user (
 			option = 'horstspace.notebook.plugin_load_order',
-			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'user'
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		), [])
 
 		# get current setting
-		initial_plugin = gmTools.coalesce(dbcfg.get (
+		initial_plugin = gmTools.coalesce(gmCfg.get4user (
 			option = 'patient_search.plugin_to_raise_after_search',
-			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'user'
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		), 'gmPatientOverviewPlugin')
 		try:
 			selections = [plugin_list.index(initial_plugin)]
@@ -1650,11 +1637,12 @@ class gmTopLevelFrame(wx.Frame):
 		if plugin is None:
 			return
 
-		dbcfg.set (
+		gmCfg.set (
 			option = 'patient_search.plugin_to_raise_after_search',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			value = plugin
 		)
+
 	#----------------------------------------------
 	# submenu GNUmed / config / billing
 	#----------------------------------------------
@@ -2245,12 +2233,9 @@ class gmTopLevelFrame(wx.Frame):
 		part.save()
 	#----------------------------------------------
 	def __on_acs_risk_assessment(self, evt):
-
-		dbcfg = gmCfg.cCfgSQL()
-		cmd = dbcfg.get (
+		cmd = gmCfg.get4user (
 			option = 'external.tools.acs_risk_calculator_cmd',
-			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'user'
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		)
 
 		if cmd is None:
@@ -2950,11 +2935,9 @@ class gmTopLevelFrame(wx.Frame):
 
 	#----------------------------------------------
 	def __on_load_external_patient(self, event):
-		dbcfg = gmCfg.cCfgSQL()
-		search_immediately = dbcfg.get (
+		search_immediately = gmCfg.get4user (
 			option = 'patient_search.external_sources.immediately_search_if_single_source',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'user',
 			default = False
 		)
 		gmPatSearchWidgets.get_person_from_external_sources(parent = self, search_immediately = search_immediately, activate_immediately = True)
@@ -3131,24 +3114,23 @@ class gmTopLevelFrame(wx.Frame):
 		curr_pos_x, curr_pos_y = self.GetScreenPosition()
 		_log.info('GUI position at shutdown: [%s:%s]' % (curr_pos_x, curr_pos_y))
 		if 0 not in [curr_width, curr_height]:
-			dbcfg = gmCfg.cCfgSQL()
 			try:
-				dbcfg.set (
+				gmCfg.set (
 					option = 'main.window.width',
 					value = curr_width,
 					workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 				)
-				dbcfg.set (
+				gmCfg.set (
 					option = 'main.window.height',
 					value = curr_height,
 					workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 				)
-				dbcfg.set (
+				gmCfg.set (
 					option = 'main.window.position.x',
 					value = curr_pos_x,
 					workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 				)
-				dbcfg.set (
+				gmCfg.set (
 					option = 'main.window.position.y',
 					value = curr_pos_y,
 					workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
@@ -3626,12 +3608,9 @@ class gmApp(wx.App):
 
 	#----------------------------------------------
 	def __check_for_updates(self):
-
-		dbcfg = gmCfg.cCfgSQL()
-		do_check = dbcfg.get (
+		do_check = gmCfg.get4workplace (
 			option = 'horstspace.update.autocheck_at_startup',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'workplace',
 			default = True
 		)
 		if not do_check:

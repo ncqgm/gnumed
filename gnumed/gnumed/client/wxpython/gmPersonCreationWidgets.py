@@ -51,20 +51,16 @@ def create_new_person(parent=None, activate=False):
 
 		msg = _('Edit the current encounter of the patient you are ABOUT TO LEAVE:')
 
-	dbcfg = gmCfg.cCfgSQL()
-
-	def_region = dbcfg.get (
+	def_region = gmCfg.get4user (
 		option = 'person.create.default_region',
-		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-		bias = 'user'
+		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 	)
 	def_country = None
 
 	if def_region is None:
-		def_country = dbcfg.get (
+		def_country = gmCfg.get4user (
 			option = 'person.create.default_country',
-			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'user'
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		)
 	else:
 		countries = gmDemographicRecord.get_country_for_region(region = def_region)

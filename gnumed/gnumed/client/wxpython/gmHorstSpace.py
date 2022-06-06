@@ -310,11 +310,9 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 	# external callbacks
 	#----------------------------------------------
 	def _on_post_patient_selection(self, **kwargs):
-		db_cfg = gmCfg.cCfgSQL()
-		default_plugin = db_cfg.get (
+		default_plugin = gmCfg.get4user (
 			option = 'patient_search.plugin_to_raise_after_search',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'user',
 			default = 'gmPatientOverviewPlugin'
 		)
 		gmDispatcher.send(signal = 'display_widget', name = default_plugin)

@@ -309,33 +309,22 @@ def browse_incoming_unmatched(parent=None):
 # convenience functions
 #================================================================
 def call_browser_on_measurement_type(measurement_type=None):
-
-	dbcfg = gmCfg.cCfgSQL()
-
-	url = dbcfg.get (
+	url = gmCfg.get4user (
 		option = 'external.urls.measurements_search',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-		bias = 'user',
 		default = gmPathLab.URL_test_result_information_search
 	)
-
-	base_url = dbcfg.get (
+	base_url = gmCfg.get4user (
 		option = 'external.urls.measurements_encyclopedia',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-		bias = 'user',
 		default = gmPathLab.URL_test_result_information
 	)
-
 	if measurement_type is None:
 		url = base_url
-
 	measurement_type = measurement_type.strip()
-
 	if measurement_type == '':
 		url = base_url
-
 	url = url % {'search_term': measurement_type}
-
 	gmNetworkTools.open_url_in_browser(url = url)
 
 #----------------------------------------------------------------
@@ -483,8 +472,7 @@ def configure_default_gnuplot_template(parent=None):
 		gmDispatcher.send(signal = 'statustext', msg = _('No default Gnuplot script template selected.'), beep = True)
 		return None
 
-	dbcfg = gmCfg.cCfgSQL()
-	dbcfg.set (
+	gmCfg.set (
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		option = option,
 		value = '%s - %s' % (template['name_long'], template['external_version'])
@@ -495,16 +483,11 @@ def configure_default_gnuplot_template(parent=None):
 def get_default_gnuplot_template(parent = None):
 
 	option = 'form_templates.default_gnuplot_template'
-
-	dbcfg = gmCfg.cCfgSQL()
-
 	# load from option
-	default_template_name = dbcfg.get (
+	default_template_name = gmCfg.get4user (
 		option = option,
-		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-		bias = 'user'
+		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 	)
-
 	# not configured -> try to configure
 	if default_template_name is None:
 		gmDispatcher.send('statustext', msg = _('No default Gnuplot template configured.'), beep = False)
@@ -646,11 +629,9 @@ class cLabRelatedDocumentsPnl(wxgLabRelatedDocumentsPnl.wxgLabRelatedDocumentsPn
 			self._LBL_no_of_docs.SetToolTip(_('There is no lab reference to find related documents for.'))
 			return
 
-		dbcfg = gmCfg.cCfgSQL()
-		lab_doc_types = dbcfg.get (
+		lab_doc_types = gmCfg.get4user (
 			option = 'horstspace.lab_doc_types',
-			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'user'
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		)
 		if lab_doc_types is None:
 			self._LBL_no_of_docs.SetToolTip(_('No document types declared to contain lab results.'))
@@ -721,11 +702,9 @@ class cLabRelatedDocumentsPnl(wxgLabRelatedDocumentsPnl.wxgLabRelatedDocumentsPn
 	#------------------------------------------------------------
 	def _on_list_documents_button_pressed(self, event):
 		event.Skip()
-		dbcfg = gmCfg.cCfgSQL()
-		lab_doc_types = dbcfg.get (
+		lab_doc_types = gmCfg.get4user (
 			option = 'horstspace.lab_doc_types',
-			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'user'
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		)
 		d_types = gmDocuments.map_types2pk(lab_doc_types)
 		if isinstance(self.__reference, gmPathLab.cTestResult):
@@ -2300,11 +2279,9 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.SetLabelFont(font)
 
 		# add link to left upper corner
-		dbcfg = gmCfg.cCfgSQL()
-		url = dbcfg.get (
+		url = gmCfg.get4user (
 			option = 'external.urls.measurements_encyclopedia',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'user',
 			default = gmPathLab.URL_test_result_information
 		)
 

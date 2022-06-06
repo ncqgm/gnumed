@@ -997,13 +997,11 @@ def configure_medication_list_template(parent=None):
 		gmDispatcher.send(signal = 'statustext', msg = _('No medication list template configured.'), beep = True)
 		return None
 
-	dbcfg = gmCfg.cCfgSQL()
-	dbcfg.set (
+	gmCfg.set (
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		option = option,
 		value = '%s - %s' % (template['name_long'], template['external_version'])
 	)
-
 	return template
 
 #------------------------------------------------------------
@@ -1013,15 +1011,11 @@ def print_medication_list(parent=None):
 		parent = wx.GetApp().GetTopWindow()
 
 	# 1) get template
-	dbcfg = gmCfg.cCfgSQL()
 	option = 'form_templates.medication_list'
-
-	template = dbcfg.get (
+	template = gmCfg.get4user (
 		option = option,
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-		bias = 'user'
 	)
-
 	if template is None:
 		template = configure_medication_list_template(parent = parent)
 		if template is None:
@@ -1030,6 +1024,7 @@ def print_medication_list(parent=None):
 				aTitle = _('Printing medication list')
 			)
 			return False
+
 	else:
 		try:
 			name, ver = template.split(' - ')
@@ -1086,8 +1081,7 @@ def configure_prescription_template(parent=None):
 		return None
 
 	option = 'form_templates.prescription'
-	dbcfg = gmCfg.cCfgSQL()
-	dbcfg.set (
+	gmCfg.set (
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		option = option,
 		value = '%s - %s' % (template['name_long'], template['external_version'])
@@ -1101,12 +1095,10 @@ def get_prescription_template(parent=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	dbcfg = gmCfg.cCfgSQL()
 	option = 'form_templates.prescription'
-	template_name = dbcfg.get (
+	template_name = gmCfg.get4user (
 		option = option,
-		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-		bias = 'user'
+		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 	)
 
 	if template_name is None:
@@ -1164,12 +1156,9 @@ def print_prescription(parent=None, emr=None):
 
 #------------------------------------------------------------
 def prescribe_drugs(parent=None, emr=None):
-
-	dbcfg = gmCfg.cCfgSQL()
-	rx_mode = dbcfg.get (
+	rx_mode = gmCfg.get4user (
 		option = 'horst_space.default_prescription_mode',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-		bias = 'user',
 		default = 'form'			# set to 'database' to access database
 	)
 
@@ -1605,11 +1594,9 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 	#------------------------------------------------------------
 	def report_ADR(self):
-		dbcfg = gmCfg.cCfgSQL()
-		url = dbcfg.get (
+		url = gmCfg.get4user (
 			option = 'external.urls.report_ADR',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'user',
 			default = gmMedication.URL_drug_adr_german_default
 		)
 		gmNetworkTools.open_url_in_browser(url = url)
@@ -2292,11 +2279,9 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 
 	#--------------------------------------------------------
 	def _on_pre_patient_unselection(self):
-		dbcfg = gmCfg.cCfgSQL()
-		pk_panel = dbcfg.get (
+		pk_panel = gmCfg.get4user (
 			option = 'horstspace.medications_plugin.lab_panel',
-			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'user'
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		)
 		if pk_panel is None:
 			self.__lab_panel = None

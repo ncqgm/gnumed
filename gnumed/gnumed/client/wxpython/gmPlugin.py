@@ -385,11 +385,9 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None, workplace=None):
 	p_list = None
 
 	if option is not None:
-		dbcfg = gmCfg.cCfgSQL()
-		p_list = dbcfg.get (
+		p_list = gmCfg.get4workplace (
 			option = option,
 			workplace = workplace,
-			bias = 'workplace',
 			default = defaults
 		)
 
@@ -403,14 +401,8 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None, workplace=None):
 			return defaults
 	else:
 		p_list = defaults
-
 	# store for current user/current workplace
-	dbcfg.set (
-		option = option,
-		value = p_list,
-		workplace = workplace
-	)
-
+	gmCfg.set(option = option, value = p_list, workplace = workplace)
 	_log.debug("plugin load list stored: %s" % str(p_list))
 	return p_list
 
