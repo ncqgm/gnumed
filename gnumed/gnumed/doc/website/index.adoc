@@ -8,7 +8,7 @@ https://www.gnumed.de/downloads/client/1.8/gnumed-client.1.8.7.tgz[Version 1.8.7
 
 https://www.gnumed.de/downloads/client/1.7/gnumed-client.1.7.9.tgz[Version 1.7.9] (database v22) released Dec 5th 2019
 
-https://github.com/ncqgm/gnumed/blob/master/gnumed/CHANGELOG[What's New] | https://www.gnumed.de/downloads/[Download Area]
+https://github.com/ncqgm/gnumed/blob/master/gnumed/CHANGELOG[What's New] (https://github.com/ncqgm/gnumed/commits/master[commit log]) | https://www.gnumed.de/downloads/[Download Area]
 
 '''
 
