@@ -47,7 +47,7 @@ from Gnumed.pycommon import gmDrugView, gmCfgDB, gmExceptions
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.business import gmPraxis
 
-_cfg = gmCfg2.gmDefCfgFile
+_cfg = gmCfgINI.gmDefCfgFile
 #============================================================
 # These constants are used when referring to menu items below
 #============================================================
@@ -97,7 +97,7 @@ class DrugDisplay(wx.Panel):
 			# assume we are outside gnumed
 			self.dbName = _cfg.get('DrugReferenceBrowser', 'drugDBname')
 		else:
-			self.dbName, match = gmCfg2.getDBParam(
+			self.dbName, match = gmCfgINI.getDBParam(
 				currworkplace,
 				option="DrugReferenceBrowser.drugDBName"
 			)

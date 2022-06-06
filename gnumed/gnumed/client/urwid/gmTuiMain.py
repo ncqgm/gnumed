@@ -28,8 +28,8 @@ _log = logging.getLogger('gm.tui')
 
 
 # GNUmed libs
-#from Gnumed.pycommon import gmCfg2
-#_cfg = gmCfg2.gmCfgData()
+#from Gnumed.pycommon import gmCfgINI
+#_cfg = gmCfgINI.gmCfgData()
 
 
 # 3rd party libs: urwid

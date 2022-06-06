@@ -27,7 +27,7 @@ from Gnumed.pycommon import gmGuiBroker
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmBorg
 from Gnumed.pycommon import gmExceptions
-from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmShellAPI
@@ -58,7 +58,7 @@ from Gnumed.wxpython import gmAddressWidgets
 
 
 _log = logging.getLogger('gm.scripting')
-_cfg = gmCfg2.gmCfgData()
+_cfg = gmCfgINI.gmCfgData()
 
 #=====================================================================
 # values for the following placeholders must be injected from the outside before

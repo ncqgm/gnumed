@@ -670,10 +670,10 @@ def setup_console_exception_handler():
 
 #==========================================================
 def setup_cli():
-	from Gnumed.pycommon import gmCfg2
+	from Gnumed.pycommon import gmCfgINI
 
 	global _cfg
-	_cfg = gmCfg2.gmCfgData()
+	_cfg = gmCfgINI.gmCfgData()
 	_cfg.add_cli (
 		short_options = _known_short_options,
 		long_options = _known_long_options

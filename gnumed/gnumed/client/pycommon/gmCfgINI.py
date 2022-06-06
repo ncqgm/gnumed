@@ -1,4 +1,4 @@
-"""GNUmed configuration handling.
+"""GNUmed INI style configuration handling.
 """
 #==================================================================
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"

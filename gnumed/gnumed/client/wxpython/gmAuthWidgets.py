@@ -29,7 +29,7 @@ from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmConnectionPool
 from Gnumed.pycommon import gmBackendListener
 from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmLog2
 
 from Gnumed.business import gmPraxis
@@ -39,7 +39,7 @@ from Gnumed.wxpython import gmExceptionHandlingWidgets
 
 
 _log = logging.getLogger('gm.ui')
-_cfg = gmCfg2.gmCfgData()
+_cfg = gmCfgINI.gmCfgData()
 
 
 msg_generic = _(
@@ -758,14 +758,14 @@ class cLoginPanel(wx.Panel):
 		prefs_name = _cfg.get(option = 'user_preferences_file')
 		_log.debug('saving login preferences in [%s]', prefs_name)
 
-		gmCfg2.set_option_in_INI_file (
+		gmCfgINI.set_option_in_INI_file (
 			filename = prefs_name,
 			group = 'preferences',
 			option = 'login',
 			value = self._CBOX_user.GetValue()
 		)
 
-		gmCfg2.set_option_in_INI_file (
+		gmCfgINI.set_option_in_INI_file (
 			filename = prefs_name,
 			group = 'preferences',
 			option = 'profile',

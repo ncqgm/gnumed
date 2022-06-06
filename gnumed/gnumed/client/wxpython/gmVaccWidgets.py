@@ -23,7 +23,7 @@ from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmCfgDB
-from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmNetworkTools
 from Gnumed.pycommon import gmPG2
@@ -55,7 +55,7 @@ def regenerate_generic_vaccines():
 		return False
 
 	wx.BeginBusyCursor()
-	_cfg = gmCfg2.gmCfgData()
+	_cfg = gmCfgINI.gmCfgData()
 	sql_script = gmVaccination.write_generic_vaccine_sql (
 		'client-%s' % _cfg.get(option = 'client_version'),
 		include_indications_mapping = False

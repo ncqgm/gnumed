@@ -20,7 +20,7 @@ if __name__ == '__main__':
 	_ = lambda x:x
 from Gnumed.pycommon import gmGuiBroker
 from Gnumed.pycommon import gmCfgDB
-from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmTools
 
@@ -28,7 +28,7 @@ from Gnumed.business import gmPerson
 from Gnumed.business import gmPraxis
 
 
-_cfg = gmCfg2.gmCfgData()
+_cfg = gmCfgINI.gmCfgData()
 
 _log = logging.getLogger('gm.ui')
 

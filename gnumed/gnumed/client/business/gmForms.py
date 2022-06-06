@@ -39,7 +39,7 @@ from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmCfgDB
-from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmDateTime
@@ -51,7 +51,7 @@ from Gnumed.business import gmPraxis
 
 
 _log = logging.getLogger('gm.forms')
-_cfg = gmCfg2.gmCfgData()
+_cfg = gmCfgINI.gmCfgData()
 
 #============================================================
 # this order is also used in choice boxes for the engine
@@ -944,7 +944,7 @@ class cTextForm(cFormEngine):
 		self.form_definition_filename = self.template_filename
 		_log.debug('form definition file: [%s]', self.form_definition_filename)
 		cfg_file = io.open(self.form_definition_filename, mode = 'rt', encoding = 'utf-8-sig')
-		self.form_definition = gmCfg2.parse_INI_stream(stream = cfg_file)
+		self.form_definition = gmCfgINI.parse_INI_stream(stream = cfg_file)
 		cfg_file.close()
 
 		# extract actual template into a file

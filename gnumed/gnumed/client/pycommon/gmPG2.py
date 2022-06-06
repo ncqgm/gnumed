@@ -2099,8 +2099,8 @@ def sanity_check_database_settings():
 		'track_commit_timestamp': [['on'], 'suboptimal auditing', False]			# starting with PG 9.3
 	}
 
-	from Gnumed.pycommon import gmCfg2
-	_cfg = gmCfg2.gmCfgData()
+	from Gnumed.pycommon import gmCfgINI
+	_cfg = gmCfgINI.gmCfgData()
 	if _cfg.get(option = 'hipaa'):
 		options2check['log_connections'] = [['on'], 'non-compliance with HIPAA', True]
 		options2check['log_disconnections'] = [['on'], 'non-compliance with HIPAA', True]

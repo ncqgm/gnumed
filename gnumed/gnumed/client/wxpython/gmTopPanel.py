@@ -17,7 +17,7 @@ from Gnumed.pycommon import gmGuiBroker
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmCfgDB
-from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmExceptions
 
@@ -52,7 +52,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 
 	#-------------------------------------------------------
 	def __init_ui(self):
-		cfg = gmCfg2.gmCfgData()
+		cfg = gmCfgINI.gmCfgData()
 		if cfg.get(option = 'slave'):
 			self._TCTRL_patient_selector.SetEditable(0)
 			self._TCTRL_patient_selector.SetToolTip(None)

@@ -23,7 +23,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
 from Gnumed.pycommon import gmCfgDB
-from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmDispatcher
@@ -3867,7 +3867,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		instance_uuid = study_data[0]['series'][0]['instances'][-1]
 		dcm_instance_template_fname = self.__pacs.get_instance(instance_id = instance_uuid)
 		# dicomize PDF via template
-		_cfg = gmCfg2.gmCfgData()
+		_cfg = gmCfgINI.gmCfgData()
 		pdf2dcm_fname = gmDICOM.dicomize_pdf (
 			pdf_name = pdf_name,
 			dcm_template_file = dcm_instance_template_fname,
@@ -3928,7 +3928,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		instance_uuid = study_data[0]['series'][0]['instances'][-1]
 		dcm_instance_template_fname = self.__pacs.get_instance(instance_id = instance_uuid)
 		# dicomize file via template
-		_cfg = gmCfg2.gmCfgData()
+		_cfg = gmCfgINI.gmCfgData()
 		dcm_fname = gmDICOM.dicomize_file (
 			filename = filename,
 			dcm_template_file = dcm_instance_template_fname,

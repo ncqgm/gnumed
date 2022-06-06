@@ -29,13 +29,13 @@ from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmHooks
-from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmCfgINI
 
 from Gnumed.business import gmOrganization
 from Gnumed.business import gmCoding
 
 _log = logging.getLogger('gm.lab')
-_cfg = gmCfg2.gmCfgData()
+_cfg = gmCfgINI.gmCfgData()
 
 #============================================================
 HL7_RESULT_STATI = {

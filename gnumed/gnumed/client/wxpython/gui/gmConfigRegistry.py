@@ -19,7 +19,7 @@ from Gnumed.business import gmPraxis
 
 import wx
 
-_cfg = gmCfg2.gmDefCfgFile
+_cfg = gmCfgINI.gmDefCfgFile
 [	ConfigTreeCtrlID,
 	ConfigTreeBoxID,
 	ParamBoxID,

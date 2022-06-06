@@ -20,7 +20,7 @@ from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmNetworkTools
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
-from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmWorkerThread
 from Gnumed.pycommon import gmConnectionPool
 from Gnumed.business import gmPraxis
@@ -42,7 +42,7 @@ def _get_update_status():
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		default = True
 	)
-	_cfg = gmCfg2.gmCfgData()
+	_cfg = gmCfgINI.gmCfgData()
 	update_found, msg = gmNetworkTools.check_for_update (
 		url = url,
 		current_branch = _cfg.get(option = 'client_branch'),
@@ -56,7 +56,7 @@ def _signal_update_status(status):
 
 	update_found, msg = status
 	if update_found is False:
-		_cfg = gmCfg2.gmCfgData()
+		_cfg = gmCfgINI.gmCfgData()
 		gmDispatcher.send(signal = 'statustext', msg = _('Your client (%s) is up to date.') % _cfg.get(option = 'client_version'))
 		return
 

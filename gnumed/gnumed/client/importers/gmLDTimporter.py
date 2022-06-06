@@ -38,7 +38,7 @@ from Gnumed.business import gmPathLab, gmXdtMappings, gmPerson, gmPersonSearch
 import mx.DateTime as mxDT
 
 _log = gmLog.gmDefLog
-_cfg = gmCfg2.gmDefCfgFile
+_cfg = gmCfgINI.gmDefCfgFile
 #===============================================================
 class cLDTImporter:
 

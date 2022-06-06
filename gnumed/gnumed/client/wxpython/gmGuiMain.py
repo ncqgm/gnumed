@@ -53,7 +53,7 @@ if (version < 40) or ('unicode' not in wx.PlatformInfo):
 
 
 # GNUmed libs
-from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmDispatcher
@@ -124,7 +124,7 @@ from Gnumed.wxpython import gmHospitalStayWidgets
 from Gnumed.wxpython import gmProcedureWidgets
 
 
-_cfg = gmCfg2.gmCfgData()
+_cfg = gmCfgINI.gmCfgData()
 _provider = None
 _scripting_listener = None
 _original_wxEndBusyCursor = None
@@ -3715,7 +3715,7 @@ class gmApp(wx.App):
 			return
 
 		prefs_file = _cfg.get(option = 'user_preferences_file')
-		gmCfg2.set_option_in_INI_file (
+		gmCfgINI.set_option_in_INI_file (
 			filename = prefs_file,
 			group = 'profile %s' % _cfg.get(option = 'backend_profile'),
 			option = 'last known workplaces',
@@ -3921,7 +3921,7 @@ class gmApp(wx.App):
 			if not remember2ignore_this_mismatch:
 				return True
 			_log.info('User did not want to set database locale. Ignoring mismatch next time.')
-			gmCfg2.set_option_in_INI_file (
+			gmCfgINI.set_option_in_INI_file (
 				filename = _cfg.get(option = 'user_preferences_file'),
 				group = 'backend',
 				option = 'ignored mismatching system locale',

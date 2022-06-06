@@ -25,7 +25,7 @@ from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmPrinting
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmNetworkTools
-from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmLog2
 
 from Gnumed.business import gmPerson
@@ -38,7 +38,7 @@ from Gnumed.wxpython import gmDocumentWidgets
 
 
 _log = logging.getLogger('gm.ui')
-_cfg = gmCfg2.gmCfgData()
+_cfg = gmCfgINI.gmCfgData()
 
 #============================================================
 def _add_file_to_export_area(**kwargs):

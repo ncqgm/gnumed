@@ -21,7 +21,7 @@ import xmlrpc.client
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmCfg2, gmI18N
+from Gnumed.pycommon import gmCfgINI, gmI18N
 from Gnumed.wxpython import gmGuiHelpers
 
 
@@ -152,7 +152,7 @@ class cBaseConnector:
 #==================================================================
 if __name__ == '__main__':
 
-	_cfg = gmCfg2.gmCfgData()
+	_cfg = gmCfgINI.gmCfgData()
 
 	_cfg.add_cli(long_options = ['text-domain=', 'lang-gettext=', 'conf-file='])
 	td = _cfg.get(option = '--text-domain', source_order = [('cli', 'return')])

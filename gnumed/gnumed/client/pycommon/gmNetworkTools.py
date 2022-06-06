@@ -24,7 +24,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmShellAPI
-from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmMimeLib
 
 
@@ -237,7 +237,7 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 
 	_log.debug('retrieving version information from [%s]', url)
 
-	cfg = gmCfg2.gmCfgData()
+	cfg = gmCfgINI.gmCfgData()
 	try:
 		#remote_file.read().decode(resource.headers.get_content_charset())
 		cfg.add_stream_source(source = 'gm-versions', stream = remote_file, encoding = u'utf8')

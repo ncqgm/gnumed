@@ -388,9 +388,9 @@ class gmXdtViewer(gmPlugin.cNotebookPlugin):
 # main
 #------------------------------------------------------
 if __name__ == '__main__':
-	from Gnumed.pycommon import gmCfg2
+	from Gnumed.pycommon import gmCfgINI
 
-	cfg = gmCfg2.gmCfgData()
+	cfg = gmCfgINI.gmCfgData()
 	cfg.add_cli(long_options=['xdt-file='])
 	#---------------------
 	# set up dummy app

@@ -32,7 +32,7 @@ if '--local-import' in sys.argv:
 import logging
 
 # GNUmed
-from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
 
@@ -199,7 +199,7 @@ def show_usage():
 #============================================================
 if __name__ == '__main__':
 
-	_cfg = gmCfg2.gmCfgData()
+	_cfg = gmCfgINI.gmCfgData()
 	_cfg.add_cli (
 		short_options = _known_short_options,
 		long_options = _known_long_options

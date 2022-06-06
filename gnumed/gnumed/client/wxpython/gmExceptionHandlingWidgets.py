@@ -20,7 +20,7 @@ if __name__ == '__main__':
 	_ = lambda x:x
 
 from Gnumed.pycommon import gmDispatcher
-from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmExceptions
@@ -219,7 +219,7 @@ def handle_uncaught_exception_wx(t, v, tb):
 		return
 
 	# other exceptions
-	_cfg = gmCfg2.gmCfgData()
+	_cfg = gmCfgINI.gmCfgData()
 	if _cfg.get(option = 'debug') is False:
 		_log.error('enabling debug mode')
 		_cfg.set_option(option = 'debug', value = True)
@@ -437,7 +437,7 @@ sender email  : %s
 	dlg.DestroyLater()
 
 	wx.BeginBusyCursor()
-	_cfg = gmCfg2.gmCfgData()
+	_cfg = gmCfgINI.gmCfgData()
 	try:
 		gmNetworkTools.compose_and_send_email (
 			sender = '%s <%s>' % (_staff_name, gmNetworkTools.default_mail_sender),

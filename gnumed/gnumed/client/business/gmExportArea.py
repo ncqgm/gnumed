@@ -26,7 +26,7 @@ from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmDateTime
-from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmCrypto
 
 from Gnumed.business import gmDocuments
@@ -34,7 +34,7 @@ from Gnumed.business import gmKeywordExpansion
 
 
 _log = logging.getLogger('gm.exp_area')
-_cfg = gmCfg2.gmCfgData()
+_cfg = gmCfgINI.gmCfgData()
 
 PRINT_JOB_DESIGNATION = 'print'
 DOCUMENTS_SUBDIR = 'documents'

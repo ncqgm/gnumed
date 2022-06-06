@@ -21,11 +21,11 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmCfgINI
 
 
 _log = logging.getLogger('gm.atc')
-_cfg = gmCfg2.gmCfgData()
+_cfg = gmCfgINI.gmCfgData()
 
 
 ATC_NICOTINE = 'N07BA01'

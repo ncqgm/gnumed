@@ -24,7 +24,7 @@ from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmPrinting
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmMimeLib
-from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmShellAPI
 
 from Gnumed.business import gmForms
@@ -359,7 +359,7 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 		if len(files2print) == 0:
 			return True
 		# print
-		_cfg = gmCfg2.gmCfgData()
+		_cfg = gmCfgINI.gmCfgData()
 		printed = gmPrinting.print_files(filenames = files2print, jobtype = jobtype, verbose = _cfg.get(option = 'debug'))
 		if not printed:
 			gmGuiHelpers.gm_show_error (

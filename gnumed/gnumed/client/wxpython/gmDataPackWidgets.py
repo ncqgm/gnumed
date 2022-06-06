@@ -16,7 +16,7 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
-from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmNetworkTools
@@ -29,7 +29,7 @@ from Gnumed.wxpython import gmCfgWidgets
 
 
 _log = logging.getLogger('gm.ui')
-_cfg = gmCfg2.gmCfgData()
+_cfg = gmCfgINI.gmCfgData()
 
 
 default_dpl_url = 'https://www.gnumed.de/downloads/data/data-packs.conf'

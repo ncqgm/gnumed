@@ -24,7 +24,7 @@ if __name__ == '__main__':
 	_ = lambda x:x
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmWorkerThread
 
 _log = logging.getLogger('gm.mime')
@@ -148,7 +148,7 @@ def guess_ext_by_mimetype(mimetype=''):
 
 	_log.error("<%s>: no suitable file extension known to the OS" % mimetype)
 	# try to help the OS a bit
-	cfg = gmCfg2.gmCfgData()
+	cfg = gmCfgINI.gmCfgData()
 	ext = cfg.get (
 		group = 'extensions',
 		option = mimetype,

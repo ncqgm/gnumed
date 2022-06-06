@@ -29,7 +29,7 @@ from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmCfgDB
-from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmNetworkTools
 
 from Gnumed.business import gmPerson
@@ -47,7 +47,7 @@ from Gnumed.wxpython.gmPersonCreationWidgets import create_new_person
 
 _log = logging.getLogger('gm.person')
 
-_cfg = gmCfg2.gmCfgData()
+_cfg = gmCfgINI.gmCfgData()
 
 ID_PatPickList = wx.NewId()
 ID_BTN_AddNew = wx.NewId()

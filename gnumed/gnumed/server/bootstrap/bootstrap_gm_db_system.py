@@ -89,7 +89,7 @@ try:
 except ImportError:
 	print("""Please make sure the GNUmed Python modules are in the Python path !""")
 	raise
-from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmPsql
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmConnectionPool
@@ -107,7 +107,7 @@ _log = logging.getLogger('gm.bootstrapper')
 #faulthandler.enable(file = gmLog2._logfile)
 
 
-_cfg = gmCfg2.gmCfgData()
+_cfg = gmCfgINI.gmCfgData()
 
 
 _interactive = None

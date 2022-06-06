@@ -36,7 +36,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
 from Gnumed.pycommon import gmCfgDB
-from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmPG2
@@ -56,7 +56,7 @@ from Gnumed.wxpython import gmPhraseWheel
 
 
 _log = logging.getLogger('gm.praxis')
-_cfg = gmCfg2.gmCfgData()
+_cfg = gmCfgINI.gmCfgData()
 
 #=========================================================================
 def show_audit_trail(parent=None):
@@ -440,7 +440,7 @@ def __select_org_unit_as_branch():
 #============================================================
 def __update_most_recently_selected_branch(branch):
 	prefs_file = _cfg.get(option = 'user_preferences_file')
-	gmCfg2.set_option_in_INI_file (
+	gmCfgINI.set_option_in_INI_file (
 		filename = prefs_file,
 		group = 'preferences',
 		option = 'most recently used praxis branch',

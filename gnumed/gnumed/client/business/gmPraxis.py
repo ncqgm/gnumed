@@ -17,7 +17,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmBorg
-from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmHooks
 from Gnumed.pycommon import gmBusinessDBObject
 
@@ -25,7 +25,7 @@ from Gnumed.business import gmOrganization
 
 
 _log = logging.getLogger('gm.praxis')
-_cfg = gmCfg2.gmCfgData()
+_cfg = gmCfgINI.gmCfgData()
 
 #============================================================
 def delete_workplace(workplace=None, delete_config=False, conn=None):
@@ -582,7 +582,7 @@ where
 
 	def _set_user_email(self, val):
 		prefs_file = _cfg.get(option = 'user_preferences_file')
-		gmCfg2.set_option_in_INI_file (
+		gmCfgINI.set_option_in_INI_file (
 			filename = prefs_file,
 			group = 'preferences',
 			option = 'user email',
