@@ -45,6 +45,8 @@ _map_gender_gm2dcm = {
 
 #============================================================
 class cOrthancServer:
+	"""Interface for the REST API of an Orthanc DICOM server.
+	"""
 	# REST API access to Orthanc DICOM servers
 
 #	def __init__(self):
@@ -315,7 +317,7 @@ class cOrthancServer:
 		the given patient ID.
 
 		Args:
-			name (str): name snippet to search for
+			name: name snippet to search for
 
 		Returns:
 			The list of matching *studies* (not *patient*).
@@ -1394,15 +1396,37 @@ class cOrthancServer:
 	server_url = property(_get_server_url)
 
 #------------------------------------------------------------
-def cleanup_dicom_string(dicom_str):
+def cleanup_dicom_string(dicom_str:str) -> str:
 	if not isinstance(dicom_str, str):
 		return dicom_str
+
 	dicom_str = regex.sub('\^+', ' ', dicom_str.strip('^'))
 	#dicom_str = dicom_str.replace('\r\n', ' [CR] ')
 	return dicom_str
 
 #---------------------------------------------------------------------------
-def dicomize_file(filename, title=None, person=None, dcm_name=None, verbose=False, dcm_template_file=None, dcm_transfer_series=True):
+def dicomize_file(filename:str=None, title:str=None, person=None, dcm_name:str=None, verbose:bool=False, dcm_template_file:str=None, dcm_transfer_series:bool=True) -> str:
+	"""Encapsulate a file inside a DCM file.
+
+	Dates and times of the instance are set to 'now'.
+
+	Works for PDF document and file which can be converted to JPG.
+
+	Args:
+		filename: the file to encapsulate
+		title: document title
+		person: a GNUmed person instance from which to derive demographics, None = derive from *dcm_template_file*
+		dcm_name: filename for the resulting DICOM file, None = auto-create name
+		verbose: passed to external converter
+		dcm_template_file: DICOM file from which to derive patient demographics and study ID, None = *person* must be defined
+		dcm_transfer_series: only applies if *dcm_template_file* given
+			True = derive series from *dcm_template_file*,
+			False = only derive study from *dcm_template_file* and create a new series
+
+	Returns:
+		DICOM file name or None on failure.
+	"""
+
 	assert (filename is not None), '<filename> must not be None'
 	assert (not ((person is None) and (dcm_template_file is None))), '<person> or <dcm_template_file> must not be None'
 
@@ -1411,6 +1435,7 @@ def dicomize_file(filename, title=None, person=None, dcm_name=None, verbose=Fals
 		_log.error('already a DICOM file: %s', filename)
 		if dcm_name is None:
 			return filename
+
 		return shutil.copy2(filename, dcm_name)
 
 	dcm_fname = dicomize_pdf (
@@ -1443,7 +1468,25 @@ def dicomize_file(filename, title=None, person=None, dcm_name=None, verbose=Fals
 	return dcm_name
 
 #---------------------------------------------------------------------------
-def dicomize_pdf(pdf_name=None, title=None, person=None, dcm_name=None, verbose=False, dcm_template_file=None, dcm_transfer_series=True):
+def dicomize_pdf(pdf_name:str=None, title:str=None, person=None, dcm_name:str=None, verbose:bool=False, dcm_template_file:str=None, dcm_transfer_series:bool=True) -> str:
+	"""Encapsulate a PDF file inside a DCM file.
+
+	Dates and times of the instance are set to 'now'.
+
+	Args:
+		pdf_name: the PDF file to encapsulate
+		title: document title, None = *pdf_name*
+		person: a GNUmed person instance from which to derive demographics, None = derive from *dcm_template_file*
+		dcm_name: filename for the resulting DICOM file, None = auto-create name
+		verbose: passed to external converter
+		dcm_template_file: DICOM file from which to derive patient demographics and study ID, None = *person* must be defined
+		dcm_transfer_series: only applies if *dcm_template_file* given
+			True = derive series from *dcm_template_file*,
+			False = only derive study from *dcm_template_file* and create a new series
+
+	Returns:
+		DICOM file name or None on failure.
+	"""
 	assert (pdf_name is not None), '<pdf_name> must not be None'
 	assert (not ((person is None) and (dcm_template_file is None))), '<person> or <dcm_template_file> must not be None'
 
@@ -1494,7 +1537,26 @@ def dicomize_pdf(pdf_name=None, title=None, person=None, dcm_name=None, verbose=
 	return None
 
 #---------------------------------------------------------------------------
-def dicomize_jpg(jpg_name=None, title=None, person=None, dcm_name=None, verbose=False, dcm_template_file=None, dcm_transfer_series=True):
+def dicomize_jpg(jpg_name:str=None, title:str=None, person=None, dcm_name:str=None, verbose:bool=False, dcm_template_file:str=None, dcm_transfer_series:bool=True) -> str:
+	"""Encapsulate a JPG file inside a DCM file.
+
+	Dates and times of the instance are set to 'now'.
+
+	Args:
+		jpg_name: the JPG file to encapsulate
+		title: document title, None = *jpg_name*
+		person: a GNUmed person instance from which to derive demographics, None = derive from *dcm_template_file*
+		dcm_name: filename for the resulting DICOM file, None = auto-create name
+		verbose: passed to external converter
+		dcm_template_file: DICOM file from which to derive patient demographics and study ID, None = *person* must be defined
+		dcm_transfer_series: only applies if *dcm_template_file* given
+			True = derive series from *dcm_template_file*,
+			False = only derive study from *dcm_template_file* and create a new series
+
+	Returns:
+		DICOM file name or None on failure.
+	"""
+
 	assert (jpg_name is not None), '<jpg_name> must not be None'
 	assert (not ((person is None) and (dcm_template_file is None))), 'both <person> and <dcm_template_file> are None, but one is needed'
 
@@ -1793,7 +1855,7 @@ if __name__ == "__main__":
 	#run_console()
 	#test_verify_instance()
 	#test_modify_patient_id()
-	test_upload_files()
+	#test_upload_files()
 	#test_upload_file()
 	#test_get_instance_preview()
 	#test_get_instance_tags()
