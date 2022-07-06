@@ -21,6 +21,7 @@ import sys
 import inspect
 import logging
 import threading
+import types
 import re as regex
 import datetime as pydt
 from typing import Dict
@@ -371,6 +372,10 @@ class gmConnectionPool(gmBorg.cBorg):
 			raise cAuthenticationError(creds2use.formatted_credentials, msg).with_traceback(tb)
 
 		_log.debug('established connection "%s", backend PID: %s', gmTools.coalesce(connection_name, 'anonymous'), conn.get_backend_pid())
+		# safe-guard
+		conn._original_rollback = conn.rollback
+		conn.rollback = types.MethodType(_safe_transaction_rollback, conn)
+
 		# - inspect server
 		self.__log_on_first_contact(conn)
 		# - verify PG understands client time zone
@@ -428,6 +433,7 @@ class gmConnectionPool(gmBorg.cBorg):
 
 	#--------------------------------------------------
 	def discard_pooled_connection_of_thread(self):
+		"""Discard from pool the connection of the current thread."""
 		try:
 			conn = self.__ro_conn_pool[self.pool_key]
 		except KeyError:
@@ -443,6 +449,7 @@ class gmConnectionPool(gmBorg.cBorg):
 
 	#--------------------------------------------------
 	def shutdown(self):
+		"""Close and discard all pooled connections."""
 		for conn_key in self.__ro_conn_pool:
 			conn = self.__ro_conn_pool[conn_key]
 			if conn.closed:
@@ -912,6 +919,21 @@ def log_conn_state(conn) -> None:
 		_log.debug('%s: %s', key, d[key])
 
 #------------------------------------------------------------
+def _safe_transaction_rollback(self):
+	"""Make connection.rollback() somewhat fault tolerant.
+
+	Will *not* fail if the connection is already closed.
+
+	Args:
+		conn: a psycopg2 connection object
+	"""
+	if self.closed:
+		_log.debug('fishy: connection already closed, cannot roll back')
+		return True
+
+	return self._original_rollback()
+
+#------------------------------------------------------------
 def _raise_exception_on_pooled_ro_conn_close():
 	call_stack = inspect.stack()
 	call_stack.reverse()
@@ -1119,7 +1141,7 @@ if __name__ == "__main__":
 		conn = pool.get_connection()
 
 	#--------------------------------------------------------------------
-	test_credentials()
+	#test_credentials()
 	#test_exceptions()
-	#test_get_connection()
+	test_get_connection()
 	#test_change_creds()
