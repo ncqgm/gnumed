@@ -34,6 +34,7 @@ IMPROVED: search: use clin.v_narrative4search again
 IMPROVED: test results: multi-test plotting [thanks brulefa]
 IMPROVED: code: configuration handling
 IMPROVED: DB: more tolerant rollback() [thanks lothar]
+IMPROVED: DB: fingerprinter
 
 FIX: CLI: --wxp= not needed anymore
 FIX: CLI: --ui= not needed anymore

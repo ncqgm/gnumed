@@ -991,7 +991,9 @@ def setup_backend_environment():
 #		gmPG2.set_default_client_timezone(timezone)
 
 #==========================================================
+#----------------------------------------------------------
 def run_ui():
+	"""Startup a user interface."""
 	gmHooks.run_hook_script(hook = 'startup-before-GUI')
 	_use_tui = _cfg.get(option = '--tui', source_order = [('cli', 'return')])
 	if _use_tui:
@@ -1015,7 +1017,7 @@ def run_tui():
 
 #==========================================================
 def run_gui():
-
+	"""Startup wxPython GUI."""
 	from Gnumed.wxpython import gmGuiMain
 	profile_file = _cfg.get(option = '--profile', source_order = [('cli', 'return')])
 	if profile_file is None:
@@ -1088,13 +1090,7 @@ def run_tool():
 		return gmEMRStructItems.check_fk_encounter_fk_episode_x_ref()
 
 	if tool == 'fingerprint_db':
-		fname = 'db-fingerprint.txt'
-		result = gmPG2.get_db_fingerprint(fname = fname, with_dump = True)
-		if result == fname:
-			print('Success: %s' % fname)
-			return 0
-		print('Failed. Check the log for details.')
-		return -2
+		return gmPG2.run_fingerprint_tool()
 
 	if tool == 'export_pat_emr_structure':
 		# setup praxis

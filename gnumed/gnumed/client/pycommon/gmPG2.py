@@ -442,24 +442,39 @@ def get_schema_revision_history(link_obj=None):
 	return rows
 
 #------------------------------------------------------------------------
-def get_db_fingerprint(conn=None, fname=None, with_dump=False, eol=None):
+def get_db_fingerprint(conn=None, fname:str=None, with_dump:bool=False, eol:str=None):
+	"""Get a fingerprint for a GNUmed database.
+
+		A "fingerprint" is a collection of settings and typical row counts.
+
+	Args:
+		conn: a database connection
+		fname: name of file to write fingerprint to, *None* = return text
+		with_dump: include dump of schema structure (tables, views, ...)
+		eol: concatenate list by this string when returning text (rather than when writing to a file)
+
+	Returns:
+		Filename or (list of) string(s).
+	"""
 	queries = [
-		("SELECT setting FROM pg_settings WHERE name = 'server_version'", "Version (PG)"),
-		("SELECT setting FROM pg_settings WHERE name = 'server_encoding'", "Encoding (PG)"),
-		("SELECT setting FROM pg_settings WHERE name = 'lc_collate'", "LC_COLLATE (PG)"),
-		("SELECT setting FROM pg_settings WHERE name = 'lc_ctype'", "LC_CTYPE (PG)"),
-		("SELECT COUNT(*) FROM dem.identity", "Patients"),
-		("SELECT COUNT(*) FROM clin.encounter", "Contacts"),
-		("SELECT COUNT(*) FROM clin.episode", "Episodes"),
-		("SELECT COUNT(*) FROM clin.health_issue", "Issues"),
-		("SELECT COUNT(*) FROM clin.test_result", "Results"),
-		("SELECT COUNT(*) FROM clin.vaccination", "Vaccinations"),
-		("SELECT COUNT(*) FROM blobs.doc_med", "Documents"),
-		("SELECT COUNT(*) FROM blobs.doc_obj", "Objects"),
-		("SELECT COUNT(*) FROM dem.org", "Organizations"),
-		("SELECT COUNT(*) FROM dem.org_unit", "Organizational units"),
-		("SELECT max(modified_when) FROM audit.audit_fields", "Most recent .modified_when"),
-		("SELECT max(audit_when) FROM audit.audit_trail", "Most recent .audit_when")
+		("Version (PG)", "SELECT setting FROM pg_settings WHERE name = 'server_version'"),
+		('Encoding (PG)', "SELECT setting FROM pg_settings WHERE name = 'server_encoding'"),
+		('LC_COLLATE (PG)', "SELECT setting FROM pg_settings WHERE name = 'lc_collate'"),
+		('LC_CTYPE (PG)', "SELECT setting FROM pg_settings WHERE name = 'lc_ctype'"),
+		('Patients', "SELECT COUNT(*) FROM dem.identity"),
+		('Contacts', "SELECT COUNT(*) FROM clin.encounter"),
+		('Episodes', "SELECT COUNT(*) FROM clin.episode"),
+		('Issues', "SELECT COUNT(*) FROM clin.health_issue"),
+		('Results', "SELECT COUNT(*) FROM clin.test_result"),
+		('Vaccinations', "SELECT COUNT(*) FROM clin.vaccination"),
+		('Documents', "SELECT COUNT(*) FROM blobs.doc_med"),
+		('Objects', "SELECT COUNT(*) FROM blobs.doc_obj"),
+		('Organizations', "SELECT COUNT(*) FROM dem.org"),
+		("Organizational units", "SELECT COUNT(*) FROM dem.org_unit"),
+		('   Earliest .modified_when', "SELECT min(modified_when) FROM audit.audit_fields"),
+		('Most recent .modified_when', "SELECT max(modified_when) FROM audit.audit_fields"),
+		('      Earliest .audit_when', "SELECT min(audit_when) FROM audit.audit_trail"),
+		('   Most recent .audit_when', "SELECT max(audit_when) FROM audit.audit_trail")
 	]
 	if conn is None:
 		conn = get_connection(readonly = True)
@@ -484,7 +499,7 @@ def get_db_fingerprint(conn=None, fname=None, with_dump=False, eol=None):
 		lines.append('%20s: %s (v%s)' % ('Schema hash', md5_sum, map_schema_hash2version[md5_sum]))
 	except KeyError:
 		lines.append('%20s: %s' % ('Schema hash', md5_sum))
-	for cmd, label in queries:
+	for label, cmd in queries:
 		curs.execute(cmd)
 		rows = curs.fetchall()
 		lines.append('%20s: %s' % (label, rows[0][0]))
@@ -503,6 +518,17 @@ def get_db_fingerprint(conn=None, fname=None, with_dump=False, eol=None):
 	outfile.write('\n'.join(lines))
 	outfile.close()
 	return fname
+
+#------------------------------------------------------------------------
+def run_fingerprint_tool():
+	fname = 'db-fingerprint.txt'
+	result = get_db_fingerprint(fname = fname, with_dump = True)
+	if result == fname:
+		print('Success: %s' % fname)
+		return 0
+
+	print('Failed. Check the log for details.')
+	return -2
 
 #------------------------------------------------------------------------
 def get_current_user():
@@ -2683,13 +2709,13 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_get_index_name()
 	#test_set_user_language()
 	#test_get_schema_revision_history()
-	test_run_query()
+	#test_run_query()
 	#test_schema_exists()
 	#test_get_foreign_key_names()
 	#test_row_locks()
 	#test_faulty_SQL()
 	#test_log_settings()
-	#test_get_db_fingerprint()
+	test_get_db_fingerprint()
 	#test_revalidate_constraints()
 	#test_reindex_database()
 
