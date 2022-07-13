@@ -35,6 +35,7 @@ IMPROVED: test results: multi-test plotting [thanks brulefa]
 IMPROVED: code: configuration handling
 IMPROVED: DB: more tolerant rollback() [thanks lothar]
 IMPROVED: DB: fingerprinter
+IMPROVED: DICOM: dicomization
 
 FIX: CLI: --wxp= not needed anymore
 FIX: CLI: --ui= not needed anymore

@@ -1405,28 +1405,28 @@ def cleanup_dicom_string(dicom_str:str) -> str:
 	return dicom_str
 
 #---------------------------------------------------------------------------
-def dicomize_file(filename:str=None, title:str=None, person=None, dcm_name:str=None, verbose:bool=False, dcm_template_file:str=None, dcm_transfer_series:bool=True) -> str:
+def dicomize_file(filename:str=None, title:str=None, person=None, dcm_name:str=None, verbose:bool=False, dcm_template_file:str=None, dcm_transfer_series:bool=True, content_date=None) -> str:
 	"""Encapsulate a file inside a DCM file.
 
 	Dates and times of the instance are set to 'now'.
 
-	Works for PDF document and file which can be converted to JPG.
+	Works for PDF documents and images which are/can be converted to JPG.
 
 	Args:
 		filename: the file to encapsulate
 		title: document title
-		person: a GNUmed person instance from which to derive demographics, None = derive from *dcm_template_file*
-		dcm_name: filename for the resulting DICOM file, None = auto-create name
+		person: a GNUmed person instance from which to derive demographics, None -> derive from *dcm_template_file*
+		dcm_name: filename for the resulting DICOM file, None -> auto-create name
 		verbose: passed to external converter
-		dcm_template_file: DICOM file from which to derive patient demographics and study ID, None = *person* must be defined
+		dcm_template_file: DICOM file from which to derive patient demographics and study ID, None -> *person* must be defined
 		dcm_transfer_series: only applies if *dcm_template_file* given
 			True = derive series from *dcm_template_file*,
 			False = only derive study from *dcm_template_file* and create a new series
+		content_date: date/time to use for study/series/instance, as needed; None -> use now()
 
 	Returns:
 		DICOM file name or None on failure.
 	"""
-
 	assert (filename is not None), '<filename> must not be None'
 	assert (not ((person is None) and (dcm_template_file is None))), '<person> or <dcm_template_file> must not be None'
 
@@ -1445,7 +1445,8 @@ def dicomize_file(filename:str=None, title:str=None, person=None, dcm_name:str=N
 		dcm_name = dcm_name,
 		verbose = verbose,
 		dcm_template_file = dcm_template_file,
-		dcm_transfer_series = dcm_transfer_series
+		dcm_transfer_series = dcm_transfer_series,
+		content_date = content_date
 	)
 	if dcm_fname is not None:
 		return dcm_fname
@@ -1463,26 +1464,26 @@ def dicomize_file(filename:str=None, title:str=None, person=None, dcm_name:str=N
 		dcm_name = dcm_name,
 		verbose = verbose,
 		dcm_template_file = dcm_template_file,
-		dcm_transfer_series = dcm_transfer_series
+		dcm_transfer_series = dcm_transfer_series,
+		content_date = content_date
 	)
 	return dcm_name
 
 #---------------------------------------------------------------------------
-def dicomize_pdf(pdf_name:str=None, title:str=None, person=None, dcm_name:str=None, verbose:bool=False, dcm_template_file:str=None, dcm_transfer_series:bool=True) -> str:
+def dicomize_pdf(pdf_name:str=None, title:str=None, person=None, dcm_name:str=None, verbose:bool=False, dcm_template_file:str=None, dcm_transfer_series:bool=True, content_date=None) -> str:
 	"""Encapsulate a PDF file inside a DCM file.
 
 	Dates and times of the instance are set to 'now'.
 
 	Args:
 		pdf_name: the PDF file to encapsulate
-		title: document title, None = *pdf_name*
-		person: a GNUmed person instance from which to derive demographics, None = derive from *dcm_template_file*
-		dcm_name: filename for the resulting DICOM file, None = auto-create name
-		verbose: passed to external converter
-		dcm_template_file: DICOM file from which to derive patient demographics and study ID, None = *person* must be defined
-		dcm_transfer_series: only applies if *dcm_template_file* given
-			True = derive series from *dcm_template_file*,
-			False = only derive study from *dcm_template_file* and create a new series
+		title: document title, None -> *pdf_name*, also used as study/series description
+		person: see *dicomize_file()*
+		dcm_name: see *dicomize_file()*
+		verbose: see *dicomize_file()*
+		dcm_template_file: see *dicomize_file()*
+		dcm_transfer_series: see *dicomize_file()*
+		content_date: see *dicomize_file()*
 
 	Returns:
 		DICOM file name or None on failure.
@@ -1494,37 +1495,46 @@ def dicomize_pdf(pdf_name:str=None, title:str=None, person=None, dcm_name:str=No
 		dcm_name = gmTools.get_unique_filename(suffix = '.dcm')
 	_log.debug('%s -> %s', pdf_name, dcm_name)
 	if title is None:
-		title = pdf_name
-	now = gmDateTime.pydt_now_here()
+		title = gmTools.fname_stem(pdf_name)
+	if content_date is None:
+		content_date = gmDateTime.pydt_now_here()
 	cmd_line = [
 		'pdf2dcm',
 		'--title', title,
-		'--key', '0008,0020=%s' % now.strftime('%Y%m%d'),			# StudyDate
-		'--key', '0008,0021=%s' % now.strftime('%Y%m%d'),			# SeriesDate
-		'--key', '0008,0023=%s' % now.strftime('%Y%m%d'),			# ContentDate
-		'--key', '0008,0030=%s' % now.strftime('%H%M%s.0'),			# StudyTime
-		'--key', '0008,0031=%s' % now.strftime('%H%M%s.0'),			# SeriesTime
-		'--key', '0008,0033=%s' % now.strftime('%H%M%s.0')			# ContentTime
+		'--key', '0008,1030=%s' % title,							# StudyDescription
+		'--key', '0008,103E=%s' % title,							# SeriesDescription
+		'--key', '0008,0021=%s' % content_date.strftime('%Y%m%d'),	# SeriesDate
+		'--key', '0008,0023=%s' % content_date.strftime('%Y%m%d'),	# ContentDate
+		'--key', '0008,0031=%s' % content_date.strftime('%H%M%s.0'),# SeriesTime
+		'--key', '0008,0033=%s' % content_date.strftime('%H%M%s.0')	# ContentTime
 	]
 	if dcm_template_file is None:
+		# StudyDate
+		cmd_line.append('--key')
+		cmd_line.append('0008,0020=%s' % content_date.strftime('%Y%m%d'))
+		# StudyTime
+		cmd_line.append('--key')
+		cmd_line.append('0008,0030=%s' % content_date.strftime('%H%M%s.0'))
+		# PatientName
 		name = person.active_name
 		cmd_line.append('--patient-id')
 		cmd_line.append(person.suggest_external_id(target = 'PACS'))
 		cmd_line.append('--patient-name')
 		cmd_line.append(('%s^%s' % (name['lastnames'], name['firstnames'])).replace(' ', '^'))
-		if person['dob'] is not None:
+		if person['dob']:
 			cmd_line.append('--patient-birthdate')
 			cmd_line.append(person.get_formatted_dob(format = '%Y%m%d', honor_estimation = False))
-		if person['gender'] is not None:
+		if person['gender']:
 			cmd_line.append('--patient-sex')
 			cmd_line.append(_map_gender_gm2dcm[person['gender']])
 	else:
 		_log.debug('DCM template file: %s', dcm_template_file)
 		if dcm_transfer_series:
 			cmd_line.append('--series-from')
+			cmd_line.append(dcm_template_file)
 		else:
 			cmd_line.append('--study-from')
-		cmd_line.append(dcm_template_file)
+			cmd_line.append(dcm_template_file)
 	if verbose:
 		cmd_line.append('--log-level')
 		cmd_line.append('trace')
@@ -1537,58 +1547,52 @@ def dicomize_pdf(pdf_name:str=None, title:str=None, person=None, dcm_name:str=No
 	return None
 
 #---------------------------------------------------------------------------
-def dicomize_jpg(jpg_name:str=None, title:str=None, person=None, dcm_name:str=None, verbose:bool=False, dcm_template_file:str=None, dcm_transfer_series:bool=True) -> str:
+def dicomize_jpg(jpg_name:str=None, title:str=None, person=None, dcm_name:str=None, verbose:bool=False, dcm_template_file:str=None, dcm_transfer_series:bool=True, content_date=None) -> str:
 	"""Encapsulate a JPG file inside a DCM file.
 
 	Dates and times of the instance are set to 'now'.
 
 	Args:
 		jpg_name: the JPG file to encapsulate
-		title: document title, None = *jpg_name*
-		person: a GNUmed person instance from which to derive demographics, None = derive from *dcm_template_file*
-		dcm_name: filename for the resulting DICOM file, None = auto-create name
-		verbose: passed to external converter
-		dcm_template_file: DICOM file from which to derive patient demographics and study ID, None = *person* must be defined
-		dcm_transfer_series: only applies if *dcm_template_file* given
-			True = derive series from *dcm_template_file*,
-			False = only derive study from *dcm_template_file* and create a new series
+		title: document title, None -> *jpg_name*, used as study/series description
+		person: see *dicomize_file()*
+		dcm_name: see *dicomize_file()*
+		verbose: see *dicomize_file()*
+		dcm_template_file: see *dicomize_file()*
+		dcm_transfer_series: see *dicomize_file()*
+		content_date: see *dicomize_file()*
 
 	Returns:
 		DICOM file name or None on failure.
 	"""
-
 	assert (jpg_name is not None), '<jpg_name> must not be None'
 	assert (not ((person is None) and (dcm_template_file is None))), 'both <person> and <dcm_template_file> are None, but one is needed'
 
 	if dcm_name is None:
 		dcm_name = gmTools.get_unique_filename(suffix = '.dcm')
 	_log.debug('%s -> %s', jpg_name, dcm_name)
-	now = gmDateTime.pydt_now_here()
+	if title is None:
+		title = gmTools.fname_stem(jpg_name)
+	if content_date is None:
+		content_date = gmDateTime.pydt_now_here()
 	cmd_line = [
 		'img2dcm',
-		'--keep-appn',											# carry over EXIF data
-		'--insist-on-jfif',										# process valid JFIF only
-		'--key', '0008,0021=%s' % now.strftime('%Y%m%d'),		# SeriesDate
-		'--key', '0008,0031=%s' % now.strftime('%H%M%s.0'),		# SeriesTime
-		'--key', '0008,0023=%s' % now.strftime('%Y%m%d'),		# ContentDate
-		'--key', '0008,0033=%s' % now.strftime('%H%M%s.0')		# ContentTime
+		'--keep-appn',													# carry over EXIF data
+		'--insist-on-jfif',												# process valid JFIF only
+		'--key', '0008,1030=%s' % title,								# StudyDescription
+		'--key', '0008,103E=%s' % title,								# SeriesDescription
+		'--key', '0008,0021=%s' % content_date.strftime('%Y%m%d'),		# SeriesDate
+		'--key', '0008,0031=%s' % content_date.strftime('%H%M%s.0'),	# SeriesTime
+		'--key', '0008,0023=%s' % content_date.strftime('%Y%m%d'),		# ContentDate
+		'--key', '0008,0033=%s' % content_date.strftime('%H%M%s.0')		# ContentTime
 	]
-	if title is not None:
-		# SeriesDescription
-		if title is not None:
-			cmd_line.append('--key')
-			cmd_line.append('0008,103E=%s' % title)
 	if dcm_template_file is None:
-		# StudyDescription
-		if title is not None:
-			cmd_line.append('--key')
-			cmd_line.append('0008,1030=%s' % title)
 		# StudyDate
 		cmd_line.append('--key')
-		cmd_line.append('0008,0020=%s' % now.strftime('%Y%m%d'))
+		cmd_line.append('0008,0020=%s' % content_date.strftime('%Y%m%d'))
 		# StudyTime
 		cmd_line.append('--key')
-		cmd_line.append('0008,0030=%s' % now.strftime('%H%M%s.0'))
+		cmd_line.append('0008,0030=%s' % content_date.strftime('%H%M%s.0'))
 		# PatientName
 		name = person.active_name
 		cmd_line.append('--key')
@@ -1603,16 +1607,17 @@ def dicomize_jpg(jpg_name:str=None, title:str=None, person=None, dcm_name:str=No
 		cmd_line.append('--key')
 		cmd_line.append('0010,0030=%s' % person.get_formatted_dob(format = '%Y%m%d', honor_estimation = False))
 		# gender
-		if person['gender'] is not None:
+		if person['gender']:
 			cmd_line.append('--key')
 			cmd_line.append('0010,0040=%s' % _map_gender_gm2dcm[person['gender']])
 	else:
 		_log.debug('DCM template file: %s', dcm_template_file)
 		if dcm_transfer_series:
 			cmd_line.append('--series-from')
+			cmd_line.append(dcm_template_file)
 		else:
 			cmd_line.append('--study-from')
-		cmd_line.append(dcm_template_file)
+			cmd_line.append(dcm_template_file)
 	if verbose:
 		cmd_line.append('--log-level')
 		cmd_line.append('trace')
@@ -1624,6 +1629,61 @@ def dicomize_jpg(jpg_name:str=None, title:str=None, person=None, dcm_name:str=No
 
 	return None
 
+#---------------------------------------------------------------------------
+def run_file2dicom_tool(fname:str=None, dcm_template:str=None) -> str:
+	"""Convert a file into DICOM format.
+
+	This offers a primitive text user interface.
+
+	Args:
+		fname: the file to convert, must be image or PDF
+		dcm_template: a DCM file to use as template for study/series data, optional
+
+	Returns:
+		name of the new DICOM file, or None
+	"""
+	if dcm_template is None:
+		from Gnumed.pycommon import gmPG2
+		gmPG2.request_login_params(setup_pool = True)
+		from Gnumed.business import gmPersonSearch
+		pat = gmPersonSearch.ask_for_patient()
+		if pat is None:
+			return
+	else:
+		pat = None
+
+	dt = None
+	while dt is None:
+		iso = input('enter date (ISO - YYYY-MM-DD): ')
+		try:
+			dt = pydt.datetime.fromisoformat(iso)
+		except ValueError:
+			if iso.strip() == '':
+				return
+			dt = None
+
+	desc = input('enter description (ASCII): ')
+	if desc.strip() == '':
+		desc = None
+
+	print('patient:', pat)
+	print('DCM template:', dcm_template)
+	print()
+	print('file to convert:', fname)
+	print('series date:', dt)
+	print('description:', desc)
+	input('hit <ENTER> to convert')
+	dcm = dicomize_file (
+		filename = fname,
+		person = pat,
+		dcm_name = fname + '.dcm',
+		verbose = True,
+		content_date = dt,
+		title = desc,
+		dcm_template_file = dcm_template
+	)
+	print('DCM file:', dcm)
+
 #============================================================
 # main
 #------------------------------------------------------------
@@ -1632,10 +1692,14 @@ if __name__ == "__main__":
 	if len(sys.argv) == 1:
 		sys.exit()
 
-	if sys.argv[1] != 'test':
-		sys.exit()
-
 	from Gnumed.pycommon import gmLog2
+
+	if sys.argv[1] != 'test':
+		fname = sys.argv[1]
+		try: dcm_template = sys.argv[2]
+		except IndexError: dcm_template = None
+		run_file2dicom_tool(fname, dcm_template)
+		sys.exit()
 
 	#--------------------------------------------------------
 	def orthanc_console(host, port):
@@ -1735,8 +1799,14 @@ if __name__ == "__main__":
 	#--------------------------------------------------------
 	def test_pdf2dcm():
 		#print(pdf2dcm(filename = filename, patient_id = 'ID::abcABC', dob = '19900101'))
-		from Gnumed.business import gmPerson
-		pers = gmPerson.cPerson(12)
+		#from Gnumed.business import gmPerson
+		#pers = gmPerson.cPerson(12)
+		from Gnumed.business import gmPersonSearch
+		pers = gmPersonSearch.ask_for_patient()
+		if pers is None:
+			return
+
+		print(pers)
 		try:
 			print(dicomize_pdf(pdf_name = sys.argv[2], person = pers, dcm_name = None, verbose = True, dcm_template_file = sys.argv[3]))#, title = 'test'))
 		except IndexError:
@@ -1744,13 +1814,39 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------
 	def test_img2dcm():
+		from Gnumed.pycommon import gmPG2
+		gmPG2.request_login_params(setup_pool = True)
 		#print(pdf2dcm(filename = filename, patient_id = 'ID::abcABC', dob = '19900101'))
-		from Gnumed.business import gmPerson
-		pers = gmPerson.cPerson(12)
+		#from Gnumed.business import gmPerson
+		#pers = gmPerson.cPerson(12)
+		from Gnumed.business import gmPersonSearch
+		pers = gmPersonSearch.ask_for_patient()
+		if pers is None:
+			return
+
+		dt = None
+		while dt is None:
+			iso = input('enter date: ')
+			try:
+				dt = pydt.datetime.fromisoformat(iso)
+			except ValueError:
+				if iso.strip() == '':
+					return
+
+		print(pers)
+		print(iso)
+		input('enter to continue')
+
 		try:
 			print(dicomize_jpg(jpg_name = sys.argv[2], person = pers, dcm_name = sys.argv[2]+'.dcm', verbose = True, dcm_template_file = sys.argv[3]))#, title = 'test'))
 		except IndexError:
-			print(dicomize_jpg(jpg_name = sys.argv[2], person = pers, dcm_name = sys.argv[2]+'.dcm', verbose = True))#, title = 'test'))
+			print(dicomize_jpg (
+				jpg_name = sys.argv[2],
+				person = pers,
+				dcm_name = sys.argv[2]+'.dcm',
+				verbose = True,
+				content_date = dt
+			))#, title = 'test'))
 
 	#--------------------------------------------------------
 	def test_file2dcm():
@@ -1851,7 +1947,7 @@ if __name__ == "__main__":
 	#test_file2dcm()
 	#sys.exit
 
-	_connect()
+	#_connect()
 	#run_console()
 	#test_verify_instance()
 	#test_modify_patient_id()
