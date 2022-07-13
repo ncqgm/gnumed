@@ -977,7 +977,7 @@ class cEMRJournalExporter:
 				gmSoapDefs.soap_cat2l10n[r['soap_cat']],
 				gmTools.u_box_vert_light,
 				gmTools.wrap (
-					text = r['narrative'].replace('\r', '') + ' (%s: %s)' % (_('When'), gmDateTime.pydt_strftime(r['clin_when'], '%Y %b %d %H:%M')),
+					text = r['narrative'].replace('\r', '') + ' (%s: %s)' % (_('When'), gmDateTime.pydt_strftime(r['clin_when'], '%Y %b %d %H:%M', none_str = '?')),
 					width = self.__narrative_wrap_len,
 					subsequent_indent = '%31.31s%1.1s %s ' % (' ', gmSoapDefs.soap_cat2l10n[r['soap_cat']], gmTools.u_box_vert_light)
 				)
