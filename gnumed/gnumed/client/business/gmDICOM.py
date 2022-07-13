@@ -1414,7 +1414,7 @@ def dicomize_file(filename:str=None, title:str=None, person=None, dcm_name:str=N
 
 	Args:
 		filename: the file to encapsulate
-		title: document title
+		title: document title, defaults to filename
 		person: a GNUmed person instance from which to derive demographics, None -> derive from *dcm_template_file*
 		dcm_name: filename for the resulting DICOM file, None -> auto-create name
 		verbose: passed to external converter

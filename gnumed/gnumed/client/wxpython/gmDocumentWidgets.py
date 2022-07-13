@@ -3832,67 +3832,6 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		gmDispatcher.send(signal = 'statustext', msg = _('Successfully saved as [%s].') % filename)
 
 	#--------------------------------------------------------
-	def _on_add_pdf_to_study(self, evt):
-		if self.__pacs is None:
-			return
-
-		study_data = self._LCTRL_studies.get_selected_item_data(only_one = False)
-		if len(study_data) != 1:
-			gmGuiHelpers.gm_show_info (
-				title = _('Adding PDF to DICOM study'),
-				info = _('For adding a PDF file there must be exactly one (1) DICOM study selected.')
-			)
-			return
-
-		# select PDF
-		pdf_name = None
-		dlg = wx.FileDialog (
-			parent = self,
-			message = _('Select PDF to add to DICOM study'),
-			defaultDir = gmTools.gmPaths().user_work_dir,
-			wildcard = "%s (*.pdf)|*.pdf|%s (*)|*" % (_('PDF files'), _('all files')),
-			style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
-		)
-		choice = dlg.ShowModal()
-		pdf_name = dlg.GetPath()
-		dlg.DestroyLater()
-		if choice != wx.ID_OK:
-			return
-
-		_log.debug('dicomize(%s)', pdf_name)
-		if pdf_name is None:
-			return
-
-		# export one instance as template
-		instance_uuid = study_data[0]['series'][0]['instances'][-1]
-		dcm_instance_template_fname = self.__pacs.get_instance(instance_id = instance_uuid)
-		# dicomize PDF via template
-		_cfg = gmCfgINI.gmCfgData()
-		pdf2dcm_fname = gmDICOM.dicomize_pdf (
-			pdf_name = pdf_name,
-			dcm_template_file = dcm_instance_template_fname,
-			title = 'GNUmed',
-			verbose = _cfg.get(option = 'debug')
-		)
-		if pdf2dcm_fname is None:
-			gmGuiHelpers.gm_show_error (
-				title = _('Adding PDF to DICOM study'),
-				error = _('Cannot turn PDF file\n\n %s\n\n into DICOM file.')
-			)
-			return
-
-		# upload pdf.dcm
-		if self.__pacs.upload_dicom_file(pdf2dcm_fname):
-			gmDispatcher.send(signal = 'statustext', msg = _('Successfully uploaded [%s] to Orthanc DICOM server.') % pdf2dcm_fname)
-			self._schedule_data_reget()
-			return
-
-		gmGuiHelpers.gm_show_error (
-			title = _('Adding PDF to DICOM study'),
-			error = _('Cannot updload DICOM file\n\n %s\n\n into Orthanc PACS.') % pdf2dcm_fname
-		)
-
-	#--------------------------------------------------------
 	def _on_add_file_to_study(self, evt):
 		if self.__pacs is None:
 			return
@@ -3932,9 +3871,9 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		dcm_fname = gmDICOM.dicomize_file (
 			filename = filename,
 			dcm_template_file = dcm_instance_template_fname,
-			dcm_transfer_series = False,
-			title = 'GNUmed',
+			dcm_transfer_series = False,			# create new series
 			verbose = _cfg.get(option = 'debug')
+			#, content_date =
 		)
 		if dcm_fname is None:
 			gmGuiHelpers.gm_show_error (
