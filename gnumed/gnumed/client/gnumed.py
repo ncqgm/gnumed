@@ -10,8 +10,7 @@
 .B GNUmed
 - an electronic medical record software for GP offices
 
-This is not fully featured yet. Use at your own risk.
-You have been warned.
+Use at your own risk. You have been warned.
 
 .SH SYNOPSIS
 .B gnumed
@@ -757,6 +756,15 @@ def setup_locale():
 	gmI18N.install_domain(domain = td, language = l, prefer_local_catalog = _cfg.get(option = 'local-import'))
 
 #==========================================================
+def generate_man_page(fname=None):
+	if fname is None:
+		handle, fname = tempfile.mkstemp(text = True, suffix = '.1')
+	man_page_file = open(fname, mode = 'wt', encoding = 'utf8')
+	man_page_file.write(__doc__ % datetime.date.today().strftime('%x'))
+	man_page_file.close()
+	return fname
+
+#----------------------------------------------------------
 def handle_help_request():
 	src = [('cli', 'return')]
 
@@ -773,10 +781,7 @@ def handle_help_request():
 				print(regex.sub('^\.\w+\s*', '', line, count = 1))
 			sys.exit(0)
 
-		handle, man_page_fname = tempfile.mkstemp(text = True, suffix = '.1')
-		man_page_file = open(man_page_fname, mode = 'wt', encoding = 'utf8')
-		man_page_file.write(__doc__ % datetime.date.today().strftime('%x'))
-		man_page_file.close()
+		man_page_fname = generate_man_page()
 		os.system('man %s' % man_page_fname)
 		sys.exit(0)
 
@@ -1061,10 +1066,7 @@ def run_tool():
 	print('')
 
 	if tool == 'generate_man_page':
-		man_page_fname = os.path.abspath(os.path.join('.', 'gnumed.1'))
-		man_page_file = open(man_page_fname, mode = 'wt', encoding = 'utf8')
-		man_page_file.write(__doc__ % datetime.date.today().strftime('%x'))
-		man_page_file.close()
+		man_page_fname = generate_man_page(fname = os.path.abspath(os.path.join('.', 'gnumed.1')))
 		print('MAN page saved as:', man_page_fname)
 		return 0
 
