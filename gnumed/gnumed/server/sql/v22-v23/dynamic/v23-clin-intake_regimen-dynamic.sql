@@ -21,6 +21,18 @@ alter table clin.intake_regimen
 		set default 'p'::text;
 
 -- --------------------------------------------------------------
+-- .fk_episode
+comment on column clin.intake_regimen.fk_episode is '
+The episode this intake regimen was registered under.
+
+The episode of the active regimen (.discontinued=NULL) must
+correspond to the episode of the intake it links to.
+
+Historical regimen may well link to different episodes (of
+the same patient that is).
+';
+
+-- --------------------------------------------------------------
 -- .fk_intake
 comment on column clin.intake_regimen.fk_intake is 'The intake this regimen applies to. Only one regimen per patient must be ongoing at any one time.';
 
@@ -126,13 +138,16 @@ comment on column clin.intake_regimen.planned_duration is 'How long is this subs
 
 -- --------------------------------------------------------------
 -- table level
+-- --------------------------------------------------------------
 comment on table clin.intake_regimen is 'Holds the regimen which substances are consumed by.';
 
 
 select audit.register_table_for_auditing('clin', 'intake_regimen');
 select gm.register_notifying_table('clin', 'intake_regimen');
 
+grant select, insert, update, delete on clin.intake_regimen to "gm-doctors";
 
+-- --------------------------------------------------------------
 alter table clin.intake_regimen
 	drop constraint if exists clin_intake_regimen_distinct_period cascade;
 
@@ -142,7 +157,7 @@ alter table clin.intake_regimen
 		(tstzrange(clin_when, discontinued, '()')) with &&
 	);
 
-
+-- --------------------------------------------------------------
 drop function if exists clin.trf_undiscontinue_unsets_reason() cascade;
 
 create or replace function clin.trf_undiscontinue_unsets_reason()
@@ -161,9 +176,6 @@ create trigger tr_undiscontinue_unsets_reason
 	before insert or update on clin.intake_regimen
 	for each row
 		execute procedure clin.trf_undiscontinue_unsets_reason();
-
-
-grant select, insert, update, delete on clin.intake_regimen to "gm-doctors";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v23-clin-intake_regimen-dynamic.sql', '23.0');

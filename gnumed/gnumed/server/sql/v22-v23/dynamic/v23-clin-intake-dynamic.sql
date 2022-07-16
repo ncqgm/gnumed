@@ -28,8 +28,8 @@ comment on column clin.intake.fk_encounter is
 
 -- --------------------------------------------------------------
 -- .fk_episode
-comment on column clin.intake.fk_encounter is
-	'The episode under which this intake was documented.';
+comment on column clin.intake.fk_episode is
+	'The episode under which this intake is currently active.';
 
 -- --------------------------------------------------------------
 -- .narrative
