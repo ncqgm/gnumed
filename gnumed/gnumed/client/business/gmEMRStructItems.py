@@ -246,7 +246,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def format_as_journal(self, left_margin=0, date_format='%Y %b %d, %a'):
 		rows = gmClinNarrative.get_as_journal (
-			issues = (self.pk_obj,),
+			issues = [self.pk_obj],
 			order_by = 'pk_episode, pk_encounter, clin_when, scr, src_table'
 		)
 
@@ -1221,7 +1221,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def format_as_journal(self, left_margin=0, date_format='%Y %b %d, %a'):
 		rows = gmClinNarrative.get_as_journal (
-			episodes = (self.pk_obj,),
+			episodes = [self.pk_obj],
 			order_by = 'pk_encounter, clin_when, scr, src_table'
 			#order_by = u'pk_encounter, scr, clin_when, src_table'
 		)

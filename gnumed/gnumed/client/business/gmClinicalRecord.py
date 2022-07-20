@@ -746,7 +746,7 @@ class cClinicalRecord(object):
 					continue
 			elif len(item_ids) > 1:
 				cmd = "SELECT * FROM %s WHERE pk_item = ANY(%%s) ORDER BY modified_when" % src_table
-				if not gmPG2.run_query(curs, None, cmd, (item_ids,)):
+				if not gmPG2.run_query(curs, None, cmd, [item_ids]):
 					_log.error('cannot load items from table [%s]' % src_table)
 					# skip this table
 					continue
