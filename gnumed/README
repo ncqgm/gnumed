@@ -3,7 +3,7 @@ Welcome to the GNUmed VCS tree !
 
 To check if you have installed all the components
 necessary to run GNUmed use:
-	gnumed/external-tools/check-prerequites.sh
+	gnumed/external-tools/check-prerequisites.sh
 
 
 Documentation is in:
