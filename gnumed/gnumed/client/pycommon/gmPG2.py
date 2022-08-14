@@ -344,11 +344,11 @@ def __request_login_params_gui_wx():
 	return login, creds
 
 #---------------------------------------------------
-def request_login_params(setup_pool=False):
+def request_login_params(setup_pool=False, force_tui=False):
 	"""Request login parameters for database connection."""
 	# are we inside X ?
 	# if we aren't wxGTK will crash hard at the C-level with "can't open Display"
-	if 'DISPLAY' in os.environ:
+	if 'DISPLAY' in os.environ and not force_tui:
 		# try wxPython GUI
 		try:
 			login, creds = __request_login_params_gui_wx()

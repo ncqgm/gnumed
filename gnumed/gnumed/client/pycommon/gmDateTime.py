@@ -317,7 +317,7 @@ def pydt_strftime(dt=None, format='%Y %b %d  %H:%M.%S', accuracy=None, none_str=
 
 #---------------------------------------------------------------------------
 def pydt_add(dt, years=0, months=0, weeks=0, days=0, hours=0, minutes=0, seconds=0, milliseconds=0, microseconds=0):
-	"""Add some time to a given dateteime."""
+	"""Add some time to a given datetime."""
 	if months > 11 or months < -11:
 		raise ValueError('pydt_add(): months must be within [-11..11]')
 
@@ -548,11 +548,10 @@ def format_interval_medically(interval=None):
 	# more than 1 year ?
 	if interval.days > 364:
 		years, days = divmod(interval.days, avg_days_per_gregorian_year)
-		leap_days, tmp = divmod(years, 4)
-		days_left_without_leap_days = days - leap_days
-		months, day = divmod((days_left_without_leap_days), 30.33)
+		months, day = divmod(days, 30.33)
 		if int(months) == 0:
 			return "%s%s" % (int(years), _('interval_format_tag::years::y')[-1:])
+
 		return "%s%s %s%s" % (int(years), _('interval_format_tag::years::y')[-1:], int(months), _('interval_format_tag::months::m')[-1:])
 
 	# more than 30 days / 1 month ?
@@ -657,18 +656,21 @@ def is_leap_year(year):
 	return False
 
 #---------------------------------------------------------------------------
-def calculate_apparent_age(start=None, end=None):
-	"""The result of this is a tuple (years, ..., seconds) as one would
-	'expect' an age to look like, that is, simple differences between
-	the fields:
+def calculate_apparent_age(start=None, end=None) -> ():
+	"""Calculate age in a way humans naively expect it.
 
-		(years, months, days, hours, minutes, seconds)
-
-	This does not take into account time zones which may
+	This does *not* take into account time zones which may
 	shift the result by one day.
 
-	<start> and <end> must by python datetime instances
-	<end> is assumed to be "now" if not given
+	Args:
+		start: the beginning of the period-to-be-aged, the 'birth' if you will
+		end: the end of the period, default *now*
+
+	Returns:
+		A tuple (years, ..., seconds) as simple differences
+		between the fields:
+
+		(years, months, days, hours, minutes, seconds)
 	"""
 	if end is None:
 		end = pyDT.datetime.now(gmCurrentLocalTimezone)
@@ -2145,12 +2147,16 @@ if __name__ == '__main__':
 			pyDT.timedelta(days = 367),
 			pyDT.timedelta(days = 400),
 			pyDT.timedelta(weeks = 53 * 30),
-			pyDT.timedelta(weeks = 53 * 79, days = 33)
+			pyDT.timedelta(weeks = 53 * 79, days = 33),
+			pyDT.timedelta(days = 3650)
 		]
 		idx = 1
 		for intv in intervals:
 			print ('%s) %s -> %s' % (idx, intv, format_interval_medically(intv)))
 			idx += 1
+		#intv = pyDT.timedelta(days = 3650)
+		#print ('%s -> %s' % (intv, format_interval_medically(intv)))
+
 	#-----------------------------------------------------------------------
 	def test_str2interval():
 		print ("testing str2interval()")
@@ -2333,13 +2339,13 @@ if __name__ == '__main__':
 
 	#test_date_time()
 	#test_str2fuzzy_timestamp_matches()
-	test_str2pydt_matches()
+	#test_str2pydt_matches()
 	#test_get_date_of_weekday_in_week_of_date()
 	#test_cFuzzyTimeStamp()
 	#test_get_pydt()
 	#test_str2interval()
 	#test_format_interval()
-	#test_format_interval_medically()
+	test_format_interval_medically()
 	#test_pydt_strftime()
 	#test_calculate_apparent_age()
 	#test_is_leap_year()

@@ -5,10 +5,10 @@ link:index.html[Home]
 '''''
 CAUTION: This procedure will *irrevocably delete* any
 GNUmed databases pre-existing in the PostgreSQL server you
-are installing into. It is not suitable for
-link:GNUmedDatabaseUpgrade.html[_upgrading_] an existing
-GNUmed database.
+are installing into.
 
+Follow the link:GNUmedDatabaseUpgrade.html[_upgrade
+procedures_] when working with an existing GNUmed database.
 '''''
 
 Setting up your own GNUmed database for local use involves these steps:
