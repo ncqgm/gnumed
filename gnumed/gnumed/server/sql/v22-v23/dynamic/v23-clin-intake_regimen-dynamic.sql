@@ -34,7 +34,7 @@ the same patient that is).
 
 -- --------------------------------------------------------------
 -- .fk_intake
-comment on column clin.intake_regimen.fk_intake is 'The intake this regimen applies to. Only one regimen per patient must be ongoing at any one time.';
+comment on column clin.intake_regimen.fk_intake is 'The intake this regimen applies to.';
 
 alter table clin.intake_regimen
 	alter column fk_intake
@@ -46,8 +46,8 @@ alter table clin.intake_regimen
 		on delete restrict
 		on update cascade;
 
-drop index if exists clin.idx_uniq_open_regimen_per_intake cascade;
-create unique index idx_uniq_open_regimen_per_intake on clin.intake_regimen(fk_intake, discontinued) where (discontinued is null);
+--drop index if exists clin.idx_uniq_open_regimen_per_intake cascade;
+--create unique index idx_uniq_open_regimen_per_intake on clin.intake_regimen(fk_intake, discontinued) where (discontinued is null);
 
 -- --------------------------------------------------------------
 -- .fk_dose
@@ -88,7 +88,10 @@ alter table clin.intake_regimen
 
 -- --------------------------------------------------------------
 -- .narrative = schedule
-comment on column clin.intake_regimen.narrative is 'The schedule, if any, the substance is to be taken by. Can be a snippet from a controlled vocabulary to be interpreted by the middleware.';
+comment on column clin.intake_regimen.narrative is 
+'The schedule, if any, the substance is to be taken by.
+Can be a snippet from a controlled vocabulary to be
+interpreted by the middleware.';
 
 alter table clin.intake_regimen
 	alter column narrative
