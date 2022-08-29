@@ -11,6 +11,36 @@
 set check_function_bodies to on;
 
 -- --------------------------------------------------------------
+-- table level
+-- --------------------------------------------------------------
+comment on table clin.intake_regimen is
+'Holds ongoing and historical regimens by which substances are consumed.
+.
+There can be any number of discontinued (historic)
+and ongoing regimen per intake.
+.
+Say, a patient takes paracetamol (PCM):
+.
+	1000mg PCM in the morning
+	500mg PCM at noon
+	500mg PCM combined with codeine at night (say, as drug "ParaComp")
+.
+There will be one clin.intake row for PCM and two (or
+three) active regimen rows:
+.
+- regimen "500mg PCM, 0-0-1 pk_drug=ParaComp"
+.
+	plus either
+.
+- regimen "PCM, schedule 1000-500-0, pk_dose=NULL"
+	or
+- regimen "1000mg PCM, schedule 1-0-0, pk_dose=pcm_1000"
+- regimen "500mg PCM, schedule 0-1-0, pk_dose=pcm_500"
+.
+Each way is medically correct. Which one is used
+is up to the clinician.';
+
+-- --------------------------------------------------------------
 -- .soap_cat
 alter table clin.intake_regimen
 	alter column soap_cat
@@ -24,17 +54,20 @@ alter table clin.intake_regimen
 -- .fk_episode
 comment on column clin.intake_regimen.fk_episode is '
 The episode this intake regimen was registered under.
-
-The episode of the active regimen (.discontinued=NULL) must
-correspond to the episode of the intake it links to.
-
-Historical regimen may well link to different episodes (of
-the same patient that is).
-';
+.
+The episodes of active regimens (.discontinued=NULL) must
+correspond to the episode of the intake they link to.
+.
+Historical regimens may well link to different episodes
+(of the same patient that is).';
 
 -- --------------------------------------------------------------
 -- .fk_intake
-comment on column clin.intake_regimen.fk_intake is 'The intake this regimen applies to.';
+comment on column clin.intake_regimen.fk_intake is
+'The intake this regimen applies to.
+.
+(fk_intake, discontinued=NULL) is not unique. For
+the reasoning refer to the table level comment.';
 
 alter table clin.intake_regimen
 	alter column fk_intake
@@ -46,21 +79,21 @@ alter table clin.intake_regimen
 		on delete restrict
 		on update cascade;
 
---drop index if exists clin.idx_uniq_open_regimen_per_intake cascade;
---create unique index idx_uniq_open_regimen_per_intake on clin.intake_regimen(fk_intake, discontinued) where (discontinued is null);
-
 -- --------------------------------------------------------------
 -- .fk_dose
-comment on column clin.intake_regimen.fk_dose is 'The dose being taken. Must link to a dose with the same fk_substance as the fk_intake this row points to.';
+comment on column clin.intake_regimen.fk_dose is
+'The dose being taken.
+.
+Must link to a dose with the same fk_substance as the fk_intake this row points to.
+.
+(fk_dose, patient) is not unique because a dose (= substance + strength)
+can be linked to several drug products each of which the patient might be taking.';
 
 alter table clin.intake_regimen
 	add foreign key (fk_dose)
 		references ref.dose(pk)
 		on delete restrict
 		on update cascade;
-
--- make unique(.fk_dose, patient):
--- no, because one given dose may be used in different drugs ...
 
 -- --------------------------------------------------------------
 -- .fk_drug_product
@@ -90,6 +123,7 @@ alter table clin.intake_regimen
 -- .narrative = schedule
 comment on column clin.intake_regimen.narrative is 
 'The schedule, if any, the substance is to be taken by.
+.
 Can be a snippet from a controlled vocabulary to be
 interpreted by the middleware.';
 
@@ -142,23 +176,22 @@ comment on column clin.intake_regimen.planned_duration is 'How long is this subs
 -- --------------------------------------------------------------
 -- table level
 -- --------------------------------------------------------------
-comment on table clin.intake_regimen is 'Holds the regimen which substances are consumed by.';
-
-
 select audit.register_table_for_auditing('clin', 'intake_regimen');
 select gm.register_notifying_table('clin', 'intake_regimen');
 
 grant select, insert, update, delete on clin.intake_regimen to "gm-doctors";
 
 -- --------------------------------------------------------------
-alter table clin.intake_regimen
-	drop constraint if exists clin_intake_regimen_distinct_period cascade;
-
-alter table clin.intake_regimen
-	add constraint clin_intake_regimen_distinct_period exclude using GIST (
-		fk_intake with =,
-		(tstzrange(clin_when, discontinued, '()')) with &&
-	);
+-- there *can* be overlapping ongoing regimen: see the table
+-- comment on clin.intake_regimen
+--alter table clin.intake_regimen
+--	drop constraint if exists clin_intake_regimen_distinct_period cascade;
+--
+--alter table clin.intake_regimen
+--	add constraint clin_intake_regimen_distinct_period exclude using GIST (
+--		fk_intake with =,
+--		(tstzrange(clin_when, discontinued, '()')) with &&
+--	);
 
 -- --------------------------------------------------------------
 drop function if exists clin.trf_undiscontinue_unsets_reason() cascade;

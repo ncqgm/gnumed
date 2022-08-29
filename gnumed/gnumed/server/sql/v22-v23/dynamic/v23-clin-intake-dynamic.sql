@@ -13,28 +13,7 @@ comment on table clin.intake is 'List of consumables a patient is/was taking.
 
 Each consumable is listed once per patient. IOW a row
 documents the fact: "This patient _is_ taking this
-substance." regardless of schedule.
-
-Say, a patient takes paracetamol (PCM):
-
-	1000mg PCM in the morning
-	500mg PCM at noon
-	500mg PCM combined with codeine at night (drug ParaComp)
-
-There will be _one_ clin.intake row for PCM and two (or
-three) active regimen rows:
-
-- regimen "500mg PCM, 0-0-1 pk_drug=ParaComp"
-
-	plus either
-
-- regimen "PCM, schedule 1000-500-0, pk_dose=NULL"
-	or
-- regimen "1000mg PCM, schedule 1-0-0, pk_dose=pcm_1000"
-- regimen "500mg PCM, schedule 0-1-0, pk_dose=pcm_500"
-
-Each version is medically correct. Which one is used is
-up to the clinician.';
+substance." regardless of schedule.';
 
 select audit.register_table_for_auditing('clin', 'intake');
 select gm.register_notifying_table('clin', 'intake');
