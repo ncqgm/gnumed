@@ -79,7 +79,7 @@ if not os.path.exists(os.path.join(local_python_base_dir, 'Gnumed')):
 	print('     link:', link_name)
 	os.symlink(real_dir, link_name)
 
-print("Adjusting PYTHONPATH ...")
+#print("Adjusting PYTHONPATH ...")
 sys.path.insert(0, local_python_base_dir)
 
 

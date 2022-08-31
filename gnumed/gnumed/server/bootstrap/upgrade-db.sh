@@ -223,7 +223,7 @@ function perhaps_verify_source_database_integrity () {
 		echo_msg "   Be sure you really know what you are doing !"
 		return ;
 	fi;
-	echo_msg "1) Verifying checksums in source database (can take a while) ..."
+	echo_msg "1) Verifying data integrity CRCs in source database (can take a while) ..."
 	# dump to /dev/null for checksum verification
 	#--no-unlogged-table-data
 	#--no-acl
@@ -245,7 +245,7 @@ function perhaps_verify_source_database_integrity () {
 	pg_dump ${PORT_DEF} --username=gm-dbo --dbname=gnumed_v${PREV_VER} --compress=0 --no-sync --format=custom --file=/dev/null &> /dev/null
 	RETCODE="$?"
 	if test "$RETCODE" != "0" ; then
-		echo "Verifying checksums on \"gnumed_v${PREV_VER}\" failed (${RETCODE})."
+		echo "Verifying data integrity CRCs on \"gnumed_v${PREV_VER}\" failed (${RETCODE})."
 		read
 		exit 1
 	fi ;

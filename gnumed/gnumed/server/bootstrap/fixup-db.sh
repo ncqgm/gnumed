@@ -83,7 +83,7 @@ echo_msg "==========================================================="
 
 
 echo_msg ""
-echo_msg "1) Verifying checksums in database (can take a while) ..."
+echo_msg "1) Verifying data integrity CRCs in database (can take a while) ..."
 # dump to /dev/null for checksum verification
 #--no-unlogged-table-data
 #--no-acl
@@ -105,7 +105,7 @@ echo_msg "1) Verifying checksums in database (can take a while) ..."
 pg_dump ${PORT_DEF} --username=gm-dbo --dbname=gnumed_v${VER} --compress=0 --no-sync --format=custom --file=/dev/null &> /dev/null
 RETCODE="$?"
 if test "$RETCODE" != "0" ; then
-	echo "Verifying checksums on \"gnumed_v${VER}\" failed (${RETCODE})."
+	echo "Verifying data integrity CRCs on \"gnumed_v${VER}\" failed (${RETCODE})."
 	read
 	exit 1
 fi

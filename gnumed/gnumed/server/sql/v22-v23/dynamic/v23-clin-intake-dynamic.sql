@@ -55,7 +55,9 @@ comment on column clin.intake.use_type is
 -- --------------------------------------------------------------
 -- .fk_substance
 comment on column clin.intake.fk_substance is
-	'Substance being taken by patient.';
+'Substance being taken by patient.
+.
+Must be unique per patient.';
 
 alter table clin.intake
 	add foreign key (fk_substance)
@@ -67,15 +69,18 @@ alter table clin.intake
 	alter column fk_substance
 		set not NULL;
 
--- --------------------------------------------------------------
--- ._fk_s_i
-comment on column clin.intake._fk_s_i is
-	'temporary column pointing to clin.substance_intake.pk this clin.intake row came from during conversion, used to associate a clin.intake_regimen';
+drop index if exists clin.idx_uniq_substance_per_patient cascade;
+create unique index idx_uniq_substance_per_patient on clin.intake(fk_substance, clin.map_enc_or_epi_to_patient(fk_encounter, fk_episode));
 
 -- --------------------------------------------------------------
 -- .notes4patient
 comment on column clin.intake.notes4patient is
 	'Comments on this intake (instructions, caveats, treatment goal, etc) intended for the patient, say, via a medication plan.';
+
+-- --------------------------------------------------------------
+-- ._fk_s_i
+comment on column clin.intake._fk_s_i is
+	'temporary column pointing to the clin.substance_intake.pk this clin.intake row came from during conversion, used for associating a clin.intake_regimen';
 
 -- --------------------------------------------------------------
 -- data transfer
