@@ -6,6 +6,10 @@
 # rel-1-8-patches
 ------------------------------------------------
 
+	1.8.8
+
+FIX: py3.10+ *requires* ints for rescaling images [thanks henrique]
+
 	1.8.7
 
 FIX: export area: dumping encrypted/PDFed image to disk
