@@ -463,8 +463,18 @@ if __name__ == "__main__":
 
 		]
 		for cands in candidates:
+			print('')
 			print(cands[0], '<vs>', cands[1], '=', locale.strcoll(cands[0], cands[1]))
-#			print(cands[1], u'<vs>', cands[0], '=', locale.strcoll(cands[1], cands[0]))
+			print(cands[1], '<vs>', cands[0], '=', locale.strcoll(cands[1], cands[0]))
+
+	#----------------------------------------------------------------------
+	def test_translating():
+		txt = 'test without placeholder'
+		print(txt, '->', _(txt))
+		txt = 'test with placeholder: %s'
+		print(txt, '->', _(txt))
+		txt = 'test with placeholder and percent (%) sign: %s'
+		print(txt, '->', _(txt))
 
 	#----------------------------------------------------------------------
 	print("======================================================================")
@@ -479,10 +489,13 @@ if __name__ == "__main__":
 	print("likely encoding:", get_encoding())
 
 	if len(sys.argv) > 2:
+		print('attempting to install domain:', sys.argv[2])
 		install_domain(domain = sys.argv[2])
 	else:
+		print('attempting to install "default" domain')
 		install_domain()
 
+	test_translating()
 	test_strcoll()
 
 	# ********************************************************************* #

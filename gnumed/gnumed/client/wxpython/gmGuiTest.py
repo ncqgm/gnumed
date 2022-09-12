@@ -15,6 +15,7 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 
+from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmI18N
 gmI18N.activate_locale()
 gmI18N.install_domain()
@@ -97,5 +98,15 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	panel = wx.TextCtrl
-	test_widget(panel, patient = None)
+	#--------------------------------------------------------------------------
+	def test__test_widget():
+		panel = wx.TextCtrl
+		test_widget(panel, patient = None)
+
+	#--------------------------------------------------------------------------
+	def test__setup_widget_test_env():
+		print(setup_widget_test_env())
+
+	#--------------------------------------------------------------------------
+	#test__test_widget()
+	test__setup_widget_test_env()
