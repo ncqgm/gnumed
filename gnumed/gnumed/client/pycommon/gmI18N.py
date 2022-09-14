@@ -6,9 +6,9 @@ Theory of operation:
 
 To activate proper locale settings and translation services you need to
 
-- import this module
-- call activate_locale()
-- call install_domain()
+	- import this module
+	- call activate_locale()
+	- call install_domain()
 
 The translating method gettext.gettext() will then be
 installed into the global (!) namespace as _(). Your own
@@ -225,7 +225,7 @@ def _translate_safely(term):
 # external API
 #---------------------------------------------------------------------------
 def activate_locale():
-	"""Get system locale from environment."""
+	"""Get system locale from environment settings and activate it if need be."""
 	global system_locale
 	__log_locale_settings('unmodified startup locale settings (could be [C])')
 	loc = None
@@ -250,9 +250,13 @@ def activate_locale():
 	return True
 
 #---------------------------------------------------------------------------
-def install_domain(domain=None, language=None, prefer_local_catalog=False):
-	"""Install a text domain suitable for the main script."""
+def install_domain(domain:str=None, language:str=None, prefer_local_catalog:bool=False) -> bool:
+	"""Install a text domain suitable for the main script.
 
+	Args:
+		domain: a named translation domain (typically the base name of the translation file), defaults to the python script's name
+		language: a language code, as in the first part of a locale name, say, en_EN or de_DE, defaults to user locale language
+	"""
 	# text domain directly specified ?
 	if domain is None:
 		_log.info('domain not specified, deriving from script name')
@@ -270,18 +274,20 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 			_log.debug(' ${%s} = [%s]' % (env_var, tmp))
 	# language codes to try
 	lang_candidates = []
-	# first: explicit language or default system language
-	# language=None: unadulterated default language for user (locale.getlocale()[0] value)
-	# language != None: explicit language setting as passed in by the caller
-	lang_candidates.append(language)
-	if language is not None:
+	# 1) explicit language or default system language
+	if language:
 		_log.info('explicit request for target language [%s]' % language)
-		# next: try default language for user if explicit language fails
+		lang_candidates.append(language)
+		# also try default language for user in case explicit language fails
 		lang_candidates.append(None)
-	# next try locale.getlocale()[0], if different (this can be strange on, say, Windows: Hungarian_Hungary)
+	else:
+		# default language for user (locale.getlocale()[0] value)
+		lang_candidates.append(None)
+	# 2) try locale.getlocale()[0], if not yet in list
+	#    (this can be strange on, say, Windows: Hungarian_Hungary)
 	if locale.getlocale()[0] not in lang_candidates:
 		lang_candidates.append(locale.getlocale()[0])
-	# next try locale.get*default*locale()[0], if different
+	# 3) try locale.get*default*locale()[0], if not yet in list
 	if locale.getdefaultlocale()[0] not in lang_candidates:
 		lang_candidates.append(locale.getdefaultlocale()[0])
 	_log.debug('languages to try for translation: %s (None: implicit system default)', lang_candidates)
@@ -398,15 +404,15 @@ def get_encoding():
 	still returns None. So in that case try to fallback to
 	locale.getpreferredencoding().
 
-	<sys.getdefaultencoding()>
+	*sys.getdefaultencoding()*
 		- what Python itself uses to convert string <-> unicode
 		  when no other encoding was specified
 		- ascii by default
 		- can be set in site.py and sitecustomize.py
-	<locale.getlocale()[1]>
+	*locale.getlocale()[1]*
 		- what the current locale is *actually* using
 		  as the encoding for text conversion
-	<locale.getpreferredencoding()>
+	*locale.getpreferredencoding()*
 		- what the current locale would *recommend* using
 		  as the encoding for text conversion
 	"""
