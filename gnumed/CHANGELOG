@@ -9,6 +9,7 @@
 	1.8.8
 
 FIX: py3.10+ *requires* ints for rescaling images [thanks henrique]
+FIX: patient tags: do not crash when rescaling image fails [thanks henrique]
 
 	1.8.7
 

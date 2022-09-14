@@ -341,6 +341,9 @@ class cImageTagPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPnl)
 				_log.warning('cannot export image data of tag [%s]', tag['l10n_description'])
 				continue
 			img = gmGuiHelpers.file2scaled_image(filename = fname, height = 20)
+			if img is None:
+				_log.warning('cannot rescale image of tag [%s]', tag['l10n_description'])
+				continue
 			bmp = wx_genstatbmp.GenStaticBitmap(self, -1, img, style = wx.NO_BORDER)
 			bmp.SetToolTip('%s%s' % (
 				tag['l10n_description'],
