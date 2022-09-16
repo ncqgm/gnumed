@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
+import sys
+
 import wx
 
 try:
-	import cDividerCaption        #panel class to display sub-headings or divider headings
-	import cAlertCaption          #panel to hold flashing
+#	import cDividerCaption        #panel class to display sub-headings or divider headings
+#	import cAlertCaption          #panel to hold flashing
 	import gmPlugin_Patient
 	from gmPatientHolder import PatientHolder
 	import gmDispatcher
@@ -25,12 +27,12 @@ except Exception:
 # TODO:almost everything
 #--------------------------------------------------------------------
 
-ID_OVERVIEW = wxNewId ()
-ID_OVERVIEWMENU = wxNewId ()
+ID_OVERVIEW = wx.NewId ()
+ID_OVERVIEWMENU = wx.NewId ()
 
-class ClinicalSummary(wxPanel, PatientHolder):
+class ClinicalSummary(wx.Panel, PatientHolder):
 	def __init__(self, parent,id):
-		wxPanel.__init__(self,parent,id,wxDefaultPosition,wxDefaultSize,style = wxRAISED_BORDER)
+		wx.Panel.__init__(self,parent,id,wx.DefaultPosition,wx.DefaultSize,style = wxRAISED_BORDER)
 		PatientHolder.__init__(self)
 		#------------------------------------------------------------------------
 		#import social history if available this will be the top item on the page
@@ -83,15 +85,15 @@ class ClinicalSummary(wxPanel, PatientHolder):
 		#------------------------------------------------------------
 		# FIXME: NO !! maybe we DON'T have all the elements ...
 		self.sizer = wxBoxSizer(wxVERTICAL)
-		self.sizer.Add(self.socialhistory,5,wxEXPAND)
-		self.sizer.Add(self.familyhistorysummary,5,wxEXPAND)
-		self.sizer.Add(self.heading1,0,wxEXPAND)
-		self.sizer.Add(self.activeproblemlist,8,wxEXPAND)
-		self.sizer.Add(self.heading2,0,wxEXPAND)
-		self.sizer.Add(self.habitsriskfactors,5,wxEXPAND)
-		self.sizer.Add(self.heading3,0,wxEXPAND)
-		self.sizer.Add(self.inbox,5,wxEXPAND)
-		self.sizer.Add(self.alertpanel,0,wxEXPAND)
+		self.sizer.Add(self.socialhistory,5,wx.EXPAND)
+		self.sizer.Add(self.familyhistorysummary,5,wx.EXPAND)
+		self.sizer.Add(self.heading1,0,wx.EXPAND)
+		self.sizer.Add(self.activeproblemlist,8,wx.EXPAND)
+		self.sizer.Add(self.heading2,0,wx.EXPAND)
+		self.sizer.Add(self.habitsriskfactors,5,wx.EXPAND)
+		self.sizer.Add(self.heading3,0,wx.EXPAND)
+		self.sizer.Add(self.inbox,5,wx.EXPAND)
+		self.sizer.Add(self.alertpanel,0,wx.EXPAND)
 		self.SetSizer(self.sizer)                         #set the sizer 
 		self.sizer.Fit(self)                              #set to minimum size as calculated by sizer
 		self.SetAutoLayout(True)                     #tell frame to use the sizer

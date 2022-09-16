@@ -51,6 +51,7 @@ def test_widget(widget_class, patient=None, size=None):
 		app.MainLoop()
 	except Exception:
 		_log.log_stack_trace(message = 'test failure')
+	return widget
 
 #==============================================================================
 def setup_widget_test_env(patient=None):

@@ -833,7 +833,7 @@ def rename_file(filename:str, new_filename:str, overwrite:bool=False, allow_syml
 		os.link(filename, new_filename)
 		return True
 
-	except Exeption:
+	except Exception:
 		_log.exception('os.link() failed')
 
 	if not allow_symlink:
@@ -843,7 +843,7 @@ def rename_file(filename:str, new_filename:str, overwrite:bool=False, allow_syml
 		os.symlink(filename, new_filename)
 		return True
 
-	except Exeption:
+	except Exception:
 		_log.exception('os.symlink() failed')
 
 	return False

@@ -293,7 +293,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			if filename is None:
 				return gmMimeLib.adjust_extension_by_mimetype(target_fname)
 
-			return target_filename
+			return target_fname
 
 		enc_fname = gmCrypto.encrypt_file (
 			filename = tmp_fname,

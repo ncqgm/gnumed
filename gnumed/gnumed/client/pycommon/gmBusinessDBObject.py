@@ -130,7 +130,7 @@ __license__ = "GPL v2 or later"
 
 
 import sys
-import inspect
+#import inspect
 import logging
 import datetime
 

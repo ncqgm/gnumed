@@ -35,33 +35,33 @@ from gmPatientHolder import PatientHolder
 
 
 
-ID_SCRIPTICON = wxNewId ()
-ID_SCRIPTLIST = wxNewId()
-ID_SCRIPTMENU = wxNewId ()
-ID_POPUP1 = wxNewId()
+ID_SCRIPTICON = wx.NewId ()
+ID_SCRIPTLIST = wx.NewId()
+ID_SCRIPTMENU = wx.NewId ()
+ID_POPUP1 = wx.NewId()
 
 gmSECTION_SCRIPT = 8
 # script popup
-ID_AuthInd = wxNewId()
-ID_Interactions = wxNewId()
-ID_PregInfo = wxNewId()
-ID_Restrictions = wxNewId()
-ID_EditItem = wxNewId()
-ID_DelItem = wxNewId()
-ID_DelAll = wxNewId()
-ID_MakeItemReg24 = wxNewId()
-ID_DrugInfoBrief = wxNewId()
-ID_DrugInfoFull = wxNewId()
-ID_PrintItem = wxNewId()
-ID_PrintAll = wxNewId()
-ID_ReprintItem = wxNewId()
-ID_ReprintAll = wxNewId()
-ID_JustSaveItem = wxNewId()
-ID_JustSaveAll = wxNewId()
-ID_ChangeFont = wxNewId()
-ID_SaveListLayout = wxNewId()
-ID_Help = wxNewId()
-ID_Exit = wxNewId()
+ID_AuthInd = wx.NewId()
+ID_Interactions = wx.NewId()
+ID_PregInfo = wx.NewId()
+ID_Restrictions = wx.NewId()
+ID_EditItem = wx.NewId()
+ID_DelItem = wx.NewId()
+ID_DelAll = wx.NewId()
+ID_MakeItemReg24 = wx.NewId()
+ID_DrugInfoBrief = wx.NewId()
+ID_DrugInfoFull = wx.NewId()
+ID_PrintItem = wx.NewId()
+ID_PrintAll = wx.NewId()
+ID_ReprintItem = wx.NewId()
+ID_ReprintAll = wx.NewId()
+ID_JustSaveItem = wx.NewId()
+ID_JustSaveAll = wx.NewId()
+ID_ChangeFont = wx.NewId()
+ID_SaveListLayout = wx.NewId()
+ID_Help = wx.NewId()
+ID_Exit = wx.NewId()
 #------------------------------------
 #Dummy data to simulate script items
 #------------------------------------
@@ -87,7 +87,7 @@ scriptprompts = {
 class PrescriptionPanel (wxPanel, PatientHolder):
 	def __init__(self,parent, id):
 		#wxPanel.__init__(self,parent, id)
-		wxPanel.__init__(self, parent, id, wxDefaultPosition, wxDefaultSize, wxRAISED_BORDER)
+		wxPanel.__init__(self, parent, id, wx.DefaultPosition, wx.DefaultSize, wxRAISED_BORDER)
 		PatientHolder.__init__(self)
 		#--------------------
 		#add the main heading
@@ -99,18 +99,18 @@ class PrescriptionPanel (wxPanel, PatientHolder):
 		#--------------------------------------------
 		self.sizer_authority  = wxGridSizer(1,0,0,0)
 		self.sizer1 = wxBoxSizer(wxHORIZONTAL)
-		self.txt_scriptDate = wxTextCtrl(self,-1,"12/06/2002",wxDefaultPosition,wxDefaultSize)
-		self.spacer = wxWindow(self,-1, wxDefaultPosition,wxDefaultSize,0) 
+		self.txt_scriptDate = wxTextCtrl(self,-1,"12/06/2002",wx.DefaultPosition,wx.DefaultSize)
+		self.spacer = wxWindow(self,-1, wx.DefaultPosition,wx.DefaultSize,0) 
 		self.spacer.SetBackgroundColour(wxColor(222,222,222))
 		#self.lbl_authorityindication = gmEditArea.EditAreaPromptLabel(self,-1,"Indication")
 		#self.lbl_authoritynumber = gmEditArea.EditAreaPromptLabel(self,-1,"Auth No.")
-		#self.txt_authorityindication =  wxTextCtrl(self,-1,"",wxDefaultPosition,wxDefaultSize)
+		#self.txt_authorityindication =  wxTextCtrl(self,-1,"",wx.DefaultPosition,wx.DefaultSize)
 		#self.txt_authorityindication.Hide()
-		#self.sizer_authority.Add(self.spacer,1,wxEXPAND)
+		#self.sizer_authority.Add(self.spacer,1,wx.EXPAND)
 		self.sizer1.Add(1,0,20)
-		self.sizer1.Add(self.txt_scriptDate,3,wxEXPAND|wxALL,3)
+		self.sizer1.Add(self.txt_scriptDate,3,wx.EXPAND|wx.ALL,3)
 		#self.sizer1.Add(1,0,1)
-		self.sizer_authority.Add(self.sizer1,0,wxEXPAND)
+		self.sizer_authority.Add(self.sizer1,0,wx.EXPAND)
 		#-------------------------------------------------
 		#now create the editarea specific for prescribing
 		#-------------------------------------------------
@@ -122,7 +122,7 @@ class PrescriptionPanel (wxPanel, PatientHolder):
 		#---------------------------------------------------------------------
 		self.interactiontext_subheading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,_("Drug Interactions"))
 		self.sizer_divider_interaction_text = wxBoxSizer(wxHORIZONTAL) 
-		self.sizer_divider_interaction_text.Add(self.interactiontext_subheading,1, wxEXPAND)
+		self.sizer_divider_interaction_text.Add(self.interactiontext_subheading,1, wx.EXPAND)
 		self.interactiontxt = wxTextCtrl(self,-1,
 			"Mini-Drug interaction text goes here (click this for full description)\n \n"
 			"Also, try clicking on the list below with the right mouse button to see a pop up menu",		    
@@ -133,17 +133,17 @@ class PrescriptionPanel (wxPanel, PatientHolder):
 		#------------------------------------------------------------------------------------
 		self.itemsprescribedheading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,_("Items prescribed this consultation"))
 		self.sizer_itemsprescribed = wxBoxSizer(wxHORIZONTAL) 
-		self.sizer_itemsprescribed.Add(self.itemsprescribedheading,1, wxEXPAND)
+		self.sizer_itemsprescribed.Add(self.itemsprescribedheading,1, wx.EXPAND)
 		#--------------------------------------------------------------------------------------                                                                               
 		#add the list to contain the drugs person is allergic to
 		#
 		# c++ Default Constructor:
-		# wxListCtrl(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition,
-		# const wxSize& size = wxDefaultSize, long style = wxLC_ICON, 
-		# const wxValidator& validator = wxDefaultValidator, const wxString& name = "listCtrl")
+		# wxListCtrl(wxWindow* parent, wxWindowID id, const wxPoint& pos = wx.DefaultPosition,
+		# const wxSize& size = wx.DefaultSize, long style = wxLC_ICON, 
+		# const wxValidator& validator = wx.DefaultValidator, const wxString& name = "listCtrl")
 		#
 		#--------------------------------------------------------------------------------------
-		self.list_script = wxListCtrl(self, -1,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
+		self.list_script = wxListCtrl(self, -1,  wx.DefaultPosition, wx.DefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
 		self.list_script.SetFont(wxFont(10,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
 		EVT_RIGHT_UP(self.list_script, self.OnRightClickUp)
 		#----------------------------------------
@@ -178,14 +178,14 @@ class PrescriptionPanel (wxPanel, PatientHolder):
 		#add all elements to the main background sizer
 		#---------------------------------------------
 		self.mainsizer = wxBoxSizer(wxVERTICAL)
-		self.mainsizer.Add(self.scriptpanelheading,0,wxEXPAND)
-		self.mainsizer.Add(self.sizer_authority,1,wxEXPAND)
-		self.mainsizer.Add(self.editarea,15,wxEXPAND)
-		self.mainsizer.Add(self.sizer_divider_interaction_text,0,wxEXPAND)
-		self.mainsizer.Add(self.interactiontxt,4,wxEXPAND)
-		self.mainsizer.Add(self.itemsprescribedheading,0,wxEXPAND)
-		self.mainsizer.Add(self.list_script,4,wxEXPAND)
-		self.mainsizer.Add(self.alertpanel,0,wxEXPAND)
+		self.mainsizer.Add(self.scriptpanelheading,0,wx.EXPAND)
+		self.mainsizer.Add(self.sizer_authority,1,wx.EXPAND)
+		self.mainsizer.Add(self.editarea,15,wx.EXPAND)
+		self.mainsizer.Add(self.sizer_divider_interaction_text,0,wx.EXPAND)
+		self.mainsizer.Add(self.interactiontxt,4,wx.EXPAND)
+		self.mainsizer.Add(self.itemsprescribedheading,0,wx.EXPAND)
+		self.mainsizer.Add(self.list_script,4,wx.EXPAND)
+		self.mainsizer.Add(self.alertpanel,0,wx.EXPAND)
 		self.SetSizer(self.mainsizer)
 		self.SetAutoLayout(True)
 		self.Show(True)

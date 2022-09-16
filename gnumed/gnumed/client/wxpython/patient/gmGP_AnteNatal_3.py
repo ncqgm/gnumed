@@ -10,7 +10,7 @@ from Gnumed.wxpython import gmGuiElement_AlertCaptionPanel          #panel to ho
 from Gnumed.wxpython import gmPlugin_Patient, gmEditArea
 
 from Gnumed.wxpython.gmPatientHolder import PatientHolder
-ID_ANCNOTEBOOK =wxNewId()
+ID_ANCNOTEBOOK =wx.NewId()
 #---------------------------------------------------------------------------
 
 class CustomDataTable(wxPyGridTableBase):
@@ -143,12 +143,12 @@ class CustTableGrid(wxGrid):
 #---------------------------------------------------------------------------
 class AntenatalPanel (wxPanel , PatientHolder):
      def __init__(self,parent, id):
-  	  wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxNO_BORDER)
+  	  wxPanel.__init__(self, parent, id,wx.DefaultPosition,wx.DefaultSize,wxNO_BORDER)
 	  PatientHolder.__init__(self)
 	  self.sizer = wxBoxSizer(wxHORIZONTAL)
-	  self.notebook1 = wxNotebook(self, -1, wxDefaultPosition, wxDefaultSize, style =0)
-	  ListScript_ID = wxNewId()                                                         #can use wxLC_VRULES to put faint cols in list
-	  #self.List_Script = wxListCtrl(self.notebook1, ListScript_ID,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxSUNKEN_BORDER)
+	  self.notebook1 = wxNotebook(self, -1, wx.DefaultPosition, wx.DefaultSize, style =0)
+	  ListScript_ID = wx.NewId()                                                         #can use wxLC_VRULES to put faint cols in list
+	  #self.List_Script = wxListCtrl(self.notebook1, ListScript_ID,  wx.DefaultPosition, wx.DefaultSize,wxLC_REPORT|wxSUNKEN_BORDER)
 	  #self.List_Script.SetForegroundColour(wxColor(131,129,131))
 	  self.firstvisitpanel = wxPanel(self.notebook1,-1)
 	  self.scanpanel = wxPanel(self.notebook1,-1)
@@ -159,7 +159,7 @@ class AntenatalPanel (wxPanel , PatientHolder):
 	  #self.notebook1.AddPage(self.grid, "Scans")
 	  self.notebook1.SetSelection(0) 
 	  self.szr_notebook = wxNotebookSizer(self.notebook1)
-	  self.sizer.AddSizer(self.szr_notebook,1,wxEXPAND)
+	  self.sizer.AddSizer(self.szr_notebook,1,wx.EXPAND)
 	  self.SetSizer(self.sizer)
 	  self.sizer.Fit(self) 
           self.SetAutoLayout(True)

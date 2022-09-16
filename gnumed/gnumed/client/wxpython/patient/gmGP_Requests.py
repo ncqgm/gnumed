@@ -34,7 +34,7 @@ import gmEditArea             			#panel class holding editing prompts and text b
 import gmPlugin_Patient
 from gmPatientHolder import PatientHolder
 
-ID_REQUESTSLIST = wxNewId()
+ID_REQUESTSLIST = wx.NewId()
 gmSECTION_REQUESTS = 9
 #------------------------------------
 #Dummy data to simulate script items
@@ -60,7 +60,7 @@ requestprompts = {
 
 class RequestsPanel (wxPanel, PatientHolder):
      def __init__(self,parent, id):
-		wxPanel.__init__(self, parent, id,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER)
+		wxPanel.__init__(self, parent, id,wx.DefaultPosition,wx.DefaultSize,wxRAISED_BORDER)
 		PatientHolder.__init__(self)
 		#--------------------
 		#add the main heading
@@ -71,11 +71,11 @@ class RequestsPanel (wxPanel, PatientHolder):
 		#--------------------------------------------
 		self.sizer_top  = wxBoxSizer(wxHORIZONTAL)
 		#FIXME remove the date text below
-		self.txt_requestDate = wxTextCtrl(self, -1, "12/06/2002",wxDefaultPosition,wxDefaultSize)
-		self.spacer = wxWindow(self,-1, wxDefaultPosition,wxDefaultSize,0) 
+		self.txt_requestDate = wxTextCtrl(self, -1, "12/06/2002",wx.DefaultPosition,wx.DefaultSize)
+		self.spacer = wxWindow(self,-1, wx.DefaultPosition,wx.DefaultSize,0) 
 		self.spacer.SetBackgroundColour(wxColor(222,222,222))
-		self.sizer_top.Add(self.spacer,6,wxEXPAND)
-		self.sizer_top.Add(self.txt_requestDate,1,wxEXPAND|wxALL,2)
+		self.sizer_top.Add(self.spacer,6,wx.EXPAND)
+		self.sizer_top.Add(self.txt_requestDate,1,wx.EXPAND|wx.ALL,2)
 		self.sizer_top.Add(10,0,0)
 		#---------------------------------------------
 		#now create the editarea specific for requests
@@ -86,17 +86,17 @@ class RequestsPanel (wxPanel, PatientHolder):
 		#-----------------------------------------------------------------
 		self.requestsgenerated_subheading = gmGuiElement_DividerCaptionPanel.DividerCaptionPanel(self,-1,_("Requests generated this consultation"))
 		self.sizer_requestsgenerated = wxBoxSizer(wxHORIZONTAL) 
-		self.sizer_requestsgenerated.Add(self.requestsgenerated_subheading,1, wxEXPAND)
+		self.sizer_requestsgenerated.Add(self.requestsgenerated_subheading,1, wx.EXPAND)
 		#--------------------------------------------------------------------------------------                                                                               
 		#add the list to contain the requests the doctor has ordered for person this consult
 		#
 		# c++ Default Constructor:
-		# wxListCtrl(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition,
-		# const wxSize& size = wxDefaultSize, long style = wxLC_ICON, 
-		# const wxValidator& validator = wxDefaultValidator, const wxString& name = "listCtrl")
+		# wxListCtrl(wxWindow* parent, wxWindowID id, const wxPoint& pos = wx.DefaultPosition,
+		# const wxSize& size = wx.DefaultSize, long style = wxLC_ICON, 
+		# const wxValidator& validator = wx.DefaultValidator, const wxString& name = "listCtrl")
 		#
 		#--------------------------------------------------------------------------------------
-		self.list_requests = wxListCtrl(self, ID_REQUESTSLIST,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
+		self.list_requests = wxListCtrl(self, ID_REQUESTSLIST,  wx.DefaultPosition, wx.DefaultSize,wxLC_REPORT|wxLC_NO_HEADER|wxSUNKEN_BORDER)
 		self.list_requests.SetFont(wxFont(12,wxSWISS, wxNORMAL, wxNORMAL, False, ''))
 		#----------------------------------------	  
 		# add some dummy data to the allergy list
@@ -124,13 +124,13 @@ class RequestsPanel (wxPanel, PatientHolder):
 		#---------------------------------------------
 		self.mainsizer = wxBoxSizer(wxVERTICAL)
 		
-		self.mainsizer.Add(self.requestspanelheading,0,wxEXPAND)
+		self.mainsizer.Add(self.requestspanelheading,0,wx.EXPAND)
 		self.mainsizer.Add(0,5,0)
-		self.mainsizer.Add(self.sizer_top,0,wxEXPAND)
-		self.mainsizer.Add(self.editarea,9,wxEXPAND)
-		self.mainsizer.Add(self.requestsgenerated_subheading,0,wxEXPAND)
-		self.mainsizer.Add(self.list_requests,7,wxEXPAND)
-		self.mainsizer.Add(self.alertpanel,0,wxEXPAND)
+		self.mainsizer.Add(self.sizer_top,0,wx.EXPAND)
+		self.mainsizer.Add(self.editarea,9,wx.EXPAND)
+		self.mainsizer.Add(self.requestsgenerated_subheading,0,wx.EXPAND)
+		self.mainsizer.Add(self.list_requests,7,wx.EXPAND)
+		self.mainsizer.Add(self.alertpanel,0,wx.EXPAND)
 		self.SetSizer(self.mainsizer)
 		self.SetAutoLayout(True)
 		self.Show(True)

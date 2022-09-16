@@ -194,7 +194,7 @@ uHl\xa1\x11\xa9dD\xb3q\x9d\x11\xe5\xa7\xf2\xea\x0f\xea\xd3\x90\x86\xf4\xb7tD\
 	#----------------------------------------------------------------------
 	#Add a notebook control to hold the lists of things eg scripts, recalls
 	#----------------------------------------------------------------------
-	#self.notebook1 = Notebook(self, -1, wxDefaultPosition, wxDefaultSize, style = 0)
+	#self.notebook1 = Notebook(self, -1, wx.DefaultPosition, wx.DefaultSize, style = 0)
         self.notebook1 = Notebook(self, -1)
 	#-------------------------------------------------------------------------
 	#Associate an imagelist with the notebook and add images to the image list
@@ -213,15 +213,15 @@ uHl\xa1\x11\xa9dD\xb3q\x9d\x11\xe5\xa7\xf2\xea\x0f\xea\xd3\x90\x86\xf4\xb7tD\
 	#now create the lists that will sit on the notebook pages, and add them to the page
 	#----------------------------------------------------------------------------------
 	szr_script_page= wxBoxSizer(wxVERTICAL)
-	ListScript_ID = wxNewId()                                                         #can use wxLC_VRULES to put faint cols in list
-       	self.List_Script = wxListCtrl(self.notebook1, ListScript_ID,  wxDefaultPosition, wxDefaultSize,wxLC_REPORT|wxSUNKEN_BORDER)
-        szr_script_page.Add(self.List_Script,100,wxEXPAND)
+	ListScript_ID = wx.NewId()                                                         #can use wxLC_VRULES to put faint cols in list
+       	self.List_Script = wxListCtrl(self.notebook1, ListScript_ID,  wx.DefaultPosition, wx.DefaultSize,wxLC_REPORT|wxSUNKEN_BORDER)
+        szr_script_page.Add(self.List_Script,100,wx.EXPAND)
         self.List_Script.SetForegroundColour(wxColor(131,129,131))
-	self.List_Requests = wxListCtrl(self.notebook1, -1, wxDefaultPosition, wxDefaultSize,wxSUNKEN_BORDER)
-	self.List_Measurements = wxListCtrl(self.notebook1, -1, wxDefaultPosition, wxDefaultSize,wxSUNKEN_BORDER)
-	self.List_Referrals = wxListCtrl(self.notebook1, -1, wxDefaultPosition, wxDefaultSize,wxSUNKEN_BORDER)
-	self.List_Recalls = wxListCtrl(self.notebook1, -1, wxDefaultPosition, wxDefaultSize,wxSUNKEN_BORDER)
-	self.List_Inbox = wxListCtrl(self.notebook1, -1, wxDefaultPosition, wxDefaultSize,wxSUNKEN_BORDER)
+	self.List_Requests = wxListCtrl(self.notebook1, -1, wx.DefaultPosition, wx.DefaultSize,wxSUNKEN_BORDER)
+	self.List_Measurements = wxListCtrl(self.notebook1, -1, wx.DefaultPosition, wx.DefaultSize,wxSUNKEN_BORDER)
+	self.List_Referrals = wxListCtrl(self.notebook1, -1, wx.DefaultPosition, wx.DefaultSize,wxSUNKEN_BORDER)
+	self.List_Recalls = wxListCtrl(self.notebook1, -1, wx.DefaultPosition, wx.DefaultSize,wxSUNKEN_BORDER)
+	self.List_Inbox = wxListCtrl(self.notebook1, -1, wx.DefaultPosition, wx.DefaultSize,wxSUNKEN_BORDER)
 
 	self.notebook1.AddPage(self.List_Script, '', True, tabimage_Script)
 	#self.notebook1.AddPage(True, tabimage_Inbox, szr_script_page, '')
@@ -305,7 +305,7 @@ uHl\xa1\x11\xa9dD\xb3q\x9d\x11\xe5\xa7\xf2\xea\x0f\xea\xd3\x90\x86\xf4\xb7tD\
 	self.List_Script.SetColumnWidth(4, wxLIST_AUTOSIZE)
 	self.List_Script.SetColumnWidth(5, wxLIST_AUTOSIZE)
         self.List_Script.SetColumnWidth(6, 150)
-	sizer.AddSizer(szr_notebook,40,wxEXPAND)
+	sizer.AddSizer(szr_notebook,40,wx.EXPAND)
 	self.SetSizer(sizer)  #set the sizer
 	sizer.Fit(self)             #set to minimum size as calculated by sizer
         self.SetAutoLayout(True)                 #tell frame to use the sizer

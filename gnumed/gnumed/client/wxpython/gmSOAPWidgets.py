@@ -13,7 +13,7 @@ import wx
 
 
 # GNUmed
-from Gnumed.pycommon import gmDispatcher, gmExceptions, gmTools, gmCfg
+from Gnumed.pycommon import gmDispatcher, gmExceptions, gmTools, gmCfgDB
 from Gnumed.wxpython import gmResizingWidgets, gmEMRStructWidgets, gmGuiHelpers, gmRegetMixin, gmEditArea, gmPatSearchWidgets, gmVaccWidgets
 from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter, gmPraxis, gmPersonSearch, gmStaff
 

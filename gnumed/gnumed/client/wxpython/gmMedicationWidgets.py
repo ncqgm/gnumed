@@ -266,7 +266,7 @@ def manage_substance_intakes(parent=None, emr=None):
 		for i in intakes:
 			started = i.medically_formatted_start
 			items.append ([
-				'%s%s %s %s %s' % (
+				'%s%s %s %s %s %s' % (
 					i['substance'],
 					gmTools.coalesce(i['drug_product'], '', ' (%s)'),
 					i['amount'],

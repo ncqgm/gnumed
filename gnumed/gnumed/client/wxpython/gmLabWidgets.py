@@ -16,7 +16,7 @@ import wx
 #import wx.lib.mixins.listctrl as listmixins
 
 
-from Gnumed.pycommon import gmCfgDB, gmExceptions, gmMatchProvider, gmDispatcher, gmPG2
+from Gnumed.pycommon import gmExceptions, gmMatchProvider, gmDispatcher, gmPG2
 from Gnumed.business import gmPerson, gmPathLab, gmStaff
 from Gnumed.wxpython import gmGuiHelpers, gmPhraseWheel
 
