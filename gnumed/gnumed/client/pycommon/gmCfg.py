@@ -343,7 +343,7 @@ limit 1""" % where_clause
 		elif isinstance(value, list):
 			# there can be different syntaxes for list types so don't try to cast them
 			pass
-		elif isinstance(value, buffer):
+		elif isinstance(value, (bytes, memoryview)):
 			# can go directly into bytea
 			pass
 		else:

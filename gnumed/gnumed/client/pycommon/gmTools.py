@@ -690,10 +690,10 @@ def old_unicode_csv_reader(unicode_csv_data, dialect=csv.excel, encoding='utf-8'
 		if is_dict_reader is not True:
 			raise KeyError
 		kwargs['restkey'] = default_csv_reader_rest_key
-		csv_reader = csv.DictReader(unicode2charset_encoder(unicode_csv_data), dialect=dialect, **kwargs)
+		csv_reader = csv.DictReader(old_unicode2charset_encoder(unicode_csv_data), dialect=dialect, **kwargs)
 	except KeyError:
 		is_dict_reader = False
-		csv_reader = csv.reader(unicode2charset_encoder(unicode_csv_data), dialect=dialect, **kwargs)
+		csv_reader = csv.reader(old_unicode2charset_encoder(unicode_csv_data), dialect=dialect, **kwargs)
 
 	for row in csv_reader:
 		# decode ENCODING back to Unicode, cell by cell:
@@ -826,7 +826,7 @@ def get_unique_filename(prefix=None, suffix=None, tmp_dir=None, include_timestam
 def __make_symlink_on_windows(physical_name, link_name):
 	import ctypes
 	#windows_create_symlink = ctypes.windll.kernel32.CreateSymbolicLinkW
-	kernel32 = ctype.WinDLL('kernel32', use_last_error = True)
+	kernel32 = ctypes.WinDLL('kernel32', use_last_error = True)
 	windows_create_symlink = kernel32.CreateSymbolicLinkW
 	windows_create_symlink.argtypes = (ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.c_uint32)
 	windows_create_symlink.restype = ctypes.c_ubyte
@@ -1873,6 +1873,7 @@ def get_icon(wx=None):
 	if found_as is None:
 		_log.warning('no icon file found, falling back to builtin (ugly) icon')
 		icon_bmp_data = wx.BitmapFromXPMData(pickle.loads(zlib.decompress(__icon_serpent)))
+		icon = wx.Icon()
 		icon.CopyFromBitmap(icon_bmp_data)
 	else:
 		_log.debug('icon found in [%s]', found_as)

@@ -348,7 +348,7 @@ class cProviderInbox:
 	def delete_message(self, pk=None):
 		return delete_inbox_message(inbox_message = pk)
 	#--------------------------------------------------------
-	def add_message(message_type=None, subject=None, patient=None):
+	def add_message(self, message_type=None, subject=None, patient=None):
 		return create_inbox_message (
 			message_type = message_type,
 			subject = subject,

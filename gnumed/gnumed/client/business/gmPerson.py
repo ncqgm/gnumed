@@ -547,7 +547,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 				if isinstance(value, pyDT.datetime):
 					if value.tzinfo is None:
-						raise ValueError('datetime.datetime instance is lacking a time zone: [%s]' % dt.isoformat())
+						raise ValueError('datetime.datetime instance is lacking a time zone: [%s]' % value.isoformat())
 				else:
 					raise TypeError('[%s]: type [%s] (%s) invalid for attribute [dob], must be datetime.datetime or None' % (self.__class__.__name__, type(value), value))
 
@@ -2049,7 +2049,6 @@ class cPatient(cPerson):
 			stack_logged = True
 
 		self.is_patient = True
-		from Gnumed.business import gmClinicalRecord
 		emr = gmClinicalRecord.cClinicalRecord(aPKey = self._payload[self._idx['pk_identity']])
 
 		_log.debug('returning EMR for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], threading.get_ident())
@@ -2751,7 +2750,7 @@ if __name__ == '__main__':
 		print("pat.emr", pat.emr)
 
 	#--------------------------------------------------------
-	def test_ext_id():
+	def test_ext_id2():
 		person = cPerson(aPK_obj = 12)
 		print(person.suggest_external_id(target = 'Orthanc'))
 

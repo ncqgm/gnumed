@@ -30,7 +30,7 @@ class AccessDenied(Exception):
 	def __repr__(self):
 		txt = self.errmsg
 		if self.source is not None:
-			txt += '\nSource: %s' % source
+			txt += '\nSource: %s' % self.source
 		if self.code is not None:
 			txt += '\nCode: %s' % self.code
 		if self.details is not None:

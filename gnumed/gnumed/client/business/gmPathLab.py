@@ -211,8 +211,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 		if len(codes) > 0:
 			txt += '\n'
 			for c in codes:
-				txt += '%s  %s: %s (%s - %s)\n' % (
-					(' ' * left_margin),
+				txt += '  %s: %s (%s - %s)\n' % (
 					c['code'],
 					c['term'],
 					c['name_short'],
@@ -2607,7 +2606,7 @@ def __tests2latex_minipage(results=None, width='1.5cm', show_time=False, show_ra
 				if t['unified_target_range'] is not None:
 					tmp += '{\\tiny %s}' % t['unified_target_range']
 				else:
-					tmp += '{\\tiny %s}' % (
+					tmp += '{\\tiny %s%s}' % (
 						gmTools.coalesce(t['unified_target_min'], '- ', '%s - '),
 						gmTools.coalesce(t['unified_target_max'], '', '%s')
 					)

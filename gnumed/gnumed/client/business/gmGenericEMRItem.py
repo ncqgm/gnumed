@@ -380,8 +380,8 @@ def generic_item_type_str(table):
 def edit_xxx(parent=None, xxx=None, single_entry=False, presets=None):
 	pass
 #------------------------------------------------------------
-def delete_xxx():
-	pass
+#def delete_xxx():
+#	pass
 #------------------------------------------------------------
 def manage_xxx():
 	pass

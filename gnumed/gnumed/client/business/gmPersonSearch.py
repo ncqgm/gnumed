@@ -497,7 +497,7 @@ class cPatientSearcher_SQL:
 		# sufficient data ?
 		if len(where_snippets) == 0:
 			_log.error('invalid search dict structure')
-			_log.debug(data)
+			_log.debug(dto)
 			return None
 
 		cmd = """
@@ -542,7 +542,7 @@ class cPatientSearcher_SQL:
 		if len(parts_list) == 2:
 			if date_count > 0:
 				# FIXME: either "name date" or "date date"
-				_log.error("don't know how to generate queries for [%s]" % search_term)
+				_log.error("don't know how to generate queries for [%s]" % part)
 				return []
 			# no date = "first last" or "last first"
 			queries = []

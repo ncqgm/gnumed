@@ -158,7 +158,7 @@ def guess_ext_by_mimetype(mimetype=''):
 	)
 
 	if ext is not None:
-		_log.debug('<%s>: %s (%s)' % (mimetype, ext, candidate))
+		_log.debug('<%s>: %s' % (mimetype, ext))
 		return ext
 
 	_log.error("<%s>: no suitable file extension found in config files" % mimetype)

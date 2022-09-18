@@ -711,7 +711,7 @@ def format_pregnancy_weeks(age):
 	return '%s%s%s%s' % (
 		int(weeks),
 		_('interval_format_tag::weeks::w')[-1:],
-		interval.days,
+		days,
 		_('interval_format_tag::days::d')[-1:]
 	)
 
@@ -2385,7 +2385,7 @@ if __name__ == '__main__':
 	#-------------------------------------------------
 	def test_get_date_of_weekday_in_week_of_date():
 		dt = pydt_now_here()
-		print('weekday', base_dt.isoweekday(), '(2day):', dt)
+		print('weekday', dt.isoweekday(), '(2day):', dt)
 		for weekday in range(8):
 			dt = get_date_of_weekday_in_week_of_date(weekday)
 			print('weekday', weekday, '(same):', dt)

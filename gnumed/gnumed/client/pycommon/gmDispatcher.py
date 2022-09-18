@@ -316,7 +316,7 @@ def _call(receiver, **kwds):
 		acceptable_args = func_code_def.co_varnames[0:func_code_def.co_argcount]
 	else:
 		_log.error('<%s> must be instance, method or function, but is [%s]', str(receiver), type(receiver))
-		raise TypeError('DISPATCHER ERROR: _call(): <%s> must be instance, method or function, but is []' % (str(receiver), type(receiver)))
+		raise TypeError('DISPATCHER ERROR: _call(): <%s> must be instance, method or function, but is [%s]' % (str(receiver), type(receiver)))
 
 	# 0x08: bit for whether func uses **kwds syntax
 	if not (func_code_def.co_flags & 0x08):
