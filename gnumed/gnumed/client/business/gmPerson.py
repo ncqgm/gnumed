@@ -2083,7 +2083,6 @@ class cPatient(cPerson):
 			stack_logged = True
 
 		self.is_patient = True
-		from Gnumed.business import gmClinicalRecord
 		emr = gmClinicalRecord.cClinicalRecord(aPKey = self._payload[self._idx['pk_identity']])
 
 		_log.debug('returning EMR for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], threading.get_ident())
@@ -2788,6 +2787,11 @@ if __name__ == '__main__':
 	def test_current_patient():
 		pat = gmCurrentPatient()
 		print("pat.emr", pat.emr)
+
+	#--------------------------------------------------------
+	def test_ext_id2():
+		person = cPerson(aPK_obj = 12)
+		print(person.suggest_external_id(target = 'Orthanc'))
 
 	#--------------------------------------------------------
 	def test_assimilate_identity():
