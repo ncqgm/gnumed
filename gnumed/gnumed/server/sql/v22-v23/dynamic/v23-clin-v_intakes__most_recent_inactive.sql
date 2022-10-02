@@ -15,7 +15,9 @@ create view clin.v_intakes__most_recent_inactive as
 select c_vii.* from
 	(
 		select
-			c_ir.fk_intake, max(c_ir.discontinued) as most_recent_discontinued
+			c_ir.fk_intake,
+			max(c_ir.discontinued)
+				as most_recent_discontinued
 		from clin.intake_regimen c_ir
 		where c_ir.discontinued is not null
 		group by c_ir.fk_intake

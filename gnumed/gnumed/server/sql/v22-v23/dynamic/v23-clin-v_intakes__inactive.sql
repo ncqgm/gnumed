@@ -110,8 +110,9 @@ from
 			left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
 where
 	c_ir.discontinued IS NOT NULL
+		AND
+	c_ir.discontinued < clock_timestamp()
 ;
-
 
 comment on view clin.v_intakes__inactive is
 	'Which substances the patient has been taking.';

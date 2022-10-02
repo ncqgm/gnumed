@@ -118,7 +118,13 @@ where
 
 
 comment on view clin.v_intakes__active is
-	'Which substances the patient is currently taking.';
+'Which substances the patient is currently taking
+where "currently" means either of:
+.
+- .discontinued IS NULL
+- .discontinued is in the future
+- no regimen available (therefore, no .discontinued, IOW, ongoing)
+';
 
 grant select on clin.v_intakes__active to group "gm-doctors";
 

@@ -76,7 +76,7 @@ alter table clin.intake_regimen
 alter table clin.intake_regimen
 	add foreign key (fk_intake)
 		references clin.intake(pk)
-		on delete restrict
+		on delete restrict		-- set null
 		on update cascade;
 
 -- --------------------------------------------------------------
@@ -204,7 +204,6 @@ begin
 	if NEW.discontinued is NULL then
 		NEW.discontinue_reason := NULL;
 	end if;
-
 	return NEW;
 end;';
 
