@@ -1948,15 +1948,15 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 
 		This means there is no way to *revert* to the default policy :-(
 		"""
-		# explicit policy ?
-		if widths is not None:
+		if widths:
+			# explicit policy ?
 			self.__widths = widths
 			for idx in range(len(self.__widths)):
 				self.SetColumnWidth(idx, self.__widths[idx])
 			return
 
 		# previous policy ?
-		if self.__widths is not None:
+		if self.__widths:
 			for idx in range(len(self.__widths)):
 				self.SetColumnWidth(idx, self.__widths[idx])
 			return

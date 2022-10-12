@@ -57,6 +57,8 @@ _log = logging.getLogger('gm.meds')
 #============================================================
 DEFAULT_MEDICATION_HISTORY_EPISODE = _('Medication history')
 
+COMMENT_FOR_UNKNOWN_START = '?'
+
 URL_renal_insufficiency = 'https://www.dosing.de/nierebck.php'
 URL_renal_insufficiency_search_template = 'https://www.google.com/search?q=site:dosing.de+%s'
 
@@ -457,7 +459,7 @@ class cSubstanceDose(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows[0][0]
 
-	is_in_use_by_patients = property(_get_is_in_use_by_patients, lambda x:x)
+	is_in_use_by_patients = property(_get_is_in_use_by_patients)
 
 	#--------------------------------------------------------
 	def _get_is_drug_component(self):
@@ -472,7 +474,7 @@ class cSubstanceDose(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows[0][0]
 
-	is_drug_component = property(_get_is_drug_component, lambda x:x)
+	is_drug_component = property(_get_is_drug_component)
 
 	#--------------------------------------------------------
 	def _get_formatted_units(self, short=True):
@@ -2043,7 +2045,6 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		'pk_episode',
 		'pk_encounter'
 	]
-
 	#--------------------------------------------------------
 	def format_maximum_information(self, patient=None):
 		return self.format (
@@ -2329,7 +2330,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 
 		return drug.external_code_type
 
-	external_code_type = property(_get_external_code_type, lambda x:x)
+	external_code_type = property(_get_external_code_type)
 
 	#--------------------------------------------------------
 	def _get_containing_drug(self):
@@ -2338,7 +2339,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 
 		return cDrugProduct(aPK_obj = self._payload[self._idx['pk_drug_product']])
 
-	containing_drug = property(_get_containing_drug, lambda x:x)
+	containing_drug = property(_get_containing_drug)
 
 	#--------------------------------------------------------
 	def _get_formatted_units(self, short=True):
@@ -3419,7 +3420,8 @@ if __name__ == "__main__":
 			#print i
 			print('------------------------------------------------')
 			#print('\n'.join(i.format_maximum_information()))
-			print('\n'.join(i.format()))
+			#print('\n'.join(i.format_single_line()))
+			print(i.format_single_line(terse = True))
 			input()
 
 	#--------------------------------------------------------
@@ -3503,7 +3505,7 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------
 	# generic
-	test_URLs()
+	#test_URLs()
 	#test_drug2renal_insufficiency_url()
 	#test_interaction_check()
 	#test_medically_formatted_start_end()

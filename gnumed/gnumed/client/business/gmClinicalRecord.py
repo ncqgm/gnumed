@@ -1497,23 +1497,18 @@ WHERE
 
 		where_parts = ['pk_patient = %(pat)s']
 		args = {'pat': self.pk_patient}
-
 		if include_inactive:
 			table = 'clin.v_intakes'
 		else:
 			table = 'clin.v_intakes__active'
-
 		if exclude_potential_abuses:
 			where_parts.append('use_type IS NULL')
-
 		if exclude_medications:
 			where_parts.append('use_type IS NOT NULL')
-
 		if order_by is None:
 			order_by = ''
 		else:
 			order_by = 'ORDER BY %s' % order_by
-
 		cmd = "SELECT * FROM %s WHERE %s %s" % (
 			table,
 			'\nAND '.join(where_parts),
@@ -1521,13 +1516,10 @@ WHERE
 		)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		intakes = [ gmMedication.cSubstanceIntakeEntry(row = {'idx': idx, 'data': r, 'pk_field': 'pk_intake'})  for r in rows ]
-
-		if episodes is not None:
+		if episodes:
 			intakes = [ i for i in intakes if i['pk_episode'] in episodes  ]
-
-		if issues is not None:
+		if issues:
 			intakes = [ i for i in intakes if i ['pk_health_issue'] in issues ]
-
 		return intakes
 
 	#--------------------------------------------------------

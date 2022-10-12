@@ -16,13 +16,12 @@ import wx.grid
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-	_ = lambda x:x
+	from Gnumed.pycommon import gmI18N
 
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
-from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmNetworkTools
 
 from Gnumed.business import gmPerson
@@ -39,7 +38,6 @@ from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmEditArea
 from Gnumed.wxpython import gmCfgWidgets
 from Gnumed.wxpython import gmListWidgets
-from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmFormWidgets
 from Gnumed.wxpython import gmAllergyWidgets
 from Gnumed.wxpython import gmSubstanceMgmtWidgets

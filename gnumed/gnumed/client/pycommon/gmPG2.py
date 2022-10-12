@@ -386,7 +386,7 @@ def database_schema_compatible(link_obj=None, version=None, verbose=True):
 	if rows[0]['md5'] != expected_hash:
 		_log.error('database schema version mismatch')
 		_log.error('expected: %s (%s)' % (version, expected_hash))
-		_log.error('detected: %s (%s)' % (get_schema_version(link_obj=link_obj), rows[0]['md5']))
+		_log.error('detected: %s (%s)' % (get_schema_version(link_obj = link_obj), rows[0]['md5']))
 		if verbose:
 			_log.debug('schema dump follows:')
 			for line in get_schema_structure(link_obj = link_obj).split():

@@ -4241,6 +4241,7 @@ LIMIT 50"""
 		lab = gmPathLab.create_test_org(name = self.GetValue().strip())
 		self.SetText(value = lab['unit'], data = lab['pk_test_org'])
 		return
+
 	#------------------------------------------------------------
 	def _data2instance(self):
 		return gmPathLab.cTestOrg(aPK_obj = self.GetData())

@@ -1632,7 +1632,6 @@ if __name__ == '__main__':
 	app = wx.PyWidgetTester(size = (600, 300))
 	app.SetWidget(cSubstancePhraseWheel, -1)
 	app.MainLoop()
-	#manage_substance_intakes()
 	edit_single_component_generic_drug (
 		single_entry = True,
 		fields = {'substance': {'value': 'Ibuprofen', 'data': None}},

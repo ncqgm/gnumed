@@ -592,6 +592,7 @@ class cMatchProvider_SQL2(cMatchProvider):
 				continue
 			matches = self._rows2matches(rows)
 			return (True, matches)
+
 		# none found whatsoever
 		return (False, [])
 

@@ -87,7 +87,7 @@ class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 		self.__data = items
 		pos = len(items) + 1
 		for item in items:
-			self.InsertItem(pos, label=item['list_label'])
+			self.InsertItem(pos, label = item['list_label'])
 	#--------------------------------------------------------
 	def GetSelectedItemData(self):
 		sel_idx = self.GetFirstSelected()
@@ -220,7 +220,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 
 		self.suppress_text_update_smarts = suppress_smarts
 
-		if data is not None:
+		if data:
 			self.suppress_text_update_smarts = True
 			self.data = self._dictify_data(data = data, value = value)
 		super(cPhraseWheelBase, self).SetValue(value)
@@ -307,6 +307,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 			raise ValueError('[add_callback_on_selection]: ignoring callback [%s], it is not callable' % callback)
 
 		self._on_selection_callbacks.append(callback)
+
 	#---------------------------------------------------------
 	def add_callback_on_set_focus(self, callback=None):
 		"""Add a callback for invocation when getting focus."""
@@ -314,6 +315,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 			raise ValueError('[add_callback_on_set_focus]: ignoring callback [%s] - not callable' % callback)
 
 		self._on_set_focus_callbacks.append(callback)
+
 	#---------------------------------------------------------
 	def add_callback_on_lose_focus(self, callback=None):
 		"""Add a callback for invocation when losing focus."""
@@ -673,7 +675,6 @@ class cPhraseWheelBase(wx.TextCtrl):
 	def __on_lost_focus(self):
 		self.SetSelection(1,1)
 		self.SetFont(self.__non_edit_font)
-		#self.Refresh()		# already done in .display_as_valid() below
 
 		is_valid = True
 
