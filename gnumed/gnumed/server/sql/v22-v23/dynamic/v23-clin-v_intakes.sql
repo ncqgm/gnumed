@@ -70,7 +70,6 @@ from
 		join clin.encounter c_enc on (c_i.fk_encounter = c_enc.pk)
 		join clin.episode c_epi on (c_i.fk_episode = c_epi.pk)
 			left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
-		left join clin.intake_regimen c_ir on (c_ir.fk_intake = c_i.pk)
 ;
 
 comment on view clin.v_intakes is
