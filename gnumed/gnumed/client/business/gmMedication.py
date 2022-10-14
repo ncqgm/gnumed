@@ -130,7 +130,7 @@ def drug2renal_insufficiency_url(search_term=None):
 
 	elif isinstance(search_term, cSubstanceDose):
 		names.append(search_term['substance'])
-		if search_term['atc'] is not None:
+		if search_term['atc_substance'] is not None:
 			terms.append(search_term['atc_substance'])
 
 	elif search_term is not None:
