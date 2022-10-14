@@ -37,12 +37,12 @@ from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmHooks
 
 from Gnumed.business import gmDemographicRecord
-from Gnumed.business import gmXdtMappings
 from Gnumed.business import gmProviderInbox
 from Gnumed.business import gmExportArea
 from Gnumed.business import gmBilling
 from Gnumed.business import gmAutoHints
 from Gnumed.business.gmDocuments import cDocumentFolder
+from Gnumed.business.gmXdtMappings import map_gender_gm2xdt
 
 
 _log = logging.getLogger('gm.person')
@@ -1265,7 +1265,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		gdt_file.write(template % ('%03d' % (9 + len(self._payload[self._idx['lastnames']])), '3101', self._payload[self._idx['lastnames']]))
 		gdt_file.write(template % ('%03d' % (9 + len(self._payload[self._idx['firstnames']])), '3102', self._payload[self._idx['firstnames']]))
 		gdt_file.write(template % ('%03d' % (9 + len(self._payload[self._idx['dob']].strftime('%d%m%Y'))), '3103', self._payload[self._idx['dob']].strftime('%d%m%Y')))
-		gdt_file.write(template % ('010', '3110', gmXdtMappings.map_gender_gm2xdt[self._payload[self._idx['gender']]]))
+		gdt_file.write(template % ('010', '3110', map_gender_gm2xdt[self._payload[self._idx['gender']]]))
 		gdt_file.write(template % ('025', '6330', 'GNUmed::9206::encoding'))
 		gdt_file.write(template % ('%03d' % (9 + len(encoding)), '6331', encoding))
 		if external_id_type is None:
