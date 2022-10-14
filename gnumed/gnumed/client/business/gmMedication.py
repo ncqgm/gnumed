@@ -586,6 +586,123 @@ def delete_substance_dose(pk_dose=None):
 #------------------------------------------------------------
 class cSubstanceDoseMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 
+	_pattern = regex.compile(r'^\D+\s*\d+$', regex.UNICODE)	# match candidates are subjected to .strip()
+
+	# the "substance query" is run when the search fragment
+	# does NOT match the regex ._pattern (which is: "chars SPACE digits")
+	# IOW, when a name-only fragment has been entered
+	_substance_query = """-- substance dose match provider: search by substance only
+		SELECT
+			ARRAY[comb.pk_substance, comb.pk_dose]::INTEGER[]
+				AS data,
+			comb.substance || coalesce(' (' || comb.amount || ' ' || comb.unit || coalesce(' / ' || comb.dose_unit, '') || ')', '')
+				AS field_label,
+			comb.substance || coalesce(' ' || comb.amount || ' ' || comb.unit || coalesce(' / ' || comb.dose_unit, ''), '')
+				AS list_label
+		FROM ((
+			SELECT		-- plain substances w/o any doses available
+				pk AS pk_substance,
+				NULL AS pk_dose,
+				description AS substance,
+				NULL AS amount,
+				NULL AS unit,
+				NULL AS dose_unit
+			FROM
+				ref.substance
+		) UNION ALL (
+			SELECT		-- substance doses
+				pk_substance,
+				pk_dose,
+				substance,
+				amount,
+				unit,
+				dose_unit
+			FROM
+				ref.v_substance_doses
+		)) AS comb
+		WHERE
+			%(fragment_condition)s
+		ORDER BY
+			list_label
+		LIMIT 50"""
+	# the "dose query" is run when the search fragment
+	# DOES match the regex ._pattern (which is: "chars SPACE digits")
+	# which may make it a substance dose
+	_dose_query = """-- substance dose match provider: search by substance and strength
+		SELECT
+			ARRAY[r_vsd.pk_substance, r_vsd.pk_dose]::INTEGER[]
+				AS data,
+			(r_vsd.substance || ' (' || r_vsd.amount || ' ' || r_vsd.unit || coalesce(' / ' || r_vsd.dose_unit, '') || ')')
+				AS field_label,
+			(r_vsd.substance || ' ' || r_vsd.amount || ' ' || r_vsd.unit || coalesce(' / ' || r_vsd.dose_unit, ''))
+				AS list_label
+		FROM
+			ref.v_substance_doses r_vsd
+		WHERE
+			%(fragment_condition)s
+		ORDER BY
+			list_label
+		LIMIT 50"""
+
+	#--------------------------------------------------------
+	def __init__(self, queries = None, context = None):
+		super().__init__()
+		#self._SQL_data2match = cSubstanceDoseMatchProvider._dose_query % {'fragment_condition': 'pk_dose = %(pk)s'}
+
+	#--------------------------------------------------------
+	def getMatchesByPhrase(self, search_term):
+		"""Return matches for search_term at start of phrases."""
+		if cSubstanceDoseMatchProvider._pattern.match(search_term):
+			self._queries = [cSubstanceDoseMatchProvider._dose_query]
+			search_condition = """r_vsd.substance ILIKE %(subst)s
+				AND
+			r_vsd.amount::text ILIKE %(amount)s"""
+			self._args['subst'] = '%s%%' % regex.sub(r'\s*\d+$', '', search_term)
+			self._args['amount'] = '%s%%' % regex.sub(r'^\D+\s*', '', search_term)
+		else:
+			self._queries = [cSubstanceDoseMatchProvider._substance_query]
+			search_condition = "comb.substance ILIKE %(fragment)s"
+			self._args['fragment'] = "%s%%" % search_term
+		return self._find_matches(search_condition)
+
+	#--------------------------------------------------------
+	def getMatchesByWord(self, search_term):
+		"""Return matches for search_term at start of words inside phrases."""
+		if cSubstanceDoseMatchProvider._pattern.match(search_term):
+			self._queries = [cSubstanceDoseMatchProvider._dose_query]
+			subst = regex.sub(r'\s*\d+$', '', search_term)
+			subst = gmPG2.sanitize_pg_regex(expression = subst, escape_all = False)
+			search_condition = """r_vsd.substance ~* %(subst)s
+				AND
+			r_vsd.amount::text ILIKE %(amount)s"""
+			self._args['subst'] = '\m%s' % subst
+			self._args['amount'] = '%s%%' % regex.sub(r'^\D+\s*', '', search_term)
+		else:
+			self._queries = [cSubstanceDoseMatchProvider._substance_query]
+			search_condition = "comb.substance ~* %(fragment)s"
+			search_term = gmPG2.sanitize_pg_regex(expression = search_term, escape_all = False)
+			self._args['fragment'] = r'\m%s' % search_term
+		return self._find_matches(search_condition)
+
+	#--------------------------------------------------------
+	def getMatchesBySubstr(self, search_term):
+		"""Return matches for search_term as a true substring."""
+		if cSubstanceDoseMatchProvider._pattern.match(search_term):
+			self._queries = [cSubstanceDoseMatchProvider._dose_query]
+			search_condition = """substance ILIKE %(subst)s
+				AND
+			amount::text ILIKE %(amount)s"""
+			self._args['subst'] = '%%%s%%' % regex.sub(r'\s*\d+$', '', search_term)
+			self._args['amount'] = '%s%%' % regex.sub(r'^\D+\s*', '', search_term)
+		else:
+			self._queries = [cSubstanceDoseMatchProvider._substance_query]
+			search_condition = "comb.substance ILIKE %(fragment)s"
+			self._args['fragment'] = "%%%s%%" % search_term
+		return self._find_matches(search_condition)
+
+#------------------------------------------------------------
+class __old_cSubstanceDoseMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
+
 	_pattern = regex.compile(r'^\D+\s*\d+$', regex.UNICODE)
 
 	# the "normal query" is run when the search fragment
@@ -594,9 +711,9 @@ class cSubstanceDoseMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 		SELECT
 			r_vsd.pk_dose
 				AS data,
-			(r_vsd.substance || ' ' || r_vsd.amount || ' ' || r_vsd.unit || coalesce(' / ' r_vsd.dose_unit ||, ''))
+			(r_vsd.substance || ' ' || r_vsd.amount || ' ' || r_vsd.unit || coalesce(' / ' || r_vsd.dose_unit ||, ''))
 				AS field_label,
-			(r_vsd.substance || ' ' || r_vsd.amount || ' ' || r_vsd.unit || coalesce(' / ' r_vsd.dose_unit ||, ''))
+			(r_vsd.substance || ' ' || r_vsd.amount || ' ' || r_vsd.unit || coalesce(' / ' || r_vsd.dose_unit ||, ''))
 				AS list_label
 		FROM
 			ref.v_substance_doses r_vsd
@@ -612,9 +729,9 @@ class cSubstanceDoseMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 		SELECT
 			r_vsd.pk_dose
 				AS data,
-			(r_vsd.substance || ' ' || r_vsd.amount || ' ' || r_vsd.unit || coalesce(' / ' r_vsd.dose_unit ||, ''))
+			(r_vsd.substance || ' ' || r_vsd.amount || ' ' || r_vsd.unit || coalesce(' / ' || r_vsd.dose_unit ||, ''))
 				AS field_label,
-			(r_vsd.substance || ' ' || r_vsd.amount || ' ' || r_vsd.unit || coalesce(' / ' r_vsd.dose_unit ||, ''))
+			(r_vsd.substance || ' ' || r_vsd.amount || ' ' || r_vsd.unit || coalesce(' / ' || r_vsd.dose_unit ||, ''))
 				AS list_label
 		FROM
 			ref.v_substance_doses r_vsd
