@@ -294,17 +294,15 @@ def get_substances(order_by=None, return_pks=False):
 	return [ cSubstance(row = {'data': r, 'idx': idx, 'pk_field': 'pk_substance'}) for r in rows ]
 
 #------------------------------------------------------------
-def create_substance(substance=None, atc=None):
-	if atc is not None:
+def create_substance(substance=None, atc=None, link_obj=None):
+	if atc:
 		atc = atc.strip()
-
 	args = {
 		'desc': substance.strip(),
 		'atc': atc
 	}
 	cmd = "SELECT pk FROM ref.substance WHERE lower(description) = lower(%(desc)s)"
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
-
 	if len(rows) == 0:
 		cmd = """
 			INSERT INTO ref.substance (description, atc) VALUES (
@@ -314,12 +312,10 @@ def create_substance(substance=None, atc=None):
 					(SELECT code FROM ref.atc WHERE term = %(desc)s LIMIT 1)
 				)
 			) RETURNING pk"""
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
-
-	if atc is not None:
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False, link_obj = link_obj)
+	if atc:
 		gmATC.propagate_atc(substance = substance.strip(), atc = atc)
-
-	return cSubstance(aPK_obj = rows[0]['pk'])
+	return cSubstance(aPK_obj = rows[0]['pk'], link_obj = link_obj)
 
 #------------------------------------------------------------
 def create_substance_by_atc(substance=None, atc=None, link_obj=None):
@@ -484,7 +480,13 @@ class cSubstanceDose(gmBusinessDBObject.cBusinessDBObject):
 			short = short
 		)
 
-	formatted_units = property(_get_formatted_units, lambda x:x)
+	formatted_units = property(_get_formatted_units)
+
+	#--------------------------------------------------------
+	def _get_as_substance(self):
+		return cSubstance(aPK_obj = self._payload['pk_substance'])
+
+	as_substance = property(_get_as_substance)
 
 #------------------------------------------------------------
 def get_substance_doses(order_by=None, return_pks=False):
@@ -2683,7 +2685,7 @@ def substance_intake_exists_by_atc(pk_identity=None, atc=None):
 	return rows[0][0]
 
 #------------------------------------------------------------
-def create_substance_intake(pk_encounter=None, pk_episode=None, pk_substance=None):
+def create_substance_intake(pk_encounter=None, pk_episode=None, pk_substance=None, link_obj=None):
 	args = {
 		'pk_enc': pk_encounter,
 		'pk_epi': pk_episode,
@@ -2701,8 +2703,8 @@ def create_substance_intake(pk_encounter=None, pk_episode=None, pk_substance=Non
 		)
 		RETURNING pk
 	"""
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
-	return cSubstanceIntakeEntry(aPK_obj = rows[0][0])
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, link_obj = link_obj)
+	return cSubstanceIntakeEntry(aPK_obj = rows[0][0], link_obj = link_obj)
 
 #------------------------------------------------------------
 def delete_substance_intake(pk_intake=None, delete_regimen=False):

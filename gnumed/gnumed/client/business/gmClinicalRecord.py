@@ -1456,12 +1456,13 @@ WHERE
 	health_issues = property(get_health_issues, lambda x:x)
 
 	#------------------------------------------------------------------
-	def add_health_issue(self, issue_name=None):
+	def add_health_issue(self, issue_name=None, link_obj=None):
 		"""Adds patient health issue."""
 		return gmEMRStructItems.create_health_issue (
 			description = issue_name,
 			encounter = self.current_encounter['pk_encounter'],
-			patient = self.pk_patient
+			patient = self.pk_patient,
+			link_obj = link_obj
 		)
 	#--------------------------------------------------------
 	def health_issue2problem(self, issue=None):
