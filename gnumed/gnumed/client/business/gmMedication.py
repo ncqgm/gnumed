@@ -228,6 +228,15 @@ class cSubstance(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 	#--------------------------------------------------------
+	def get_regimens(self, pk_patient:int=None, ongoing_only:bool=False, order_by:str=None) -> list:
+		assert pk_patient is not None, '<pk_patient> must be given'
+		return get_intake_regimens (
+			order_by = order_by,
+			pk_patient = pk_patient,
+			ongoing_only = ongoing_only
+		)
+
+	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
 	def _set_loincs(self, loincs):
@@ -1993,12 +2002,12 @@ def delete_drug_product(pk_drug_product=None):
 #============================================================
 # substance intake regimen
 #------------------------------------------------------------
-_SQL_get_intake_regimen = 'SELECT * FROM clin.v_intake_regimen WHERE %s'
+_SQL_get_intake_regimens = 'SELECT * FROM clin.v_intake_regimen WHERE %s'
 
 class cIntakeRegimen(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents an intake regimen, either active or inactive."""
 
-	_cmd_fetch_payload = _SQL_get_intake_regimen % 'pk_intake_regimen = %s'
+	_cmd_fetch_payload = _SQL_get_intake_regimens % 'pk_intake_regimen = %s'
 	_cmds_store_payload = [
 		""" UPDATE clin.intake_regimen SET
 				clin_when = %(started)s,
@@ -2058,13 +2067,42 @@ class cIntakeRegimen(gmBusinessDBObject.cBusinessDBObject):
 			print(test.strip(), ":", regex.match(pattern, test.strip()))
 
 #------------------------------------------------------------
-def get_intake_regimen(order_by=None):
-	if order_by is None:
-		order_by = u'true'
-	else:
-		order_by = u'true ORDER BY %s' % order_by
-	cmd = _SQL_get_intake_regimen % order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+def get_intake_regimens(order_by:str=None, pk_intake:int=None, ongoing_only:bool=False, pk_patient:int=None, pk_substance:int=None, pk_dose:int=None) -> list:
+	"""Get intake regimens.
+
+	Args:
+		order_by: SQL sort criteria
+		pk_intake: constrain by clin.intake PK
+		ongoing_only: True -> only return those which are not discontinued
+		pk_patient: constrain to this patient
+		pk_substance: constrain to this substance
+		pk_dose: constrain to this *dose* (not the substance of the dose !)
+	"""
+	assert not(pk_intake and pk_patient), 'must not pass <pk_intake> AND <pk_patient>'
+	assert not(pk_intake and pk_substance), 'must not pass <pk_intake> AND <pk_substance>'
+	assert not(pk_intake and pk_dose), 'must not pass <pk_intake> AND <pk_dose>'
+	assert not(pk_dose and pk_substance), 'must not pass <pk_substance> AND <pk_dose>'
+	# FIXME: support most_recent
+	where_parts = ['true']
+	args = {}
+	if pk_intake:
+		where_parts.append('pk_intake = %(pk_intake)s')
+		args['pk_intake'] = pk_intake
+	if pk_patient:
+		where_parts.append('pk_patient = %(pk_patient)s')
+		args['pk_patient'] = pk_patient
+	if pk_substance:
+		where_parts.append('pk_substance = %(pk_substance)s')
+		args['pk_substance'] = pk_substance
+	if pk_dose:
+		where_parts.append('pk_dose = %(pk_dose)s')
+		args['pk_dose'] = pk_dose
+	if ongoing_only:
+		where_parts.append('discontinued IS NULL')
+	cmd = _SQL_get_intake_regimens % ' AND '.join(where_parts)
+	if order_by:
+		cmd += ' ORDER BY %s' % order_by
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	return [ cIntakeRegimen(row = {'data': r, 'idx': idx, 'pk_field': 'pk_intake_regimen'}) for r in rows ]
 
 #------------------------------------------------------------
@@ -2414,8 +2452,22 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
-	def _get_use_type_string(self):
+	def _get_regimens(self, ongoing_only=False):
+		return get_intake_regimens (
+			pk_intake = self._payload[self._idx['pk_intake']],
+			ongoing_only = ongoing_only
+		)
 
+	regimens = property(_get_regimens)
+
+	#--------------------------------------------------------
+	def _get_ongoing_regimens(self):
+		return self._get_regimens(ongoing_only = True)
+
+	ongoing_regimens = property(_get_ongoing_regimens)
+
+	#--------------------------------------------------------
+	def _get_use_type_string(self):
 		if self._payload[self._idx['use_type']] is None:
 			return _('medication, not abuse')
 		if self._payload[self._idx['use_type']] == 0:
@@ -3500,7 +3552,7 @@ if __name__ == "__main__":
 	#--------------------------------------------------------
 	def test_intake_regimen():
 		conn = gmPG2.get_connection(readonly = False)
-#		for reg in get_intake_regimen():
+#		for reg in get_intake_regimens():
 #			#print reg
 #			print('------------------------------------------------')
 #			#print('\n'.join(reg.format_maximum_information()))
@@ -3534,8 +3586,8 @@ if __name__ == "__main__":
 		conn.close()
 
 	#--------------------------------------------------------
-	def test_get_intake_regimen():
-		for i in get_intake_regimen():
+	def test_get_intake_regimens():
+		for i in get_intake_regimens():
 			#print i
 			print('------------------------------------------------')
 			#print('\n'.join(i.format_maximum_information()))
@@ -3548,7 +3600,23 @@ if __name__ == "__main__":
 		for i in get_substance_intakes():
 			#print i
 			print('------------------------------------------------')
-			print('\n'.join(i.format_maximum_information()))
+			#print('\n'.join(i.format_maximum_information()))
+			print(i['substance'])
+			print(i.ongoing_regimens.format(one_line = True))
+
+	#--------------------------------------------------------
+	def test_get_intakes_with_regimens():
+		for i_w_r in get_intakes_with_regimens():
+			print('------------------------------------------------')
+			print('-- intake with regimen:')
+			print(i_w_r)
+			input()
+			print('-- intake:')
+			print(i_w_r.intake)
+			input()
+			print('-- regimen:')
+			print(i_w_r.regimen)
+			input()
 
 	#--------------------------------------------------------
 	def test_intake_formatting():
@@ -3635,7 +3703,8 @@ if __name__ == "__main__":
 	#test_get_components()
 	#test_get_drugs()
 	#test_get_intakes()
-	#test_get_intake_regimen()
+	#test_get_intakes_with_regimens()
+	test_get_intake_regimens()
 	#test_intake_formatting()
 	#test_intake_regimen()
 	#test_create_substance_intake()
