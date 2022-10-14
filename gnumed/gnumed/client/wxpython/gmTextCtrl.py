@@ -40,7 +40,7 @@ class cColoredStatus_TextCtrlMixin():
 		self.__previous_enabled_bg_color = self.__initial_background_color
 
 	#--------------------------------------------------------
-	def display_as_valid(self, valid=None):
+	def display_as_valid(self, valid=True):
 		if valid is True:
 			color2show = self.__initial_background_color
 		elif valid is False:
