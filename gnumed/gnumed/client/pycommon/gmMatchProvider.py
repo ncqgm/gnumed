@@ -548,13 +548,16 @@ class cMatchProvider_SQL2(cMatchProvider):
 		   matches fit for consumption by a phrasewheel.
 		"""
 		if self.print_queries:
-			print("----------------------")
+			print('----------------------')
+			print('class:', self.__class__.__name__)
 			print(pydt.datetime.now())
 
 		matches = []
 		for query in self._queries:
-			where_fragments = {'fragment_condition': fragment_condition}
+			if self.print_queries:
+				print("query:", query)
 
+			where_fragments = {'fragment_condition': fragment_condition}
 			for context_key, context_def in self._context.items():
 				try:
 					placeholder = context_def['placeholder']
@@ -571,14 +574,12 @@ class cMatchProvider_SQL2(cMatchProvider):
 					where_fragments[context_key] = ''
 					if self.print_queries:
 						print("invalid ctxt key:", context_key)
-
 			cmd = query % where_fragments
 
 			if self.print_queries:
-				print("class:", self.__class__.__name__)
 				print("ctxt:", self._context_vals)
 				print("args:", self._args)
-				print("query:", cmd)
+				print("SQL:", cmd)
 
 			try:
 				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': self._args}], get_col_idx = False)
