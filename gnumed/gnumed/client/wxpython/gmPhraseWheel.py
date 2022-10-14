@@ -197,14 +197,14 @@ class cPhraseWheelBase(wx.TextCtrl):
 	#--------------------------------------------------------
 	# external API
 	#---------------------------------------------------------
-	def GetData(self, can_create=False):
+	def GetData(self, can_create=False, link_obj=None):
 		"""Retrieve the data associated with the displayed string(s).
 
 		- self._create_data() must set self.data if possible (/successful)
 		"""
 		if len(self._data) == 0:
 			if can_create:
-				self._create_data()
+				self._create_data(link_obj = link_obj)
 
 		return self._data
 
@@ -914,7 +914,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 			return None
 		return self.matcher.get_match_by_data(data = data)
 	#--------------------------------------------------------
-	def _create_data(self):
+	def _create_data(self, link_obj=None):
 		raise NotImplementedError('[%s]: cannot create data object' % self.__class__.__name__)
 	#--------------------------------------------------------
 	def _get_data(self):
@@ -996,16 +996,13 @@ class cPhraseWheelBase(wx.TextCtrl):
 #============================================================
 class cPhraseWheel(cPhraseWheelBase):
 
-	def GetData(self, can_create=False, as_instance=False):
-
-		super(cPhraseWheel, self).GetData(can_create = can_create)
-
-		if len(self._data) > 0:
-			if as_instance:
-				return self._data2instance()
-
-		if len(self._data) == 0:
+	def GetData(self, can_create=False, as_instance=False, link_obj=None):
+		super().GetData(can_create = can_create, link_obj = link_obj)
+		if not self._data:
 			return None
+
+		if as_instance:
+			return self._data2instance()
 
 		return list(self._data.values())[0]['data']
 
@@ -1121,10 +1118,8 @@ class cMultiPhraseWheel(cPhraseWheelBase):
 		self.right_part = ''
 
 	#---------------------------------------------------------
-	def GetData(self, can_create=False, as_instance=False):
-
-		super(cMultiPhraseWheel, self).GetData(can_create = can_create)
-
+	def GetData(self, can_create=False, as_instance=False, link_obj=None):
+		super().GetData(can_create = can_create, link_obj = link_obj)
 		if len(self._data) > 0:
 			if as_instance:
 				return self._data2instance(link_obj = link_obj)

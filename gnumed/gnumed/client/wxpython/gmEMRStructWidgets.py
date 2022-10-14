@@ -444,12 +444,12 @@ class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		return True
 
 	#--------------------------------------------------------
-	def GetData(self, can_create=False, as_instance=False, is_open=False):
+	def GetData(self, can_create=False, as_instance=False, is_open=False, link_obj=None):
 		self.__is_open_for_create_data = is_open		# used (only) in _create_data()
-		return gmPhraseWheel.cPhraseWheel.GetData(self, can_create = can_create, as_instance = as_instance)
+		return gmPhraseWheel.cPhraseWheel.GetData(self, can_create = can_create, as_instance = as_instance, link_obj = link_obj)
 
 	#--------------------------------------------------------
-	def _create_data(self):
+	def _create_data(self, link_obj=None):
 
 		epi_name = self.GetValue().strip()
 		if epi_name == '':
@@ -849,7 +849,7 @@ class cIssueSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.set_context('pat', self.__patient_id)
 		return True
 	#--------------------------------------------------------
-	def _create_data(self):
+	def _create_data(self, link_obj=None):
 		issue_name = self.GetValue().strip()
 		if issue_name == '':
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot create health issue without name.'), beep = True)

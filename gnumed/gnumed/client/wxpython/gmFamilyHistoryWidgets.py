@@ -255,7 +255,7 @@ class cRelationshipTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp.setThresholds(1, 2, 3)
 		self.matcher = mp
 	#----------------------------------------------------------------
-	def _create_data(self):
+	def _create_data(self, link_obj=None):
 		if self.GetData() is not None:
 			return
 
