@@ -1,0 +1,22 @@
+#!/bin/bash
+
+SRC=$1
+
+echo "Running checks on ${SRC} ..."
+echo ""
+echo "1) attempting byte-compile ..."
+python3 -W error::SyntaxWarning:: -m py_compile ${SRC}
+RESULT="$?"
+if test ${RESULT} -ne 0 ; then
+	echo "Invalid source code." ;
+	exit ${RESULT}
+fi
+
+echo ""
+echo "2) pylinting ..."
+pylint --errors-only ${SRC}
+RESULT="$?"
+if test ${RESULT} -ne 0 ; then
+	echo "Source code errors." ;
+	exit ${RESULT}
+fi
