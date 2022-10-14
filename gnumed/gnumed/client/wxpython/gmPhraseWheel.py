@@ -250,24 +250,25 @@ class cPhraseWheelBase(wx.TextCtrl):
 	def set_from_pk(self, pk):
 		raise NotImplementedError('[%s]: set_from_pk()' % self.__class__.__name__)
 	#--------------------------------------------------------
-	def display_as_valid(self, valid=None, partially_invalid=False):
+	def display_as_valid(self, valid:bool=True):
+		"""Color input field based on content validity.
 
+			valid: whether the content ist valid (True) or invalid (False), False = partially invalid
+		"""
+		assert valid in [True, False, None], '<valid> must be True or False or None'
 		if valid is True:
 			color2show = self.__my_startup_color
 		elif valid is False:
-			if partially_invalid:
-				color2show = color_prw_partially_invalid
-			else:
-				color2show = color_prw_invalid
+			color2show = color_prw_invalid
 		else:
-			raise ValueError('<valid> must be True or False')
-
+			color2show = color_prw_partially_invalid
 		if self.IsEnabled():
 			self.SetBackgroundColour(color2show)
 			self.Refresh()
 			return
 
 		self.__previous_enabled_bg_color = color2show
+
 	#--------------------------------------------------------
 	def Disable(self):
 		self.Enable(enable = False)
