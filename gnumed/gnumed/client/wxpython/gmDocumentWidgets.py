@@ -596,7 +596,7 @@ ORDER BY q1.rank, q1.list_label"""]
 
 		self.SetToolTip(_('Select the document type.'))
 	#--------------------------------------------------------
-	def _create_data(self):
+	def _create_data(self, link_obj=None):
 
 		doc_type = self.GetValue().strip()
 		if doc_type == '':

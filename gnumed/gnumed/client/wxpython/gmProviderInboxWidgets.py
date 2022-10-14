@@ -73,7 +73,7 @@ class cMessageTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.matcher = mp
 		self.SetToolTip(_('Select a message type.'))
 	#----------------------------------------------------------------
-	def _create_data(self):
+	def _create_data(self, link_obj=None):
 		if self.GetData() is not None:
 			return
 

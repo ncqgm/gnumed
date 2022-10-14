@@ -4229,7 +4229,7 @@ LIMIT 50"""
 		self.SetToolTip(_('The name of the path lab/diagnostic organisation.'))
 		self.selection_only = False
 	#------------------------------------------------------------
-	def _create_data(self):
+	def _create_data(self, link_obj=None):
 		if self.GetData() is not None:
 			_log.debug('data already set, not creating')
 			return
