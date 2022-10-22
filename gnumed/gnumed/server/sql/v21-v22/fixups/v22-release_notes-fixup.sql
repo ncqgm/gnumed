@@ -17,8 +17,8 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.8.0 (database v22.11)',
-	'GNUmed 1.8.0 Release Notes:
+	'Release Notes for GNUmed 1.8.7 (database v22.18)',
+	'GNUmed 1.8.7 Release Notes:
 
 	1.8.0
 
@@ -44,51 +44,10 @@ NEW: dist: add PortableApp XML skeleton
 NEW: placeholder: $most_recent_test_results$
 NEW: tool: check_mimetypes_in_archive
 
-IMPROVED: symbolic link creation on Windows
-IMPROVED: Orthanc connection handling
-IMPROVED: DICOM plugin UI
-IMPROVED: EMR export as TimeLine
-IMPROVED: captions of all list and edit area dialogs
-IMPROVED: test type edit area workflow
-IMPROVED: CLI EMR export tool
-IMPROVED: form disposal dialog
-IMPROVED: date/timestamp picker functionality
-IMPROVED: better duplicate person detection
-IMPROVED: document tree details view usage
-IMPROVED: test results panels links w/ documents
-IMPROVED: console encoding errors behaviour [thanks INADA Naoki]
-IMPROVED: ADR URL handling
-IMPROVED: age sort mode in document tree
-IMPROVED: age/DOB tooltip
-IMPROVED: data revisions display
-IMPROVED: EMR list journal formatting
-IMPROVED: lab/plotting: support better gnuplot scripts
+	22.18
 
-FIX: [Save] functionality of Export Area
-FIX: document tree sorting / document insertion
-FIX: inability to delete inbox message w/o receiver
-FIX: "lastname, firstname" based patient search under Python 3
-FIX: billing: invoice ID generation [thanks Marc]
-FIX: export area: saving document part entries
-FIX: lab: grid display row tooltips
-FIX: lists: context menu CSV export
-FIX: EMR/tree: selection of pseudo issue node
-FIX: documents/new: error handling of unreadable parts
-FIX: PG access: rewrite connection pool
-FIX: y2038 exception in DST detection
-
-	22.11
-
-FIX: i18n.set_curr/force_curr_lang(), again [thanks lucian]
-
-	22.10
-
-IMPROVED: database fixup script
-
-	22.9
-
-FIX: clin.v_candidate_diagnoses: missing coalesce()
+IMPROVED: bootstrapper: schema "public" permissions and ownership as per PG 15
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.11');
+select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.18@1.8.7');
