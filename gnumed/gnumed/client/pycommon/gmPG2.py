@@ -2178,6 +2178,20 @@ def sanity_check_database_settings() -> tuple:
 		_log.exception('cannot verify collation version (probably PG < 15)')
 	finally:
 		curs.close()
+	# database encoding
+	curs = conn.cursor()
+	try:
+		curs.execute('SELECT pg_encoding_to_char(encoding) FROM pg_database WHERE datname = current_database()')
+		encoding = curs.fetchone()['pg_encoding_to_char']
+		if encoding != 'UTF8':
+			found_problem = True
+			msg.append(_(' database encoding: %s') % encoding)
+			msg.append(_('  risk: multilingual data storage problems'))
+			_log.warning('PG database encoding not UTF8 but [%s]', encoding)
+	except dbapi.Error:
+		_log.exception('cannot verify database encoding (probably PG < 15)')
+	finally:
+		curs.close()
 
 	if found_error:
 		return 2, '\n'.join(msg)
