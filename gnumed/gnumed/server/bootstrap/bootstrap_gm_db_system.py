@@ -759,6 +759,8 @@ class database:
 		curs.execute("alter database %s set check_function_bodies to on" % self.name)
 		# we want checking of data checksums if available
 		curs.execute("alter database %s set ignore_checksum_failure to off" % self.name)
+		# tighten permissions on schema public
+		curs.execute("revoke create on schema public from public")
 		curs.close()
 		self.conn.commit()
 
@@ -780,9 +782,19 @@ class database:
 			curs.execute("alter database %s set track_commit_timestamp to on" % self.name)
 		except:
 			_log.exception(u'PostgreSQL version < 9.5 does not support <track_commit_timestamp> OR <track_commit_timestamp> cannot be set at runtime')
-
 		curs.close()
 		self.conn.commit()
+
+		# set owner of schema public to new role "pg_database_owner",
+		# as suggested by PG 15 release notes
+		curs = self.conn.cursor()
+		try:
+			curs.execute("alter schema public owner to pg_database_owner")
+		except:
+			_log.exception(u'PostgreSQL versions < 15 do not yet support role <pg_database_owner>')
+		curs.close()
+		self.conn.commit()
+
 		curs = self.conn.cursor()
 		gmConnectionPool.log_pg_settings(curs = curs)
 		curs.close()
