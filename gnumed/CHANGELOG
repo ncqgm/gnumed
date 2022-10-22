@@ -2184,6 +2184,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v22
 ------------------------------------------------
 
+	22.18
+
+IMPROVED: bootstrapper: schema "public" permissions and ownership as per PG 15
+
 	22.17
 
 FIX: CREATE FUNCTION ... RETURNS OPAQUE -> TRIGGER [thanks SantyCW@es_AR]
