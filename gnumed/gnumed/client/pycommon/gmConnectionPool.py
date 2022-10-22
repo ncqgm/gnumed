@@ -764,6 +764,7 @@ def log_pg_exception_details(exc: Exception) -> bool:
 #--------------------------------------------------
 def log_pg_settings(curs) -> bool:
 	"""Log PostgreSQL server settings."""
+	# config settings
 	try:
 		curs.execute('SELECT * FROM pg_settings')
 	except dbapi.Error:
@@ -771,31 +772,32 @@ def log_pg_settings(curs) -> bool:
 		return False
 
 	settings = curs.fetchall()
-	for setting in settings:
-		if setting['unit'] is None:
-			unit = ''
-		else:
-			unit = ' %s' % setting['unit']
-		if setting['sourcefile'] is None:
-			sfile = ''
-		else:
-			sfile = '// %s @ %s' % (setting['sourcefile'], setting['sourceline'])
-		pending_restart = u''
-		try:
-			if setting['pending_restart']:
-				pending_restart = u'// needs restart'
-		except KeyError:
-			# 'pending_restart' does not exist in PG 9.4 yet
-			pass
-		_log.debug('%s: %s%s (set from: [%s] // sess RESET will set to: [%s]%s%s)',
-			setting['name'],
-			setting['setting'],
-			unit,
-			setting['source'],
-			setting['reset_val'],
-			pending_restart,
-			sfile
-		)
+	if settings:
+		for setting in settings:
+			if setting['unit'] is None:
+				unit = ''
+			else:
+				unit = ' %s' % setting['unit']
+			if setting['sourcefile'] is None:
+				sfile = ''
+			else:
+				sfile = '// %s @ %s' % (setting['sourcefile'], setting['sourceline'])
+			pending_restart = u''
+			try:
+				if setting['pending_restart']:
+					pending_restart = u'// needs restart'
+			except KeyError:
+				pass	# 'pending_restart' does not exist in PG 9.4 yet
+			_log.debug('%s: %s%s (set from: [%s] // session RESET will set to: [%s]%s%s)',
+				setting['name'],
+				setting['setting'],
+				unit,
+				setting['source'],
+				setting['reset_val'],
+				pending_restart,
+				sfile
+			)
+	# extensions
 	try:
 		curs.execute('select pg_available_extensions()')
 	except Exception:
@@ -803,12 +805,20 @@ def log_pg_settings(curs) -> bool:
 		return False
 
 	extensions = curs.fetchall()
-	if extensions is None:
+	if extensions:
+		for ext in extensions:
+			_log.debug('PG extension: %s', ext['pg_available_extensions'])
+	else:
 		_log.error('no PG extensions available')
-		return False
-
-	for ext in extensions:
-		_log.debug('PG extension: %s', ext['pg_available_extensions'])
+	# log pg_config -- can only be read by superusers :-/
+	# database collation
+	try:
+		curs.execute('SELECT *, pg_database_collation_actual_version(oid), pg_encoding_to_char(encoding) FROM pg_database WHERE datname = current_database()')
+	except dbapi.Error:
+		_log.exception('cannot log actual collation version (probably PG < 15)')
+		curs.execute('SELECT * FROM pg_database WHERE datname = current_database()')
+	config = curs.fetchall()
+	gmLog2.log_multiline(10, message = 'PG database config', text = gmTools.format_dict_like(dict(config[0]), tabular = True))
 	return True
 
 #--------------------------------------------------

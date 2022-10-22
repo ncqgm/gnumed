@@ -2085,19 +2085,19 @@ def sanity_check_time_skew(tolerance=60):
 	return True
 
 #-----------------------------------------------------------------------
-def sanity_check_database_settings():
+def sanity_check_database_settings() -> tuple:
 	"""Checks database settings.
 
-	returns (status, message)
-	status:
-		0: no problem
-		1: non-fatal problem
-		2: fatal problem
+	Returns:
+		(status, message)
+
+		status
+			0: no problem
+			1: non-fatal problem
+			2: fatal problem
 	"""
 	_log.debug('checking database settings')
-
 	conn = get_connection()
-
 	# - version string
 	global postgresql_version_string
 	if postgresql_version_string is None:
@@ -2106,7 +2106,7 @@ def sanity_check_database_settings():
 		postgresql_version_string = curs.fetchone()['version']
 		curs.close()
 		_log.info('PostgreSQL version (string): "%s"' % postgresql_version_string)
-
+	# - postgresql settings
 	options2check = {
 		# setting: [expected value, risk, fatal?]
 		'allow_system_table_mods': [['off'], 'system breakage', False],
@@ -2124,7 +2124,6 @@ def sanity_check_database_settings():
 		'ignore_checksum_failure': [['off'], 'data loss/corruption', False],		# starting with PG 9.3
 		'track_commit_timestamp': [['on'], 'suboptimal auditing', False]			# starting with PG 9.3
 	}
-
 	from Gnumed.pycommon import gmCfgINI
 	_cfg = gmCfgINI.gmCfgData()
 	if _cfg.get(option = 'hipaa'):
@@ -2161,6 +2160,24 @@ def sanity_check_database_settings():
 			msg.append(_(' option [%s]: %s') % (option, value_found))
 			msg.append(_('  risk: %s') % risk)
 			_log.warning('PG option [%s] set to [%s], expected %s, risk: <%s>' % (option, value_found, values_expected, risk))
+	# database collation
+	curs = conn.cursor()
+	try:
+		curs.execute('SELECT *, pg_database_collation_actual_version(oid) FROM pg_database WHERE datname = current_database()')
+		config = curs.fetchone()
+		if config['datcollversion'] != config['pg_database_collation_actual_version']:
+			found_error = True
+			msg.append(_(' collation [%s] version mismatch: DB = %s, SYSTEM = %s') % (
+				config['datcollate'],
+				config['datcollversion'],
+				config['pg_database_collation_actual_version']
+			))
+			msg.append(_('  risk: data corruption (faulty sorting)'))
+			_log.warning('PG collation version mismatch between database and system')
+	except dbapi.Error:
+		_log.exception('cannot verify collation version (probably PG < 15)')
+	finally:
+		curs.close()
 
 	if found_error:
 		return 2, '\n'.join(msg)
@@ -2482,6 +2499,15 @@ if __name__ == "__main__":
 		sanity_check_time_skew()
 
 	#--------------------------------------------------------------------
+	def test_sanity_check_database_settings():
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
+		status, msg = sanity_check_database_settings()
+		print(status)
+		print(msg)
+
+	#--------------------------------------------------------------------
 	def test_get_foreign_key_details():
 		login, creds = request_login_params()
 		pool = gmConnectionPool.gmConnectionPool()
@@ -2705,6 +2731,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_sanitize_pg_regex()
 	#test_is_pg_interval()
 	#test_sanity_check_time_skew()
+	test_sanity_check_database_settings()
 	#test_get_foreign_key_details()
 	#test_get_index_name()
 	#test_set_user_language()
@@ -2715,7 +2742,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_row_locks()
 	#test_faulty_SQL()
 	#test_log_settings()
-	test_get_db_fingerprint()
+	#test_get_db_fingerprint()
 	#test_revalidate_constraints()
 	#test_reindex_database()
 

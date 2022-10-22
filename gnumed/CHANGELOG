@@ -36,6 +36,8 @@ IMPROVED: code: configuration handling
 IMPROVED: DB: more tolerant rollback() [thanks lothar]
 IMPROVED: DB: fingerprinter
 IMPROVED: DICOM: dicomization
+IMPROVED: DB: settings logging
+IMPROVED: login: DB sanity checking
 
 FIX: CLI: --wxp= not needed anymore
 FIX: CLI: --ui= not needed anymore
