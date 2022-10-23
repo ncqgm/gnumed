@@ -73,7 +73,8 @@ URL_drug_adr_german_default = 'https://nebenwirkungen.pei.de'
 	USE_TYPE_MEDICATION,
 	USE_TYPE_NON_HARMFUL,
 	USE_TYPE_PRESENTLY_HARMFUL,
-	USE_TYPE_PRESENTLY_ADDICTED, USE_TYPE_PREVIOUSLY_ADDICTED
+	USE_TYPE_PRESENTLY_ADDICTED,
+	USE_TYPE_PREVIOUSLY_ADDICTED
 ) = (
 	None, 0, 1, 2, 3
 )
@@ -710,106 +711,6 @@ class cSubstanceDoseMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 		return self._find_matches(search_condition)
 
 #------------------------------------------------------------
-class __old_cSubstanceDoseMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
-
-	_pattern = regex.compile(r'^\D+\s*\d+$', regex.UNICODE)
-
-	# the "normal query" is run when the search fragment
-	# does NOT match the regex ._pattern (which is: "chars SPACE digits")
-	_normal_query = """
-		SELECT
-			r_vsd.pk_dose
-				AS data,
-			(r_vsd.substance || ' ' || r_vsd.amount || ' ' || r_vsd.unit || coalesce(' / ' || r_vsd.dose_unit ||, ''))
-				AS field_label,
-			(r_vsd.substance || ' ' || r_vsd.amount || ' ' || r_vsd.unit || coalesce(' / ' || r_vsd.dose_unit ||, ''))
-				AS list_label
-		FROM
-			ref.v_substance_doses r_vsd
-		WHERE
-			r_vsd.substance %%(fragment_condition)s
-		ORDER BY
-			list_label
-		LIMIT 50"""
-
-	# the "regex query" is run when the search fragment
-	# DOES match the regex ._pattern (which is: "chars SPACE digits")
-	_regex_query = 	"""
-		SELECT
-			r_vsd.pk_dose
-				AS data,
-			(r_vsd.substance || ' ' || r_vsd.amount || ' ' || r_vsd.unit || coalesce(' / ' || r_vsd.dose_unit ||, ''))
-				AS field_label,
-			(r_vsd.substance || ' ' || r_vsd.amount || ' ' || r_vsd.unit || coalesce(' / ' || r_vsd.dose_unit ||, ''))
-				AS list_label
-		FROM
-			ref.v_substance_doses r_vsd
-		WHERE
-			%%(fragment_condition)s
-		ORDER BY
-			list_label
-		LIMIT 50"""
-
-	#--------------------------------------------------------
-	def getMatchesByPhrase(self, aFragment):
-		"""Return matches for aFragment at start of phrases."""
-
-		if cSubstanceDoseMatchProvider._pattern.match(aFragment):
-			self._queries = [cSubstanceDoseMatchProvider._regex_query]
-			fragment_condition = """substance ILIKE %(subst)s
-				AND
-			amount::text ILIKE %(amount)s"""
-			self._args['subst'] = '%s%%' % regex.sub(r'\s*\d+$', '', aFragment)
-			self._args['amount'] = '%s%%' % regex.sub(r'^\D+\s*', '', aFragment)
-		else:
-			self._queries = [cSubstanceDoseMatchProvider._normal_query]
-			fragment_condition = "ILIKE %(fragment)s"
-			self._args['fragment'] = "%s%%" % aFragment
-
-		return self._find_matches(fragment_condition)
-
-	#--------------------------------------------------------
-	def getMatchesByWord(self, aFragment):
-		"""Return matches for aFragment at start of words inside phrases."""
-
-		if cSubstanceDoseMatchProvider._pattern.match(aFragment):
-			self._queries = [cSubstanceDoseMatchProvider._regex_query]
-
-			subst = regex.sub(r'\s*\d+$', '', aFragment)
-			subst = gmPG2.sanitize_pg_regex(expression = subst, escape_all = False)
-
-			fragment_condition = """substance ~* %(subst)s
-				AND
-			amount::text ILIKE %(amount)s"""
-
-			self._args['subst'] = "( %s)|(^%s)" % (subst, subst)
-			self._args['amount'] = '%s%%' % regex.sub(r'^\D+\s*', '', aFragment)
-		else:
-			self._queries = [cSubstanceDoseMatchProvider._normal_query]
-			fragment_condition = "~* %(fragment)s"
-			aFragment = gmPG2.sanitize_pg_regex(expression = aFragment, escape_all = False)
-			self._args['fragment'] = "( %s)|(^%s)" % (aFragment, aFragment)
-
-		return self._find_matches(fragment_condition)
-
-	#--------------------------------------------------------
-	def getMatchesBySubstr(self, aFragment):
-		"""Return matches for aFragment as a true substring."""
-
-		if cSubstanceDoseMatchProvider._pattern.match(aFragment):
-			self._queries = [cSubstanceDoseMatchProvider._regex_query]
-			fragment_condition = """substance ILIKE %(subst)s
-				AND
-			amount::text ILIKE %(amount)s"""
-			self._args['subst'] = '%%%s%%' % regex.sub(r'\s*\d+$', '', aFragment)
-			self._args['amount'] = '%s%%' % regex.sub(r'^\D+\s*', '', aFragment)
-		else:
-			self._queries = [cSubstanceDoseMatchProvider._normal_query]
-			fragment_condition = "ILIKE %(fragment)s"
-			self._args['fragment'] = "%%%s%%" % aFragment
-
-		return self._find_matches(fragment_condition)
-
 #------------------------------------------------------------
 #------------------------------------------------------------
 class cProductOrSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
