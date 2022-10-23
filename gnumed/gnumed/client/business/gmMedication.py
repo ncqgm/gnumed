@@ -2188,8 +2188,96 @@ class cIntakeRegimen(gmBusinessDBObject.cBusinessDBObject):
 		'schedule'
 	]
 	#--------------------------------------------------------
-#	def format(self):
-#		return u'%s' % self
+	def format(self, left_margin=0, date_format:str='%Y %b %d', single_line:bool=True, terse:bool=True, eol:str=None):
+		if single_line:
+			return self.format_single_line(date_format = date_format, terse = terse)
+
+		return '%s' % self
+
+	#--------------------------------------------------------
+	def format_single_line(self, date_format:str='%Y %b %d', terse:bool=True) -> str:
+		"""Format the intake regimen into a single line.
+
+		start	duration	end		output
+		x		x			x		"planned 14 days, starting 1.3.2020 (cmt), stopped 16.3.2020 (x ago)"
+									"14d, (~)1.3.2020 -> 16.3.2020 (x ago)"
+		x		x			-		"planned 14 days, starting 1.3.2020 (x ago, cmt)"
+									"14d, (~)1.3.2020 (x ago)"
+		x		-			x		"starting 1.3.2020 (cmt), for 16 days, until 16.3.2020 (x ago)"
+									"(~)1.3.2020 -16d->16.3.2020 (x ago)"
+		-		x			x		"planned 14 days, cmt, until 16.3.2020 (x ago)"
+									"14d, (...)->16.3.2020 (x ago)"
+		x		-			-		"since 1.3.2020 (x ago, cmt)"
+									"(~)1.3.2020... (x ago)"
+		-		x			-		"for 14d, (since: cmt)"
+									"14d (...->)"
+		-		-			x		"(since: cmt), until 16.3.2020 (x ago)"
+									"14d (...)->16.3.2020 (x ago)"
+		-		-			-		"(since: cmt)"
+									"?" or "..."
+		"""
+		start_approx = gmTools.u_almost_equal_to if self._payload['comment_on_start'] else ''
+		comment_mark = gmTools.u_ellipsis if self._payload['comment_on_start'] else ''
+		started = None if self._payload['comment_on_start'] == '?' else self._payload['started']
+		parts = {'terse': [], 'verbose': []}
+		if started:
+			parts['terse'].append('[%s%s]%s' % (comment_mark, started.strftime(date_format), gmTools.u_left_double_angle_quote))
+			parts['verbose'].append(_('started %s') % started.strftime(date_format))
+			if self._payload['comment_on_start']:
+				parts['verbose'].append('(%s)' % self._payload['comment_on_start'])
+		if self._payload['planned_duration']:
+			parts['terse'].append('-%s-' % (gmDateTime.format_interval_medically(self._payload['planned_duration'])))
+			parts['verbose'].append(_('planned for %s') % gmDateTime.format_interval_medically(self._payload['planned_duration']))
+		if self._payload['discontinued']:
+			parts['terse'].append('%s[%s] (-%s)' % (
+				gmTools.u_left_double_angle_quote,
+				self._payload['discontinued'].strftime(date_format),
+				gmDateTime.format_apparent_age(gmDateTime.calculate_apparant_age(start = self._payload['discontinued']))
+			))
+			parts['verbose'].append(_('discontinued %s') % self._payload['discontinued'].strftime(date_format))
+			parts['verbose'].append(_('(%s ago)') % gmDateTime.format_apparent_age(gmDateTime.calculate_apparant_age(start = self._payload['discontinued'])))
+			if started:
+				parts['verbose'].append(_('after %s') % gmDateTime.format_apparent_age(gmDateTime.calculate_apparant_age(start = started, end = self._payload['discontinued'])))
+		else:
+			parts['terse'].append(gmTools.u_ellipsis)
+		if terse:
+			return ''.join(parts['terse'])
+
+		subst_prefix = '%s %s%s: ' % (
+			self._payload['substance'],
+			self._payload['amount'],
+			format_units (
+				self._payload['unit'],
+				self._payload['dose_unit'],
+				preparation = self._payload['preparation'],
+				short = True
+			)
+		)
+		return subst_prefix + ', '.join(parts['verbose'])
+
+	#--------------------------------------------------------
+	def _get_start_is_known(self):
+		if self._payload['comment_on_start'] == COMMENT_FOR_UNKNOWN_START:
+			return False
+
+		if self._payload['started']:
+			return True
+
+		return False
+
+	start_is_known = property(_get_start_is_known)
+
+	#--------------------------------------------------------
+	def _get_start_is_unknown(self):
+		if self._payload['comment_on_start'] == COMMENT_FOR_UNKNOWN_START:
+			return True
+
+		if not self._payload['started']:
+			return True
+
+		return False
+
+	start_is_unknown = property(_get_start_is_unknown)
 
 	#--------------------------------------------------------
 	def _get_parsed_schedule(self):
