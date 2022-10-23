@@ -2000,6 +2000,245 @@ def delete_drug_product(pk_drug_product=None):
 	gmPG2.run_rw_queries(queries = queries)
 
 #============================================================
+# intakes, denormalized by regimen,
+# possibly with pseudo-regimen
+#------------------------------------------------------------
+_SQL_get_intake_with_regimen = 'SELECT * FROM clin.v_intakes_with_regimens WHERE %s'
+
+class cIntakeWithRegimen(gmBusinessDBObject.cBusinessDBObject):
+	"""A substance intake with regimen.
+
+	There may be several concurrent ongoing
+	regimens for any given substance intake.
+
+	Intakes without any regimen will appear with
+	empty regimen fields.
+	"""
+	_cmd_fetch_payload = _SQL_get_intake_with_regimen % "pk_intake_regimen = %s"
+	_cmds_store_payload = [
+		"""
+			-- typically the underlying table name
+			UPDATE xxx.xxx SET
+				-- typically "table_col = % (view_col)s"
+				xxx = %(xxx)s,
+				xxx = gm.nullify_empty_string(%(xxx)s)
+			WHERE
+				pk = %(pk_XXX)s
+					AND
+				xmin = %(xmin_XXX)s
+			RETURNING
+				xmin AS xmin_XXX
+				-- also return columns which are calculated in the view used by
+				-- the initial SELECT such that they will further on contain their
+				-- updated value:
+				--, ...
+				--, ...
+		"""
+	]
+	_updatable_fields = []
+	#--------------------------------------------------------
+#	def format(self):
+#		return u'%s' % self
+
+	#--------------------------------------------------------
+	def _get_intake(self):
+		return cSubstanceIntakeEntry(aPK_obj = self._payload['pk_intake'])
+
+	intake = property(_get_intake)
+
+	#--------------------------------------------------------
+	def _get_regimen(self):
+		return cIntakeRegimen(aPK_obj = self._payload['pk_intake_regimen'])
+
+	regimen = property(_get_regimen)
+
+	#--------------------------------------------------------
+	def get_other_regimens(self, ongoing_only:bool=False):
+		pass
+
+	other_regimens = property(get_other_regimens)
+
+	#--------------------------------------------------------
+	def _get_medically_formatted_start_end(self):
+
+		now = gmDateTime.pydt_now_here()
+
+		# medications stopped today or before today
+		if self._payload[self._idx['discontinued']] is not None:
+			if (self._payload[self._idx['discontinued']] < now) or (gmDateTime.pydt_is_today(self._payload[self._idx['discontinued']])):
+				return self._get_medically_formatted_start_end_of_stopped(now)
+
+		# ongoing medications
+		arrow_parts = []
+
+		# format start
+		if self._payload[self._idx['started']] is None:
+			start_str = gmTools.coalesce(self._payload[self._idx['comment_on_start']], '?')
+		else:
+			start_prefix = gmTools.bool2subst((self._payload[self._idx['comment_on_start']] is None), '', gmTools.u_almost_equal_to)
+			# starts today
+			if gmDateTime.pydt_is_today(self._payload[self._idx['started']]):
+				start_str = _('today (%s)') % gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%Y %b %d', accuracy = gmDateTime.acc_days)
+			# started in the past
+			elif self._payload[self._idx['started']] < now:
+				started_ago = now - self._payload[self._idx['started']]
+				three_months = pydt.timedelta(weeks = 13, days = 3)
+				five_years = pydt.timedelta(weeks = 265)
+				if started_ago < three_months:
+					start_str = _('%s%s%s (%s%s ago, in %s)') % (
+						start_prefix,
+						gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%b %d', accuracy = gmDateTime.acc_days),
+						gmTools.coalesce(self._payload[self._idx['comment_on_start']], '', ' [%s]'),
+						gmTools.u_almost_equal_to,
+						gmDateTime.format_interval_medically(started_ago),
+						gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%Y', accuracy = gmDateTime.acc_days)
+					)
+				elif started_ago < five_years:
+					start_str = _('%s%s%s (%s%s ago, %s)') % (
+						start_prefix,
+						gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y %b', 'utf8', gmDateTime.acc_months),
+						gmTools.coalesce(self._payload[self._idx['comment_on_start']], '', ' [%s]'),
+						gmTools.u_almost_equal_to,
+						gmDateTime.format_interval_medically(started_ago),
+						gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%b %d', 'utf8', gmDateTime.acc_days)
+					)
+				else:
+					start_str = _('%s%s%s (%s%s ago, %s)') % (
+						start_prefix,
+						gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y', 'utf8', gmDateTime.acc_years),
+						gmTools.coalesce(self._payload[self._idx['comment_on_start']], '', ' [%s]'),
+						gmTools.u_almost_equal_to,
+						gmDateTime.format_interval_medically(started_ago),
+						gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%b %d', 'utf8', gmDateTime.acc_days),
+					)
+			# starts in the future
+			else:
+				starts_in = self._payload[self._idx['started']] - now
+				start_str = _('%s%s%s (in %s%s)') % (
+					start_prefix,
+					gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y %b %d', 'utf8', gmDateTime.acc_days),
+					gmTools.coalesce(self._payload[self._idx['comment_on_start']], '', ' [%s]'),
+					gmTools.u_almost_equal_to,
+					gmDateTime.format_interval_medically(starts_in)
+				)
+
+		arrow_parts.append(start_str)
+
+		# format durations
+		durations = []
+		if self._payload[self._idx['discontinued']] is not None:
+			if self._payload[self._idx['started']] is not None:
+				duration_documented = self._payload[self._idx['discontinued']] - self._payload[self._idx['started']]
+				durations.append(_('%s (documented)') % gmDateTime.format_interval(duration_documented, gmDateTime.acc_days))
+		if self._payload[self._idx['planned_duration']] is not None:
+			durations.append(_('%s (plan)') % gmDateTime.format_interval(self._payload[self._idx['planned_duration']], gmDateTime.acc_days))
+		if len(durations) == 0:
+			duration_str = '?'
+		else:
+			duration_str = ', '.join(durations)
+
+		arrow_parts.append(duration_str)
+
+		# format end
+		if self._payload[self._idx['discontinued']] is None:
+			if self._payload[self._idx['planned_duration']] is None:
+				end_str = '?'
+			else:
+				if self._payload[self._idx['started']] is None:
+					end_str = '?'
+				else:
+					planned_end = self._payload[self._idx['started']] + self._payload[self._idx['planned_duration']] - pydt.timedelta(days = 1)
+					if planned_end.year == now.year:
+						end_template = '%b %d'
+						if planned_end < now:
+							planned_end_from_now_str = _('%s ago, in %s') % (gmDateTime.format_interval(now - planned_end, gmDateTime.acc_days), planned_end.year)
+						else:
+							planned_end_from_now_str = _('in %s, %s') % (gmDateTime.format_interval(planned_end - now, gmDateTime.acc_days), planned_end.year)
+					else:
+						end_template = '%Y'
+						if planned_end < now:
+							planned_end_from_now_str = _('%s ago = %s') % (
+								gmDateTime.format_interval(now - planned_end, gmDateTime.acc_days),
+								gmDateTime.pydt_strftime(planned_end, '%b %d', 'utf8', gmDateTime.acc_days)
+							)
+						else:
+							planned_end_from_now_str = _('in %s = %s') % (
+								gmDateTime.format_interval(planned_end - now, gmDateTime.acc_days),
+								gmDateTime.pydt_strftime(planned_end, '%b %d', 'utf8', gmDateTime.acc_days)
+							)
+					end_str = '%s (%s)' % (
+						gmDateTime.pydt_strftime(planned_end, end_template, 'utf8', gmDateTime.acc_days),
+						planned_end_from_now_str
+					)
+		else:
+			if gmDateTime.is_today(self._payload[self._idx['discontinued']]):
+				end_str = _('today')
+			elif self._payload[self._idx['discontinued']].year == now.year:
+				end_date_template = '%b %d'
+				if self._payload[self._idx['discontinued']] < now:
+					planned_end_from_now_str = _('%s ago, in %s') % (
+						gmDateTime.format_interval(now - self._payload[self._idx['discontinued']], gmDateTime.acc_days),
+						self._payload[self._idx['discontinued']].year
+					)
+				else:
+					planned_end_from_now_str = _('in %s, %s') % (
+						gmDateTime.format_interval(self._payload[self._idx['discontinued']] - now, gmDateTime.acc_days),
+						self._payload[self._idx['discontinued']].year
+					)
+			else:
+				end_date_template = '%Y'
+				if self._payload[self._idx['discontinued']] < now:
+					planned_end_from_now_str = _('%s ago = %s') % (
+						gmDateTime.format_interval(now - self._payload[self._idx['discontinued']], gmDateTime.acc_days),
+						gmDateTime.pydt_strftime(self._payload[self._idx['discontinued']], '%b %d', 'utf8', gmDateTime.acc_days)
+					)
+				else:
+					planned_end_from_now_str = _('in %s = %s') % (
+						gmDateTime.format_interval(self._payload[self._idx['discontinued']] - now, gmDateTime.acc_days),
+						gmDateTime.pydt_strftime(self._payload[self._idx['discontinued']], '%b %d', 'utf8', gmDateTime.acc_days)
+					)
+			end_str = '%s (%s)' % (
+				gmDateTime.pydt_strftime(self._payload[self._idx['discontinued']], end_date_template, 'utf8', gmDateTime.acc_days),
+				planned_end_from_now_str
+			)
+
+		arrow_parts.append(end_str)
+
+		# assemble
+		return (' %s ' % gmTools.u_arrow2right_thick).join(arrow_parts)
+
+	medically_formatted_start_end = property(_get_medically_formatted_start_end)
+
+#------------------------------------------------------------
+def get_intakes_with_regimens(order_by=None):
+	if order_by is None:
+		order_by = u'true'
+	else:
+		order_by = u'true ORDER BY %s' % order_by
+
+	cmd = _SQL_get_intake_with_regimen % order_by
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	return [ cIntakeWithRegimen(row = {'data': r, 'idx': idx, 'pk_field': 'pk_intake_regimen'}) for r in rows ]
+
+#------------------------------------------------------------
+# widget code
+#------------------------------------------------------------
+#def edit_xxx(parent=None, xxx=None, single_entry=False, presets=None):
+#	pass
+
+#------------------------------------------------------------
+#def delete_xxx():
+#	pass
+
+#------------------------------------------------------------
+#def manage_xxx():
+#	pass
+
+#------------------------------------------------------------
+# remember to add in clinical item generic workflows and generic clinical item formatting
+
+
+#============================================================
 # substance intake regimen
 #------------------------------------------------------------
 _SQL_get_intake_regimens = 'SELECT * FROM clin.v_intake_regimen WHERE %s'
@@ -3609,14 +3848,15 @@ if __name__ == "__main__":
 		for i_w_r in get_intakes_with_regimens():
 			print('------------------------------------------------')
 			print('-- intake with regimen:')
-			print(i_w_r)
+			print(i_w_r.format())
 			input()
-			print('-- intake:')
-			print(i_w_r.intake)
-			input()
-			print('-- regimen:')
-			print(i_w_r.regimen)
-			input()
+			print(i_w_r.medically_formatted_start_end)
+			#print('-- intake:')
+			#print(i_w_r.intake)
+			#input()
+			#print('-- regimen:')
+			#print(i_w_r.regimen)
+			#input()
 
 	#--------------------------------------------------------
 	def test_intake_formatting():
@@ -3703,8 +3943,8 @@ if __name__ == "__main__":
 	#test_get_components()
 	#test_get_drugs()
 	#test_get_intakes()
-	#test_get_intakes_with_regimens()
-	test_get_intake_regimens()
+	test_get_intakes_with_regimens()
+	#test_get_intake_regimens()
 	#test_intake_formatting()
 	#test_intake_regimen()
 	#test_create_substance_intake()
