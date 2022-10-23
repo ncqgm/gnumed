@@ -2749,22 +2749,44 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 			short = short
 		)
 
-	formatted_units = property(_get_formatted_units, lambda x:x)
+	formatted_units = property(_get_formatted_units)
+
+	#--------------------------------------------------------
+	def _get_start_is_known(self):
+		if self._payload['comment_on_start'] == COMMENT_FOR_UNKNOWN_START:
+			return False
+
+		if self._payload['started']:
+			return True
+
+		return False
+
+	start_is_known = property(_get_start_is_known)
+
+	#--------------------------------------------------------
+	def _get_start_is_unknown(self):
+		if self._payload['comment_on_start'] == COMMENT_FOR_UNKNOWN_START:
+			return True
+
+		if not self._payload['started']:
+			return True
+
+		return False
+
+	start_is_unknown = property(_get_start_is_unknown)
 
 	#--------------------------------------------------------
 	def _get_medically_formatted_start(self):
-		if self._payload[self._idx['comment_on_start']] == '?':
+		if self.start_is_unknown:
 			return '?'
 
 		start_prefix = ''
 		if self._payload[self._idx['comment_on_start']] is not None:
 			start_prefix = gmTools.u_almost_equal_to
-
 		duration_taken = gmDateTime.pydt_now_here() - self._payload[self._idx['started']]
-
 		three_months = pydt.timedelta(weeks = 13, days = 3)
 		if duration_taken < three_months:
-			return _('%s%s: %s ago%s') % (
+			return _('%s%s [%s ago]%s') % (
 				start_prefix,
 				gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y %b %d', 'utf8', gmDateTime.acc_days),
 				gmDateTime.format_interval_medically(duration_taken),
@@ -2773,27 +2795,27 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 
 		five_years = pydt.timedelta(weeks = 265)
 		if duration_taken < five_years:
-			return _('%s%s: %s ago (%s)') % (
+			return _('%s%s [%s ago] (%s)') % (
 				start_prefix,
 				gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y %b', 'utf8', gmDateTime.acc_months),
 				gmDateTime.format_interval_medically(duration_taken),
 				gmTools.coalesce (
 					self._payload[self._idx['comment_on_start']],
-					gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%b %d', 'utf8', gmDateTime.acc_days),
+					gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%b %d', 'utf8', gmDateTime.acc_days)
 				)
 			)
 
-		return _('%s%s: %s ago (%s)') % (
+		return _('%s%s [%s ago] (%s)') % (
 			start_prefix,
 			gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y', 'utf8', gmDateTime.acc_years),
 			gmDateTime.format_interval_medically(duration_taken),
 			gmTools.coalesce (
 				self._payload[self._idx['comment_on_start']],
-				gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%b %d', 'utf8', gmDateTime.acc_days),
+				gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%b %d', 'utf8', gmDateTime.acc_days)
 			)
 		)
 
-	medically_formatted_start = property(_get_medically_formatted_start, lambda x:x)
+	medically_formatted_start = property(_get_medically_formatted_start)
 
 	#--------------------------------------------------------
 	def _get_medically_formatted_start_end_of_stopped(self, now):
@@ -3023,35 +3045,27 @@ def get_substance_intakes(pk_patient=None, return_pks=False):
 	return [ cSubstanceIntakeEntry(row = {'data': r, 'idx': idx, 'pk_field': 'pk_intake'}) for r in rows ]
 
 #------------------------------------------------------------
-def substance_intake_exists(pk_component=None, pk_identity=None, pk_drug_product=None, pk_dose=None):
+def substance_intake_exists(pk_identity:int=None, pk_substance:int=None) -> bool:
+	"""Check for existence of substance intakes.
 
-	if [pk_component, pk_drug_product, pk_dose].count(None) != 2:
-		raise ValueError('only one of pk_component, pk_dose, and pk_drug_product can be non-NULL')
-
-	args = {
-		'pk_comp': pk_component,
-		'pk_pat': pk_identity,
-		'pk_drug_product': pk_drug_product,
-		'pk_dose': pk_dose
-	}
-	where_parts = ['fk_encounter IN (SELECT pk FROM clin.encounter WHERE fk_patient = %(pk_pat)s)']
-
-	if pk_dose is not None:
-		where_parts.append('fk_drug_component IN (SELECT pk FROM ref.lnk_dose2drug WHERE fk_dose = %(pk_dose)s)')
-	if pk_component is not None:
-		where_parts.append('fk_drug_component = %(pk_comp)s')
-	if pk_drug_product is not None:
-		where_parts.append('fk_drug_component IN (SELECT pk FROM ref.lnk_dose2drug WHERE fk_drug_product = %(pk_drug_product)s)')
-
-	cmd = """
-		SELECT EXISTS (
-			SELECT 1 FROM clin.substance_intake
-			WHERE
-				%s
-			LIMIT 1
-		)
-	""" % '\nAND\n'.join(where_parts)
-
+	Args:
+		pk_identity: constrain by person
+		pk_substance: costrain by substance
+	"""
+	assert pk_substance or pk_identity, 'either <pk_identity> or <pk_substance> or both must not be None'
+	where_parts = []
+	args = {}
+	if pk_identity:
+		args['pk_pat'] = pk_identity
+		where_parts.append('fk_encounter IN (SELECT pk FROM clin.encounter WHERE fk_patient = %(pk_pat)s)')
+	if pk_substance:
+		args['pk_subst'] = pk_substance
+		where_parts.append('fk_substance = %(pk_subst)s')
+	cmd = """SELECT EXISTS (
+		SELECT 1 FROM clin.intake WHERE
+			%s
+		LIMIT 1
+	)""" % '\nAND\n'.join(where_parts)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	return rows[0][0]
 
