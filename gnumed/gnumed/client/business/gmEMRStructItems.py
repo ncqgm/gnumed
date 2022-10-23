@@ -3413,7 +3413,7 @@ def problem2issue(problem=None):
 
 	return cHealthIssue(aPK_obj = problem['pk_health_issue'])
 #-----------------------------------------------------------
-def reclass_problem(self, problem=None):
+def reclass_problem(problem=None):
 	"""Transform given problem into either episode or health issue instance.
 	"""
 	if isinstance(problem, (cEpisode, cHealthIssue)):
