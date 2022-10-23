@@ -1637,12 +1637,12 @@ WHERE
 			_log.error('cannot retrieve scheduled vaccination courses')
 			return None
 		# Instantiate vaccination items and keep cache
-		for row in rows:
-			self.__db_cache['vaccinations']['scheduled regimes'].append(gmVaccination.cVaccinationCourse(aPK_obj=row[0]))
+#		for row in rows:
+#			self.__db_cache['vaccinations']['scheduled regimes'].append(gmVaccination.cVaccinationCourse(aPK_obj=row[0]))
 
 		# ok, let's constrain our list
 		filtered_regimes = []
-		filtered_regimes.extend(self.__db_cache['vaccinations']['scheduled regimes'])
+#		filtered_regimes.extend(self.__db_cache['vaccinations']['scheduled regimes'])
 		if ID is not None:
 			filtered_regimes = [ r for r in filtered_regimes if r['pk_course'] == ID ]
 			if len(filtered_regimes) == 0:
@@ -1695,9 +1695,10 @@ WHERE
         * issues - list of health issues whose allergies are to be retrieved
 		"""
 		try:
-			self.__db_cache['vaccinations']['vaccinated']
+#			self.__db_cache['vaccinations']['vaccinated']
+			pass
 		except KeyError:
-			self.__db_cache['vaccinations']['vaccinated'] = []
+#			self.__db_cache['vaccinations']['vaccinated'] = []
 			# Important fetch ordering by indication, date to know if a vaccination is booster
 			cmd= """SELECT * FROM clin.v_pat_vaccinations4indication
 					WHERE pk_patient=%s
@@ -1705,7 +1706,7 @@ WHERE
 			rows, idx  = gmPG2.run_ro_query('historica', cmd, True, self.pk_patient)
 			if rows is None:
 				_log.error('cannot load given vaccinations for patient [%s]' % self.pk_patient)
-				del self.__db_cache['vaccinations']['vaccinated']
+#				del self.__db_cache['vaccinations']['vaccinated']
 				return None
 			# Instantiate vaccination items
 			vaccs_by_ind = {}
@@ -1716,7 +1717,7 @@ WHERE
 					'data': row
 				}
 				vacc = gmVaccination.cVaccination(row=vacc_row)
-				self.__db_cache['vaccinations']['vaccinated'].append(vacc)
+#				self.__db_cache['vaccinations']['vaccinated'].append(vacc)
 				# keep them, ordered by indication
 				try:
 					vaccs_by_ind[vacc['indication']].append(vacc)
@@ -1741,7 +1742,7 @@ WHERE
 
 		# ok, let's constrain our list
 		filtered_shots = []
-		filtered_shots.extend(self.__db_cache['vaccinations']['vaccinated'])
+#		filtered_shots.extend(self.__db_cache['vaccinations']['vaccinated'])
 		if ID is not None:
 			filtered_shots = filter(lambda shot: shot['pk_vaccination'] == ID, filtered_shots)
 			if len(filtered_shots) == 0:
@@ -1772,14 +1773,15 @@ WHERE
 		                vaccinations to be fetched for
 		"""
 		try:
-			self.__db_cache['vaccinations']['scheduled']
+			pass
+#			self.__db_cache['vaccinations']['scheduled']
 		except KeyError:
-			self.__db_cache['vaccinations']['scheduled'] = []
+#			self.__db_cache['vaccinations']['scheduled'] = []
 			cmd = """SELECT * FROM clin.v_vaccs_scheduled4pat WHERE pk_patient=%s"""
 			rows, idx = gmPG2.run_ro_query('historica', cmd, True, self.pk_patient)
 			if rows is None:
 				_log.error('cannot load scheduled vaccinations for patient [%s]' % self.pk_patient)
-				del self.__db_cache['vaccinations']['scheduled']
+#				del self.__db_cache['vaccinations']['scheduled']
 				return None
 			# Instantiate vaccination items
 			for row in rows:
@@ -1788,23 +1790,25 @@ WHERE
 					'idx': idx,
 					'data': row
 				}
-				self.__db_cache['vaccinations']['scheduled'].append(gmVaccination.cScheduledVaccination(row = vacc_row))
+#				self.__db_cache['vaccinations']['scheduled'].append(gmVaccination.cScheduledVaccination(row = vacc_row))
 
 		# ok, let's constrain our list
 		if indications is None:
-			return self.__db_cache['vaccinations']['scheduled']
+#			return self.__db_cache['vaccinations']['scheduled']
+			pass
 		filtered_shots = []
-		filtered_shots.extend(self.__db_cache['vaccinations']['scheduled'])
+#		filtered_shots.extend(self.__db_cache['vaccinations']['scheduled'])
 		filtered_shots = filter(lambda shot: shot['indication'] in indications, filtered_shots)
 		return filtered_shots
 	#--------------------------------------------------------
 	def get_missing_vaccinations(self, indications=None):
 		try:
-			self.__db_cache['vaccinations']['missing']
+			pass
+#			self.__db_cache['vaccinations']['missing']
 		except KeyError:
-			self.__db_cache['vaccinations']['missing'] = {}
+#			self.__db_cache['vaccinations']['missing'] = {}
 			# 1) non-booster
-			self.__db_cache['vaccinations']['missing']['due'] = []
+#			self.__db_cache['vaccinations']['missing']['due'] = []
 			# get list of (indication, seq_no) tuples
 			cmd = "SELECT indication, seq_no FROM clin.v_pat_missing_vaccs WHERE pk_patient=%s"
 			rows = gmPG2.run_ro_query('historica', cmd, None, self.pk_patient)
@@ -1816,10 +1820,10 @@ WHERE
 				for row in rows:
 					pk_args['indication'] = row[0]
 					pk_args['seq_no'] = row[1]
-					self.__db_cache['vaccinations']['missing']['due'].append(gmVaccination.cMissingVaccination(aPK_obj=pk_args))
+#					self.__db_cache['vaccinations']['missing']['due'].append(gmVaccination.cMissingVaccination(aPK_obj=pk_args))
 
 			# 2) boosters
-			self.__db_cache['vaccinations']['missing']['boosters'] = []
+#			self.__db_cache['vaccinations']['missing']['boosters'] = []
 			# get list of indications
 			cmd = "SELECT indication, seq_no FROM clin.v_pat_missing_boosters WHERE pk_patient=%s"
 			rows = gmPG2.run_ro_query('historica', cmd, None, self.pk_patient)
@@ -1830,24 +1834,24 @@ WHERE
 			if rows is not None:
 				for row in rows:
 					pk_args['indication'] = row[0]
-					self.__db_cache['vaccinations']['missing']['boosters'].append(gmVaccination.cMissingBooster(aPK_obj=pk_args))
+#					self.__db_cache['vaccinations']['missing']['boosters'].append(gmVaccination.cMissingBooster(aPK_obj=pk_args))
 
 		# if any filters ...
-		if indications is None:
-			return self.__db_cache['vaccinations']['missing']
-		if len(indications) == 0:
-			return self.__db_cache['vaccinations']['missing']
+#		if indications is None:
+#			return self.__db_cache['vaccinations']['missing']
+#		if len(indications) == 0:
+#			return self.__db_cache['vaccinations']['missing']
 		# ... apply them
 		filtered_shots = {
 			'due': [],
 			'boosters': []
 		}
-		for due_shot in self.__db_cache['vaccinations']['missing']['due']:
-			if due_shot['indication'] in indications: #and due_shot not in filtered_shots['due']:
-				filtered_shots['due'].append(due_shot)
-		for due_shot in self.__db_cache['vaccinations']['missing']['boosters']:
-			if due_shot['indication'] in indications: #and due_shot not in filtered_shots['boosters']:
-				filtered_shots['boosters'].append(due_shot)
+#		for due_shot in self.__db_cache['vaccinations']['missing']['due']:
+#			if due_shot['indication'] in indications: #and due_shot not in filtered_shots['due']:
+#				filtered_shots['due'].append(due_shot)
+#		for due_shot in self.__db_cache['vaccinations']['missing']['boosters']:
+#			if due_shot['indication'] in indications: #and due_shot not in filtered_shots['boosters']:
+#				filtered_shots['boosters'].append(due_shot)
 		return filtered_shots
 
 	#------------------------------------------------------------------
@@ -2755,7 +2759,7 @@ SELECT MIN(earliest) FROM (
 	#------------------------------------------------------------------
 	def get_lab_request(self, pk=None, req_id=None, lab=None):
 		# FIXME: verify that it is our patient ? ...
-		req = gmPathLab.cLabRequest(aPK_obj=pk, req_id=req_id, lab=lab)
+		req = gmPathLab.cLabRequest(aPK_obj=pk)
 		return req
 	#------------------------------------------------------------------
 	def add_lab_request(self, lab=None, req_id=None, encounter_id=None, episode_id=None):
