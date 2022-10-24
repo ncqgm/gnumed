@@ -67,14 +67,12 @@ select
 	r_dp.preparation,
 	_(r_dp.preparation)
 		as l10n_preparation,
-	r_dp.atc_code
-		as atc_drug_product,
 	r_dp.is_fake
 		as is_fake_product,
 	r_dp.external_code,
 	r_dp.external_code_type,
 	r_dp.atc_code
-		as atc_drug,
+		as atc_drug_product,
 	r_dp.pk
 		as pk_drug_product,
 	-- episode
