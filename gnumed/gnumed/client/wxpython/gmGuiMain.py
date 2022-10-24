@@ -92,6 +92,7 @@ from Gnumed.wxpython import gmExceptionHandlingWidgets
 from Gnumed.wxpython import gmNarrativeWorkflows
 from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmMedicationWidgets
+from Gnumed.wxpython import gmSubstanceIntakeWidgets
 from Gnumed.wxpython import gmStaffWidgets
 from Gnumed.wxpython import gmDocumentWidgets
 from Gnumed.wxpython import gmTimer
@@ -2552,7 +2553,7 @@ class gmTopLevelFrame(wx.Frame):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add medication. No active patient.'))
 			return False
 
-		gmMedicationWidgets.edit_intake_of_substance(parent = self, substance = None)
+		gmSubstanceIntakeWidgets.edit_intake_of_substance(parent = self)
 
 		evt.Skip()
 	#----------------------------------------------

@@ -32,7 +32,7 @@ from Gnumed.wxpython.gmEMRStructWidgets import edit_episode
 from Gnumed.wxpython.gmEncounterWidgets import edit_encounter
 from Gnumed.wxpython.gmHospitalStayWidgets import edit_hospital_stay
 from Gnumed.wxpython.gmMeasurementWidgets import edit_measurement
-from Gnumed.wxpython.gmMedicationWidgets import edit_intake_of_substance
+from Gnumed.wxpython.gmSubstanceIntakeWidgets import edit_intake_of_substance
 from Gnumed.wxpython.gmFamilyHistoryWidgets import edit_family_history
 from Gnumed.wxpython.gmVaccWidgets import edit_vaccination
 from Gnumed.wxpython.gmProcedureWidgets import edit_procedure
