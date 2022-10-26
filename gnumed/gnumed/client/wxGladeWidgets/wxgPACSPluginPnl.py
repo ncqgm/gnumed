@@ -20,36 +20,159 @@ class wxgPACSPluginPnl(wx.Panel):
 		# begin wxGlade: wxgPACSPluginPnl.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.BORDER_NONE | wx.TAB_TRAVERSAL
 		wx.Panel.__init__(self, *args, **kwds)
-		self.__lbl_host = wx.StaticText(self, wx.ID_ANY, _("Host:"))
-		self._TCTRL_host = cTextCtrl(self, wx.ID_ANY, "")
-		self.__lbl_port = wx.StaticText(self, wx.ID_ANY, _("Port:"))
-		self._TCTRL_port = cTextCtrl(self, wx.ID_ANY, "")
-		self.__lbl_user = wx.StaticText(self, wx.ID_ANY, _("User:"))
-		self._TCTRL_user = cTextCtrl(self, wx.ID_ANY, "")
-		self.__lbl_password = wx.StaticText(self, wx.ID_ANY, _("Password"))
-		self._TCTRL_password = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_PASSWORD)
-		self._BTN_connect = wx.Button(self, wx.ID_ANY, _("&Connect"), style=wx.BU_EXACTFIT)
-		self._LBL_PACS_identification = wx.StaticText(self, wx.ID_ANY, _("<not connected>"))
-		self._LBL_patient_identification = wx.StaticText(self, wx.ID_ANY, "")
-		self._LCTRL_studies = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
-		self._LCTRL_series = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
-		self._LCTRL_details = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
-		self._BMP_preview = wx.lib.statbmp.GenStaticBitmap(self, wx.ID_ANY, wx.Bitmap(50, 50), style=wx.BORDER_SIMPLE)
-		self._BTN_previous_image = wx.Button(self, wx.ID_ANY, _(u"\u25c4"), style=wx.BU_EXACTFIT)
-		self._BTN_next_image = wx.Button(self, wx.ID_ANY, _(u"\u25ba"), style=wx.BU_EXACTFIT)
-		self._BTN_image_show = wx.Button(self, wx.ID_ANY, _("&Show"))
-		self._BTN_image_export = wx.Button(self, wx.ID_ANY, _("E&xport area"))
-		self._BTN_browse_study = wx.Button(self, wx.ID_ANY, _("Browse"), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
-		self._BTN_studies_show = wx.Button(self, wx.ID_ANY, _("Show"))
-		self._BTN_studies_export = wx.Button(self, wx.ID_ANY, _("Export area"))
-		self._BTN_browse_patient = wx.Button(self, wx.ID_ANY, _("Browse"), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
-		self._BTN_verify_patient_data = wx.Button(self, wx.ID_ANY, _("Verify"))
-		self._BTN_browse_pacs = wx.Button(self, wx.ID_ANY, _("Browse"), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
-		self._BTN_upload = wx.Button(self, wx.ID_ANY, _("&Upload"))
-		self._BTN_modify_orthanc_content = wx.Button(self, wx.ID_ANY, _("Edit"))
 
-		self.__set_properties()
-		self.__do_layout()
+		__szr_main = wx.BoxSizer(wx.VERTICAL)
+
+		__szr_PACS_details = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_main.Add(__szr_PACS_details, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
+
+		self.__lbl_host = wx.StaticText(self, wx.ID_ANY, _("Host:"))
+		__szr_PACS_details.Add(self.__lbl_host, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
+
+		self._TCTRL_host = cTextCtrl(self, wx.ID_ANY, "")
+		self._TCTRL_host.SetToolTip(_("Enter the PACS host address."))
+		__szr_PACS_details.Add(self._TCTRL_host, 1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
+
+		self.__lbl_port = wx.StaticText(self, wx.ID_ANY, _("Port:"))
+		__szr_PACS_details.Add(self.__lbl_port, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
+
+		self._TCTRL_port = cTextCtrl(self, wx.ID_ANY, "")
+		self._TCTRL_port.SetToolTip(_("Enter the PACS port."))
+		__szr_PACS_details.Add(self._TCTRL_port, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
+
+		self.__lbl_user = wx.StaticText(self, wx.ID_ANY, _("User:"))
+		__szr_PACS_details.Add(self.__lbl_user, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
+
+		self._TCTRL_user = cTextCtrl(self, wx.ID_ANY, "")
+		self._TCTRL_user.SetToolTip(_("Enter the PACS user."))
+		__szr_PACS_details.Add(self._TCTRL_user, 1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
+
+		self.__lbl_password = wx.StaticText(self, wx.ID_ANY, _("Password"))
+		__szr_PACS_details.Add(self.__lbl_password, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
+
+		self._TCTRL_password = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_PASSWORD)
+		self._TCTRL_password.SetToolTip(_("Enter the PACS password. It will not be shown."))
+		__szr_PACS_details.Add(self._TCTRL_password, 1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
+
+		self._BTN_connect = wx.Button(self, wx.ID_ANY, _("&Connect"), style=wx.BU_EXACTFIT)
+		self._BTN_connect.SetToolTip(_("Connect to PACS."))
+		__szr_PACS_details.Add(self._BTN_connect, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
+
+		self._LBL_PACS_identification = wx.StaticText(self, wx.ID_ANY, _("<not connected>"))
+		__szr_main.Add(self._LBL_PACS_identification, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
+
+		__szr_details = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_main.Add(__szr_details, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
+
+		__szr_studies_series = wx.BoxSizer(wx.VERTICAL)
+		__szr_details.Add(__szr_studies_series, 1, wx.EXPAND | wx.RIGHT, 3)
+
+		self._LBL_patient_identification = wx.StaticText(self, wx.ID_ANY, "")
+		__szr_studies_series.Add(self._LBL_patient_identification, 0, wx.ALL | wx.EXPAND, 3)
+
+		self._LCTRL_studies = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
+		__szr_studies_series.Add(self._LCTRL_studies, 3, wx.EXPAND | wx.TOP, 3)
+
+		self._LCTRL_series = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
+		__szr_studies_series.Add(self._LCTRL_series, 2, wx.EXPAND | wx.TOP, 3)
+
+		__szr_metadata_image = wx.BoxSizer(wx.VERTICAL)
+		__szr_details.Add(__szr_metadata_image, 1, wx.EXPAND, 0)
+
+		self._LCTRL_details = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
+		self._LCTRL_details.SetFont(wx.Font(9, wx.FONTFAMILY_MODERN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+		__szr_metadata_image.Add(self._LCTRL_details, 1, wx.EXPAND, 0)
+
+		__szr_image_and_buttons = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_metadata_image.Add(__szr_image_and_buttons, 0, wx.EXPAND | wx.TOP, 4)
+
+		self._SZR_image_buttons = wx.StaticBoxSizer(wx.StaticBox(self, wx.ID_ANY, _("Image")), wx.HORIZONTAL)
+		__szr_image_and_buttons.Add(self._SZR_image_buttons, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 2)
+
+		__szr_image_buttons_left = wx.BoxSizer(wx.VERTICAL)
+		self._SZR_image_buttons.Add(__szr_image_buttons_left, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 2)
+
+		__szr_prev_next = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_image_buttons_left.Add(__szr_prev_next, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
+
+		self._BTN_previous_image = wx.Button(self, wx.ID_ANY, _(u"◄"), style=wx.BU_EXACTFIT)
+		self._BTN_previous_image.SetToolTip(_("Review previous image."))
+		self._BTN_previous_image.Enable(False)
+		__szr_prev_next.Add(self._BTN_previous_image, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
+
+		self._BTN_next_image = wx.Button(self, wx.ID_ANY, _(u"►"), style=wx.BU_EXACTFIT)
+		self._BTN_next_image.SetToolTip(_("Preview next image."))
+		self._BTN_next_image.Enable(False)
+		__szr_prev_next.Add(self._BTN_next_image, 0, wx.ALIGN_CENTER_VERTICAL, 3)
+
+		self._BTN_image_show = wx.Button(self, wx.ID_ANY, _("&Show"))
+		self._BTN_image_show.SetToolTip(_("Show image in external viewer."))
+		self._BTN_image_show.Enable(False)
+		__szr_image_buttons_left.Add(self._BTN_image_show, 0, wx.EXPAND | wx.TOP, 3)
+
+		self._BTN_image_export = wx.Button(self, wx.ID_ANY, _("E&xport area"))
+		self._BTN_image_export.SetToolTip(_("Put image into export area."))
+		self._BTN_image_export.Enable(False)
+		__szr_image_buttons_left.Add(self._BTN_image_export, 0, wx.EXPAND | wx.TOP, 3)
+
+		self._BMP_preview = wx.lib.statbmp.GenStaticBitmap(self, wx.ID_ANY, wx.Bitmap(50, 50), style=wx.BORDER_SIMPLE)
+		self._BMP_preview.SetMinSize((50, 50))
+		self._BMP_preview.SetToolTip(_("Double-click: Display in external viewer.\n\nRight-click: Show context menu."))
+		__szr_image_and_buttons.Add(self._BMP_preview, 0, wx.ALL, 2)
+
+		__szr_study_buttons = wx.StaticBoxSizer(wx.StaticBox(self, wx.ID_ANY, _("Study")), wx.VERTICAL)
+		__szr_image_and_buttons.Add(__szr_study_buttons, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 2)
+
+		self._BTN_browse_study = wx.Button(self, wx.ID_ANY, _("Browse"), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
+		self._BTN_browse_study.SetToolTip(_("Browse selected studies in web browser.\n\nRight-click for further options."))
+		self._BTN_browse_study.Enable(False)
+		__szr_study_buttons.Add(self._BTN_browse_study, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
+
+		self._BTN_studies_show = wx.Button(self, wx.ID_ANY, _("Show"))
+		self._BTN_studies_show.SetToolTip(_("Show selected studies in external viewer."))
+		self._BTN_studies_show.Enable(False)
+		__szr_study_buttons.Add(self._BTN_studies_show, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.TOP, 3)
+
+		self._BTN_studies_export = wx.Button(self, wx.ID_ANY, _("Export area"))
+		self._BTN_studies_export.SetToolTip(_("Put selected studies into export area."))
+		self._BTN_studies_export.Enable(False)
+		__szr_study_buttons.Add(self._BTN_studies_export, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.TOP, 3)
+
+		__szr_patient_buttons = wx.StaticBoxSizer(wx.StaticBox(self, wx.ID_ANY, _("Patient")), wx.VERTICAL)
+		__szr_image_and_buttons.Add(__szr_patient_buttons, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 2)
+
+		self._BTN_browse_patient = wx.Button(self, wx.ID_ANY, _("Browse"), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
+		self._BTN_browse_patient.SetToolTip(_("Browse patient studies in web browser."))
+		self._BTN_browse_patient.Enable(False)
+		__szr_patient_buttons.Add(self._BTN_browse_patient, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
+
+		self._BTN_verify_patient_data = wx.Button(self, wx.ID_ANY, _("Verify"))
+		self._BTN_verify_patient_data.SetToolTip(_("Verify DICOM data of patient in PACS."))
+		self._BTN_verify_patient_data.Enable(False)
+		__szr_patient_buttons.Add(self._BTN_verify_patient_data, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.TOP, 3)
+
+		__szr_pacs_buttons = wx.StaticBoxSizer(wx.StaticBox(self, wx.ID_ANY, _("PACS")), wx.VERTICAL)
+		__szr_image_and_buttons.Add(__szr_pacs_buttons, 0, wx.EXPAND | wx.LEFT, 2)
+
+		self._BTN_browse_pacs = wx.Button(self, wx.ID_ANY, _("Browse"), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
+		self._BTN_browse_pacs.SetToolTip(_("Browse PACS."))
+		self._BTN_browse_pacs.Enable(False)
+		__szr_pacs_buttons.Add(self._BTN_browse_pacs, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
+
+		self._BTN_upload = wx.Button(self, wx.ID_ANY, _("&Upload"))
+		self._BTN_upload.SetToolTip(_("Upload DICOM files from a directory, recursively, into the Orthanc PACS\n\nIt does not matter what the currently active patient is. Orthanc will associate uploaded files with the patient found within the DICOM metadata and will create new patients as needed."))
+		self._BTN_upload.Enable(False)
+		__szr_pacs_buttons.Add(self._BTN_upload, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.TOP, 3)
+
+		self._BTN_modify_orthanc_content = wx.Button(self, wx.ID_ANY, _("Edit"))
+		self._BTN_modify_orthanc_content.SetToolTip(_("Modify some of Orthanc's content (such as patient IDs)."))
+		self._BTN_modify_orthanc_content.Enable(False)
+		__szr_pacs_buttons.Add(self._BTN_modify_orthanc_content, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.TOP, 3)
+
+		self.SetSizer(__szr_main)
+		__szr_main.Fit(self)
+
+		self.Layout()
 
 		self.Bind(wx.EVT_BUTTON, self._on_connect_button_pressed, self._BTN_connect)
 		self.Bind(wx.EVT_BUTTON, self._on_previous_image_button_pressed, self._BTN_previous_image)
@@ -64,99 +187,6 @@ class wxgPACSPluginPnl(wx.Panel):
 		self.Bind(wx.EVT_BUTTON, self._on_browse_pacs_button_pressed, self._BTN_browse_pacs)
 		self.Bind(wx.EVT_BUTTON, self._on_upload_button_pressed, self._BTN_upload)
 		self.Bind(wx.EVT_BUTTON, self._on_modify_orthanc_content_button_pressed, self._BTN_modify_orthanc_content)
-		# end wxGlade
-
-	def __set_properties(self):
-		# begin wxGlade: wxgPACSPluginPnl.__set_properties
-		self._TCTRL_host.SetToolTip(_("Enter the PACS host address."))
-		self._TCTRL_port.SetToolTip(_("Enter the PACS port."))
-		self._TCTRL_user.SetToolTip(_("Enter the PACS user."))
-		self._TCTRL_password.SetToolTip(_("Enter the PACS password. It will not be shown."))
-		self._BTN_connect.SetToolTip(_("Connect to PACS."))
-		self._LCTRL_details.SetFont(wx.Font(9, wx.MODERN, wx.NORMAL, wx.NORMAL, 0, ""))
-		self._BMP_preview.SetMinSize((50, 50))
-		self._BMP_preview.SetToolTip(_("Double-click: Display in external viewer.\n\nRight-click: Show context menu."))
-		self._BTN_previous_image.SetToolTip(_("Review previous image."))
-		self._BTN_previous_image.Enable(False)
-		self._BTN_next_image.SetToolTip(_("Preview next image."))
-		self._BTN_next_image.Enable(False)
-		self._BTN_image_show.SetToolTip(_("Show image in external viewer."))
-		self._BTN_image_show.Enable(False)
-		self._BTN_image_export.SetToolTip(_("Put image into export area."))
-		self._BTN_image_export.Enable(False)
-		self._BTN_browse_study.SetToolTip(_("Browse selected studies in web browser.\n\nRight-click for further options."))
-		self._BTN_browse_study.Enable(False)
-		self._BTN_studies_show.SetToolTip(_("Show selected studies in external viewer."))
-		self._BTN_studies_show.Enable(False)
-		self._BTN_studies_export.SetToolTip(_("Put selected studies into export area."))
-		self._BTN_studies_export.Enable(False)
-		self._BTN_browse_patient.SetToolTip(_("Browse patient studies in web browser."))
-		self._BTN_browse_patient.Enable(False)
-		self._BTN_verify_patient_data.SetToolTip(_("Verify DICOM data of patient in PACS."))
-		self._BTN_verify_patient_data.Enable(False)
-		self._BTN_browse_pacs.SetToolTip(_("Browse PACS."))
-		self._BTN_browse_pacs.Enable(False)
-		self._BTN_upload.SetToolTip(_("Upload DICOM files from a directory, recursively, into the Orthanc PACS\n\nIt does not matter what the currently active patient is. Orthanc will associate uploaded files with the patient found within the DICOM metadata and will create new patients as needed."))
-		self._BTN_upload.Enable(False)
-		self._BTN_modify_orthanc_content.SetToolTip(_("Modify some of Orthanc's content (such as patient IDs)."))
-		self._BTN_modify_orthanc_content.Enable(False)
-		# end wxGlade
-
-	def __do_layout(self):
-		# begin wxGlade: wxgPACSPluginPnl.__do_layout
-		__szr_main = wx.BoxSizer(wx.VERTICAL)
-		__szr_details = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_metadata_image = wx.BoxSizer(wx.VERTICAL)
-		__szr_image_and_buttons = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_pacs_buttons = wx.StaticBoxSizer(wx.StaticBox(self, wx.ID_ANY, _("PACS")), wx.VERTICAL)
-		__szr_patient_buttons = wx.StaticBoxSizer(wx.StaticBox(self, wx.ID_ANY, _("Patient")), wx.VERTICAL)
-		__szr_study_buttons = wx.StaticBoxSizer(wx.StaticBox(self, wx.ID_ANY, _("Study")), wx.VERTICAL)
-		self._SZR_image_buttons = wx.StaticBoxSizer(wx.StaticBox(self, wx.ID_ANY, _("Image")), wx.HORIZONTAL)
-		__szr_image_buttons_left = wx.BoxSizer(wx.VERTICAL)
-		__szr_prev_next = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_studies_series = wx.BoxSizer(wx.VERTICAL)
-		__szr_PACS_details = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_PACS_details.Add(self.__lbl_host, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
-		__szr_PACS_details.Add(self._TCTRL_host, 1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
-		__szr_PACS_details.Add(self.__lbl_port, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
-		__szr_PACS_details.Add(self._TCTRL_port, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
-		__szr_PACS_details.Add(self.__lbl_user, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
-		__szr_PACS_details.Add(self._TCTRL_user, 1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
-		__szr_PACS_details.Add(self.__lbl_password, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
-		__szr_PACS_details.Add(self._TCTRL_password, 1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
-		__szr_PACS_details.Add(self._BTN_connect, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
-		__szr_main.Add(__szr_PACS_details, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
-		__szr_main.Add(self._LBL_PACS_identification, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
-		__szr_studies_series.Add(self._LBL_patient_identification, 0, wx.ALL | wx.EXPAND, 3)
-		__szr_studies_series.Add(self._LCTRL_studies, 3, wx.EXPAND | wx.TOP, 3)
-		__szr_studies_series.Add(self._LCTRL_series, 2, wx.EXPAND | wx.TOP, 3)
-		__szr_details.Add(__szr_studies_series, 1, wx.EXPAND | wx.RIGHT, 3)
-		__szr_metadata_image.Add(self._LCTRL_details, 1, wx.EXPAND, 0)
-		__szr_image_and_buttons.Add(self._BMP_preview, 0, wx.ALL, 2)
-		__szr_prev_next.Add(self._BTN_previous_image, 0, wx.ALIGN_CENTER | wx.RIGHT, 3)
-		__szr_prev_next.Add(self._BTN_next_image, 0, wx.ALIGN_CENTER, 3)
-		__szr_image_buttons_left.Add(__szr_prev_next, 0, wx.ALIGN_CENTER, 0)
-		__szr_image_buttons_left.Add(self._BTN_image_show, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.TOP, 3)
-		__szr_image_buttons_left.Add(self._BTN_image_export, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.TOP, 3)
-		self._SZR_image_buttons.Add(__szr_image_buttons_left, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 2)
-		__szr_image_and_buttons.Add(self._SZR_image_buttons, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 2)
-		__szr_study_buttons.Add(self._BTN_browse_study, 0, wx.ALIGN_CENTER, 0)
-		__szr_study_buttons.Add(self._BTN_studies_show, 0, wx.ALIGN_CENTER | wx.TOP, 3)
-		__szr_study_buttons.Add(self._BTN_studies_export, 0, wx.ALIGN_CENTER | wx.TOP, 3)
-		__szr_image_and_buttons.Add(__szr_study_buttons, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 2)
-		__szr_patient_buttons.Add(self._BTN_browse_patient, 0, wx.ALIGN_CENTER, 0)
-		__szr_patient_buttons.Add(self._BTN_verify_patient_data, 0, wx.ALIGN_CENTER | wx.TOP, 3)
-		__szr_image_and_buttons.Add(__szr_patient_buttons, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 2)
-		__szr_pacs_buttons.Add(self._BTN_browse_pacs, 0, wx.ALIGN_CENTER, 0)
-		__szr_pacs_buttons.Add(self._BTN_upload, 0, wx.ALIGN_CENTER | wx.TOP, 3)
-		__szr_pacs_buttons.Add(self._BTN_modify_orthanc_content, 0, wx.ALIGN_CENTER | wx.TOP, 3)
-		__szr_image_and_buttons.Add(__szr_pacs_buttons, 0, wx.EXPAND | wx.LEFT, 2)
-		__szr_metadata_image.Add(__szr_image_and_buttons, 0, wx.EXPAND | wx.TOP, 4)
-		__szr_details.Add(__szr_metadata_image, 1, wx.EXPAND, 0)
-		__szr_main.Add(__szr_details, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
-		self.SetSizer(__szr_main)
-		__szr_main.Fit(self)
-		self.Layout()
 		# end wxGlade
 
 	def _on_connect_button_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>
