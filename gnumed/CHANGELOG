@@ -50,6 +50,8 @@ FIX: date/time: formatting intervals medically
 
 	1.8.8
 
+IMPROVED: PACS: better image/image buttons placement
+
 FIX: py3.10+ *requires* ints for rescaling images [thanks henrique]
 FIX: patient tags: do not crash when rescaling image fails [thanks henrique]
 FIX: fix a number of errors found by pyflakes3
