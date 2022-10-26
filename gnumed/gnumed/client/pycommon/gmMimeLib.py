@@ -162,19 +162,23 @@ def guess_ext_by_mimetype(mimetype=''):
 	return ext
 
 #-----------------------------------------------------------------------------------
-def guess_ext_for_file(aFile=None):
+def guess_ext_for_file(aFile:str=None) -> str:
+	"""Guesses an approprate file name extension based on mimetype.
+
+	Args:
+		aFile: the name of an existing file
+	"""
 	if aFile is None:
 		return None
 
 	(path_name, f_ext) = os.path.splitext(aFile)
-	if f_ext != '':
+	if f_ext:
 		return f_ext
 
-	# try to guess one
 	mime_type = guess_mimetype(aFile)
 	f_ext = guess_ext_by_mimetype(mime_type)
 	if f_ext is None:
-		_log.error('unable to guess file extension for mime type [%s]' % mime_type)
+		_log.error('unable to guess file name extension for mime type [%s]' % mime_type)
 		return None
 
 	return f_ext
@@ -182,6 +186,11 @@ def guess_ext_for_file(aFile=None):
 #-----------------------------------------------------------------------------------
 def adjust_extension_by_mimetype(filename:str) -> str:
 	"""Rename file to have proper extension as per its mimetype.
+
+	Returns:
+		Original filename if no suffix found or empty suffix found or existing suffix already correct (case insensitive).
+
+		New filename if renamed. New filename will have any old suffix removed and the new suffix appende.
 	"""
 	mimetype = guess_mimetype(filename)
 	mime_suffix = guess_ext_by_mimetype(mimetype)

@@ -1019,8 +1019,8 @@ def unlock_row(link_obj=None, table=None, pk=None, exclusive=False):
 	return False
 
 #------------------------------------------------------------------------
-def row_is_locked(table=None, pk=None):
-	"""Looks at pg_locks.
+def row_is_locked(table=None, pk=None) -> bool:
+	"""Checks pg_locks for (ADVISORY only) locks on the row identified by table and pk.
 
 	- does not take into account locks other than 'advisory', however
 	"""
@@ -1263,17 +1263,19 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 	return True
 
 #------------------------------------------------------------------------
-def file2bytea(query=None, filename=None, args=None, conn=None, file_md5=None):
+def file2bytea(query:str=None, filename:str=None, args=None, conn=None, file_md5:str=None) -> bool:
 	"""Store data from a file into a bytea field.
 
-	The query must:
-	- contain a format spec identifying the row (eg a primary key)
-	  matching <args> if it is an UPDATE
-	- contain a format spec " <field> = %(data)s::bytea"
+	Args:
+		query: SQL, must:
+			- contain a format spec named %(data)s for the bytea data, say '... <bytea data column> = %(data)s::bytea'
+			- if UPDATE: contain a format spec identifying the row (eg a primary key), say '... AND pk_column = %(pk_val)s'
+			- can contain a '... RETURNING md5(<bytea data column>) AS md5'
+		args: must (if UPDATE) contain primary key placeholder matching "query", say {'pk_val': pk_value, ...}
+		file_md5: md5 of the file in "filename"; if given, AND "query" returns a column 'md5', the returned value is compared to the given value
 
-	The query CAN return the MD5 of the inserted data:
-		RETURNING md5(<field>) AS md5
-	in which case the returned hash will compared to the md5 of the file.
+	Returns:
+		Whether operation seems to have succeeded.
 	"""
 	retry_delay = 100		# milliseconds
 	attempt = 0
@@ -1297,7 +1299,6 @@ def file2bytea(query=None, filename=None, args=None, conn=None, file_md5=None):
 	# really still needed for BYTEA input ?
 	args['data'] = memoryview(data_as_byte_string)
 	del(data_as_byte_string)
-	# insert the data
 	if conn is None:
 		conn = get_raw_connection(readonly = False)
 		close_conn = True
@@ -1361,7 +1362,7 @@ def file2lo(filename=None, conn=None, check_md5=False, file_md5=None):
 	return -1
 
 #------------------------------------------------------------------------
-def file2bytea_lo(filename=None, conn=None, file_md5=None):
+def __file2bytea_lo(filename=None, conn=None, file_md5=None):
 	# 1 GB limit unless 64 bit Python build ...
 	file_size = os.path.getsize(filename)
 	if file_size > (1024 * 1024) * 1024:
@@ -1401,7 +1402,7 @@ def file2bytea_lo(filename=None, conn=None, file_md5=None):
 	return -1
 
 #------------------------------------------------------------------------
-def file2bytea_copy_from(table=None, columns=None, filename=None, conn=None, md5_query=None, file_md5=None):
+def __file2bytea_copy_from(table=None, columns=None, filename=None, conn=None, md5_query=None, file_md5=None):
 	# md5_query: dict{'cmd': ..., 'args': ...}
 
 	# UNTESTED
@@ -1436,7 +1437,7 @@ def file2bytea_copy_from(table=None, columns=None, filename=None, conn=None, md5
 	return False
 
 #------------------------------------------------------------------------
-def file2bytea_overlay(query=None, args=None, filename=None, conn=None, md5_query=None, file_md5=None):
+def __file2bytea_overlay(query=None, args=None, filename=None, conn=None, md5_query=None, file_md5=None):
 	"""Store data from a file into a bytea field.
 
 	The query must:
@@ -1650,15 +1651,22 @@ def sanitize_pg_regex(expression=None, escape_all=False):
 		#']', '\]',			# not needed
 
 #------------------------------------------------------------------------
-def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True, get_col_idx=False):
+def run_ro_queries(link_obj=None, queries:[]=None, verbose:bool=False, return_data:bool=True, get_col_idx:bool=False) -> ():
 	"""Run read-only queries.
 
-	<queries> must be a list of dicts:
-		[
-			{'cmd': <string>, 'args': <dict> or <tuple>},
-			{...},
-			...
-		]
+	Args:
+		link_obj: a psycopg2 cursor or connection, can be used to continue transactions, or None
+		queries: a list of dicts:
+			[
+				{'cmd': <SQL string with %(name)s placeholders>, 'args': <dict>},
+				{...},
+				...
+			]
+		return_data: attempt to fetch data produced by the last query and return that
+		get_col_idx: return column index for row data from psycopg2
+
+	Returns:
+		A tuple holding (data rows, column index in row data as per DB-API)
 	"""
 	if isinstance(link_obj, dbapi._psycopg.cursor):
 		curs = link_obj
@@ -1947,7 +1955,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 
 #------------------------------------------------------------------------
 def run_insert(link_obj=None, schema=None, table=None, values=None, returning=None, end_tx=False, get_col_idx=False, verbose=False):
-	"""Generates SQL for an INSERT query.
+	"""Generates and runs SQL for an INSERT query.
 
 	values: dict of values keyed by field to insert them into
 	"""
@@ -2041,11 +2049,12 @@ def log_database_access(action=None):
 	)
 
 #-----------------------------------------------------------------------
-def sanity_check_time_skew(tolerance=60):
+def sanity_check_time_skew(tolerance:int=60) -> bool:
 	"""Check server time and local time to be within
 	the given tolerance of each other.
 
-	tolerance: seconds
+	Args:
+		tolerance: seconds
 	"""
 	_log.debug('maximum skew tolerance (seconds): %s', tolerance)
 
