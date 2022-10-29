@@ -11,11 +11,14 @@ __license__ = "GPL"
 # stdlib
 import sys
 import os
-import mailcap
 import mimetypes
 import subprocess
 import shutil
 import logging
+try:
+	import mailcap as _mailcap
+except ImportError:		# Python 3.11 deprecated mailcap, in 3.13 it will be gone ...
+	import _mailcap__copy as _mailcap
 
 
 # GNUmed
@@ -27,78 +30,115 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmWorkerThread
 
+
 _log = logging.getLogger('gm.mime')
 
-#=======================================================================================
-def guess_mimetype(filename=None):
-	"""Guess mime type of arbitrary file.
+WORST_CASE_MIMETYPE = 'application/octet-stream'
 
-	filenames are supposed to be in Unicode
-	"""
-	worst_case = "application/octet-stream"
-	_log.debug('guessing mime type of [%s]', filename)
-	# 1) use Python libextractor
+#=======================================================================================
+def __guess_mimetype__pylibextractor(filename:str=None) -> str:
+	# Python libextractor
 	try:
 		import extractor
-		xtract = extractor.Extractor()
-		props = xtract.extract(filename = filename)
-		for prop, val in props:
-			if (prop == 'mimetype') and (val != worst_case):
-				return val
 	except ImportError:
 		_log.debug('module <extractor> (python wrapper for libextractor) not installed')
+		return False
+
 	except OSError as exc:
 		# winerror 126, errno 22
 		if exc.errno != 22:
 			raise
 		_log.exception('module <extractor> (python wrapper for libextractor) not installed')
+		return False
 
-	ret_code = -1
-	# 2) use "file" system command
-	#    -i get mime type
-	#    -b don't display a header
-	mime_guesser_cmd = 'file -i -b "%s"' % filename
+	xtractor = extractor.Extractor()
+	props = xtractor.extract(filename = filename)
+	for prop, val in props:
+		if prop != 'mimetype':
+			continue
+		_log.debug('[import extractor]: <%s>' % val)
+		if val != WORST_CASE_MIMETYPE:
+			return val
+
+	return False
+
+#---------------------------------------------------------------------------------------
+def __guess_mimetype__file(filename:str=None) -> str:
 	# this only works on POSIX with 'file' installed (which is standard, however)
 	# it might work on Cygwin installations
-	aPipe = os.popen(mime_guesser_cmd, 'r')
-	if aPipe is None:
+	mime_guesser_cmd = 'file --mime-type --brief "%s"' % filename
+	pipe = os.popen(mime_guesser_cmd, 'r')
+	if pipe is None:
 		_log.debug("cannot open pipe to [%s]" % mime_guesser_cmd)
-	else:
-		pipe_output = aPipe.readline().replace('\n', '').strip()
-		ret_code = aPipe.close()
-		if ret_code is None:
-			_log.debug('[%s]: <%s>' % (mime_guesser_cmd, pipe_output))
-			if pipe_output not in ['', worst_case]:
-				return pipe_output.split(';')[0].strip()
-		else:
-			_log.error('[%s] on %s (%s): failed with exit(%s)' % (mime_guesser_cmd, os.name, sys.platform, ret_code))
+		return False
+
+	pipe_output = pipe.readline().replace('\n', '').strip()
+	ret_code = pipe.close()
+	if ret_code is not None:
+		_log.error('[%s] on %s (%s): failed with exit(%s)' % (mime_guesser_cmd, os.name, sys.platform, ret_code))
+		return False
+
+	_log.debug('[%s]: <%s>' % (mime_guesser_cmd, pipe_output))
+	if pipe_output in ['', WORST_CASE_MIMETYPE]:
+		return False
+
+	return pipe_output
+
+#---------------------------------------------------------------------------------------
+def __guess_mimetype__extract(filename:str=None) -> str:
+	mime_guesser_cmd = 'extract -p mimetype "%s"' % filename
+	pipe = os.popen(mime_guesser_cmd, 'r')
+	if pipe is None:
+		_log.debug("cannot open pipe to [%s]" % mime_guesser_cmd)
+		return False
+
+	pipe_output = pipe.readline()[11:].replace('\n', '').strip()
+	ret_code = pipe.close()
+	if ret_code is not None:
+		_log.error('[%s] on %s (%s): failed with exit(%s)' % (mime_guesser_cmd, os.name, sys.platform, ret_code))
+		return False
+
+	_log.debug('[%s]: <%s>' % (mime_guesser_cmd, pipe_output))
+	if pipe_output in ['', WORST_CASE_MIMETYPE]:
+		return False
+
+	return pipe_output
+
+#---------------------------------------------------------------------------------------
+def guess_mimetype(filename:str=None) -> str:
+	"""Guess mime type of arbitrary file.
+
+	Returns:
+		Detected mimetype or 'application/octet-stream'.
+	"""
+	_log.debug('guessing mime type of [%s]', filename)
+	mimetype, encoding = mimetypes.guess_type(filename)
+	if mimetype != WORST_CASE_MIMETYPE:
+		_log.debug('"%s" -> <%s>' % (filename, mimetype))
+		return mimetype
+
+	mimetype = __guess_mimetype__pylibextractor(filename = filename)
+	if mimetype:
+		return mimetype
+
+	mimetype = __guess_mimetype__file(filename = filename)
+	if mimetype:
+		return mimetype
 
 	# 3) use "extract" shell level libextractor wrapper
-	mime_guesser_cmd = 'extract -p mimetype "%s"' % filename
-	aPipe = os.popen(mime_guesser_cmd, 'r')
-	if aPipe is None:
-		_log.debug("cannot open pipe to [%s]" % mime_guesser_cmd)
-	else:
-		pipe_output = aPipe.readline()[11:].replace('\n', '').strip()
-		ret_code = aPipe.close()
-		if ret_code is None:
-			_log.debug('[%s]: <%s>' % (mime_guesser_cmd, pipe_output))
-			if pipe_output not in ['', worst_case]:
-				return pipe_output
-		else:
-			_log.error('[%s] on %s (%s): failed with exit(%s)' % (mime_guesser_cmd, os.name, sys.platform, ret_code))
+	mimetype = __guess_mimetype__extract(filename = filename)
+	if mimetype:
+		return mimetype
 
 	# If we and up here we either have an insufficient systemwide
 	# magic number file or we suffer from a deficient operating system
 	# alltogether. It can't get much worse if we try ourselves.
-
 	_log.info("OS level mime detection failed, falling back to built-in magic")
-
 	import gmMimeMagic
-	mime_type = gmTools.coalesce(gmMimeMagic.filedesc(filename), worst_case)
+	mimetype = gmTools.coalesce(gmMimeMagic.filedesc(filename), WORST_CASE_MIMETYPE)
 	del gmMimeMagic
-	_log.debug('"%s" -> <%s>' % (filename, mime_type))
-	return mime_type
+	_log.debug('"%s" -> <%s>' % (filename, mimetype))
+	return mimetype
 
 #-----------------------------------------------------------------------------------
 def get_viewer_cmd(aMimeType = None, aFileName = None, aToken = None):
@@ -110,8 +150,8 @@ def get_viewer_cmd(aMimeType = None, aFileName = None, aToken = None):
 		# and hope for the best - we certainly don't want the module default "/dev/null"
 		aFileName = """%s"""
 
-	mailcaps = mailcap.getcaps()
-	(viewer, junk) = mailcap.findmatch(mailcaps, aMimeType, key = 'view', filename = '%s' % aFileName)
+	mailcaps = _mailcap.getcaps()
+	(viewer, junk) = _mailcap.findmatch(mailcaps, aMimeType, key = 'view', filename = '%s' % aFileName)
 	# FIXME: we should check for "x-token" flags
 
 	_log.debug("<%s> viewer: [%s]" % (aMimeType, viewer))
@@ -127,8 +167,8 @@ def get_editor_cmd(mimetype=None, filename=None):
 		# and hope for the best - we certainly don't want the module default "/dev/null"
 		filename = """%s"""
 
-	mailcaps = mailcap.getcaps()
-	(editor, junk) = mailcap.findmatch(mailcaps, mimetype, key = 'edit', filename = '%s' % filename)
+	mailcaps = _mailcap.getcaps()
+	(editor, junk) = _mailcap.findmatch(mailcaps, mimetype, key = 'edit', filename = '%s' % filename)
 
 	# FIXME: we should check for "x-token" flags
 
@@ -584,7 +624,6 @@ def call_viewer_on_file(aFile = None, block=None):
 
 	mime_type = guess_mimetype(aFile)
 	viewer_cmd = get_viewer_cmd(mime_type, aFile)
-
 	if viewer_cmd is not None:
 		if gmShellAPI.run_command_in_shell(command = viewer_cmd, blocking = block):
 			return True, ''
@@ -769,7 +808,7 @@ if __name__ == "__main__":
 	#--------------------------------------------------------
 #	print(_system_startfile_cmd)
 #	print(guess_mimetype(filename))
-#	print(get_viewer_cmd(guess_mimetype(filename), filename))
+	print(get_viewer_cmd(guess_mimetype(filename), filename))
 #	print(get_editor_cmd(guess_mimetype(filename), filename))
 #	print(get_editor_cmd('application/x-latex', filename))
 #	print(get_editor_cmd('application/x-tex', filename))
@@ -778,7 +817,7 @@ if __name__ == "__main__":
 #	print(get_editor_cmd('text/plain', filename))
 	#print(get_editor_cmd('text/x-tex', filename))
 	#print(guess_ext_by_mimetype(mimetype=filename))
-	call_viewer_on_file(aFile = filename, block = True)
+	#call_viewer_on_file(aFile = filename, block = True)
 	#call_editor_on_file(filename)
 	#test_describer()
 	#print(test_edit())

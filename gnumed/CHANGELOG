@@ -43,6 +43,7 @@ FIX: CLI: --wxp= not needed anymore
 FIX: CLI: --ui= not needed anymore
 FIX: documentation: links (wiki -> static pages)
 FIX: date/time: formatting intervals medically
+FIX: Py3.13: will remove mailcap module
 
 ------------------------------------------------
 # rel-1-8-maint
