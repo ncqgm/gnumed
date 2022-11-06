@@ -5,7 +5,7 @@ set up a config source from the database. You can limit the option
 applicability by the constraints "workplace", "user", and "cookie".
 
 GNUmed tries to centralize configuration in the backend as
-much as possible.
+much as possible (as opposed to in client-side files).
 """
 #==================================================================
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -67,6 +67,14 @@ def get4workplace(option:str=None, workplace:str=None, cookie:str=None, default=
 		cookie = cookie,
 		default = default
 	)
+
+#------------------------------------------------------------------
+def get4site(option:str=None, default=None):
+	"""Retrieve site-wide configuration option from backend.
+
+	Site-wide means owner=NULL and workplace=NULL.
+	"""
+	return __get_db_cfg_object().get4site(option = option, default = default)
 
 #------------------------------------------------------------------
 def set(owner:str=None, workplace:str=None, cookie:str=None, option:str=None, value=None) -> bool:
@@ -154,27 +162,32 @@ class cCfgSQL:
 		)
 
 	#-----------------------------------------------
+	def get4site(self, option:str=None, default=None):
+		"""Retrieve site-wide configuration option from backend."""
+		return self.__get4site(option = option, default = default)
+
+	#-----------------------------------------------
 	def get(self, option:str=None, workplace:str=None, cookie:str=None, bias:str=None, default=None):
 		"""Retrieve configuration option from backend for current user.
 
-		The method will look for option values in a
+		This method will look for option values in a
 		more-specific to less-specific order, namely
 
-		1) specific to the workplace, if given, and the current user
+		1) specific to the workplace, if given, plus the current user
 
-		2)		either
+		2) either
 			if bias is "user", specific to the current user, *regardless* of workplace
 			("Did *I* set the option anywhere on this site ? If so, use that value.")
-				OR
+		   OR
 			if bias is "workplace", specific to the given workplace, *regardless* of user
 			"Did anyone set the option for *this workplace* ? If so, use that value."
-				OR
+		  OR
 			if bias is None, skip biased search
 
 		3) explicitely not specific to any user or workplace (both being searched
 		   as NULL), IOW the site-wide default
 
-		When no value is found at all, default (if given) is stored in the
+		When no value is found at all, the default (if given) is stored in the
 		database as site-wide default and returned.
 
 		Args:
@@ -182,8 +195,8 @@ class cCfgSQL:
 			workplace: the workplace for which to retrieve the value, None = site-wide default
 			cookie: an opaque value further restricting the scope of the configuration item value search, say, a particular patient's ID
 			bias: the "direction" into which to search for config options
-				'user': When no value is found for "current_user/workplace" look for a value for "current_user" regardless of workspace. The corresponding concept is:
-				'workplace': When no value is found for "current_user/workplace" look for a value for "workplace" regardless of user. The corresponding concept is:
+				'user': When no value is found for "current_user/workplace" look for a value for "current_user" regardless of workspace.
+				'workplace': When no value is found for "current_user/workplace" look for a value for "workplace" regardless of user.
 			default: the default configuration value to use if no value is found
 
 		Returns:
@@ -215,94 +228,33 @@ class cCfgSQL:
 		cmd = 'SELECT * FROM cfg.v_cfg_options c_vco WHERE %s LIMIT 1' % (' AND '.join(where_parts))
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		if rows:
-			row = rows[0]
-			if row['value'] not in [0,1]:		# not pseudo boolean
-				return row['value']
-
-			# auto-heal pseudo booleans
-			if isinstance(default, bool):
-				_log.debug('auto-healing boolean from 0/1 to False/True')
-				self.set (
-					owner = row['owner'],
-					workplace = row['owner'],
-					cookie = row['cookie'],
-					option = option,
-					value = bool(row['value'])
-				)
-			return row['value']
+			return self.__auto_heal_pseudo_boolean_setting(setting = rows[0], default = default)
 
 		# 2) search value with biased query
 		_log.warning('no user+workplace specific value for option [%s] in database', option)
-		if bias:
-			where_parts = ['c_vco.option = %(opt)s']
-			if cookie:
-				where_parts.append('c_vco.cookie = %(cookie)s')
-			if bias == 'user':
-				# did *I* set this option for *any* workplace ?
-				where_parts.append('c_vco.owner = CURRENT_USER')
-			else:
-				# did *anyone* set this option for *this* workplace ?
-				where_parts.append('c_vco.workplace = %(wp)s')
-			cmd = 'SELECT * FROM cfg.v_cfg_options c_vco WHERE %s LIMIT 1' % (' AND '.join(where_parts))
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
-			if rows:
-				row = rows[0]
-				if row['value'] not in [0,1]:		# not pseudo boolean
-					return row['value']
+		value = self.__get_with_bias (
+			option = option,
+			workplace = workplace,
+			cookie = cookie,
+			bias = bias,
+			default = default
+		)
+		if value is not None:
+			return value
 
-				# auto-heal pseudo booleans
-				if isinstance(default, bool):
-					_log.debug('auto-healing boolean from 0/1 to False/True')
-					self.set (
-						owner = row['owner'],
-						workplace = row['owner'],
-						cookie = row['cookie'],
-						option = option,
-						value = bool(row['value'])
-					)
-				return row['value']
-
-		# 3) search site-wide default value
+		# 3) search site-wide default value, or default, if given
 		_log.warning('no %s-biased value for option [%s] in database, or no bias given', bias, option)
-		where_parts = [
-			'c_vco.owner IS NULL',
-			'c_vco.workplace IS NULL',
-			'c_vco.option = %(opt)s'
-		]
-		cmd = 'SELECT * FROM cfg.v_cfg_options c_vco WHERE %s LIMIT 1' % (' AND '.join(where_parts))
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
-		if rows:
-			row = rows[0]
-			if row['value'] not in [0,1]:		# not pseudo boolean
-				return row['value']
-
-			# auto-heal pseudo booleans
-			if isinstance(default, bool):
-				_log.debug('auto-healing boolean from 0/1 to False/True')
-				self.set (
-					owner = row['owner'],
-					workplace = row['owner'],
-					cookie = row['cookie'],
-					option = option,
-					value = bool(row['value'])
-				)
-			return row['value']
-
-		# 4) not found, set to hardcoded default, if given
-		_log.warning('no site-wide default value for option [%s] in database' % option)
-		if default is None:
-			_log.warning('no default value for option [%s] supplied by caller' % option)
-			return None
-
-		_log.info('setting site-wide default for option [%s] to [%s]' % (option, default))
-		self.set(option = option, value = default)
-		return default
+		return self.__get4site(option = option, default = default)
 
 	#----------------------------
 	def set(self, owner:str=None, workplace:str=None, cookie:str=None, option:str=None, value=None, description:str=None) -> bool:
 		"""Set (create or update) option+value in database.
 
-		Any parameter that is None will be set to NULL, meaning site-wide default.
+		Any argument that is None will be set to NULL, meaning site-wide default.
+
+		Note:
+			*value* cannot be None (and thusly map to NULL) as None is
+			used to denote "no value found" in .get*() methods
 
 		Args:
 			owner: the user this value applies to,
@@ -341,7 +293,7 @@ class cCfgSQL:
 			rw_conn.close()
 		return result
 
-	#----------------------------
+	#-----------------------------------------------
 	def delete(self, conn=None, pk_option:int=None):
 		"""Delete configuration value from database.
 
@@ -356,6 +308,82 @@ class cCfgSQL:
 			cmd = "DELETE FROM cfg.cfg_item WHERE pk = %(pk)s"
 		args = {'pk': pk_option}
 		gmPG2.run_rw_queries(link_obj = conn, queries = [{'cmd': cmd, 'args': args}], end_tx = True)
+
+	#-----------------------------------------------
+	# helper functions
+	#-----------------------------------------------
+	def __auto_heal_pseudo_boolean_setting(self, setting=None, default=None):
+		if not isinstance(default, bool):
+			# apparently not intended to be boolean, leave alone
+			return setting['value']
+
+		_log.debug('current setting [%s], default [%s]', setting, default)
+		if setting['value'] not in [0,1]:
+			_log.error('default suggests boolean, but current setting not 0/1, returning bool() of current value, but leaving database unchanged')
+			return bool(setting['value'])
+
+		_log.debug('auto-healing boolean from 0/1 to False/True')
+		self.set (
+			owner = setting['owner'],
+			workplace = setting['workplace'],
+			cookie = setting['cookie'],
+			option = setting['option'],
+			value = bool(setting['value'])
+		)
+		return bool(setting['value'])
+
+	#-----------------------------------------------
+	def __get_with_bias(self, option:str=None, workplace:str=None, cookie:str=None, bias:str=None, default=None):
+		if bias is None:
+			return None
+
+		args = {
+			'opt': option,
+			'wp': workplace,
+			'cookie': cookie
+		}
+		where_parts = ['c_vco.option = %(opt)s']
+		if cookie:
+			where_parts.append('c_vco.cookie = %(cookie)s')
+		if bias == 'user':
+			# "Did *I* set this option for *any* workplace ?"
+			where_parts.append('c_vco.owner = CURRENT_USER')
+		elif bias == 'workplace':
+			# "Did *anyone* set this option for *this* workplace ?"
+			where_parts.append('c_vco.workplace = %(wp)s')
+		else:
+			# well ...
+			raise ValueError('<bias> must be "user" or "workplace", or None')
+
+		cmd = 'SELECT * FROM cfg.v_cfg_options c_vco WHERE %s LIMIT 1' % (' AND '.join(where_parts))
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		if rows:
+			return self.__auto_heal_pseudo_boolean_setting(setting = rows[0], default = default)
+
+		return None
+
+	#-----------------------------------------------
+	def __get4site(self, option:str=None, default=None):
+		_log.debug('option [%s], default [%s]', option, default)
+		args = {'opt': option}
+		where_parts = [
+			'c_vco.owner IS NULL',
+			'c_vco.workplace IS NULL',
+			'c_vco.option = %(opt)s'
+		]
+		cmd = 'SELECT * FROM cfg.v_cfg_options c_vco WHERE %s LIMIT 1' % (' AND '.join(where_parts))
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		if not rows:
+			_log.warning('no site-wide default value for option [%s] in database' % option)
+			if default is None:
+				_log.warning('no default value for option [%s] supplied by caller' % option)
+				return None
+
+			_log.info('setting site-wide default for option [%s] to [%s]' % (option, default))
+			self.set(option = option, value = default)
+			return default
+
+		return self.__auto_heal_pseudo_boolean_setting(setting = rows[0], default = default)
 
 #=============================================================
 # main
@@ -423,5 +451,5 @@ if __name__ == "__main__":
 	gmPG2.request_login_params(setup_pool = True)
 
 	#test_get_all_options()
-	test_set()
-	#test_db_cfg()
+	#test_set()
+	test_db_cfg()
