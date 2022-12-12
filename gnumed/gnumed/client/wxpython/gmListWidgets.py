@@ -42,6 +42,14 @@ from Gnumed.pycommon import gmDispatcher
 
 
 _log = logging.getLogger('gm.list_ui')
+
+#================================================================
+try:
+	_WX__LIST_HITTEST_ONITEMRIGHT = wx.LIST_HITTEST_ONITEMRIGHT
+except AttributeError:
+	_WX__LIST_HITTEST_ONITEMRIGHT = -1
+	_log.debug('this platform does not support <wx.LIST_HITTEST_ONITEMRIGHT>')
+
 #================================================================
 # FIXME: configurable callback on double-click action
 
@@ -2307,7 +2315,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			LIST_HITTEST_ONITEM 672
 			LIST_HITTEST_ONITEMICON 32
 			LIST_HITTEST_ONITEMLABEL 128
-			LIST_HITTEST_ONITEMRIGHT 256
+			LIST_HITTEST_ONITEMRIGHT 256			# not existant in wxPython 4.2
 			LIST_HITTEST_ONITEMSTATEICON 512
 			LIST_HITTEST_TOLEFT 1024
 			LIST_HITTEST_TORIGHT 2048
@@ -2319,7 +2327,8 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			wx.LIST_HITTEST_ONITEMLABEL,
 			wx.LIST_HITTEST_ONITEMICON,
 			wx.LIST_HITTEST_ONITEMSTATEICON,
-			wx.LIST_HITTEST_ONITEMRIGHT,
+			#wx.LIST_HITTEST_ONITEMRIGHT,
+			_WX__LIST_HITTEST_ONITEMRIGHT,
 			wx.LIST_HITTEST_ONITEM
 		]:
 			self.__tt_last_item = None						# not on any item
