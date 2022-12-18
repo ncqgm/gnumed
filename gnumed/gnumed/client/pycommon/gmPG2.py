@@ -727,7 +727,11 @@ def get_col_names(link_obj=None, schema='public', table=None):
 
 #------------------------------------------------------------------------
 def revalidate_constraints(link_obj=None):
-	"""This needs quite extensive permissions, say, <postgres> at the PG level."""
+	"""This needs quite extensive permissions, say, <postgres> at the PG level.
+
+	Returns:
+		False on error, magic cookie on success.
+	"""
 	_log.debug('revalidating all constraints in database')
 	SQL = """DO $$
 		DECLARE
@@ -749,21 +753,24 @@ def revalidate_constraints(link_obj=None):
 	run_rw_queries(link_obj = link_obj, queries = [{'cmd': SQL}])
 
 #------------------------------------------------------------------------
-def reindex_database(conn=None):
-	"""This needs database owner permissions, say, <postgres> at the PG level.
+def reindex_database(conn=None) -> bool:
+	"""Reindex the database "conn" is connected to.
 
-	Also, REINDEX must be run outside transactions.
-	Therefore, a connection is needed, not a cursor.
+	Args:
+		conn: a read-write connection in autocommit mode with sufficient
+			PG level permissions for reindexing, say, "postgres" or the
+			database owner
+
+	Returns:
+		False on error, magic cookie on success.
 	"""
-	_log.debug('reindexing all tables in database')
-	if conn is None:
-		conn = gmConnectionPool.gmConnectionPool().get_connection(readonly = False, autocommit = True)
-		conn_close = conn.close
-	else:
-		conn_close = lambda :True
+	assert conn, '<conn> must be given'
+
+	_log.debug('rebuilding all indices in database')
 	SQL = psysql.SQL('REINDEX (VERBOSE) DATABASE {}').format (
 		psysql.Identifier(conn.get_dsn_parameters()['dbname'])
 	)
+	# REINDEX must be run outside transactions
 	conn.commit()
 	conn.set_session(readonly = False, autocommit = True)
 	curs = conn.cursor()
@@ -776,7 +783,7 @@ def reindex_database(conn=None):
 	finally:
 		curs.close()
 		conn.commit()
-		conn_close()
+		conn.close()
 	return status
 
 #------------------------------------------------------------------------
@@ -2127,7 +2134,7 @@ def sanity_check_database_settings() -> tuple:
 		'full_page_writes': [['on'], 'data loss/corruption', False],
 		'lc_messages': [['C'], 'suboptimal error detection', False],
 		'password_encryption': [['on', 'md5', 'scram-sha-256'], 'breach of confidentiality', False],
-		#u'regex_flavor': [[u'advanced'], u'query breakage', False],					# 9.0 doesn't support this anymore, default now advanced anyway
+		#'regex_flavor': [[u'advanced'], u'query breakage', False],					# 9.0 doesn't support this anymore, and default now "advanced" anyway
 		'synchronous_commit': [['on'], 'data loss/corruption', False],
 		'sql_inheritance': [['on'], 'query breakage, data loss/corruption', True],	# IF returned (<PG10): better be ON, if NOT returned (PG10): hardwired
 		'ignore_checksum_failure': [['off'], 'data loss/corruption', False],		# starting with PG 9.3
