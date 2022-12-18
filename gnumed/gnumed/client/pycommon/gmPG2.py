@@ -2228,7 +2228,7 @@ if __name__ == "__main__":
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	from Gnumed.pycommon.gmTools import file2md5
+#	from Gnumed.pycommon.gmTools import file2md5
 
 	logging.basicConfig(level=logging.DEBUG)
 
@@ -2252,87 +2252,87 @@ if __name__ == "__main__":
 		])
 
 	#--------------------------------------------------------------------
-	def test_file2bytea_lo():
-		login, creds = request_login_params()
-		pool = gmConnectionPool.gmConnectionPool()
-		pool.credentials = creds
-
-		lo_oid = file2bytea_lo (
-			filename = sys.argv[2]
-			#, file_md5 = file2md5(sys.argv[2], True)
-		)
-		print(lo_oid)
+#	def test_file2bytea_lo():
+#		login, creds = request_login_params()
+#		pool = gmConnectionPool.gmConnectionPool()
+#		pool.credentials = creds
+#
+#		lo_oid = file2bytea_lo (
+#			filename = sys.argv[2]
+#			#, file_md5 = file2md5(sys.argv[2], True)
+#		)
+#		print(lo_oid)
 #		if lo_oid != -1:
 #			run_rw_queries(queries = [
 #				{'cmd': u'select lo_unlink(%(loid)s::oid)', 'args': {'loid': lo_oid}}
 #			])
 
 	#--------------------------------------------------------------------
-	def test_file2bytea_copy_from():
-		login, creds = request_login_params()
-		pool = gmConnectionPool.gmConnectionPool()
-		pool.credentials = creds
+#	def test_file2bytea_copy_from():
+#		login, creds = request_login_params()
+#		pool = gmConnectionPool.gmConnectionPool()
+#		pool.credentials = creds
+#
+#		run_rw_queries(queries = [
+#			{'cmd': 'drop table if exists test_bytea'},
+#			{'cmd': 'create table test_bytea (pk serial primary key, data bytea)'},
+#			{'cmd': "insert into test_bytea (data) values (NULL::bytea)"}
+#		])
+#
+#		md5_query = {
+#			'cmd': 'select md5(data) AS md5 FROM test_bytea WHERE pk = %(pk)s',
+#			'args': {'pk': 1}
+#		}
+#
+#		file2bytea_copy_from (
+#			table = 'test_bytea',
+#			columns = ['data'],
+#			filename = sys.argv[2],
+#			md5_query = md5_query,
+#			file_md5 = file2md5(sys.argv[2], True)
+#		)
+#
+#		run_rw_queries(queries = [
+#			{'cmd': 'drop table if exists test_bytea'}
+#		])
 
-		run_rw_queries(queries = [
-			{'cmd': 'drop table if exists test_bytea'},
-			{'cmd': 'create table test_bytea (pk serial primary key, data bytea)'},
-			{'cmd': "insert into test_bytea (data) values (NULL::bytea)"}
-		])
-
-		md5_query = {
-			'cmd': 'select md5(data) AS md5 FROM test_bytea WHERE pk = %(pk)s',
-			'args': {'pk': 1}
-		}
-
-		file2bytea_copy_from (
-			table = 'test_bytea',
-			columns = ['data'],
-			filename = sys.argv[2],
-			md5_query = md5_query,
-			file_md5 = file2md5(sys.argv[2], True)
-		)
-
-		run_rw_queries(queries = [
-			{'cmd': 'drop table if exists test_bytea'}
-		])
-
-	#--------------------------------------------------------------------
-	def test_file2bytea_overlay():
-		login, creds = request_login_params()
-		pool = gmConnectionPool.gmConnectionPool()
-		pool.credentials = creds
-
-		run_rw_queries(queries = [
-			{'cmd': 'drop table if exists test_bytea'},
-			{'cmd': 'create table test_bytea (pk serial primary key, data bytea)'},
-			{'cmd': "insert into test_bytea (data) values (NULL::bytea)"}
-		])
-
-		cmd = """
-		update test_bytea
-		set data = overlay (
-			coalesce(data, ''::bytea)
-			placing %(data)s::bytea
-			from %(start)s
-			for %(size)s
-		)
-		where
-			pk > %(pk)s
-		"""
-		md5_cmd = 'select md5(data) from test_bytea'
-		args = {'pk': 0}
-		file2bytea_overlay (
-			query = cmd,
-			args = args,
-			filename = sys.argv[2],
-			conn = None,
-			md5_query = md5_cmd,
-			file_md5 = file2md5(sys.argv[2], True)
-		)
-
-		run_rw_queries(queries = [
-			{'cmd': 'drop table test_bytea'}
-		])
+#	#--------------------------------------------------------------------
+#	def test_file2bytea_overlay():
+#		login, creds = request_login_params()
+#		pool = gmConnectionPool.gmConnectionPool()
+#		pool.credentials = creds
+#
+#		run_rw_queries(queries = [
+#			{'cmd': 'drop table if exists test_bytea'},
+#			{'cmd': 'create table test_bytea (pk serial primary key, data bytea)'},
+#			{'cmd': "insert into test_bytea (data) values (NULL::bytea)"}
+#		])
+#
+#		cmd = """
+#		update test_bytea
+#		set data = overlay (
+#			coalesce(data, ''::bytea)
+#			placing %(data)s::bytea
+#			from %(start)s
+#			for %(size)s
+#		)
+#		where
+#			pk > %(pk)s
+#		"""
+#		md5_cmd = 'select md5(data) from test_bytea'
+#		args = {'pk': 0}
+#		file2bytea_overlay (
+#			query = cmd,
+#			args = args,
+#			filename = sys.argv[2],
+#			conn = None,
+#			md5_query = md5_cmd,
+#			file_md5 = file2md5(sys.argv[2], True)
+#		)
+#
+#		run_rw_queries(queries = [
+#			{'cmd': 'drop table test_bytea'}
+#		])
 
 	#--------------------------------------------------------------------
 	def test_get_connection():
@@ -2523,9 +2523,6 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------------------
 	def test_sanity_check_database_settings():
-		login, creds = request_login_params()
-		pool = gmConnectionPool.gmConnectionPool()
-		pool.credentials = creds
 		status, msg = sanity_check_database_settings()
 		print(status)
 		print(msg)
