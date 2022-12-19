@@ -925,7 +925,7 @@ class database:
 		cursor.close()
 
 		# create database by cloning
-		print_msg("==> cloning [%s] (%s) as target database [%s] ..." % (self.template_db, size, self.name))
+		print_msg("==> [%s]: cloning (%s) as target database [%s] ..." % (self.template_db, size, self.name))
 		# CREATE DATABASE must be run outside transactions
 		self.conn.commit()
 		self.conn.set_session(readonly = False, autocommit = True)
@@ -1121,7 +1121,7 @@ class database:
 	#--------------------------------------------------------------
 	def import_data(self):
 
-		print_msg("==> upgrading reference data sets ...")
+		print_msg("==> [%s]: upgrading reference data sets ..." % self.name)
 
 		import_scripts = cfg_get(self.section, "data import scripts")
 		if (import_scripts is None) or (len(import_scripts) == 0):
@@ -1165,7 +1165,7 @@ class database:
 	#--------------------------------------------------------------
 	def verify_result_hash(self):
 
-		print_msg("==> verifying target database schema ...")
+		print_msg("==> [%s]: verifying target database schema ..." % self.name)
 
 		target_version = cfg_get(self.section, 'target version')
 		if target_version == 'devel':
@@ -1187,9 +1187,7 @@ class database:
 
 	#--------------------------------------------------------------
 	def reindex_all(self):
-
-		print_msg("==> reindexing target database (can take a while) ...")
-
+		print_msg("==> [%s]: reindexing target database (can take a while) ..." % self.name)
 		do_reindex = cfg_get(self.section, 'reindex')
 		if do_reindex is None:
 			do_reindex = True
@@ -1214,7 +1212,7 @@ class database:
 	#--------------------------------------------------------------
 	def revalidate_constraints(self):
 
-		print_msg("==> revalidating constraints in target database (can take a while) ...")
+		print_msg("==> [%s]: revalidating constraints in target database (can take a while) ..." % self.name)
 
 		do_revalidate = cfg_get(self.section, 'revalidate')
 		if do_revalidate is None:
@@ -1260,7 +1258,7 @@ class database:
 
 	#--------------------------------------------------------------
 	def transfer_users(self):
-		print_msg("==> transferring users ...")
+		print_msg("==> [%s]: transferring users ..." % self.name)
 		do_user_transfer = cfg_get(self.section, 'transfer users')
 		if do_user_transfer is None:
 			_log.info(u'user transfer not defined')
@@ -1290,7 +1288,7 @@ class database:
 
 	#--------------------------------------------------------------
 	def bootstrap_auditing(self):
-		print_msg("==> setting up auditing ...")
+		print_msg("==> [%s]: setting up auditing ..." % self.name)
 		# get audit trail configuration
 		tmp = cfg_get(self.section, 'audit disable')
 		# if this option is not given, assume we want auditing
@@ -1348,7 +1346,7 @@ class database:
 	def bootstrap_notifications(self):
 
 		# setup clin.clin_root_item child tables FK's
-		print_msg("==> setting up encounter/episode FKs and IDXs ...")
+		print_msg("==> [%s]: setting up encounter/episode FKs and IDXs ..." % self.name)
 		child_tables = gmPG2.get_child_tables(link_obj = self.conn, schema = 'clin', table = 'clin_root_item')
 		_log.info(u'clin.clin_root_item child tables:')
 		for child in child_tables:
@@ -1444,7 +1442,7 @@ class database:
 
 		# re-create fk_encounter/fk_episode sanity check triggers on all tables
 		if gmPG2.function_exists(link_obj = curs, schema = u'gm', function = u'create_all_enc_epi_sanity_check_triggers'):
-			print_msg("==> setting up encounter/episode FK sanity check triggers ...")
+			print_msg("==> [%s]: setting up encounter/episode FK sanity check triggers ..." % self.name)
 			_log.debug(u'attempting to set up sanity check triggers on all tables linking to encounter AND episode')
 			cmd = u'select gm.create_all_enc_epi_sanity_check_triggers()'
 			curs.execute(cmd)
@@ -1456,7 +1454,7 @@ class database:
 
 		# always re-create generic super signal (if exists)
 		if gmPG2.function_exists(link_obj = curs, schema = u'gm', function = u'create_all_table_mod_triggers'):
-			print_msg("==> setting up generic notifications ...")
+			print_msg("==> [%s]: setting up generic notifications ..." % self.name)
 			_log.debug(u'attempting to create generic modification announcement triggers on all registered tables')
 
 			cmd = u"SELECT gm.create_all_table_mod_triggers(True::boolean)"
