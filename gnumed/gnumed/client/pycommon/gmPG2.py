@@ -280,6 +280,9 @@ WHERE
 	is_tc.constraint_type = 'PRIMARY KEY';
 """
 
+__MIND_MELD = '_ı/'
+__LLAP = '_\\//'
+
 # =======================================================================
 # login API
 # =======================================================================
@@ -751,6 +754,7 @@ def revalidate_constraints(link_obj=None):
 		END
 	$$;"""
 	run_rw_queries(link_obj = link_obj, queries = [{'cmd': SQL}])
+	return __LLAP
 
 #------------------------------------------------------------------------
 def reindex_database(conn=None) -> bool:
@@ -777,14 +781,198 @@ def reindex_database(conn=None) -> bool:
 	status = False
 	try:
 		run_rw_queries(link_obj = curs, queries = [{'cmd': SQL}], end_tx = True)
-		status = True
+		status = __MIND_MELD
 	except Exception:
 		_log.exception('reindexing failed')
 	finally:
 		curs.close()
 		conn.commit()
-		conn.close()
 	return status
+
+#------------------------------------------------------------------------
+def sanity_check_database_default_collation_version(conn=None) -> bool:
+	"""Check whether the database default collation version has changed.
+
+	Args:
+		conn: a psycopg2 connection, for which connection's database the collation is to be checked
+
+	Returns:
+		If this returns False you need to run
+
+			REINDEX (VERBOSE) DATABASE the_database;
+			VALIDATE CONSTRAINTS;
+			ALTER DATABASE the_database REFRESH COLLATION VERSION;
+
+		inside the affected database.
+	"""
+	SQL = 'SELECT *, pg_database_collation_actual_version(oid) FROM pg_database WHERE datname = current_database()'
+	try:
+		rows, idx = run_ro_queries(link_obj = conn, queries = [{'cmd': SQL}])
+	except dbapi.errors.UndefinedFunction as pg_exc:
+		_log.exception('cannot verify collation version, likely PG < 15')
+		gmConnectionPool.log_pg_exception_details(pg_exc)
+		return True
+
+	db = rows[0]
+	if db['datcollversion'] == db['pg_database_collation_actual_version']:
+		_log.debug('no version change in database default collation:')
+		_log.debug(db)
+		return True
+
+	_log.error('database default collation version mismatch')
+	_log.error('collation: %s', db['datcollate'])
+	_log.error('provider: %s', db['datlocprovider'])
+	if db['daticulocale']:
+		_log.error('ICU locale: %s', db['daticulocale'])
+	_log.error('version (DB): %s', db['datcollversion'])
+	_log.error('version (OS): %s', db['pg_database_collation_actual_version'])
+	_log.debug('you need to run REINDEX DATABASE/VALIDATE CONSTRAINTS etc and ALTER DATABASE db_name REFRESH COLLATION VERSION')
+	return False
+
+#------------------------------------------------------------------------
+def refresh_database_default_collation_version_information(conn=None, use_the_source_luke=False) -> bool:
+	"""Update the recorded version of the database default collation.
+
+	Args:
+		conn: a psycopg2 connection for the database intended to be updated
+		use_the_source_luke: do as you are told
+	"""
+	if not use_the_source_luke:
+		_log.error('REINDEX and VALIDATE CONSTRAINT must have been run before updating collation version information')
+		return False
+
+	if __MIND_MELD not in use_the_source_luke:
+		_log.error('REINDEX and VALIDATE CONSTRAINT must have been run before updating collation version information')
+		return False
+
+	if __LLAP not in use_the_source_luke:
+		_log.error('REINDEX and VALIDATE CONSTRAINT must have been run before updating collation version information')
+		return False
+
+	_log.debug('Kelvin: refreshing database default collation version information')
+	SQL = 'ALTER DATABASE current_database() REFRESH COLLATION VERSION'
+	try:
+		run_rw_queries(link_obj = conn, queries = [{'cmd': SQL}])
+	except Exception:
+		_log.exception('failure to update default collation version information')
+		return False
+
+	return True
+
+#------------------------------------------------------------------------
+def sanity_check_collation_versions(conn=None) -> bool:
+	"""Check whether the version of collation has changed.
+
+	Args:
+		conn: a psycopg2 connection, in which connection's database the collations are to be checked
+
+	Returns:
+		If this returns False you need to run
+
+			REINDEX (VERBOSE) DATABASE the_database;
+			VALIDATE CONSTRAINTS;
+			ALTER COLLATION collation_name REFRESH VERSION;
+
+		for each of the collations with mismatching versions from pg_collation.
+	"""
+	SQL = """
+		SELECT *, pg_collation_actual_version(oid), current_database()
+		FROM pg_collation
+		WHERE
+			collversion IS DISTINCT FROM NULL
+				AND
+			collprovider <> 'd'
+				AND
+			collversion <> pg_collation_actual_version(oid)
+	"""
+	try:
+		rows, idx = run_ro_queries(link_obj = conn, queries = [{'cmd': SQL}])
+	except dbapi.errors.UndefinedFunction as pg_exc:
+		_log.exception('cannot verify collation versions, likely PG < 15')
+		gmConnectionPool.log_pg_exception_details(pg_exc)
+		return True
+
+	if not rows:
+		_log.debug('no version changes in pg_collation entries')
+		return True
+
+	_log.error('version mismatches in pg_collation')
+	_log.debug('you need to run REINDEX DATABASE/VALIDATE CONSTRAINTS etc and ALTER COLLATION collation_name REFRESH VERSION')
+	for coll in rows:
+		_log.error(coll)
+	return False
+
+#------------------------------------------------------------------------
+def refresh_collations_version_information(conn=None, use_the_source_luke=False) -> bool:
+	"""Update the recorded version of the collation version information.
+
+	Needs to be run by the owner of the collations stored in pg_collation.
+
+	Args:
+		conn: a psycopg2 connection for the database intended to be updated
+		use_the_source_luke: do as you are told
+	"""
+	if not use_the_source_luke:
+		_log.error('REINDEX and VALIDATE CONSTRAINT must have been run before updating collation version information')
+		return False
+
+	if __MIND_MELD not in use_the_source_luke:
+		_log.error('REINDEX and VALIDATE CONSTRAINT must have been run before updating collation version information')
+		return False
+
+	if __LLAP not in use_the_source_luke:
+		_log.error('REINDEX and VALIDATE CONSTRAINT must have been run before updating collation version information')
+		return False
+
+	_log.debug('Kelvin: refreshing pg_collations row version information')
+	# https://www.postgresql.org/message-id/9aec6e6d-318e-4a36-96a4-3b898c3600c9%40manitou-mail.org
+	SQL = """DO LANGUAGE plpgsql $refresh_pg_coll_version_info$
+		DECLARE
+			_rec record;
+		BEGIN
+			RAISE NOTICE 'removing collations for encodings other than the database encoding';
+			DELETE FROM pg_collation WHERE oid = ANY (
+				SELECT oid FROM pg_collation
+				WHERE collencoding <> (
+					SELECT encoding FROM pg_database WHERE datname = current_database()
+				)
+			);
+			RAISE NOTICE 'refreshing collation version information in pg_collations';
+			FOR _rec IN (
+				SELECT collnamespace, collname
+				FROM pg_collation
+				WHERE
+					collversion IS DISTINCT FROM NULL
+						AND
+					collprovider <> 'd'
+						AND
+					collversion <> pg_collation_actual_version(oid)
+			) LOOP
+				RAISE NOTICE 'refreshing collation [%."%"] version information', _rec.collnamespace::regnamespace, _rec.collname;
+				BEGIN
+					EXECUTE 'ALTER COLLATION ' || _rec.collnamespace::regnamespace || '."' || _rec.collname || '" REFRESH VERSION';
+				EXCEPTION
+					WHEN undefined_object THEN RAISE NOTICE 'collation does not exist, refresh failed';
+				END;
+			END LOOP;
+			RAISE NOTICE 'running pg_import_system_collations(%)', 'pg_catalog'::regnamespace;
+			PERFORM pg_import_system_collations('pg_catalog'::regnamespace);
+			RAISE NOTICE 'removing collations, again, for encodings other than the database encoding';
+			DELETE FROM pg_collation WHERE oid = ANY (
+				SELECT oid FROM pg_collation
+				WHERE collencoding <> (
+					SELECT encoding FROM pg_database WHERE datname = current_database()
+				)
+			);
+		END
+	$refresh_pg_coll_version_info$;"""
+	try:
+		run_rw_queries(link_obj = conn, queries = [{'cmd': SQL}])
+	except Exception:
+		_log.exception('failure to update collations version information')
+		return False
+
+	return True
 
 #------------------------------------------------------------------------
 # i18n functions
@@ -2101,8 +2289,11 @@ def sanity_check_time_skew(tolerance:int=60) -> bool:
 	return True
 
 #-----------------------------------------------------------------------
-def sanity_check_database_settings() -> tuple:
-	"""Checks database settings.
+def sanity_check_database_settings(hipaa:bool=True) -> tuple:
+	"""Check database settings for sanity.
+
+	Args:
+		hipaa: how to check HIPAA relevant settings, as fatal or warning
 
 	Returns:
 		(status, message)
@@ -2140,9 +2331,7 @@ def sanity_check_database_settings() -> tuple:
 		'ignore_checksum_failure': [['off'], 'data loss/corruption', False],		# starting with PG 9.3
 		'track_commit_timestamp': [['on'], 'suboptimal auditing', False]			# starting with PG 9.3
 	}
-	from Gnumed.pycommon import gmCfgINI
-	_cfg = gmCfgINI.gmCfgData()
-	if _cfg.get(option = 'hipaa'):
+	if hipaa:
 		options2check['log_connections'] = [['on'], 'non-compliance with HIPAA', True]
 		options2check['log_disconnections'] = [['on'], 'non-compliance with HIPAA', True]
 	else:
@@ -2176,32 +2365,23 @@ def sanity_check_database_settings() -> tuple:
 			msg.append(_(' option [%s]: %s') % (option, value_found))
 			msg.append(_('  risk: %s') % risk)
 			_log.warning('PG option [%s] set to [%s], expected %s, risk: <%s>' % (option, value_found, values_expected, risk))
-	# database collation
-	curs = conn.cursor()
-	try:
-		curs.execute('SELECT *, pg_database_collation_actual_version(oid) FROM pg_database WHERE datname = current_database()')
-		config = curs.fetchone()
-		if config['datcollversion'] != config['pg_database_collation_actual_version']:
-			found_error = True
-			msg.append(_(' collation [%s] version mismatch: DB = %s, SYSTEM = %s') % (
-				config['datcollate'],
-				config['datcollversion'],
-				config['pg_database_collation_actual_version']
-			))
-			msg.append(_('  risk: data corruption (faulty sorting)'))
-			_log.warning('PG collation version mismatch between database and system')
-	except dbapi.Error:
-		_log.exception('cannot verify collation version (probably PG < 15)')
-	finally:
-		curs.close()
-	# database encoding
+	# - collations
+	if not sanity_check_database_default_collation_version(conn = conn):
+		found_problem = True
+		msg.append(_(' collation version mismatch between database and operating system'))
+		msg.append(_('  risk: data corruption (duplicate entries, faulty sorting)'))
+	if not sanity_check_collation_versions(conn = conn):
+		found_problem = True
+		msg.append(_(' collations with version mismatch'))
+		msg.append(_('  risk: data corruption (duplicate entries, faulty sorting)'))
+	# - database encoding
 	curs = conn.cursor()
 	try:
 		curs.execute('SELECT pg_encoding_to_char(encoding) FROM pg_database WHERE datname = current_database()')
 		encoding = curs.fetchone()['pg_encoding_to_char']
 		if encoding != 'UTF8':
 			found_problem = True
-			msg.append(_(' database encoding: %s') % encoding)
+			msg.append(_(' database encoding not UTF8 but rather: %s') % encoding)
 			msg.append(_('  risk: multilingual data storage problems'))
 			_log.warning('PG database encoding not UTF8 but [%s]', encoding)
 	except dbapi.Error:
@@ -2741,6 +2921,18 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 		print(reindex_database())
 
 	#--------------------------------------------------------------------
+	def test_sanity_check_collation_versions():
+		print('DB default collation valid:', sanity_check_database_default_collation_version())
+		print('explicit collations valid:', sanity_check_collation_versions())
+
+	#--------------------------------------------------------------------
+	def test_refresh_collations_version_information():
+		print('fails:', refresh_collations_version_information())
+		print('fails:', refresh_collations_version_information(use_the_source_luke = __MIND_MELD))
+		print('fails:', refresh_collations_version_information(use_the_source_luke = __LLAP))
+		print('works:', refresh_collations_version_information(use_the_source_luke = [__MIND_MELD, __LLAP]))
+
+	#--------------------------------------------------------------------
 	# run tests
 
 	# legacy:
@@ -2758,7 +2950,6 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_sanitize_pg_regex()
 	#test_is_pg_interval()
 	#test_sanity_check_time_skew()
-	test_sanity_check_database_settings()
 	#test_get_foreign_key_details()
 	#test_get_index_name()
 	#test_set_user_language()
@@ -2772,5 +2963,18 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_get_db_fingerprint()
 	#test_revalidate_constraints()
 	#test_reindex_database()
+
+	request_login_params(setup_pool = True, force_tui = True)
+
+	test_sanity_check_collation_versions()
+	#test_sanity_check_database_settings()
+	#test_refresh_collations_version_information()
+
+#	try:
+#		run_ro_queries(queries = [{'cmd': 'select no_function(1)'}])
+#	except dbapi.errors.UndefinedFunction as e:
+#		print(type(e))
+#		for s in dir(e.diag):
+#			print(s, getattr(e.diag, s))
 
 # ======================================================================

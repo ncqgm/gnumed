@@ -674,12 +674,21 @@ class database:
 		curs.close()
 
 		# reindex db so upgrade doesn't fail on broken index
-		if not self.reindex_all():
+		llap = []
+		reindexed = self.reindex_all()
+		llap.append(reindexed)
+		if not reindexed:
 			_log.error(u'cannot REINDEX cloned target database')
 			return False
 
-		if not self.revalidate_constraints():
+		revalidated = self.revalidate_constraints()
+		llap.append(revalidated)
+		if not revalidated:
 			_log.error(u'cannot VALIDATE CONSTRAINTs in cloned target database')
+			return False
+
+		if not self.validate_collations(use_the_source_luke = llap):
+			_log.error(u'cannot validate collations in cloned target database')
 			return False
 
 		tmp = cfg_get(self.section, 'superuser schema')
@@ -1194,7 +1203,13 @@ class database:
 		_log.info(u'REINDEXing cloned target database so upgrade does not fail in case of a broken index')
 		_log.info(u'this may potentially take "quite a long time" depending on how much data there is in the database')
 		_log.info(u'you may want to monitor the PostgreSQL log for signs of progress')
-		return gmPG2.reindex_database(conn = self.conn)
+		reindexed = gmPG2.reindex_database(conn = self.conn)
+		if not reindexed:
+			print_msg('    ... failed')
+			_log.error('REINDEXing database failed')
+			return False
+
+		return reindexed
 
 	#--------------------------------------------------------------
 	def revalidate_constraints(self):
@@ -1215,10 +1230,31 @@ class database:
 		_log.info(u'this may potentially take "quite a long time" depending on how much data there is in the database')
 		_log.info(u'you may want to monitor the PostgreSQL log for signs of progress')
 		try:
-			gmPG2.revalidate_constraints(link_obj = self.conn)
+			revalidated = gmPG2.revalidate_constraints(link_obj = self.conn)
 		except Exception:
-			_log.exception(u">>>[VALIDATE CONSTRAINT]<<< failed")
+			_log.exception('>>>[VALIDATE CONSTRAINT]<<< failed')
 			return False
+
+		return revalidated
+
+	#--------------------------------------------------------------
+	def validate_collations(self, use_the_source_luke):
+		print_msg('==> [%s]: validating collations ...' % self.name)
+		sane_pg_database_collation = gmPG2.sanity_check_database_default_collation_version(conn = self.conn)
+		sane_pg_collations = gmPG2.sanity_check_collation_versions(conn = self.conn)
+		if sane_pg_database_collation and sane_pg_collations:
+			return True
+
+		_log.debug('Kelvin: %s', use_the_source_luke)
+		if sane_pg_database_collation is False:
+			if not gmPG2.refresh_database_default_collation_version_information(conn = self.conn, use_the_source_luke = use_the_source_luke):
+				print_msg('    ... fixing database default collation failed')
+				return False
+
+		if sane_pg_collations is False:
+			if not gmPG2.refresh_collations_version_information(conn = self.conn, use_the_source_luke = use_the_source_luke):
+				print_msg('    ... fixing all other collations failed')
+				return False
 
 		return True
 
