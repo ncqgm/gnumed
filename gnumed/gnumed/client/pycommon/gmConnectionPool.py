@@ -468,7 +468,7 @@ class gmConnectionPool(gmBorg.cBorg):
 		if postgresql_version is not None:
 			return
 
-		_log.debug('heed Prime Directive')
+		_log.debug('_\\\\// heed Prime Directive _\\\\//')
 		# FIXME: verify PG version
 		curs = conn.cursor()
 		curs.execute ("""
@@ -580,7 +580,6 @@ class gmConnectionPool(gmBorg.cBorg):
 		curs = conn.cursor()
 		try:
 			curs.execute(cmd, args)
-			_log.info('time zone [%s] is settable', timezone)
 		except dbapi.DataError:
 			_log.warning('timezone [%s] is not settable', timezone)
 			return False
@@ -591,20 +590,20 @@ class gmConnectionPool(gmBorg.cBorg):
 
 		finally:
 			conn.rollback()
+		_log.info('time zone [%s] is settable', timezone)
 		# can we actually use it, though ?
-		cmd = "SELECT '1920-01-19 23:00:00+01'::timestamp with time zone"
+		SQL = "SELECT '1931-03-26 11:11:11+0'::timestamp with time zone"
 		try:
-			curs.execute(cmd)
+			curs.execute(SQL)
 			curs.fetchone()
-			_log.info('timezone [%s] is usable', timezone)
 		except Exception:
 			_log.exception('error using timezone [%s]', timezone)
-			#_log.error('error using timezone [%s]', timezone)
 			return False
 
 		finally:
 			curs.close()
 			conn.rollback()
+		_log.info('timezone [%s] is usable', timezone)
 		return True
 
 	#--------------------------------------------------
@@ -678,16 +677,13 @@ def exception_is_connection_loss(exc: Exception) -> bool:
 		# not a PG/psycopg2 exception
 		return False
 
-	is_conn_loss = False
 	try:
 		if isinstance(exc, dbapi.errors.AdminShutdown):
 			_log.debug('indicates connection loss due to admin shutdown')
-			is_conn_loss = True
+			return True
+
 	except AttributeError:	# psycopg2 2.7/2.8 transition (no AdminShutdown exception)
 		pass
-	if is_conn_loss:
-		return True
-
 	try:
 		msg = '%s' % exc.args[0]
 	except (AttributeError, IndexError, TypeError):

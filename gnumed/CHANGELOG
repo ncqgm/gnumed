@@ -56,6 +56,7 @@ IMPROVED: PACS: better image/image buttons placement
 FIX: py3.10+ *requires* ints for rescaling images [thanks henrique]
 FIX: patient tags: do not crash when rescaling image fails [thanks henrique]
 FIX: fix a number of errors found by pyflakes3
+FIX: lists: no more wx.LIST_HITTEST_ONITEMRIGHT in wxPython 4.2 [thanks jonas]
 
 	1.8.7
 
@@ -2231,6 +2232,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 
 NEW: add list position to export items
 NEW: add intake regimen support
+NEW: bootstrapper: auto-fix collations as needed
 
 IMPROVED: bootstrap script permissions warning
 IMRPOVED: clin.v_narrative4search: add some demographics (port from 1.8.6)
