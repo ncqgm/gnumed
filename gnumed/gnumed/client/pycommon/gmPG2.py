@@ -929,14 +929,25 @@ def refresh_collations_version_information(conn=None, use_the_source_luke=False)
 	SQL = """DO LANGUAGE plpgsql $refresh_pg_coll_version_info$
 		DECLARE
 			_rec record;
+			_db_encoding integer;
 		BEGIN
-			RAISE NOTICE 'removing collations for encodings other than the database encoding';
-			DELETE FROM pg_collation WHERE oid = ANY (
-				SELECT oid FROM pg_collation
-				WHERE collencoding <> (
-					SELECT encoding FROM pg_database WHERE datname = current_database()
-				)
-			);
+			SELECT encoding INTO _db_encoding FROM pg_database WHERE datname = current_database();
+			RAISE NOTICE 'removing collations for encodings other than the database encoding %', pg_encoding_to_char(_db_encoding);
+			FOR _rec IN (
+				SELECT oid, collnamespace, collname, collencoding
+				FROM pg_collation
+				WHERE
+					oid > 1000
+						AND
+					collencoding IS NOT NULL
+						AND
+					collencoding <> -1
+						AND
+					collencoding <> _db_encoding
+			) LOOP
+				RAISE NOTICE 'dropping collation #% "%.%" (encoding: %)', _rec.oid, _rec.collnamespace::regnamespace, _rec.collname, pg_encoding_to_char(_rec.collencoding);
+				EXECUTE 'DROP COLLATION ' || _rec.collnamespace::regnamespace || '."' || _rec.collname || '"';
+			END LOOP;
 			RAISE NOTICE 'refreshing collation version information in pg_collations';
 			FOR _rec IN (
 				SELECT collnamespace, collname
@@ -958,12 +969,21 @@ def refresh_collations_version_information(conn=None, use_the_source_luke=False)
 			RAISE NOTICE 'running pg_import_system_collations(%)', 'pg_catalog'::regnamespace;
 			PERFORM pg_import_system_collations('pg_catalog'::regnamespace);
 			RAISE NOTICE 'removing collations, again, for encodings other than the database encoding';
-			DELETE FROM pg_collation WHERE oid = ANY (
-				SELECT oid FROM pg_collation
-				WHERE collencoding <> (
-					SELECT encoding FROM pg_database WHERE datname = current_database()
-				)
-			);
+			FOR _rec IN (
+				SELECT oid, collnamespace, collname, collencoding
+				FROM pg_collation
+				WHERE
+					oid > 1000
+						AND
+					collencoding IS NOT NULL
+						AND
+					collencoding <> -1
+						AND
+					collencoding <> _db_encoding
+			) LOOP
+				RAISE NOTICE 'dropping collation #% "%.%" (encoding: %)', _rec.oid, _rec.collnamespace::regnamespace, _rec.collname, pg_encoding_to_char(_rec.collencoding);
+				EXECUTE 'DROP COLLATION ' || _rec.collnamespace::regnamespace || '."' || _rec.collname || '"';
+			END LOOP;
 		END
 	$refresh_pg_coll_version_info$;"""
 	try:
@@ -2968,7 +2988,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 
 	test_sanity_check_collation_versions()
 	#test_sanity_check_database_settings()
-	#test_refresh_collations_version_information()
+	test_refresh_collations_version_information()
 
 #	try:
 #		run_ro_queries(queries = [{'cmd': 'select no_function(1)'}])
