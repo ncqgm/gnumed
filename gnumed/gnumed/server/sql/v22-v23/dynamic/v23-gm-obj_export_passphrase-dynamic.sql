@@ -20,8 +20,8 @@ Can be used to recover data externally later on as follows:
 .
 External provider asks for password for a given file.
 .
-External provider is asked to create digests for the file using
-each algorithm that is found in .digest_type in this databse.
+External provider is asked to create hashes for the file using
+each algorithm that is found in .hash_type in this database.
 .
 Local provider searches for the created hash in this database.
 .
@@ -34,27 +34,27 @@ grant insert, update on gm.obj_export_passphrase to "gm-staff";
 grant delete on gm.obj_export_passphrase to "gm-dbo";
 
 -- --------------------------------------------------------------
-comment on column gm.obj_export_passphrase.digest_type is
-	'The algorithm used for creating the .digest of the exported object, say, "SHA256", "MD5", ...';
+comment on column gm.obj_export_passphrase.hash_type is
+	'The algorithm used for creating the .hash of the exported object, say, "SHA256", "MD5", ...';
 
 alter table gm.obj_export_passphrase
-	alter column digest_type
+	alter column hash_type
 		set default null;
 
 alter table gm.obj_export_passphrase
-	alter column digest_type
+	alter column hash_type
 		set not null;
 
 -- --------------------------------------------------------------
-comment on column gm.obj_export_passphrase.digest is
-	'The actual digest of the exported object.';
+comment on column gm.obj_export_passphrase.hash is
+	'The actual hash of the exported object.';
 
 alter table gm.obj_export_passphrase
-	alter column digest
+	alter column hash
 		set default null;
 
 alter table gm.obj_export_passphrase
-	alter column digest
+	alter column hash
 		set not null;
 
 -- --------------------------------------------------------------
@@ -71,10 +71,10 @@ alter table gm.obj_export_passphrase
 
 -- --------------------------------------------------------------
 comment on column gm.obj_export_passphrase.description is 
-'Free text guiding the user in more quickly identifying the
-encrypted external object.
+'Structured information guiding the user in more quickly
+identifying the encrypted external object.
 .
-Could be a filename, or some other free form description.
+Could be a filename, a recipient, ...
 ';
 
 alter table gm.obj_export_passphrase

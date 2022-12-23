@@ -14,14 +14,14 @@ drop table if exists gm.obj_export_passphrase cascade;
 create table gm.obj_export_passphrase (
 	pk
 		integer generated always as identity primary key,
-	digest_type
+	hash_type
 		text,
-	digest
+	hash
 		text,
 	phrase
 		text,
 	description
-		gm.nonempty_text
+		jsonb
 );
 
 -- --------------------------------------------------------------
