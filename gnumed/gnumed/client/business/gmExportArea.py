@@ -14,7 +14,6 @@ import sys
 import logging
 import shutil
 import os
-import io
 import platform
 
 
@@ -600,6 +599,7 @@ def delete_export_item(pk_export_item=None):
 	return True
 
 #============================================================
+#============================================================
 _FRONTPAGE_HTML_CONTENT = """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
        "https://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -1175,7 +1175,7 @@ class cExportArea(object):
 		_HTML_data['adr'] = adr
 		# create file
 		index_fname = os.path.join(directory, 'index.html')
-		index_file = io.open(index_fname, mode = 'wt', encoding = 'utf8')
+		index_file = open(index_fname, mode = 'wt', encoding = 'utf8')
 		index_file.write(_INDEX_HTML_CONTENT % _HTML_data)
 		index_file.close()
 		return index_fname
@@ -1244,7 +1244,7 @@ class cExportArea(object):
 		_HTML_data['adr'] = adr
 		# create file
 		frontpage_fname = os.path.join(directory, 'frontpage.html')
-		frontpage_file = io.open(frontpage_fname, mode = 'wt', encoding = 'utf8')
+		frontpage_file = open(frontpage_fname, mode = 'wt', encoding = 'utf8')
 		frontpage_file.write(_FRONTPAGE_HTML_CONTENT % _HTML_data)
 		frontpage_file.close()
 		return frontpage_fname
@@ -1301,7 +1301,7 @@ class cExportArea(object):
 			'the creator or the owner of this patient media excerpt.\n'
 		)
 		readme_fname = os.path.join(directory, 'README')
-		readme_file = io.open(readme_fname, mode = 'wt', encoding = 'utf8')
+		readme_file = open(readme_fname, mode = 'wt', encoding = 'utf8')
 		if patient is None:
 			pat_str = _('<protected>')
 		else:
@@ -1329,7 +1329,7 @@ class cExportArea(object):
 			'# gender format: %s\r\n'
 		)
 		fname = os.path.join(directory, 'CD.INF')
-		cd_inf = io.open(fname, mode = 'wt', encoding = 'utf8')
+		cd_inf = open(fname, mode = 'wt', encoding = 'utf8')
 		cd_inf.write(_CD_INF_CONTENT % (
 			patient['lastnames'],
 			patient['firstnames'],
@@ -1397,7 +1397,7 @@ class cExportArea(object):
 			except Exception:
 				_log.exception('cannot move %s to %s', icon_tmp_fname, media_icon_fname)
 		autorun_fname = os.path.join(directory, 'AUTORUN.INF')
-		autorun_file = io.open(autorun_fname, mode = 'wt', encoding = 'cp1252', errors = 'replace')
+		autorun_file = open(autorun_fname, mode = 'wt', encoding = 'cp1252', errors = 'replace')
 		autorun_file.write(_AUTORUN_INF_CONTENT % autorun_dict)
 		autorun_file.close()
 		return autorun_fname
@@ -1521,7 +1521,7 @@ if __name__ == '__main__':
 		except Exception:
 			pass
 		cPatient(aPK_obj = pat_min)
-		f = io.open('x-auto_inf_labels.txt', mode = 'w', encoding = 'utf8')
+		f = open('x-auto_inf_labels.txt', mode = 'w', encoding = 'utf8')
 		f.write('--------------------------------\n')
 		f.write('12345678901234567890123456789012\n')
 		f.write('--------------------------------\n')
