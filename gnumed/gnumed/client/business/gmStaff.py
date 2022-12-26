@@ -151,12 +151,17 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 		if not self._payload['public_key']:
 			return None
 
-		pk_f_name = gmTools.get_unique_filename()
-		with open(pk_f_name, 'wt', 'utf8') as pk_f:
+		pk_fname = gmTools.get_unique_filename()
+		with open(pk_fname, mode = 'wt', encoding = 'utf8') as pk_f:
 			pk_f.write(self._payload['public_key'])
-		return pk_f_name
+		return pk_fname
 
-	public_key_file = property(_get_public_key_file)
+	def _set_public_key_file(self, pk_fname):
+		with open(pk_fname, mode = 'r', encoding = 'utf8') as pk_f:
+			self['public_key'] = pk_f.read()
+		self.save()
+
+	public_key_file = property(_get_public_key_file, _set_public_key_file)
 
 #============================================================
 def get_staff_list(active_only=False):
@@ -288,7 +293,7 @@ def get_public_keys_of_passphrase_trustees(as_files:bool=False) -> []:
 	fnames = []
 	for pub_key in pub_keys:
 		pubk_fname = gmTools.get_unique_filename()
-		with open(pubk_fname, 'wt', 'utf8') as pubk_f:
+		with open(pubk_fname, mode = 'wt', encoding = 'utf8') as pubk_f:
 			pubk_f.write(pub_key)
 		fnames.append(pubk_fname)
 	return fnames
@@ -401,6 +406,13 @@ if __name__ == '__main__':
 		print(provider.public_key_file)
 
 	#--------------------------------------------------------
+	def test_set_pubkey():
+		staff = cStaff(aPK_obj = 1)
+		print(staff)
+		staff.public_key_file = sys.argv[2]
+		print(staff.public_key_file)
+
+	#--------------------------------------------------------
 	def test_trustee_pkeys():
 		print("passphrase trustees' public keys:")
 		print('keys:', get_public_keys_of_passphrase_trustees(as_files = False))
@@ -410,7 +422,8 @@ if __name__ == '__main__':
 	gmPG2.request_login_params(setup_pool = True, force_tui = True)
 
 	#test_staff()
-	test_current_provider()
+	#test_current_provider()
 	#test_trustee_pkeys()
+	test_set_pubkey()
 
 #============================================================
