@@ -15,6 +15,7 @@ import logging
 import shutil
 import os
 import platform
+import hashlib
 
 
 if __name__ == '__main__':
@@ -30,6 +31,7 @@ from Gnumed.pycommon import gmCrypto
 
 from Gnumed.business import gmDocuments
 from Gnumed.business import gmKeywordExpansion
+from Gnumed.business import gmStaff
 
 
 _log = logging.getLogger('gm.exp_area')
@@ -1454,6 +1456,125 @@ class cExportArea(object):
 	printouts = property(get_printouts)
 
 #============================================================
+# convenience functions
+#============================================================
+def store_passphrase_of_file(filename:str=None, passphrase:str=None, hash_type:str=None, comment:{}=None) -> bool:
+	try:
+		f = open(filename, 'rb')
+	except Exception:
+		_log.exception('cannot open [%s]', filename)
+		return False
+
+	if comment is None:
+		comment = {}
+	comment['filename'] = filename
+	return store_object_passphrase(obj = f, passphrase = passphrase, hash_type = hash_type, comment = comment)
+
+#============================================================
+def store_object_passphrase(obj=None, passphrase:str=None, hash_type:str=None, owner=None, comment:{}=None) -> bool:
+	"""Store in the database the (encrypted) passphrase for an object.
+
+	The passphrase is stored encrypted with the public key of
+	the owner as well as with any public key configured as a
+	passphrase trustee.
+
+	Args:
+		obj: an instance supporting the (binary) read protocol
+		passphrase: the passphrase to store
+		hash_type: the hash to use, defaults to 'md5'
+		owner: staff member to encrypt passphrase to (by public key), defaults to current provider
+		comment: a structured comment on the object
+
+	Returns:
+		True/False based on success
+	"""
+	assert obj, '<obj> must not be None'
+	assert passphrase, '<passphrase> must not be None'
+
+	if hash_type is None:
+		hash_type = 'md5'
+	if hash_type not in hashlib.algorithms_available:
+		_log.error('hash type [%s] not available amongst %s', hash_type, hashlib.algorithms_available)
+		return False
+
+	key_files = []
+	if owner is None:
+		owner = gmStaff.gmCurrentProvider()
+	owner_key_file = owner.public_key_file
+	if owner_key_file:
+		key_files.append(owner_key_file)
+	else:
+		_log.warning('no public key for owner [%s]', owner)
+	trustee_key_files = gmStaff.get_public_keys_of_passphrase_trustees(as_files = True)
+	if trustee_key_files:
+		key_files.extend(trustee_key_files)
+	else:
+		_log.warning('there are no trustee public keys configured for passphrase escrow')
+	if not key_files:
+		_log.error('cannot escrow passphrase, neither owner nor trustee public keys available')
+		return False
+
+	hashor = hashlib.new(hash_type, usedforsecurity = False)
+	chunk_size = 5 * 1024 * 1024
+	data = obj.read(chunk_size)
+	while data:
+		hashor.update(data)
+		data = obj.read(chunk_size)
+	hash_val = hashor.hexdigest()
+	encrypted_phrase = gmCrypto.encrypt_data_with_gpg (
+		data = passphrase,
+		recipient_key_files = key_files,
+		comment = '[%s]::%s' % (hash_type, hash_val),
+		verbose = _cfg.get(option = 'debug')
+	)
+	SQL = """INSERT INTO gm.obj_export_passphrase (
+		hash_type, hash, phrase, description
+	) VALUES (
+		%(hash_type)s,
+		%(hash)s,
+		%(phrase)s,
+		%(desc)s
+	)"""
+	args = {
+		'hash_type': hash_type,
+		'hash': hash_val,
+		'phrase': encrypted_phrase,
+		'desc': comment
+	}
+	gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}])
+	return True
+
+#============================================================
+def save_object_passphrase_to_file(hash:str=None) -> []:
+	SQL = 'SELECT * FROM gm.obj_export_passphrase WHERE hash = %(hash)s'
+	args = {'hash': hash}
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+	if not rows:
+		return None
+
+	pk_files = []
+	for row in rows:
+		pk_fname = '%s-%s-passphrase.txt.asc' % (row['hash'], row['hash_type'])
+		with open(pk_fname, mode = 'wt', encoding = 'utf8') as pk_file:
+			pk_file.write('%s: %s\n' % (row['hash_type'], row['hash']))
+			if row['description']:
+				pk_file.write('%s' % row['description'])
+				pk_file.write('\n')
+			pk_file.write('\n')
+			pk_file.write(row['phrase'])
+		pk_files.append(pk_fname)
+	return pk_files
+
+#==========================================================
+def save_object_passphrases_into_files() -> []:
+	try:
+		hash_val = input('Please enter the object hash: ')
+	except KeyboardInterrupt:
+		return None
+	return save_object_passphrase_to_file(hash_val)
+
+#============================================================
+#============================================================
 if __name__ == '__main__':
 
 	if len(sys.argv) < 2:
@@ -1536,13 +1657,24 @@ if __name__ == '__main__':
 		return
 
 	#---------------------------------------
+	def test_store_passphrase_of_file():
+		gmStaff.set_current_provider_to_logged_on_user()
+		print('file:', sys.argv[2])
+		for h_t in [None, 'md5', 'sha256', 'ripemd160', 'invalid_hash_type']:
+			print(h_t, '-', store_passphrase_of_file(filename = sys.argv[2], passphrase='12345', hash_type = h_t))
+
+	#---------------------------------------
+	def test_save_object_passphrase_to_file():
+		print(save_object_passphrase_to_file(hash = sys.argv[2]))
+
+	#---------------------------------------
 	#test_export_items()
 
 	gmPG2.request_login_params(setup_pool = True)
-	test_export_area()
+	#test_export_area()
 	#test_label()
-
-	sys.exit(0)
+	#test_store_passphrase_of_file()
+	test_save_object_passphrase_to_file()
 
 #============================================================
 # CDROM "run.bat":

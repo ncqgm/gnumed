@@ -82,4 +82,8 @@ alter table gm.obj_export_passphrase
 		set default null;
 
 -- --------------------------------------------------------------
+drop index if exists gm.idx_uniq_obj_exp_passphrase_row cascade;
+create unique index idx_uniq_obj_exp_passphrase_row on gm.obj_export_passphrase(hash_type, hash, phrase);
+
+-- --------------------------------------------------------------
 select gm.log_script_insertion('v23-gm-obj_export_passphrase-dynamic.sql', '23.0');
