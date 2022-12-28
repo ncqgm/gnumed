@@ -308,12 +308,12 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			_log.error('cannot encrypt or, possibly, convert')
 			return None
 
-		if removed:
-			return enc_fname
+		if not removed:
+			_log.error('cannot remove unencrypted file')
+			gmTools.remove(enc_fname)
+			return None
 
-		_log.error('cannot remove unencrypted file')
-		gmTools.remove(enc_fname)
-		return None
+		return enc_fname
 
 	#--------------------------------------------------------
 	def __save_doc_obj(self, filename=None, directory=None, passphrase=None, convert2pdf:bool=False):
@@ -922,7 +922,18 @@ class cExportArea(object):
 		return delete_export_item(pk_export_item = item['pk_export_item'])
 
 	#--------------------------------------------------------
-	def dump_items_to_disk(self, base_dir=None, items=None, passphrase=None, convert2pdf=False):
+	def dump_items_to_disk(self, base_dir:str=None, items:[]=None, passphrase:str=None, convert2pdf:bool=False) -> str:
+		"""Dump export area items to disk.
+
+		Args:
+			base_dir: directory into which to dump the items, defaults to a new sandbox directory
+			items: which items to dump, defaults to all items
+			passphrase: used to symmetrically encrypt dumped files, if set
+			convert2pdf: attempt to convert items into PDF before dumping them
+
+		Returns:
+			The base_dir into which items were dumped, or None.
+		"""
 		if items is None:
 			items = self.items
 		if len(items) == 0:
@@ -934,18 +945,35 @@ class cExportArea(object):
 			gmTools.mkdir(base_dir)
 		_log.debug('dumping export items to: %s', base_dir)
 		for item in items:
-			if item.save_to_file(directory = base_dir, passphrase = passphrase, convert2pdf = convert2pdf) is None:
+			saved_name = item.save_to_file(directory = base_dir, passphrase = passphrase, convert2pdf = convert2pdf)
+			if saved_fname is None:
 				return None
+
+			if passphrase:
+				store_passphrase_of_file(filename = saved_name, passphrase = passphrase, hash_type = 'sha256')
 
 		return base_dir
 
 	#--------------------------------------------------------
-	def dump_items_to_disk_as_zip(self, base_dir=None, items=None, passphrase=None):
+	def dump_items_to_disk_as_zip(self, base_dir:str=None, items:[]=None, passphrase:str=None) -> str:
+		"""Dump items to disk into a zip archive.
+
+			Calls dump_items_to_disk().
+
+		Args:
+			base_dir: directory into which to dump the items, defaults to a new sandbox directory
+			items: which items to dump, defaults to all items
+			passphrase: used to symmetrically encrypt dumped files, if set
+
+		Returns:
+			Zip archive name, or None.
+		"""
 		_log.debug('target dir: %s', base_dir)
 		dump_dir = self.dump_items_to_disk(base_dir = base_dir, items = items)
 		if dump_dir is None:
 			_log.error('cannot dump export area items')
 			return None
+
 		zip_file = gmTools.create_zip_archive_from_dir (
 			dump_dir,
 			comment = _('GNUmed Patient Media'),
@@ -956,11 +984,23 @@ class cExportArea(object):
 		if zip_file is None:
 			_log.error('cannot zip export area items dump')
 			return None
+
+		if passphrase:
+			store_passphrase_of_file(filename = zip_file, passphrase = passphrase, hash_type = 'sha256')
 		return zip_file
 
 	#--------------------------------------------------------
 	def export(self, base_dir=None, items=None, passphrase=None):
+		"""Export items as structured patient media.
 
+		Args:
+			base_dir: directory into which to store the export, defaults to a new sandbox directory based on patient name
+			items: which items to dump, defaults to all items
+			passphrase: used to symmetrically encrypt dumped files, if set
+
+		Returns:
+			Base_dir name, else None or False on failure.
+		"""
 		if items is None:
 			items = self.items
 		if len(items) == 0:
@@ -1017,7 +1057,7 @@ class cExportArea(object):
 				_log.debug('exporting DIRENTRY')
 				# if there are files in the root dir: put it into a
 				# subdir of ./documents/ where subdir is the leaf
-				# of the the item .filename
+				# of the item .filename
 				if item.has_files_in_root:
 					tag, node, local_fs_path = item['filename'].split('::', 2)
 					subdir = local_fs_path.rstrip('/').split('/')[-1]
@@ -1078,7 +1118,8 @@ class cExportArea(object):
 				passphrase = passphrase,
 				comment = None,
 				verbose = _cfg.get(option = 'debug'),
-				remove_unencrypted = True
+				remove_unencrypted = True,
+				store_passphrase_cb = store_passphrase_of_file_callback
 			)
 			if not encrypted:
 				_log.errror('cannot encrypt data in sandbox dir')
@@ -1087,12 +1128,12 @@ class cExportArea(object):
 		# 3) add never-to-be-encrypted data
 		# - AUTORUN.INF
 		# - README
-		if passphrase is None:
-			self._create_autorun_inf(pat, sandbox_dir)
-			self._create_readme(pat, sandbox_dir)
-		else:
+		if passphrase:
 			self._create_autorun_inf(None, sandbox_dir)
 			self._create_readme(None, sandbox_dir)
+		else:
+			self._create_autorun_inf(pat, sandbox_dir)
+			self._create_readme(pat, sandbox_dir)
 		# - praxis VCF/MCF
 		shutil.move(prax.vcf, os.path.join(sandbox_dir, 'praxis.vcf'))
 		prax.export_as_mecard(filename = os.path.join(sandbox_dir, u'praxis.mcf'))
@@ -1100,7 +1141,7 @@ class cExportArea(object):
 		if has_dicomdir:
 			self._clone_dwv(target_dir = sandbox_dir)
 		# - index.html as boilerplate for decryption
-		if passphrase is not None:
+		if passphrase:
 			index_fname = self._create_index_html(prax, sandbox_dir, html_data)
 
 		# 4) move sandbox to target dir
@@ -1118,14 +1159,8 @@ class cExportArea(object):
 		if export_dir is None:
 			_log.debug('cannot export items')
 			return None
-		if passphrase is None:
-			zip_file = gmCrypto.create_zip_archive_from_dir (
-				export_dir,
-				comment = _('GNUmed Patient Media'),
-				overwrite = True,
-				verbose = _cfg.get(option = 'debug')
-			)
-		else:
+
+		if passphrase:
 			zip_file = gmCrypto.create_encrypted_zip_archive_from_dir (
 				export_dir,
 				comment = _('GNUmed Patient Media'),
@@ -1133,9 +1168,23 @@ class cExportArea(object):
 				passphrase = passphrase,
 				verbose = _cfg.get(option = 'debug')
 			)
+			if not zip_file:
+				_log.debug('cannot create zip archive')
+				return None
+
+			store_passphrase_of_file(filename = zip_file, passphrase = passphrase, hash_type = 'sha256')
+			return zip_file
+
+		zip_file = gmCrypto.create_zip_archive_from_dir (
+			export_dir,
+			comment = _('GNUmed Patient Media'),
+			overwrite = True,
+			verbose = _cfg.get(option = 'debug')
+		)
 		if zip_file is None:
 			_log.debug('cannot create zip archive')
 			return None
+
 		return zip_file
 
 	#--------------------------------------------------------
@@ -1455,10 +1504,20 @@ class cExportArea(object):
 
 	printouts = property(get_printouts)
 
-#============================================================
-# convenience functions
-#============================================================
-def store_passphrase_of_file(filename:str=None, passphrase:str=None, hash_type:str=None, comment:{}=None) -> bool:
+#===========================================================================
+# passphrase escrow
+#---------------------------------------------------------------------------
+def store_passphrase_of_file_callback(filename:str=None, passphrase:str=None, comment:str=None):
+	return store_passphrase_of_file (
+		filename = filename,
+		passphrase = passphrase,
+		hash_type = 'sha256',
+		comment = comment
+	)
+
+#---------------------------------------------------------------------------
+def store_passphrase_of_file(filename:str=None, passphrase:str=None, hash_type:str='md5', comment:{}=None) -> bool:
+	"""Call store_object_passphrase on a given file."""
 	try:
 		f = open(filename, 'rb')
 	except Exception:
@@ -1467,11 +1526,16 @@ def store_passphrase_of_file(filename:str=None, passphrase:str=None, hash_type:s
 
 	if comment is None:
 		comment = {}
-	comment['filename'] = filename
-	return store_object_passphrase(obj = f, passphrase = passphrase, hash_type = hash_type, comment = comment)
+	comment['__filename__'] = filename
+	return store_object_passphrase (
+		obj = f,
+		passphrase = passphrase,
+		hash_type = hash_type,
+		comment = comment
+	)
 
-#============================================================
-def store_object_passphrase(obj=None, passphrase:str=None, hash_type:str=None, owner=None, comment:{}=None) -> bool:
+#---------------------------------------------------------------------------
+def store_object_passphrase(obj=None, passphrase:str=None, hash_type:str='md5', owner=None, comment:{}=None) -> bool:
 	"""Store in the database the (encrypted) passphrase for an object.
 
 	The passphrase is stored encrypted with the public key of
@@ -1491,26 +1555,24 @@ def store_object_passphrase(obj=None, passphrase:str=None, hash_type:str=None, o
 	assert obj, '<obj> must not be None'
 	assert passphrase, '<passphrase> must not be None'
 
-	if hash_type is None:
-		hash_type = 'md5'
 	if hash_type not in hashlib.algorithms_available:
 		_log.error('hash type [%s] not available amongst %s', hash_type, hashlib.algorithms_available)
 		return False
 
-	key_files = []
+	pubkey_files = []
 	if owner is None:
 		owner = gmStaff.gmCurrentProvider()
 	owner_key_file = owner.public_key_file
 	if owner_key_file:
-		key_files.append(owner_key_file)
+		pubkey_files.append(owner_key_file)
 	else:
 		_log.warning('no public key for owner [%s]', owner)
 	trustee_key_files = gmStaff.get_public_keys_of_passphrase_trustees(as_files = True)
 	if trustee_key_files:
-		key_files.extend(trustee_key_files)
+		pubkey_files.extend(trustee_key_files)
 	else:
 		_log.warning('there are no trustee public keys configured for passphrase escrow')
-	if not key_files:
+	if not pubkey_files:
 		_log.error('cannot escrow passphrase, neither owner nor trustee public keys available')
 		return False
 
@@ -1523,7 +1585,7 @@ def store_object_passphrase(obj=None, passphrase:str=None, hash_type:str=None, o
 	hash_val = hashor.hexdigest()
 	encrypted_phrase = gmCrypto.encrypt_data_with_gpg (
 		data = passphrase,
-		recipient_key_files = key_files,
+		recipient_key_files = pubkey_files,
 		comment = '[%s]::%s' % (hash_type, hash_val),
 		verbose = _cfg.get(option = 'debug')
 	)
@@ -1544,8 +1606,25 @@ def store_object_passphrase(obj=None, passphrase:str=None, hash_type:str=None, o
 	gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}])
 	return True
 
-#============================================================
+#---------------------------------------------------------------------------
+def save_file_passphrases_into_files() -> []:
+	try:
+		hash_val = input('Please enter the file hash: ')
+	except KeyboardInterrupt:
+		return None
+
+	return save_object_passphrase_to_file(hash_val)
+
+#---------------------------------------------------------------------------
 def save_object_passphrase_to_file(hash:str=None) -> []:
+	"""Save encrypted passphrases known for a hash into files.
+
+	Args:
+		hash: the hash to look up passphrases for
+
+	Returns
+		List of files containing encrypted passphrases, or None.
+	"""
 	SQL = 'SELECT * FROM gm.obj_export_passphrase WHERE hash = %(hash)s'
 	args = {'hash': hash}
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
@@ -1564,14 +1643,6 @@ def save_object_passphrase_to_file(hash:str=None) -> []:
 			pk_file.write(row['phrase'])
 		pk_files.append(pk_fname)
 	return pk_files
-
-#==========================================================
-def save_object_passphrases_into_files() -> []:
-	try:
-		hash_val = input('Please enter the object hash: ')
-	except KeyboardInterrupt:
-		return None
-	return save_object_passphrase_to_file(hash_val)
 
 #============================================================
 #============================================================
@@ -1673,8 +1744,8 @@ if __name__ == '__main__':
 	gmPG2.request_login_params(setup_pool = True)
 	#test_export_area()
 	#test_label()
-	#test_store_passphrase_of_file()
-	test_save_object_passphrase_to_file()
+	test_store_passphrase_of_file()
+	#test_save_object_passphrase_to_file()
 
 #============================================================
 # CDROM "run.bat":

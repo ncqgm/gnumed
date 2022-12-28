@@ -649,7 +649,7 @@ def encrypt_file(filename:str=None, receiver_key_ids:list=None, passphrase:str=N
 	return None
 
 #---------------------------------------------------------------------------
-def encrypt_directory_content(directory:str=None, receiver_key_ids:list=None, passphrase:str=None, comment:str=None, verbose:bool=False, remove_unencrypted:bool=True, convert2pdf:bool=False) -> bool:
+def encrypt_directory_content(directory:str=None, receiver_key_ids:list=None, passphrase:str=None, comment:str=None, verbose:bool=False, remove_unencrypted:bool=True, convert2pdf:bool=False, store_passphrase_cb=None) -> bool:
 	"""Encrypt the content of a directory, file by file, symmetrically or asymmetrically.
 
 	Asymmetric encryption will only be attempted if receiver_key_ids are given.
@@ -663,6 +663,7 @@ def encrypt_directory_content(directory:str=None, receiver_key_ids:list=None, pa
 		convert2pdf: _attempt_ conversion of input file to PDF before encryption
 			- success: the PDF is encrypted (and the non-PDF source file is removed)
 			- failure: the source file is encrypted
+		store_passphrase_cb: function to call to store passphrases for encrypted files (filename, passphrase, comment)
 
 	Returns:
 		True (success) or False.
@@ -701,6 +702,7 @@ def encrypt_directory_content(directory:str=None, receiver_key_ids:list=None, pa
 		if fname_encrypted is None:
 			return False
 
+		store_passphrase_cb(filename = fname_encrypted, passphrase = passphrase, comment = comment)
 	return True
 
 #---------------------------------------------------------------------------

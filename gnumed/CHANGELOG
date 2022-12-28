@@ -17,6 +17,8 @@ NEW: export area: join items into one PDF
 NEW: debug: database owner connection test menu item
 NEW: login: focus previously used praxis branch
 NEW: file describer: include pdffonts
+NEW: export area: escrow passphrases used during file export
+NEW: tool: get_object_passphrases
 
 IMPROVED: GUI: show current patient in window titles
 IMPROVED: placeholder: $current_provider_name$

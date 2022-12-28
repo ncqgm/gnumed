@@ -1082,18 +1082,6 @@ def run_tool():
 	pool.credentials = creds
 	print('')
 
-	if tool == 'get_object_passphrases':
-		from Gnumed.business import gmExportArea
-		fnames = gmExportArea.save_object_passphrases_into_files()
-		print('')
-		if fnames:
-			print('Encrypted passphrases stored in:')
-			for fname in fnames:
-				print(' ', fname)
-		else:
-			print('No passphrases found.')
-		return 0
-
 	if tool == 'read_all_rows_of_table':
 		result = gmPG2.read_all_rows_of_table()
 		if result in [None, True]:
@@ -1101,6 +1089,9 @@ def run_tool():
 			return 0
 		print('Failed. Check the log for details.')
 		return -2
+
+	if tool == 'get_object_passphrases':
+		return __run_get_object_passphrases_tool()
 
 	if tool == 'check_mimetypes_in_archive':
 		from Gnumed.business import gmDocuments
@@ -1121,6 +1112,20 @@ def run_tool():
 
 	# should not happen (because checked against _known_tools)
 	return -1
+
+#==========================================================
+def __run_get_object_passphrases_tool():
+	from Gnumed.business import gmExportArea
+	fnames = gmExportArea.save_file_passphrases_into_files()
+	print('')
+	if not fnames:
+		print('No passphrases found.')
+		return 0
+
+	print('Encrypted passphrases stored in:')
+	for fname in fnames:
+		print(' ', fname)
+	return 0
 
 #==========================================================
 def __run_emr_export_tool():
