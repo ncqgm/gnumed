@@ -649,7 +649,7 @@ def encrypt_file(filename:str=None, receiver_key_ids:list=None, passphrase:str=N
 	return None
 
 #---------------------------------------------------------------------------
-def encrypt_directory_content(directory:str=None, receiver_key_ids:list=None, passphrase:str=None, comment:str=None, verbose:bool=False, remove_unencrypted:bool=True, convert2pdf:bool=False) -> bool:
+def encrypt_directory_content(directory:str=None, receiver_key_ids:list=None, passphrase:str=None, comment:str=None, verbose:bool=False, remove_unencrypted:bool=True, convert2pdf:bool=False, store_passphrase_cb=None) -> bool:
 	"""Encrypt the content of a directory, file by file, symmetrically or asymmetrically.
 
 	Asymmetric encryption will only be attempted if receiver_key_ids are given.
@@ -663,6 +663,7 @@ def encrypt_directory_content(directory:str=None, receiver_key_ids:list=None, pa
 		convert2pdf: _attempt_ conversion of input file to PDF before encryption
 			- success: the PDF is encrypted (and the non-PDF source file is removed)
 			- failure: the source file is encrypted
+		store_passphrase_cb: function to call to store passphrases for encrypted files (filename, passphrase, comment)
 
 	Returns:
 		True (success) or False.
@@ -701,6 +702,7 @@ def encrypt_directory_content(directory:str=None, receiver_key_ids:list=None, pa
 		if fname_encrypted is None:
 			return False
 
+		store_passphrase_cb(filename = fname_encrypted, passphrase = passphrase, comment = comment)
 	return True
 
 #---------------------------------------------------------------------------
@@ -753,11 +755,72 @@ def is_encrypted_pdf(filename:str=None, verbose:bool=False) -> bool:
 	return None
 
 #===========================================================================
+def encrypt_data_with_gpg(data, recipient_key_files:[], comment:str=None, verbose:bool=False) -> str:
+	"""Encrypt data with public key(s).
+
+	Requires GPG to be installed.
+
+	Args:
+		data: data to be encrypted, assumed to be UTF-8 if a string, otherwise treated as binary
+		recipient_key_files: files with public keys to encrypt to
+
+	Returns:
+		ASCII-armored encrypted data or None on failure.
+	"""
+	assert data, '<data> must be passed in'
+	assert recipient_key_files, '<recipient_key_files> must be passed in'
+
+	for cmd in ['gpg2', 'gpg', 'gpg2.exe', 'gpg.exe']:
+		found, binary = gmShellAPI.detect_external_binary(binary = cmd)
+		if found:
+			break
+	if not found:
+		_log.warning('no gpg binary found')
+		return None
+
+	gpg = [
+		binary,
+		'--utf8-strings',
+		'--display-charset', 'utf-8',
+		'--encrypt',
+		'--armor',
+		'--no-greeting',
+		'--enable-progress-filter'
+	]
+	for pk_file in recipient_key_files:
+		gpg.extend(['--recipient-file', pk_file])
+	if comment and comment.strip():
+		gpg.extend(['--comment', comment.strip()])
+	if verbose:
+		gpg.extend ([
+			'--verbose', '--verbose',
+			'--debug-level', '8',
+			'--debug', 'packet,mpi,crypto,filter,iobuf,memory,cache,memstat,trust,hashing,clock,lookup,extprog',
+			##'--debug-all',						# will log passphrase
+			##'--debug, 'ipc',						# will log passphrase
+			##'--debug-level', 'guru',				# will log passphrase
+			##'--debug-level', '9',					# will log passphrase
+		])
+	if isinstance(data, str):
+		encoding = 'utf-8'
+	else:
+		encoding = None
+	success, exit_code, stdout = gmShellAPI.run_process (
+		cmd_line = gpg,
+		input_data = data,
+		verbose = verbose,
+		encoding = encoding
+	)
+	if not success:
+		return None
+
+	return stdout
+
+#===========================================================================
 # file anonymization methods
 #---------------------------------------------------------------------------
 def anonymize_file(filename):
 	assert (filename is not None), '<filename> must not be None'
-
 
 #===========================================================================
 # main
@@ -831,6 +894,15 @@ if __name__ == '__main__':
 		)
 
 	#-----------------------------------------------------------------------
+	def test_encrypt_data_with_gpg():
+		print(encrypt_data_with_gpg (
+			data = sys.argv[2],
+			recipient_key_files = [sys.argv[3], sys.argv[4]],
+			comment = 'GNUmed testing',
+			verbose = True
+		))
+
+	#-----------------------------------------------------------------------
 	# encryption
 	#test_aes_encrypt()
 	#test_encrypt_pdf()
@@ -844,4 +916,5 @@ if __name__ == '__main__':
 	#test_encrypted_zip_archive_from_dir()
 
 	#test_pdf_is_encrypted()
-	test_decrypt_pdf()
+	#test_decrypt_pdf()
+	test_encrypt_data_with_gpg()

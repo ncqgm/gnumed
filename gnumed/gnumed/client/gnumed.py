@@ -97,6 +97,12 @@ Currently implemented tools:
 	check_mimetypes_in_archive: Show mimetypes and related information of all document parts in the archive.
 
 	read_all_rows_of_table: Check readability of all rows of a given table.
+
+	fingerprint_db: Create a fingerprint of a GNUmed database.
+
+	generate_man_page: Generate man page.
+
+	get_object_passphrases: Retrieve encrypted passphrases for a file previously encrypted by and exported from GNUmed.
 .TP
 .B \--override-schema-check
 Continue loading the client even if the database schema
@@ -360,7 +366,8 @@ _known_tools = [
 	'check_mimetypes_in_archive',
 	'read_all_rows_of_table',
 	'fingerprint_db',
-	'generate_man_page'
+	'generate_man_page',
+	'get_object_passphrases'
 ]
 
 
@@ -1083,6 +1090,9 @@ def run_tool():
 		print('Failed. Check the log for details.')
 		return -2
 
+	if tool == 'get_object_passphrases':
+		return __run_get_object_passphrases_tool()
+
 	if tool == 'check_mimetypes_in_archive':
 		from Gnumed.business import gmDocuments
 		return gmDocuments.check_mimetypes_in_archive()
@@ -1102,6 +1112,20 @@ def run_tool():
 
 	# should not happen (because checked against _known_tools)
 	return -1
+
+#==========================================================
+def __run_get_object_passphrases_tool():
+	from Gnumed.business import gmExportArea
+	fnames = gmExportArea.save_file_passphrases_into_files()
+	print('')
+	if not fnames:
+		print('No passphrases found.')
+		return 0
+
+	print('Encrypted passphrases stored in:')
+	for fname in fnames:
+		print(' ', fname)
+	return 0
 
 #==========================================================
 def __run_emr_export_tool():
