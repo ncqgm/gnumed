@@ -5,7 +5,7 @@
 #====================================================
 TS=""
 #TS=".$(date +%Y%m%d-%H%M%S)"
-CLIENTREV="1.8.7${TS}"
+CLIENTREV="1.8.8${TS}"
 CLIENTARCH="gnumed-client.$CLIENTREV.tgz"
 
 SRVREV="22.17${TS}"
