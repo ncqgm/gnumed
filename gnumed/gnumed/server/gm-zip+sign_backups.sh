@@ -20,9 +20,6 @@
 #
 #  47 12,19 * * * * /usr/bin/gm-zip+sign_backups.sh
 #
-#
-# It is useful to have a PROCMAIL rule for the GNotary server replies
-# piping them into the stoarage area where the backups are kept.
 #==============================================================
 
 CONF="/etc/gnumed/gnumed-backup.conf"
@@ -60,10 +57,9 @@ shopt -s -q nullglob				# no glob matches -> ""
 AGGREGATE_EXIT_CODE=0
 
 
-# find any leftover, untested tar files
+# find any leftover untested tar files
 # and test them so they can be compressed
 for TAR_UNTESTED in "${BACKUP_BASENAME}"-*.tar.untested ; do
-
 	# test
 	tar --extract --to-stdout --file="${TAR_UNTESTED}" > /dev/null
 	RESULT="$?"
@@ -72,7 +68,6 @@ for TAR_UNTESTED in "${BACKUP_BASENAME}"-*.tar.untested ; do
 		AGGREGATE_EXIT_CODE=${RESULT}
 		continue
 	fi
-
 	# rename to final archive name
 	TAR_FINAL=$(basename "${TAR_UNTESTED}" .untested)
 	mv --force "${TAR_UNTESTED}" "${TAR_FINAL}"
@@ -84,7 +79,34 @@ for TAR_UNTESTED in "${BACKUP_BASENAME}"-*.tar.untested ; do
 		continue
 	fi
 	chown "${BACKUP_OWNER}" "${TAR_FINAL}"
+done
 
+
+# find any leftover untested bz2 files and test
+# them so they are not re-compressed unnecessarily
+for BZ2_UNTESTED in "${BACKUP_BASENAME}"-*.tar.bz2.untested ; do
+	# verify compressed archive
+	bzip2 --quiet --test "${BZ2_UNTESTED}"
+	RESULT="$?"
+	if test "${RESULT}" != "0" ; then
+		echo "Verifying compressed archive [${BZ2_UNTESTED}] failed (${RESULT}). Removing."
+		AGGREGATE_EXIT_CODE=${RESULT}
+		rm --force "${BZ2_UNTESTED}"
+		continue
+	fi
+	# rename to final archive name
+	BZ2_FINAL=$(basename "${BZ2_UNTESTED}" .untested)
+	mv --force "${BZ2_UNTESTED}" "${BZ2_FINAL}"
+	RESULT="$?"
+	if test "${RESULT}" != "0" ; then
+		echo "Renaming tested compressed archive [${BZ2_UNTESTED}] to [${BZ2_FINAL}] failed (${RESULT}). Skipping."
+		AGGREGATE_EXIT_CODE=${RESULT}
+		continue
+	fi
+	TAR_FINAL=$(basename "${BZ2_UNTESTED}" .bz2.untested)
+	rm --force "${TAR_FINAL}"
+	chmod "${BACKUP_MASK}" "${BZ2_FINAL}"
+	chown "${BACKUP_OWNER}" "${BZ2_FINAL}"
 done
 
 
@@ -133,37 +155,9 @@ for TAR_FINAL in "${BACKUP_BASENAME}"-*.tar ; do
 		AGGREGATE_EXIT_CODE=${RESULT}
 		continue
 	fi
-
 	rm --force "${TAR_FINAL}"
 	chmod "${BACKUP_MASK}" "${BZ2_FINAL}"
 	chown "${BACKUP_OWNER}" "${BZ2_FINAL}"
-
-	# GNotary support
-	if test -n "${GNOTARY_TAN}" ; then
-		LOCAL_MAILER=$(which mail)
-
-		#SHA512="SHA 512:"`sha512sum -b ${BACKUP_FILENAME}.tar.bz2`
-		SHA512=$(openssl dgst -sha512 -hex "${BZ2_FINAL}")
-		RMD160=$(openssl dgst -ripemd160 -hex "${BZ2_FINAL}")
-
-		export REPLYTO=${SIG_RECEIVER}
-
-		# send mail
-		(
-			echo " "
-			echo "<?xml version=\"1.0\" encoding=\"iso-8859-1\" ?>"
-			echo "<message>"
-			echo "	<tan>$GNOTARY_TAN</tan>"
-			echo "	<action>notarize</action>"
-			echo "	<hashes number=\"2\">"
-			echo "		<hash file=\"${BZ2_FINAL}\" modified=\"${TS}\" algorithm=\"SHA-512\">${SHA512}</hash>"
-			echo "		<hash file=\"${BZ2_FINAL}\" modified=\"${TS}\" algorithm=\"RIPE-MD-160\">${RMD160}</hash>"
-			echo "	</hashes>"
-			echo "</message>"
-			echo " "
-		) | $LOCAL_MAILER -s "gnotarize" "$GNOTARY_SERVER"
-	fi
-
 done
 
 
