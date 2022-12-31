@@ -1624,11 +1624,12 @@ def __numbers_only(str2parse):
 	if not regex.match("^(\s|\t)*\d{1,4}(\s|\t)*$", str2parse, flags = regex.UNICODE):
 		return []
 
-	now = pydt_now_here()
 	val = int(regex.findall('\d{1,4}', str2parse, flags = regex.UNICODE)[0])
+	if val == 0:
+		return []
 
+	now = pydt_now_here()
 	matches = []
-
 	# today in that year
 	if (1850 < val) and (val < 2100):
 		target_date = cFuzzyTimestamp (
@@ -2331,6 +2332,15 @@ if __name__ == '__main__':
 			print(exc)
 
 	#-------------------------------------------------
+	def test__numbers_only():
+		for val in range(-1, 35):
+			matches = __numbers_only(str(val))
+			print(val, ':')
+			for m in matches:
+				print('  ', m)
+			input()
+
+	#-------------------------------------------------
 	# GNUmed libs
 	gmI18N.activate_locale()
 	gmI18N.install_domain('gnumed')
@@ -2349,5 +2359,6 @@ if __name__ == '__main__':
 	#test_pydt_strftime()
 	#test_calculate_apparent_age()
 	#test_is_leap_year()
+	test__numbers_only()
 
 #===========================================================================
