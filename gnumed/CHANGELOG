@@ -2248,6 +2248,7 @@ FIX: PG14 does not support IS OF anymore, use pg_typeof()
 	22.18
 
 IMPROVED: bootstrapper: schema "public" permissions and ownership as per PG 15
+IMPROVED: backup: avoid unnecessary recompression
 
 	22.17
 
