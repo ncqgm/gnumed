@@ -845,7 +845,7 @@ class database:
 
 	#--------------------------------------------------------------
 	def __create_db(self):
-
+		_log.info('creating database')
 		# verify template database hash
 		template_version = cfg_get(self.section, 'template version')
 		if template_version is None:
@@ -855,6 +855,7 @@ class database:
 			if not converted:
 				_log.error(u'invalid template database definition: %s', template_version)
 				return False
+
 			if not gmPG2.database_schema_compatible(link_obj = self.conn, version = version):
 				_log.error(u'invalid [%s] schema structure in GNUmed template database [%s]', template_version, self.template_db)
 				return False
