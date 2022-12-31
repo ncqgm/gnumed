@@ -373,33 +373,153 @@ def request_login_params(setup_pool=False, force_tui=False):
 # =======================================================================
 # netadata API
 # =======================================================================
+SQL__concat_table_structure_v19_and_up = """
+create or replace function gm.concat_table_structure_v19_and_up()
+	returns text
+	language 'plpgsql'
+	security definer
+	as '
+declare
+	_table_desc record;
+	_pk_desc record;
+	_column_desc record;
+	_constraint_def record;
+	_total text;
+begin
+	_total := '''';
+
+	-- find relevant tables
+	for _table_desc in
+		select * from information_schema.tables tabs where
+			tabs.table_schema in (''dem'', ''clin'', ''blobs'', ''cfg'', ''ref'', ''i18n'', ''bill'')
+				and
+			tabs.table_type = ''BASE TABLE''
+		order by
+			decode(md5(tabs.table_schema || tabs.table_name), ''hex'')
+
+	-- loop over tables
+	loop
+		-- where are we at ?
+		_total := _total || ''TABLE:'' || _table_desc.table_schema || ''.'' || _table_desc.table_name || E''\\n'';
+
+		-- find PKs of that table
+		for _pk_desc in
+			select * from (
+				select
+					pg_class.oid::regclass || ''.'' || pg_attribute.attname || ''::'' || format_type(pg_attribute.atttypid, pg_attribute.atttypmod) AS primary_key_column
+				from
+					pg_index, pg_class, pg_attribute
+				where
+					--pg_class.oid = ''TABLENAME''::regclass
+					pg_class.oid = (_table_desc.table_schema || ''.'' || _table_desc.table_name)::regclass
+						AND 
+					indrelid = pg_class.oid
+						AND
+					pg_attribute.attrelid = pg_class.oid
+						AND
+					pg_attribute.attnum = any(pg_index.indkey)
+						AND
+					indisprimary
+				) AS PKs
+			order by
+				decode(md5(PKs.primary_key_column), ''hex'')
+		-- and loop over those PK columns
+		loop
+			_total := _total || ''PK:'' || _pk_desc.primary_key_column	|| E''\\n'';
+		end loop;
+
+		-- find columns of that table
+		for _column_desc in
+			select *
+			from information_schema.columns cols
+			where
+				cols.table_name = _table_desc.table_name
+					and
+				cols.table_schema = _table_desc.table_schema
+			order by
+				decode(md5(cols.column_name || cols.data_type), ''hex'')
+		-- and loop over those columns
+		loop
+			-- add columns in the format "schema.table.column::data_type"
+			_total := _total || ''COL:''
+				|| _column_desc.table_schema || ''.''
+				|| _column_desc.table_name || ''.''
+				|| _column_desc.column_name || ''::''
+				|| _column_desc.udt_name || E''\\n'';
+
+		end loop;
+
+		-- find and loop over CONSTRAINTs of that table
+		for _constraint_def in
+			select * from
+				(select
+					tbl.contype,
+					''CONSTRAINT:type=''
+						|| tbl.contype::TEXT || '':''
+						|| replace(pg_catalog.pg_get_constraintdef(tbl.oid, true), '' '', ''_'')
+						|| ''::active=''
+						|| tbl.convalidated::TEXT
+					 as condef
+				from pg_catalog.pg_constraint tbl
+				where
+					tbl.conrelid = (_table_desc.table_schema || ''.'' || _table_desc.table_name)::regclass
+					-- include FKs only because we may have to add/remove
+					-- other (say, check) constraints in a minor release
+					-- for valid reasons which we do not want to affect
+					-- the hash, if however we need to modify a foreign
+					-- key that would, indeed, warrant a hash change
+						AND
+					tbl.contype = ''f''
+				) as CONSTRAINTs
+			order by
+				CONSTRAINTs.contype,
+				decode(md5(CONSTRAINTs.condef), ''hex'')
+		loop
+			_total := _total || _constraint_def.condef || E''\\n'';
+		end loop;
+
+	end loop;		-- over tables
+
+	return _total;
+end;';
+
+select md5(gm.concat_table_structure(%(ver)s::integer)) AS md5;
+"""
+
 def database_schema_compatible(link_obj=None, version=None, verbose=True):
 	expected_hash = known_schema_hashes[version]
 	if version == 0:
 		args = {'ver': 9999}
 	else:
 		args = {'ver': version}
-	rows, idx = run_ro_queries (
-		link_obj = link_obj,
-		queries = [{
-			'cmd': 'select md5(gm.concat_table_structure(%(ver)s::integer)) as md5',
-			'args': args
-		}]
-	)
-	if rows[0]['md5'] != expected_hash:
-		_log.error('database schema version mismatch')
-		_log.error('expected: %s (%s)' % (version, expected_hash))
-		_log.error('detected: %s (%s)' % (get_schema_version(link_obj=link_obj), rows[0]['md5']))
-		if verbose:
-			_log.debug('schema dump follows:')
-			for line in get_schema_structure(link_obj = link_obj).split():
-				_log.debug(line)
-			_log.debug('schema revision history dump follows:')
-			for line in get_schema_revision_history(link_obj = link_obj):
-				_log.debug(' - '.join(line))
-		return False
-	_log.info('detected schema version [%s], hash [%s]' % (map_schema_hash2version[rows[0]['md5']], rows[0]['md5']))
-	return True
+	SQL = 'select md5(gm.concat_table_structure(%(ver)s::integer)) as md5'
+	try:
+		rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': SQL, 'args': args}])
+	except dbapi.errors.AmbiguousFunction as exc:
+		gmConnectionPool.log_pg_exception_details(exc)
+		if not hasattr(exc, 'diag'):
+			raise
+		if 'gm.concat_table_structure_v19_and_up()' not in exc.diag.context:
+			raise
+		rows = None
+	if rows is None:
+		_log.error('gm.concat_table_structure_v19_and_up() failed, retrying with updated function')
+		rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': SQL__concat_table_structure_v19_and_up, 'args': args}])
+	if rows[0]['md5'] == expected_hash:
+		_log.info('detected schema version [%s], hash [%s]' % (map_schema_hash2version[rows[0]['md5']], rows[0]['md5']))
+		return True
+
+	_log.error('database schema version mismatch')
+	_log.error('expected: %s (%s)' % (version, expected_hash))
+	_log.error('detected: %s (%s)' % (get_schema_version(link_obj=link_obj), rows[0]['md5']))
+	if verbose:
+		_log.debug('schema dump follows:')
+		for line in get_schema_structure(link_obj = link_obj).split():
+			_log.debug(line)
+		_log.debug('schema revision history dump follows:')
+		for line in get_schema_revision_history(link_obj = link_obj):
+			_log.debug(' - '.join(line))
+	return False
 
 #------------------------------------------------------------------------
 def get_schema_version(link_obj=None):
