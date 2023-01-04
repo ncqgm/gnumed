@@ -225,20 +225,20 @@ magic = [
 	[0, 'string', '=', '#! /usr/local/bin/perl', 'application/x-perl'],
 	[0, 'string', '=', '#! /usr/local/bin/perl', 'application/x-perl'],
 	[0, 'string', '=', 'eval "exec /usr/local/bin/perl', 'application/x-perl'],
-	[0, 'string', '=', '#!/bin/python', 'application/x-python'],
-	[0, 'string', '=', '#! /bin/python', 'application/x-python'],
-	[0, 'string', '=', '#! /bin/python', 'application/x-python'],
-	[0, 'string', '=', 'eval "exec /bin/python', 'application/x-python'],
-	[0, 'string', '=', '#!/usr/bin/python', 'application/x-python'],
-	[0, 'string', '=', '#! /usr/bin/python', 'application/x-python'],
-	[0, 'string', '=', '#! /usr/bin/python', 'application/x-python'],
-	[0, 'string', '=', 'eval "exec /usr/bin/python', 'application/x-python'],
-	[0, 'string', '=', '#!/usr/local/bin/python', 'application/x-python'],
-	[0, 'string', '=', '#! /usr/local/bin/python', 'application/x-python'],
-	[0, 'string', '=', '#! /usr/local/bin/python', 'application/x-python'],
-	[0, 'string', '=', 'eval "exec /usr/local/bin/python', 'application/x-python'],
-	[0, 'string', '=', '#!/usr/bin/env python', 'application/x-python'],
-	[0, 'string', '=', '#! /usr/bin/env python', 'application/x-python'],
+	[0, 'string', '=', '#!/bin/python3', 'application/x-python'],
+	[0, 'string', '=', '#! /bin/python3', 'application/x-python'],
+	[0, 'string', '=', '#! /bin/python3', 'application/x-python'],
+	[0, 'string', '=', 'eval "exec /bin/python3', 'application/x-python'],
+	[0, 'string', '=', '#!/usr/bin/python3', 'application/x-python'],
+	[0, 'string', '=', '#! /usr/bin/python3', 'application/x-python'],
+	[0, 'string', '=', '#! /usr/bin/python3', 'application/x-python'],
+	[0, 'string', '=', 'eval "exec /usr/bin/python3', 'application/x-python'],
+	[0, 'string', '=', '#!/usr/local/bin/python3', 'application/x-python'],
+	[0, 'string', '=', '#! /usr/local/bin/python3', 'application/x-python'],
+	[0, 'string', '=', '#! /usr/local/bin/python3', 'application/x-python'],
+	[0, 'string', '=', 'eval "exec /usr/local/bin/python3', 'application/x-python'],
+	[0, 'string', '=', '#!/usr/bin/env python3', 'application/x-python'],
+	[0, 'string', '=', '#! /usr/bin/env python3', 'application/x-python'],
 	[0, 'string', '=', '#!/bin/rc', 'text/script'],
 	[0, 'string', '=', '#! /bin/rc', 'text/script'],
 	[0, 'string', '=', '#! /bin/rc', 'text/script'],
@@ -894,7 +894,7 @@ def strToNum(n):
 	if n[:1] == 'x': n = '0' + n
 	if n[:2] == '0x':
 		# hex
-		n = string.lower(n[2:])
+		n = n[2:].lower()
 		while len(n) > 0:
 			l = n[len(n) - 1]
 			val = val + string.hexdigits.index(l) * col
@@ -910,7 +910,7 @@ def strToNum(n):
 			col = col * 8
 			n = n[:len(n)-1]
 	else:
-		val = string.atol(n)
+		val = int(n)
 	return val
 
 def unescape(s):
@@ -1018,7 +1018,7 @@ def load(file):
 			continue
 		else:
 			# split up by space delimiters, and remove trailing space
-			line = string.rstrip(line)
+			line = line.rstrip()
 			line = re.split(r'\s*', line)
 			if len(line) < 3:
 				# bad line
@@ -1036,11 +1036,11 @@ def load(file):
 				l = last[level - 1].subTests
 			if offset[0] == '(':
 				# don't handle indirect offsets just yet
-				print('SKIPPING ' + string.join(list(line[3:])))
+				print('SKIPPING ' + ' '.join(list(line[3:])))
 				pass
 			elif offset[0] == '&':
 				# don't handle relative offsets just yet
-				print('SKIPPING ' + string.join(list(line[3:])))
+				print('SKIPPING ' + ' '.join(list(line[3:])))
 				pass
 			else:
 				operands = ['=', '<', '>', '&']
@@ -1072,7 +1072,7 @@ def load(file):
 						value = value[:(value.index('&')+1)]
 					try: value = strToNum(value)
 					except Exception: continue
-					msg = string.join(list(line[3:]))
+					msg = ' '.join(list(line[3:]))
 				new = magicTest(offset, type, op, value, msg, mask)
 				last[level] = new
 				l.append(new)
@@ -1088,9 +1088,9 @@ def whatis(data):
 		if ord(c) > 128:
 			return 'data'
 	# its ASCII, now do text tests
-	if string.find('The', data, 0, 8192) > -1:
+	if data.find('The', 0, 8192) > -1:
 		return 'English text'
-	if string.find('def', data, 0, 8192) > -1:
+	if data.find('def', 0, 8192) > -1:
 		return 'Python Source'
 	return 'ASCII text'
 
