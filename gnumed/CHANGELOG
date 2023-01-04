@@ -6,6 +6,10 @@
 # rel-1-8-patches
 ------------------------------------------------
 
+	1.8.9
+
+FIX: mime handling: py3 adjustments in file magic [thanks Andreas]
+
 	1.8.8
 
 IMPROVED: PACS: better image/image buttons placement
