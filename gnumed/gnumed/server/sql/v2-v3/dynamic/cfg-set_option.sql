@@ -4,17 +4,10 @@
 -- Source database version: v2
 -- Target database version: v3
 --
--- What it does:
--- - add set_option functions
---
 -- License: GPL v2 or later
 -- Author: Karsten Hilbert
--- 
+--
 -- ==============================================================
--- $Id: cfg-set_option.sql,v 1.2 2007-09-24 23:31:17 ncq Exp $
--- $Revision: 1.2 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
@@ -76,7 +69,6 @@ begin
 	return pk_item;
 end;';
 
-
 -- --------------------------------------------------------------
 create or replace function cfg.set_option(text, anyelement, text, text, text)
 	returns boolean
@@ -94,13 +86,13 @@ declare
 	cmd text;
 begin
 	-- determine data type
-	if _value is of (text, char, varchar, name) then
+	if pg_typeof(_value) in (''text''::regtype, ''char''::regtype, ''varchar''::regtype, ''name''::regtype) then
 		val_type := ''string'';
-	elsif _value is of (smallint, integer, bigint, numeric, boolean) then
+	elsif pg_typeof(_value) in (''smallint''::regtype, ''int''::regtype, ''bigint''::regtype, ''numeric''::regtype, ''boolean''::regtype) then
 		val_type := ''numeric'';
-	elsif _value is of (bytea) then
+	elsif pg_typeof(_value) in (''bytea''::regtype) then
 		val_type := ''data'';
-	elsif _value is of (text[]) then
+	elsif pg_typeof(_value) in (''text[]''::regtype) then
 		val_type := ''str_array'';
 	else
 		raise exception ''cfg.set_option(text, any, text, text, text): invalid type of value'';
@@ -142,33 +134,4 @@ comment on function cfg.set_option(text, anyelement, text, text, text) is
 	'set option, owner = NULL means CURRENT_USER';
 
 -- --------------------------------------------------------------
-select public.log_script_insertion('$RCSfile: cfg-set_option.sql,v $', '$Revision: 1.2 $');
-
--- ==============================================================
--- $Log: cfg-set_option.sql,v $
--- Revision 1.2  2007-09-24 23:31:17  ncq
--- - remove begin; commit; as it breaks the bootstrapper
---
--- Revision 1.1  2006/09/25 10:55:01  ncq
--- - added here
---
--- Revision 1.3  2006/09/21 19:54:47  ncq
--- - we don't need set_option2()
---
--- Revision 1.2  2006/09/21 19:51:43  ncq
--- - eventually make set_option() work
---
--- Revision 1.1  2006/09/19 18:27:47  ncq
--- - add cfg.set_option()
--- - drop NOT NULL on cfg.cfg_item.cookie
---
--- Revision 1.3  2006/09/18 17:32:53  ncq
--- - make more fool-proof
---
--- Revision 1.2  2006/09/16 21:47:37  ncq
--- - improvements
---
--- Revision 1.1  2006/09/16 14:02:36  ncq
--- - use this as a template for change scripts
---
---
+select public.log_script_insertion('cfg-set_option.sql', 'v22.19');
