@@ -199,7 +199,7 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 	def save_to_file(self, filename=None, chunksize=0, use_sandbox=False):
 		"""Export form template from database into file."""
 		if not self._payload['has_template_data']:
-			_log.exception('no template data')
+			_log.error('no template data')
 			return None
 
 		if filename is None:

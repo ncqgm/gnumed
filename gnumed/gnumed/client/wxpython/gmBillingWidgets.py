@@ -627,7 +627,7 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 		return False
 
 	if not invoice:
-		_log.exception('cannot instantiate invoice template [%s]', template)
+		_log.error('cannot instantiate invoice template [%s]', template)
 		gmGuiHelpers.gm_show_error (
 			aMessage = _('Invalid invoice template [%s - %s (%s)]') % (name, ver, template['engine']),
 			aTitle = _('Showing invoice')
