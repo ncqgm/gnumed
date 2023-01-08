@@ -209,10 +209,10 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 	def save_to_file(self, filename:str=None, chunksize:int=0, use_sandbox:bool=False) -> str:
 		"""Export actual form template definition into a file.
 
-		Note that this file may often not (yet) be valid for
-		the target document engine because it usually
-		contains placeholders interspersed with the layout
-		definition.
+			Note that this file may often not (yet) be valid
+			for the target document engine because it usually
+			contains placeholders interspersed with the
+			layout definition.
 
 		Args:
 			filename: an explicit filename to save to, a suitable one is generated if None
@@ -221,6 +221,10 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 		Returns:
 			The name of the file that was saved into. None on failure.
 		"""
+		if not self._payload['has_template_data']:
+			_log.exception('no template data')
+			return None
+
 		if filename is None:
 			if use_sandbox:
 				sandbox_dir = gmTools.mk_sandbox_dir(prefix = 'gm2%s-' % self._payload[self._idx['engine']])
@@ -275,19 +279,23 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 	def instantiate(self, use_sandbox:bool=False):
 		"""Create an instance of this form template for further processing.
 
-		This saves the template data to a file, and from that
-		creates a form instances, specific to the text
-		processing engine defined for this template. Invoke
-		methods of the form instance for further processing
-		(placeholder substitution, PDF generation, ...)
+			This saves the template data to a file, and from
+			that creates a form instances, specific to the
+			text processing engine defined for this template.
+			Invoke methods of the form instance for further
+			processing (placeholder substitution, PDF
+			generation, ...)
 
 		Args:
 			use_sandbox: instantiate in a sandbox directory
 
 		Returns:
-			A form instance.
+			A form instance or None on failure.
 		"""
 		fname = self.save_to_file(use_sandbox = use_sandbox)
+		if not fname:
+			return None
+
 		engine = form_engines[self._payload[self._idx['engine']]]
 		form = engine(template_file = fname)
 		form.template = self

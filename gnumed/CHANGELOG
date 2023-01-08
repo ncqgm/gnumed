@@ -54,6 +54,7 @@ FIX: Py3.13: will remove mailcap module
 	1.8.9
 
 FIX: mime handling: py3 adjustments in file magic [thanks Andreas]
+FIX: bills: exception on generating invoice PDF [thanks l-ray]
 
 	1.8.8
 
