@@ -2195,6 +2195,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 	22.19
 
 FIX: bootstrapper: no more IS OF, use pg_typeof in v2->v3 transition [thanks Lennart]
+FIX: bootstrapper: CHAR -> TEXT cast in v19+ schema hashing on recent PGs
 
 	22.18
 

@@ -184,4 +184,4 @@ end;
 ';
 
 -- ==============================================================
-select gm.log_script_insertion('v19-gm-schema_revision_handling.sql', '19.0');
+select gm.log_script_insertion('v19-gm-schema_revision_handling-fixup.sql', '19.0');
