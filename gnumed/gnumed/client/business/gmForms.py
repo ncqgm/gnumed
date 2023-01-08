@@ -198,6 +198,9 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def save_to_file(self, filename=None, chunksize=0, use_sandbox=False):
 		"""Export form template from database into file."""
+		if not self._payload['has_template_data']:
+			_log.exception('no template data')
+			return None
 
 		if filename is None:
 			if use_sandbox:
@@ -250,6 +253,9 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def instantiate(self, use_sandbox=False):
 		fname = self.save_to_file(use_sandbox = use_sandbox)
+		if not fname:
+			return None
+
 		engine = form_engines[self._payload[self._idx['engine']]]
 		form = engine(template_file = fname)
 		form.template = self

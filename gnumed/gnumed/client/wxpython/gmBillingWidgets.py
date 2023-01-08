@@ -622,7 +622,15 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 		_log.exception('cannot instantiate invoice template [%s]', template)
 		gmGuiHelpers.gm_show_error (
 			aMessage = _('Invalid invoice template [%s - %s (%s)]') % (name, ver, template['engine']),
-			aTitle = _('Printing medication list')
+			aTitle = _('Showing invoice')
+		)
+		return False
+
+	if not invoice:
+		_log.exception('cannot instantiate invoice template [%s]', template)
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Invalid invoice template [%s - %s (%s)]') % (name, ver, template['engine']),
+			aTitle = _('Showing invoice')
 		)
 		return False
 
@@ -639,7 +647,6 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 		)
 		return False
 
-	# keep a copy
 	if keep_a_copy:
 		files2import = []
 		files2import.extend(invoice.final_output_filenames)
@@ -655,11 +662,9 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 		)
 		bill['pk_doc'] = doc['pk_doc']
 		bill.save()
-
 	if not print_it:
 		return True
 
-	# print template
 	_cfg = gmCfg2.gmCfgData()
 	printed = gmPrinting.print_files(filenames = [pdf_name], jobtype = 'invoice', verbose = _cfg.get(option = 'debug'))
 	if not printed:
