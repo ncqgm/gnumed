@@ -222,7 +222,7 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 			The name of the file that was saved into. None on failure.
 		"""
 		if not self._payload['has_template_data']:
-			_log.exception('no template data')
+			_log.error('no template data')
 			return None
 
 		if filename is None:
