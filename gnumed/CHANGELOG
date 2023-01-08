@@ -2192,6 +2192,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v22
 ------------------------------------------------
 
+	22.19
+
+FIX: bootstrapper: no more IS OF, use pg_typeof in v2->v3 transition [thanks Lennart]
+
 	22.18
 
 IMPROVED: bootstrapper: schema "public" permissions and ownership as per PG 15
