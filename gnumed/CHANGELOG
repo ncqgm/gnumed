@@ -2253,6 +2253,7 @@ FIX: PG14 does not support IS OF anymore, use pg_typeof()
 	22.19
 
 FIX: bootstrapper: no more IS OF, use pg_typeof in v2->v3 transition [thanks Lennart]
+FIX: bootstrapper: CHAR -> TEXT cast in v19+ schema hashing on recent PGs
 
 	22.18
 
