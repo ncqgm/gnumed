@@ -10,6 +10,7 @@
 
 FIX: mime handling: py3 adjustments in file magic [thanks Andreas]
 FIX: bills: exception on generating invoice PDF [thanks l-ray]
+FIX: about: exception in about dialog [thanks aimee]
 
 	1.8.8
 
