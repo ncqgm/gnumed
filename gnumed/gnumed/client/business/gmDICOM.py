@@ -1692,8 +1692,6 @@ if __name__ == "__main__":
 	if len(sys.argv) == 1:
 		sys.exit()
 
-	from Gnumed.pycommon import gmLog2
-
 	if sys.argv[1] != 'test':
 		fname = sys.argv[1]
 		try: dcm_template = sys.argv[2]

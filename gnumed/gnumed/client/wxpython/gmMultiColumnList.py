@@ -155,6 +155,6 @@ class MultiColumnList( wx.Grid):
 
 
 if __name__ == "__main__":
-	 app = wxPyWidgetTester(size = (400, 100))
-         app.SetWidget(MultiColumnList, -1)
-	 app.MainLoop()
+	app = wx.PyWidgetTester(size = (400, 100))
+	app.SetWidget(MultiColumnList, -1)
+	app.MainLoop()

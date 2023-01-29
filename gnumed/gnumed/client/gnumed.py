@@ -987,18 +987,18 @@ def setup_backend_environment():
 		value = db_version
 	)
 
-	# set up database connection timezone
-	timezone = _cfg.get (
-		group = 'backend',
-		option = 'client timezone',
-		source_order = [
-			('explicit', 'return'),
-			('workbase', 'return'),
-			('local', 'return'),
-			('user', 'return'),
-			('system', 'return')
-		]
-	)
+#	# set up database connection timezone
+#	timezone = _cfg.get (
+#		group = 'backend',
+#		option = 'client timezone',
+#		source_order = [
+#			('explicit', 'return'),
+#			('workbase', 'return'),
+#			('local', 'return'),
+#			('user', 'return'),
+#			('system', 'return')
+#		]
+#	)
 #	if timezone is not None:
 #		gmPG2.set_default_client_timezone(timezone)
 
@@ -1018,7 +1018,8 @@ def run_ui():
 #==========================================================
 def run_tui():
 	try:
-		import urwid
+		#import urwid
+		pass
 	except ModuleNotFoundError:
 		_log.exception('cannot import <urwid>')
 		return 1
@@ -1131,7 +1132,7 @@ def __run_get_object_passphrases_tool():
 def __run_emr_export_tool():
 	# setup praxis
 	from Gnumed.business import gmPraxis
-	praxis = gmPraxis.gmCurrentPraxisBranch(branch = gmPraxis.get_praxis_branches()[0])
+	gmPraxis.gmCurrentPraxisBranch(branch = gmPraxis.get_praxis_branches()[0])
 	# setup exporters
 	from Gnumed.business import gmEMRStructItems
 	from Gnumed.exporters import gmTimelineExporter

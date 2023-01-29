@@ -19,7 +19,6 @@ if __name__ == '__main__':
 
 from Gnumed.pycommon import gmDateTime
 if __name__ == '__main__':
-	from Gnumed.pycommon import gmLog2
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmDateTime.init()

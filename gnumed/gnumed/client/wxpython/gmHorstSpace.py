@@ -17,7 +17,7 @@ import sys, logging
 import wx
 
 
-from Gnumed.pycommon import gmGuiBroker, gmDispatcher, gmCfgDB, gmLog2
+from Gnumed.pycommon import gmGuiBroker, gmDispatcher, gmCfgDB
 from Gnumed.wxpython import gmPlugin, gmTopPanel
 from Gnumed.business import gmPerson, gmPraxis
 

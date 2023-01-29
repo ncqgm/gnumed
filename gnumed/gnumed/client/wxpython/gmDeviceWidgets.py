@@ -124,7 +124,7 @@ class cCardiacDevicePluginPnl(wxgCardiacDevicePluginPnl.wxgCardiacDevicePluginPn
 #----------------------------------------------------------------
 if __name__ == '__main__':
 
-	from Gnumed.pycommon import gmLog2, gmDateTime, gmI18N
+	from Gnumed.pycommon import gmDateTime, gmI18N
 
 	gmI18N.activate_locale()
 	gmI18N.install_domain()

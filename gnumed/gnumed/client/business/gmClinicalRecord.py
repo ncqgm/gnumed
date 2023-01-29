@@ -16,7 +16,6 @@ from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmDateTime
 
 if __name__ == '__main__':
-	from Gnumed.pycommon import gmLog2
 	_ = lambda x:x
 	gmI18N.activate_locale()
 	gmI18N.install_domain()

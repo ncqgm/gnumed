@@ -178,8 +178,6 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	from Gnumed.pycommon import gmLog2
-
 	gmDateTime.init()
 
 	def test():

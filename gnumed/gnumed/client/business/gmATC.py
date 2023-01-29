@@ -305,7 +305,6 @@ if __name__ == "__main__":
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	from Gnumed.pycommon import gmLog2
 	from Gnumed.pycommon import gmI18N
 
 	gmI18N.activate_locale()

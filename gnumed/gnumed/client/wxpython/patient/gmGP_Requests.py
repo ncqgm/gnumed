@@ -59,7 +59,7 @@ requestprompts = {
 
 
 class RequestsPanel (wxPanel, PatientHolder):
-     def __init__(self,parent, id):
+	def __init__(self,parent, id):
 		wxPanel.__init__(self, parent, id,wx.DefaultPosition,wx.DefaultSize,wxRAISED_BORDER)
 		PatientHolder.__init__(self)
 		#--------------------
@@ -67,7 +67,6 @@ class RequestsPanel (wxPanel, PatientHolder):
 		#--------------------
 		self.requestspanelheading = gmGuiElement_HeadingCaptionPanel.HeadingCaptionPanel(self,-1,"     REQUESTS     ")
 		#--------------------------------------------
-		
 		#--------------------------------------------
 		self.sizer_top  = wxBoxSizer(wxHORIZONTAL)
 		#FIXME remove the date text below

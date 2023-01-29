@@ -394,13 +394,11 @@ def add_file_to_patlst(ID, name, patlst, new_file, ahash):
 # main
 #--------------------------------------------------------------
 if __name__ == "__main__":
-	from Gnumed.pycommon import gmI18N, gmLog2
-
 	root_log = logging.getLogger()
 	root_log.setLevel(logging.DEBUG)
 	_log = logging.getLogger('gm.xdt')
 
-	#from Gnumed.business import gmPerson
+	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 	gmDateTime.init()

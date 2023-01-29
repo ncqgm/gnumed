@@ -4812,7 +4812,6 @@ class cTestPanelEAPnl(wxgTestPanelEAPnl.wxgTestPanelEAPnl, gmEditArea.cGenericEd
 #----------------------------------------------------------------
 if __name__ == '__main__':
 
-	from Gnumed.pycommon import gmLog2
 	from Gnumed.wxpython import gmPatSearchWidgets
 
 	gmDateTime.init()

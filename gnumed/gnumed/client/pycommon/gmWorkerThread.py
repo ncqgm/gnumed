@@ -117,8 +117,6 @@ if __name__ == "__main__":
 	import time
 	import random
 
-	from Gnumed.pycommon import gmLog2
-
 	def test_print_dots(ident=None):
 		"""Tests executing a function in a worker thread.
 

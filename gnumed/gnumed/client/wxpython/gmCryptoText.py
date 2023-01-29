@@ -68,7 +68,7 @@ class gmCryptoText(wx.TextCtrl):
     def __init__(self, parent, id, size=wx.DefaultSize, style=wx.TE_MULTILINE|wx.TE_RICH, defaulttext=None):
         #initialize parent class
         wx.TextCtrl.__init__(self, parent, id, size=size, style=style)
-       self.SetDefaultStyle(wx.TextAttr(wx.RED))
+        self.SetDefaultStyle(wx.TextAttr(wx.RED))
 
         #will search for text tags within fuzzymargin characters
         self.fuzzymargin = 25
@@ -80,8 +80,8 @@ class gmCryptoText(wx.TextCtrl):
         self. selectionStart = 0
         self.selectionEnd = 0
 
-	if defaulttext is not None:
-		self.WriteText(defaulttext)
+        if defaulttext is not None:
+            self.WriteText(defaulttext)
 
         #a reserved ID for events related to this widget
         self.aID = wx.NewId()
@@ -114,7 +114,7 @@ class gmCryptoText(wx.TextCtrl):
         wx.EVT_MENU(self, ID_POP_PASSPHRASE, self.OnSetPassphrase)
 
         #show the menu
-        self.PopupMenu(menu, wxPoint(event.GetX(), event.GetY()))
+        self.PopupMenu(menu, wx.Point(event.GetX(), event.GetY()))
 
         #free resources
         menu.DestroyLater()
@@ -123,8 +123,8 @@ class gmCryptoText(wx.TextCtrl):
         event.Skip()
 
 
-	def OnContextMenu(self, event):
-		pass
+    def OnContextMenu(self, event):
+        pass
 
 
     def OnEncrypt(self, event):
@@ -181,7 +181,7 @@ class gmCryptoText(wx.TextCtrl):
 
     def AskForPassphrase(self):
         """asks for a pass phrase and returns it"""
-        dlg = wxTextEntryDialog(self, _("Please enter your pass phrase:"), _("Pass phrase expired"), style=wxOK|wxCANCEL|wx.CENTRE|wx.TE_PASSWORD)
+        dlg = wx.TextEntryDialog(self, _("Please enter your pass phrase:"), _("Pass phrase expired"), style=wx.OK|wx.CANCEL|wx.CENTRE|wx.TE_PASSWORD)
         if dlg.ShowModal() == wx.ID_OK:
             retval = dlg.GetValue()
         else:
@@ -251,7 +251,7 @@ class gmCryptoText(wx.TextCtrl):
 # for options like encryption, decryption, and setting of passphrase
 #############################################################################
 if __name__ == '__main__':
-	app = wxPyWidgetTester(size = (400, 400))
+	app = wx.PyWidgetTester(size = (400, 400))
 	#show the login panel in a main window
 	app.SetWidget(gmCryptoText, -1)
 	app.MainLoop()

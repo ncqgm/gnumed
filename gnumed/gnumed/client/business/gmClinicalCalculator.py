@@ -19,7 +19,6 @@ if __name__ == '__main__':
 
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmI18N
-from Gnumed.pycommon import gmLog2
 
 if __name__ == '__main__':
 	_ = lambda x:x
@@ -28,7 +27,6 @@ if __name__ == '__main__':
 	gmDateTime.init()
 
 from Gnumed.pycommon import gmTools
-#from Gnumed.pycommon import gmBorg
 from Gnumed.business import gmLOINC
 
 

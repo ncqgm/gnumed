@@ -14,8 +14,6 @@ TODO:
  - factor out Algo parts
 """
 #===========================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmBMIWidgets.py,v $
-# $Id: gmBMIWidgets.py,v 1.13 2007-01-20 22:52:27 ncq Exp $
 __version__ = "$Revision: 1.13 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>,\
@@ -25,8 +23,6 @@ __license__ = "GPL v2 or later (details at https://www.gnu.org)"
 import os.path
 
 import wx
-
-from Gnumed.pycommon import gmI18N
 
 #===========================================================================
 class BMI_Colour_Scale(wx.Window):
@@ -61,7 +57,7 @@ class BMI_Colour_Scale(wx.Window):
 		dc.DrawEllipse(6, 5, 80,15)
 		dc.SetFont(wx.Font(8, wx.SWISS, wx.NORMAL, wx.NORMAL))
 		dc.SetTextForeground(wx.Colour(0,0,0))
-		te = dc.GetTextExtent(_("Underweight"))
+		#te = dc.GetTextExtent(_("Underweight"))
 		dc.DrawText(_("Underweight"), 20,9)
 		#------------------------------------------
 		#add the green elipse = normal mass range
@@ -71,7 +67,7 @@ class BMI_Colour_Scale(wx.Window):
 		dc.SetBrush(wx.Brush(wx.Colour(0,192,0), wx.SOLID))
 		dc.SetFont(wx.Font(8, wx.SWISS, wx.NORMAL, wx.NORMAL))
 		dc.SetTextForeground(wx.Colour(0,0,0))
-		te = dc.GetTextExtent(_("63< Normal >79"))
+		#te = dc.GetTextExtent(_("63< Normal >79"))
 		dc.DrawText(_("63 - Normal - 79"),95,8)
 		#------------------------------------------
 		#add the orange elipse = overweight range
@@ -80,7 +76,7 @@ class BMI_Colour_Scale(wx.Window):
 		dc.DrawEllipse(168, 5, 80,15)
 		dc.SetFont(wx.Font(8, wx.SWISS, wx.NORMAL, wx.NORMAL))
 		dc.SetTextForeground(wx.Colour(0,0,0))
-		te = dc.GetTextExtent(_("Overweight"))
+		#te = dc.GetTextExtent(_("Overweight"))
 		dc.DrawText(_("Overweight"), 180,9)
 		#------------------------------------------
 		#add the red elipse = overweight range
@@ -90,7 +86,7 @@ class BMI_Colour_Scale(wx.Window):
 		dc.DrawEllipse(250, 5, 60,15)
 		dc.SetFont(wx.Font(8, wx.SWISS, wx.NORMAL, wx.NORMAL))
 		dc.SetTextForeground(wx.Colour(0,0,0))
-		te = dc.GetTextExtent(_("Obese"))
+		#te = dc.GetTextExtent(_("Obese"))
 		dc.DrawText(_("Obese"), 267,9)
 		dc.EndDrawing()
 
@@ -173,7 +169,7 @@ class BMICalc_Panel(wx.Panel):
 		label.SetFont(wx.Font(13,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 		label.SetForegroundColour(wx.Colour(0,0,131))
 
-  		self.txtbmi = wx.TextCtrl(self,-1,"",size=(100,20), style = wx.TE_READONLY)
+		self.txtbmi = wx.TextCtrl(self,-1,"",size=(100,20), style = wx.TE_READONLY)
 		self.txtbmi.Enable(False)
 		self.txtbmi.SetFont(wx.Font(13,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
 
@@ -382,28 +378,28 @@ class BMICalc_Panel(wx.Panel):
 	#-----------------------------------------
 	# Moving between fields with the 'Enter' key
 	def EvtChar_height(self, event):
-                if(event.GetKeyCode()==13):		# height -> mass
+		if(event.GetKeyCode()==13):		# height -> mass
 			self.txtmass.SetFocus()
-                else:
-                         event.Skip()
+		else:
+			event.Skip()
 	#-----------------------------------------
 	def EvtChar_mass(self, event):
-                if(event.GetKeyCode()==13):		# mass -> slider
+		if(event.GetKeyCode()==13):		# mass -> slider
 			self.slider.SetFocus()
-                else:
-                         event.Skip()
+		else:
+			event.Skip()
 	#-----------------------------------------
 	def EvtChar_slider(self, event):
-                if(event.GetKeyCode()==13):		# slider -> goal
+		if(event.GetKeyCode()==13):		# slider -> goal
 			self.txtgoal.SetFocus()
-                else:
-                         event.Skip()
+		else:
+			event.Skip()
 	#-----------------------------------------
 	def EvtChar_goal(self, event):
-                if(event.GetKeyCode()==13):		# goal -> loss
+		if(event.GetKeyCode()==13):		# goal -> loss
 			self.txtloss.SetFocus()
-                else:
-                         event.Skip()
+		else:
+			event.Skip()
 	#-----------------------------------------
 	def EvtChar_loss(self, event):
 		if(event.GetKeyCode()==13):		# loss -> height

@@ -23,8 +23,6 @@ __author__ = "R.Terry, SJ Tan"
 
 import wx
 
-from mx import DateTime
-
 from Gnumed.pycommon import gmGuiBroker, gmDispatcher
 
 import gmPlugin
