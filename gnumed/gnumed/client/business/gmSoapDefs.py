@@ -109,7 +109,6 @@ if __name__ == '__main__':
 		sys.exit()
 
 	sys.path.insert(0, '../../')
-	from Gnumed.pycommon import gmI18N
 
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()

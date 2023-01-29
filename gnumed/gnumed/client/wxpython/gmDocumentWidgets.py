@@ -2597,12 +2597,12 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		# 2: if no review by myself exists yet
 		# 3: if no review at all exists yet
 		# 4: if no review by responsible reviewer
-		review_after_display = int(_cfg.get (
+		review_after_display = gmCfgDB.get (
 			option = 'horstspace.document_viewer.review_after_display',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user',
 			default = 3
-		))
+		)
 		if review_after_display == 1:			# always review
 			self.__review_part(part=part)
 		elif review_after_display == 2:			# review if no review by me exists

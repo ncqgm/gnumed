@@ -43,6 +43,7 @@ from Gnumed.business import gmExportArea
 from Gnumed.business import gmBilling
 from Gnumed.business import gmAutoHints
 from Gnumed.business.gmDocuments import cDocumentFolder
+from gmClinicalRecord import cClinicalRecord
 
 
 _log = logging.getLogger('gm.person')
@@ -2083,7 +2084,7 @@ class cPatient(cPerson):
 			stack_logged = True
 
 		self.is_patient = True
-		emr = gmClinicalRecord.cClinicalRecord(aPKey = self._payload[self._idx['pk_identity']])
+		emr = cClinicalRecord(aPKey = self._payload[self._idx['pk_identity']])
 
 		_log.debug('returning EMR for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], threading.get_ident())
 		self.__emr = emr

@@ -945,12 +945,12 @@ class cExportArea(object):
 			gmTools.mkdir(base_dir)
 		_log.debug('dumping export items to: %s', base_dir)
 		for item in items:
-			saved_name = item.save_to_file(directory = base_dir, passphrase = passphrase, convert2pdf = convert2pdf)
+			saved_fname = item.save_to_file(directory = base_dir, passphrase = passphrase, convert2pdf = convert2pdf)
 			if saved_fname is None:
 				return None
 
 			if passphrase:
-				store_passphrase_of_file(filename = saved_name, passphrase = passphrase, hash_type = 'sha256')
+				store_passphrase_of_file(filename = saved_fname, passphrase = passphrase, hash_type = 'sha256')
 
 		return base_dir
 

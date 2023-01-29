@@ -82,8 +82,8 @@ class DrugDisplay(wx.Panel):
 	NoDrugFoundMessageHTML	= "<HTML><HEAD></HEAD><BODY BGCOLOR='#FFFFFF8'> <FONT SIZE=3>" +     _("No matching drug found.") + "</FONT></BODY></HTML>"
 	WelcomeMessageHTML 	= "<HTML><HEAD></HEAD><BODY BGCOLOR='#FFFFFF8'> <FONT SIZE=3>" +     _("Please enter at least three digits of the drug name.") + "</FONT></BODY></HTML>"
 
-	def __init__(self, parent, id, pos = wxDefaultPosition, 
-				 size = wxDefaultSize, style = wx.TAB_TRAVERSAL):
+	def __init__(self, parent, id, pos = wx.DefaultPosition, 
+				 size = wx.DefaultSize, style = wx.TAB_TRAVERSAL):
 
 		wx.Panel.__init__(self, parent, id, pos, size, style)
 
@@ -154,8 +154,8 @@ class DrugDisplay(wx.Panel):
 		wx.EVT_RADIOBUTTON(self, ID_RADIOBUTTON_BYANY, self.OnSearchByAny)
 		wx.EVT_TEXT(self, ID_COMBO_PRODUCT, self.OnProductKeyPressed)
 		wx.EVT_COMBOBOX(self, ID_COMBO_PRODUCT, self.OnProductSelected)
-		wx.EVT_BUTTON(self, wxID_OK, self.OnOk)
-		wx.EVT_BUTTON(self, wxID_CANCEL, self.OnCancel)
+		wx.EVT_BUTTON(self, wx.ID_OK, self.OnOk)
+		wx.EVT_BUTTON(self, wx.ID_CANCEL, self.OnCancel)
 		wx.EVT_BUTTON(self,ID_BUTTON_BOOKMARK, self.OnBookmark)
 #-----------------------------------------------------------------------------------------------------------------------
 
@@ -165,25 +165,25 @@ class DrugDisplay(wx.Panel):
 		# 1)create the label 'Find' and the combo box the
 		#   user will type the name of drug into
 		#--------------------------------------------------
-		finddrug = wxStaticText( self, -1, _("   Find   "), wxDefaultPosition, wxDefaultSize, 0 )
-		finddrug.SetFont( wxFont( 14, wxSWISS, wx.NORMAL, wx.NORMAL ) )
+		finddrug = wx.StaticText( self, -1, _("   Find   "), wx.DefaultPosition, wx.DefaultSize, 0 )
+		finddrug.SetFont( wx.Font( 14, wx.SWISS, wx.NORMAL, wx.NORMAL ) )
 		
-		self.comboProduct = wxComboBox(
+		self.comboProduct = wx.ComboBox(
 			self,
 			ID_COMBO_PRODUCT, 
 			"", 
-			wxDefaultPosition, 
-			wxSize(130,-1),
+			wx.DefaultPosition, 
+			wx.Size(130,-1),
 			[] , 
-			wxCB_DROPDOWN 
+			wx.CB_DROPDOWN 
 		)
 		self.comboProduct.SetToolTip( wx.ToolTip(_("Enter the name of the drug you are interested in")) )
 		self.btnBookmark = wx.Button( 
 			self, 
 			ID_BUTTON_BOOKMARK, 
 			_("&Bookmark"), 
-			wxDefaultPosition, 
-			wxDefaultSize, 
+			wx.DefaultPosition, 
+			wx.DefaultSize, 
 			0 
 		)
 		#-----------------------------------------------------------
@@ -191,17 +191,17 @@ class DrugDisplay(wx.Panel):
 		# and add them to it
 		#-----------------------------------------------------------
 		self.sizertopleft = wx.BoxSizer(wx.HORIZONTAL)
-		self.sizertopleft.Add( finddrug, 0, wxALIGN_CENTER_VERTICAL, 5 )
-		self.sizertopleft.Add( self.comboProduct, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 5 )
-		self.sizertopleft.Add( self.btnBookmark, 0, wxALIGN_CENTER_VERTICAL, 5 )
+		self.sizertopleft.Add( finddrug, 0, wx.ALIGN_CENTER_VERTICAL, 5 )
+		self.sizertopleft.Add( self.comboProduct, 1, wx.GROW|wx.ALIGN_CENTER_VERTICAL, 5 )
+		self.sizertopleft.Add( self.btnBookmark, 0, wx.ALIGN_CENTER_VERTICAL, 5 )
 		#---------------------------------------------------------------
 		# next create the left sizer which will hold the drug list box 
 		# and the html viewer
 		#---------------------------------------------------------------
 		self.sizer_left = wx.BoxSizer( wx.VERTICAL )
-		self.sizer_left.AddSpacer( 30, 10, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 1 )
-		self.sizer_left.AddSizer( self.sizertopleft, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5)
-		self.sizer_left.AddSpacer( 1, 1, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 1 )
+		self.sizer_left.AddSpacer( 30, 10, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 1 )
+		self.sizer_left.AddSizer( self.sizertopleft, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL, 5)
+		self.sizer_left.AddSpacer( 1, 1, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 1 )
 		self.listctrl_drugchoice=None
 		self.html_viewer=None
 		self.whichWidget = "listctrl_drugchoice"
@@ -209,23 +209,23 @@ class DrugDisplay(wx.Panel):
 		self.html_viewer.SetPage(self.WelcomeMessageHTML)
         
 		#------------------------------------------------------------------------
-		# the search by option buttons sit on a wxStaticBoxSizer with wx.Vertical
-		# 1) create a wxStaticBox = bordered box with title search by
+		# the search by option buttons sit on a wx.StaticBoxSizer with wx.Vertical
+		# 1) create a wx.StaticBox = bordered box with title search by
 		# 2) add this to the sizerSearchBy sizer
 		# 3) Add four radio buttons to this sizer
 		#------------------------------------------------------------------------
-		sboxSearchBy = wxStaticBox( self, -1, _("Search by") )
-		self.sizerSearchBy = wxStaticBoxSizer( sboxSearchBy, wx.VERTICAL )
-		sboxSearchBy.SetFont( wxFont( 10, wxSWISS, wx.NORMAL, wx.NORMAL ) )
+		sboxSearchBy = wx.StaticBox( self, -1, _("Search by") )
+		self.sizerSearchBy = wx.StaticBoxSizer( sboxSearchBy, wx.VERTICAL )
+		sboxSearchBy.SetFont( wx.Font( 10, wx.SWISS, wx.NORMAL, wx.NORMAL ) )
 		
-		self.rbtnSearchAny = wxRadioButton( self, ID_RADIOBUTTON_BYANY, _("Any"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.sizerSearchBy.Add( self.rbtnSearchAny, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 1 )
-		self.rbtnSearchProduct = wxRadioButton( self, ID_RADIOBUTTON_BYPRODUCT, _("Product name"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.sizerSearchBy.Add( self.rbtnSearchProduct, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wx.TOP, 1 )
-		self.rbtnSearchGeneric = wxRadioButton( self, ID_RADIOBUTTON_BYGENERIC, _("Generic name"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.sizerSearchBy.Add( self.rbtnSearchGeneric, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 1 )
-		self.rbtnSearchIndication = wxRadioButton( self, ID_RADIOBUTTON_BYINDICATION, _("Indication"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.sizerSearchBy.Add( self.rbtnSearchIndication, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 1 )
+		self.rbtnSearchAny = wx.RadioButton( self, ID_RADIOBUTTON_BYANY, _("Any"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.sizerSearchBy.Add( self.rbtnSearchAny, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL, 1 )
+		self.rbtnSearchProduct = wx.RadioButton( self, ID_RADIOBUTTON_BYPRODUCT, _("Product name"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.sizerSearchBy.Add( self.rbtnSearchProduct, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.TOP, 1 )
+		self.rbtnSearchGeneric = wx.RadioButton( self, ID_RADIOBUTTON_BYGENERIC, _("Generic name"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.sizerSearchBy.Add( self.rbtnSearchGeneric, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL, 1 )
+		self.rbtnSearchIndication = wx.RadioButton( self, ID_RADIOBUTTON_BYINDICATION, _("Indication"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.sizerSearchBy.Add( self.rbtnSearchIndication, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL, 1 )
 		#-------------------------------------------------------------------------
 		# and the right hand side vertical side bar sizer
 		# 1) add a space at top to make the static text box even with the top
@@ -235,33 +235,33 @@ class DrugDisplay(wx.Panel):
 		# 3) add a spacer below this and above the list box underneath
 		#-------------------------------------------------------------------------
 		self.sizerVInteractionSidebar = wx.BoxSizer( wx.VERTICAL )
-		self.sizerVInteractionSidebar.AddSpacer( 30, 10, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 12 )
-		self.sizerVInteractionSidebar.AddSizer( self.sizerSearchBy, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 )
-		self.sizerVInteractionSidebar.AddSpacer( 30, 10, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 1 )
+		self.sizerVInteractionSidebar.AddSpacer( 30, 10, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 12 )
+		self.sizerVInteractionSidebar.AddSizer( self.sizerSearchBy, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL, 5 )
+		self.sizerVInteractionSidebar.AddSpacer( 30, 10, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 1 )
 		#--------------------------------------------------------------------------
 		# 4) create a listbox that will be populated with labels to jump to within the
 		#    product info text and add to the vertical side bar
 		#--------------------------------------------------------------------------
-		self.listbox_jumpto = wx.ListBox( self, ID_LISTBOX_JUMPTO, wxDefaultPosition, wxSize(150,100),
+		self.listbox_jumpto = wx.ListBox( self, ID_LISTBOX_JUMPTO, wx.DefaultPosition, wx.Size(150,100),
 			[] , wx.LB_SINGLE )
-		self.sizerVInteractionSidebar.Add( self.listbox_jumpto, 1, wxGROW|wxALIGN_CENTER_VERTICAL, 10 )
+		self.sizerVInteractionSidebar.Add( self.listbox_jumpto, 1, wx.GROW|wx.ALIGN_CENTER_VERTICAL, 10 )
 		#--------------------------------------------------------------------------
 		# 5) Add another spacer underneath this listbox
 		#--------------------------------------------------------------------------
-		self.sizerVInteractionSidebar.AddSpacer( 20, 10, 0, wxALIGN_CENTRE|wxALL, 1 )
-		self.btnPrescribe = wx.Button( self, ID_BUTTON_PRESCRIBE, _("&Prescribe"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.sizerVInteractionSidebar.Add( self.btnPrescribe, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 1 )
-		self.btnDisplay = wx.Button( self, ID_BUTTON_DISPLAY, _("&Display"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.sizerVInteractionSidebar.Add( self.btnDisplay, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 1 )
-		self.btnPrint = wx.Button( self, ID_BUTTON_PRINT, _("&Print"), wxDefaultPosition, wxDefaultSize, 0 )
-		self.sizerVInteractionSidebar.Add( self.btnPrint, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 1 )
+		self.sizerVInteractionSidebar.AddSpacer( 20, 10, 0, wx.ALIGN_CENTRE|wx.ALL, 1 )
+		self.btnPrescribe = wx.Button( self, ID_BUTTON_PRESCRIBE, _("&Prescribe"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.sizerVInteractionSidebar.Add( self.btnPrescribe, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 1 )
+		self.btnDisplay = wx.Button( self, ID_BUTTON_DISPLAY, _("&Display"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.sizerVInteractionSidebar.Add( self.btnDisplay, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 1 )
+		self.btnPrint = wx.Button( self, ID_BUTTON_PRINT, _("&Print"), wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.sizerVInteractionSidebar.Add( self.btnPrint, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 1 )
 		#-----------------------------------------------
 		# finally create the main sizer to hold the rest
 		# and all the sizers to the main sizer
 		#---------------------------------------------
 		self.sizermain = wx.BoxSizer(wx.HORIZONTAL)
-		self.sizermain.AddSizer(self.sizer_left, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL|wxALL, 7)
-		self.sizermain.AddSizer(self.sizerVInteractionSidebar, 0, wxGROW|wxALIGN_LEFT|wxALL, 8)
+		self.sizermain.AddSizer(self.sizer_left, 1, wx.GROW|wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, 7)
+		self.sizermain.AddSizer(self.sizerVInteractionSidebar, 0, wx.GROW|wx.ALIGN_LEFT|wx.ALL, 8)
 		self.SetAutoLayout( True )
 		self.SetSizer( self.sizermain )
 		self.sizermain.Fit( self )
@@ -315,7 +315,7 @@ class DrugDisplay(wx.Panel):
 				self.sizer_left.Remove(self.listctrl_drugchoice)
 				self.listctrl_drugchoice = None
 			self.html_viewer = wx.HtmlWindow(self, -1, size=(400, 200))			
-			self.sizer_left.Add( self.html_viewer, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 )
+			self.sizer_left.Add( self.html_viewer, 1, wx.GROW|wx.ALIGN_CENTER_HORIZONTAL, 5 )
 			self.sizer_left.Layout()
 			self.whichWidget="html_viewer"
 		else:
@@ -324,8 +324,8 @@ class DrugDisplay(wx.Panel):
 			if self.html_viewer is not None:
 				self.sizer_left.Remove(self.html_viewer)
 				self.html_viewer = None
-			self.listctrl_drugchoice = wx.ListCtrl(self, ID_LISTCTRL_DRUGCHOICE, wxDefaultPosition, wxSize(400,200), style=wx.LC_SINGLE_SEL | wx.LC_REPORT )
-			self.sizer_left.Add( self.listctrl_drugchoice, 1, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 )
+			self.listctrl_drugchoice = wx.ListCtrl(self, ID_LISTCTRL_DRUGCHOICE, wx.DefaultPosition, wx.Size(400,200), style=wx.LC_SINGLE_SEL | wx.LC_REPORT )
+			self.sizer_left.Add( self.listctrl_drugchoice, 1, wx.GROW|wx.ALIGN_CENTER_HORIZONTAL, 5 )
 			self.sizer_left.Layout()
 			self.whichWidget="listctrl_drugchoice"
 	
@@ -615,7 +615,7 @@ class DrugDisplay(wx.Panel):
 #==================================================
 # Shall we just test this module?
 if __name__ == "__main__":
-	app = wxPyWidgetTester(size = (640, 400))
+	app = wx.PyWidgetTester(size = (640, 400))
 	app.SetWidget(DrugDisplay, -1)
 	app.MainLoop()
 else:
