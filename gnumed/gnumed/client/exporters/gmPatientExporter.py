@@ -27,9 +27,7 @@ from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 
-from Gnumed.business import gmClinicalRecord
 from Gnumed.business import gmAllergy
-from Gnumed.business import gmDemographicRecord
 from Gnumed.business import gmSoapDefs
 
 

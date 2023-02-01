@@ -637,7 +637,6 @@ def create_fake_timeline_file(patient=None, filename=None):
 
 	- needed because .clear_timeline() doesn't really work
 	"""
-	emr = patient.emr
 	global now
 	now = gmDateTime.pydt_now_here()
 

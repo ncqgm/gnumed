@@ -4,7 +4,7 @@ import sys, datetime as dt
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmPG2, gmI18N, gmDateTime
+from Gnumed.pycommon import gmI18N, gmDateTime
 from Gnumed.business import gmPerson
 
 
@@ -37,6 +37,8 @@ def run_importer():
 		pk_patient, weight = sms.split(':::')
 	except Exception:
 		return False
+
+	print(date, gsm)
 
 	# find patient by gsm
 #	cmd1 = u"select dem.add_external_id_type(%(desc)s, %(org)s)"
@@ -76,7 +78,7 @@ def run_importer():
 	epi = emr.add_episode(episode_name = 'Gewichtsmonitoring', is_open = False)
 
 	# and import our stuff
-	narr = emr.add_clin_narrative (
+	emr.add_clin_narrative (
 		note = weight_template % (dt.datetime.now().strftime('%X'), weight),
 		soap_cat = soap_cat,
 		episode = epi
