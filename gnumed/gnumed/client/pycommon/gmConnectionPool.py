@@ -257,7 +257,7 @@ class gmConnectionPool(gmBorg.cBorg):
 			self.__initialized:bool = True
 
 		_log.info('[%s]: first instantiation', self.__class__.__name__)
-		self.__ro_conn_pool:Dict[str, dbapi.connection] = {}	# keyed by "credentials::thread ID"
+		self.__ro_conn_pool:Dict[str, dbapi._psycopg.connection] = {}	# keyed by "credentials::thread ID"
 		self.__SQL_set_client_timezone = None
 		self.__client_timezone = None
 		self.__creds = None

@@ -34,6 +34,7 @@ class gmBackendListener(gmBorg.cBorg):
 	"""The backend listener singleton class."""
 	def __init__(self, conn=None, poll_interval=3):
 		try:
+			# pylint: disable-next=access-member-before-definition
 			self.already_inited
 			return
 
@@ -96,7 +97,7 @@ class gmBackendListener(gmBorg.cBorg):
 			# give the worker thread time to terminate
 			self._listener_thread.join(self._poll_interval+2.0)
 			try:
-				if self._listener_thread.isAlive():
+				if self._listener_thread.is_alive():
 					_log.error('listener thread still alive after join()')
 					_log.debug('active threads: %s' % threading.enumerate())
 			except Exception:
@@ -358,7 +359,7 @@ if __name__ == "__main__":
 		print("This should trigger our backend listening callback.")
 		print("You can also try to stop the demo with Ctrl-C !")
 
-		listener.register_callback('patient_changed', OnPatientModified)
+		#listener.register_callback('patient_changed', OnPatientModified)
 
 		try:
 			counter = 0

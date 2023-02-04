@@ -306,6 +306,10 @@ class cBusinessDBObject(object):
 	_updatable_fields:
 		* a list of fields available for update via object['field']
 	"""
+
+	_cmd_fetch_payload = None
+	_cmds_store_payload = None
+	_updatable_fields = None
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, row:dict=None, link_obj=None):
 		"""Init business object.
@@ -340,7 +344,7 @@ class cBusinessDBObject(object):
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 			objects = [ cChildClass(row = {'data': r, 'idx': idx, 'pk_field': 'the PK column name'}) for r in rows ]
 		"""
-		# initialize those "too early" because checking descendants might
+		# initialize those "too early" because sanity checking descendants might
 		# fail which will then call __str__ in stack trace logging if --debug
 		# was given which in turn needs those instance variables
 		self.pk_obj = '<uninitialized>'
@@ -348,17 +352,15 @@ class cBusinessDBObject(object):
 		self._payload = []		# the cache for backend object values (mainly table fields)
 		self._ext_cache = {}	# the cache for extended method's results
 		self._is_modified = False
-
-		# sanity check child implementions
-		self.__class__._cmd_fetch_payload
-		self.__class__._cmds_store_payload
-		self.__class__._updatable_fields
+		# only now check child classes
+		assert self.__class__._cmd_fetch_payload is not None, '<_cmd_fetch_payload> undefined'
+		assert self.__class__._cmds_store_payload is not None, '<_cmds_store_payload> undefined'
+		assert self.__class__._updatable_fields is not None, '<_updatable_fields> undefined'
 
 		if aPK_obj is not None:
 			self.__init_from_pk(aPK_obj = aPK_obj, link_obj = link_obj)
 		else:
 			self._init_from_row_data(row = row)
-
 		self._is_modified = False
 
 	#--------------------------------------------------------

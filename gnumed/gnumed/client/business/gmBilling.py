@@ -797,7 +797,7 @@ if __name__ == "__main__":
 		from Gnumed.pycommon import gmI18N
 		gmI18N.activate_locale()
 		gmI18N.install_domain()
-		import gmPerson
+		from Gnumed.business import gmPerson
 		for idx in range(1,15):
 			print ('')
 			print ('classic:', generate_invoice_id(pk_patient = idx))
