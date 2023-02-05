@@ -17,26 +17,20 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.8.8 (database v22.18)',
-	'GNUmed 1.8.8 Release Notes:
+	'Release Notes for GNUmed 1.8.9 (database v22.19)',
+	'GNUmed 1.8.9 Release Notes:
 
-	1.8.8
+	1.8.9
 
-IMPROVED: PACS: better image/image buttons placement
+FIX: mime handling: py3 adjustments in file magic [thanks Andreas]
+FIX: bills: exception on generating invoice PDF [thanks l-ray]
+FIX: about: exception in about dialog [thanks aimee]
 
-FIX: py3.10+ *requires* ints for rescaling images [thanks henrique]
-FIX: patient tags: do not crash when rescaling image fails [thanks henrique]
-FIX: fix a number of errors found by pyflakes3
-FIX: lists: no more wx.LIST_HITTEST_ONITEMRIGHT in wxPython 4.2 [thanks jonas]
-FIX: date/time input: exception on entering "0"
+	22.19
 
-	22.18
-
-IMPROVED: bootstrapper: schema "public" permissions and ownership as per PG 15
-IMPROVED: backup: avoid unnecessary recompression
-
-FIX: bootstrapper: schema hash function in v19+ databases
+FIX: bootstrapper: no more IS OF, use pg_typeof in v2->v3 transition [thanks Lennart]
+FIX: bootstrapper: CHAR -> TEXT cast in v19+ schema hashing on recent PGs
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.18@1.8.8');
+select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.19@1.8.9');
