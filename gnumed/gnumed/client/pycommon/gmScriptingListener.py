@@ -72,7 +72,7 @@ class cScriptingListener:
 		try:
 			self._thread.join(self._poll_interval+5)
 			try:
-				if self._thread.isAlive():
+				if self._thread.is_alive():
 					_log.error('listener thread still alive after join()')
 					_log.debug('active threads: %s' % threading.enumerate())
 			except Exception:

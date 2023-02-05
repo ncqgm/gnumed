@@ -105,34 +105,76 @@ def __split_locale_into_levels():
 	_log.debug('system locale levels: %s', system_locale_level)
 
 #---------------------------------------------------------------------------
-def __log_locale_settings(message=None):
-	_setlocale_categories = {}
-	for category in 'LC_ALL LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT LC_IDENTIFICATION'.split():
-		try:
-			_setlocale_categories[category] = getattr(locale, category)
-		except Exception:
-			_log.warning('this OS does not have locale.%s', category)
+def __log_getlocale_categories():
 	_getlocale_categories = {}
 	for category in 'LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT LC_IDENTIFICATION'.split():
 		try:
 			_getlocale_categories[category] = getattr(locale, category)
 		except Exception:
 			pass
-	if message is not None:
-		_log.debug(message)
-
-	_log.debug('current locale settings:')
 	_log.debug('locale.getlocale(): %s' % str(locale.getlocale()))
 	for category in _getlocale_categories:
 		_log.debug('locale.getlocale(%s): %s' % (category, locale.getlocale(_getlocale_categories[category])))
+
+#---------------------------------------------------------------------------
+def __log_setlocale_categories():
+	_setlocale_categories = {}
+	for category in 'LC_ALL LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT LC_IDENTIFICATION'.split():
+		try:
+			_setlocale_categories[category] = getattr(locale, category)
+		except Exception:
+			_log.warning('this OS does not have locale.%s', category)
 	for category in _setlocale_categories:
 		_log.debug('(locale.setlocale(%s): %s)' % (category, locale.setlocale(_setlocale_categories[category])))
-	try:
-		_log.debug('locale.getdefaultlocale() - default (user) locale: %s' % str(locale.getdefaultlocale()))
-	except ValueError:
-		_log.exception('the OS locale setup seems faulty')
 
-	_log.debug('encoding sanity check (also check "locale.nl_langinfo(CODESET)" below):')
+#---------------------------------------------------------------------------
+def __log_locale_ENV():
+	_log.debug('locale related environment variables (${LANG} is typically used):')
+	for var in 'LANGUAGE LC_ALL LC_CTYPE LANG'.split():
+		try:
+			_log.debug('${%s}=%s' % (var, os.environ[var]))
+		except KeyError:
+			_log.debug('${%s} not set' % (var))
+
+#---------------------------------------------------------------------------
+def __log_localeconv(encoding):
+	_log.debug('database of locale conventions:')
+	data = locale.localeconv()
+	for key in data:
+		if encoding is None:
+			_log.debug('locale.localeconv(%s): %s', key, data[key])
+			continue
+		try:
+			_log.debug('locale.localeconv(%s): %s', key, str(data[key]))
+		except UnicodeDecodeError:
+			_log.debug('locale.localeconv(%s): %s', key, str(data[key], encoding))
+
+#---------------------------------------------------------------------------
+def __log_nl_langinfo(encoding):
+	try:
+		locale.nl_langinfo
+	except Exception:
+		_log.exception('this OS does not support nl_langinfo')
+		return
+
+	_nl_langinfo_categories = {}
+	for category in 'CODESET D_T_FMT D_FMT T_FMT T_FMT_AMPM RADIXCHAR THOUSEP YESEXPR NOEXPR CRNCYSTR ERA ERA_D_T_FMT ERA_D_FMT ALT_DIGITS'.split():
+		try:
+			_nl_langinfo_categories[category] = getattr(locale, category)
+		except Exception:
+			_log.warning('this OS does not support nl_langinfo category locale.%s' % category)
+	for category in _nl_langinfo_categories:
+		if encoding is None:
+			_log.debug('locale.nl_langinfo(%s): %s' % (category, locale.nl_langinfo(_nl_langinfo_categories[category])))
+			continue
+		try:
+			_log.debug('locale.nl_langinfo(%s): %s', category, str(locale.nl_langinfo(_nl_langinfo_categories[category])))
+		except UnicodeDecodeError:
+			_log.debug('locale.nl_langinfo(%s): %s', category, str(locale.nl_langinfo(_nl_langinfo_categories[category]), encoding))
+
+#---------------------------------------------------------------------------
+def __log_encoding_settings():
+	_log.debug('encoding sanity check (also check "locale.nl_langinfo(CODESET)"):')
 	pref_loc_enc = locale.getpreferredencoding(do_setlocale = False)
 	loc_enc = locale.getlocale()[1]
 	py_str_enc = sys.getdefaultencoding()
@@ -141,7 +183,7 @@ def __log_locale_settings(message=None):
 	_log.debug('locale.getpreferredencoding(): [%s]' % pref_loc_enc)
 	_log.debug('locale.getlocale()[1]: [%s]' % loc_enc)
 	_log.debug('sys.getfilesystemencoding(): [%s]' % sys_fs_enc)
-	if loc_enc is not None:
+	if loc_enc:
 		loc_enc = loc_enc.upper()
 		loc_enc_compare = loc_enc.replace('-', '')
 	else:
@@ -150,50 +192,32 @@ def __log_locale_settings(message=None):
 		_log.warning('encoding suggested by locale (%s) does not match encoding currently set in locale (%s)' % (pref_loc_enc, loc_enc))
 		_log.warning('this might lead to encoding errors')
 	for enc in [pref_loc_enc, loc_enc, py_str_enc, sys_fs_enc]:
-		if enc is not None:
-			try:
-				codecs.lookup(enc)
-				_log.debug('<codecs> module CAN handle encoding [%s]' % enc)
-			except LookupError:
-				_log.warning('<codecs> module can NOT handle encoding [%s]' % enc)
+		if not enc:
+			continue
+		try:
+			codecs.lookup(enc)
+			_log.debug('<codecs> module CAN handle encoding [%s]' % enc)
+		except LookupError:
+			_log.warning('<codecs> module can NOT handle encoding [%s]' % enc)
 	_log.debug('on Linux you can determine a likely candidate for the encoding by running "locale charmap"')
-
-	_log.debug('locale related environment variables (${LANG} is typically used):')
-	for var in 'LANGUAGE LC_ALL LC_CTYPE LANG'.split():
-		try:
-			_log.debug('${%s}=%s' % (var, os.environ[var]))
-		except KeyError:
-			_log.debug('${%s} not set' % (var))
-
-	_log.debug('database of locale conventions:')
-	data = locale.localeconv()
-	for key in data:
-		if loc_enc is None:
-			_log.debug('locale.localeconv(%s): %s', key, data[key])
-		else:
-			try:
-				_log.debug('locale.localeconv(%s): %s', key, str(data[key]))
-			except UnicodeDecodeError:
-				_log.debug('locale.localeconv(%s): %s', key, str(data[key], loc_enc))
-	_nl_langinfo_categories = {}
-	for category in 'CODESET D_T_FMT D_FMT T_FMT T_FMT_AMPM RADIXCHAR THOUSEP YESEXPR NOEXPR CRNCYSTR ERA ERA_D_T_FMT ERA_D_FMT ALT_DIGITS'.split():
-		try:
-			_nl_langinfo_categories[category] = getattr(locale, category)
-		except Exception:
-			_log.warning('this OS does not support nl_langinfo category locale.%s' % category)
-	try:
-		for category in _nl_langinfo_categories:
-			if loc_enc is None:
-				_log.debug('locale.nl_langinfo(%s): %s' % (category, locale.nl_langinfo(_nl_langinfo_categories[category])))
-			else:
-				try:
-					_log.debug('locale.nl_langinfo(%s): %s', category, str(locale.nl_langinfo(_nl_langinfo_categories[category])))
-				except UnicodeDecodeError:
-					_log.debug('locale.nl_langinfo(%s): %s', category, str(locale.nl_langinfo(_nl_langinfo_categories[category]), loc_enc))
-	except Exception:
-		_log.exception('this OS does not support nl_langinfo')
-
 	_log.debug('gmI18N.get_encoding(): %s', get_encoding())
+	return loc_enc
+
+#---------------------------------------------------------------------------
+def __log_locale_settings(message=None):
+	if message:
+		_log.debug(message)
+	_log.debug('current locale settings:')
+	__log_getlocale_categories()
+	__log_setlocale_categories()
+	try:
+		_log.debug('locale.getdefaultlocale() - default (user) locale: %s' % str(locale.getdefaultlocale()))
+	except ValueError:
+		_log.exception('the OS locale setup seems faulty')
+	loc_enc = __log_encoding_settings()
+	__log_locale_ENV()
+	__log_localeconv(loc_enc)
+	__log_nl_langinfo(loc_enc)
 
 #---------------------------------------------------------------------------
 def _translate_safely(term):
@@ -434,7 +458,7 @@ def get_encoding():
 		_log.debug('*actual* encoding of locale is None, using encoding *recommended* by locale')
 		_encoding_mismatch_already_logged = True
 
-	return locale.getpreferredencoding(do_setlocale=False)
+	return locale.getpreferredencoding(do_setlocale = False)
 
 #===========================================================================
 # Main
