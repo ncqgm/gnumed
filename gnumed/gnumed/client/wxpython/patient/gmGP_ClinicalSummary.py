@@ -32,7 +32,7 @@ ID_OVERVIEWMENU = wx.NewId ()
 
 class ClinicalSummary(wx.Panel, PatientHolder):
 	def __init__(self, parent,id):
-		wx.Panel.__init__(self,parent,id,wx.DefaultPosition,wx.DefaultSize,style = wxRAISED_BORDER)
+		wx.Panel.__init__(self,parent,id,wx.DefaultPosition,wx.DefaultSize,style = wx.RAISED_BORDER)
 		PatientHolder.__init__(self)
 		#------------------------------------------------------------------------
 		#import social history if available this will be the top item on the page
@@ -84,7 +84,7 @@ class ClinicalSummary(wx.Panel, PatientHolder):
 		#now that we have all the elements, construct the whole panel
 		#------------------------------------------------------------
 		# FIXME: NO !! maybe we DON'T have all the elements ...
-		self.sizer = wxBoxSizer(wxVERTICAL)
+		self.sizer = wx.BoxSizer(wx.VERTICAL)
 		self.sizer.Add(self.socialhistory,5,wx.EXPAND)
 		self.sizer.Add(self.familyhistorysummary,5,wx.EXPAND)
 		self.sizer.Add(self.heading1,0,wx.EXPAND)
@@ -104,7 +104,7 @@ class ClinicalSummary(wx.Panel, PatientHolder):
 		self._updateActiveProblemsUI()
 
 	def	_updateActiveProblemsUI(self):
-		# remember wxCallAfter
+		# remember wx.CallAfter
 		clinical = self.patient.emr.get_past_history()
 		list = clinical.get_active_history()
 		newList = []
@@ -168,6 +168,6 @@ g\xef\xc7!\xe6\xf7$\xb0@?\x92\x04\x8ez\x1eu\xcf-\xe0 ,S\x87\xe5\x1e\xcf\x98\
 #----------------------------------------------------------------------
 if __name__ == "__main__":
 	sys.path.append('../../wxpython')
-	app = wxPyWidgetTester(size = (400, 500))
+	app = wx.PyWidgetTester(size = (400, 500))
 	app.SetWidget(ClinicalSummary, -1)
 	app.MainLoop()

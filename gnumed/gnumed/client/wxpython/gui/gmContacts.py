@@ -14,15 +14,10 @@ __author__ = "Dr. Richard Terry, \
 			Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later (details at https://www.gnu.org)"
 
-from Gnumed.pycommon import gmI18N
-
 import wx
 
 from Gnumed.wxpython import gmPlugin, images_contacts_toolbar16_16
-from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
-from Gnumed.business import gmDemographicRecord
-from Gnumed.business.gmDemographicRecord import OrgCategoryMP
-from Gnumed.business.gmOrganization import cOrgHelperImpl1,  cOrgHelperImpl2, cOrgHelperImpl3, cCatFinder, setPostcodeWidgetFromUrbId  
+from Gnumed.business.gmOrganization import cOrgHelperImpl3, cCatFinder
 
 DISPLAYPERSON = 0
 organisationsdata = {
@@ -682,7 +677,6 @@ class cContactsPanel(wx.wx.Panel):
 				return
 		else:
 
-			c = l.GetItemCount()
 			key = self.getCurrent().getId()
 			i , nexti = 0, -1
 			while  nexti != i and (i < l.GetItemCount() or i in self._isPersonIndex):
@@ -761,7 +755,8 @@ class cContactsPanel(wx.wx.Panel):
 					number , street, urb, postcode = l[0], ' '.join(l[1:urb_start_idx]), ' '.join(l[urb_start_idx:-1]), l[-1]
 					org.setAddress( number, street, urb, postcode, None, None )
 			except Exception:
-				gmLog.gmDefLog.LogException("Unable to parse address", sys.exc_info() )
+				raise
+				#gmLog.gmDefLog.LogException("Unable to parse address", sys.exc_info() )
 				#print "unable to parse address"
 				
 		self.setCurrent(org)
@@ -868,7 +863,7 @@ class cContactsPanel(wx.wx.Panel):
 		#</DEBUG>
 		org.setAddress(*a)
 		
-		isNew = org.getId() is None
+		#isNew = org.getId() is None
 		org.save()
 		self.load_all_orgs()
 
@@ -965,6 +960,7 @@ class gmContacts (gmPlugin.cNotebookPluginOld):
 					shortHelpString="Pre-formatted reports",)
 	
 		self.__connect_commands(tb)
+		print(tool1)
 
 	def __connect_commands(self, toolbar):
 		wx.wx.EVT_TOOL(toolbar, ID_ORGANISATIONADD , self.addOrg)

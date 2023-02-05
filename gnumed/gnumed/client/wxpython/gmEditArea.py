@@ -856,8 +856,8 @@ class cEditArea(wx.Panel):
 		self.fields = {}
 		self.prompts = {}
 
-		ID_BTN_OK = wx.NewId()
-		ID_BTN_CLEAR = wx.NewId()
+#		ID_BTN_OK = wx.NewId()
+#		ID_BTN_CLEAR = wx.NewId()
 
 		self.__do_layout()
 
@@ -1037,15 +1037,15 @@ class cEditArea(wx.Panel):
 	#----------------------------------------------------------------
 	def _make_standard_buttons(self, parent):
 		"""Generates OK/CLEAR buttons for edit area."""
-		self.btn_OK = wx.Button(parent, ID_BTN_OK, _("OK"))
-		self.btn_OK.SetToolTip(_('save entry into medical record'))
-		self.btn_Clear = wx.Button(parent, ID_BTN_CLEAR, _("Clear"))
-		self.btn_Clear.SetToolTip(_('initialize input fields for new entry'))
+#		self.btn_OK = wx.Button(parent, ID_BTN_OK, _("OK"))
+#		self.btn_OK.SetToolTip(_('save entry into medical record'))
+#		self.btn_Clear = wx.Button(parent, ID_BTN_CLEAR, _("Clear"))
+#		self.btn_Clear.SetToolTip(_('initialize input fields for new entry'))
 
 		szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
-		szr_buttons.Add(self.btn_OK, 1, wx.EXPAND | wx.ALL, 1)
+#		szr_buttons.Add(self.btn_OK, 1, wx.EXPAND | wx.ALL, 1)
 		szr_buttons.Add(5, 0, 0)
-		szr_buttons.Add(self.btn_Clear, 1, wx.EXPAND | wx.ALL, 1)
+#		szr_buttons.Add(self.btn_Clear, 1, wx.EXPAND | wx.ALL, 1)
 
 		return szr_buttons
 	#--------------------------------------------------------
@@ -1061,8 +1061,8 @@ class cEditArea(wx.Panel):
 	#--------------------------------------------------------
 	def __register_events(self):
 		# connect standard buttons
-		wx.EVT_BUTTON(self.btn_OK, ID_BTN_OK, self._on_OK_btn_pressed)
-		wx.EVT_BUTTON(self.btn_Clear, ID_BTN_CLEAR, self._on_clear_btn_pressed)
+#		wx.EVT_BUTTON(self.btn_OK, ID_BTN_OK, self._on_OK_btn_pressed)
+#		wx.EVT_BUTTON(self.btn_Clear, ID_BTN_CLEAR, self._on_clear_btn_pressed)
 
 		wx.EVT_SIZE (self.fields_pnl, self._on_resize_fields)
 
@@ -1834,46 +1834,46 @@ class EditTextBoxes(wx.Panel):
 			pass
 			# line 1
 			
-			self.txt_condition = cEditAreaField(self,PHX_CONDITION,wx.DefaultPosition,wx.DefaultSize)
-			self.rb_sideleft = wx.RadioButton(self,PHX_LEFT, _(" (L) "), wx.DefaultPosition,wx.DefaultSize)
-			self.rb_sideright = wx.RadioButton(self, PHX_RIGHT, _("(R)"), wx.DefaultPosition,wx.DefaultSize,wx.SUNKEN_BORDER)
-			self.rb_sideboth = wx.RadioButton(self, PHX_BOTH, _("Both"), wx.DefaultPosition,wx.DefaultSize)
+#			self.txt_condition = cEditAreaField(self,PHX_CONDITION,wx.DefaultPosition,wx.DefaultSize)
+#			self.rb_sideleft = wx.RadioButton(self,PHX_LEFT, _(" (L) "), wx.DefaultPosition,wx.DefaultSize)
+#			self.rb_sideright = wx.RadioButton(self, PHX_RIGHT, _("(R)"), wx.DefaultPosition,wx.DefaultSize,wx.SUNKEN_BORDER)
+#			self.rb_sideboth = wx.RadioButton(self, PHX_BOTH, _("Both"), wx.DefaultPosition,wx.DefaultSize)
 			rbsizer = wx.BoxSizer(wx.HORIZONTAL)
-			rbsizer.Add(self.rb_sideleft,1,wx.EXPAND)
-			rbsizer.Add(self.rb_sideright,1,wx.EXPAND) 
-			rbsizer.Add(self.rb_sideboth,1,wx.EXPAND)
+#			rbsizer.Add(self.rb_sideleft,1,wx.EXPAND)
+#			rbsizer.Add(self.rb_sideright,1,wx.EXPAND) 
+#			rbsizer.Add(self.rb_sideboth,1,wx.EXPAND)
 			szr1 = wx.BoxSizer(wx.HORIZONTAL)
-			szr1.Add(self.txt_condition, 4, wx.EXPAND)
+#			szr1.Add(self.txt_condition, 4, wx.EXPAND)
 			szr1.Add(rbsizer, 3, wx.EXPAND)
 #			self.sizer_line1.Add(self.rb_sideleft,1,wx.EXPAND|wxALL,2)
 #			self.sizer_line1.Add(self.rb_sideright,1,wx.EXPAND|wxALL,2)
 #			self.sizer_line1.Add(self.rb_sideboth,1,wx.EXPAND|wxALL,2)
 			# line 2
-			self.txt_notes1 = cEditAreaField(self,PHX_NOTES,wx.DefaultPosition,wx.DefaultSize)
+#			self.txt_notes1 = cEditAreaField(self,PHX_NOTES,wx.DefaultPosition,wx.DefaultSize)
 			# line 3
-			self.txt_notes2= cEditAreaField(self,PHX_NOTES2,wx.DefaultPosition,wx.DefaultSize)
+#			self.txt_notes2= cEditAreaField(self,PHX_NOTES2,wx.DefaultPosition,wx.DefaultSize)
 			# line 4
-			self.txt_agenoted = cEditAreaField(self, PHX_AGE, wx.DefaultPosition, wx.DefaultSize)
+#			self.txt_agenoted = cEditAreaField(self, PHX_AGE, wx.DefaultPosition, wx.DefaultSize)
 			szr4 = wx.BoxSizer(wx.HORIZONTAL)
-			szr4.Add(self.txt_agenoted, 1, wx.EXPAND)
+#			szr4.Add(self.txt_agenoted, 1, wx.EXPAND)
 			szr4.Add(5, 0, 5)
 			# line 5
-			self.txt_yearnoted  = cEditAreaField(self,PHX_YEAR,wx.DefaultPosition,wx.DefaultSize)
+#			self.txt_yearnoted  = cEditAreaField(self,PHX_YEAR,wx.DefaultPosition,wx.DefaultSize)
 			szr5 = wx.BoxSizer(wx.HORIZONTAL)
-			szr5.Add(self.txt_yearnoted, 1, wx.EXPAND)
+#			szr5.Add(self.txt_yearnoted, 1, wx.EXPAND)
 			szr5.Add(5, 0, 5)
 			# line 6
-			self.parent.cb_active = wx.CheckBox(self, PHX_ACTIVE, _("Active"), wx.DefaultPosition,wx.DefaultSize, wx.NO_BORDER)
-			self.parent.cb_operation = wx.CheckBox(self, PHX_OPERATION, _("Operation"), wx.DefaultPosition,wx.DefaultSize, wx.NO_BORDER)
-			self.parent.cb_confidential = wx.CheckBox(self, PHX_CONFIDENTIAL , _("Confidential"), wx.DefaultPosition,wx.DefaultSize, wx.NO_BORDER)
-			self.parent.cb_significant = wx.CheckBox(self, PHX_SIGNIFICANT, _("Significant"), wx.DefaultPosition,wx.DefaultSize, wx.NO_BORDER)
+#			self.parent.cb_active = wx.CheckBox(self, PHX_ACTIVE, _("Active"), wx.DefaultPosition,wx.DefaultSize, wx.NO_BORDER)
+#			self.parent.cb_operation = wx.CheckBox(self, PHX_OPERATION, _("Operation"), wx.DefaultPosition,wx.DefaultSize, wx.NO_BORDER)
+#			self.parent.cb_confidential = wx.CheckBox(self, PHX_CONFIDENTIAL , _("Confidential"), wx.DefaultPosition,wx.DefaultSize, wx.NO_BORDER)
+#			self.parent.cb_significant = wx.CheckBox(self, PHX_SIGNIFICANT, _("Significant"), wx.DefaultPosition,wx.DefaultSize, wx.NO_BORDER)
 			szr6 = wx.BoxSizer(wx.HORIZONTAL)
-			szr6.Add(self.parent.cb_active, 1, wx.EXPAND)
-			szr6.Add(self.parent.cb_operation, 1, wx.EXPAND)
-			szr6.Add(self.parent.cb_confidential, 1, wx.EXPAND)
-			szr6.Add(self.parent.cb_significant, 1, wx.EXPAND)
+#			szr6.Add(self.parent.cb_active, 1, wx.EXPAND)
+#			szr6.Add(self.parent.cb_operation, 1, wx.EXPAND)
+#			szr6.Add(self.parent.cb_confidential, 1, wx.EXPAND)
+#			szr6.Add(self.parent.cb_significant, 1, wx.EXPAND)
 			# line 7
-			self.txt_progressnotes  = cEditAreaField(self,PHX_PROGRESSNOTES ,wx.DefaultPosition,wx.DefaultSize)
+#			self.txt_progressnotes  = cEditAreaField(self,PHX_PROGRESSNOTES ,wx.DefaultPosition,wx.DefaultSize)
 			# line 8
 			szr8 = wx.BoxSizer(wx.HORIZONTAL)
 			szr8.Add(5, 0, 6)
