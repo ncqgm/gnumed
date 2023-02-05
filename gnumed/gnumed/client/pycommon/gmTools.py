@@ -432,12 +432,13 @@ class gmPaths(gmBorg.cBorg):
 			wx: wxPython module reference, optional, used to detect more standard paths
 		"""
 		try:
-			self.already_inited
+			self.already_inited			# pylint: disable=access-member-before-definition
 			return
+
 		except AttributeError:
 			pass
 
-		self.init_paths(app_name=app_name, wx=wx)
+		self.init_paths(app_name = app_name, wx = wx)
 		self.already_inited = True
 
 	#--------------------------------------

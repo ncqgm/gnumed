@@ -134,7 +134,7 @@ def guess_mimetype(filename:str=None) -> str:
 	# magic number file or we suffer from a deficient operating system
 	# alltogether. It can't get much worse if we try ourselves.
 	_log.info("OS level mime detection failed, falling back to built-in magic")
-	import gmMimeMagic
+	from Gnumed.pycommon import gmMimeMagic
 	mimetype = gmTools.coalesce(gmMimeMagic.filedesc(filename), WORST_CASE_MIMETYPE)
 	del gmMimeMagic
 	_log.debug('"%s" -> <%s>' % (filename, mimetype))

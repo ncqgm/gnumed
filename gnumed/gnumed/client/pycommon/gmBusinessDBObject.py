@@ -352,6 +352,7 @@ class cBusinessDBObject(object):
 		self._payload = []		# the cache for backend object values (mainly table fields)
 		self._ext_cache = {}	# the cache for extended method's results
 		self._is_modified = False
+		self.original_payload = None
 		# only now check child classes
 		assert self.__class__._cmd_fetch_payload is not None, '<_cmd_fetch_payload> undefined'
 		assert self.__class__._cmds_store_payload is not None, '<_cmds_store_payload> undefined'
@@ -453,68 +454,22 @@ class cBusinessDBObject(object):
 
 	#--------------------------------------------------------
 	def __getitem__(self, attribute):
-		# use try: except KeyError: as it is faster and we want this as fast as possible
-
-		# 1) backend payload cache
 		return self._payload[self._idx[attribute]]
-#		try:
-#			return self._payload[self._idx[attribute]]
-#		except KeyError:
-#			pass
-#
-#		# 2) extension method results ...
-#		getter = getattr(self, 'get_%s' % attribute, None)
-#		if not callable(getter):
-#			_log.warning('[%s]: no attribute [%s]' % (self.__class__.__name__, attribute))
-#			_log.warning('[%s]: valid attributes: %s', self.__class__.__name__, list(self._idx))
-#			_log.warning('[%s]: no getter method [get_%s]' % (self.__class__.__name__, attribute))
-#			methods = [ m for m in inspect.getmembers(self, inspect.ismethod) if m[0].startswith('get_') ]
-#			_log.warning('[%s]: valid getter methods: %s' % (self.__class__.__name__, str(methods)))
-#			raise KeyError('[%s]: cannot read from key [%s]' % (self.__class__.__name__, attribute))
-#
-#		self._ext_cache[attribute] = getter()
-#		return self._ext_cache[attribute]
 
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
-
-		# 1) backend payload cache
-		if attribute in self.__class__._updatable_fields:
-			try:
-				if self._payload[self._idx[attribute]] != value:
-					self._payload[self._idx[attribute]] = value
-					self._is_modified = True
+		#if attribute not in self.__class__._updatable_fields:
+		self.__class__._updatable_fields[attribute]
+		try:
+			if self._payload[self._idx[attribute]] == value:
 				return
 
-			except KeyError:
-				_log.warning('[%s]: cannot set attribute <%s> despite marked settable' % (self.__class__.__name__, attribute))
-				_log.warning('[%s]: supposedly settable attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
-				raise KeyError('[%s]: cannot write to key [%s]' % (self.__class__.__name__, attribute))
-
-#		# 2) setters providing extensions
-#		if hasattr(self, 'set_%s' % attribute):
-#			setter = getattr(self, "set_%s" % attribute)
-#			if not callable(setter):
-#				raise AttributeError('[%s] setter [set_%s] not callable' % (self.__class__.__name__, attribute))
-#			try:
-#				del self._ext_cache[attribute]
-#			except KeyError:
-#				pass
-#			if type(value) == tuple:
-#				if setter(*value):
-#					self._is_modified = True
-#					return
-#				raise AttributeError('[%s]: setter [%s] failed for [%s]' % (self.__class__.__name__, setter, value))
-#			if setter(value):
-#				self._is_modified = True
-#				return
-
-#		# 3) don't know what to do with <attribute>
-#		_log.error('[%s]: cannot find attribute <%s> or setter method [set_%s]' % (self.__class__.__name__, attribute, attribute))
-#		_log.warning('[%s]: settable attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
-#		methods = [ m for m in inspect.getmembers(self, inspect.ismethod) if m[0].startswith('set_') ]
-#		_log.warning('[%s]: valid setter methods: %s' % (self.__class__.__name__, str(methods)))
-#		raise AttributeError('[%s]: cannot set [%s]' % (self.__class__.__name__, attribute))
+			self._payload[self._idx[attribute]] = value
+			self._is_modified = True
+		except KeyError:
+			_log.warning('[%s]: cannot set attribute <%s> despite marked settable' % (self.__class__.__name__, attribute))
+			_log.warning('[%s]: settable attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
+			raise KeyError('[%s]: cannot write to key [%s]' % (self.__class__.__name__, attribute))
 
 	#--------------------------------------------------------
 	# external API

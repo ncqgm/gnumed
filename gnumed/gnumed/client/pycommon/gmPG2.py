@@ -1402,11 +1402,13 @@ def __store_file_in_cache(filename, cache_key_data):
 		# then constitutes a DOS attack against the cache but that's
 		# far less problematic than using the wrong data for care
 		return None
-	except OSError:
-		_log.exception('cannot copy file into cache: [%s] -> [%s]', filename, cached_name)
-		return None
+
 	except PermissionError:
 		_log.exception('cannot set cache file [%s] permissions to [%s]', cached_name, stat.filemode(PERMS_owner_only))
+		return None
+
+	except OSError:
+		_log.exception('cannot copy file into cache: [%s] -> [%s]', filename, cached_name)
 		return None
 
 	return cached_name
@@ -1757,14 +1759,14 @@ def __file2bytea_copy_from(table=None, columns=None, filename=None, conn=None, m
 	curs.close()
 	if None in [file_md5, md5_query]:
 		conn.commit()
-		close_conn()
+#		close_conn()
 		return True
 	# verify
 	rows, idx = run_ro_queries(link_obj = conn, queries = [md5_query])
 	db_md5 = rows[0][0]
 	if file_md5 == db_md5:
 		conn.commit()
-		close_conn()
+#		close_conn()
 		_log.debug('MD5 sums of data file and database BYTEA field match: [file::%s] = [DB::%s]', file_md5, db_md5)
 		return True
 	close_conn()

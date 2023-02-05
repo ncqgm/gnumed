@@ -120,18 +120,19 @@ class cMatchProvider(object):
 		"""
 		# sanity checks
 		if aSubstring < aWord:
-			_log.error('Setting substring threshold (%s) lower than word-start threshold (%s) does not make sense. Retaining original thresholds (%s:%s, respectively).' % (aSubstring, aWord, self.__threshold_substring, self.__threshold_word))
+			_log.error('Setting substring threshold (%s) lower than word-start threshold (%s) does not make sense.' % (aSubstring, aWord))
 			return False
+
 		if aWord < aPhrase:
-			_log.error('Setting word-start threshold (%s) lower than phrase-start threshold (%s) does not make sense. Retaining original thresholds (%s:%s, respectively).' % (aSubstring, aWord, self.__threshold_word, self.__threshold_phrase))
+			_log.error('Setting word-start threshold (%s) lower than phrase-start threshold (%s) does not make sense.' % (aSubstring, aWord))
 			return False
 
 		# now actually reassign thresholds
 		self.__threshold_phrase	= aPhrase
 		self.__threshold_word	= aWord
 		self.__threshold_substring	= aSubstring
-
 		return True
+
 	#--------------------------------------------------------
 	def _set_word_separators(self, word_separators=None):
 		if word_separators is None:

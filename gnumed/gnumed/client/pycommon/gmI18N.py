@@ -379,7 +379,6 @@ def __install_domain(domain, prefer_local_catalog, language='?'):
 		except Exception:
 			_log.exception('installing text domain [%s] failed from [%s]', domain, candidate_PO_dir)
 			continue
-		global _
 		# does it translate ?
 		if _(__orig_tag__) == __orig_tag__:
 			_log.debug('does not translate: [%s] => [%s]', __orig_tag__, _(__orig_tag__))

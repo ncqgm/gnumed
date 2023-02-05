@@ -40,8 +40,7 @@ def is_cmd_in_path(cmd:str=None) -> tuple:
 			_log.debug('found [%s]', candidate)
 			return (True, candidate)
 
-		else:
-			_log.debug('not found: %s', candidate)
+		_log.debug('not found: %s', candidate)
 	_log.debug('command not found in PATH')
 	return (False, None)
 
@@ -311,7 +310,7 @@ def run_process(cmd_line:list=None, timeout:int=None, encoding:str='utf8', input
 
 	if acceptable_return_codes is None:
 		acceptable_return_codes = [0]
-	_log.info('running: %s' % cmd_line)
+	_log.info('running: %s', cmd_line)
 	try:
 		if input_data is None:
 			proc_result = subprocess.run (

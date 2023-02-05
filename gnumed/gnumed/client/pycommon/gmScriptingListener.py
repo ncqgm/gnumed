@@ -35,8 +35,7 @@ class cScriptingListener:
 		self._quit_lock = threading.Lock()
 		if not self._quit_lock.acquire(0):
 			_log.error('cannot acquire thread quit lock !?! aborting')
-			import thread
-			raise thread.error("cannot acquire thread quit-lock")
+			raise OSError("cannot acquire thread quit-lock")
 
 		# check for data every 'poll_interval' seconds
 		self._poll_interval = poll_interval
@@ -137,7 +136,7 @@ if __name__ == "__main__":
 			return time.asctime()
 	#-------------------------------
 	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
-		import xmlrpclib
+		import xmlrpc.client
 
 		try:
 			listener = cScriptingListener(macro_executor=runner(), port=9999)
@@ -145,7 +144,7 @@ if __name__ == "__main__":
 			_log.exception('cannot instantiate scripting listener')
 			sys.exit(1)
 
-		s = xmlrpclib.client.ServerProxy('http://localhost:9999')
+		s = xmlrpc.client.ServerProxy('http://localhost:9999')
 		try:
 			t = s.tell_time()
 			print(t)

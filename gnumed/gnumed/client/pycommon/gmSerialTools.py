@@ -7,7 +7,7 @@ __version__ = "$Revision: 1.3 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL v2 or later (details at https://www.gnu.org)"
 
-import time, string, logging
+import time, logging
 
 
 _log = logging.getLogger('gm.serial')
@@ -44,7 +44,7 @@ def wait_for_str(aDrv = None, aString = '', aTimeout = 2500, max_bytes = 2048):
 			while aDrv.inWaiting() > 0:
 				rxd = rxd + aDrv.read(size = 1)
 				# did this contain our expected string already ?
-				if string.find(rxd, aString) > -1:
+				if rxd.find(aString) > -1:
 					return (1, rxd)
 				# did we exceed our character buffer limit ?
 				# this stops runaway serial ports
