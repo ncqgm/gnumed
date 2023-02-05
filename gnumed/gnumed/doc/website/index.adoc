@@ -2,7 +2,7 @@
 
 === Python 3
 
-https://www.gnumed.de/downloads/client/1.8/gnumed-client.1.8.8.tgz[Version 1.8.8] (database v22.18) released December 31st 2022
+https://www.gnumed.de/downloads/client/1.8/gnumed-client.1.8.9.tgz[Version 1.8.9] (database v22.19) released February 5th 2023
 
 === Python 2 (not recommended anymore)
 
