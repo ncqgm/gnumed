@@ -1,8 +1,7 @@
 #!/bin/bash
 
+
 DIRS="../client/pycommon ../client/business ../client/wxpython"
-
-
 echo "=== Code - problems ($(date) - pyflakes3) ==========" > source-coding_errors.log
 pyflakes3 ${DIRS} &>> tmp-pyflakes3.log
 grep --invert-match "'Gnumed.pycommon.gmLog2' imported but unused" tmp-pyflakes3.log &>> tmp-grep_gmlog2.log
@@ -17,19 +16,25 @@ echo "=== Code - cyclic complexity ($(date) - radon cc, lower = better, A/B/C no
 radon cc ${DIRS} | egrep '(\-\s[^ABC])|(.py)$' &>> source-cyclic_complexity.log
 
 
-#echo "=== Code - type checking ($(date) - mypy) ==========" > source-type_checking.log
-#DIRS="../client/pycommon/"
-#mypy --allow-redefinition --ignore-missing-imports --check-untyped-defs --warn-return-any --warn-unreachable --pretty ${DIRS} &>> source-type_checking.log
-##mypy --html-report ./ --allow-redefinition --ignore-missing-imports --check-untyped-defs --warn-return-any --warn-unreachable ${DIRS}
-## --allow-untyped-globals
-
-
 DIRS="../client/pycommon ../client/business"
 for DIR in ${DIRS} ; do
 	LOG=$(basename ${DIR})
 	echo "=== $(date): pylint ${DIR} ==========" > source-coding_errors-pylint_${LOG}.log
 	pylint --errors-only ${DIR}/*.py &>> source-coding_errors-pylint_${LOG}.log
 done
+
+
+DIRS="../client/pycommon/"
+echo "=== $(date): mypy ==========" > source-type_checking.log
+for DIR in ${DIRS} ; do
+	for PYFILE in ${DIR}/*.py ; do
+		echo "----- ${PYFILE} --------------------------------------" &>> source-type_checking.log
+		mypy --pretty --ignore-missing-imports --follow-imports silent ${PYFILE} &>> source-type_checking.log
+	done
+done
+##mypy --allow-redefinition --ignore-missing-imports --check-untyped-defs --warn-return-any --warn-unreachable --pretty ${DIRS} &>> source-type_checking.log
+##mypy --html-report ./ --allow-redefinition --ignore-missing-imports --check-untyped-defs --warn-return-any --warn-unreachable ${DIRS}
+## --allow-untyped-globals
 
 
 exit 0
