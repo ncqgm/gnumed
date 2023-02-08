@@ -5,7 +5,11 @@ This module implements threaded listening for scripting.
 #=====================================================================
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
-import sys, time, threading, select, logging
+import sys
+import time
+import threading
+import select
+import logging
 import xmlrpc.server
 
 
@@ -128,27 +132,24 @@ class cScriptingListener:
 #=====================================================================
 if __name__ == "__main__":
 
-	import xmlrpc.client
-
 	#-------------------------------
 	class runner:
 		def tell_time(self):
 			return time.asctime()
+
 	#-------------------------------
 	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
 		import xmlrpc.client
-
 		try:
 			listener = cScriptingListener(macro_executor=runner(), port=9999)
 		except Exception:
 			_log.exception('cannot instantiate scripting listener')
 			sys.exit(1)
 
-		s = xmlrpc.client.ServerProxy('http://localhost:9999')
+		srv = xmlrpc.client.ServerProxy('http://localhost:9999')
 		try:
-			t = s.tell_time()
+			t = srv.tell_time()
 			print(t)
 		except Exception:
 			_log.exception('cannot interact with server')
-
 		listener.shutdown()

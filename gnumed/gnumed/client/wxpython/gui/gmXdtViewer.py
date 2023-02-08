@@ -228,12 +228,11 @@ if __name__ == '__main__':
 				title = _("XDT Viewer"),
 				size = wx.Size(800,600)
 			)
-			pnl = gmXdtViewerPanel(frame, fname)
+			pnl = cXdtListPnl(frame)
 			pnl.Populate()
 			frame.Show(1)
 			return True
+
 	#---------------------
 	app = TestApp ()
 	app.MainLoop ()
-
-#=============================================================================

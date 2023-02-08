@@ -27,7 +27,7 @@ radon cc ${DIRS} | egrep '(\-\s[^ABC])|(.py)$' &>> source-cyclic_complexity.log
 DIRS="../client/pycommon ../client/business"
 for DIR in ${DIRS} ; do
 	LOG=$(basename ${DIR})
-	echo "=== Code - problems ($(date) - pylint) ==========" > source-coding_errors-pylint_${LOG}.log
+	echo "=== $(date): pylint ${DIR} ==========" > source-coding_errors-pylint_${LOG}.log
 	pylint --errors-only ${DIR}/*.py &>> source-coding_errors-pylint_${LOG}.log
 done
 
