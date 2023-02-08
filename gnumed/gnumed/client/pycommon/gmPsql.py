@@ -146,10 +146,10 @@ class Psql:
 							else:
 								_log.error(self.fmt_msg(error))
 								if hasattr(error, 'diag'):
-									for prop in dir(error.diag):
+									for prop in dir(error.diag):			# pylint: disable=no-member
 										if prop.startswith('__'):
 											continue
-										val = getattr(error.diag, prop)
+										val = getattr(error.diag, prop)		# pylint: disable=no-member
 										if val is None:
 											continue
 										_log.error('PG diags %s: %s', prop, val)

@@ -11,6 +11,7 @@ import logging
 
 
 if __name__ == '__main__':
+	_ = lambda x:x
 	sys.path.insert(0, '../../')
 	from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmBusinessDBObject

@@ -310,7 +310,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 
 		if not removed:
 			_log.error('cannot remove unencrypted file')
-			gmTools.remove(enc_fname)
+			gmTools.remove_file(enc_fname)
 			return None
 
 		return enc_fname
@@ -371,7 +371,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			return enc_filename
 
 		_log.error('cannot remove unencrypted file')
-		gmTools.remove(enc_filename)
+		gmTools.remove_file(enc_filename)
 		return False
 
 	#--------------------------------------------------------
@@ -974,7 +974,7 @@ class cExportArea(object):
 			_log.error('cannot dump export area items')
 			return None
 
-		zip_file = gmTools.create_zip_archive_from_dir (
+		zip_file = gmCrypto.create_zip_archive_from_dir (
 			dump_dir,
 			comment = _('GNUmed Patient Media'),
 			overwrite = True,

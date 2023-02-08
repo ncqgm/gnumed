@@ -127,6 +127,8 @@ class cNull(object):
 def test():
 	"Perform some decent tests, or rather: demos."
 
+	# pylint: disable=no-member
+
 	# constructing and calling
 
 	n = cNull()

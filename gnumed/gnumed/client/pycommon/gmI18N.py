@@ -65,6 +65,7 @@ import re as regex
 
 
 builtins._ = lambda x:x
+_ = builtins._
 
 _log = logging.getLogger('gm.i18n')
 
