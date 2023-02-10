@@ -320,7 +320,7 @@ def __request_login_params_gui_wx():
 
 	Returns gmLoginInfo.LoginInfo object
 	"""
-	import wx
+	import wx		# pylint: disable=import-error
 	# OK, wxPython was already loaded. But has the main Application instance
 	# been initialized yet ? if not, the exception will kick us out
 	if wx.GetApp() is None:
@@ -1769,7 +1769,9 @@ def __file2bytea_copy_from(table=None, columns=None, filename=None, conn=None, m
 #		close_conn()
 		_log.debug('MD5 sums of data file and database BYTEA field match: [file::%s] = [DB::%s]', file_md5, db_md5)
 		return True
-	close_conn()
+
+	if close_conn:
+		conn.close()
 	_log.error('MD5 sums of data file and database BYTEA field do not match: [file::%s] <> [DB::%s]', file_md5, db_md5)
 	return False
 
@@ -2754,8 +2756,8 @@ if __name__ == "__main__":
 
 		print("testing run_ro_queries()")
 
-		dsn = 'dbname=gnumed_v22 user=any-doc password=any-doc'
-		conn = get_connection(dsn, readonly=True)
+		#dsn = 'dbname=gnumed_v22 user=any-doc password=any-doc'
+		conn = get_connection(readonly = True)
 
 		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': 'SELECT version()'}], return_data=True, get_col_idx=True, verbose=True)
 		print(data)
@@ -2802,7 +2804,7 @@ if __name__ == "__main__":
 		login, creds = request_login_params()
 		pool = gmConnectionPool.gmConnectionPool()
 		pool.credentials = creds
-		conn = get_connection('', readonly=True)
+		conn = get_connection(readonly = True)
 		curs = conn.cursor()
 		curs.execute('SELECT * from clin.clin_narrative where narrative = %s', ['a'])
 

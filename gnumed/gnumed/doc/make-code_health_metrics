@@ -2,18 +2,19 @@
 
 
 DIRS="../client/pycommon ../client/business ../client/wxpython"
-echo "=== Code - problems ($(date) - pyflakes3) ==========" > source-coding_errors.log
+echo "=== $(date): pyflakes3 '${DIRS}' ==========" > source-coding_errors.log
 pyflakes3 ${DIRS} &>> tmp-pyflakes3.log
-grep --invert-match "'Gnumed.pycommon.gmLog2' imported but unused" tmp-pyflakes3.log &>> tmp-grep_gmlog2.log
-grep --invert-match "undefined name '_'" tmp-grep_gmlog2.log &>> source-coding_errors.log
+#grep --invert-match "'Gnumed.pycommon.gmLog2' imported but unused" tmp-pyflakes3.log &>> tmp-grep_gmlog2.log
+#grep --invert-match "undefined name '_'" tmp-grep_gmlog2.log &>> source-coding_errors.log
+grep --invert-match "undefined name '_'" tmp-pyflakes3.log &>> source-coding_errors.log
 
 
-echo "=== Code - maintainability ($(date) - radon mi, lower = better, A/B not shown) ==========" > source-maintainability.log
+echo "=== maintainability -- $(date): radon mi (lower = better, A/B not shown) ==========" > source-maintainability.log
 radon mi ${DIRS} | egrep '\-\s[^AB]$' &>> source-maintainability.log
 
 
-echo "=== Code - cyclic complexity ($(date) - radon cc, lower = better, A/B/C not shown) ==========" > source-cyclic_complexity.log
-radon cc ${DIRS} | egrep '(\-\s[^ABC])|(.py)$' &>> source-cyclic_complexity.log
+echo "=== cyclic complexity -- $(date) - radon cc (lower = better, A/B/C/D not shown) ==========" > source-cyclic_complexity.log
+radon cc ${DIRS} | egrep '(\-\s[^ABCD])|(.py)$' &>> source-cyclic_complexity.log
 
 
 DIRS="../client/pycommon ../client/business"
