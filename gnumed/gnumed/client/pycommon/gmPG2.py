@@ -495,7 +495,7 @@ def database_schema_compatible(link_obj=None, version=None, verbose=True):
 	SQL = 'select md5(gm.concat_table_structure(%(ver)s::integer)) as md5'
 	try:
 		rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': SQL, 'args': args}])
-	except dbapi.errors.AmbiguousFunction as exc:
+	except dbapi.errors.AmbiguousFunction as exc:			# pylint: disable=no-member
 		gmConnectionPool.log_pg_exception_details(exc)
 		if not hasattr(exc, 'diag'):
 			raise
@@ -928,7 +928,7 @@ def sanity_check_database_default_collation_version(conn=None) -> bool:
 	SQL = 'SELECT *, pg_database_collation_actual_version(oid) FROM pg_database WHERE datname = current_database()'
 	try:
 		rows, idx = run_ro_queries(link_obj = conn, queries = [{'cmd': SQL}])
-	except dbapi.errors.UndefinedFunction as pg_exc:
+	except dbapi.errors.UndefinedFunction as pg_exc:			# pylint: disable=no-member
 		_log.exception('cannot verify collation version, likely PG < 15')
 		gmConnectionPool.log_pg_exception_details(pg_exc)
 		return True
@@ -1007,7 +1007,7 @@ def sanity_check_collation_versions(conn=None) -> bool:
 	"""
 	try:
 		rows, idx = run_ro_queries(link_obj = conn, queries = [{'cmd': SQL}])
-	except dbapi.errors.UndefinedFunction as pg_exc:
+	except dbapi.errors.UndefinedFunction as pg_exc:				# pylint: disable=no-member
 		_log.exception('cannot verify collation versions, likely PG < 15')
 		gmConnectionPool.log_pg_exception_details(pg_exc)
 		return True
@@ -2561,7 +2561,7 @@ if __name__ == "__main__":
 
 #	from Gnumed.pycommon.gmTools import file2md5
 
-	logging.basicConfig(level=logging.DEBUG)
+	logging.basicConfig(level = logging.DEBUG)
 
 	#--------------------------------------------------------------------
 	def test_file2bytea():

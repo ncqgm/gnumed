@@ -89,6 +89,7 @@ class cDTO_AmtsBmp(gmPerson.cDTO_person):
 		if egk_id is None:
 			_log.debug('cannot search for patient by eGK ID')
 			return None
+
 		candidates = gmPerson.get_persons_by_external_id (
 			external_id = egk_id,
 			external_id_type = egk_tag,
@@ -97,6 +98,7 @@ class cDTO_AmtsBmp(gmPerson.cDTO_person):
 		if len(candidates) != 1:
 			_log.debug('cannot uniquely identify person by eGK ID [%s]', egk_id)
 			return None
+
 		return candidates[0]
 
 #============================================================

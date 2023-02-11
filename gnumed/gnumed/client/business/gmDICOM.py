@@ -228,7 +228,7 @@ class cOrthancServer:
 		return matches
 
 	#--------------------------------------------------------
-	def get_patients_by_name(self, name_parts=None, gender=None, dob=None, fuzzy=False) -> list:
+	def get_patients_by_name(self, name_parts=None, gender=None, dob=None, fuzzy:bool=False) -> list:
 		"""Search for patients by name.
 
 		Returns:
@@ -1715,7 +1715,7 @@ if __name__ == "__main__":
 					print(' -> ', pat)
 				continue
 
-			pats = orthanc.get_patients_by_name(name_parts = entered_name.split(), fuzzy = True, search_level = 'Study')
+			pats = orthanc.get_patients_by_name(name_parts = entered_name.split(), fuzzy = True)
 			print('Patients found:')
 			for pat in pats:
 				print(' -> ', pat)
@@ -1880,7 +1880,7 @@ if __name__ == "__main__":
 			tags = orthanc.get_instance_dicom_tags(instance_id, simplified = False)
 			if tags['0010,0030']['Value'] != '19810416':
 				continue
-			orthanc.modify_patient_id_of_instance(instance_id, new_patient_id)
+			#orthanc.modify_patient_id_of_instance(instance_id, new_patient_id)
 			#print(tags['0010,0030']['PatientID'])
 			#print(tags['0010,0030']['PatientName'])
 			#continue

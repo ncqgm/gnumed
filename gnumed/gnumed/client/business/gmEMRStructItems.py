@@ -3323,10 +3323,7 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 		else:
 			pk_episode = self._payload[self._idx['pk_episode']]
 		doc_folder = gmDocuments.cDocumentFolder(aPKey = self._payload[self._idx['pk_patient']])
-		return doc_folder.get_visual_progress_notes (
-			health_issue = self._payload[self._idx['pk_health_issue']],
-			episode = pk_episode
-		)
+		return doc_folder.get_visual_progress_notes(episodes = [pk_episode])
 
 	#--------------------------------------------------------
 	# properties

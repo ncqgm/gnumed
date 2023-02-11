@@ -340,7 +340,7 @@ def split_xdt_file(aFile,patlst,cfg):
 			# is this new content ?
 			#data_hash = md5.new()			# FIXME: use hashlib
 			#map(data_hash.update, content)
-			data_hash = hashlib.md5(content.encode('utf8'))
+			data_hash = hashlib.md5(''.join(content).encode('utf8'))
 			digest = data_hash.hexdigest()
 			if digest not in hashes:
 				pat_dir = cfg.get("xdt-viewer", "export-dir")

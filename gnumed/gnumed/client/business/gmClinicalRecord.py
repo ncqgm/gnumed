@@ -771,7 +771,8 @@ class cClinicalRecord(object):
 		txt += _('Allergies and Intolerances\n')
 
 		allg_state = self.allergy_state
-		txt += (' ' + allg_state.state_string)
+		txt += ' '
+		txt += allg_state.state_string
 		if allg_state['last_confirmed'] is not None:
 			txt += _(' (last confirmed %s)') % gmDateTime.pydt_strftime(allg_state['last_confirmed'], '%Y %b %d')
 		txt += '\n'
@@ -1312,7 +1313,8 @@ WHERE
 		)
 	#--------------------------------------------------------
 	def health_issue2problem(self, issue=None):
-		return gmEMRStructItems.health_issue2problem(issue = issue)
+		return gmEMRStructItems.health_issue2problem(health_issue = issue)
+
 	#--------------------------------------------------------
 	# API: substance intake
 	#--------------------------------------------------------

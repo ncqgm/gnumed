@@ -817,7 +817,8 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_has_unreviewed_parts(self):
 		try:
-			return self.__has_unreviewed_parts
+			return self.__has_unreviewed_parts			# pylint: disable=access-member-before-definition
+
 		except AttributeError:
 			pass
 
@@ -825,10 +826,9 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		args = {'pk': self.pk_obj}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		self.__has_unreviewed_parts = rows[0][0]
-
 		return self.__has_unreviewed_parts
 
-	has_unreviewed_parts = property(_get_has_unreviewed_parts, lambda x:x)
+	has_unreviewed_parts = property(_get_has_unreviewed_parts)
 
 	#--------------------------------------------------------
 	def set_reviewed(self, technically_abnormal=None, clinically_relevant=None):

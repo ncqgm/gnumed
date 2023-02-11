@@ -23,6 +23,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmLog2
 if __name__ == '__main__':
+	_ = lambda x:x
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
@@ -43,7 +44,7 @@ from Gnumed.business import gmExportArea
 from Gnumed.business import gmBilling
 from Gnumed.business import gmAutoHints
 from Gnumed.business.gmDocuments import cDocumentFolder
-from gmClinicalRecord import cClinicalRecord
+from Gnumed.business.gmClinicalRecord import cClinicalRecord
 
 
 _log = logging.getLogger('gm.person')
@@ -171,7 +172,7 @@ class cDTO_person(object):
 		self.dob_is_estimated = False
 		self.source = self.__class__.__name__
 
-		self.dob_formats = None
+		self.dob_formats = []
 		self.dob_tz = None
 
 	#--------------------------------------------------------
@@ -455,8 +456,6 @@ class cDTO_person(object):
 		return getattr(self, attr)
 	#--------------------------------------------------------
 	def __parse_dob_str(self, dob_str):
-		if self.dob_formats is None:
-			return None
 		for dob_format in self.dob_formats:
 			try:
 				dob = pyDT.datetime.strptime(dob_str, dob_format)
@@ -464,9 +463,11 @@ class cDTO_person(object):
 				_log.exception('cannot parse DOB [%s] with [%s]', dob_str, dob_format)
 				continue
 			if self.dob_tz is None:
-				raise ValueError('lacking TZ information in DOB [%s] and/or format [%s]' % (dob_str, self.dob_format))
+				raise ValueError('lacking TZ information in DOB [%s] and/or format [%s]' % (dob_str, dob_format))
+
 			dob = dob.replace(tzinfo = self.dob_tz)
 			return dob
+
 		return None
 
 #============================================================
@@ -1770,7 +1771,8 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	#----------------------------------------------------------------------
 	def delete_relative(self, relation):
 		# unlink only, don't delete relative itself
-		self.set_relative(None, relation)
+		#self.set_relative(None, relation)
+		pass
 	#--------------------------------------------------------
 	def _get_emergency_contact_from_database(self):
 		if self._payload[self._idx['pk_emergency_contact']] is None:
@@ -2468,7 +2470,7 @@ def create_dummy_identity():
 		queries = [{'cmd': cmd}],
 		return_data = True
 	)
-	return gmDemographicRecord.cPerson(aPK_obj = rows[0][0])
+	return cPerson(aPK_obj = rows[0][0])
 
 #============================================================
 def identity_exists(pk_identity):
