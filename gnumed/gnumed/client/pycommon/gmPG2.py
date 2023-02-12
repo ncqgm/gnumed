@@ -327,8 +327,8 @@ def __request_login_params_gui_wx():
 		raise AssertionError(_("The wxPython GUI framework hasn't been initialized yet!"))
 
 	# Let's launch the login dialog
-	# if wx was not initialized /no main App loop, an exception should be raised anyway
-	import gmAuthWidgets
+	# if wx was not initialized/no main App loop, an exception should be raised anyway
+	from Gnumed.wxpython import gmAuthWidgets
 	dlg = gmAuthWidgets.cLoginDialog(None, -1)
 	dlg.ShowModal()
 	login = dlg.panel.GetLoginInfo()
@@ -2559,8 +2559,6 @@ if __name__ == "__main__":
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-#	from Gnumed.pycommon.gmTools import file2md5
-
 	logging.basicConfig(level = logging.DEBUG)
 
 	#--------------------------------------------------------------------
@@ -2573,7 +2571,6 @@ if __name__ == "__main__":
 			{'cmd': 'create table test_bytea (data bytea)'}
 		])
 		try:
-			#file2bytea(query = 'insert into test_bytea values (%(data)s::bytea) returning md5(data) as md5', filename = sys.argv[2], file_md5 = file2md5(sys.argv[2], True))
 			file2bytea(query = 'insert into test_bytea values (%(data)s::bytea)', filename = sys.argv[2])
 		except Exception:
 			_log.exception('error')
