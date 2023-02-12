@@ -2874,118 +2874,6 @@ def export_results_for_gnuplot(results=None, filename=None, show_year=True, pati
 	return filename
 
 #============================================================
-class cLabResult(gmBusinessDBObject.cBusinessDBObject):
-	"""Represents one lab result."""
-
-	_cmd_fetch_payload = """
-		select *, xmin_test_result from v_results4lab_req
-		where pk_result=%s"""
-	_cmds_lock_rows_for_update = [
-		"""select 1 from test_result where pk=%(pk_result)s and xmin=%(xmin_test_result)s for update"""
-	]
-	_cmds_store_payload = [
-		"""update test_result set
-				clin_when = %(val_when)s,
-				narrative = %(progress_note_result)s,
-				fk_type = %(pk_test_type)s,
-				val_num = %(val_num)s::numeric,
-				val_alpha = %(val_alpha)s,
-				val_unit = %(val_unit)s,
-				val_normal_min = %(val_normal_min)s,
-				val_normal_max = %(val_normal_max)s,
-				val_normal_range = %(val_normal_range)s,
-				val_target_min = %(val_target_min)s,
-				val_target_max = %(val_target_max)s,
-				val_target_range = %(val_target_range)s,
-				abnormality_indicator = %(abnormal)s,
-				norm_ref_group = %(ref_group)s,
-				note_provider = %(note_provider)s,
-				material = %(material)s,
-				material_detail = %(material_detail)s
-			where pk = %(pk_result)s""",
-		"""select xmin_test_result from v_results4lab_req where pk_result=%(pk_result)s"""
-		]
-
-	_updatable_fields = [
-		'val_when',
-		'progress_note_result',
-		'val_num',
-		'val_alpha',
-		'val_unit',
-		'val_normal_min',
-		'val_normal_max',
-		'val_normal_range',
-		'val_target_min',
-		'val_target_max',
-		'val_target_range',
-		'abnormal',
-		'ref_group',
-		'note_provider',
-		'material',
-		'material_detail'
-	]
-	#--------------------------------------------------------
-	def __init__(self, aPK_obj=None, row=None):
-		"""Instantiate.
-
-		aPK_obj as dict:
-			- patient_id
-			- when_field (see view definition)
-			- when
-			- test_type
-			- val_num
-			- val_alpha
-			- unit
-		"""
-		# instantiate from row data ?
-		if aPK_obj is None:
-			gmBusinessDBObject.cBusinessDBObject.__init__(self, row=row)
-			return
-		pk = aPK_obj
-		# find PK from row data ?
-		if type(aPK_obj) == dict:
-			# sanity checks
-			if None in [aPK_obj['patient_id'], aPK_obj['when'], aPK_obj['when_field'], aPK_obj['test_type'], aPK_obj['unit']]:
-				raise gmExceptions.ConstructorError('parameter error: %s' % aPK_obj)
-			if (aPK_obj['val_num'] is None) and (aPK_obj['val_alpha'] is None):
-				raise gmExceptions.ConstructorError('parameter error: val_num and val_alpha cannot both be None')
-			# get PK
-			where_snippets = [
-				'pk_patient=%(patient_id)s',
-				'pk_test_type=%(test_type)s',
-				'%s=%%(when)s' % aPK_obj['when_field'],
-				'val_unit=%(unit)s'
-			]
-			if aPK_obj['val_num'] is not None:
-				where_snippets.append('val_num=%(val_num)s::numeric')
-			if aPK_obj['val_alpha'] is not None:
-				where_snippets.append('val_alpha=%(val_alpha)s')
-
-			where_clause = ' and '.join(where_snippets)
-			cmd = "select pk_result from v_results4lab_req where %s" % where_clause
-			data = gmPG2.run_ro_query('historica', cmd, None, aPK_obj)
-			if data is None:
-				raise gmExceptions.ConstructorError('error getting lab result for: %s' % aPK_obj)
-			if len(data) == 0:
-				raise gmExceptions.NoSuchClinItemError('no lab result for: %s' % aPK_obj)
-			pk = data[0][0]
-		# instantiate class
-		gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk)
-	#--------------------------------------------------------
-	def get_patient(self):
-		cmd = """
-			select
-				%s,
-				vbp.title,
-				vbp.firstnames,
-				vbp.lastnames,
-				vbp.dob
-			from v_active_persons vbp
-			where vbp.pk_identity = %%s""" % self._payload[self._idx['pk_patient']]
-		pat = gmPG2.run_ro_query('historica', cmd, None, self._payload[self._idx['pk_patient']])
-		return pat[0]
-
-#============================================================
 class cLabRequest(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one lab request."""
 
@@ -3049,12 +2937,12 @@ class cLabRequest(gmBusinessDBObject.cBusinessDBObject):
 			where_clause = ' and '.join(where_snippets)
 			cmd = "select pk_request from v_lab_requests where %s" % where_clause
 			# get pk
-			data = gmPG2.run_ro_query('historica', cmd, None, aPK_obj)
-			if data is None:
-				raise gmExceptions.ConstructorError('[%s:??]: error getting lab request for [%s]' % (self.__class__.__name__, aPK_obj))
-			if len(data) == 0:
-				raise gmExceptions.NoSuchClinItemError('[%s:??]: no lab request for [%s]' % (self.__class__.__name__, aPK_obj))
-			pk = data[0][0]
+#			data = gmPG2.run_ro_query('historica', cmd, None, aPK_obj)
+#			if data is None:
+#				raise gmExceptions.ConstructorError('[%s:??]: error getting lab request for [%s]' % (self.__class__.__name__, aPK_obj))
+#			if len(data) == 0:
+#				raise gmExceptions.NoSuchClinItemError('[%s:??]: no lab request for [%s]' % (self.__class__.__name__, aPK_obj))
+#			pk = data[0][0]
 		# instantiate class
 		gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk)
 	#--------------------------------------------------------
@@ -3066,14 +2954,14 @@ class cLabRequest(gmBusinessDBObject.cBusinessDBObject):
 				vpi.pk_item=%s
 					and
 				vbp.pk_identity=vpi.pk_patient"""
-		pat = gmPG2.run_ro_query('historica', cmd, None, self._payload[self._idx['pk_item']])
-		if pat is None:
-			_log.error('cannot get patient for lab request [%s]' % self._payload[self._idx['pk_item']])
-			return None
-		if len(pat) == 0:
-			_log.error('no patient associated with lab request [%s]' % self._payload[self._idx['pk_item']])
-			return None
-		return pat[0]
+#		pat = gmPG2.run_ro_query('historica', cmd, None, self._payload[self._idx['pk_item']])
+#		if pat is None:
+#			_log.error('cannot get patient for lab request [%s]' % self._payload[self._idx['pk_item']])
+#			return None
+#		if len(pat) == 0:
+#			_log.error('no patient associated with lab request [%s]' % self._payload[self._idx['pk_item']])
+#			return None
+#		return pat[0]
 
 #============================================================
 # convenience functions
@@ -3135,85 +3023,6 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		_log.exception(str(msg), sys.exc_info(), verbose=0)
 		return (False, msg)
 	return (True, req)
-#------------------------------------------------------------
-def create_lab_result(patient_id=None, when_field=None, when=None, test_type=None, val_num=None, val_alpha=None, unit=None, encounter_id=None, request=None):
-	tres = None
-	data = {
-		'patient_id': patient_id,
-		'when_field': when_field,
-		'when': when,
-		'test_type': test_type,
-		'val_num': val_num,
-		'val_alpha': val_alpha,
-		'unit': unit
-	}
-	try:
-		tres = cLabResult(aPK_obj=data)
-		# exists already, so fail
-		_log.error('will not overwrite existing test result')
-		_log.debug(str(tres))
-		return (None, tres)
-	except gmExceptions.NoSuchClinItemError:
-		_log.debug('test result not found - as expected, will create it')
-	except gmExceptions.ConstructorError as msg:
-		_log.exception(str(msg), sys.exc_info(), verbose=0)
-		return (False, msg)
-	if request is None:
-		return (False, _('need lab request when inserting lab result'))
-	# not found
-	if encounter_id is None:
-		encounter_id = request['pk_encounter']
-	queries = []
-	cmd = "insert into test_result (fk_encounter, fk_episode, fk_type, val_num, val_alpha, val_unit) values (%s, %s, %s, %s, %s, %s)"
-	queries.append((cmd, [encounter_id, request['pk_episode'], test_type, val_num, val_alpha, unit]))
-	cmd = "insert into lnk_result2lab_req (fk_result, fk_request) values ((select currval('test_result_pk_seq')), %s)"
-	queries.append((cmd, [request['pk_request']]))
-	cmd = "select currval('test_result_pk_seq')"
-	queries.append((cmd, []))
-	# insert new
-	result, err = gmPG2.run_commit('historica', queries, True)
-	if result is None:
-		return (False, err)
-	try:
-		tres = cLabResult(aPK_obj=result[0][0])
-	except gmExceptions.ConstructorError as msg:
-		_log.exception(str(msg), sys.exc_info(), verbose=0)
-		return (False, msg)
-	return (True, tres)
-#------------------------------------------------------------
-def get_unreviewed_results(limit=50):
-	# sanity check
-	if limit < 1:
-		limit = 1
-	# retrieve one more row than needed so we know there's more available ;-)
-	lim = limit + 1
-	cmd = """
-		select pk_result
-		from v_results4lab_req
-		where reviewed is false
-		order by pk_patient
-		limit %s""" % lim
-	rows = gmPG2.run_ro_query('historica', cmd)
-	if rows is None:
-		_log.error('error retrieving unreviewed lab results')
-		return (None, _('error retrieving unreviewed lab results'))
-	if len(rows) == 0:
-		return (False, [])
-	# more than LIMIT rows ?
-	if len(rows) == lim:
-		more_avail = True
-		# but deliver only LIMIT rows so that our assumption holds true...
-		del rows[limit]
-	else:
-		more_avail = False
-	results = []
-	for row in rows:
-		try:
-			results.append(cLabResult(aPK_obj=row[0]))
-		except gmExceptions.ConstructorError:
-			_log.exception('skipping unreviewed lab result [%s]' % row[0], sys.exc_info(), verbose=0)
-	return (more_avail, results)
-
 #------------------------------------------------------------
 def get_pending_requests(limit=250):
 	lim = limit + 1
@@ -3355,28 +3164,6 @@ if __name__ == '__main__':
 		#print r.formatted_range
 		#print r.temporally_closest_normal_range
 		print(r.estimate_numeric_value_from_alpha)
-	#------------------------------------------
-	def test_lab_result():
-		print("test_result()")
-#		lab_result = cLabResult(aPK_obj=4)
-		data = {
-			'patient_id': 12,
-			'when_field': 'val_when',
-			'when': '2000-09-17 18:23:00+02',
-			'test_type': 9,
-			'val_num': 17.3,
-			'val_alpha': None,
-			'unit': 'mg/l'
-		}
-		lab_result = cLabResult(aPK_obj=data)
-		print(lab_result)
-		fields = lab_result.get_fields()
-		for field in fields:
-			print(field, ':', lab_result[field])
-		print("updatable:", lab_result.get_updatable_fields())
-		print(time.time())
-		print(lab_result.get_patient())
-		print(time.time())
 	#------------------------------------------
 	def test_request():
 		print("test_request()")

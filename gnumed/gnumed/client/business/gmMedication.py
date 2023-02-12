@@ -203,8 +203,7 @@ class cSubstance(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def save_payload(self, conn=None):
-		success, data = super(self.__class__, self).save_payload(conn = conn)
-
+		success, data = super().save_payload(conn = conn)
 		if not success:
 			return (success, data)
 
@@ -215,7 +214,6 @@ class cSubstance(gmBusinessDBObject.cBusinessDBObject):
 					substance = self._payload[self._idx['substance']].strip(),
 					atc = atc
 				)
-
 		return (success, data)
 
 	#--------------------------------------------------------
@@ -292,7 +290,7 @@ def get_substances(order_by=None, return_pks=False):
 	return [ cSubstance(row = {'data': r, 'idx': idx, 'pk_field': 'pk_substance'}) for r in rows ]
 
 #------------------------------------------------------------
-def create_substance(substance=None, atc=None):
+def create_substance(link_obj=None, substance=None, atc=None):
 	if atc is not None:
 		atc = atc.strip()
 
@@ -301,7 +299,7 @@ def create_substance(substance=None, atc=None):
 		'atc': atc
 	}
 	cmd = "SELECT pk FROM ref.substance WHERE lower(description) = lower(%(desc)s)"
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
 
 	if len(rows) == 0:
 		cmd = """
@@ -312,12 +310,12 @@ def create_substance(substance=None, atc=None):
 					(SELECT code FROM ref.atc WHERE term = %(desc)s LIMIT 1)
 				)
 			) RETURNING pk"""
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+		rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
 
 	if atc is not None:
-		gmATC.propagate_atc(substance = substance.strip(), atc = atc)
+		gmATC.propagate_atc(link_obj = link_obj, substance = substance.strip(), atc = atc)
 
-	return cSubstance(aPK_obj = rows[0]['pk'])
+	return cSubstance(aPK_obj = rows[0]['pk'], link_obj = link_obj)
 
 #------------------------------------------------------------
 def create_substance_by_atc(substance=None, atc=None, link_obj=None):
@@ -1510,7 +1508,7 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def save_payload(self, conn=None):
-		success, data = super(self.__class__, self).save_payload(conn = conn)
+		success, data = super().save_payload(conn = conn)
 
 		if not success:
 			return (success, data)

@@ -413,7 +413,8 @@ class cLDTImporter:
 			return False
 		# get lab request
 		try:
-			self.__request = gmPathLab.cLabRequest(req_id=reqid, lab=self.__lab_name)
+			#self.__request = gmPathLab.cLabRequest(req_id=reqid, lab=self.__lab_name)
+			pass
 		except gmExceptions.ConstructorError:
 			prob = 'Kann keine Patientenzuordnung der Probe finden.'
 			sol = 'Zuordnung der Probe zu einem Patienten prüfen. Falls doch vorhanden, Systembetreuer verständigen.'
@@ -465,7 +466,8 @@ class cLDTImporter:
 		if '8310' in request_data:
 			reqid = request_data['8310'][0]
 			try:
-				request = gmPathLab.cLabRequest(req_id=reqid, lab=self.__lab_name)
+				#request = gmPathLab.cLabRequest(req_id=reqid, lab=self.__lab_name)
+				pass
 			except gmExceptions.ConstructorError:
 				_log.LogException('cannot get lab request', sys.exc_info(), verbose=0)
 			# try to verify patient

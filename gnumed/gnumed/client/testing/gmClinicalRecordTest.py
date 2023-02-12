@@ -228,29 +228,6 @@ class LabAPITests(unittest.TestCase):
 		backend = gmPG.ConnectionPool()
 		backend.StopListeners()
 		del self.emr
-	#--------------------------------------------------------
-	def testGetLabRequest(self):
-		"""Check if a lab request can be retrieved"""
-		lab_request = self.emr.get_lab_request(pk = 1, lab= 2, req_id= 'SC937-0176-CEC#15034')
-		self.assertEqual(isinstance(lab_request, gmPathLab.cLabRequest), True)
-
-	def testAddLabRequest(self):
-		"""Check that a new lab request can be created"""
-		# create new lab request
-		new_lab_request = self.emr.add_lab_request(lab=2, req_id='Test request')
-		self.assertEqual(isinstance(new_lab_request, gmPathLab.cLabRequest), True)
-		new_lab_request['narrative']='Test narrative'
-		new_lab_request.save_payload()
-		#delete test lab request
-		queries = []
-		cmd = "delete from lab_request where pk=%s and narrative=%s"
-		queries.append((cmd, [new_lab_request['pk'], 'Test narrative']))
-		result, msg = gmPG.run_commit('historica', queries, True)
-		self.assertEqual(result, True)
-		# check deletion was successfull
-		cmd = """select pk from lab_request where pk=%s"""
-		rows = gmPG.run_ro_query('historica', cmd, None, new_lab_request['pk'])
-		self.assertEqual(len(rows), 0)
 
 #============================================================
 def suite():

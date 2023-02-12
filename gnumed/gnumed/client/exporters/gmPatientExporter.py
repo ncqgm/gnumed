@@ -377,7 +377,6 @@ class cEmrExport:
             txt += self.get_allergy_output(item, left_margin)
 #        elif isinstance(item, gmVaccination.cVaccination):
  #           txt += self.get_vaccination_output(item, left_margin)
-#        elif isinstance(item, gmPathLab.cLabResult):
  #           txt += self.get_lab_result_output(item, left_margin)
   #          self.lab_new_encounter = False
         return txt
@@ -454,7 +453,6 @@ class cEmrExport:
             txt += self.get_allergy_summary(item, left_margin)
 #        elif isinstance(item, gmVaccination.cVaccination):
  #           txt += self.get_vaccination_summary(item, left_margin)
-#        elif isinstance(item, gmPathLab.cLabResult) and \
 #	    True: 
  #           #(item['relevant'] == True or item['abnormal'] == True):
   #          txt += self.get_lab_result_summary(item, left_margin)

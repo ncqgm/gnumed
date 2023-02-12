@@ -30,8 +30,6 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmDateTime
-#from Gnumed.pycommon import gmHooks
-#from Gnumed.pycommon import gmDispatcher
 
 _log = logging.getLogger('gm.dicom')
 
@@ -104,19 +102,19 @@ class cOrthancServer:
 	#--------------------------------------------------------
 	def _get_server_identification(self):
 		try:
-			return self.__server_identification
+			return self.__server_identification		# pylint: disable=access-member-before-definition
+
 		except AttributeError:
 			pass
 		system_data = self.__run_GET(url = '%s/system' % self.__server_url)
 		if system_data is False:
 			_log.error('unable to get server identification')
 			return False
+
 		_log.debug('server: %s', system_data)
 		self.__server_identification = system_data
-
 		self.__initial_orthanc_encoding = self.__run_GET(url = '%s/tools/default-encoding' % self.__server_url)
 		_log.debug('initial Orthanc encoding: %s', self.__initial_orthanc_encoding)
-
 		# check time skew
 		tolerance = 60 # seconds
 		client_now_as_utc = pydt.datetime.utcnow()
@@ -139,17 +137,16 @@ class cOrthancServer:
 			_log.info('GNUmed/Orthanc time skew: %s', real_skew)
 			if real_skew > pydt.timedelta(seconds = tolerance):
 				_log.error('GNUmed/Orthanc time skew > tolerance (may be due to timezone differences on Orthanc < v1.3.2)')
-
 		return self.__server_identification
 
-	server_identification = property(_get_server_identification, lambda x:x)
+	server_identification = property(_get_server_identification)
 
 	#--------------------------------------------------------
 	def _get_as_external_id_issuer(self):
 		# fixed type :: user level instance name :: DICOM AET
 		return 'Orthanc::%(Name)s::%(DicomAet)s' % self.__server_identification
 
-	as_external_id_issuer = property(_get_as_external_id_issuer, lambda x:x)
+	as_external_id_issuer = property(_get_as_external_id_issuer)
 
 	#--------------------------------------------------------
 	def _get_url_browse_patients(self):
@@ -157,7 +154,7 @@ class cOrthancServer:
 			return self.__server_url
 		return self.__server_url.replace('http://', 'http://%s@' % self.__user)
 
-	url_browse_patients = property(_get_url_browse_patients, lambda x:x)
+	url_browse_patients = property(_get_url_browse_patients)
 
 	#--------------------------------------------------------
 	def get_url_browse_patient(self, patient_id):
@@ -1873,7 +1870,7 @@ if __name__ == "__main__":
 		orthanc_id = '89729867-a08815a6-37c59f5a-f1f6ea57-6c1e17cb'
 		instances_url = 'patients/%s/instances' % orthanc_id
 		print(instances_url)
-		new_patient_id = 'xxx'
+		#new_patient_id = 'xxx'
 		instances = orthanc.run_GET(instances_url)
 		for instance in instances:
 			instance_id = instance['ID']

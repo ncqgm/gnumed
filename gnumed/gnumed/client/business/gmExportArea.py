@@ -974,19 +974,27 @@ class cExportArea(object):
 			_log.error('cannot dump export area items')
 			return None
 
+		if passphrase:
+			zip_file = gmCrypto.create_encrypted_zip_archive_from_dir (
+				source_dir = dump_dir,
+				comment = _('GNUmed Patient Media'),
+				overwrite = True,
+				passphrase = passphrase,
+				verbose = _cfg.get(option = 'debug')
+			if zip_file:
+				store_passphrase_of_file(filename = zip_file, passphrase = passphrase, hash_type = 'sha256')
+			else:
+				_log.error('cannot zip+encrypt export area items dump')
+			return zip_file
+
 		zip_file = gmCrypto.create_zip_archive_from_dir (
 			dump_dir,
 			comment = _('GNUmed Patient Media'),
 			overwrite = True,
-			passphrase = passphrase,
 			verbose = _cfg.get(option = 'debug')
 		)
-		if zip_file is None:
+		if not zip_file:
 			_log.error('cannot zip export area items dump')
-			return None
-
-		if passphrase:
-			store_passphrase_of_file(filename = zip_file, passphrase = passphrase, hash_type = 'sha256')
 		return zip_file
 
 	#--------------------------------------------------------
@@ -1168,11 +1176,10 @@ class cExportArea(object):
 				passphrase = passphrase,
 				verbose = _cfg.get(option = 'debug')
 			)
-			if not zip_file:
+			if zip_file:
+				store_passphrase_of_file(filename = zip_file, passphrase = passphrase, hash_type = 'sha256')
+			else:
 				_log.debug('cannot create zip archive')
-				return None
-
-			store_passphrase_of_file(filename = zip_file, passphrase = passphrase, hash_type = 'sha256')
 			return zip_file
 
 		zip_file = gmCrypto.create_zip_archive_from_dir (
@@ -1181,10 +1188,8 @@ class cExportArea(object):
 			overwrite = True,
 			verbose = _cfg.get(option = 'debug')
 		)
-		if zip_file is None:
+		if not zip_file:
 			_log.debug('cannot create zip archive')
-			return None
-
 		return zip_file
 
 	#--------------------------------------------------------

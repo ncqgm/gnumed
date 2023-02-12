@@ -811,7 +811,7 @@ class cOOoForm(cFormEngine):
 	"""A forms engine wrapping OOo."""
 
 	def __init__(self, template_file=None):
-		super(self.__class__, self).__init__(template_file = template_file)
+		super().__init__(template_file = template_file)
 
 		path, ext = os.path.splitext(self.template_filename)
 		if ext in [r'', r'.']:
@@ -828,7 +828,7 @@ class cAbiWordForm(cFormEngine):
 
 	def __init__(self, template_file=None):
 
-		super(cAbiWordForm, self).__init__(template_file = template_file)
+		super().__init__(template_file = template_file)
 
 		# detect abiword
 		found, self.abiword_binary = gmShellAPI.detect_external_binary(binary = r'abiword')
@@ -846,7 +846,8 @@ class cAbiWordForm(cFormEngine):
 		template_file = io.open(self.template_filename, mode = 'rt', encoding = 'utf-8-sig')
 		instance_file = io.open(self.instance_filename, mode = 'wt', encoding = 'utf8')
 
-		if self.template is not None:
+		if self.template:
+			# pylint: disable=unsubscriptable-object
 			# inject placeholder values
 			data_source.set_placeholder('form_name_long', self.template['name_long'])
 			data_source.set_placeholder('form_name_short', self.template['name_short'])
@@ -890,8 +891,8 @@ class cAbiWordForm(cFormEngine):
 			data_source.unset_placeholder('form_version')
 			data_source.unset_placeholder('form_version_internal')
 			data_source.unset_placeholder('form_last_modified')
-
 		return
+
 	#--------------------------------------------------------
 	def edit(self):
 		enc = sys.getfilesystemencoding()

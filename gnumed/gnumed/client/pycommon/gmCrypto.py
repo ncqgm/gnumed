@@ -33,16 +33,19 @@ _log = logging.getLogger('gm.encryption')
 #===========================================================================
 # archiving methods
 #---------------------------------------------------------------------------
-def create_encrypted_zip_archive_from_dir(source_dir:str, comment:str=None, overwrite:bool=True, passphrase:str=None, verbose:bool=False) -> bool:
+def create_encrypted_zip_archive_from_dir(source_dir:str, comment:str=None, overwrite:bool=True, passphrase:str=None, verbose:bool=False) -> str:
 	"""Create encrypted archive of a directory.
 
 	The encrypted archive file will always be named
-	"datawrapper.zip" for confidentiality reasons. If callers
-	want another name they will have to shutil.move() the zip
-	file themselves. This archive will be compressed and
-	AES256 encrypted with the given passphrase. Therefore,
-	the result will not decrypt with earlier versions of
-	unzip software. On Windows, 7z oder WinZip are needed.
+
+		gmTools.gmPaths().tmp_dir/datawrapper.zip
+
+	for confidentiality reasons. If callers want another name
+	they will have to shutil.move() the zip file themselves.
+	This archive will be compressed and AES256 encrypted with
+	the given passphrase. Therefore, the result will not
+	decrypt with earlier versions of unzip software. On
+	Windows, 7z oder WinZip are needed.
 
 	The zip format does not support header encryption thereby
 	allowing attackers to gain knowledge of patient details
@@ -66,7 +69,7 @@ def create_encrypted_zip_archive_from_dir(source_dir:str, comment:str=None, over
 		passphrase: minimum length of 5 if given
 
 	Returns:
-		True / False / None (other error)
+		Archive path (always gmTools.gmPaths().tmp_dir/datawrapper.zip) or None.
 	"""
 	assert (source_dir is not None), '<source_dir> must not be <None>'
 	if len(passphrase) < 5:
@@ -77,7 +80,7 @@ def create_encrypted_zip_archive_from_dir(source_dir:str, comment:str=None, over
 	source_dir = os.path.abspath(source_dir)
 	if not os.path.isdir(source_dir):
 		_log.error('<source_dir> does not exist or is not a directory: %s', source_dir)
-		return False
+		return None
 
 	for cmd in ['7z', '7z.exe']:
 		found, binary = gmShellAPI.detect_external_binary(binary = cmd)
@@ -100,11 +103,11 @@ def create_encrypted_zip_archive_from_dir(source_dir:str, comment:str=None, over
 	if overwrite:
 		if not gmTools.remove_file(archive_name_inner, force = True):
 			_log.error('cannot remove existing archive [%s]', archive_name_inner)
-			return False
+			return None
 
 		if not gmTools.remove_file(archive_name_outer, force = True):
 			_log.error('cannot remove existing archive [%s]', archive_name_outer)
-			return False
+			return None
 
 	# 7z does not support ZIP comments so create a text file holding the comment
 	if comment is not None:

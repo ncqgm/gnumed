@@ -2375,25 +2375,7 @@ SELECT MIN(earliest) FROM (
 	#------------------------------------------------------------------
 	#------------------------------------------------------------------
 	#------------------------------------------------------------------
-	def get_lab_request(self, pk=None, req_id=None, lab=None):
-		# FIXME: verify that it is our patient ? ...
-		req = gmPathLab.cLabRequest(aPK_obj=pk, req_id=req_id, lab=lab)
-		return req
 	#------------------------------------------------------------------
-	def add_lab_request(self, lab=None, req_id=None, encounter_id=None, episode_id=None):
-		if encounter_id is None:
-			encounter_id = self.current_encounter['pk_encounter']
-		status, data = gmPathLab.create_lab_request(
-			lab=lab,
-			req_id=req_id,
-			pat_id=self.pk_patient,
-			encounter_id=encounter_id,
-			episode_id=episode_id
-		)
-		if not status:
-			_log.error(str(data))
-			return None
-		return data
 
 #============================================================
 # main
