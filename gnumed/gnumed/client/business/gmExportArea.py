@@ -981,6 +981,7 @@ class cExportArea(object):
 				overwrite = True,
 				passphrase = passphrase,
 				verbose = _cfg.get(option = 'debug')
+			)
 			if zip_file:
 				store_passphrase_of_file(filename = zip_file, passphrase = passphrase, hash_type = 'sha256')
 			else:

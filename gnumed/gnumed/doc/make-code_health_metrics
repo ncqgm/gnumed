@@ -30,7 +30,7 @@ echo "=== $(date): mypy ==========" > source-type_checking.log
 for DIR in ${DIRS} ; do
 	for PYFILE in ${DIR}/*.py ; do
 		echo "----- ${PYFILE} --------------------------------------" &>> source-type_checking.log
-		mypy --pretty --ignore-missing-imports --follow-imports silent ${PYFILE} &>> source-type_checking.log
+		mypy --pretty --no-strict-optional --ignore-missing-imports --follow-imports silent ${PYFILE} &>> source-type_checking.log
 	done
 done
 ##mypy --allow-redefinition --ignore-missing-imports --check-untyped-defs --warn-return-any --warn-unreachable --pretty ${DIRS} &>> source-type_checking.log

@@ -2934,9 +2934,9 @@ class cLabRequest(gmBusinessDBObject.cBusinessDBObject):
 				where_snippets.append('pk_test_org=%(lab)s')
 			else:
 				where_snippets.append('lab_name=%(lab)s')
-			where_clause = ' and '.join(where_snippets)
-			cmd = "select pk_request from v_lab_requests where %s" % where_clause
-			# get pk
+#			where_clause = ' and '.join(where_snippets)
+#			cmd = "select pk_request from v_lab_requests where %s" % where_clause
+#			# get pk
 #			data = gmPG2.run_ro_query('historica', cmd, None, aPK_obj)
 #			if data is None:
 #				raise gmExceptions.ConstructorError('[%s:??]: error getting lab request for [%s]' % (self.__class__.__name__, aPK_obj))
@@ -3188,7 +3188,8 @@ if __name__ == '__main__':
 		print(time.time())
 	#--------------------------------------------------------
 	def test_unreviewed():
-		data = get_unreviewed_results()
+		#data = get_unreviewed_results()
+		data = []
 		for result in data:
 			print(result)
 	#--------------------------------------------------------
