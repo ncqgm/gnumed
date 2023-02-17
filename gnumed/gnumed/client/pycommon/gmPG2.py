@@ -2672,8 +2672,9 @@ if __name__ == "__main__":
 
 		print('')
 		dsn = 'foo'
+		print(dsn)
 		try:
-			conn = get_connection(dsn=dsn)
+			conn = get_connection()
 		except dbapi.ProgrammingError:
 			print("1) SUCCESS: get_connection(%s) failed as expected" % dsn)
 			typ, val = sys.exc_info()[:2]
@@ -2683,7 +2684,7 @@ if __name__ == "__main__":
 		print('')
 		dsn = 'dbname=gnumed_v22'
 		try:
-			conn = get_connection(dsn=dsn)
+			conn = get_connection()
 			print("2) ERROR: get_connection() did not fail")
 		except cAuthenticationError:
 			print("2) SUCCESS: get_connection(%s) failed as expected" % dsn)
@@ -2694,7 +2695,7 @@ if __name__ == "__main__":
 		print('')
 		dsn = 'dbname=gnumed_v22 user=abc'
 		try:
-			conn = get_connection(dsn=dsn)
+			conn = get_connection()
 			print("3) ERROR: get_connection() did not fail")
 		except cAuthenticationError:
 			print("3) SUCCESS: get_connection(%s) failed as expected" % dsn)
@@ -2705,7 +2706,7 @@ if __name__ == "__main__":
 		print('')
 		dsn = 'dbname=gnumed_v22 user=any-doc password=abc'
 		try:
-			conn = get_connection(dsn=dsn)
+			conn = get_connection()
 			print("4) ERROR: get_connection() did not fail")
 		except cAuthenticationError:
 			print("4) SUCCESS: get_connection(%s) failed as expected" % dsn)
@@ -2715,17 +2716,17 @@ if __name__ == "__main__":
 
 		print('')
 		dsn = 'dbname=gnumed_v22 user=any-doc password=any-doc'
-		conn = get_connection(dsn=dsn, readonly=True)
+		conn = get_connection(readonly=True)
 		print('5) SUCCESS: get_connection(ro)')
 
 		dsn = 'dbname=gnumed_v22 user=any-doc password=any-doc'
-		conn = get_connection(dsn=dsn, readonly=False, verbose=True)
+		conn = get_connection(readonly=False, verbose=True)
 		print('6) SUCCESS: get_connection(rw)')
 
 		print('')
 		dsn = 'dbname=gnumed_v22 user=any-doc'
 		try:
-			conn = get_connection(dsn=dsn)
+			conn = get_connection()
 			print("8) SUCCESS:", dsn)
 			print('pid:', conn.get_backend_pid())
 		except cAuthenticationError:
