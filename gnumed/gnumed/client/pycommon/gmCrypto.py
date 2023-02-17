@@ -17,6 +17,7 @@ import sys
 import os
 import logging
 import tempfile
+from typing import List
 
 
 # GNUmed libs
@@ -185,13 +186,13 @@ def create_zip_archive_from_dir(source_dir:str, archive_name:str=None, comment:s
 		overwrite: remove preexisting archive before creation, avoiding *updating* of same, and thereby including unintended data
 
 	Returns:
-		archive name / False / None (other error)
+		Archive path or None.
 	"""
 	assert (source_dir is not None), '<source_dir> must not be <None>'
 	source_dir = os.path.abspath(source_dir)
 	if not os.path.isdir(source_dir):
 		_log.error('<source_dir> does not exist or is not a directory: %s', source_dir)
-		return False
+		return None
 
 	for cmd in ['7z', '7z.exe']:
 		found, binary = gmShellAPI.detect_external_binary(binary = cmd)
@@ -212,7 +213,7 @@ def create_zip_archive_from_dir(source_dir:str, archive_name:str=None, comment:s
 	if overwrite:
 		if not gmTools.remove_file(archive_name, force = True):
 			_log.error('cannot remove existing archive [%s]', archive_name)
-			return False
+			return None
 	# 7z does not support ZIP comments so create
 	# a text file holding the comment ...
 	if comment is not None:
@@ -758,7 +759,7 @@ def is_encrypted_pdf(filename:str=None, verbose:bool=False) -> bool:
 	return None
 
 #===========================================================================
-def encrypt_data_with_gpg(data, recipient_key_files:[], comment:str=None, verbose:bool=False) -> str:
+def encrypt_data_with_gpg(data, recipient_key_files:List[str], comment:str=None, verbose:bool=False) -> str:
 	"""Encrypt data with public key(s).
 
 	Requires GPG to be installed.

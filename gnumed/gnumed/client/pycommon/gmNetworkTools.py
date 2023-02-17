@@ -42,7 +42,7 @@ def open_url_in_browser(url:str, new:int=2, autoraise:bool=True, *args, **kwargs
 	"""
 	# new=2: open new tab if possible
 	try:
-		webbrowser.open(url, new = new, autoraise = autoraise, **kwargs)
+		webbrowser.open(url, new = new, autoraise = autoraise)
 	except (webbrowser.Error, OSError, UnicodeEncodeError):
 		_log.exception('error calling browser with url=%s', url)
 		return False

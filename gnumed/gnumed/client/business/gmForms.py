@@ -940,7 +940,7 @@ class cTextForm(cFormEngine):
 
 	def __init__(self, template_file=None):
 
-		super(self.__class__, self).__init__(template_file = template_file)
+		super().__init__(template_file = template_file)
 
 		# create sandbox to play in (and don't assume much
 		# of anything about the template_file except that it
@@ -972,15 +972,14 @@ class cTextForm(cFormEngine):
 
 	#--------------------------------------------------------
 	def substitute_placeholders(self, data_source=None):
-
-		if self.template is not None:
+		if self.template:
+			# pylint: disable=unsubscriptable-object
 			# inject placeholder values
 			data_source.set_placeholder('form_name_long', self.template['name_long'])
 			data_source.set_placeholder('form_name_short', self.template['name_short'])
 			data_source.set_placeholder('form_version', self.template['external_version'])
 			data_source.set_placeholder('form_version_internal', gmTools.coalesce(self.template['gnumed_revision'], '', '%s'))
 			data_source.set_placeholder('form_last_modified', gmDateTime.pydt_strftime(self.template['last_modified'], '%Y-%b-%d %H:%M'))
-
 		base = os.path.join(self.__sandbox_dir, gmTools.fname_stem(self.template_filename))
 		filenames = [
 			self.template_filename,
@@ -994,7 +993,6 @@ class cTextForm(cFormEngine):
 			data_source.second_pass_placeholder_regex,
 			data_source.third_pass_placeholder_regex
 		]
-
 		current_pass = 1
 		while current_pass < 4:
 			_log.debug('placeholder substitution pass #%s', current_pass)
@@ -1005,16 +1003,13 @@ class cTextForm(cFormEngine):
 				placeholder_regex = regexen[current_pass]
 			)
 			current_pass += 1
-
 		# remove temporary placeholders
 		data_source.unset_placeholder('form_name_long')
 		data_source.unset_placeholder('form_name_short')
 		data_source.unset_placeholder('form_version')
 		data_source.unset_placeholder('form_version_internal')
 		data_source.unset_placeholder('form_last_modified')
-
 		self.instance_filename = self.re_editable_filenames[0]
-
 		return True
 
 	#--------------------------------------------------------
@@ -1135,7 +1130,8 @@ class cLaTeXForm(cFormEngine):
 		# debugging
 		#data_source.debug = True
 
-		if self.template is not None:
+		if self.template:
+			# pylint: disable=unsubscriptable-object
 			# inject placeholder values
 			data_source.set_placeholder('form_name_long', self.template['name_long'])
 			data_source.set_placeholder('form_name_short', self.template['name_short'])
@@ -1347,13 +1343,14 @@ class cXeTeXForm(cFormEngine):
 		shutil.copy(template_file, sandbox_dir)
 		template_file = os.path.join(sandbox_dir, os.path.split(template_file)[1])
 
-		super(self.__class__, self).__init__(template_file = template_file)
+		super().__init__(template_file = template_file)
 
 		self.__sandbox_dir = sandbox_dir
 	#--------------------------------------------------------
 	def substitute_placeholders(self, data_source=None):
 
 		if self.template is not None:
+			# pylint: disable=unsubscriptable-object
 			# inject placeholder values
 			data_source.set_placeholder('form_name_long', self.template['name_long'])
 			data_source.set_placeholder('form_name_short', self.template['name_short'])
@@ -1635,8 +1632,10 @@ class cGnuplotForm(cFormEngine):
 
 		Expects .data_filename to be set.
 		"""
+		assert self.data_filename, '.data_filename must be set'
+
 		# append some metadata for debugging, if available
-		if self.template is not None:
+		if self.template:
 			f = open(self.template_filename, 'at', encoding = 'utf8')
 			f.write('\n')
 			f.write('# -- metadata ----------------------------------------------------------------\n')
@@ -1912,8 +1911,7 @@ class cXSLTFormEngine(cFormEngine):
 		if template is None:
 			raise ValueError('%s: cannot create form instance without a template' % __name__)
 
-		cFormEngine.__init__(self, template = template)
-
+		super().__init__(template_file = template)
 		self._FormData = None
 
 		# here we know/can assume that the template was stored as a utf-8

@@ -2557,7 +2557,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 						planned_end_from_now_str
 					)
 		else:
-			if gmDateTime.is_today(self._payload[self._idx['discontinued']]):
+			if gmDateTime.pydt_is_today(self._payload[self._idx['discontinued']]):
 				end_str = _('today')
 			elif self._payload[self._idx['discontinued']].year == now.year:
 				end_date_template = '%b %d'

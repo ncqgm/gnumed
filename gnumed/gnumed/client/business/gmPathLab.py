@@ -2979,16 +2979,17 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 		'lab': lab,
 		'req_id': req_id
 	}
-	try:
-		req = cLabRequest (aPK_obj)
-	except gmExceptions.NoSuchClinItemError as msg:
-		_log.info('%s: will try to create lab request' % str(msg))
-	except gmExceptions.ConstructorError as msg:
-		_log.exception(str(msg), sys.exc_info(), verbose=0)
-		return (False, msg)
+#	try:
+#		req = cLabRequest (aPK_obj)
+#	except gmExceptions.NoSuchClinItemError as msg:
+#		_log.info('%s: will try to create lab request' % str(msg))
+#	except gmExceptions.ConstructorError as msg:
+#		_log.exception(str(msg), sys.exc_info(), verbose=0)
+#		return (False, msg)
 	# found
 	if req is not None:
-		db_pat = req.get_patient()
+#		db_pat = req.get_patient()
+		db_pat = None
 		if db_pat is None:
 			_log.error('cannot cross-check patient on lab request')
 			return (None, '')
@@ -3001,8 +3002,8 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 			sol = _('Verify which patient this lab request really belongs to.')
 			ctxt = _('lab [%s], request ID [%s], expected link with patient [%s], currently linked to patient [%s]') % (lab, req_id, pat_id, db_pat)
 			cat = 'lab'
-			status, data = gmPG2.add_housekeeping_todo(me, to, prob, sol, ctxt, cat)
-			return (None, data)
+#			status, data = gmPG2.add_housekeeping_todo(me, to, prob, sol, ctxt, cat)
+			return (None, None)
 		return (True, req)
 	# not found
 	queries = []
@@ -3014,7 +3015,8 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 	cmd = "select currval('lab_request_pk_seq')"
 	queries.append((cmd, []))
 	# insert new
-	result, err = gmPG2.run_commit('historica', queries, True)
+	result, err = (None, 'error')
+	#result, err = gmPG2.run_commit('historica', queries, True)
 	if result is None:
 		return (False, err)
 	try:
@@ -3027,7 +3029,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 def get_pending_requests(limit=250):
 	lim = limit + 1
 	cmd = "select pk from lab_request where is_pending is true limit %s" % lim
-	rows = gmPG2.run_ro_query('historica', cmd)
+	rows = gmPG2.run_ro_queries(queries = cmd)
 	if rows is None:
 		_log.error('error retrieving pending lab requests')
 		return (None, None)
@@ -3069,7 +3071,7 @@ def get_next_request_ID(lab=None, incrementor_func=None):
 			from v_lab_requests vlr
 			where %s
 		)""" % lab_snippet
-	rows = gmPG2.run_ro_query('historica', cmd, None, lab)
+	rows = gmPG2.run_ro_queries(cmd, None, lab)
 	if rows is None:
 		_log.warning('error getting most recently used request ID for lab [%s]' % lab)
 		return ''

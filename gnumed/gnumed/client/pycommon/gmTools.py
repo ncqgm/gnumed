@@ -25,6 +25,7 @@ import zipfile
 import datetime as pydt
 import re as regex
 import xml.sax.saxutils as xml_tools
+from typing import List
 # old:
 import pickle, zlib
 # docutils
@@ -338,21 +339,21 @@ def dir_is_empty(directory:str=None) -> bool:
 	return empty
 
 #---------------------------------------------------------------------------
-def dir_list_files(directory:str=None, exclude_subdirs:bool=True) -> []:
+def dir_list_files(directory:str=None, exclude_subdirs:bool=True) -> List[str]:
 	try:
 		all_dir_items = os.listdir(directory)
 	except OSError:
 		_log.exception('cannot list dir [%s]', directory)
 		return None
 
-	items2return = []
+	filenames2return = []
 	for item in all_dir_items:
 		item = os.path.join(directory, item)
 		if os.path.isdir(item):
 			if exclude_subdirs:
 				continue
-		items2return.append(item)
-	return items2return
+		filenames2return.append(item)
+	return filenames2return
 
 #---------------------------------------------------------------------------
 def copy_tree_content(directory:str, target_directory:str) -> str:
