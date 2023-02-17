@@ -2945,15 +2945,15 @@ class cLabRequest(gmBusinessDBObject.cBusinessDBObject):
 #			pk = data[0][0]
 		# instantiate class
 		gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk)
-	#--------------------------------------------------------
-	def get_patient(self):
-		cmd = """
-			select vpi.pk_patient, vbp.title, vbp.firstnames, vbp.lastnames, vbp.dob
-			from v_pat_items vpi, v_active_persons vbp
-			where
-				vpi.pk_item=%s
-					and
-				vbp.pk_identity=vpi.pk_patient"""
+#	#--------------------------------------------------------
+#	def get_patient(self):
+#		cmd = """
+#			select vpi.pk_patient, vbp.title, vbp.firstnames, vbp.lastnames, vbp.dob
+#			from v_pat_items vpi, v_active_persons vbp
+#			where
+#				vpi.pk_item=%s
+#					and
+#				vbp.pk_identity=vpi.pk_patient"""
 #		pat = gmPG2.run_ro_query('historica', cmd, None, self._payload[self._idx['pk_item']])
 #		if pat is None:
 #			_log.error('cannot get patient for lab request [%s]' % self._payload[self._idx['pk_item']])

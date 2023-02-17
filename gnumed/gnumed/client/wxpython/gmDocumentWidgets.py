@@ -1986,9 +1986,9 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 #		self.__desc_menu.AppendSeparator()
 
 	#--------------------------------------------------------
-	def __add_parts_nodes(self, parent, parts):
+	def __add_doc_parts_nodes(self, parent, parts):
 		if not parts:
-			self.SetItemHasChildren(doc_node, False)
+			self.SetItemHasChildren(parent, False)
 			return
 
 		self.SetItemHasChildren(parent, True)
@@ -2012,7 +2012,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					': %s%%s%s' % (gmTools.u_left_double_angle_quote, gmTools.u_right_double_angle_quote)
 				)
 			)
-			part_node = self.AppendItem(parent = doc_node, text = label)
+			part_node = self.AppendItem(parent = parent, text = label)
 			self.SetItemData(part_node, part)
 			self.SetItemHasChildren(part_node, False)
 
@@ -2045,7 +2045,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			parent = intermediate_nodes[intermediate_label]
 			doc_node = self.AppendItem(parent = parent, text = doc_label)
 			self.SetItemData(doc_node, doc)
-			self.__add_parts_nodes(parent, parts)
+			self.__add_doc_parts_nodes(parent, parts)
 		return intermediate_nodes
 
 	#--------------------------------------------------------
@@ -2077,7 +2077,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			parent = intermediate_nodes[intermediate_label]
 			doc_node = self.AppendItem(parent = parent, text = doc_label)
 			self.SetItemData(doc_node, doc)
-			self.__add_parts_nodes(parent, parts)
+			self.__add_doc_parts_nodes(parent, parts)
 		return intermediate_nodes
 
 	#--------------------------------------------------------
@@ -2196,7 +2196,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 			doc_node = self.AppendItem(parent = parent, text = doc_label)
 			self.SetItemData(doc_node, doc)
-			self.__add_parts_nodes(doc_node, parts)
+			self.__add_doc_parts_nodes(doc_node, parts)
 
 		self.__sort_nodes()
 		self.SelectItem(self.root)
@@ -2245,7 +2245,6 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		assert isinstance(data1, gmDocuments.cDocument), 'data1 must be cDocument'
 		assert isinstance(data2, gmDocuments.cDocument), 'data2 must be cDocument'
 
-		date_field = 'clin_when'
 		if self.__sort_mode == 'age':
 			return self.__compare_document_items_by_date(data1, data2)
 
@@ -2303,8 +2302,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		 0: 1 = 2
 		 1: 1 > 2
 		"""
-		assert isinstance(label1, string), 'label1 must be string'
-		assert isinstance(label2, string), 'label2 must be string'
+		assert isinstance(label1, str), 'label1 must be string'
+		assert isinstance(label2, str), 'label2 must be string'
 
 		if label1 < label2:
 			return -1
