@@ -24,6 +24,7 @@ import logging
 import datetime as pydt
 import hashlib
 import shutil
+from typing import List
 
 
 # GNUmed
@@ -898,12 +899,12 @@ def reindex_database(conn=None) -> bool:
 	conn.commit()
 	conn.set_session(readonly = False, autocommit = True)
 	curs = conn.cursor()
-	status = False
 	try:
 		run_rw_queries(link_obj = curs, queries = [{'cmd': SQL}], end_tx = True)
 		status = __MIND_MELD
 	except Exception:
 		_log.exception('reindexing failed')
+		status = False
 	finally:
 		curs.close()
 		conn.commit()
@@ -1990,7 +1991,7 @@ def sanitize_pg_regex(expression=None, escape_all=False):
 		#']', '\]',			# not needed
 
 #------------------------------------------------------------------------
-def run_ro_queries(link_obj=None, queries:[]=None, verbose:bool=False, return_data:bool=True, get_col_idx:bool=False) -> ():
+def run_ro_queries(link_obj=None, queries:List[dict]=None, verbose:bool=False, return_data:bool=True, get_col_idx:bool=False) -> tuple:
 	"""Run read-only queries.
 
 	Args:

@@ -2974,11 +2974,12 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 			(False, error message)
 			(None, housekeeping_todo primary key)
 	"""
-	req = None
-	aPK_obj = {
-		'lab': lab,
-		'req_id': req_id
-	}
+	pass
+#	req = None
+#	aPK_obj = {
+#		'lab': lab,
+#		'req_id': req_id
+#	}
 #	try:
 #		req = cLabRequest (aPK_obj)
 #	except gmExceptions.NoSuchClinItemError as msg:
@@ -2987,44 +2988,44 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 #		_log.exception(str(msg), sys.exc_info(), verbose=0)
 #		return (False, msg)
 	# found
-	if req is not None:
+#	if req is not None:
 #		db_pat = req.get_patient()
-		db_pat = None
-		if db_pat is None:
-			_log.error('cannot cross-check patient on lab request')
-			return (None, '')
-		# yes but ambiguous
-		if pat_id != db_pat[0]:
-			_log.error('lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
-			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.81 $'
-			to = 'user'
-			prob = _('The lab request already exists but belongs to a different patient.')
-			sol = _('Verify which patient this lab request really belongs to.')
-			ctxt = _('lab [%s], request ID [%s], expected link with patient [%s], currently linked to patient [%s]') % (lab, req_id, pat_id, db_pat)
-			cat = 'lab'
+#		db_pat = None
+#		if db_pat is None:
+#			_log.error('cannot cross-check patient on lab request')
+#			return (None, '')
+#		# yes but ambiguous
+#		if pat_id != db_pat[0]:
+#			_log.error('lab request found for [%s:%s] but patient mismatch: expected [%s], in DB [%s]' % (lab, req_id, pat_id, db_pat))
+#			me = '$RCSfile: gmPathLab.py,v $ $Revision: 1.81 $'
+#			to = 'user'
+#			prob = _('The lab request already exists but belongs to a different patient.')
+#			sol = _('Verify which patient this lab request really belongs to.')
+#			ctxt = _('lab [%s], request ID [%s], expected link with patient [%s], currently linked to patient [%s]') % (lab, req_id, pat_id, db_pat)
+#			cat = 'lab'
 #			status, data = gmPG2.add_housekeeping_todo(me, to, prob, sol, ctxt, cat)
-			return (None, None)
-		return (True, req)
-	# not found
-	queries = []
-	if type(lab) is int:
-		cmd = "insert into lab_request (fk_encounter, fk_episode, fk_test_org, request_id) values (%s, %s, %s, %s)"
-	else:
-		cmd = "insert into lab_request (fk_encounter, fk_episode, fk_test_org, request_id) values (%s, %s, (select pk from test_org where internal_OBSOLETE_name=%s), %s)"
-	queries.append((cmd, [encounter_id, episode_id, str(lab), req_id]))
-	cmd = "select currval('lab_request_pk_seq')"
-	queries.append((cmd, []))
-	# insert new
-	result, err = (None, 'error')
-	#result, err = gmPG2.run_commit('historica', queries, True)
-	if result is None:
-		return (False, err)
-	try:
-		req = cLabRequest(aPK_obj=result[0][0])
-	except gmExceptions.ConstructorError as msg:
-		_log.exception(str(msg), sys.exc_info(), verbose=0)
-		return (False, msg)
-	return (True, req)
+#			return (None, None)
+#		return (True, req)
+#	# not found
+#	queries = []
+#	if type(lab) is int:
+#		cmd = "insert into lab_request (fk_encounter, fk_episode, fk_test_org, request_id) values (%s, %s, %s, %s)"
+#	else:
+#		cmd = "insert into lab_request (fk_encounter, fk_episode, fk_test_org, request_id) values (%s, %s, (select pk from test_org where internal_OBSOLETE_name=%s), %s)"
+#	queries.append((cmd, [encounter_id, episode_id, str(lab), req_id]))
+#	cmd = "select currval('lab_request_pk_seq')"
+#	queries.append((cmd, []))
+#	# insert new
+#	result, err = (None, 'error')
+#	#result, err = gmPG2.run_commit('historica', queries, True)
+#	if result is None:
+#		return (False, err)
+#	try:
+#		req = cLabRequest(aPK_obj=result[0][0])
+#	except gmExceptions.ConstructorError as msg:
+#		_log.exception(str(msg), sys.exc_info(), verbose=0)
+#		return (False, msg)
+#	return (True, req)
 #------------------------------------------------------------
 def get_pending_requests(limit=250):
 	lim = limit + 1

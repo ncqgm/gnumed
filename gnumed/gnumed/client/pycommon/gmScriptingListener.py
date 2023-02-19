@@ -37,7 +37,7 @@ class cScriptingListener:
 		# listener thread will regularly try to acquire
 		# this lock, when it succeeds it will quit
 		self._quit_lock = threading.Lock()
-		if not self._quit_lock.acquire(0):
+		if not self._quit_lock.acquire(blocking = True, timeout = 2):
 			_log.error('cannot acquire thread quit lock !?! aborting')
 			raise OSError("cannot acquire thread quit-lock")
 
@@ -99,17 +99,17 @@ class cScriptingListener:
 	def _process_RPCs(self):
 		"""Poll for incoming requests on the XML RPC server socket and invoke the request handler."""
 		while 1:
-			if self._quit_lock.acquire(0):
+			if self._quit_lock.acquire(blocking = False):
 				break
 			time.sleep(0.35)					# give others time to acquire lock
-			if self._quit_lock.acquire(0):
+			if self._quit_lock.acquire(blocking = False):
 				break
 			# wait at most self.__poll_interval for new data
 			ready_input_sockets = select.select([self._server.socket], [], [], self._poll_interval)[0]
 			# any input available ?
 			if len(ready_input_sockets) == 0:
 				time.sleep(0.35)
-				if self._quit_lock.acquire(0):
+				if self._quit_lock.acquire(blocking = False):
 					break
 				continue
 			# we may be in __del__ so we might fail here
@@ -119,10 +119,10 @@ class cScriptingListener:
 				_log.exception('cannot serve RPC')
 				print("ERROR: cannot serve RPC")
 				break
-			if self._quit_lock.acquire(0):
+			if self._quit_lock.acquire(blocking = False):
 				break
 			time.sleep(0.25)
-			if self._quit_lock.acquire(0):
+			if self._quit_lock.acquire(blocking = False):
 				break
 		# exit thread activity
 		return

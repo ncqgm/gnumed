@@ -2429,10 +2429,10 @@ if __name__ == "__main__":
 	#-----------------------------------------
 	def test_get_measurements():
 		emr = cClinicalRecord(aPKey=12)
-		rows, idx = emr.get_measurements_by_date()
+		#rows, idx = emr.get_measurements_by_date()
 		print("test results:")
-		for row in rows:
-			print(row)
+		#for row in rows:
+		#	print(row)
 
 	#-----------------------------------------
 	def test_get_test_results_by_date():

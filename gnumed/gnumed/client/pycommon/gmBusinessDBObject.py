@@ -348,11 +348,11 @@ class cBusinessDBObject(object):
 		# fail which will then call __str__ in stack trace logging if --debug
 		# was given which in turn needs those instance variables
 		self.pk_obj = '<uninitialized>'
-		self._idx = {}
-		self._payload = []		# the cache for backend object values (mainly table fields)
-		self._ext_cache = {}	# the cache for extended method's results
-		self._is_modified = False
-		self.original_payload = None
+		self._idx:dict = {}
+		self._payload:list = []		# the cache for backend object values (mainly table fields)
+		self._ext_cache:dict = {}	# the cache for extended method's results
+		self._is_modified:bool = False
+		self.original_payload:list = None
 		# only now check child classes
 		assert self.__class__._cmd_fetch_payload is not None, '<_cmd_fetch_payload> undefined'
 		assert self.__class__._cmds_store_payload is not None, '<_cmds_store_payload> undefined'

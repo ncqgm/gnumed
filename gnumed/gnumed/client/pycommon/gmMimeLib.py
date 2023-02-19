@@ -15,6 +15,7 @@ import mimetypes
 import subprocess
 import shutil
 import logging
+from typing import List
 try:
 	import mailcap as _mailcap
 except ImportError:		# Python 3.11 deprecated mailcap, in 3.13 it will be gone ...
@@ -42,14 +43,14 @@ def __guess_mimetype__pylibextractor(filename:str=None) -> str:
 		import extractor
 	except ImportError:
 		_log.debug('module <extractor> (python wrapper for libextractor) not installed')
-		return False
+		return None
 
 	except OSError as exc:
 		# winerror 126, errno 22
 		if exc.errno != 22:
 			raise
 		_log.exception('module <extractor> (python wrapper for libextractor) not installed')
-		return False
+		return None
 
 	xtractor = extractor.Extractor()
 	props = xtractor.extract(filename = filename)
@@ -60,7 +61,7 @@ def __guess_mimetype__pylibextractor(filename:str=None) -> str:
 		if val != WORST_CASE_MIMETYPE:
 			return val
 
-	return False
+	return None
 
 #---------------------------------------------------------------------------------------
 def __guess_mimetype__file(filename:str=None) -> str:
@@ -70,17 +71,17 @@ def __guess_mimetype__file(filename:str=None) -> str:
 	pipe = os.popen(mime_guesser_cmd, 'r')
 	if pipe is None:
 		_log.debug("cannot open pipe to [%s]" % mime_guesser_cmd)
-		return False
+		return None
 
 	pipe_output = pipe.readline().replace('\n', '').strip()
 	ret_code = pipe.close()
 	if ret_code is not None:
 		_log.error('[%s] on %s (%s): failed with exit(%s)' % (mime_guesser_cmd, os.name, sys.platform, ret_code))
-		return False
+		return None
 
 	_log.debug('[%s]: <%s>' % (mime_guesser_cmd, pipe_output))
 	if pipe_output in ['', WORST_CASE_MIMETYPE]:
-		return False
+		return None
 
 	return pipe_output
 
@@ -90,17 +91,17 @@ def __guess_mimetype__extract(filename:str=None) -> str:
 	pipe = os.popen(mime_guesser_cmd, 'r')
 	if pipe is None:
 		_log.debug("cannot open pipe to [%s]" % mime_guesser_cmd)
-		return False
+		return None
 
 	pipe_output = pipe.readline()[11:].replace('\n', '').strip()
 	ret_code = pipe.close()
 	if ret_code is not None:
 		_log.error('[%s] on %s (%s): failed with exit(%s)' % (mime_guesser_cmd, os.name, sys.platform, ret_code))
-		return False
+		return None
 
 	_log.debug('[%s]: <%s>' % (mime_guesser_cmd, pipe_output))
 	if pipe_output in ['', WORST_CASE_MIMETYPE]:
-		return False
+		return None
 
 	return pipe_output
 
@@ -275,7 +276,7 @@ open_cmds = {
 	#'explorer'
 }
 
-def _get_system_startfile_cmd(filename):
+def _get_system_startfile_cmd(filename:str):
 
 	global _system_startfile_cmd
 
@@ -299,7 +300,7 @@ def _get_system_startfile_cmd(filename):
 	return False, None
 
 #-----------------------------------------------------------------------------------
-def join_files_as_pdf(files:[]=None, pdf_name:str=None) -> str:
+def join_files_as_pdf(files:List[str]=None, pdf_name:str=None) -> str:
 	"""Convert files to PDF and joins them into one final PDF.
 
 	Returns:
@@ -411,7 +412,7 @@ def convert_latex_to_pdf(filename:str=None, verbose:bool=False, is_sandboxed:boo
 	return '%s.pdf' % os.path.splitext(filename)[0]
 
 #-----------------------------------------------------------------------------------
-def __convert_odt_to_pdf(filename=None, verbose=False):
+def __convert_odt_to_pdf(filename:str=None, verbose:bool=False):
 	cmd_line = [
 		'lowriter',
 		'--convert-to', 'pdf',

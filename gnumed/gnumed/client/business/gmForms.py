@@ -2051,33 +2051,6 @@ class cHL7Form (cFormEngine):
 #============================================================
 # convenience functions
 #------------------------------------------------------------
-def get_form(id):
-	"""
-	Instantiates a FormEngine based on the form ID or name from the backend
-	"""
-	try:
-		# it's a number: match to form ID
-		id = int (id)
-		cmd = 'select template, engine, pk from paperwork_templates where pk = %s'
-	except ValueError:
-		# it's a string, match to the form's name
-		# FIXME: can we somehow OR like this: where name_short=%s OR name_long=%s ?
-		cmd = 'select template, engine, flags, pk from paperwork_templates where name_short = %s'
-	result = gmPG2.run_ro_query ('reference', cmd, None, id)
-	if result is None:
-		_log.error('error getting form [%s]' % id)
-		raise gmExceptions.FormError ('error getting form [%s]' % id)
-	if len(result) == 0:
-		_log.error('no form [%s] found' % id)
-		raise gmExceptions.FormError ('no such form found [%s]' % id)
-	if result[0][1] == 'L':
-		return cLaTeXForm (result[0][2], result[0][0])
-	elif result[0][1] == 'T':
-		return cTextForm (result[0][2], result[0][0])
-	else:
-		_log.error('no form engine [%s] for form [%s]' % (result[0][1], id))
-		raise FormError ('no engine [%s] for form [%s]' % (result[0][1], id))
-#-------------------------------------------------------------
 class FormError (Exception):
 	def __init__ (self, value):
 		self.value = value
@@ -2299,7 +2272,7 @@ if __name__ == '__main__':
 		from Gnumed.wxpython import gmMacro
 		ph = gmMacro.gmPlaceholderHandler()
 		ph.debug = True
-		instance_file = form.substitute_placeholders(data_source = ph)
+		form.substitute_placeholders(data_source = ph)
 		pdf_name = form.generate_output(instance_file = instance_file)
 		print("final PDF file is:", pdf_name)
 	#--------------------------------------------------------
@@ -2318,7 +2291,7 @@ if __name__ == '__main__':
 		ph = gmMacro.gmPlaceholderHandler()
 		ph.debug = True
 		instance_file = form.substitute_placeholders(data_source = ph)
-		pdf_name = form.generate_output(instance_file = instance_file)
+		pdf_name = form.generate_output()
 		print("final PDF file is:", pdf_name)
 	#--------------------------------------------------------
 	def test_abiword_form():
@@ -2335,7 +2308,7 @@ if __name__ == '__main__':
 		from Gnumed.wxpython import gmMacro
 		ph = gmMacro.gmPlaceholderHandler()
 		ph.debug = True
-		instance_file = form.substitute_placeholders(data_source = ph)
+		form.substitute_placeholders(data_source = ph)
 		form.edit()
 		final_name = form.generate_output(instance_file = instance_file)
 		print("final file is:", final_name)

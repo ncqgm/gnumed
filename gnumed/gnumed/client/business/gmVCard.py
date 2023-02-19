@@ -144,7 +144,7 @@ def parse_vcard2dto(vc_text=None, filename=None):
 		_log.debug('vCard.BDAY attribute not available')
 	dto.source = 'vCard %s' % vc.version.value.strip()
 
-	dto = __parse_vcard_adr2dto(vcard, dto)
+	dto = __parse_vcard_adr2dto(vc, dto)
 
 	tel = None
 	try:
