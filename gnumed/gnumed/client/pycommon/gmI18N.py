@@ -64,9 +64,6 @@ import builtins
 import re as regex
 
 
-builtins._ = lambda x:x
-_ = builtins._
-
 _log = logging.getLogger('gm.i18n')
 
 system_locale = ''
@@ -315,6 +312,27 @@ def install_domain(domain:str=None, language:str=None, prefer_local_catalog:bool
 	# 3) try locale.get*default*locale()[0], if not yet in list
 	if locale.getdefaultlocale()[0] not in lang_candidates:
 		lang_candidates.append(locale.getdefaultlocale()[0])
+	# 4) add variants
+	lang_variants = []
+	for lang in lang_candidates:
+		if lang is None:
+			continue
+		cand = lang.split('.')[0]
+		if cand not in lang_candidates:
+			_log.debug('new language candidate: %s -> %s', lang, cand)
+			lang_variants.append(cand)
+		cand = lang.split('@')[0]
+		if cand not in lang_candidates:
+			_log.debug('new language candidate: %s -> %s', lang, cand)
+			lang_variants.append(cand)
+		cand = lang.split('_')[0]
+		if cand not in lang_candidates:
+			_log.debug('new language candidate: %s -> %s', lang, cand)
+			lang_variants.append(cand)
+	for lang in lang_variants:
+		if lang in lang_candidates:
+			continue
+		lang_candidates.append(lang)
 	_log.debug('languages to try for translation: %s (None: implicit system default)', lang_candidates)
 	initial_lang = os.getenv('LANG')
 	_log.info('initial ${LANG} setting: %s', initial_lang)
@@ -345,8 +363,8 @@ def install_domain(domain:str=None, language:str=None, prefer_local_catalog:bool
 
 #---------------------------------------------------------------------------
 def __install_domain(domain, prefer_local_catalog, language='?'):
-	# <language> only used for logging
-
+	"""<language> only used for logging"""
+	_log.debug('domain=%s, prefer_local_catalog=%s, language=%s', domain, prefer_local_catalog, language)
 	# search for message catalog
 	candidate_PO_dirs = []
 	# - locally
@@ -398,6 +416,7 @@ def __install_domain(domain, prefer_local_catalog, language='?'):
 		_log.debug('trying with (base=%s, %s, domain=%s)', candidate_PO_dir, language, domain)
 		_log.debug(' -> %s.mo', os.path.join(candidate_PO_dir, language, domain))
 		if not os.path.exists(candidate_PO_dir):
+			_log.debug('base dir not found')
 			continue
 		try:
 			gettext.install(domain, candidate_PO_dir)
@@ -472,7 +491,7 @@ if __name__ == "__main__":
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	logging.basicConfig(level = logging.DEBUG)
+	import gmLog2
 	#----------------------------------------------------------------------
 	def test_strcoll():
 		candidates = [
@@ -520,10 +539,12 @@ if __name__ == "__main__":
 
 	if len(sys.argv) > 2:
 		print('attempting to install domain:', sys.argv[2])
-		install_domain(domain = sys.argv[2])
+		print(install_domain(domain = sys.argv[2]))
 	else:
 		print('attempting to install "default" domain')
-		install_domain()
+		print(install_domain())
+	print(__orig_tag__)
+	print(_(__orig_tag__))
 
 	test_translating()
 	test_strcoll()
