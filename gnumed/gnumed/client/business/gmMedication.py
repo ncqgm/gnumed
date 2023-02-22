@@ -2621,7 +2621,7 @@ def get_substance_intakes(pk_patient=None, return_pks=False):
 	return [ cSubstanceIntakeEntry(row = {'data': r, 'idx': idx, 'pk_field': 'pk_intake'}) for r in rows ]
 
 #------------------------------------------------------------
-def substance_intake_exists(pk_component=None, pk_identity=None, pk_drug_product=None, pk_dose=None):
+def substance_intake_exists(pk_component=None, pk_identity=None, pk_drug_product=None, pk_dose=None, pk_substance=None):
 
 	if [pk_component, pk_drug_product, pk_dose].count(None) != 2:
 		raise ValueError('only one of pk_component, pk_dose, and pk_drug_product can be non-NULL')
@@ -2680,7 +2680,7 @@ def substance_intake_exists_by_atc(pk_identity=None, atc=None):
 	return rows[0][0]
 
 #------------------------------------------------------------
-def create_substance_intake(pk_encounter=None, pk_episode=None, pk_substance=None):
+def create_substance_intake(pk_encounter=None, pk_episode=None, pk_substance=None, pk_component=None, pk_drug_product=None):
 	args = {
 		'pk_enc': pk_encounter,
 		'pk_epi': pk_episode,

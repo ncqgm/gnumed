@@ -19,7 +19,7 @@ from typing import List
 try:
 	import mailcap as _mailcap
 except ImportError:		# Python 3.11 deprecated mailcap, in 3.13 it will be gone ...
-	import _mailcap__copy as _mailcap
+	import _mailcap__copy as _mailcap			# type: ignore
 
 
 # GNUmed

@@ -24,7 +24,6 @@ import threading
 import types
 import re as regex
 import datetime as pydt
-from typing import Dict
 
 
 # 3rd party library imports
@@ -130,13 +129,13 @@ class cPGCredentials:
 	"""Holds PostgreSQL credentials"""
 
 	def __init__(self) -> None:
-		self.__host = None			# None: left out -> defaults to $PGHOST or implicit <localhost>
-		self.__port = None			# None: left out -> defaults to $PGPORT or libpq compiled-in default (typically 5432)
-		self.__database = None		# must be set before connecting
-		self.__user = None			# must be set before connecting
-		self.__password = None		# None: left out
-									# -> try password-less connect (TRUST/IDENT/PEER)
-									# -> try connect with password from <passfile> parameter or $PGPASSFILE or ~/.pgpass
+		self.__host:str = None			# None: left out -> defaults to $PGHOST or implicit <localhost>
+		self.__port:int = None			# None: left out -> defaults to $PGPORT or libpq compiled-in default (typically 5432)
+		self.__database:str = None		# must be set before connecting
+		self.__user:str = None			# must be set before connecting
+		self.__password:str = None		# None: left out
+										# -> try password-less connect (TRUST/IDENT/PEER)
+										# -> try connect with password from <passfile> parameter or $PGPASSFILE or ~/.pgpass
 
 	#--------------------------------------------------
 	# properties
@@ -183,9 +182,10 @@ class cPGCredentials:
 		return self.__database
 
 	def _set_database(self, database:str=None):
-		assert (database is not None), '<database> must not be None'
+		assert database, '<database> must not be None'
+		assert database.strip(), '<database> must not be empty'
 		assert ('salaam.homeunix' not in database), 'The public database is not hosted by <salaam.homeunix.com> anymore.\n\nPlease point your configuration files to <publicdb.gnumed.de>.'
-		self.__database = database.strip()
+		self.__database = database.strip()		# type: ignore
 		_log.info('[%s]', self.__database)
 
 	database = property(_get_database, _set_database)
@@ -195,11 +195,13 @@ class cPGCredentials:
 		return self.__host
 
 	def _set_host(self, host:str=None):
-		if host is None or host.strip() == '':
-			self.__host = None
-		else:
-			self.__host = host.strip()
+		if host is not None:
+			host = host.strip()
+			if host == '':
+				host = None
+		self.__host = host
 		_log.info('[%s]', self.__host)
+		return
 
 	host = property(_get_host, _set_host)
 
@@ -212,6 +214,7 @@ class cPGCredentials:
 		if port is None:
 			self.__port = None
 			return
+
 		self.__port = int(port)
 
 	port = property(_get_port, _set_port)
@@ -257,10 +260,10 @@ class gmConnectionPool(gmBorg.cBorg):
 			self.__initialized:bool = True
 
 		_log.info('[%s]: first instantiation', self.__class__.__name__)
-		self.__ro_conn_pool:Dict[str, dbapi._psycopg.connection] = {}	# keyed by "credentials::thread ID"
-		self.__SQL_set_client_timezone = None
+		self.__ro_conn_pool:dict[str, dbapi._psycopg.connection] = {}	# keyed by "credentials::thread ID"
+		self.__SQL_set_client_timezone:str = None
 		self.__client_timezone = None
-		self.__creds = None
+		self.__creds:cPGCredentials = None
 		self.__log_auth_environment()
 
 	#--------------------------------------------------
@@ -343,7 +346,7 @@ class gmConnectionPool(gmBorg.cBorg):
 		return self.get_connection(verbose = verbose, readonly = False, connection_name = connection_name, autocommit = autocommit)
 
 	#--------------------------------------------------
-	def get_raw_connection(self, verbose=False, readonly=True, connection_name=None, autocommit=False, credentials=None):
+	def get_raw_connection(self, verbose=False, readonly=True, connection_name=None, autocommit=False, credentials:cPGCredentials=None):
 		"""Get a raw, unadorned connection.
 
 		- this will not set any parameters such as encoding, timezone, datestyle
@@ -612,9 +615,9 @@ class gmConnectionPool(gmBorg.cBorg):
 	def _get_credentials(self):
 		return self.__creds
 
-	def _set_credentials(self, creds=None):
+	def _set_credentials(self, creds:cPGCredentials=None):
 		if self.__creds is None:
-			self.__creds = creds
+			self.__creds = None
 			return
 
 		_log.debug('invalidating pooled connections on credentials change')

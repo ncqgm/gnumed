@@ -432,15 +432,18 @@ class gmPaths(gmBorg.cBorg):
 			app_name: name of application, default "name of main script without .py"
 			wx: wxPython module reference, optional, used to detect more standard paths
 		"""
-		try:
-			self.already_inited			# pylint: disable=access-member-before-definition
+		if hasattr(self, 'already_inited'):
 			return
 
-		except AttributeError:
-			pass
+#		try:
+#			self.already_inited:bool			# pylint: disable=access-member-before-definition
+#			return
+#
+#		except AttributeError:
+#			pass
 
 		self.init_paths(app_name = app_name, wx = wx)
-		self.already_inited = True
+		self.already_inited:bool = True
 
 	#--------------------------------------
 	# public API

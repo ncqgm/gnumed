@@ -11,7 +11,7 @@ class cBorg(object):
 
 	- there may be many _instances_ of this - PER CHILD CLASS - but they all share _state_
 	"""
-	_instances = {}
+	_instances:dict = {}
 
 	def __new__(cls, *args, **kargs):
 		# look up subclass instance cache
@@ -31,7 +31,6 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-
 	class A(cBorg):
 		pass
 
@@ -42,6 +41,7 @@ if __name__ == '__main__':
 		def __init__(self, val='default'):
 			self.x = val
 
+	#===================================================
 	print("testing new-style classes borg")
 	a1 = A()
 	a2 = A()

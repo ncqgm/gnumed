@@ -3040,7 +3040,7 @@ def get_pending_requests(limit=250):
 	if len(rows) == lim:
 		too_many = True
 		# but deliver only LIMIT rows so that our assumption holds true...
-		del rows[limit]
+		rows = rows[:limit]
 	else:
 		too_many = False
 	requests = []

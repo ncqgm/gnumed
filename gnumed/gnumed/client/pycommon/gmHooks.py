@@ -312,7 +312,7 @@ def run_script(hook=None):
 	return True
 
 # ========================================================================
-__current_hook_stack = []
+__current_hook_stack:list[str] = []
 
 def run_hook_script(hook=None):
 	# NOTE: this just *might* be a huge security hole

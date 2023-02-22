@@ -2057,110 +2057,6 @@ class FormError (Exception):
 
 	def __str__ (self):
 		return repr (self.value)
-#-------------------------------------------------------------
-
-test_letter = """
-\\documentclass{letter}
-\\address{ $DOCTOR \\\\
-$DOCTORADDRESS}
-\\signature{$DOCTOR}
-
-\\begin{document}
-\\begin{letter}{$RECIPIENTNAME \\\\
-$RECIPIENTADDRESS}
-
-\\opening{Dear $RECIPIENTNAME}
-
-\\textbf{Re:} $PATIENTNAME, DOB: $DOB, $PATIENTADDRESS \\\\
-
-$TEXT
-
-\\ifnum$INCLUDEMEDS>0
-\\textbf{Medications List}
-
-\\begin{tabular}{lll}
-$MEDSLIST
-\\end{tabular}
-\\fi
-
-\\ifnum$INCLUDEDISEASES>0
-\\textbf{Disease List}
-
-\\begin{tabular}{l}
-$DISEASELIST
-\\end{tabular}
-\\fi
-
-\\closing{$CLOSING}
-
-\\end{letter}
-\\end{document}
-"""
-
-
-def test_au():
-	f = io.open('../../test-area/ian/terry-form.tex')
-	params = {
-	'RECIPIENT': "Dr. R. Terry\n1 Main St\nNewcastle",
-	'DOCTORSNAME': 'Ian Haywood',
-	'DOCTORSADDRESS': '1 Smith St\nMelbourne',
-	'PATIENTNAME':'Joe Bloggs',
-	'PATIENTADDRESS':'18 Fred St\nMelbourne',
-	'REQUEST':'echocardiogram',
-	'THERAPY':'on warfarin',
-	'CLINICALNOTES':"""heard new murmur
-	Here's some
-crap to demonstrate how it can cover multiple lines.""",
-	'COPYADDRESS':'Jack Jones\nHannover, Germany',
-	'ROUTINE':1,
-	'URGENT':0,
-	'FAX':1,
-	'PHONE':1,
-	'PENSIONER':1,
-	'VETERAN':0,
-	'PADS':0,
-	'INSTRUCTIONS':'Take the blue pill, Neo'
-	}
-	form = cLaTeXForm (1, f.read())
-	form.process (params)
-	form.xdvi ()
-	form.cleanup ()
-
-def test_au2 ():
-	form = cLaTeXForm (2, test_letter)
-	params = {'RECIPIENTNAME':'Dr. Richard Terry',
-		  'RECIPIENTADDRESS':'1 Main St\nNewcastle',
-		  'DOCTOR':'Dr. Ian Haywood',
-		  'DOCTORADDRESS':'1 Smith St\nMelbourne',
-		  'PATIENTNAME':'Joe Bloggs',
-		  'PATIENTADDRESS':'18 Fred St, Melbourne',
-		  'TEXT':"""This is the main text of the referral letter""",
-		  'DOB':'12/3/65',
-		  'INCLUDEMEDS':1,
-		  'MEDSLIST':[["Amoxycillin", "500mg", "TDS"], ["Perindopril", "4mg", "OD"]],
-		  'INCLUDEDISEASES':0, 'DISEASELIST':'',
-		  'CLOSING':'Yours sincerely,'
-		  }
-	form.process (params)
-	print(os.getcwd())
-	form.xdvi()
-	form.cleanup()
-
-#------------------------------------------------------------
-def test_de():
-		template = io.open('../../test-area/ian/Formularkopf-DE.tex')
-		form = cLaTeXForm(template=template.read())
-		params = {
-				'PATIENT LASTNAME': 'Kirk',
-				'PATIENT FIRSTNAME': 'James T.',
-				'PATIENT STREET': 'Hauptstrasse',
-				'PATIENT ZIP': '02999',
-				'PATIENT TOWN': 'Gross Saerchen',
-				'PATIENT DOB': '22.03.1931'
-		}
-		form.process(params)
-		form.xdvi()
-		form.cleanup()
 
 #============================================================
 # main
@@ -2246,6 +2142,7 @@ if __name__ == '__main__':
 		doc = None
 #		doc.close_in_ooo()
 		input('press <ENTER> to continue')
+
 	#--------------------------------------------------------
 	# other
 	#--------------------------------------------------------
@@ -2253,10 +2150,12 @@ if __name__ == '__main__':
 		template = cFormTemplate(aPK_obj = sys.argv[2])
 		print(template)
 		print(template.save_to_file())
+
 	#--------------------------------------------------------
 	def set_template_from_file():
 		template = cFormTemplate(aPK_obj = sys.argv[2])
 		template.update_template_from_file(filename = sys.argv[3])
+
 	#--------------------------------------------------------
 	def test_latex_form():
 		pat = gmPersonSearch.ask_for_patient()
@@ -2273,8 +2172,9 @@ if __name__ == '__main__':
 		ph = gmMacro.gmPlaceholderHandler()
 		ph.debug = True
 		form.substitute_placeholders(data_source = ph)
-		pdf_name = form.generate_output(instance_file = instance_file)
+		pdf_name = form.generate_output()
 		print("final PDF file is:", pdf_name)
+
 	#--------------------------------------------------------
 	def test_pdf_form():
 		pat = gmPersonSearch.ask_for_patient()
@@ -2290,9 +2190,10 @@ if __name__ == '__main__':
 		from Gnumed.wxpython import gmMacro
 		ph = gmMacro.gmPlaceholderHandler()
 		ph.debug = True
-		instance_file = form.substitute_placeholders(data_source = ph)
+		form.substitute_placeholders(data_source = ph)
 		pdf_name = form.generate_output()
 		print("final PDF file is:", pdf_name)
+
 	#--------------------------------------------------------
 	def test_abiword_form():
 		pat = gmPersonSearch.ask_for_patient()
@@ -2310,11 +2211,11 @@ if __name__ == '__main__':
 		ph.debug = True
 		form.substitute_placeholders(data_source = ph)
 		form.edit()
-		final_name = form.generate_output(instance_file = instance_file)
+		final_name = form.generate_output()
 		print("final file is:", final_name)
+
 	#--------------------------------------------------------
 	def test_text_form():
-
 		from Gnumed.business import gmPraxis
 
 		branches = gmPraxis.get_praxis_branches()
@@ -2342,9 +2243,6 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	#--------------------------------------------------------
 	# now run the tests
-	#test_au()
-	#test_de()
-
 	# OOo
 	#test_init_ooo()
 	#test_ooo_connect()

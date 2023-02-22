@@ -55,8 +55,8 @@ def is_executable_by_wine(cmd:str=None) -> tuple:
 		_log.debug('not a WINE call: %s', cmd)
 		return (False, None)
 
-	exe_path = cmd[4:].strip().strip('"').strip()
-	exe_path = exe_path.encode(sys.getfilesystemencoding())
+	unwined_exe_path = cmd[4:].strip().strip('"').strip()
+	exe_path = unwined_exe_path.encode(sys.getfilesystemencoding())
 	# [wine "/standard/unix/path/to/binary.exe"] ?
 	if os.access(exe_path, os.R_OK):
 		_log.debug('WINE call with UNIX path: %s', exe_path)

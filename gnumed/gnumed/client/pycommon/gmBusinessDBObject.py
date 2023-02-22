@@ -130,7 +130,6 @@ __license__ = "GPL v2 or later"
 
 
 import sys
-#import inspect
 import logging
 import datetime
 
@@ -197,12 +196,12 @@ class cXxxXxx(gmBusinessDBObject.cBusinessDBObject):
 	]
 	# view columns that can be updated:
 	_updatable_fields = [
-		u'xxx',
-		u'xxx'
+		'xxx',
+		'xxx'
 	]
 	#--------------------------------------------------------
 #	def format(self):
-#		return u'%s' % self
+#		return '%s' % self
 
 #------------------------------------------------------------
 def get_XXX(order_by=None):
@@ -307,9 +306,9 @@ class cBusinessDBObject(object):
 		* a list of fields available for update via object['field']
 	"""
 
-	_cmd_fetch_payload = None
-	_cmds_store_payload = None
-	_updatable_fields = None
+	_cmd_fetch_payload:str = None
+	_cmds_store_payload:list[str] = None
+	_updatable_fields:list[str] = None
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, row:dict=None, link_obj=None):
 		"""Init business object.
@@ -458,18 +457,18 @@ class cBusinessDBObject(object):
 
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
-		#if attribute not in self.__class__._updatable_fields:
 		self.__class__._updatable_fields[attribute]
 		try:
 			if self._payload[self._idx[attribute]] == value:
 				return
 
-			self._payload[self._idx[attribute]] = value
-			self._is_modified = True
 		except KeyError:
-			_log.warning('[%s]: cannot set attribute <%s> despite marked settable' % (self.__class__.__name__, attribute))
-			_log.warning('[%s]: settable attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
-			raise KeyError('[%s]: cannot write to key [%s]' % (self.__class__.__name__, attribute))
+			_log.exception('[%s]: cannot set attribute <%s>', self.__class__.__name__, attribute)
+			_log.debug('[%s]: settable attributes: %s', self.__class__.__name__, str(self.__class__._updatable_fields))
+			raise KeyError('[%s]: cannot set [%s]' % (self.__class__.__name__, attribute))
+
+		self._payload[self._idx[attribute]] = value
+		self._is_modified = True
 
 	#--------------------------------------------------------
 	# external API
@@ -775,7 +774,7 @@ if __name__ == '__main__':
 	class cTestObj(cBusinessDBObject):
 		_cmd_fetch_payload = None
 		_cmds_store_payload = None
-		_updatable_fields = []
+		_updatable_fields = []			# type: ignore
 		#----------------------------------------------------
 		def get_something(self):
 			pass

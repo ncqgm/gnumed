@@ -656,7 +656,7 @@ def is_leap_year(year):
 	return False
 
 #---------------------------------------------------------------------------
-def calculate_apparent_age(start=None, end=None) -> ():
+def calculate_apparent_age(start=None, end=None) -> tuple:
 	"""Calculate age in a way humans naively expect it.
 
 	This does *not* take into account time zones which may
