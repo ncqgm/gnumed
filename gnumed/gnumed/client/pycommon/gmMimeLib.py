@@ -114,8 +114,8 @@ def guess_mimetype(filename:str=None) -> str:
 	"""
 	_log.debug('guessing mime type of [%s]', filename)
 	mimetype, encoding = mimetypes.guess_type(filename)
-	if mimetype != WORST_CASE_MIMETYPE:
-		_log.debug('"%s" -> <%s>' % (filename, mimetype))
+	if mimetype not in [WORST_CASE_MIMETYPE, None]:
+		_log.debug('"%s" -> <%s> (%s)', filename, mimetype, encoding)
 		return mimetype
 
 	mimetype = __guess_mimetype__pylibextractor(filename = filename)
@@ -808,8 +808,8 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------
 #	print(_system_startfile_cmd)
-#	print(guess_mimetype(filename))
-	print(get_viewer_cmd(guess_mimetype(filename), filename))
+	print(guess_mimetype(filename))
+#	print(get_viewer_cmd(guess_mimetype(filename), filename))
 #	print(get_editor_cmd(guess_mimetype(filename), filename))
 #	print(get_editor_cmd('application/x-latex', filename))
 #	print(get_editor_cmd('application/x-tex', filename))
