@@ -617,7 +617,7 @@ class gmConnectionPool(gmBorg.cBorg):
 
 	def _set_credentials(self, creds:cPGCredentials=None):
 		if self.__creds is None:
-			self.__creds = None
+			self.__creds = creds
 			return
 
 		_log.debug('invalidating pooled connections on credentials change')
