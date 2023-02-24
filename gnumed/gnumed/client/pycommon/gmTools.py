@@ -1044,26 +1044,22 @@ def get_unique_filename(prefix:str=None, suffix:str=None, tmp_dir:str=None, incl
 		ts = pydt.datetime.now().strftime('%m%d-%H%M%S-')
 	else:
 		ts = ''
-
-	kwargs = {
-		'dir': tmp_dir,
-		#  make sure file gets deleted as soon as
-		# .close()d so we can "safely" open it again
-		'delete': True
-	}
-
+	kwargs = {}
+	#  make sure file gets deleted as soon as it is
+	# .close()d so we can "safely" open it again
+	kwargs['delete']:bool = True
+	kwargs['dir']:str = tmp_dir
 	if prefix is None:
-		kwargs['prefix'] = 'gm-%s' % ts
+		kwargs['prefix']:str = 'gm-%s' % ts
 	else:
-		kwargs['prefix'] = prefix + ts
+		kwargs['prefix']:str = prefix + ts
 
 	if suffix in [None, '']:
-		kwargs['suffix'] = '.tmp'
+		kwargs['suffix']:str = '.tmp'
 	else:
 		if not suffix.startswith('.'):
 			suffix = '.' + suffix
-		kwargs['suffix'] = suffix
-
+		kwargs['suffix']:str = suffix
 	f = tempfile.NamedTemporaryFile(**kwargs)
 	filename = f.name
 	f.close()

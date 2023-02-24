@@ -544,16 +544,18 @@ if __name__ == "__main__":
 		print('attempting to install "default" domain')
 		print(install_domain())
 	print(__orig_tag__)
-	print(_(__orig_tag__))
+	print(_(__orig_tag__))			# type: ignore
 
 	test_translating()
 	test_strcoll()
+
+	print(gmLog2._logfile_name)
 
 	# ********************************************************************* #
 	# == do not remove this line ========================================== #
 	# it is needed to check for successful installation of                  #
 	# the desired message catalog                                           #
 	# ********************************************************************* #
-	tmp = _('Translate this or i18n into <en_EN> will not work properly !') #
+	tmp = _('Translate this or i18n into <en_EN> will not work properly !') #	# type: ignore
 	# ********************************************************************* #
 	# ********************************************************************* #

@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+# type: ignore
+
 """A base class turning child classes into a Singleton."""
 
 __author__ = "Karsten.Hilbert@gmx.net"

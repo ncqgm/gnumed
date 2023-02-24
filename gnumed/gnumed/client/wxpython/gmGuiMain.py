@@ -3571,6 +3571,7 @@ class gmApp(wx.App):
 		#gmClinicalRecord.set_func_ask_user(a_func = gmEncounterWidgets.ask_for_encounter_continuation)
 		self.__guibroker['horstspace.top_panel']._TCTRL_patient_selector.SetFocus()
 		gmHooks.run_hook_script(hook = 'startup-after-GUI-init')
+		#log_colors_known2wx()
 
 	#----------------------------------------------
 	def __setup_user_activity_timer(self):
@@ -3976,6 +3977,30 @@ def setup_safe_wxEndBusyCursor():
 def setup_callbacks():
 	gmPerson.set_yielder(wx.Yield)
 	gmClinicalRecord.set_delayed_executor(wx.CallAfter)
+
+#==============================================================================
+def log_colors_known2wx():
+	col_db = wx.ColourDatabase()
+	col_names = []
+	for r in range(256):
+		for g in range(256):
+			for b in range(256):
+				wx.Yield()
+				col = wx.Colour(r,g,b)
+				col_name = col_db.FindName(col)
+				if col_name:
+					col_names.append(col_name)
+	_log.debug('enumerated known colors')
+	for col_name in sorted(col_names):
+		wx.Yield()
+		col = col_db.Find(col_name)
+		log_lines.append(f'{col_name:<25} {col.red:<6} {col.green:<6} {col.blue:<6} {col.IsOk()}')
+	_log.log_multiline (
+		level = logging.DEBUG,
+		message = 'RGB colors known by name on this system:',
+		text = '\n'.join(log_lines)
+	)
+	wx.Bell()
 
 #==============================================================================
 def main():
