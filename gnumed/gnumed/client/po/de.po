@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-12 19:41+0200\n"
-"PO-Revision-Date: 2022-05-13 22:33+0200\n"
+"POT-Creation-Date: 2023-02-05 23:48+0100\n"
+"PO-Revision-Date: 2023-02-06 00:14+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -2657,7 +2657,7 @@ msgstr ""
 "Achtung: Es kann natürlich sein, daß für Ihr System diese Version noch nicht "
 "bereitgestellt wurde."
 
-msgid "Details are found on <http://www.gnumed.de>.\n"
+msgid "Details are found on <https://www.gnumed.de>.\n"
 msgstr "Details finden Sie unter <https://www.gnumed.de>.\n"
 
 #, python-format
@@ -2898,6 +2898,24 @@ msgstr " Option [%s]: %s"
 #, python-format
 msgid "  risk: %s"
 msgstr "  Risiko: %s"
+
+msgid " collation version mismatch between database and operating system"
+msgstr ""
+" Versionen der Sortierreihenfolge unterscheiden sich in Datenbank und "
+"Betriebssystem"
+
+msgid "  risk: data corruption (duplicate entries, faulty sorting)"
+msgstr ""
+
+msgid " collations with version mismatch"
+msgstr ""
+
+#, python-format
+msgid " database encoding not UTF8 but rather: %s"
+msgstr " Datenbank-Kodierung nicht UTF8, sondern: %s"
+
+msgid "  risk: multilingual data storage problems"
+msgstr "  Risiko: Probleme mit mehrsprachigen Daten"
 
 msgid "Estimated"
 msgstr "Geschätzt"
@@ -3627,63 +3645,63 @@ msgstr "Editor:"
 msgid "Host:"
 msgstr "Server:"
 
-msgid "Port:"
-msgstr "Port:"
-
-msgid "User:"
-msgstr "Nutzer:"
-
-msgid "Password"
-msgstr "Passwort"
-
-msgid "&Connect"
-msgstr "&Verbinden"
-
-msgid "<not connected>"
-msgstr "<nicht verbunden>"
-
-msgid "◄"
-msgstr ""
-
-msgid "►"
-msgstr ""
-
-msgid "&Show"
-msgstr "An&zeigen"
-
-msgid "E&xport area"
-msgstr "S&ammelmappe"
-
-msgid "Browse"
-msgstr "Stöbern"
-
-msgid "Show"
-msgstr "Zeige"
-
-msgid "Export area"
-msgstr "Sammelmappe"
-
-msgid "Verify"
-msgstr "Prüfen"
-
-msgid "&Upload"
-msgstr "&Hochladen"
-
 msgid "Enter the PACS host address."
 msgstr "Geben Sie den Computernamen (host address) des PACS ein."
+
+msgid "Port:"
+msgstr "Port:"
 
 msgid "Enter the PACS port."
 msgstr "Geben Sie den Port des PACS ein."
 
+msgid "User:"
+msgstr "Nutzer:"
+
 msgid "Enter the PACS user."
 msgstr "Geben Sie den Nutzernamen für das PACS ein."
+
+msgid "Password"
+msgstr "Passwort"
 
 msgid "Enter the PACS password. It will not be shown."
 msgstr ""
 "Geben Sie das Passwort für den PACS-Benutzer ein (es wird nicht angezeigt)."
 
+msgid "&Connect"
+msgstr "&Verbinden"
+
 msgid "Connect to PACS."
 msgstr "Mit PACS verbinden."
+
+msgid "<not connected>"
+msgstr "<nicht verbunden>"
+
+msgid "Image"
+msgstr "Bild"
+
+msgid "◄"
+msgstr ""
+
+msgid "Review previous image."
+msgstr "Vorheriges Bild zeigen."
+
+msgid "►"
+msgstr ""
+
+msgid "Preview next image."
+msgstr "Nächstes Bild zeigen."
+
+msgid "&Show"
+msgstr "An&zeigen"
+
+msgid "Show image in external viewer."
+msgstr "Bild in externem Programm zeigen."
+
+msgid "E&xport area"
+msgstr "S&ammelmappe"
+
+msgid "Put image into export area."
+msgstr "Bild in Sammelmappe legen."
 
 msgid ""
 "Double-click: Display in external viewer.\n"
@@ -3694,17 +3712,11 @@ msgstr ""
 "\n"
 "Rechtsklick: Zeige Kontextmenü."
 
-msgid "Review previous image."
-msgstr "Vorheriges Bild zeigen."
+msgid "Study"
+msgstr "Studie"
 
-msgid "Preview next image."
-msgstr "Nächstes Bild zeigen."
-
-msgid "Show image in external viewer."
-msgstr "Bild in externem Programm zeigen."
-
-msgid "Put image into export area."
-msgstr "Bild in Sammelmappe legen."
+msgid "Browse"
+msgstr "Stöbern"
 
 msgid ""
 "Browse selected studies in web browser.\n"
@@ -3715,20 +3727,38 @@ msgstr ""
 "\n"
 "Rechtsklick für weitere Aktionen."
 
+msgid "Show"
+msgstr "Zeige"
+
 msgid "Show selected studies in external viewer."
 msgstr "Markierte Studien in externem Programm zeigen."
+
+msgid "Export area"
+msgstr "Sammelmappe"
 
 msgid "Put selected studies into export area."
 msgstr "Markierte Studien in Sammelmappe legen."
 
+msgid "Patient"
+msgstr "Patient"
+
 msgid "Browse patient studies in web browser."
 msgstr "Alle Studien des Patienten im Webbrowser anzeigen."
+
+msgid "Verify"
+msgstr "Prüfen"
 
 msgid "Verify DICOM data of patient in PACS."
 msgstr "DICOM-Daten des Patienten im PACS überprüfen."
 
+msgid "PACS"
+msgstr ""
+
 msgid "Browse PACS."
 msgstr "Durchblättern des PACS."
+
+msgid "&Upload"
+msgstr "&Hochladen"
 
 msgid ""
 "Upload DICOM files from a directory, recursively, into the Orthanc PACS\n"
@@ -3745,18 +3775,6 @@ msgstr ""
 
 msgid "Modify some of Orthanc's content (such as patient IDs)."
 msgstr "Einige Orthanc-Inhalte (z.B.Patienten-IDs) bearbeiten."
-
-msgid "PACS"
-msgstr ""
-
-msgid "Patient"
-msgstr "Patient"
-
-msgid "Study"
-msgstr "Studie"
-
-msgid "Image"
-msgstr "Bild"
 
 msgid "A descriptive name for this test type."
 msgstr "Eine sprechende Bezeichnung für diese Meßmethode."
@@ -4258,14 +4276,14 @@ msgstr ""
 "eine Option festgelegt werden."
 
 msgid "Whether this document report technically abormal results."
-msgstr "Enthält dieses Dokument Werte außerhalb des Normbereichs ?"
+msgstr "Dokument enthält Befunde außerhalb des Normbereichs."
 
 msgid ""
 "Whether this document reports clinically relevant results. Note that both "
 "normal and abnormal resuslts can be relevant."
 msgstr ""
-"Enthält dieses Dokument medizinisch bedeutsame Ergebnisse ?  Auch "
-"Normalbefunde können medizinisch bedeutsam sein !"
+"Enthält dieses Dokument medizinisch bedeutsame Ergebnisse ? Auch "
+"Normalbefunde können medizinisch bedeutsam sein."
 
 msgid "Optional: A free-text document description."
 msgstr "Optional: Eine Beschreibung des Dokuments in freiem Text."
@@ -4728,7 +4746,7 @@ msgstr ""
 "lists.gnu.org/mailman/listinfo/gnumed-bugs), welche Sie dann abonnieren "
 "müssen."
 
-msgid "Find help on http://www.gnumed.de, too."
+msgid "Find help on https://www.gnumed.de, too."
 msgstr "Weitere Hilfe unter <https://www.gnumed.de>."
 
 msgid ""
@@ -4785,6 +4803,7 @@ msgstr "Details"
 msgid "An unhandled exception has occurred."
 msgstr "Ein nicht vorhergesehener Fehler ist aufgetreten."
 
+#, fuzzy
 msgid ""
 "GNUmed detected an error for which no specific handling had been defined.\n"
 "\n"
@@ -4800,7 +4819,7 @@ msgid ""
 "\n"
 "It should then be safe to restart GNUmed.\n"
 "\n"
-"Documentation can be found at <http://www.gnumed.de>."
+"Documentation can be found at <https://www.gnumed.de>."
 msgstr ""
 "GNUmed hat ein Problem bemerkt, für welches keine Lösung eingebaut ist.\n"
 "\n"
@@ -10079,13 +10098,14 @@ msgstr "Ja, auch nach Updates mit neuen Funktionen suchen."
 msgid "No, check for bug-fix updates only."
 msgstr "Nein, nur nach Updates mit Fehlerbereinigung suchen."
 
+#, fuzzy
 msgid ""
 "GNUmed can check for new releases being available. To do\n"
 "so it needs to load version information from an URL.\n"
 "\n"
 "The default URL is:\n"
 "\n"
-" http://www.gnumed.de/downloads/gnumed-versions.txt\n"
+" https://www.gnumed.de/downloads/gnumed-versions.txt\n"
 "\n"
 "but you can configure any other URL locally. Note\n"
 "that you must enter the location as a valid URL.\n"
@@ -11051,7 +11071,7 @@ msgstr "inaktiv"
 
 #, python-format
 msgid "Substance intake entry (%s)   [#%s]                     "
-msgstr "Substanzgebrauch (%s, %s)   [#%s]                     "
+msgstr "Substanzeinnahme (%s)   [#%s]                     "
 
 msgid "suspected"
 msgstr "vermutet"
@@ -14294,9 +14314,6 @@ msgstr "Fehlerbericht konnte NICHT versandt werden."
 msgid "Underweight"
 msgstr "Untergewicht"
 
-msgid "63< Normal >79"
-msgstr "63 < Normal > 79"
-
 msgid "63 - Normal - 79"
 msgstr "63 - Normal - 79"
 
@@ -15424,23 +15441,8 @@ msgstr ""
 msgid "forced detach attempt"
 msgstr "Versuch erzwungenen Verbindungsabbruchs"
 
-msgid "Requests generated this consultation"
-msgstr "heutige Aufträge"
-
-msgid "Request summary"
-msgstr "Zusammenfassung Auftrag"
-
-msgid "icon_blood_sample"
-msgstr "icon_blood_sample"
-
 msgid "icon_syringe"
 msgstr "icon_syringe"
-
-msgid "Preferred Name"
-msgstr "Rufname"
-
-msgid "icon-future_mom"
-msgstr "icon-future_mom"
 
 msgid "Active Problems"
 msgstr "aktuelle Probleme"
@@ -15459,120 +15461,6 @@ msgstr "&Zusammenfassung"
 
 msgid "icon_clinical_summary"
 msgstr "icon_clinical_summary"
-
-msgid "Prescriptions"
-msgstr "Verordnungen"
-
-msgid "Requests"
-msgstr "Aufträge"
-
-msgid "Measurements"
-msgstr "Meßwerte"
-
-msgid "Referrals"
-msgstr "Überweisungen"
-
-msgid "Recalls and Reviews"
-msgstr "Erinnerungen und Kontrollen"
-
-msgid "icon_Rx_symbol"
-msgstr "icon_Rx_symbol"
-
-msgid "icon_Set_Square"
-msgstr "icon_Set_Square"
-
-msgid "icon_writing_pen"
-msgstr "icon_writing_pen"
-
-msgid "icon_talking_head"
-msgstr "icon_talking_head"
-
-msgid "icon_inbox"
-msgstr "icon_inbox"
-
-msgid "Dose"
-msgstr "Dosis"
-
-msgid "Last Date"
-msgstr "zuletzt"
-
-msgid "Prescribed For"
-msgstr "&Verschrieben fuer"
-
-msgid "Quantity"
-msgstr "Menge"
-
-msgid "First Date"
-msgstr "erstmals"
-
-msgid "icon_letter_A"
-msgstr "icon_letter_A"
-
-msgid "Drug Interactions"
-msgstr "Interaktionen"
-
-msgid "Items prescribed this consultation"
-msgstr "heutige Verordnungen"
-
-msgid "Directions"
-msgstr "Anweisungen"
-
-msgid "For"
-msgstr "Für"
-
-msgid "Authority Indications"
-msgstr ""
-
-msgid "Interactions"
-msgstr "Interaktionen"
-
-msgid "Pregnancy Information"
-msgstr "Schwangerschaftsinformationen"
-
-msgid "Restricted Use Information"
-msgstr "Anwendungsbeschränkungen"
-
-msgid "Edit Item"
-msgstr "Eintrag aendern"
-
-msgid "Delete Item"
-msgstr "Löschen"
-
-msgid "Delete all Items"
-msgstr "Alle Einträge löschen"
-
-msgid "Make Item Reg 24"
-msgstr ""
-
-msgid "Brief Product Information"
-msgstr "kurze Produktinformation"
-
-msgid "Full Product Information"
-msgstr "komplette Produktinformation"
-
-msgid "Print Single Item"
-msgstr "Einzelnen Eintrag drucken"
-
-msgid "Print All Items"
-msgstr "Alles drucken"
-
-msgid "Reprint Item"
-msgstr "Eintrag erneut drucken"
-
-msgid "Reprint All Items"
-msgstr "Alles erneut drucken"
-
-msgid "Save Item no print"
-msgstr "speichern ohne Druck"
-
-msgid "Save All Items no print"
-msgstr "alles speichern ohne Druck"
-
-msgid "Change Font"
-msgstr "Zeichensatz ändern"
-
-msgid "Save list layout"
-msgstr "Layout speichern"
 
 #, python-format
 msgid "Your client (%s) is up to date."
@@ -15989,18 +15877,6 @@ msgstr "muß einen Empfänger haben"
 
 msgid "must select address"
 msgstr "eine Adresse muß gewählt sein"
-
-msgid " (L) "
-msgstr " (li) "
-
-msgid "(R)"
-msgstr "re"
-
-msgid "Operation"
-msgstr "Operation"
-
-msgid "Significant"
-msgstr "signifikant"
 
 msgid "Ok"
 msgstr "Ok"
@@ -17517,6 +17393,13 @@ msgstr ""
 msgid "Removing address"
 msgstr "Adresse entfernen"
 
+#, python-format
+msgid "GNUmed widget test: %s"
+msgstr "GNUmed GUI-Test: %s"
+
+msgid "GNUmed widget test"
+msgstr "GNUmed GUI-Test"
+
 msgid "Creating new allergy not allowed."
 msgstr "Anlegen einer neuen Allergie nicht vorgesehen."
 
@@ -17856,8 +17739,8 @@ msgstr "Version %s%s präsentiert von"
 msgid "debug"
 msgstr "debuggen"
 
-msgid "Please visit http://www.gnumed.org"
-msgstr "Siehe auch http://www.gnumed.org"
+msgid "Please visit https://www.gnumed.org"
+msgstr "Siehe auch https://www.gnumed.org"
 
 #, python-format
 msgid ""
@@ -20521,30 +20404,30 @@ msgstr ""
 msgid "Unable to save DICOM studies as ZIP."
 msgstr "Kann DICOM-Studien nicht als ZIP speichern."
 
-msgid "Adding PDF to DICOM study"
-msgstr "Ein PDF zu einer DICOM-Studie hinzufügen"
+msgid "Adding file to DICOM study"
+msgstr "Ein Datei zu einer DICOM-Studie hinzufügen"
 
-msgid ""
-"For adding a PDF file there must be exactly one (1) DICOM study selected."
+msgid "For adding a file there must be exactly one (1) DICOM study selected."
 msgstr ""
-"Um ein PDF zu einer Studie hinzuzufügen, muß exakt eine (1) Studie markiert "
+"Um einer Studie eine Datei hinzuzufügen, muß exakt eine (1) Studie markiert "
 "sein."
 
-msgid "Select PDF to add to DICOM study"
-msgstr "PDF wählen, welches der Studie hinzugefügt werden soll"
+msgid "Select file (image or PDF) to add to DICOM study"
+msgstr ""
+"Datei (Bild oder PDF) auswählen, die der Studie hinzugefügt werden soll"
 
 msgid "PDF files"
 msgstr "PDF-Dateien"
 
 #, python-format
 msgid ""
-"Cannot turn PDF file\n"
+"Cannot turn file\n"
 "\n"
 " %s\n"
 "\n"
 " into DICOM file."
 msgstr ""
-"Kann PDF-Datei\n"
+"Kann Datei\n"
 "\n"
 " %s\n"
 "\n"
@@ -20567,32 +20450,6 @@ msgstr ""
 " %s\n"
 "\n"
 "nicht ins Orthanc PACS laden."
-
-msgid "Adding file to DICOM study"
-msgstr "Ein Datei zu einer DICOM-Studie hinzufügen"
-
-msgid "For adding a file there must be exactly one (1) DICOM study selected."
-msgstr ""
-"Um einer Studie eine Datei hinzuzufügen, muß exakt eine (1) Studie markiert "
-"sein."
-
-msgid "Select file (image or PDF) to add to DICOM study"
-msgstr ""
-"Datei (Bild oder PDF) auswählen, die der Studie hinzugefügt werden soll"
-
-#, python-format
-msgid ""
-"Cannot turn file\n"
-"\n"
-" %s\n"
-"\n"
-" into DICOM file."
-msgstr ""
-"Kann Datei\n"
-"\n"
-" %s\n"
-"\n"
-"nicht ins DICOM-Format umwandeln."
 
 #, python-format
 msgid "%s image(s)%s"
@@ -21533,15 +21390,6 @@ msgstr "Menge fehlt."
 
 msgid "Substance is missing."
 msgstr "Wirkstoff fehlt."
-
-msgid "No EMR data loaded."
-msgstr "Keine Karteieinträge geladen."
-
-msgid "EMR text dump"
-msgstr "Textauszug der Kartei"
-
-msgid "Currently there is no active patient. Cannot retrieve EMR text."
-msgstr "Derzeit kein Patient aktiviert. Kann keine Karteieinträge laden."
 
 msgid "SOAP Editor Actions:"
 msgstr "Karteieditor-Aktionen:"
@@ -22628,6 +22476,9 @@ msgstr ""
 msgid "Firstname(s)"
 msgstr "Vorname(n)"
 
+msgid "Preferred Name"
+msgstr "Rufname"
+
 msgid "Adding new name"
 msgstr "Neuen Namen hinzufügen"
 
@@ -22718,7 +22569,7 @@ msgstr ""
 " Datenbank: %s\n"
 " Nutzer: %s"
 
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "The server and client clocks are off by more than %s minutes !\n"
 "\n"
@@ -22727,17 +22578,15 @@ msgid ""
 "\n"
 "You may have to contact your administrator for help."
 msgstr ""
-"Die Uhrzeiten von Server und Arbeitsplatz weichen um\n"
-"mehr als %s Minuten voneinander ab !\n"
+"Die Uhrzeit auf Server und Arbeitsplatz weicht um\n"
+"mehr als %s Minuten voneinander ab.\n"
 "\n"
-"Sie müssen die Uhrzeiten korrekt einstellen,\n"
-"um diese Datenbank mit diesem Arbeitsplatz\n"
-"verwenden zu können.\n"
+"Sie müssen die Uhrzeiten korrekt einstellen, um diese Datenbank mit\n"
+"diesem Arbeitsplatz verwenden zu können.\n"
 "\n"
-"Möglicherweise müssen Sie mit Ihrem System-\n"
-"verwalter Kontakt aufnehmen."
+"Möglicherweise müssen Sie Ihren Systemverwalter benachrichtigen."
 
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "The server and client clocks are off by more than %s minutes !\n"
 "\n"
@@ -22746,15 +22595,13 @@ msgid ""
 "\n"
 "You may have to contact your administrator for help."
 msgstr ""
-"Die Uhrzeiten von Server und Arbeitsplatz weichen um\n"
-"mehr als %s Minuten voneinander ab !\n"
+"Die Uhrzeit auf Server und Arbeitsplatz weicht um\n"
+"mehr als %s Minuten voneinander ab.\n"
 "\n"
-"Sie sollten die Uhrzeiten korrekt einstellen,\n"
-"sonst können Angaben in der Karteikarte mit\n"
-"einer falschen Eingabezeit dargestellt werden.\n"
+"Sie sollten die Uhrzeiten korrekt einstellen, sonst können Angaben\n"
+"in der Karteikarte mit einer falschen Eingabezeit erscheinen.\n"
 "\n"
-"Möglicherweise müssen Sie mit Ihrem System-\n"
-"verwalter Kontakt aufnehmen."
+"Möglicherweise müssen Sie Ihren Systemverwalter benachrichtigen."
 
 #, python-format
 msgid ""
@@ -23209,6 +23056,9 @@ msgstr "Übersicht"
 msgid "&Overview"
 msgstr "&Übersicht"
 
+msgid "Measurements"
+msgstr "Meßwerte"
+
 msgid "Attach documents"
 msgstr "Dokumente hinzufügen"
 
@@ -23275,54 +23125,6 @@ msgstr "Analysen"
 msgid "&Report Generator"
 msgstr "&Analysator"
 
-msgid "No matching drug found."
-msgstr "Keine passenden Medikamente gefunden."
-
-msgid "Please enter at least three digits of the drug name."
-msgstr "Bitte geben Sie die letzten drei Stellen des Medikamentennamens ein."
-
-msgid "Starting drug data browser"
-msgstr "Starte Medikamentenbrowser"
-
-msgid ""
-"Cannot start the drug data browser.\n"
-"\n"
-"There is no drug database specified in the configuration."
-msgstr ""
-"Kann keine Medikamenteninformationen anzeigen.\n"
-"\n"
-"Es ist keine Medikamentendatenbank konfiguriert."
-
-msgid "   Find   "
-msgstr "   Finden   "
-
-msgid "Enter the name of the drug you are interested in"
-msgstr "Wählen Sie den Namen des Medikamentes, daß sie interessiert"
-
-msgid "&Bookmark"
-msgstr "&Lesezeichen"
-
-msgid "Search by"
-msgstr "Suche anhand"
-
-msgid "Any"
-msgstr "Irgendeine"
-
-msgid "Generic name"
-msgstr "Freiname"
-
-msgid "&Prescribe"
-msgstr "&Verschreibe"
-
-msgid "&Display"
-msgstr "A&nzeigen"
-
-msgid "DrugBrowser"
-msgstr "Medikamente"
-
-msgid "&DrugBrowser"
-msgstr "&Medikamente"
-
 msgid "Progress notes"
 msgstr "Verlaufsnotizen"
 
@@ -23349,51 +23151,6 @@ msgstr "&Warteliste"
 
 msgid "Medication"
 msgstr "Medikamente"
-
-msgid "Type of entered value is not compatible with type expected."
-msgstr ""
-"Typ des eingegebenen Werts ist nicht mit dem erwarteten Typ kompatibel."
-
-msgid "saving configuration"
-msgstr "speichere Konfiguration"
-
-msgid ""
-"There is no config definition for this parameter.\n"
-"Thus it can't be checked for validity.\n"
-"\n"
-"Save anyway ?"
-msgstr ""
-"Für diesen Parameter gibt es keine Definition.\n"
-"Daher kann die Gültigkeit nicht geprüft werden.\n"
-"\n"
-"Trotzdem speichern ?"
-
-msgid "Entered value is not valid."
-msgstr "Eingegebener Wert ist ungültig."
-
-msgid "(Branch)"
-msgstr "(Zweig)"
-
-msgid "(Subtree root)"
-msgstr "(Zweigbasis)"
-
-msgid "<Options for current/default user and workplace>"
-msgstr "<Optionen für aktuellen und Standardnutzer sowie Arbeitsplatz>"
-
-msgid "Parameters"
-msgstr "Parameter"
-
-msgid "Parameter Description"
-msgstr "Beschreibung der Option"
-
-msgid "Config Options"
-msgstr "Einstellungen"
-
-msgid "Setup"
-msgstr "Konfiguration"
-
-msgid "&ConfigRegistry"
-msgstr "&KonfigurationsRegistry"
 
 msgid "&Documents"
 msgstr "&Dokumente"
@@ -23439,12 +23196,6 @@ msgstr ""
 
 msgid "name of xDT file"
 msgstr "Name der xDT-Datei"
-
-msgid "XDT field"
-msgstr "XDT-Feld"
-
-msgid "XDT field content"
-msgstr "XDT-Feld: Inhalt"
 
 msgid "xDT viewer"
 msgstr "xDT-Betrachter"
@@ -23546,6 +23297,273 @@ msgstr "Abbrechen"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
+
+#~ msgid "63< Normal >79"
+#~ msgstr "63 < Normal > 79"
+
+#~ msgid "Requests generated this consultation"
+#~ msgstr "heutige Aufträge"
+
+#~ msgid "Request summary"
+#~ msgstr "Zusammenfassung Auftrag"
+
+#~ msgid "icon_blood_sample"
+#~ msgstr "icon_blood_sample"
+
+#~ msgid "icon-future_mom"
+#~ msgstr "icon-future_mom"
+
+#~ msgid "Prescriptions"
+#~ msgstr "Verordnungen"
+
+#~ msgid "Requests"
+#~ msgstr "Aufträge"
+
+#~ msgid "Referrals"
+#~ msgstr "Überweisungen"
+
+#~ msgid "Recalls and Reviews"
+#~ msgstr "Erinnerungen und Kontrollen"
+
+#~ msgid "icon_Rx_symbol"
+#~ msgstr "icon_Rx_symbol"
+
+#~ msgid "icon_Set_Square"
+#~ msgstr "icon_Set_Square"
+
+#~ msgid "icon_writing_pen"
+#~ msgstr "icon_writing_pen"
+
+#~ msgid "icon_talking_head"
+#~ msgstr "icon_talking_head"
+
+#~ msgid "icon_inbox"
+#~ msgstr "icon_inbox"
+
+#~ msgid "Dose"
+#~ msgstr "Dosis"
+
+#~ msgid "Last Date"
+#~ msgstr "zuletzt"
+
+#~ msgid "Prescribed For"
+#~ msgstr "&Verschrieben fuer"
+
+#~ msgid "Quantity"
+#~ msgstr "Menge"
+
+#~ msgid "First Date"
+#~ msgstr "erstmals"
+
+#~ msgid "icon_letter_A"
+#~ msgstr "icon_letter_A"
+
+#~ msgid "Drug Interactions"
+#~ msgstr "Interaktionen"
+
+#~ msgid "Items prescribed this consultation"
+#~ msgstr "heutige Verordnungen"
+
+#~ msgid "Directions"
+#~ msgstr "Anweisungen"
+
+#~ msgid "For"
+#~ msgstr "Für"
+
+#~ msgid "Interactions"
+#~ msgstr "Interaktionen"
+
+#~ msgid "Pregnancy Information"
+#~ msgstr "Schwangerschaftsinformationen"
+
+#~ msgid "Restricted Use Information"
+#~ msgstr "Anwendungsbeschränkungen"
+
+#~ msgid "Edit Item"
+#~ msgstr "Eintrag aendern"
+
+#~ msgid "Delete Item"
+#~ msgstr "Löschen"
+
+#~ msgid "Delete all Items"
+#~ msgstr "Alle Einträge löschen"
+
+#~ msgid "Brief Product Information"
+#~ msgstr "kurze Produktinformation"
+
+#~ msgid "Full Product Information"
+#~ msgstr "komplette Produktinformation"
+
+#~ msgid "Print Single Item"
+#~ msgstr "Einzelnen Eintrag drucken"
+
+#~ msgid "Print All Items"
+#~ msgstr "Alles drucken"
+
+#~ msgid "Reprint Item"
+#~ msgstr "Eintrag erneut drucken"
+
+#~ msgid "Reprint All Items"
+#~ msgstr "Alles erneut drucken"
+
+#~ msgid "Save Item no print"
+#~ msgstr "speichern ohne Druck"
+
+#~ msgid "Save All Items no print"
+#~ msgstr "alles speichern ohne Druck"
+
+#~ msgid "Change Font"
+#~ msgstr "Zeichensatz ändern"
+
+#~ msgid "Save list layout"
+#~ msgstr "Layout speichern"
+
+#~ msgid " (L) "
+#~ msgstr " (li) "
+
+#~ msgid "(R)"
+#~ msgstr "re"
+
+#~ msgid "Operation"
+#~ msgstr "Operation"
+
+#~ msgid "Significant"
+#~ msgstr "signifikant"
+
+#~ msgid "Adding PDF to DICOM study"
+#~ msgstr "Ein PDF zu einer DICOM-Studie hinzufügen"
+
+#~ msgid ""
+#~ "For adding a PDF file there must be exactly one (1) DICOM study selected."
+#~ msgstr ""
+#~ "Um ein PDF zu einer Studie hinzuzufügen, muß exakt eine (1) Studie "
+#~ "markiert sein."
+
+#~ msgid "Select PDF to add to DICOM study"
+#~ msgstr "PDF wählen, welches der Studie hinzugefügt werden soll"
+
+#, python-format
+#~ msgid ""
+#~ "Cannot turn PDF file\n"
+#~ "\n"
+#~ " %s\n"
+#~ "\n"
+#~ " into DICOM file."
+#~ msgstr ""
+#~ "Kann PDF-Datei\n"
+#~ "\n"
+#~ " %s\n"
+#~ "\n"
+#~ "nicht ins DICOM-Format umwandeln."
+
+#~ msgid "No EMR data loaded."
+#~ msgstr "Keine Karteieinträge geladen."
+
+#~ msgid "EMR text dump"
+#~ msgstr "Textauszug der Kartei"
+
+#~ msgid "Currently there is no active patient. Cannot retrieve EMR text."
+#~ msgstr "Derzeit kein Patient aktiviert. Kann keine Karteieinträge laden."
+
+#~ msgid "No matching drug found."
+#~ msgstr "Keine passenden Medikamente gefunden."
+
+#~ msgid "Please enter at least three digits of the drug name."
+#~ msgstr ""
+#~ "Bitte geben Sie die letzten drei Stellen des Medikamentennamens ein."
+
+#~ msgid "Starting drug data browser"
+#~ msgstr "Starte Medikamentenbrowser"
+
+#~ msgid ""
+#~ "Cannot start the drug data browser.\n"
+#~ "\n"
+#~ "There is no drug database specified in the configuration."
+#~ msgstr ""
+#~ "Kann keine Medikamenteninformationen anzeigen.\n"
+#~ "\n"
+#~ "Es ist keine Medikamentendatenbank konfiguriert."
+
+#~ msgid "   Find   "
+#~ msgstr "   Finden   "
+
+#~ msgid "Enter the name of the drug you are interested in"
+#~ msgstr "Wählen Sie den Namen des Medikamentes, daß sie interessiert"
+
+#~ msgid "&Bookmark"
+#~ msgstr "&Lesezeichen"
+
+#~ msgid "Search by"
+#~ msgstr "Suche anhand"
+
+#~ msgid "Any"
+#~ msgstr "Irgendeine"
+
+#~ msgid "Generic name"
+#~ msgstr "Freiname"
+
+#~ msgid "&Prescribe"
+#~ msgstr "&Verschreibe"
+
+#~ msgid "&Display"
+#~ msgstr "A&nzeigen"
+
+#~ msgid "DrugBrowser"
+#~ msgstr "Medikamente"
+
+#~ msgid "&DrugBrowser"
+#~ msgstr "&Medikamente"
+
+#~ msgid "Type of entered value is not compatible with type expected."
+#~ msgstr ""
+#~ "Typ des eingegebenen Werts ist nicht mit dem erwarteten Typ kompatibel."
+
+#~ msgid "saving configuration"
+#~ msgstr "speichere Konfiguration"
+
+#~ msgid ""
+#~ "There is no config definition for this parameter.\n"
+#~ "Thus it can't be checked for validity.\n"
+#~ "\n"
+#~ "Save anyway ?"
+#~ msgstr ""
+#~ "Für diesen Parameter gibt es keine Definition.\n"
+#~ "Daher kann die Gültigkeit nicht geprüft werden.\n"
+#~ "\n"
+#~ "Trotzdem speichern ?"
+
+#~ msgid "Entered value is not valid."
+#~ msgstr "Eingegebener Wert ist ungültig."
+
+#~ msgid "(Branch)"
+#~ msgstr "(Zweig)"
+
+#~ msgid "(Subtree root)"
+#~ msgstr "(Zweigbasis)"
+
+#~ msgid "<Options for current/default user and workplace>"
+#~ msgstr "<Optionen für aktuellen und Standardnutzer sowie Arbeitsplatz>"
+
+#~ msgid "Parameters"
+#~ msgstr "Parameter"
+
+#~ msgid "Parameter Description"
+#~ msgstr "Beschreibung der Option"
+
+#~ msgid "Config Options"
+#~ msgstr "Einstellungen"
+
+#~ msgid "Setup"
+#~ msgstr "Konfiguration"
+
+#~ msgid "&ConfigRegistry"
+#~ msgstr "&KonfigurationsRegistry"
+
+#~ msgid "XDT field"
+#~ msgstr "XDT-Feld"
+
+#~ msgid "XDT field content"
+#~ msgstr "XDT-Feld: Inhalt"
 
 #~ msgid "Error running pdflatex. Cannot turn LaTeX template into PDF."
 #~ msgstr "Fehler mit pdflatex. Kann LaTeX template nicht in PDF umwandeln."

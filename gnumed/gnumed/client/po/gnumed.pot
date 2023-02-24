@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-12 19:42+0200\n"
+"POT-Creation-Date: 2023-02-05 23:48+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2421,7 +2421,7 @@ msgid ""
 "be available *pre-packaged* for your system."
 msgstr ""
 
-msgid "Details are found on <http://www.gnumed.de>.\n"
+msgid "Details are found on <https://www.gnumed.de>.\n"
 msgstr ""
 
 #, python-format
@@ -2654,6 +2654,22 @@ msgstr ""
 
 #, python-format
 msgid "  risk: %s"
+msgstr ""
+
+msgid " collation version mismatch between database and operating system"
+msgstr ""
+
+msgid "  risk: data corruption (duplicate entries, faulty sorting)"
+msgstr ""
+
+msgid " collations with version mismatch"
+msgstr ""
+
+#, python-format
+msgid " database encoding not UTF8 but rather: %s"
+msgstr ""
+
+msgid "  risk: multilingual data storage problems"
 msgstr ""
 
 msgid "Estimated"
@@ -3300,61 +3316,61 @@ msgstr ""
 msgid "Host:"
 msgstr ""
 
-msgid "Port:"
-msgstr ""
-
-msgid "User:"
-msgstr ""
-
-msgid "Password"
-msgstr ""
-
-msgid "&Connect"
-msgstr ""
-
-msgid "<not connected>"
-msgstr ""
-
-msgid "◄"
-msgstr ""
-
-msgid "►"
-msgstr ""
-
-msgid "&Show"
-msgstr ""
-
-msgid "E&xport area"
-msgstr ""
-
-msgid "Browse"
-msgstr ""
-
-msgid "Show"
-msgstr ""
-
-msgid "Export area"
-msgstr ""
-
-msgid "Verify"
-msgstr ""
-
-msgid "&Upload"
-msgstr ""
-
 msgid "Enter the PACS host address."
+msgstr ""
+
+msgid "Port:"
 msgstr ""
 
 msgid "Enter the PACS port."
 msgstr ""
 
+msgid "User:"
+msgstr ""
+
 msgid "Enter the PACS user."
+msgstr ""
+
+msgid "Password"
 msgstr ""
 
 msgid "Enter the PACS password. It will not be shown."
 msgstr ""
 
+msgid "&Connect"
+msgstr ""
+
 msgid "Connect to PACS."
+msgstr ""
+
+msgid "<not connected>"
+msgstr ""
+
+msgid "Image"
+msgstr ""
+
+msgid "◄"
+msgstr ""
+
+msgid "Review previous image."
+msgstr ""
+
+msgid "►"
+msgstr ""
+
+msgid "Preview next image."
+msgstr ""
+
+msgid "&Show"
+msgstr ""
+
+msgid "Show image in external viewer."
+msgstr ""
+
+msgid "E&xport area"
+msgstr ""
+
+msgid "Put image into export area."
 msgstr ""
 
 msgid ""
@@ -3363,16 +3379,10 @@ msgid ""
 "Right-click: Show context menu."
 msgstr ""
 
-msgid "Review previous image."
+msgid "Study"
 msgstr ""
 
-msgid "Preview next image."
-msgstr ""
-
-msgid "Show image in external viewer."
-msgstr ""
-
-msgid "Put image into export area."
+msgid "Browse"
 msgstr ""
 
 msgid ""
@@ -3381,19 +3391,37 @@ msgid ""
 "Right-click for further options."
 msgstr ""
 
+msgid "Show"
+msgstr ""
+
 msgid "Show selected studies in external viewer."
+msgstr ""
+
+msgid "Export area"
 msgstr ""
 
 msgid "Put selected studies into export area."
 msgstr ""
 
+msgid "Patient"
+msgstr ""
+
 msgid "Browse patient studies in web browser."
+msgstr ""
+
+msgid "Verify"
 msgstr ""
 
 msgid "Verify DICOM data of patient in PACS."
 msgstr ""
 
+msgid "PACS"
+msgstr ""
+
 msgid "Browse PACS."
+msgstr ""
+
+msgid "&Upload"
 msgstr ""
 
 msgid ""
@@ -3405,18 +3433,6 @@ msgid ""
 msgstr ""
 
 msgid "Modify some of Orthanc's content (such as patient IDs)."
-msgstr ""
-
-msgid "PACS"
-msgstr ""
-
-msgid "Patient"
-msgstr ""
-
-msgid "Study"
-msgstr ""
-
-msgid "Image"
 msgstr ""
 
 msgid "A descriptive name for this test type."
@@ -4274,7 +4290,7 @@ msgid ""
 "subscribe."
 msgstr ""
 
-msgid "Find help on http://www.gnumed.de, too."
+msgid "Find help on https://www.gnumed.de, too."
 msgstr ""
 
 msgid ""
@@ -4330,7 +4346,7 @@ msgid ""
 "\n"
 "It should then be safe to restart GNUmed.\n"
 "\n"
-"Documentation can be found at <http://www.gnumed.de>."
+"Documentation can be found at <https://www.gnumed.de>."
 msgstr ""
 
 msgid ""
@@ -8807,7 +8823,7 @@ msgid ""
 "\n"
 "The default URL is:\n"
 "\n"
-" http://www.gnumed.de/downloads/gnumed-versions.txt\n"
+" https://www.gnumed.de/downloads/gnumed-versions.txt\n"
 "\n"
 "but you can configure any other URL locally. Note\n"
 "that you must enter the location as a valid URL.\n"
@@ -12676,9 +12692,6 @@ msgstr ""
 msgid "Underweight"
 msgstr ""
 
-msgid "63< Normal >79"
-msgstr ""
-
 msgid "63 - Normal - 79"
 msgstr ""
 
@@ -13662,22 +13675,7 @@ msgstr ""
 msgid "forced detach attempt"
 msgstr ""
 
-msgid "Requests generated this consultation"
-msgstr ""
-
-msgid "Request summary"
-msgstr ""
-
-msgid "icon_blood_sample"
-msgstr ""
-
 msgid "icon_syringe"
-msgstr ""
-
-msgid "Preferred Name"
-msgstr ""
-
-msgid "icon-future_mom"
 msgstr ""
 
 msgid "Active Problems"
@@ -13696,120 +13694,6 @@ msgid "&Summary"
 msgstr ""
 
 msgid "icon_clinical_summary"
-msgstr ""
-
-msgid "Prescriptions"
-msgstr ""
-
-msgid "Requests"
-msgstr ""
-
-msgid "Measurements"
-msgstr ""
-
-msgid "Referrals"
-msgstr ""
-
-msgid "Recalls and Reviews"
-msgstr ""
-
-msgid "icon_Rx_symbol"
-msgstr ""
-
-msgid "icon_Set_Square"
-msgstr ""
-
-msgid "icon_writing_pen"
-msgstr ""
-
-msgid "icon_talking_head"
-msgstr ""
-
-msgid "icon_inbox"
-msgstr ""
-
-msgid "Dose"
-msgstr ""
-
-msgid "Last Date"
-msgstr ""
-
-msgid "Prescribed For"
-msgstr ""
-
-msgid "Quantity"
-msgstr ""
-
-msgid "First Date"
-msgstr ""
-
-msgid "icon_letter_A"
-msgstr ""
-
-msgid "Drug Interactions"
-msgstr ""
-
-msgid "Items prescribed this consultation"
-msgstr ""
-
-msgid "Directions"
-msgstr ""
-
-msgid "For"
-msgstr ""
-
-msgid "Authority Indications"
-msgstr ""
-
-msgid "Interactions"
-msgstr ""
-
-msgid "Pregnancy Information"
-msgstr ""
-
-msgid "Restricted Use Information"
-msgstr ""
-
-msgid "Edit Item"
-msgstr ""
-
-msgid "Delete Item"
-msgstr ""
-
-msgid "Delete all Items"
-msgstr ""
-
-msgid "Make Item Reg 24"
-msgstr ""
-
-msgid "Brief Product Information"
-msgstr ""
-
-msgid "Full Product Information"
-msgstr ""
-
-msgid "Print Single Item"
-msgstr ""
-
-msgid "Print All Items"
-msgstr ""
-
-msgid "Reprint Item"
-msgstr ""
-
-msgid "Reprint All Items"
-msgstr ""
-
-msgid "Save Item no print"
-msgstr ""
-
-msgid "Save All Items no print"
-msgstr ""
-
-msgid "Change Font"
-msgstr ""
-
-msgid "Save list layout"
 msgstr ""
 
 #, python-format
@@ -14164,18 +14048,6 @@ msgid "must have a recipient"
 msgstr ""
 
 msgid "must select address"
-msgstr ""
-
-msgid " (L) "
-msgstr ""
-
-msgid "(R)"
-msgstr ""
-
-msgid "Operation"
-msgstr ""
-
-msgid "Significant"
 msgstr ""
 
 msgid "Ok"
@@ -15422,6 +15294,13 @@ msgstr ""
 msgid "Removing address"
 msgstr ""
 
+#, python-format
+msgid "GNUmed widget test: %s"
+msgstr ""
+
+msgid "GNUmed widget test"
+msgstr ""
+
 msgid "Creating new allergy not allowed."
 msgstr ""
 
@@ -15742,7 +15621,7 @@ msgstr ""
 msgid "debug"
 msgstr ""
 
-msgid "Please visit http://www.gnumed.org"
+msgid "Please visit https://www.gnumed.org"
 msgstr ""
 
 #, python-format
@@ -18001,14 +17880,13 @@ msgstr ""
 msgid "Unable to save DICOM studies as ZIP."
 msgstr ""
 
-msgid "Adding PDF to DICOM study"
+msgid "Adding file to DICOM study"
 msgstr ""
 
-msgid ""
-"For adding a PDF file there must be exactly one (1) DICOM study selected."
+msgid "For adding a file there must be exactly one (1) DICOM study selected."
 msgstr ""
 
-msgid "Select PDF to add to DICOM study"
+msgid "Select file (image or PDF) to add to DICOM study"
 msgstr ""
 
 msgid "PDF files"
@@ -18016,7 +17894,7 @@ msgstr ""
 
 #, python-format
 msgid ""
-"Cannot turn PDF file\n"
+"Cannot turn file\n"
 "\n"
 " %s\n"
 "\n"
@@ -18034,24 +17912,6 @@ msgid ""
 " %s\n"
 "\n"
 " into Orthanc PACS."
-msgstr ""
-
-msgid "Adding file to DICOM study"
-msgstr ""
-
-msgid "For adding a file there must be exactly one (1) DICOM study selected."
-msgstr ""
-
-msgid "Select file (image or PDF) to add to DICOM study"
-msgstr ""
-
-#, python-format
-msgid ""
-"Cannot turn file\n"
-"\n"
-" %s\n"
-"\n"
-" into DICOM file."
 msgstr ""
 
 #, python-format
@@ -18859,15 +18719,6 @@ msgid "Amount is missing."
 msgstr ""
 
 msgid "Substance is missing."
-msgstr ""
-
-msgid "No EMR data loaded."
-msgstr ""
-
-msgid "EMR text dump"
-msgstr ""
-
-msgid "Currently there is no active patient. Cannot retrieve EMR text."
 msgstr ""
 
 msgid "SOAP Editor Actions:"
@@ -19831,6 +19682,9 @@ msgstr ""
 msgid "Firstname(s)"
 msgstr ""
 
+msgid "Preferred Name"
+msgstr ""
+
 msgid "Adding new name"
 msgstr ""
 
@@ -20252,6 +20106,9 @@ msgstr ""
 msgid "&Overview"
 msgstr ""
 
+msgid "Measurements"
+msgstr ""
+
 msgid "Attach documents"
 msgstr ""
 
@@ -20318,51 +20175,6 @@ msgstr ""
 msgid "&Report Generator"
 msgstr ""
 
-msgid "No matching drug found."
-msgstr ""
-
-msgid "Please enter at least three digits of the drug name."
-msgstr ""
-
-msgid "Starting drug data browser"
-msgstr ""
-
-msgid ""
-"Cannot start the drug data browser.\n"
-"\n"
-"There is no drug database specified in the configuration."
-msgstr ""
-
-msgid "   Find   "
-msgstr ""
-
-msgid "Enter the name of the drug you are interested in"
-msgstr ""
-
-msgid "&Bookmark"
-msgstr ""
-
-msgid "Search by"
-msgstr ""
-
-msgid "Any"
-msgstr ""
-
-msgid "Generic name"
-msgstr ""
-
-msgid "&Prescribe"
-msgstr ""
-
-msgid "&Display"
-msgstr ""
-
-msgid "DrugBrowser"
-msgstr ""
-
-msgid "&DrugBrowser"
-msgstr ""
-
 msgid "Progress notes"
 msgstr ""
 
@@ -20388,46 +20200,6 @@ msgid "&Waiting list"
 msgstr ""
 
 msgid "Medication"
-msgstr ""
-
-msgid "Type of entered value is not compatible with type expected."
-msgstr ""
-
-msgid "saving configuration"
-msgstr ""
-
-msgid ""
-"There is no config definition for this parameter.\n"
-"Thus it can't be checked for validity.\n"
-"\n"
-"Save anyway ?"
-msgstr ""
-
-msgid "Entered value is not valid."
-msgstr ""
-
-msgid "(Branch)"
-msgstr ""
-
-msgid "(Subtree root)"
-msgstr ""
-
-msgid "<Options for current/default user and workplace>"
-msgstr ""
-
-msgid "Parameters"
-msgstr ""
-
-msgid "Parameter Description"
-msgstr ""
-
-msgid "Config Options"
-msgstr ""
-
-msgid "Setup"
-msgstr ""
-
-msgid "&ConfigRegistry"
 msgstr ""
 
 msgid "&Documents"
@@ -20469,12 +20241,6 @@ msgid "Encoding missing in xDT file. Assuming [%s]."
 msgstr ""
 
 msgid "name of xDT file"
-msgstr ""
-
-msgid "XDT field"
-msgstr ""
-
-msgid "XDT field content"
 msgstr ""
 
 msgid "xDT viewer"
