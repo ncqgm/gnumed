@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-# type: ignore
-
 """A base class turning child classes into a Singleton."""
 
 __author__ = "Karsten.Hilbert@gmx.net"
@@ -48,16 +46,16 @@ if __name__ == '__main__':
 	print("testing new-style classes borg")
 	a1 = A()
 	a2 = A()
-	a1.a = 5
-	print(a1.a, "==", a2.a)
+	a1.a = 5									# type: ignore
+	print(a1.a, "==", a2.a)						# type: ignore
 	a3 = A()
-	print(a1.a, "==", a2.a, "==", a3.a)
+	print(a1.a, "==", a2.a, "==", a3.a)			# type: ignore
 	b1 = B()
-	b1.a = 10
-	print(b1.a)
-	print(a1.a)
+	b1.a = 10									# type: ignore
+	print(b1.a)									# type: ignore
+	print(a1.a)									# type: ignore
 	b2 = B()
-	print(b2.a)
+	print(b2.a)									# type: ignore
 
 	c1 = C(val = 'non-default')
 	print(c1.x)

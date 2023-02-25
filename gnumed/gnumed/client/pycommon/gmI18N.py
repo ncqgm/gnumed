@@ -556,6 +556,6 @@ if __name__ == "__main__":
 	# it is needed to check for successful installation of                  #
 	# the desired message catalog                                           #
 	# ********************************************************************* #
-	tmp = _('Translate this or i18n into <en_EN> will not work properly !') #	# type: ignore
+	tmp = _('Translate this or i18n into <en_EN> will not work properly !') # type: ignore
 	# ********************************************************************* #
 	# ********************************************************************* #

@@ -3991,6 +3991,7 @@ def log_colors_known2wx():
 				if col_name:
 					col_names.append(col_name)
 	_log.debug('enumerated known colors')
+	log_lines = []
 	for col_name in sorted(col_names):
 		wx.Yield()
 		col = col_db.Find(col_name)

@@ -25,7 +25,7 @@ import zipfile
 import datetime as pydt
 import re as regex
 import xml.sax.saxutils as xml_tools
-from typing import List
+from typing import Any
 # old:
 import pickle, zlib
 # docutils
@@ -339,7 +339,7 @@ def dir_is_empty(directory:str=None) -> bool:
 	return empty
 
 #---------------------------------------------------------------------------
-def dir_list_files(directory:str=None, exclude_subdirs:bool=True) -> List[str]:
+def dir_list_files(directory:str=None, exclude_subdirs:bool=True) -> list[str]:
 	try:
 		all_dir_items = os.listdir(directory)
 	except OSError:
@@ -1016,7 +1016,7 @@ def get_unique_filename(prefix:str=None, suffix:str=None, tmp_dir:str=None, incl
 	"""Generate a unique filename.
 
 	Args:
-		prefix: use this prefix to the filename, default 'gm-'
+		prefix: use this prefix to the filename, default 'gm-', '' means "no prefix"
 		suffix: use this suffix to the filename, default '.tmp'
 		tmp_dir: generate filename based suitable for this directory, default system tmpdir
 		include_timestamp: include current timestamp within the filename
@@ -1044,22 +1044,22 @@ def get_unique_filename(prefix:str=None, suffix:str=None, tmp_dir:str=None, incl
 		ts = pydt.datetime.now().strftime('%m%d-%H%M%S-')
 	else:
 		ts = ''
-	kwargs = {}
-	#  make sure file gets deleted as soon as it is
-	# .close()d so we can "safely" open it again
-	kwargs['delete']:bool = True
-	kwargs['dir']:str = tmp_dir
+	kwargs:dict[str, Any] = {
+		'dir': tmp_dir,
+		#  make sure file gets deleted as soon as it is
+		# .close()d so we can "safely" open it again
+		'delete': True
+	}
 	if prefix is None:
-		kwargs['prefix']:str = 'gm-%s' % ts
+		kwargs['prefix'] = 'gm-%s' % ts
 	else:
-		kwargs['prefix']:str = prefix + ts
-
+		kwargs['prefix'] = prefix + ts
 	if suffix in [None, '']:
-		kwargs['suffix']:str = '.tmp'
+		kwargs['suffix'] = '.tmp'
 	else:
 		if not suffix.startswith('.'):
 			suffix = '.' + suffix
-		kwargs['suffix']:str = suffix
+		kwargs['suffix'] = suffix
 	f = tempfile.NamedTemporaryFile(**kwargs)
 	filename = f.name
 	f.close()
