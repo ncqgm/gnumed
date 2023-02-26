@@ -759,7 +759,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			tt.append('')
 			if intake_w_regimen['drug_product']:
 				tt.append(' ' + _('Product name: %s   [#%s]') % (intake_w_regimen['drug_product'], intake_w_regimen['pk_drug_product']))
-			if intake_w_regimen['atc_drug']:
+			if intake_w_regimen['atc_drug_product']:
 				tt.append(' ' + _('ATC (drug): %s') % intake_w_regimen['atc_drug'])
 			tt.append('')
 			if intake_w_regimen['schedule']:

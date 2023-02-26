@@ -61,6 +61,26 @@ class cSubstanceOrDosePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		return gmMedication.cSubstance(aPK_obj = pk_subst)
 
+	#--------------------------------------------------------
+	def _get_has_dose(self):
+		if not self.GetData(as_instance = False, can_create = False):
+			return False
+
+		pk_subst, pk_dose = self.GetData(as_instance = False, can_create = False)
+		return pk_dose is not None
+
+	has_dose = property(_get_has_dose)
+
+	#--------------------------------------------------------
+	def _get_has_substance(self):
+		if not self.GetData(as_instance = False, can_create = False):
+			return False
+
+		pk_subst, pk_dose = self.GetData(as_instance = False, can_create = False)
+		return pk_substance and not pk_dose
+
+	has_substance = property(_get_has_substance)
+
 #============================================================
 # current substance intake widgets
 #------------------------------------------------------------

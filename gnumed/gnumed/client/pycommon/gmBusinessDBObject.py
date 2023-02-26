@@ -684,7 +684,7 @@ class cBusinessDBObject(object):
 		return lines
 
 	#--------------------------------------------------------
-	def refetch_payload(self, ignore_changes:bool=False, link_obj=None):
+	def refetch_payload(self, ignore_changes:bool=False, link_obj=None) -> bool:
 		"""Fetch field values from backend.
 
 		Args:
@@ -704,11 +704,8 @@ class cBusinessDBObject(object):
 			args = self.pk_obj
 		else:
 			args = [self.pk_obj]
-		rows, self._idx = gmPG2.run_ro_queries (
-			link_obj = link_obj,
-			queries = [{'cmd': self.__class__._cmd_fetch_payload, 'args': args}],
-			get_col_idx = True
-		)
+		queries = [{'cmd': self.__class__._cmd_fetch_payload, 'args': args}]
+		rows, self._idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = queries, get_col_idx = True)
 		if len(rows) == 0:
 			_log.error('[%s:%s]: no such instance' % (self.__class__.__name__, self.pk_obj))
 			return False

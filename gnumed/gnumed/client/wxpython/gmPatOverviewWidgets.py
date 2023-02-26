@@ -842,15 +842,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		multi_products_already_seen = []
 		for intake in intakes:
 			drug = intake.containing_drug
-			if len(drug['components']) == 1:
-				list_items.append(_('%s %s%s%s') % (
-					intake['substance'],
-					intake['amount'],
-					intake.formatted_units,
-					gmTools.coalesce(intake['schedule'], '', ': %s')
-				))
-				data_items.append(intake)
-			else:
+			if drug and len(drug['components']) > 1:
 				if intake['drug_product'] in multi_products_already_seen:
 					continue
 				multi_products_already_seen.append(intake['drug_product'])
@@ -860,6 +852,14 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 					gmTools.coalesce(intake['schedule'], '', ': %s')
 				))
 				data_items.append(intake)
+				continue
+			list_items.append(_('%s %s%s%s') % (
+				intake['substance'],
+				gmTools.coalesce(intake['amount'], ''),
+				intake.formatted_units,
+				gmTools.coalesce(intake['schedule'], '', ': %s')
+			))
+			data_items.append(intake)
 
 		self._LCTRL_meds.set_string_items(items = list_items)
 		self._LCTRL_meds.set_data(data = data_items)

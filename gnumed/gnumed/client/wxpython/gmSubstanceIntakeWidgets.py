@@ -199,13 +199,15 @@ def delete_substance_intake(parent=None, intake=None):
 from Gnumed.wxGladeWidgets import wxgSubstanceIntakeEAPnl
 
 class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmEditArea.cGenericEditAreaMixin):
-	"""Enter or edit intake of a substance."""
+	"""Enter or edit intake with regiment of a substance."""
 	def __init__(self, *args, **kwargs):
 		try:
 			data = kwargs['intake']
 			del kwargs['intake']
 		except KeyError:
 			data = None
+		assert not data or isinstance(data, gmMedication.cInstakeWithRegimen), '<intake> must be of type "gmMedication.cInstakeWithRegimen" if given'
+
 		self.calc = gmClinicalCalculator.cClinicalCalculator()
 
 		wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl.__init__(self, *args, **kwargs)
@@ -225,7 +227,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		self._PRW_patient_notes.add_callback_on_set_focus(callback = self._on_enter_notes4patient)
 		self._DP_discontinued.add_callback_on_selection(callback = self._on_discontinued_date_changed)
 		self._LCTRL_regimen.set_resize_column()
-		self._LCTRL_regimen.set_column_widths([wx.LIST_AUTOSIZE])
+		#self._LCTRL_regimen.set_column_widths([wx.LIST_AUTOSIZE])
 		self._LCTRL_regimen.select_callback = self._on_regimen_selected
 		self.Layout()
 
@@ -265,11 +267,13 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		# history of substance abuse
 		abuses = emr.abused_substances
 		for abuse in abuses:
-			tt_lines.append(abuse.format(single_line = False, include_metadata = False))
+			#tt_lines.append(abuse.format(single_line = False, include_metadata = False))
+			tt_lines.append('MISUSE FORMATTING is missing')
 			tt_lines.append('')
 			if abuse['use_type'] in [None, 0]:
 				continue
-			msg_lines.append(abuse.format(single_line = True))
+			#msg_lines.append(abuse.format(single_line = True))
+			msg_lines.append('MISUSE FORMATTING is missing')
 		if abuses:
 			msg_lines.append('')
 			tt_lines.append('')
@@ -337,10 +341,10 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 
 		items = []
 		data = []
-		for regimen in self.data.regimens:
+		for regimen in self.data.regimens_for_substance:
 			items.append(regimen.format(single_line = True))
 			data.append(regimen)
-		self._LCTRL_regimen.set_columns([_('Existing treatment regimens')])
+		self._LCTRL_regimen.set_columns([_('Existing treatment regimens for this substance')])
 		self._LCTRL_regimen.set_string_items(items)
 		self._LCTRL_regimen.set_data(data)
 		self._LCTRL_regimen.set_column_widths()
@@ -498,6 +502,10 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 
 	#----------------------------------------------------------------
 	def _valid_for_save(self) -> bool:
+		if self.mode != 'new':
+			self.StatusText = 'only NEW so far'
+			return False
+
 		self.StatusText = ''
 		is_valid = True
 
@@ -520,7 +528,6 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 			is_valid = is_valid and self._validate_duration()
 			is_valid = is_valid and self._validate_discontinued(started)
 
-
 		return is_valid
 
 	#----------------------------------------------------------------
@@ -533,22 +540,22 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 				is_open = False
 			else:
 				is_open = True		# Jim wants new episode to auto-open
-			pk_epi = self._PRW_episode.GetData(can_create = True, is_open = is_open, as_instance = False, link_obj = conn4tx)
+			pk_epi = self._PRW_episode.GetData (
+				can_create = True,
+				is_open = is_open,
+				as_instance = False, link_obj = conn4tx
+			)
 		subst_or_dose = self._PRW_substance.GetData(as_instance = True)
 		if not subst_or_dose:
-			subst_or_dose = gmMedication.create_substance(substance = self._PRW_substance.Value, link_obj = conn4tx)
-		if (not isinstance(subst_or_dose, gmMedication.cSubstanceDose)) and self._TCTRL_amount.Value.strip():
-			if isinstance(subst_or_dose, gmMedication.cSubstance):
+			subst_or_dose = gmMedication.create_substance (
+				substance = self._PRW_substance.Value.strip(),
+				link_obj = conn4tx
+			)
+		if isinstance(subst_or_dose, gmMedication.cSubstance):
+			if self._TCTRL_amount.Value.strip():
 				subst_or_dose = gmMedication.create_substance_dose (
 					link_obj = conn4tx,
 					pk_substance = subst_or_dose['pk_substance'],
-					amount = self._TCTRL_amount.Value.strip(),
-					unit = self._TCTRL_unit.Value.strip()
-				)
-			else:
-				subst_or_dose = gmMedication.create_substance_dose (
-					link_obj = conn4tx,
-					substance = self._PRW_substance.Value.strip(),
 					amount = self._TCTRL_amount.Value.strip(),
 					unit = self._TCTRL_unit.Value.strip()
 				)
@@ -564,7 +571,11 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		if self._PRW_schedule.Value.strip() == '':
 			conn4tx.commit()
 			conn4tx.close()
-			self.data = intake
+			data = gmMedication.cIntakeWithRegimen(aPK_obj = {
+				'pk_intake': intake['pk_intake'],
+				'pk_intake_regimen': None
+			})
+			self.data = data
 			return True
 
 		regimen = gmMedication.create_intake_regimen (
@@ -594,8 +605,13 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		regimen.save(conn = conn4tx)
 		conn4tx.commit()
 		conn4tx.close()
-		intake.refetch_payload()	# a regimen has been added, so refetch
-		self.data = intake
+		#intake.refetch_payload()	# a regimen has been added, so refetch
+		# now get instake_with_regimen
+		data = cIntakeWithRegimen(aPK_obj = {
+			'pk_intake': intake['pk_intake'],
+			'pk_intake_regimen': regimen['pk_intake_regimen']
+		})
+		self.data = data
 		return True
 
 	#----------------------------------------------------------------
@@ -667,6 +683,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		self._refresh_as_new()
+		assert isinstance(self.data, gmMedication.cIntakeWithRegimen), '<intake> must be of type "gmMedication.cIntakeWithRegimen" if given'
 
 		self._PRW_substance.SetText (
 			value = self.data['substance'],
@@ -732,24 +749,35 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 				return
 
 			self._PRW_substance.display_as_valid()
+			self._PRW_schedule.Enable()
+			if self._PRW_substance.has_dose:
+				dose = self._PRW_substance.GetData(as_instance = True)
+				self._TCTRL_amount.SetValue(str(dose['amount']))
+				self._TCTRL_amount.display_as_valid()
+				self._TCTRL_amount.Disable()
+				self._TCTRL_unit.SetValue(dose['unit'])
+				self._TCTRL_unit.display_as_valid()
+				self._TCTRL_unit.Disable()
+				return
+
 			self._TCTRL_amount.Enable()
 			self._TCTRL_unit.Enable()
 			self._PRW_schedule.Enable()
-			return
+		return
 
-		if self.mode == 'edit':
-			self._PRW_substance.display_as_valid()
-			self._TCTRL_amount.Disable()
-			self._TCTRL_unit.Disable()
-			self._PRW_schedule.Disable()
-			self._CHBOX_start_unknown.Disable()
-			self._DP_started.Disable()
-			self._PRW_start_certainty.Disable()
-			self._PRW_duration.Disable()
-			self._DP_discontinued.Disable()
-			return
-
-		self._PRW_substance.display_as_valid(False)
+#		if self.mode == 'edit':
+#			self._PRW_substance.display_as_valid()
+#			self._TCTRL_amount.Disable()
+#			self._TCTRL_unit.Disable()
+#			self._PRW_schedule.Disable()
+#			self._CHBOX_start_unknown.Disable()
+#			self._DP_started.Disable()
+#			self._PRW_start_certainty.Disable()
+#			self._PRW_duration.Disable()
+#			self._DP_discontinued.Disable()
+#			return
+#
+#		self._PRW_substance.display_as_valid(False)
 
 	#----------------------------------------------------------------
 	def _on_enter_notes4patient(self):
@@ -889,6 +917,7 @@ if __name__ == '__main__':
 	#manage_substance_intakes()
 	#cSubstanceIntakeEAPnl(frame, intake = gmMedication.cSubstanceIntakeEntry(1))
 	#cSubstanceIntakeEAPnl(frame)
-	wx.CallLater(4000, edit_intake_of_substance, parent = frame, intake = gmMedication.cSubstanceIntakeEntry(1), single_entry = True)
+	#wx.CallLater(4000, edit_intake_of_substance, parent = frame, intake = gmMedication.cSubstanceIntakeEntry(1), single_entry = True)
+	wx.CallLater(4000, edit_intake_of_substance, parent = frame, single_entry = True)
 	#wx.CallLater(4000, manage_substance_intakes, parent = frame)
 	wx.GetApp().MainLoop()

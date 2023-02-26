@@ -206,7 +206,7 @@ class cSubstance(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def save_payload(self, conn=None):
-		success, data = super(self.__class__, self).save_payload(conn = conn)
+		success, data = super().save_payload(conn = conn)
 
 		if not success:
 			return (success, data)
@@ -1541,7 +1541,7 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def save_payload(self, conn=None):
-		success, data = super(self.__class__, self).save_payload(conn = conn)
+		success, data = super().save_payload(conn = conn)
 
 		if not success:
 			return (success, data)
@@ -1916,10 +1916,9 @@ class cIntakeWithRegimen(gmBusinessDBObject.cBusinessDBObject):
 	Intakes without any regimen will appear with
 	empty regimen fields.
 	"""
-	_cmd_fetch_payload = _SQL_get_intake_with_regimen % "pk_intake_regimen = %s"
+	_cmd_fetch_payload = _SQL_get_intake_with_regimen % 'pk_intake = %(pk_intake)s AND pk_intake_regimen IS NOT DISTINCT FROM %(pk_intake_regimen)s'
 	_cmds_store_payload = [
-		"""
-			-- typically the underlying table name
+		"""	-- typically the underlying table name
 			UPDATE xxx.xxx SET
 				-- typically "table_col = % (view_col)s"
 				xxx = %(xxx)s,
@@ -1939,8 +1938,41 @@ class cIntakeWithRegimen(gmBusinessDBObject.cBusinessDBObject):
 	]
 	_updatable_fields = []
 	#--------------------------------------------------------
-#	def format(self):
-#		return u'%s' % self
+	def format(self, left_margin=0, date_format='%Y %b %d', single_line=True, allergy=None, show_all_product_components=False, include_metadata=True, include_instructions=False, include_loincs=False, eol='\n'):
+		# misuse
+		if self._payload[self._idx['use_type']] in [1, 2, 3]:
+			if single_line:
+				return self.format_as_single_line_abuse(left_margin = left_margin, date_format = date_format)
+
+			return self.format_as_multiple_lines_abuse (
+				left_margin = left_margin,
+				date_format = date_format,
+				include_metadata = include_metadata,
+				eol = eol
+			)
+
+		# medication
+		if self._payload[self._idx['use_type']] is None:
+			if single_line:
+				return self.format_as_single_line(left_margin = left_margin, date_format = date_format)
+
+			return self.format_as_multiple_lines (
+				left_margin = left_margin,
+				date_format = date_format,
+				allergy = allergy,
+				show_all_product_components = show_all_product_components,
+				include_instructions = include_instructions,
+				eol = eol
+			)
+
+	#--------------------------------------------------------
+	def format_as_single_line_abuse(self, left_margin=0, date_format='%Y %b %d'):
+		return '%s%s: %s (%s)' % (
+			' ' * left_margin,
+			self._payload[self._idx['substance']],
+			self.use_type_string,
+			gmDateTime.pydt_strftime(self._payload[self._idx['last_checked_when']], '%b %Y')
+		)
 
 	#--------------------------------------------------------
 	def _get_intake(self):
@@ -1950,15 +1982,22 @@ class cIntakeWithRegimen(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_regimen(self):
-		return cIntakeRegimen(aPK_obj = self._payload['pk_intake_regimen'])
+		if self._payload['pk_intake_regimen']:
+			return cIntakeRegimen(aPK_obj = self._payload['pk_intake_regimen'])
+
+		return None
 
 	regimen = property(_get_regimen)
 
 	#--------------------------------------------------------
-	def get_other_regimens(self, ongoing_only:bool=False):
-		pass
+	def get_regimens_for_substance(self, ongoing_only:bool=False) -> list:
+		return get_intake_regimens (
+			pk_substance = self._payload['pk_substance'],
+			pk_patient = self._payload['pk_patient'],
+			ongoing_only = ongoing_only
+		)
 
-	other_regimens = property(get_other_regimens)
+	regimens_for_substance = property(get_regimens_for_substance)
 
 	#--------------------------------------------------------
 	def _get_containing_drug(self):
@@ -2003,11 +2042,10 @@ class cIntakeWithRegimen(gmBusinessDBObject.cBusinessDBObject):
 	def _get_medically_formatted_start_end(self):
 
 		now = gmDateTime.pydt_now_here()
-
 		# medications stopped today or before today
-		if self._payload[self._idx['discontinued']] is not None:
+		if self._payload[self._idx['discontinued']]:
 			if (self._payload[self._idx['discontinued']] < now) or (gmDateTime.pydt_is_today(self._payload[self._idx['discontinued']])):
-				return self._get_medically_formatted_start_end_of_stopped(now)
+				return self.__get_medically_formatted_start_end_of_stopped()
 
 		# ongoing medications
 		arrow_parts = []
@@ -2142,9 +2180,7 @@ class cIntakeWithRegimen(gmBusinessDBObject.cBusinessDBObject):
 				gmDateTime.pydt_strftime(self._payload[self._idx['discontinued']], end_date_template, 'utf8', gmDateTime.acc_days),
 				planned_end_from_now_str
 			)
-
 		arrow_parts.append(end_str)
-
 		# assemble
 		return (' %s ' % gmTools.u_arrow2right_thick).join(arrow_parts)
 
@@ -2163,8 +2199,68 @@ class cIntakeWithRegimen(gmBusinessDBObject.cBusinessDBObject):
 
 	is_ongoing = property(_get_is_ongoing)
 
+	#--------------------------------------------------------
+	def _get_formatted_units(self, short=True):
+		if not self._payload[self._idx['unit']]:
+			return ''
+
+		return format_units (
+			self._payload[self._idx['unit']],
+			gmTools.coalesce(self._payload[self._idx['dose_unit']], _('delivery unit')),
+			short = short
+		)
+
+	formatted_units = property(_get_formatted_units)
+
+	#--------------------------------------------------------
+	# helpers
+	#--------------------------------------------------------
+	def __get_medically_formatted_start_end_of_stopped(self) -> str:
+		now = gmDateTime.pydt_now_here()
+		# format intro
+		if gmDateTime.pydt_is_today(self._payload[self._idx['discontinued']]):
+			intro = _('until today')
+		else:
+			ended_ago = now - self._payload[self._idx['discontinued']]
+			intro = _('until %s%s ago') % (
+				gmTools.u_almost_equal_to,
+				gmDateTime.format_interval_medically(ended_ago),
+			)
+		# format start
+		if self._payload[self._idx['started']]:
+			start = '%s%s%s' % (
+				gmTools.bool2subst((self._payload[self._idx['comment_on_start']] is None), '', gmTools.u_almost_equal_to),
+				gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%Y %b %d', accuracy = gmDateTime.acc_days),
+				gmTools.coalesce(self._payload[self._idx['comment_on_start']], '', ' [%s]')
+			)
+		else:
+			start = gmTools.coalesce(self._payload[self._idx['comment_on_start']], '?')
+		# format duration taken
+		if self._payload[self._idx['started']]:
+			duration_taken = self._payload[self._idx['discontinued']] - self._payload[self._idx['started']] + pydt.timedelta(days = 1)
+			duration_taken_str = gmDateTime.format_interval (duration_taken, gmDateTime.acc_days)
+		else:
+			duration_taken_str = '?'
+		# format duration planned
+		if self._payload[self._idx['planned_duration']]:
+			duration_planned_str = _(' [planned: %s]') % gmDateTime.format_interval(self._payload[self._idx['planned_duration']], gmDateTime.acc_days)
+		else:
+			duration_planned_str = ''
+		# format end
+		end = gmDateTime.pydt_strftime(self._payload[self._idx['discontinued']], '%Y %b %d', 'utf8', gmDateTime.acc_days)
+		# assemble
+		return '%s (%s %s %s%s %s %s)' % (
+			intro,
+			start,
+			gmTools.u_arrow2right_thick,
+			duration_taken_str,
+			duration_planned_str,
+			gmTools.u_arrow2right_thick,
+			end
+		)
+
 #------------------------------------------------------------
-def get_intakes_with_regimens(pk_patient=None, include_inactive=False, order_by=None, episodes=None, issues=None, exclude_potential_abuses=False, exclude_medications=False) -> []:
+def get_intakes_with_regimens(pk_patient=None, include_inactive=False, order_by=None, episodes=None, issues=None, exclude_potential_abuses=False, exclude_medications=False) -> list[cIntakeWithRegimen]:
 	"""Retrieve intake entries for each regimen."""
 	where_parts = ['TRUE']
 	args = {}
@@ -2192,7 +2288,11 @@ def get_intakes_with_regimens(pk_patient=None, include_inactive=False, order_by=
 		order_by
 	))
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-	return [ cIntakeWithRegimen(row = {'idx': idx, 'data': r, 'pk_field': 'pk_intake_regimen'})  for r in rows ]
+	return [ cIntakeWithRegimen(row = {
+		'idx': idx,
+		'data': r,
+		'pk_obj': {'pk_intake_regimen': r['pk_intake_regimen'], 'pk_intake': r['pk_intake']}
+	}) for r in rows ]
 
 #------------------------------------------------------------
 # widget code
@@ -3926,6 +4026,8 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------
 	def test_get_intakes_with_regimens():
+		print(cIntakeWithRegimen(aPK_obj = {'pk_intake_regimen': None, 'pk_intake': 11}))
+		return
 		for i_w_r in get_intakes_with_regimens():
 			print('------------------------------------------------')
 			print('-- intake with regimen:')
