@@ -25,7 +25,7 @@ import wx
 
 from mx import DateTime
 
-from Gnumed.pycommon import gmGuiBroker, gmDispatcher
+from Gnumed.pycommon import gmDispatcher
 
 import gmPlugin
 import gmSQLListControl
@@ -115,8 +115,6 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 	def __init__(self, parent, plugin, id=wxNewId ()):
 		wxPanel.__init__(self, parent, id ,wxDefaultPosition,wxDefaultSize,wxRAISED_BORDER|wxTAB_TRAVERSAL)
 		gmDataPanelMixin.DataPanelMixin.__init__(self)
-		self.gb = gmGuiBroker.GuiBroker ()
-		self.mwm = self.gb['clinical.manager']
 		self.plugin = plugin
 		# controls on the top toolbar are available via plugin.foo
 		self.addresslist = wxListBox(self,ID_NAMESLIST,wxDefaultPosition,wxDefaultSize,addressdata,wxLB_SINGLE)
@@ -425,7 +423,6 @@ class PatientsPanel(wxPanel, gmDataPanelMixin.DataPanelMixin):
 #		pass
 #----------------------------------------------------------------------
 if __name__ == "__main__":
-	import gmGuiBroker
 	app = wxPyWidgetTester(size = (800, 600))
 	app.SetWidget(PatientsPanel, -1)
 	app.MainLoop()

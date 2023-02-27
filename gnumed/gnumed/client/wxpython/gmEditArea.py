@@ -473,10 +473,7 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 #import time
 
 #from Gnumed.business import gmPerson, gmDemographicRecord
-from Gnumed.pycommon import gmGuiBroker
 #from Gnumed.wxpython import gmDateTimeInput, gmPhraseWheel, gmGuiHelpers
-
-_gb = gmGuiBroker.GuiBroker()
 
 gmSECTION_SUMMARY = 1
 gmSECTION_DEMOGRAPHICS = 2
