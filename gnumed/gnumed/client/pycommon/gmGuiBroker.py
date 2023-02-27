@@ -1,6 +1,4 @@
 
-
-
 """GNUmed GUI element brokerage
 
 This module provides wrappers for the equivalent of global
@@ -29,13 +27,11 @@ class GuiBroker:
 	#So, if you need to access the main window frame, you would
 	#query an instance of GuiBroker for it.
 
-	__objects = {}
-	__keycounter=0
-
+	__objects:dict = {}
+	__keycounter:int = 0
 
 	def __init__(self):
 		pass
-
 
 	def addobject(self, widget, key=None):
 		"Add an object to the gnumed gui object dictionary"

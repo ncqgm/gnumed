@@ -28,17 +28,17 @@ known_signals = [
 
 _log = logging.getLogger('gm.messaging')
 
-connections = {}
-senders = {}
+connections:dict[int, dict] = {}
+senders:dict[int, weakref.ref] = {}
 
-_boundMethods = weakref.WeakKeyDictionary()
+_boundMethods:weakref.WeakKeyDictionary = weakref.WeakKeyDictionary()
 #=====================================================================
 class _Any:
 	pass
 
 Any = _Any()
 
-known_signals.append(Any)
+known_signals.append(Any)		# type: ignore
 
 #=====================================================================
 class DispatcherError(Exception):

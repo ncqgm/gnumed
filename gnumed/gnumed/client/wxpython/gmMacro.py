@@ -23,7 +23,6 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
-from Gnumed.pycommon import gmGuiBroker
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmBorg
 from Gnumed.pycommon import gmExceptions
@@ -3177,15 +3176,6 @@ class cMacroPrimitives:
 			_log.error('non-authenticated raise_gnumed()')
 			return 0
 		return "cMacroPrimitives.raise_gnumed() not implemented"
-	#-----------------------------------------------------------------
-	def get_loaded_plugins(self, auth_cookie = None):
-		if not self.__attached:
-			return 0
-		if auth_cookie != self.__auth_cookie:
-			_log.error('non-authenticated get_loaded_plugins()')
-			return 0
-		gb = gmGuiBroker.GuiBroker()
-		return list(gb['horstspace.notebook.gui'])
 
 	#-----------------------------------------------------------------
 	def raise_notebook_plugin(self, auth_cookie = None, a_plugin = None):

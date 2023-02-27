@@ -13,7 +13,6 @@ import decimal
 import wx
 
 
-from Gnumed.pycommon import gmGuiBroker
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmCfgDB
@@ -42,8 +41,6 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 	def __init__(self, *args, **kwargs):
 
 		wxgTopPnl.wxgTopPnl.__init__(self, *args, **kwargs)
-
-		self.__gb = gmGuiBroker.GuiBroker()
 
 		self.curr_pat = gmPerson.gmCurrentPatient()
 
