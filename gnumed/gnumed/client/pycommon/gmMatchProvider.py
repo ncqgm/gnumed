@@ -584,6 +584,7 @@ class cMatchProvider_SQL2(cMatchProvider):
 				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': self._args}], get_col_idx = False)
 			except gmPG2.PG_ERROR_EXCEPTION:
 				_log.exception('[%s]: error running match provider SQL, dropping query', self.__class__.__name__)
+				_log.error('SQL: %s', cmd)
 				idx = self._queries.index(query)
 				del self._queries[idx]
 				break
