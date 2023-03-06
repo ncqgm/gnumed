@@ -517,7 +517,7 @@ def create_bill_from_items(bill_items=None):
 	return bill
 
 #----------------------------------------------------------------
-def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_copy=True):
+def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_copy=True) -> bool:
 
 	bill_patient_not_active = False
 	# do we have a current patient ?
@@ -530,14 +530,13 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 			bill_patient_not_active = True
 	else:
 		bill_patient_not_active = True
-
 	# FIXME: could ask whether to set fk_receiver_identity
 	# FIXME: but this would need enabling the bill EA to edit same
 	if bill_patient_not_active:
 		activate_patient = gmGuiHelpers.gm_show_question (
 			title = _('Creating invoice'),
 			question = _(
-				'Cannot find an existing invoice PDF for this bill.\n'
+				'Patient on bill is not the active patient.\n'
 				'\n'
 				'Active patient: %s\n'
 				'Patient on bill: #%s\n'
@@ -666,8 +665,14 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 			pk_org_unit = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit'],
 			date_generated = gmDateTime.pydt_now_here()
 		)
-		bill['pk_doc'] = doc['pk_doc']
-		bill.save()
+		if doc:
+			bill['pk_doc'] = doc['pk_doc']
+			bill.save()
+		else:
+			gmGuiHelpers.gm_show_warning (
+				aTitle = _('Saving invoice'),
+				aMessage = ('Cannot save invoice into document archive.')
+			)
 	if not print_it:
 		return True
 

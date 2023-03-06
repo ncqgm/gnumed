@@ -51,6 +51,10 @@ FIX: Py3.13: will remove mailcap module
 # rel-1-8-maint
 ------------------------------------------------
 
+	1.8.10
+
+FIX: bills: exception on saving invoice PDF [thanks Aimee]
+
 	1.8.9
 
 FIX: mime handling: py3 adjustments in file magic [thanks Andreas]
