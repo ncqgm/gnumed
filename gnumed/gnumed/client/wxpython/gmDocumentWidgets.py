@@ -166,9 +166,21 @@ def save_file_as_new_document(parent=None, filename=None, document_type=None, un
 
 #----------------------
 def save_files_as_new_document(parent=None, filenames=None, document_type=None, unlock_patient=False, episode=None, review_as_normal=False, reference=None, pk_org_unit=None, date_generated=None, comment=None, reviewer=None, pk_document_type=None):
+	"""Create document from files.
 
+	Args:
+		parent: wxPython parent widget
+		filenames: files to read data from, which become document parts
+		document_type: the type of document in the archive
+		episode: the episode to file the document under
+		reference: an (perhaps external) reference ID to be set on the document
+
+	Returns:
+		A document, or None on failure.
+	"""
 	pat = gmPerson.gmCurrentPatient()
 	if not pat.connected:
+		_log.error('no active patient to file documents under')
 		return None
 
 	emr = pat.emr

@@ -6,6 +6,10 @@
 # rel-1-8-patches
 ------------------------------------------------
 
+	1.8.10
+
+FIX: bills: exception on saving invoice PDF [thanks Aimee]
+
 	1.8.9
 
 FIX: mime handling: py3 adjustments in file magic [thanks Andreas]
