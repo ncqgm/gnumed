@@ -79,7 +79,7 @@ URL_drug_adr_german_default = 'https://nebenwirkungen.pei.de'
 	None, 0, 1, 2, 3
 )
 
-USE_TYPES_ACTIVE_MISUSE = [
+USE_TYPES_ACTIVE_MISUSE:list[int] = [
 	USE_TYPE_PRESENTLY_HARMFUL,
 	USE_TYPE_PRESENTLY_ADDICTED
 ]
@@ -94,7 +94,7 @@ def _on_substance_intake_modified():
 gmDispatcher.connect(_on_substance_intake_modified, 'clin.intake_mod_db')
 
 #============================================================
-def drug2renal_insufficiency_url(search_term=None):
+def drug2renal_insufficiency_url(search_term:str=None) -> str:
 
 	if search_term is None:
 		return URL_renal_insufficiency
@@ -143,11 +143,8 @@ def drug2renal_insufficiency_url(search_term=None):
 			terms.append(name[:-1])
 		else:
 			terms.append(name)
-
 	url = URL_renal_insufficiency_search_template % '+OR+'.join(terms)
-
 	_log.debug('renal insufficiency URL: %s', url)
-
 	return url
 
 #============================================================
@@ -487,7 +484,8 @@ class cSubstanceDose(gmBusinessDBObject.cBusinessDBObject):
 		return format_units (
 			self._payload[self._idx['unit']],
 			gmTools.coalesce(self._payload[self._idx['dose_unit']], _('delivery unit')),
-			short = short
+			short = short,
+			none_str = ''
 		)
 
 	formatted_units = property(_get_formatted_units)
@@ -1322,11 +1320,13 @@ class cDrugComponent(gmBusinessDBObject.cBusinessDBObject):
 	def _get_formatted_units(self, short=True):
 		return format_units (
 			self._payload[self._idx['unit']],
-			self._payload[self._idx['dose_unit']],
-			self._payload[self._idx['l10n_preparation']]
+			gmTools.coalesce(self._payload[self._idx['dose_unit']], _('delivery unit')),
+			self._payload[self._idx['l10n_preparation']],
+			short = short,
+			none_str = ''
 		)
 
-	formatted_units = property(_get_formatted_units, lambda x:x)
+	formatted_units = property(_get_formatted_units)
 
 #------------------------------------------------------------
 def get_drug_components(return_pks=False):
@@ -2201,13 +2201,12 @@ class cIntakeWithRegimen(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_formatted_units(self, short=True):
-		if not self._payload[self._idx['unit']]:
-			return ''
-
 		return format_units (
 			self._payload[self._idx['unit']],
 			gmTools.coalesce(self._payload[self._idx['dose_unit']], _('delivery unit')),
-			short = short
+			self._payload[self._idx['l10n_preparation']],
+			short = short,
+			none_str = ''
 		)
 
 	formatted_units = property(_get_formatted_units)
@@ -2421,9 +2420,10 @@ class cIntakeRegimen(gmBusinessDBObject.cBusinessDBObject):
 			self._payload['amount'],
 			format_units (
 				self._payload['unit'],
-				self._payload['dose_unit'],
+				gmTools.coalesce(self._payload['dose_unit'], _('unit')),
 				preparation = self._payload['preparation'],
-				short = True
+				short = True,
+				none_str = ''
 			)
 		)
 		return subst_prefix + ', '.join(parts['verbose'])
@@ -2917,9 +2917,10 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	def _get_formatted_units(self, short=True):
 		return format_units (
 			self._payload[self._idx['unit']],
-			self._payload[self._idx['dose_unit']],
+			gmTools.coalesce(self._payload[self._idx['dose_unit']], _('delivery unit')),
 			self._payload[self._idx['l10n_preparation']],
-			short = short
+			short = short,
+			none_str = ''
 		)
 
 	formatted_units = property(_get_formatted_units)
@@ -3835,9 +3836,33 @@ def get_other_drug(name=None, pk_dose=None):
 	return drug
 
 #------------------------------------------------------------
-def format_units(unit, dose_unit, preparation=None, short=True):
+def format_units(unit:str=None, dose_unit:str=None, preparation:str=None, short:bool=True, none_str:str=None) -> str:
+	"""Format units for display.
+
+	Args:
+		unit: the actual unit, say, "mg" (milligrams)
+		dose_unit: the "delivery unit", say, "ml" (milliliter)
+		preparation: the form factor, say "tablet"
+		none_str: what to return if the unit is None
+
+	Returns:
+		Formatted unit or None.
+	"""
+	if unit is None:
+		return none_str
+
+	unit = unit.strip() if unit else None
+	dose_unit = dose_unit.strip() if dose_unit else None
+	preparation = preparation.strip() if preparation else None
 	if short:
-		return '%s%s' % (unit, gmTools.coalesce(dose_unit, '', '/%s'))
+		if dose_unit:
+			d_u = '/' + dose_unit
+		else:
+			if preparation:
+				d_u = '/' + preparation
+			else:
+				d_u = ''
+		return '%s%s' % (unit, d_u)
 
 	return '%s / %s' % (
 		unit,
@@ -4114,19 +4139,66 @@ if __name__ == "__main__":
 			time.sleep(0.1)
 
 	#--------------------------------------------------------
+	def test_format_units():
+		units = ['mg', '', None]
+		dose_units = ['ml', '', None]
+		preparations = ['liq', '', None]
+
+		unit_defs = [
+			{'unit': 'mg', 'dose_unit': '', 'preparation': '', 'none_str': None},
+			{'unit': 'mg', 'dose_unit': '', 'preparation': '', 'none_str': 'error'},
+
+			{'unit': 'mg', 'dose_unit': 'g', 'preparation': '', 'none_str': None},
+			{'unit': 'mg', 'dose_unit': 'g', 'preparation': '', 'none_str': 'error'},
+
+			{'unit': 'mg', 'dose_unit': '', 'preparation': 'powder', 'none_str': None},
+			{'unit': 'mg', 'dose_unit': '', 'preparation': 'powder', 'none_str': 'error'},
+
+			{'unit': 'mg', 'dose_unit': 'g', 'preparation': 'powder', 'none_str': None},
+			{'unit': 'mg', 'dose_unit': 'g', 'preparation': 'powder', 'none_str': 'error'},
+
+			{'unit': None, 'dose_unit': '', 'preparation': '', 'none_str': None},
+			{'unit': None, 'dose_unit': '', 'preparation': '', 'none_str': 'dummy'},
+
+			{'unit': None, 'dose_unit': 'g', 'preparation': '', 'none_str': None},
+			{'unit': None, 'dose_unit': 'g', 'preparation': '', 'none_str': 'dummy'},
+
+			{'unit': None, 'dose_unit': '', 'preparation': 'powder', 'none_str': None},
+			{'unit': None, 'dose_unit': '', 'preparation': 'powder', 'none_str': 'dummy'},
+
+			{'unit': None, 'dose_unit': 'g', 'preparation': 'powder', 'none_str': None},
+			{'unit': None, 'dose_unit': 'g', 'preparation': 'powder', 'none_str': 'dummy'},
+
+#			{'unit': '', 'dose_unit': '', 'preparation': '', 'none_str': ''},
+#			{'unit': '', 'dose_unit': '', 'preparation': '', 'none_str': ''},
+#			{'unit': '', 'dose_unit': '', 'preparation': '', 'none_str': ''},
+#			{'unit': '', 'dose_unit': '', 'preparation': '', 'none_str': ''},
+		]
+		for u in units:
+			for du in dose_units:
+				for prep in preparations:
+					kwargs = {'unit': u, 'dose_unit': du, 'preparation': prep}
+					none_strs = [None, 'dummy' if u is None else 'error']
+					for n in none_strs:
+						kwargs['none_str'] = n
+						print('%s\n  ==> s: %s ---- l: %s' % (kwargs, format_units(short = True, **kwargs), format_units(short = False, **kwargs)))
+			input()
+
+	#--------------------------------------------------------
 	# generic
 	#test_URLs()
 	#test_drug2renal_insufficiency_url()
 	#test_interaction_check()
 	#test_medically_formatted_start_end()
+	test_format_units()
 
-	gmPG2.request_login_params(setup_pool = True)
+	#gmPG2.request_login_params(setup_pool = True)
 	#test_get_substances()
 	#test_get_doses()
 	#test_get_components()
 	#test_get_drugs()
 	#test_get_intakes()
-	test_get_intakes_with_regimens()
+	#test_get_intakes_with_regimens()
 	#test_get_intake_regimens()
 	#test_intake_formatting()
 	#test_intake_regimen()
