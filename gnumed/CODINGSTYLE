@@ -5,12 +5,6 @@ General
 - use speaking identifiers as much as possible for self documentation of code
 
 
-SQL
----
-
-- use COUNT(*) rather than COUNT(1) or COUNT(some_column) unless you know why
-
-
 Python
 ------
 
@@ -111,9 +105,17 @@ LaTeX:
 
 
 #=== snip =========================================================================
+# SQL
+#==================================================================================
 
-SQL
+DML
+---
+	use COUNT(*) rather than COUNT(1) or COUNT(some_column) unless you know why
 
+	add identifying "-- this is a comment" comments to SQL being sent to the server
+
+DDL
+---
 	IN / OUT: _variable_name
 	DECLARE: __variable_name
 
@@ -127,9 +129,12 @@ SQL
 
 	view name: schema.v_table_name+s_or_purpose
 
-	add identifying "-- this is a comment" comments to SQL being sent to the server
+	use JsonB, not Json, because it will be more strict in sanitizing input
+
+		https://www.postgresql.org/docs/current/datatype-json.html
 
 plpgsql
+-------
 	USING HINT
 	USING ERRCODE
 	USING MESSAGE
