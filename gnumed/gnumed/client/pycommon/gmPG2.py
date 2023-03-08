@@ -53,7 +53,7 @@ except ImportError:
 
 import psycopg2.errorcodes as sql_error_codes
 import psycopg2.sql as psysql
-#import psycopg2.errors as PG_EXCEPTIONS
+import psycopg2.errors as PG_EXCEPTIONS
 
 PG_ERROR_EXCEPTION = dbapi.Error
 
@@ -2379,6 +2379,11 @@ def shutdown():
 #-----------------------------------------------------------------------
 def __noop():
 	pass
+
+#-----------------------------------------------------------------------
+def log_pg_exception(exc: Exception, msg:str=None):
+	gmConnectionPool.log_pg_exception_details(exc)
+	_log.exception(msg)
 
 #-----------------------------------------------------------------------
 def log_database_access(action=None):

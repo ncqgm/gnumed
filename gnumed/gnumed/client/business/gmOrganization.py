@@ -84,13 +84,13 @@ class cOrg(gmBusinessDBObject.cBusinessDBObject):
 	units = property(_get_units, lambda x:x)
 
 #------------------------------------------------------------
-def org_exists(organization=None, category=None, link_obj=None):
+def org_exists(organization:str=None, category=None, link_obj=None) -> cOrg:
 	args = {'desc': organization, 'cat': category}
 
-	if isinstance(category, str):
-		cat_part = 'fk_category = (SELECT pk FROM dem.org_category WHERE description = %(cat)s)'
-	elif category is None:
+	if category is None:
 		cat_part = 'True'
+	elif isinstance(category, str):
+		cat_part = 'fk_category = (SELECT pk FROM dem.org_category WHERE description = %(cat)s)'
 	else:
 		cat_part = 'fk_category = %(cat)s'
 
@@ -100,6 +100,7 @@ def org_exists(organization=None, category=None, link_obj=None):
 		return cOrg(aPK_obj = rows[0][0])
 
 	return None
+
 #------------------------------------------------------------
 def create_org(organization=None, category=None, link_obj=None):
 
@@ -118,6 +119,7 @@ def create_org(organization=None, category=None, link_obj=None):
 	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], get_col_idx = False, return_data = True)
 
 	return cOrg(aPK_obj = rows[0][0], link_obj = link_obj)
+
 #------------------------------------------------------------
 def delete_org(organization=None):
 	args = {'pk': organization}
@@ -131,6 +133,7 @@ def delete_org(organization=None):
 	"""
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 	return True
+
 #------------------------------------------------------------
 def get_orgs(order_by=None, return_pks=False):
 
@@ -418,7 +421,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 	comm_channels = property(get_comm_channels, lambda x:x)
 
 #------------------------------------------------------------
-def create_org_unit(pk_organization=None, unit=None, link_obj=None):
+def create_org_unit(pk_organization:str=None, unit:str=None, link_obj=None) -> cOrgUnit:
 	_log.debug('creating org unit [%s:%s]', unit, pk_organization)
 	args = {'desc': unit, 'pk_org': pk_organization}
 	cmd1 = """
@@ -467,13 +470,16 @@ def delete_org_unit(unit:int=None) -> bool:
 			SELECT 1 FROM dem.lnk_org_unit2ext_id where fk_org_unit = %(pk)s
 		)
 	"""
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-	#except gmPG2.PG_EXCEPTIONS.ForeignKeyViolation as exc:
+	try:
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	except gmPG2.PG_EXCEPTIONS.ForeignKeyViolation:
+		_log.exception('error deleting org unit')
+		return False
+
 	return True
 
 #------------------------------------------------------------
-def get_org_units(order_by=None, org=None, return_pks=False):
-
+def get_org_units(order_by:str=None, org:int=None, return_pks:bool=False) -> list:
 	if order_by is None:
 		order_by = ''
 	else:
@@ -489,6 +495,7 @@ def get_org_units(order_by=None, org=None, return_pks=False):
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	if return_pks:
 		return [ r['pk_org_unit'] for r in rows ]
+
 	return [ cOrgUnit(row = {'data': r, 'idx': idx, 'pk_field': 'pk_org_unit'}) for r in rows ]
 
 #======================================================================
@@ -505,5 +512,6 @@ if __name__ == "__main__":
 	gmPG2.request_login_params(setup_pool = True)
 
 	#print(cOrgUnit(aPK_obj = 21825))
-	for unit in get_org_units():
-		print(unit)
+	delete_org_unit(2)
+	#for unit in get_org_units():
+	#	print(unit)
