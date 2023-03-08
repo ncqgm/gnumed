@@ -10,6 +10,7 @@
 
 FIX: bills: exception on saving invoice PDF [thanks Aimee]
 FIX: orgs: deleting org unit used by external care [thanks Aimee]
+FIX: forms: managing addresses from letter receiver selection [thanks Aimee]
 
 	1.8.9
 

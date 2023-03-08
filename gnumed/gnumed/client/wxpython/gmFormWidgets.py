@@ -1025,6 +1025,7 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 	#------------------------------------------------------------
 	def _on_manage_addresses_button_pressed(self, event):
 		event.Skip()
+		from Gnumed.wxpython.gmAddressWidgets import manage_addresses
 		manage_addresses(parent = self)
 
 	#------------------------------------------------------------
