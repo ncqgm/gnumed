@@ -240,6 +240,7 @@ class gmBackendListener(gmBorg.cBorg):
 						try:
 							pk_identity = int(item.split('=')[1])
 						except ValueError:
+							_log.error(payload)
 							_log.exception('error in change notification trigger')
 							pk_identity = -1
 				# try sending intra-client signals:
