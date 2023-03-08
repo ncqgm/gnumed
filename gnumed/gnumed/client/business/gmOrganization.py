@@ -442,34 +442,32 @@ def create_org_unit(pk_organization:str=None, unit:str=None, link_obj=None) -> c
 #------------------------------------------------------------
 def delete_org_unit(unit:int=None) -> bool:
 	args = {'pk': unit}
-	cmd = """DELETE FROM dem.org_unit WHERE
-		pk = %(pk)s
-			AND
-		NOT EXISTS (
-			SELECT 1 FROM blobs.doc_med where fk_org_unit = %(pk)s
-		)	AND
-		NOT EXISTS (
-			SELECT 1 FROM clin.external_care where fk_org_unit = %(pk)s
-		)	AND
-		NOT EXISTS (
-			SELECT 1 FROM blobs.doc_med where fk_org_unit = %(pk)s
-		)	AND
-		NOT EXISTS (
-			SELECT 1 FROM clin.hospital_stay where fk_org_unit = %(pk)s
-		)	AND
-		NOT EXISTS (
-			SELECT 1 FROM clin.procedure where fk_org_unit = %(pk)s
-		)	AND
-		NOT EXISTS (
-			SELECT 1 FROM clin.test_org where fk_org_unit = %(pk)s
-		)	AND
-		NOT EXISTS (
-			SELECT 1 FROM dem.lnk_org_unit2comm where fk_org_unit = %(pk)s
-		)	AND
-		NOT EXISTS (
-			SELECT 1 FROM dem.lnk_org_unit2ext_id where fk_org_unit = %(pk)s
-		)
-	"""
+	cmd = "DELETE FROM dem.org_unit WHERE pk = %(pk)s"
+			#--			AND
+			#--		NOT EXISTS (
+			#--			SELECT 1 FROM blobs.doc_med where fk_org_unit = %(pk)s
+			#--		)	AND
+			#--		NOT EXISTS (
+			#--			SELECT 1 FROM clin.external_care where fk_org_unit = %(pk)s
+			#--		)	AND
+			#--		NOT EXISTS (
+			#--			SELECT 1 FROM blobs.doc_med where fk_org_unit = %(pk)s
+			#--		)	AND
+			#--		NOT EXISTS (
+			#--			SELECT 1 FROM clin.hospital_stay where fk_org_unit = %(pk)s
+			#--		)	AND
+			#--		NOT EXISTS (
+			#--			SELECT 1 FROM clin.procedure where fk_org_unit = %(pk)s
+			#--		)	AND
+			#--		NOT EXISTS (
+			#--			SELECT 1 FROM clin.test_org where fk_org_unit = %(pk)s
+			#--		)	AND
+			#--		NOT EXISTS (
+			#--			SELECT 1 FROM dem.lnk_org_unit2comm where fk_org_unit = %(pk)s
+			#--		)	AND
+			#--		NOT EXISTS (
+			#--			SELECT 1 FROM dem.lnk_org_unit2ext_id where fk_org_unit = %(pk)s
+			#--		)
 	try:
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 	except gmPG2.PG_EXCEPTIONS.ForeignKeyViolation:
