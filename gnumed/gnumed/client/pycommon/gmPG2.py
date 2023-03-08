@@ -53,6 +53,7 @@ except ImportError:
 
 import psycopg2.errorcodes as sql_error_codes
 import psycopg2.sql as psysql
+#import psycopg2.errors as PG_EXCEPTIONS
 
 PG_ERROR_EXCEPTION = dbapi.Error
 

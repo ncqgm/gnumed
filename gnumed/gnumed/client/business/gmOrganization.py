@@ -437,13 +437,19 @@ def create_org_unit(pk_organization=None, unit=None, link_obj=None):
 	return cOrgUnit(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_org_unit'})
 
 #------------------------------------------------------------
-def delete_org_unit(unit=None):
+def delete_org_unit(unit:int=None) -> bool:
 	args = {'pk': unit}
 	cmd = """DELETE FROM dem.org_unit WHERE
 		pk = %(pk)s
 			AND
 		NOT EXISTS (
-			SELECT 1 FROM clin.encounter where fk_location = %(pk)s
+			SELECT 1 FROM blobs.doc_med where fk_org_unit = %(pk)s
+		)	AND
+		NOT EXISTS (
+			SELECT 1 FROM clin.external_care where fk_org_unit = %(pk)s
+		)	AND
+		NOT EXISTS (
+			SELECT 1 FROM blobs.doc_med where fk_org_unit = %(pk)s
 		)	AND
 		NOT EXISTS (
 			SELECT 1 FROM clin.hospital_stay where fk_org_unit = %(pk)s
@@ -462,7 +468,9 @@ def delete_org_unit(unit=None):
 		)
 	"""
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	#except gmPG2.PG_EXCEPTIONS.ForeignKeyViolation as exc:
 	return True
+
 #------------------------------------------------------------
 def get_org_units(order_by=None, org=None, return_pks=False):
 
@@ -494,8 +502,8 @@ if __name__ == "__main__":
 	if sys.argv[1] != 'test':
 		sys.exit()
 
+	gmPG2.request_login_params(setup_pool = True)
 
-	print(cOrgUnit(aPK_obj = 21825))
-
-#	for unit in get_org_units():
-#		print unit
+	#print(cOrgUnit(aPK_obj = 21825))
+	for unit in get_org_units():
+		print(unit)
