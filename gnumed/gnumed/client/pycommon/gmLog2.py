@@ -69,7 +69,6 @@ import calendar
 _logfile_name = None
 _logfile = None
 
-#_string_encoding = None
 
 # table used for cooking non-printables
 AsciiName = ['<#0-0x00-nul>',
@@ -227,6 +226,20 @@ def log_multiline(level, message=None, line_prefix=None, text=None):
 	logger = logging.getLogger('gm.logging')
 	logger.log(level, '\n'.join(lines2log))
 
+#---------------------------------------------------------------
+__current_log_step = 1
+
+def log_step(level:int=logging.DEBUG, message:str=None, restart:bool=False):
+	if restart:
+		global __current_log_step
+		__current_log_step = 1
+	logger = logging.getLogger('gm.logging')
+	if message:
+		logger.log(level, '%s - %s', __current_log_step, message)
+	else:
+		logger.log(level, '%s', __current_log_step)
+	__current_log_step += 1
+
 #===============================================================
 # internal API
 #===============================================================
@@ -346,19 +359,24 @@ if __name__ == '__main__':
 
 	#-----------------------------------------------------------
 	def test():
+		print(_logfile_name)
+		log_step(message = 'testing')
 		logger = logging.getLogger('gmLog2.test')
-
+		log_step()
 		logger.error('test %s', [1,2,3])
-
+		log_step(message = 'still testing')
 		logger.error("I expected to see %s::test()" % __file__)
+		log_step(message = 'restarting', restart = True)
 		add_word2hide('super secret passphrase')
+		log_step()
 		logger.debug('credentials: super secret passphrase')
-
+		log_step()
 		try:
 			int(None)
 		except Exception:
 			logger.exception('unhandled exception')
 			log_stack_trace()
 		flush()
+		log_step(message = 'done')
 	#-----------------------------------------------------------
 	test()
