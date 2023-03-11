@@ -544,7 +544,7 @@ class cMatchProvider_SQL2(cMatchProvider):
 		return matches
 
 	#--------------------------------------------------------
-	def _find_matches(self, fragment_condition):
+	def _find_matches(self, fragment_condition:str) -> tuple[bool, list]:
 		"""Loads matching data from PostgreSQL and turns them into
 		   matches fit for consumption by a phrasewheel.
 		"""
