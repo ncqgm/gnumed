@@ -1964,6 +1964,7 @@ def format_clinical_duration_of_episode(start=None, end=None):
 
 #============================================================
 class cEpisodeMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
+	"""Find episodes for patient."""
 
 	_SQL_episode_start = _SQL_best_guess_clinical_start_date_for_episode % {'pk': 'c_vpe.pk_episode'}
 	_SQL_episode_end = _SQL_best_guess_clinical_end_date_for_episode % {'pk': 'c_vpe.pk_episode'}
@@ -2024,6 +2025,18 @@ class cEpisodeMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 		super().__init__(queries = [query], context = ctxt)
 
 	#--------------------------------------------------------
+	def _find_matches(self, fragment_condition):
+		try:
+			pat = self._context_vals['pat']
+		except KeyError:
+			pat = None
+		if not pat:
+			# not patient, no search
+			return (False, [])
+
+		return super()._find_matches(fragment_condition)
+
+	#--------------------------------------------------------
 	def _rows2matches(self, rows):
 		matches = []
 		for row in rows:
@@ -2046,7 +2059,6 @@ class cEpisodeMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 			match['list_label'] = label
 			match['field_label'] = label
 			matches.append(match)
-
 		return matches
 
 #============================================================
@@ -3117,7 +3129,7 @@ def delete_encounter(pk_encounter):
 	args = {'enc': pk_encounter}
 	try:
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-	except gmPG2.PG_ERROR_EXCEPTION:
+	except gmPG2.PG_ERROR_EXCEPTION as exc:
 		_log.exception('cannot delete encounter [%s]', pk_encounter)
 		gmPG2.log_pg_exception_details(exc)
 		unlock_encounter(pk_encounter, exclusive = True, link_obj = conn)
@@ -3331,9 +3343,7 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 				return []
 			episodes = [ latest ]
 
-		emr = patient.emr
-
-		doc_folder = gmDocuments.cDocumentFolder(aPKey = patient.ID)
+		doc_folder = gmDocuments.cDocumentFolder(aPKey = self._payload[self._idx['pk_patient']])
 		return doc_folder.get_visual_progress_notes (
 			health_issue = self._payload[self._idx['pk_health_issue']],
 			episode = self._payload[self._idx['pk_episode']]
@@ -4144,12 +4154,17 @@ if __name__ == '__main__':
 		#print export_emr_structure(patient = pat, filename = fname)
 
 	#--------------------------------------------------------
+	def test_cEpisodeMatchProvider():
+		mp = cEpisodeMatchProvider()
+		print(mp._find_matches('no patient'))
+
+	#--------------------------------------------------------
 	# run them
 	#test_episode()
 	#test_episode_encounters()
 	#test_problem()
 	#test_encounter()
-	test_health_issue()
+	#test_health_issue()
 	#test_hospital_stay()
 	#test_performed_procedure()
 	#test_diagnostic_certainty_classification_map()
@@ -4157,5 +4172,7 @@ if __name__ == '__main__':
 	#test_episode_codes()
 
 	#test_export_emr_structure()
+
+	test_cEpisodeMatchProvider()
 
 #============================================================
