@@ -349,21 +349,7 @@ def setup_logging():
 	_log = logging.getLogger('gm.launcher')
 
 #==========================================================
-def log_startup_info():
-	global _pre_log_buffer
-	if len(_pre_log_buffer) > 0:
-		_log.info('early startup log buffer:')
-	for line in _pre_log_buffer:
-		_log.info(' ' + line)
-	del _pre_log_buffer
-	_log.info('GNUmed client version [%s] on branch [%s]', current_client_version, current_client_branch)
-	_log.info('Platform: %s', platform.uname())
-	_log.info(('Python %s on %s (%s)' % (sys.version, sys.platform, os.name)).replace('\n', '<\\n>'))
-	try:
-		import lsb_release
-		_log.info('lsb_release: %s', lsb_release.get_distro_information())
-	except ImportError:
-		pass
+def __log_module_sys():
 	_log.info('module <sys> info:')
 	attrs2skip = ['__doc__', 'copyright', '__name__', '__spec__']
 	for attr_name in dir(sys):
@@ -381,6 +367,9 @@ def log_startup_info():
 			except Exception:
 				_log.exception('%s: <cannot log>', attr_name.rjust(30))
 			continue
+
+#----------------------------------------------------------
+def __log_module_platform():
 	_log.info('module <platform> info:')
 	attrs2skip = ['__doc__', '__copyright__', '__name__', '__spec__', '__cached__', '__builtins__']
 	for attr_name in dir(platform):
@@ -400,6 +389,9 @@ def log_startup_info():
 			continue
 		_log.info('%s: %s', attr_name.rjust(30), attr)
 		continue
+
+#----------------------------------------------------------
+def __log_module_os():
 	_log.info('module <os> info:')
 	for n in os.confstr_names:
 		_log.info('%s: %s', ('confstr[%s]' % n).rjust(40), os.confstr(n))
@@ -421,6 +413,9 @@ def log_startup_info():
 	_log.info('process environment:')
 	for key, val in os.environ.items():
 		_log.info(' %s: %s' % (('${%s}' % key).rjust(40), val))
+
+#----------------------------------------------------------
+def __log_module_sysconfig():
 	import sysconfig
 	_log.info('module <sysconfig> info:')
 	_log.info(' platform [%s] -- python version [%s]', sysconfig.get_platform(), sysconfig.get_python_version())
@@ -432,6 +427,27 @@ def log_startup_info():
 	conf_vars = sysconfig.get_config_vars()
 	for var in conf_vars:
 		_log.info('%s: %s', var.rjust(45), conf_vars[var])
+
+#----------------------------------------------------------
+def log_startup_info():
+	global _pre_log_buffer
+	if len(_pre_log_buffer) > 0:
+		_log.info('early startup log buffer:')
+	for line in _pre_log_buffer:
+		_log.info(' ' + line)
+	del _pre_log_buffer
+	_log.info('GNUmed client version [%s] on branch [%s]', current_client_version, current_client_branch)
+	_log.info('Platform: %s', platform.uname())
+	_log.info(('Python %s on %s (%s)' % (sys.version, sys.platform, os.name)).replace('\n', '<\\n>'))
+	try:
+		import lsb_release
+		_log.info('lsb_release: %s', lsb_release.get_distro_information())
+	except ImportError:
+		pass
+	__log_module_sys()
+	__log_module_platform()
+	__log_module_os()
+	__log_module_sysconfig()
 
 	#for f in [ mod.__spec__ for mod in sys.modules.values() ]:
 	#	print(f.origin)
