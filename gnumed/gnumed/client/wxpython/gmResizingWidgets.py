@@ -146,7 +146,7 @@ class cResizingWindow(wx.ScrolledWindow):
 		self.__input_lines = [[]]
 		self.__szr_main = None
 		self.DoLayout()
-		self.__szr_main = wx.FlexGridSizer(len(self.__input_lines), 2)
+		self.__szr_main = wx.FlexGridSizer(len(self.__input_lines), 2, 0, 0)
 		for line in self.__input_lines:
 			if len(line) != 0:
 				# first label goes into column 1
@@ -520,17 +520,18 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		#wx.stc.StyledTextCtrl.SetFocus(self)
 		cur = self.PointFromPosition(position + len(expansion) + 1)
 		self.__parent.EnsureVisible(self, cur.x, cur.y)
+
 	#------------------------------------------------
 	# event handling
 	#------------------------------------------------
 	def __register_interests(self):
 		self.SetModEventMask (wx.stc.STC_MOD_INSERTTEXT | wx.stc.STC_MOD_DELETETEXT | wx.stc.STC_PERFORMED_USER)
-
-		wx.stc.EVT_STC_MODIFIED (self, self.GetId(), self.__on_STC_modified)
-
-		wx.EVT_KEY_DOWN (self, self.__on_key_down)
+		self.Bind(wx.stc.EVT_STC_MODIFIED, self.__on_STC_modified)
+		self.Bind(wx.EVT_KEY_DOWN, self.__on_key_down)
+		self.Bind(wx.EVT_KEY_UP, self.__OnKeyUp)
 		wx.EVT_KEY_UP (self, self.__OnKeyUp)
-		wx.EVT_CHAR(self, self.__on_char)
+		self.Bind(wx.EVT_CHAR, self.__on_char)
+
 	#------------------------------------------------
 	def __on_STC_modified(self, event):
 
