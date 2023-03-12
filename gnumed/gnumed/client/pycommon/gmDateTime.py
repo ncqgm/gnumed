@@ -43,6 +43,7 @@ __license__ = "GPL v2 or later (details at https://www.gnu.org)"
 
 # stdlib
 import sys, datetime as pyDT, time, os, re as regex, logging
+from typing import Callable
 
 
 if __name__ == '__main__':
@@ -61,8 +62,7 @@ current_local_utc_offset_in_seconds = None
 current_local_iso_numeric_timezone_string = None
 current_local_timezone_name = None
 
-gmCurrentLocalTimezone = 'gmCurrentLocalTimezone not initialized'
-
+gmCurrentLocalTimezone = None
 
 (	acc_years,
 	acc_months,
@@ -241,26 +241,26 @@ class cPlatformLocalTimezone(pyDT.tzinfo):
 #===========================================================================
 # convenience functions
 #---------------------------------------------------------------------------
-def get_next_month(dt):
+def get_next_month(dt:pyDT.datetime):
 	next_month = dt.month + 1
 	if next_month == 13:
 		return 1
 	return next_month
 
 #---------------------------------------------------------------------------
-def get_last_month(dt):
+def get_last_month(dt:pyDT.datetime):
 	last_month = dt.month - 1
 	if last_month == 0:
 		return 12
 	return last_month
 
 #---------------------------------------------------------------------------
-def get_date_of_weekday_in_week_of_date(weekday, base_dt=None):
+def get_date_of_weekday_in_week_of_date(weekday, base_dt:pyDT.datetime=None) -> pyDT.datetime:
 	# weekday:
 	# 0 = Sunday
 	# 1 = Monday ...
-	if weekday not in [0,1,2,3,4,5,6,7]:
-		raise ValueError('weekday must be in 0 (Sunday) to 7 (Sunday, again)')
+	assert weekday in [0,1,2,3,4,5,6,7], 'weekday must be in 0 (Sunday) to 7 (Sunday, again)'
+
 	if base_dt is None:
 		base_dt = pydt_now_here()
 	dt_weekday = base_dt.isoweekday()		# 1 = Mon
@@ -269,7 +269,7 @@ def get_date_of_weekday_in_week_of_date(weekday, base_dt=None):
 	return pydt_add(base_dt, days = days2add)
 
 #---------------------------------------------------------------------------
-def get_date_of_weekday_following_date(weekday, base_dt=None):
+def get_date_of_weekday_following_date(weekday, base_dt:pyDT.datetime=None):
 	# weekday:
 	# 0 = Sunday		# will be wrapped to 7
 	# 1 = Monday ...
@@ -288,7 +288,7 @@ def get_date_of_weekday_following_date(weekday, base_dt=None):
 	return pydt_add(base_dt, days = days2add)
 
 #---------------------------------------------------------------------------
-def format_dob(dob, format='%Y %b %d', none_string=None, dob_is_estimated=False):
+def format_dob(dob:pyDT.datetime, format='%Y %b %d', none_string=None, dob_is_estimated=False):
 	if dob is None:
 		if none_string is None:
 			return _('** DOB unknown **')
@@ -316,7 +316,7 @@ def pydt_strftime(dt=None, format='%Y %b %d  %H:%M.%S', accuracy=None, none_str=
 		return 'strftime() error'
 
 #---------------------------------------------------------------------------
-def pydt_add(dt, years=0, months=0, weeks=0, days=0, hours=0, minutes=0, seconds=0, milliseconds=0, microseconds=0):
+def pydt_add(dt:pyDT.datetime, years=0, months=0, weeks=0, days=0, hours=0, minutes=0, seconds=0, milliseconds=0, microseconds=0):
 	"""Add some time to a given datetime."""
 	if months > 11 or months < -11:
 		raise ValueError('pydt_add(): months must be within [-11..11]')
@@ -344,7 +344,7 @@ def pydt_add(dt, years=0, months=0, weeks=0, days=0, hours=0, minutes=0, seconds
 	return pydt_replace(dt, year = target_year, month = target_month, strict = False)
 
 #---------------------------------------------------------------------------
-def pydt_replace(dt, strict=True, year=None, month=None, day=None, hour=None, minute=None, second=None, microsecond=None, tzinfo=None):
+def pydt_replace(dt:pyDT.datetime, strict=True, year=None, month=None, day=None, hour=None, minute=None, second=None, microsecond=None, tzinfo=None):
 	# normalization required because .replace() does not
 	# deal with keyword arguments being None ...
 	if year is None:
@@ -386,14 +386,18 @@ def pydt_replace(dt, strict=True, year=None, month=None, day=None, hour=None, mi
 	return dt.replace(year = year, month = month, day = day, hour = hour, minute = minute, second = second, microsecond = microsecond, tzinfo = tzinfo)
 
 #---------------------------------------------------------------------------
-def pydt_is_today(dt):
+def pydt_is_today(dt:pyDT.datetime) -> bool:
+	"""Check wheter <dt> is today."""
 	now = pyDT.datetime.now(gmCurrentLocalTimezone)
 	if dt.day != now.day:
 		return False
+
 	if dt.month != now.month:
 		return False
+
 	if dt.year != now.year:
 		return False
+
 	return True
 
 #---------------------------------------------------------------------------
@@ -1440,7 +1444,7 @@ STR2PYDT_DEFAULT_PATTERNS = [
 ]
 """Default patterns being passed to strptime()."""
 
-STR2PYDT_PARSERS = [
+STR2PYDT_PARSERS:list[Callable[[str], dict]] = [
 	__single_dot2py_dt,
 	__numbers_only2py_dt,
 	__single_slash2py_dt,
@@ -1475,7 +1479,7 @@ def str2pydt_matches(str2parse:str=None, patterns:list=None) -> list:
 	Returns:
 		List of Python datetimes the input could be parsed as.
 	"""
-	matches = []
+	matches:list[dict] = []
 	for parser in STR2PYDT_PARSERS:
 		matches.extend(parser(str2parse))
 	parts = str2parse.split(maxsplit = 1)

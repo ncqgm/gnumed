@@ -53,7 +53,6 @@ except ImportError:
 
 import psycopg2.errorcodes as sql_error_codes
 import psycopg2.sql as psysql
-import psycopg2.errors as PG_EXCEPTIONS
 
 PG_ERROR_EXCEPTION = dbapi.Error
 
@@ -645,7 +644,7 @@ def get_db_fingerprint(conn=None, fname:str=None, with_dump:bool=False, eol:str=
 	return fname
 
 #------------------------------------------------------------------------
-def run_fingerprint_tool():
+def run_fingerprint_tool() -> int:
 	fname = 'db-fingerprint.txt'
 	result = get_db_fingerprint(fname = fname, with_dump = True)
 	if result == fname:
@@ -656,7 +655,7 @@ def run_fingerprint_tool():
 	return -2
 
 #------------------------------------------------------------------------
-def get_current_user():
+def get_current_user() -> str:
 	rows, idx = run_ro_queries(queries = [{'cmd': 'select CURRENT_USER'}])
 	return rows[0][0]
 
@@ -771,14 +770,14 @@ where
 	return rows
 
 #------------------------------------------------------------------------
-def schema_exists(link_obj=None, schema='gm'):
-	cmd = """SELECT EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = %(schema)s)"""
+def schema_exists(link_obj=None, schema='gm') -> bool:
+	cmd = "SELECT EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = %(schema)s)"
 	args = {'schema': schema}
 	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
 	return rows[0][0]
 
 #------------------------------------------------------------------------
-def table_exists(link_obj=None, schema=None, table=None):
+def table_exists(link_obj=None, schema:str=None, table:str=None) -> bool:
 	"""Returns false, true."""
 	cmd = """
 select exists (
@@ -1292,38 +1291,52 @@ def force_user_language(language=None):
 # query runners and helpers
 # =======================================================================
 def send_maintenance_notification():
-	cmd = 'notify "db_maintenance_warning"'
+	cmd = 'NOTIFY "db_maintenance_warning"'
 	run_rw_queries(queries = [{'cmd': cmd}], return_data = False)
 
 #------------------------------------------------------------------------
 def send_maintenance_shutdown():
-	cmd = 'notify "db_maintenance_disconnect"'
+	cmd = 'NOTIFY "db_maintenance_disconnect"'
 	run_rw_queries(queries = [{'cmd': cmd}], return_data = False)
 
 #------------------------------------------------------------------------
-def is_pg_interval(candidate=None):
+def is_pg_interval(candidate:str=None) -> bool:
 	cmd = 'SELECT %(candidate)s::interval'
 	try:
-		rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'candidate': candidate}}])
-		return True
+		run_ro_queries(queries = [{'cmd': cmd, 'args': {'candidate': candidate}}])
 	except Exception:
 		cmd = 'SELECT %(candidate)s::text::interval'
 		try:
-			rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'candidate': candidate}}])
-			return True
+			run_ro_queries(queries = [{'cmd': cmd, 'args': {'candidate': candidate}}])
 		except Exception:
 			return False
 
-#------------------------------------------------------------------------
-def lock_row(link_obj=None, table=None, pk=None, exclusive=False):
-	"""Uses pg_advisory(_shared).
+	return True
 
-	- locks stack upon each other and need one unlock per lock
-	- same connection:
-		- all locks succeed
-	- different connections:
-		- shared + shared succeed
-		- shared + exclusive fail
+#------------------------------------------------------------------------
+def lock_row(link_obj=None, table:str=None, pk:int=None, exclusive:bool=False) -> bool:
+	"""Get advisory lock on a table row.
+
+	Uses pg_advisory(_shared). Technically, <table> and <pk>
+	are just conventions for reproducibly generating the lock
+	token.
+
+	Locks stack upon each other and need one unlock per lock.
+
+	Same connection: all locks succeed
+	Different connections:
+
+		- shared + shared: succeeds
+		- shared + exclusive: fails
+
+	Args:
+		link_obj: None/connection/cursor
+		table: the table in which to lock a row
+		pk: the PK of the row to lock.
+		exclusive: whether or not to lock _shared
+
+	Returns:
+		Whether lock was obtained or not.
 	"""
 	_log.debug('locking row: [%s] [%s] (exclusive: %s)', table, pk, exclusive)
 	if exclusive:
@@ -1338,7 +1351,7 @@ def lock_row(link_obj=None, table=None, pk=None, exclusive=False):
 	return False
 
 #------------------------------------------------------------------------
-def unlock_row(link_obj=None, table=None, pk=None, exclusive=False):
+def unlock_row(link_obj=None, table:str=None, pk:int=None, exclusive:bool=False) -> bool:
 	"""Uses pg_advisory_unlock(_shared).
 
 	- each lock needs one unlock

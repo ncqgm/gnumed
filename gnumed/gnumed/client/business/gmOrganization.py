@@ -470,7 +470,7 @@ def delete_org_unit(unit:int=None) -> bool:
 			#--		)
 	try:
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-	except gmPG2.PG_EXCEPTIONS.ForeignKeyViolation:
+	except gmPG2.dbapi.errors.ForeignKeyViolation:
 		_log.exception('error deleting org unit')
 		return False
 
