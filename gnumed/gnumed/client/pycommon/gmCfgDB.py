@@ -119,6 +119,13 @@ def get_all_options(order_by:str=None) -> list:
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
 	return rows
 
+#------------------------------------------------------------------
+def log_all_options() -> None:
+	_log.debug('client configuration stored in the database:')
+	for opt in get_all_options(order_by = 'option, owner, workplace'):
+		_log.debug('option [%s] -- owner [%s] -- workplace [%s]', opt['option'], opt['owner'], opt['workplace'])
+		_log.debug(' %s: %s', type(opt['value']), opt['value'])
+
 #==================================================================
 def __get_db_cfg_object():
 	"""Setup a module global instance of cCfgSQL()."""
@@ -450,6 +457,7 @@ if __name__ == "__main__":
 	#---------------------------------------------------------
 	gmPG2.request_login_params(setup_pool = True)
 
+	log_all_options()
 	#test_get_all_options()
 	#test_set()
-	test_db_cfg()
+	#test_db_cfg()

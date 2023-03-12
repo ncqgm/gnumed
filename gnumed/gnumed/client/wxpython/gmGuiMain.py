@@ -3449,20 +3449,19 @@ class gmApp(wx.App):
 			return False
 
 		gmExceptionHandlingWidgets.set_sender_email(gmPraxis.gmCurrentPraxisBranch().user_email)
-
 		self.__guibroker = gmGuiBroker.GuiBroker()
 		self.__setup_platform()
-
 		if not self.__establish_backend_connection():
 			return False
+
 		if not self.__verify_db_account():
 			return False
+
 		if not self.__verify_praxis_branch():
 			return False
 
 		self.__check_db_lang()
 		self.__update_workplace_list()
-
 		if not _cfg.get(option = 'skip-update-check'):
 			self.__check_for_updates()
 
@@ -3629,6 +3628,7 @@ class gmApp(wx.App):
 			require_version = not override
 		)
 		if connected:
+			gmCfgDB.log_all_options()
 			return True
 
 		_log.warning("Login attempt unsuccessful. Can't run GNUmed without database connection")
