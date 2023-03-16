@@ -3485,10 +3485,9 @@ class gmApp(wx.App):
 
 		self.__setup_user_activity_timer()
 		self.__register_events()
-
 		wx.CallAfter(self._do_after_init)
-
 		return True
+
 	#----------------------------------------------
 	def OnExit(self):
 		"""Called internally by wxPython after EVT_CLOSE has been handled on last frame.
@@ -3516,6 +3515,13 @@ class gmApp(wx.App):
 
 		_log.debug('gmApp.OnExit() end')
 		return 0
+
+	#----------------------------------------------
+	def MainLoop(self):
+		_log.debug('starting main event loop')
+		result = super().MainLoop()
+		_log.debug('after running main event loop')
+		return result
 
 	#----------------------------------------------
 	def _on_query_end_session(self, *args, **kwargs):
@@ -3569,6 +3575,7 @@ class gmApp(wx.App):
 		self.__starting_up = False
 		#gmClinicalRecord.set_func_ask_user(a_func = gmEncounterWidgets.ask_for_encounter_continuation)
 		self.__guibroker['horstspace.top_panel']._TCTRL_patient_selector.SetFocus()
+		self.user_activity_timer.Start(oneShot = True)
 		gmHooks.run_hook_script(hook = 'startup-after-GUI-init')
 		#log_colors_known2wx()
 
@@ -3582,7 +3589,6 @@ class gmApp(wx.App):
 			callback = self._on_user_activity_timer_expired,
 			delay = 2000			# hence a minimum of 2 and max of 3.999... seconds after which inactivity is detected
 		)
-		self.user_activity_timer.Start(oneShot=True)
 
 	#----------------------------------------------
 	def __shutdown_user_activity_timer(self):
@@ -4022,6 +4028,7 @@ def main():
 	# - do not redirect stdio (yet)
 	# - allow signals to be delivered
 	app = gmApp(redirect = False, clearSigInt = False)
+	_log.debug('--== GUI startup finished ==----------------------------')
 	app.MainLoop()
 
 #==============================================================================
