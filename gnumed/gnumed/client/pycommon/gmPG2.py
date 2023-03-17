@@ -2478,7 +2478,7 @@ def sanity_check_database_settings(hipaa:bool=True) -> tuple:
 		curs.close()
 		_log.info('PostgreSQL version (string): "%s"' % postgresql_version_string)
 	# - postgresql settings
-	options2check = {
+	options2check:dict[str, list] = {
 		# setting: [expected value, risk, fatal?]
 		'allow_system_table_mods': [['off'], 'system breakage', False],
 		'check_function_bodies': [['on'], 'suboptimal error detection', False],
@@ -2516,7 +2516,7 @@ def sanity_check_database_settings(hipaa:bool=True) -> tuple:
 		values_expected = options2check[option][0]
 		risk = options2check[option][1]
 		fatal_setting = options2check[option][2]
-		if value_found not in values_expected:
+		if not value_found in values_expected:
 			if fatal_setting is True:
 				found_error = True
 			elif fatal_setting is False:
@@ -3128,9 +3128,9 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 
 	request_login_params(setup_pool = True, force_tui = True)
 
-	test_sanity_check_collation_versions()
-	#test_sanity_check_database_settings()
-	test_refresh_collations_version_information()
+	#test_sanity_check_collation_versions()
+	test_sanity_check_database_settings()
+	#test_refresh_collations_version_information()
 
 #	try:
 #		run_ro_queries(queries = [{'cmd': 'select no_function(1)'}])
