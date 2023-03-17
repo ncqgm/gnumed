@@ -47,7 +47,6 @@ def execute_in_worker_thread(payload_function=None, payload_kwargs:dict=None, co
 	worker_thread = None
 
 	#-------------------------------
-	#-------------------------------
 	def _run_payload():
 		"""Execute the payload function.
 
@@ -73,8 +72,6 @@ def execute_in_worker_thread(payload_function=None, payload_kwargs:dict=None, co
 			_log.exception('error running completion callback: %s', completion_callback)
 		_log.info('worker thread [name=%s, PID=%s] shuts down', worker_thread.name, worker_thread.ident)
 		return
-
-	#-------------------------------
 	#-------------------------------
 
 	if worker_name is None:
@@ -87,7 +84,6 @@ def execute_in_worker_thread(payload_function=None, payload_kwargs:dict=None, co
 	_log.debug('creating thread "%s"', __thread_name)
 	_log.debug(' "%s" payload function: %s', __thread_name, payload_function)
 	_log.debug(' "%s" results callback: %s', __thread_name, completion_callback)
-	#worker_thread = multiprocessing.Process (
 	worker_thread = threading.Thread (
 		target = _run_payload,
 		name = __thread_name

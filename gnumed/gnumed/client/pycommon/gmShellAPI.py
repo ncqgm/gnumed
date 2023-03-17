@@ -282,7 +282,7 @@ def run_first_available_in_shell(binaries:list=None, args=None, blocking:bool=Fa
 	return run_command_in_shell(command = '%s %s' % (binary, args), blocking = blocking, acceptable_return_codes = acceptable_return_codes)
 
 #===========================================================================
-def _log_output(level, stdout=None, stderr=None):
+def _log_output(level:int, stdout=None, stderr=None):
 	lines2log = ['process output:']
 	if stdout is not None:
 		lines2log.extend([ ' STDOUT: %s' % line for line in stdout.split('\n') ])
