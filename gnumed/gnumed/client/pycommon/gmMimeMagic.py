@@ -886,7 +886,7 @@ magic = [
 	[0, 'string', '=', 'ZyXEL\002', 'ZyXEL voice data'],
 ]
 #=================================================================
-magicNumbers = []
+magicNumbers:list = []
 
 def strToNum(n):
 	val = 0
@@ -1122,7 +1122,7 @@ if __name__ == '__main__':
 	for arg in sys.argv[1:]:
 		msg = open(arg)
 		if msg:
-			print(arg + ': ' + msg)
+			print(arg, ': ', msg)
 		else:
 			print(arg + ': unknown')
 #=================================================================

@@ -174,7 +174,7 @@ class gmBackendListener(gmBorg.cBorg):
 		self._listener_thread.start()
 
 	#-------------------------------
-	def __parse_notification(self, notification:str) -> dict:
+	def __parse_notification(self, notification) -> dict:
 		if self.debug:
 			print(notification)
 		_log.debug('#%s: %s (first param: PID of sending backend; this backend: %s)', self.__notifications_received, notification, self.backend_pid)
