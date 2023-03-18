@@ -17,20 +17,20 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.8.9 (database v22.19)',
-	'GNUmed 1.8.9 Release Notes:
+	'Release Notes for GNUmed 1.8.10 (database v22.20)',
+	'GNUmed 1.8.10 Release Notes:
 
-	1.8.9
+	1.8.10
 
-FIX: mime handling: py3 adjustments in file magic [thanks Andreas]
-FIX: bills: exception on generating invoice PDF [thanks l-ray]
-FIX: about: exception in about dialog [thanks aimee]
+FIX: bills: exception on saving invoice PDF [thanks Aimee]
+FIX: orgs: deleting org unit used by external care [thanks Aimee]
+FIX: forms: managing addresses from letter receiver selection [thanks Aimee]
+FIX: episode PRW: only search matches if patient is set [thanks Marc]
 
-	22.19
+	22.20
 
-FIX: bootstrapper: no more IS OF, use pg_typeof in v2->v3 transition [thanks Lennart]
-FIX: bootstrapper: CHAR -> TEXT cast in v19+ schema hashing on recent PGs
+No changes over 22.19.
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.19@1.8.9');
+select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.20@1.8.10');
