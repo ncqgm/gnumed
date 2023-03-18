@@ -388,7 +388,7 @@ class cBusinessDBObject(object):
 			raise gmExceptions.ConstructorError("[%s:%s]: error loading instance" % (self.__class__.__name__, self.pk_obj))
 
 	#--------------------------------------------------------
-	def _init_from_row_data(self, row=None):
+	def _init_from_row_data(self, row:dict=None):
 		"""Creates a new clinical item instance given its fields.
 
 		row must be a dict with the fields:
@@ -478,12 +478,12 @@ class cBusinessDBObject(object):
 		raise NotImplementedError('comparison between [%s] and [%s] not implemented' % (self, another_object))
 
 	#--------------------------------------------------------
-	def is_modified(self):
+	def is_modified(self) -> bool:
 		"""Whether data in this business object has been modified."""
 		return self._is_modified
 
 	#--------------------------------------------------------
-	def get_fields(self):
+	def get_fields(self) -> list[str]:
 		"""Return list of accessible fields."""
 		try:
 			return list(self._idx)
@@ -491,12 +491,12 @@ class cBusinessDBObject(object):
 			return 'nascent [%s @ %s], cannot return keys' %(self.__class__.__name__, id(self))
 
 	#--------------------------------------------------------
-	def get_updatable_fields(self):
+	def get_updatable_fields(self) -> list[str]:
 		"""Return a list of fields that can be updated."""
 		return self.__class__._updatable_fields
 
 	#--------------------------------------------------------
-	def fields_as_dict(self, date_format='%Y %b %d  %H:%M', none_string='', escape_style=None, bool_strings=None):
+	def fields_as_dict(self, date_format='%Y %b %d  %H:%M', none_string='', escape_style=None, bool_strings=None) -> dict:
 		"""Return field values as a dictionary of strings."""
 		if bool_strings is None:
 			bools = {True: 'True', False: 'False'}
@@ -546,7 +546,7 @@ class cBusinessDBObject(object):
 		return None
 
 	#--------------------------------------------------------
-	def _get_patient_pk(self):
+	def _get_patient_pk(self) -> int:
 		"""Get primary key of associated patient if any."""
 		try:
 			return self._payload[self._idx['pk_patient']]
@@ -560,14 +560,16 @@ class cBusinessDBObject(object):
 	patient_pk = property(_get_patient_pk)
 
 	#--------------------------------------------------------
-	def _get_staff_id(self):
+	def _get_staff_id(self) -> int:
 		"""Get staff id of associated staff if any."""
 		try:
 			return self._payload[self._idx['pk_staff']]
+
 		except KeyError:
 			_log.debug('[%s]: .pk_staff should be added to the view', self.__class__.__name__)
 		try:
 			return self._payload[self._idx['pk_provider']]
+
 		except KeyError:
 			pass
 		mod_by = None
@@ -640,7 +642,7 @@ class cBusinessDBObject(object):
 		return lines
 
 	#--------------------------------------------------------
-	def refetch_payload(self, ignore_changes:bool=False, link_obj=None):
+	def refetch_payload(self, ignore_changes:bool=False, link_obj=None) -> bool:
 		"""Fetch field values from backend.
 
 		Args:
@@ -680,12 +682,12 @@ class cBusinessDBObject(object):
 		pass
 
 	#--------------------------------------------------------
-	def save(self, conn=None):
+	def save(self, conn:gmPG2.conn_class=None):
 		"""Just calls save_payload()."""
 		return self.save_payload(conn = conn)
 
 	#--------------------------------------------------------
-	def save_payload(self, conn=None):
+	def save_payload(self, conn:gmPG2.conn_class=None):
 		"""Store updated values (if any) into database.
 
 		Optionally accepts a pre-existing connection

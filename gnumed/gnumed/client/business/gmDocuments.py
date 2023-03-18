@@ -56,7 +56,7 @@ class cDocumentFolder:
 	# internal helper
 	#--------------------------------------------------------
 	def _pkey_exists(self):
-		"""Does this primary key exist ?
+		"""Does this primary key (= patient) exist ?
 
 		- true/false/None
 		"""
@@ -106,7 +106,7 @@ class cDocumentFolder:
 			return None
 		return cDocumentPart(aPK_obj = rows[0][0])
 
-	latest_mugshot = property(get_latest_mugshot, lambda x:x)
+	latest_mugshot = property(get_latest_mugshot)
 
 	#--------------------------------------------------------
 	def get_mugshot_list(self, latest_only=True):
@@ -411,7 +411,7 @@ insert into blobs.reviewed_doc_objs (
 		)
 		self._payload[self._idx['seq_idx']] = rows[0][0]
 		self._is_modified = True
-		self.save_payload()
+		return self.save_payload()
 
 	#--------------------------------------------------------
 	def reattach(self, pk_doc=None):
@@ -704,7 +704,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		try: del self.__has_unreviewed_parts
 		except AttributeError: pass
 
-		return super(cDocument, self).refetch_payload(ignore_changes = ignore_changes, link_obj = link_obj)
+		return super().refetch_payload(ignore_changes = ignore_changes, link_obj = link_obj)
 
 	#--------------------------------------------------------
 	def get_descriptions(self, max_lng=250):
@@ -950,7 +950,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		from Gnumed.business import gmEMRStructItems
 		return gmEMRStructItems.cHospitalStay(self._payload[self._idx['pk_hospital_stay']])
 
-	hospital_stay = property(_get_hospital_stay, lambda x:x)
+	hospital_stay = property(_get_hospital_stay)
 
 	#--------------------------------------------------------
 	def _get_org_unit(self):
@@ -958,21 +958,21 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 			return None
 		return gmOrganization.cOrgUnit(self._payload[self._idx['pk_org_unit']])
 
-	org_unit = property(_get_org_unit, lambda x:x)
+	org_unit = property(_get_org_unit)
 
 	#--------------------------------------------------------
 	def _get_procedures(self):
 		from Gnumed.business.gmEMRStructItems import get_procedures4document
 		return get_procedures4document(pk_document = self.pk_obj)
 
-	procedures = property(_get_procedures, lambda x:x)
+	procedures = property(_get_procedures)
 
 	#--------------------------------------------------------
 	def _get_bills(self):
 		from Gnumed.business.gmBilling import get_bills4document
 		return get_bills4document(pk_document = self.pk_obj)
 
-	bills = property(_get_bills, lambda x:x)
+	bills = property(_get_bills)
 
 #------------------------------------------------------------
 def create_document(document_type=None, encounter=None, episode=None, link_obj=None):

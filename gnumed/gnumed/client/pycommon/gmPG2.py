@@ -53,6 +53,8 @@ except ImportError:
 
 import psycopg2.errorcodes as sql_error_codes
 import psycopg2.sql as psysql
+from psycopg2.extensions import connection as conn_class
+from psycopg2.extensions import cursor as curs_class
 
 PG_ERROR_EXCEPTION = dbapi.Error
 
@@ -3125,6 +3127,9 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_get_db_fingerprint()
 	#test_revalidate_constraints()
 	#test_reindex_database()
+
+	print(conn_class)
+	print(curs_class)
 
 	request_login_params(setup_pool = True, force_tui = True)
 

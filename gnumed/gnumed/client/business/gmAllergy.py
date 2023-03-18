@@ -27,41 +27,6 @@ allergy_states = [
 	0,			# no allergies
 	1			# some allergies
 ]
-#------------------------------------------------------------
-def ensure_has_allergy_state(encounter=None):
-
-	_log.debug('checking allergy state for identity of encounter [%s]', encounter)
-
-	args = {'enc': encounter}
-	cmd_create = """
-		INSERT INTO clin.allergy_state (
-			fk_encounter,
-			has_allergy
-		)	SELECT
-				%(enc)s,
-				NULL
-			WHERE NOT EXISTS (
-				SELECT 1 FROM clin.v_pat_allergy_state
-				WHERE pk_patient = (
-					SELECT fk_patient FROM clin.encounter WHERE pk = %(enc)s
-				)
-			)
-	"""
-	cmd_search = """
-		SELECT pk_allergy_state FROM clin.v_pat_allergy_state
-		WHERE pk_patient = (
-			SELECT fk_patient FROM clin.encounter WHERE pk = %(enc)s
-		)
-	"""
-	rows, idx = gmPG2.run_rw_queries (
-		queries = [
-			{'cmd': cmd_create, 'args': args},
-			{'cmd': cmd_search, 'args': args}
-		],
-		return_data = True
-	)
-
-	return cAllergyState(aPK_obj = rows[0][0])
 
 #------------------------------------------------------------
 class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
@@ -108,10 +73,7 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 		_log.error('unknown allergy state [%s]', self._payload[self._idx['has_allergy']])
 		return _('ERROR: unknown allergy state [%s]') % self._payload[self._idx['has_allergy']]
 
-	def _set_string(self, value):
-		raise AttributeError('invalid to set allergy state string')
-
-	state_string = property(_get_as_string, _set_string)
+	state_string = property(_get_as_string)
 
 	#--------------------------------------------------------
 	def _get_as_symbol(self):
@@ -130,7 +92,7 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 		_log.error('unknown allergy state [%s]', self._payload[self._idx['has_allergy']])
 		return _('ERROR: unknown allergy state [%s]') % self._payload[self._idx['has_allergy']]
 
-	state_symbol = property(_get_as_symbol, lambda x:x)
+	state_symbol = property(_get_as_symbol)
 
 	#--------------------------------------------------------
 	def _get_as_amts_latex(self, strict=True):
@@ -154,7 +116,7 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 			table_rows.append('\\multicolumn{11}{>{\\RaggedRight}p{27.9cm}}{%s}\\tabularnewline') % gmTools.tex_escape_string(cmt)
 		return table_rows
 
-	as_amts_latex = property(_get_as_amts_latex, lambda x:x)
+	as_amts_latex = property(_get_as_amts_latex)
 
 	#--------------------------------------------------------
 	def _get_as_amts_data_v_2_0(self, strict=True):
@@ -193,7 +155,7 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 				comment = '<X t="%s"/>' % self['comment'][:200]
 		return '<S t="%s">%s%%s</S>' % (state, comment)
 
-	as_amts_data = property(_get_as_amts_data, lambda x:x)
+	as_amts_data = property(_get_as_amts_data)
 
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
@@ -211,6 +173,39 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 				raise ValueError('invalid allergy state [%s]' % value)
 
 		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
+
+#------------------------------------------------------------
+def ensure_has_allergy_state(encounter=None) -> cAllergyState:
+	_log.debug('checking allergy state for identity of encounter [%s]', encounter)
+	args = {'enc': encounter}
+	cmd_create = """
+		INSERT INTO clin.allergy_state (
+			fk_encounter,
+			has_allergy
+		)	SELECT
+				%(enc)s,
+				NULL
+			WHERE NOT EXISTS (
+				SELECT 1 FROM clin.v_pat_allergy_state
+				WHERE pk_patient = (
+					SELECT fk_patient FROM clin.encounter WHERE pk = %(enc)s
+				)
+			)
+	"""
+	cmd_search = """
+		SELECT pk_allergy_state FROM clin.v_pat_allergy_state
+		WHERE pk_patient = (
+			SELECT fk_patient FROM clin.encounter WHERE pk = %(enc)s
+		)
+	"""
+	rows, idx = gmPG2.run_rw_queries (
+		queries = [
+			{'cmd': cmd_create, 'args': args},
+			{'cmd': cmd_search, 'args': args}
+		],
+		return_data = True
+	)
+	return cAllergyState(aPK_obj = rows[0][0])
 
 #============================================================
 class cAllergy(gmBusinessDBObject.cBusinessDBObject):
@@ -284,9 +279,8 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 			_('drug class'),
 			_('unknown')
 		))
-		if self._payload[self._idx['generics']] is not None:
+		if self._payload[self._idx['generics']]:
 			lines.append(' ' + _('Generics:') + ' ' + self._payload[self._idx['generics']])
-
 		return lines
 
 	#--------------------------------------------------------
@@ -296,7 +290,6 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 				cmd = 'select pk from clin._enum_allergy_type where value=%s'
 				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [value]}])
 				value = rows[0][0]
-
 		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
 
 	#--------------------------------------------------------
@@ -314,7 +307,7 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 		table_row += '\\tabularnewline'
 		return table_row
 
-	as_amts_latex = property(_get_as_amts_latex, lambda x:x)
+	as_amts_latex = property(_get_as_amts_latex)
 
 	#--------------------------------------------------------
 	def _get_as_amts_data_v_2_0(self, strict=True):
@@ -340,18 +333,22 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 		# Freitextzeile: 200 Zeichen
 		return '<X t="%s"/>' % txt
 
-	as_amts_data = property(_get_as_amts_data, lambda x:x)
+	as_amts_data = property(_get_as_amts_data)
 
 #============================================================
 # convenience functions
 #------------------------------------------------------------
-def create_allergy(allergene=None, allg_type=None, episode_id=None, encounter_id=None):
+def create_allergy(allergene:str=None, allg_type=None, episode_id:int=None, encounter_id:int=None) -> cAllergy:
 	"""Creates a new allergy clinical item.
 
-	allergene - allergic substance
-	allg_type - allergy or sensitivity, pk or string
-	encounter_id - encounter's primary key
-	episode_id - episode's primary key
+	Args:
+		allergene: allergic substance
+		allg_type: allergy or sensitivity, pk or string
+		encounter_id - encounter
+		episode_id - episode
+
+	Returns:
+		The newly created allergy.
 	"""
 	cmd = """
 		SELECT pk_allergy
@@ -364,13 +361,12 @@ def create_allergy(allergene=None, allg_type=None, episode_id=None, encounter_id
 	#args = {'enc': encounter_id, 'substance': substance}
 	args = {'enc': encounter_id, 'allergene': allergene}
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
-	if len(rows) > 0:
-		# don't implicitely change existing data
+	if rows:
+		# don't implicitely change existing data, return existing allergy
 		return cAllergy(aPK_obj = rows[0][0])
 
 	# insert new allergy
 	queries = []
-
 	if type(allg_type) == int:
 		cmd = """
 			insert into clin.allergy (fk_type, fk_encounter, fk_episode, allergene, substance)
@@ -380,19 +376,22 @@ def create_allergy(allergene=None, allg_type=None, episode_id=None, encounter_id
 			insert into clin.allergy (fk_type, fk_encounter, fk_episode,  allergene, substance)
 			values ((select pk from clin._enum_allergy_type where value = %s), %s, %s, %s, %s)"""
 	queries.append({'cmd': cmd, 'args': [allg_type, encounter_id, episode_id, allergene, allergene]})
-
 	cmd = "select currval('clin.allergy_id_seq')"
 	queries.append({'cmd': cmd})
-
 	rows, idx = gmPG2.run_rw_queries(queries=queries, return_data=True)
 	allergy = cAllergy(aPK_obj = rows[0][0])
-
 	return allergy
 
 #============================================================
 # main - unit testing
 #------------------------------------------------------------
 if __name__ == '__main__':
+
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
 
 	allg = cAllergy(aPK_obj=1)
 	print(allg)
