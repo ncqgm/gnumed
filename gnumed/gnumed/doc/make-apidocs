@@ -18,12 +18,13 @@ ln -s ../../../client/wxpython
 ln -s ../../../client/wxg
 ln -s ../../../client/connectors
 ln -s ../../../client/exporters
-ln -s ../../../client/importers
+#ln -s ../../../client/importers
 cd -
 
 cd ${WORKDIR}
 export PYTHONPATH="${PYTHONPATH:+$PYTHONPATH:}./Gnumed/"
 pdoc3 --force --html --skip-errors --output-dir api/ Gnumed
+#pdoc3 --force --html --output-dir api/ Gnumed
 date > api/Gnumed/generated.txt
 cd -
 

@@ -8,10 +8,6 @@ __author__ = "S.Hilbert, K.Hilbert"
 __license__ = "GPL v2 or later"
 
 #==============================================================
-if __name__ == '__main__':
-	_ = lambda x:x
-
-
 # FIXME: xBDT incorporated only up to (excluding) Satzart 0101 (Do 09 Aug 2007 11:10:16 CEST)
 xdt_id_map = {
 
@@ -129,7 +125,7 @@ xdt_id_map = {
 	'3100': 'Namenszusatz/Vorsatzwort',
 	'3101': 'Name des Patienten',
 	'3102': 'Vorname des Patienten',
-	'3103': 'Geburtsdatum des Patienten', 
+	'3103': 'Geburtsdatum des Patienten',
 	'3104': 'Titel des Patienten',
 	'3105': 'Versichertennummer des Patienten',
 	'3106': 'PLZ/Wohnort des Patienten',
@@ -444,7 +440,7 @@ xdt_id_map = {
 	'8301': 'Eingangsdatum des Auftrags im Labor',       ## nicht in GDT 2.1 Specs (KS)
 	'8302': 'Berichtsdatum',       ## nicht in GDT 2.1 Specs (KS)
 	'8303': 'Berichtszeit',     ## nicht in GDT 2.1 Specs (KS)
-	'8310': 'Anforderungsnummer', 
+	'8310': 'Anforderungsnummer',
 	'8311': '(interne) Auftragsnummer des Labors',## nicht in GDT 2.1 Specs (KS)
 	'8312': 'Kunden- bzw. Arztnummer',## nicht in GDT 2.1 Specs (KS)
 	'8315': 'GDT-ID Empfänger',
@@ -610,13 +606,13 @@ map_gender_gm2xdt = {
 
 # LDT "gender", 8407
 map_8407_2str = {
-	'0': _('unknown gender'),
-	'1': _('male'),
-	'2': _('female'),
-	'3': _('child'),
-	'4': _('boy'),
-	'5': _('girl'),
-	'6': _('animal')
+	'0': 'unbekannt',
+	'1': 'männlich',
+	'2': 'weiblich',
+	'3': 'Kind',
+	'4': 'Junge',
+	'5': 'Mädchen',
+	'6': 'Tier'
 }
 
 # xDT character code mapping : 9106
@@ -848,18 +844,18 @@ xdt_Befundstatus_map = {
 }
 
 map_Befundstatus_xdt2gm = {
-	'E': _('final'),
-	'T': _('partial'),
-	'V': _('preliminary'),
-	'A': _('final'),
-	'N': _('final')
+	'E': 'final',
+	'T': 'partial',
+	'V': 'preliminary',
+	'A': 'final',
+	'N': 'final'
 }
 
 # Teststatus : 8418
 xdt_Teststatus_map = {
-	'B': _('already reported'),
-	'K': _('corrected result'),
-	'F': _('missing, reported later')
+	'B': 'bereits zuvor übermittelt',
+	'K': 'korrigiertes Ergebnis',
+	'F': 'ausstehend'
 }
 
 # Resistenzmethode
@@ -947,7 +943,7 @@ kvdt_somatische_Ursachen_map = {
 }
 # GNR-Zusatzkennzeichen für poststationär erbrachte Leistungen : 5024
 kvdt_Zusatzkennzeichen_poststationaere_Leistungen_map = {
-	'N': 'poststationäre Leistung'	
+	'N': 'poststationäre Leistung'
 }
 # Diagnosensicherheit : 6003
 kvdt_Diagnosensicherheit_map = {
@@ -1035,7 +1031,7 @@ kvdt_Empfaenger_map = {
 # Facharztstatus Operateur / Assistent : 2750/2752
 kvdt_Facharztstatus_map = {
 	'0': 'nein',
-	'1': 'ja'	
+	'1': 'ja'
 }
 # Anästhesie erbracht : 2761
 kvdt_Anaesthesie_erbracht_map = {

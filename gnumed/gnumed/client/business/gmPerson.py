@@ -614,7 +614,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	is_patient = property(_get_is_patient, _set_is_patient)
 
 	#--------------------------------------------------------
-	def _get_as_patient(self) -> cPatient:
+	def _get_as_patient(self):
 		return cPatient(self._payload[self._idx['pk_identity']])
 
 	as_patient = property(_get_as_patient)
@@ -941,7 +941,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		first = ' '.join(p for p in first.split("'"))
 		first = ''.join(gmTools.capitalize(text = p, mode = gmTools.CAPS_FIRST_ONLY) for p in first.split(' '))
 		suggestion_parts = ['GMd']
-		if target is not None:
+		if target:
 			suggestion_parts.append(target)
 		suggestion_parts.append(last)
 		suggestion_parts.append(first)
@@ -949,11 +949,6 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		suggestion_parts.append(gender)
 		suggestion_parts.append(pk)
 		suggestion = '-'.join (suggestion_parts)
-#		try:
-#			import unidecode
-#			suggestion = unidecode.unidecode(suggestion)
-#		except ImportError:
-#			_log.debug('cannot transliterate external ID suggestion, <unidecode> module not installed')
 		return suggestion
 
 	external_id_suggestion = property(suggest_external_id)
@@ -975,7 +970,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			first = ' '.join(part for part in first.split("'"))
 			first = ''.join(gmTools.capitalize(text = part, mode = gmTools.CAPS_FIRST_ONLY) for part in first.split(' '))
 			suggestion_parts = ['GMd']
-			if target is not None:
+			if target:
 				suggestion_parts.append(target)
 			suggestion_parts.append(last)
 			suggestion_parts.append(first)
@@ -983,26 +978,28 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			suggestion_parts.append(gender)
 			suggestion_parts.append(pk)
 			suggestion = '-'.join(suggestion_parts)
-#			try:
-#				import unidecode
-#				suggestion = unidecode.unidecode(suggestion)
-#			except ImportError:
-#				_log.debug('cannot transliterate to ASCII external ID suggestion, <unidecode> module not installed')
 			suggestions.append(suggestion)
 		return suggestions
 
 	#--------------------------------------------------------
 	#--------------------------------------------------------
-	def assimilate_identity(self, other_identity:cIdentity=None, link_obj=None) -> tuple:
-		"""Merge another identity into this one.
+	def assimilate_identity(self, other_identity=None, link_obj=None, dry_run:bool=True) -> tuple:
+		"""Merge another identity into this one (self).
 
 		Args:
-			other_identity: another cIdentity to be assimilated, and then deleted
+			other_identity: another cPerson instance to be assimilated, and then deleted
+			dry_run:
+
+			* True: only create SQL script containing the queries to merge the identities
+			* False: create SQL script and perform the assimilation by running the queries
 
 		Returns:
-			A tuple of (success state, error message).
-		"""
+			A tuple of (result state, information):
 
+			* (True, None): nothing to do (say, same identity)
+			* (True, SQL script file name)
+			* (False, error message)
+		"""
 		if other_identity.ID == self.ID:
 			return True, None
 
@@ -1013,10 +1010,8 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 		now_here = gmDateTime.pydt_strftime(gmDateTime.pydt_now_here())
 		distinguisher = _('merge of #%s into #%s @ %s') % (other_identity.ID, self.ID, now_here)
-
 		queries = []
 		args = {'pat2del': other_identity.ID, 'pat2keep': self.ID}
-
 		# merge allergy state
 		queries.append ({
 			'cmd': """
@@ -1040,7 +1035,6 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			'cmd': 'DELETE FROM clin.allergy_state WHERE pk = (SELECT pk_allergy_state FROM clin.v_pat_allergy_state WHERE pk_patient = %(pat2del)s)',
 			'args': args
 		})
-
 		# merge patient proxy
 		queries.append ({
 			'cmd': """
@@ -1054,7 +1048,6 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			""",
 			'args': args
 		})
-
 		# transfer names
 		# 1) hard-disambiguate all inactive names in old patient
 		#    (the active one will be disambiguated upon being moved)
@@ -1107,7 +1100,6 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 				""",
 			'args': args
 		})
-
 		# disambiguate potential dupes
 		# - same-url comm channels
 		queries.append ({
@@ -1158,7 +1150,6 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			""",
 			'args': args
 		})
-
 		# find FKs pointing to dem.identity.pk
 		FKs = gmPG2.get_foreign_keys2column (
 			schema = 'dem',
@@ -1171,7 +1162,6 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			table = 'patient',
 			column = 'fk_identity'
 		))
-
 		# generate UPDATEs
 		cmd_template = 'UPDATE %s SET %s = %%(pat2keep)s WHERE %s = %%(pat2del)s'
 		for FK in FKs:
@@ -1181,43 +1171,38 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 				'cmd': cmd_template % (FK['referencing_table'], FK['referencing_column'], FK['referencing_column']),
 				'args': args
 			})
-
 		# delete old patient proxy
 		queries.append ({
 			'cmd': 'DELETE FROM clin.patient WHERE fk_identity = %(pat2del)s',
 			'args': args
 		})
-
 		# remove old identity entry
 		queries.append ({
 			'cmd': 'delete from dem.identity where pk = %(pat2del)s',
 			'args': args
 		})
-
+		args['date'] = gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), '%Y %B %d  %H:%M')
 		script_name = gmTools.get_unique_filename(prefix = 'gm-assimilate-%(pat2del)s-into-%(pat2keep)s-' % args, suffix = '.sql')
 		_log.warning('identity [%s] is about to assimilate identity [%s], SQL script [%s]', self.ID, other_identity.ID, script_name)
+		with open(script_name, 'wt', encoding = 'utf8') as script:
+			script.write(_MERGE_SCRIPT_HEADER % args)
+			for query in queries:
+				script.write(query['cmd'] % args)
+				script.write(';\n')
+			script.write('\nROLLBACK;\n')
+			script.write('--COMMIT;\n')
+		if not dry_run:
+			try:
+				gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, end_tx = True)
+			except Exception:
+				return False, _('The merge failed. Check the log and [%s]') % script_name
 
-		script = open(script_name, 'wt')
-		args['date'] = gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), '%Y %B %d  %H:%M')
-		script.write(_MERGE_SCRIPT_HEADER % args)
-		for query in queries:
-			script.write(query['cmd'] % args)
-			script.write(';\n')
-		script.write('\nROLLBACK;\n')
-		script.write('--COMMIT;\n')
-		script.close()
-
-		try:
-			gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, end_tx = True)
-		except Exception:
-			return False, _('The merge failed. Check the log and [%s]') % script_name
-
-		self.add_external_id (
-			type_name = 'merged GNUmed identity primary key',
-			value = 'GNUmed::pk::%s' % other_identity.ID,
-			issuer = 'GNUmed'
-		)
-		return True, None
+			self.add_external_id (
+				type_name = 'merged GNUmed identity primary key',
+				value = 'GNUmed::pk::%s' % other_identity.ID,
+				issuer = 'GNUmed'
+			)
+		return True, script_name
 
 	#--------------------------------------------------------
 	#--------------------------------------------------------
@@ -2165,14 +2150,14 @@ class gmCurrentPatient(gmBorg.cBorg):
 			already active.
 	"""
 	def __init__(self, patient=None, forced_reload=False):
-		"""Change or get currently active patient.
+		"""Initialization.
+		Args:
+			patient:
 
-		patient:
-		* None: get currently active patient
-		* -1: unset currently active patient
-		* cPatient instance: set active patient if possible
+			* None: get currently active patient
+			* -1: unset currently active patient
+			* cPatient instance: set active patient if possible
 		"""
-		# make sure we do have a patient pointer
 		try:
 			self.patient
 		except AttributeError:

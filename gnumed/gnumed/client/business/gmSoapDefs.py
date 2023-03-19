@@ -4,7 +4,20 @@ __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL v2 or later (for details see http://gnu.org)'
 #============================================================
 if __name__ == '__main__':
+	# we are the main script, setup a fake _() for now,
+	# such that it can be used in module level definitions
 	_ = lambda x:x
+else:
+	# we are being imported from elsewhere
+	try:
+		# do we already have _() ?
+		_
+	except NameError:
+		# no, so setup i18n handling
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
+
 
 _U_ELLIPSIS = '\u2026'
 
@@ -73,7 +86,7 @@ def soap_cats_str2list(soap_cats:str) -> []:
 	return normalized_cats
 
 #============================================================
-def are_valid_soap_cats(soap_cats, allow_upper=True):
+def are_valid_soap_cats(soap_cats:str, allow_upper:bool=True) -> bool:
 	for cat2test in soap_cats:
 		if cat2test in KNOWN_SOAP_CATS:
 			continue
@@ -87,10 +100,7 @@ def are_valid_soap_cats(soap_cats, allow_upper=True):
 	return True
 
 #============================================================
-def normalize_soap_cat(soap_cat):
-	if soap_cat in KNOWN_SOAP_CATS:
-		return soap_cat
-
+def normalize_soap_cat(soap_cat:str):
 	soap_cat = soap_cat.casefold()
 	if soap_cat in KNOWN_SOAP_CATS:
 		return soap_cat
@@ -109,7 +119,7 @@ if __name__ == '__main__':
 		sys.exit()
 
 	sys.path.insert(0, '../../')
-
+	del _
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain()

@@ -162,13 +162,13 @@ def create_sql(filename):
 		dict = True
 	)
 
-	print SQL_start
+	print(SQL_start)
 
 	line_idx = 0
 	skip_line = False
 	for line in csv_lines:
 		line_idx += 1
-		print "-- line #%s" % line_idx
+		print("-- line #%s" % line_idx)
 		# normalize field content
 		for field in field_names:
 			try:
@@ -178,9 +178,9 @@ def create_sql(filename):
 		# verify required fields
 		for field in non_empty_fields:
 			if line[field] == '':
-				print "-- ignoring line: empty field [%s]" % field
-				print "--", line
-				print ""
+				print("-- ignoring line: empty field [%s]" % field)
+				print("--", line)
+				print("")
 				skip_line = True
 				break
 		if skip_line:
@@ -192,9 +192,9 @@ def create_sql(filename):
 				continue
 			success, num_val = gmTools.input2decimal(initial = line[field])
 			if not success:
-				print "-- ignoring line: field [%s] not numeric: >>>%s<<<" % (field, line[field])
-				print "--", line
-				print ""
+				print("-- ignoring line: field [%s] not numeric: >>>%s<<<" % (field, line[field]))
+				print("--", line)
+				print("")
 				skip_line = True
 				break
 			line[field] = num_val
@@ -209,10 +209,10 @@ def create_sql(filename):
 				continue
 			line['brand_name'] = ('%%(product)s %%(%s)s (%%(company)s)' % field) % line
 			line['strength'] = line[field]
-			print SQL_stage_drug % line
+			print(SQL_stage_drug % line)
 
-	print SQL_end
+	print(SQL_end)
 
 #---------------------------------------------------------------------------------------------------
-
-create_sql(sys.argv[1])
+if __name__ == '__main__':
+	create_sql(sys.argv[1])

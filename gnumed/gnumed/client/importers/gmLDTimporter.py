@@ -35,8 +35,6 @@ import glob, os.path, sys, tempfile, fileinput, time, copy, random, shutil
 from Gnumed.pycommon import gmCfgDB, gmLoginInfo, gmExceptions, gmI18N
 from Gnumed.business import gmPathLab, gmXdtMappings, gmPerson, gmPersonSearch
 
-import mx.DateTime as mxDT
-
 _log = gmLog.gmDefLog
 _cfg = gmCfgINI.gmDefCfgFile
 #===============================================================
@@ -58,7 +56,7 @@ class cLDTImporter:
 		conn = pool.GetConnection('historica')
 		if conn is None:
 			_log.Log(gmLog.lErr, 'cannot connect to database')
-			raise gmExceptions.ConstructorError, 'cannot connect to database'
+			raise gmExceptions.ConstructorError('cannot connect to database')
 		else:
 			pool.ReleaseConnection('historica')
 	#-----------------------------------------------------------
@@ -86,7 +84,7 @@ class cLDTImporter:
 		# create scratch directory
 		tempfile.tempdir = self.work_base
 		self.work_dir = tempfile.mktemp()
-		os.mkdir(self.work_dir, 0700)
+		os.mkdir(self.work_dir, 0o700)
 
 		# split into parts
 		source_files = self.__split_file(self.ldt_filename)
@@ -263,23 +261,23 @@ class cLDTImporter:
 	def __xform_8302(self, request_data):
 		"""8302: Berichtsdatum"""
 		if self.__request['results_reported_when'] is None:
-			self.__request['results_reported_when'] = mxDT.now()
-		self.__request['results_reported_when'] = mxDT.strptime(
-			request_data['8302'][0].strip(),
-			'%d%m%Y',
-			self.__request['results_reported_when']
-		)
+			self.__request['results_reported_when'] = None #mxDT.now()
+		self.__request['results_reported_when'] = None #mxDT.strptime(
+#			request_data['8302'][0].strip(),
+#			'%d%m%Y',
+#			self.__request['results_reported_when']
+#		)
 		return None
 	#-----------------------------------------------------------
 	def __xform_8303(self, request_data):
 		"""8303: Berichtszeit"""
 		if self.__request['results_reported_when'] is None:
-			self.__request['results_reported_when'] = mxDT.now()
-		self.__request['results_reported_when'] = mxDT.strptime(
-			request_data['8303'][0].strip(),
-			'%H%M',
-			self.__request['results_reported_when']
-		)
+			self.__request['results_reported_when'] = None #mxDT.now()
+		self.__request['results_reported_when'] = None #mxDT.strptime(
+#			request_data['8303'][0].strip(),
+#			'%H%M',
+#			self.__request['results_reported_when']
+#		)
 		return None
 	#-----------------------------------------------------------
 	def __xform_3103(self, request_data):
@@ -407,7 +405,7 @@ class cLDTImporter:
 		# essential fields
 		try:
 			reqid = request_data['8310'][0]
-		except KeyError, IndexError:
+		except (KeyError, IndexError):
 			# FIXME: todo item
 			_log.Log(gmLog.lErr, 'Satz vom Typ [8000:%s] enthält keine Probennummer' % request_data['8000'][0])
 			return False
@@ -460,7 +458,7 @@ class cLDTImporter:
 				'firstnames': request_data['3102'][0],
 				'dob': gmXdtMappings.xdt_8date2iso(request_data['3103'][0])
 			}
-		except KeyError, IndexError:
+		except (KeyError, IndexError):
 			pat_ldt = None
 		# either get lab request from request id
 		if '8310' in request_data:

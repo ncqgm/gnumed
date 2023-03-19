@@ -1251,47 +1251,48 @@ def shutdown_tmp_dir():
 #==========================================================
 # main - launch the GNUmed wxPython GUI client
 #----------------------------------------------------------
+if __name__ == "__main__":
 
-random.seed()
+	random.seed()
 
-# setup
-setup_fault_handler(target = None)
-setup_console_encoding()
-setup_python_path()
-setup_logging()
-log_startup_info()
-setup_console_exception_handler()
-setup_cli()
-setup_signal_handlers()
-setup_local_repo_path()
+	# setup
+	setup_fault_handler(target = None)
+	setup_console_encoding()
+	setup_python_path()
+	setup_logging()
+	log_startup_info()
+	setup_console_exception_handler()
+	setup_cli()
+	setup_signal_handlers()
+	setup_local_repo_path()
 
-from Gnumed.pycommon import gmI18N
-from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmDateTime
+	from Gnumed.pycommon import gmI18N
+	from Gnumed.pycommon import gmTools
+	from Gnumed.pycommon import gmDateTime
 
-setup_locale()
-handle_help_request()
-handle_version_request()
-setup_paths_and_files()
-setup_date_time()
-setup_cfg()
+	setup_locale()
+	handle_help_request()
+	handle_version_request()
+	setup_paths_and_files()
+	setup_date_time()
+	setup_cfg()
 
-from Gnumed.pycommon import gmPG2
-from Gnumed.pycommon import gmConnectionPool
-setup_backend_environment()
+	from Gnumed.pycommon import gmPG2
+	from Gnumed.pycommon import gmConnectionPool
+	setup_backend_environment()
 
-# main
-exit_code = run_tool()
-if exit_code is None:
-	from Gnumed.pycommon import gmHooks
-	exit_code = run_ui()
+	# main
+	exit_code = run_tool()
+	if exit_code is None:
+		from Gnumed.pycommon import gmHooks
+		exit_code = run_ui()
 
-# shutdown
-shutdown_backend()
-shutdown_tmp_dir()
-_log.info('Normally shutting down as main module.')
-shutdown_logging()
+	# shutdown
+	shutdown_backend()
+	shutdown_tmp_dir()
+	_log.info('Normally shutting down as main module.')
+	shutdown_logging()
 
-sys.exit(exit_code)
+	sys.exit(exit_code)
 
 #==========================================================
