@@ -66,6 +66,9 @@ import re as regex
 
 _log = logging.getLogger('gm.i18n')
 
+if __name__ == "__main__":
+	_ = lambda x:x
+
 system_locale = ''
 system_locale_level = {}
 
@@ -490,6 +493,8 @@ if __name__ == "__main__":
 
 	if sys.argv[1] != 'test':
 		sys.exit()
+
+	del _
 
 	import gmLog2
 	#----------------------------------------------------------------------
