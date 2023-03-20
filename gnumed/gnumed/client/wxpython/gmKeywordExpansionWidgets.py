@@ -564,7 +564,7 @@ class cTextExpansionFillInDlg(wxgTextExpansionFillInDlg.wxgTextExpansionFillInDl
 	def _get_filled_in(self):
 		return self.__filled_in
 
-	filled_in_expansion = property(_get_filled_in, lambda x:x)
+	filled_in_expansion = property(_get_filled_in)
 	#---------------------------------------------
 	def _set_keyword(self, keyword):
 		self.SetTitle(_('Expanding <%s>') % keyword)

@@ -109,7 +109,7 @@ class cPatientListingCtrl(gmListWidgets.cReportListCtrl):
 			single_selection = True
 		)
 
-	patient_pk_data_key = property(__get_patient_pk_data_key, lambda x:x)
+	patient_pk_data_key = property(__get_patient_pk_data_key)
 	#------------------------------------------------------------
 	# event handling
 	#------------------------------------------------------------

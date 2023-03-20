@@ -90,7 +90,7 @@ class cIncomingData(gmBusinessDBObject.cBusinessDBObject):
 			tmp += ' dob=%s' % gmDateTime.pydt_strftime(self._payload[self._idx['dob']], '%Y %b %d')
 		return tmp
 
-	patient_identification = property(_format_patient_identification, lambda x:x)
+	patient_identification = property(_format_patient_identification)
 
 	#--------------------------------------------------------
 	def update_data_from_file(self, fname=None):

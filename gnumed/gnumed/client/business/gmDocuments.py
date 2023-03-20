@@ -215,7 +215,7 @@ class cDocumentFolder:
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ cDocument(row = {'pk_field': 'pk_doc', 'idx': idx, 'data': r}) for r in rows ]
 
-	documents = property(get_documents, lambda x:x)
+	documents = property(get_documents)
 
 	#--------------------------------------------------------
 	def add_document(self, document_type=None, encounter=None, episode=None, link_obj=None):
@@ -241,7 +241,7 @@ class cDocumentFolder:
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ gmOrganization.cOrgUnit(row = {'data': r, 'idx': idx, 'pk_field': 'pk_org_unit'}) for r in rows ]
 
-	all_document_org_units = property(_get_all_document_org_units, lambda x:x)
+	all_document_org_units = property(_get_all_document_org_units)
 
 #============================================================
 _SQL_get_document_part_fields = "select * from blobs.v_obj4doc_no_data where %s"
@@ -745,7 +745,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}], get_col_idx = True)
 		return [ cDocumentPart(row = {'pk_field': 'pk_obj', 'idx': idx, 'data': r}) for r in rows ]
 
-	parts = property(_get_parts, lambda x:x)
+	parts = property(_get_parts)
 
 	#--------------------------------------------------------
 	def add_part(self, file=None, link_obj=None):

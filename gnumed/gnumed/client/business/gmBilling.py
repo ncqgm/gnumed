@@ -102,7 +102,7 @@ class cBillable(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self._payload[self._idx['pk_billable']]}}])
 		return rows[0][0]
 
-	is_in_use = property(_get_is_in_use, lambda x:x)
+	is_in_use = property(_get_is_in_use)
 
 #------------------------------------------------------------
 def get_billables(active_only=True, order_by=None, return_pks=False):
@@ -279,19 +279,19 @@ class cBillItem(gmBusinessDBObject.cBusinessDBObject):
 	def _get_billable(self):
 		return cBillable(aPK_obj = self._payload[self._idx['pk_billable']])
 
-	billable = property(_get_billable, lambda x:x)
+	billable = property(_get_billable)
 	#--------------------------------------------------------
 	def _get_bill(self):
 		if self._payload[self._idx['pk_bill']] is None:
 			return None
 		return cBill(aPK_obj = self._payload[self._idx['pk_bill']])
 
-	bill = property(_get_bill, lambda x:x)
+	bill = property(_get_bill)
 	#--------------------------------------------------------
 	def _get_is_in_use(self):
 		return self._payload[self._idx['pk_bill']] is not None
 
-	is_in_use = property(_get_is_in_use, lambda x:x)
+	is_in_use = property(_get_is_in_use)
 #------------------------------------------------------------
 def get_bill_items(pk_patient=None, non_invoiced_only=False, return_pks=False):
 	if non_invoiced_only:
@@ -455,14 +455,14 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 	def _get_bill_items(self):
 		return [ cBillItem(aPK_obj = pk) for pk in self._payload[self._idx['pk_bill_items']] ]
 
-	bill_items = property(_get_bill_items, lambda x:x)
+	bill_items = property(_get_bill_items)
 	#--------------------------------------------------------
 	def _get_invoice(self):
 		if self._payload[self._idx['pk_doc']] is None:
 			return None
 		return gmDocuments.cDocument(aPK_obj = self._payload[self._idx['pk_doc']])
 
-	invoice = property(_get_invoice, lambda x:x)
+	invoice = property(_get_invoice)
 	#--------------------------------------------------------
 	def _get_address(self):
 		if self._payload[self._idx['pk_receiver_address']] is None:
@@ -471,7 +471,7 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 			pk_patient_address = self._payload[self._idx['pk_receiver_address']]
 		)
 
-	address = property(_get_address, lambda x:x)
+	address = property(_get_address)
 	#--------------------------------------------------------
 	def _get_default_address(self):
 		return gmDemographicRecord.get_patient_address_by_type (
@@ -479,7 +479,7 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 			adr_type = 'billing'
 		)
 
-	default_address = property(_get_default_address, lambda x:x)
+	default_address = property(_get_default_address)
 	#--------------------------------------------------------
 	def _get_home_address(self):
 		return gmDemographicRecord.get_patient_address_by_type (
@@ -487,7 +487,7 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 			adr_type = 'home'
 		)
 
-	home_address = property(_get_home_address, lambda x:x)
+	home_address = property(_get_home_address)
 	#--------------------------------------------------------
 	def set_missing_address_from_default(self):
 		if self._payload[self._idx['pk_receiver_address']] is not None:

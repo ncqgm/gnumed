@@ -374,7 +374,7 @@ class cProviderInbox:
 			order_by = order_by
 		)
 
-	messages = property(get_messages, lambda x:x)
+	messages = property(get_messages)
 
 	#--------------------------------------------------------
 	def get_relevant_messages(self, pk_patient=None, include_without_provider=True):

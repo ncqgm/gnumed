@@ -109,7 +109,7 @@ class cExternalCareItem(gmBusinessDBObject.cBusinessDBObject):
 	def _get_org_unit(self):
 		return gmOrganization.cOrgUnit(self._payload[self._idx['pk_org_unit']])
 
-	org_unit = property(_get_org_unit, lambda x:x)
+	org_unit = property(_get_org_unit)
 
 #------------------------------------------------------------
 def get_external_care_items(order_by=None, pk_identity=None, pk_health_issue=None, exclude_inactive=False, return_pks=False):

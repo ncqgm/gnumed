@@ -613,7 +613,7 @@ class cAddress(gmBusinessDBObject.cBusinessDBObject):
 		args.append('limit=3')
 		return 'https://nominatim.openstreetmap.org/search?%s' % '&'.join(args)
 
-	as_map_url = property(_get_as_map_url, lambda x:x)
+	as_map_url = property(_get_as_map_url)
 
 #------------------------------------------------------------
 def address_exists(country_code=None, region_code=None, urb=None, postcode=None, street=None, number=None, subunit=None):
@@ -889,13 +889,13 @@ class cPatientAddress(gmBusinessDBObject.cBusinessDBObject):
 	def _get_address(self):
 		return cAddress(aPK_obj = self._payload[self._idx['pk_address']])
 
-	address = property(_get_address, lambda x:x)
+	address = property(_get_address)
 
 	#--------------------------------------------------------
 	def _get_as_map_url(self):
 		return self.address.as_map_url
 
-	as_map_url = property(_get_as_map_url, lambda x:x)
+	as_map_url = property(_get_as_map_url)
 
 #===================================================================
 # communication channels API

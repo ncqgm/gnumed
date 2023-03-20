@@ -133,19 +133,19 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 	def _get_org_unit(self):
 		return gmOrganization.cOrgUnit(aPK_obj = self._payload[self._idx['pk_org_unit']])
 
-	org_unit = property(_get_org_unit, lambda x:x)
+	org_unit = property(_get_org_unit)
 
 	#--------------------------------------------------------
 	def _get_org(self):
 		return gmOrganization.cOrg(aPK_obj = self._payload[self._idx['pk_org']])
 
-	organization = property(_get_org, lambda x:x)
+	organization = property(_get_org)
 
 	#--------------------------------------------------------
 	def _get_address(self):
 		return self.org_unit.address
 
-	address = property(_get_address, lambda x:x)
+	address = property(_get_address)
 
 #	def _set_address(self, address):
 #		self['pk_address'] = address['pk_address']
@@ -184,7 +184,7 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 		vcf_file.close()
 		return vcf_fname
 
-	vcf = property(_get_vcf, lambda x:x)
+	vcf = property(_get_vcf)
 
 	#--------------------------------------------------------
 	def export_as_mecard(self, filename=None):
@@ -472,7 +472,7 @@ where
 		)
 		return rows
 
-	waiting_list_patients = property (_get_waiting_list_patients, lambda x:x)
+	waiting_list_patients = property (_get_waiting_list_patients)
 
 	#--------------------------------------------------------
 	def _set_helpdesk(self, helpdesk):

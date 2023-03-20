@@ -231,7 +231,7 @@ class cClinicalRecord(object):
 				self.__calculator.patient = cPatient(self.pk_patient)
 		return self.__calculator
 
-	calculator = property(_get_calculator, lambda x:x)
+	calculator = property(_get_calculator)
 
 	#--------------------------------------------------------
 	# messaging
@@ -433,7 +433,7 @@ class cClinicalRecord(object):
 		if edc < (now - pydt.timedelta(days = 380)):
 			return True
 
-	EDC_is_fishy = property(_EDC_is_fishy, lambda x:x)
+	EDC_is_fishy = property(_EDC_is_fishy)
 
 	#--------------------------------------------------------
 	# API: performed procedures
@@ -450,7 +450,7 @@ class cClinicalRecord(object):
 
 		return procs
 
-	performed_procedures = property(get_performed_procedures, lambda x:x)
+	performed_procedures = property(get_performed_procedures)
 	#--------------------------------------------------------
 	def get_latest_performed_procedure(self):
 		return gmEMRStructItems.get_latest_performed_procedure(patient = self.pk_patient)
@@ -482,7 +482,7 @@ class cClinicalRecord(object):
 			stays = [ s for s in stays if s['pk_health_issue'] in issues ]
 		return stays
 
-	hospital_stays = property(get_hospital_stays, lambda x:x)
+	hospital_stays = property(get_hospital_stays)
 	#--------------------------------------------------------
 	def get_latest_hospital_stay(self):
 		return gmEMRStructItems.get_latest_patient_hospital_stay(patient = self.pk_patient)
@@ -1054,7 +1054,7 @@ WHERE
 			exclude_inactive = exclude_inactive
 		)
 
-	external_care_items = property(get_external_care_items, lambda x:x)
+	external_care_items = property(get_external_care_items)
 
 	#--------------------------------------------------------
 	# API: episodes
@@ -1095,12 +1095,12 @@ WHERE
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ gmEMRStructItems.cEpisode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_episode'}) for r in rows ]
 
-	episodes = property(get_episodes, lambda x:x)
+	episodes = property(get_episodes)
 	#------------------------------------------------------------------
 	def get_unlinked_episodes(self, open_status=None, order_by=None):
 		return self.get_episodes(open_status = open_status, order_by = order_by, unlinked_only = True)
 
-	unlinked_episodes = property(get_unlinked_episodes, lambda x:x)
+	unlinked_episodes = property(get_unlinked_episodes)
 	#------------------------------------------------------------------
 	def get_episodes_by_encounter(self, pk_encounter=None):
 		cmd = """SELECT distinct pk_episode
@@ -1301,7 +1301,7 @@ WHERE
 
 		return filtered_issues
 
-	health_issues = property(get_health_issues, lambda x:x)
+	health_issues = property(get_health_issues)
 
 	#------------------------------------------------------------------
 	def add_health_issue(self, issue_name=None):
@@ -1339,7 +1339,7 @@ WHERE
 			exclude_potential_abuses = False
 		)
 
-	abused_substances = property(_get_abused_substances, lambda x:x)
+	abused_substances = property(_get_abused_substances)
 
 	#--------------------------------------------------------
 	def _get_current_substance_intakes(self, include_inactive=True, order_by=None, episodes=None, issues=None, exclude_potential_abuses=False, exclude_medications=False):
@@ -1470,7 +1470,7 @@ WHERE
 			return_pks = False
 		)
 
-	vaccinations = property(get_vaccinations, lambda x:x)
+	vaccinations = property(get_vaccinations)
 
 	#------------------------------------------------------------------
 	# API: encounters
@@ -1879,7 +1879,7 @@ WHERE
 
 		return encounters[0]
 
-	first_encounter = property(get_first_encounter, lambda x:x)
+	first_encounter = property(get_first_encounter)
 
 	#--------------------------------------------------------
 	def get_earliest_care_date(self):
@@ -1918,7 +1918,7 @@ SELECT MIN(earliest) FROM (
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return rows[0][0]
 
-	earliest_care_date = property(get_earliest_care_date, lambda x:x)
+	earliest_care_date = property(get_earliest_care_date)
 
 	#--------------------------------------------------------
 	def get_most_recent_care_date(self):
@@ -1952,7 +1952,7 @@ SELECT MIN(earliest) FROM (
 
 		return encounters[0]
 
-	last_encounter = property(get_last_encounter, lambda x:x)
+	last_encounter = property(get_last_encounter)
 
 	#------------------------------------------------------------------
 	def get_encounter_stats_by_type(self, cover_period=None):
@@ -2031,7 +2031,7 @@ SELECT MIN(earliest) FROM (
 
 		return gmEMRStructItems.cEncounter(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_encounter'})
 
-	last_but_one_encounter = property(get_last_but_one_encounter, lambda x:x)
+	last_but_one_encounter = property(get_last_but_one_encounter)
 
 	#------------------------------------------------------------------
 	def remove_empty_encounters(self):
@@ -2358,19 +2358,19 @@ SELECT MIN(earliest) FROM (
 
 		return eGFR
 
-	best_gfr_or_crea = property(_get_best_gfr_or_crea, lambda x:x)
+	best_gfr_or_crea = property(_get_best_gfr_or_crea)
 
 	#------------------------------------------------------------------
 	def _get_bmi(self):
 		return self.calculator.bmi
 
-	bmi = property(_get_bmi, lambda x:x)
+	bmi = property(_get_bmi)
 
 	#------------------------------------------------------------------
 	def _get_dynamic_hints(self):
 		return gmAutoHints.get_hints_for_patient(pk_identity = self.pk_patient, pk_encounter = self.current_encounter['pk_encounter'])
 
-	dynamic_hints = property(_get_dynamic_hints, lambda x:x)
+	dynamic_hints = property(_get_dynamic_hints)
 
 	#------------------------------------------------------------------
 	#------------------------------------------------------------------

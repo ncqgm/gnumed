@@ -736,11 +736,11 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	data_encoding = property(_get_data_encoding, _set_data_encoding)
 
 	#--------------------------------------------------------
-	placeholder_regex = property(lambda x: default_placeholder_regex, lambda x:x)
+	placeholder_regex = property(lambda x: default_placeholder_regex)
 
-	first_pass_placeholder_regex = property(lambda x: first_pass_placeholder_regex, lambda x:x)
-	second_pass_placeholder_regex = property(lambda x: second_pass_placeholder_regex, lambda x:x)
-	third_pass_placeholder_regex = property(lambda x: third_pass_placeholder_regex, lambda x:x)
+	first_pass_placeholder_regex = property(lambda x: first_pass_placeholder_regex)
+	second_pass_placeholder_regex = property(lambda x: second_pass_placeholder_regex)
+	third_pass_placeholder_regex = property(lambda x: third_pass_placeholder_regex)
 
 	#--------------------------------------------------------
 	def __parse_region_definition(self, region_str):

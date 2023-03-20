@@ -242,7 +242,7 @@ class cClinicalCalculator(object):
 		]
 		return egfrs
 
-	eGFRs = property(_get_egfrs, lambda x:x)
+	eGFRs = property(_get_egfrs)
 
 	#--------------------------------------------------------
 	def _get_egfr(self):
@@ -302,7 +302,7 @@ class cClinicalCalculator(object):
 
 		return MDRD
 
-	eGFR = property(_get_egfr, lambda x:x)
+	eGFR = property(_get_egfr)
 
 	#--------------------------------------------------------
 	def _get_gfr_mdrd_short(self):
@@ -402,7 +402,7 @@ class cClinicalCalculator(object):
 
 		return result
 
-	eGFR_MDRD_short = property(_get_gfr_mdrd_short, lambda x:x)
+	eGFR_MDRD_short = property(_get_gfr_mdrd_short)
 
 	#--------------------------------------------------------
 	def _get_gfr_ckd_epi(self):
@@ -501,7 +501,7 @@ class cClinicalCalculator(object):
 
 		return result
 
-	eGFR_CKD_EPI = property(_get_gfr_ckd_epi, lambda x:x)
+	eGFR_CKD_EPI = property(_get_gfr_ckd_epi)
 
 	#--------------------------------------------------------
 	def _get_gfr_cockcroft_gault(self):
@@ -609,7 +609,7 @@ class cClinicalCalculator(object):
 
 		return result
 
-	eGFR_Cockcroft_Gault = property(_get_gfr_cockcroft_gault, lambda x:x)
+	eGFR_Cockcroft_Gault = property(_get_gfr_cockcroft_gault)
 
 	#--------------------------------------------------------
 	def _get_gfr_schwartz(self):
@@ -717,7 +717,7 @@ class cClinicalCalculator(object):
 
 		return result
 
-	eGFR_Schwartz = property(_get_gfr_schwartz, lambda x:x)
+	eGFR_Schwartz = property(_get_gfr_schwartz)
 
 	#--------------------------------------------------------
 	def _get_body_surface_area(self):
@@ -789,7 +789,7 @@ class cClinicalCalculator(object):
 		_log.debug('%s' % result)
 		return result
 
-	body_surface_area = property(_get_body_surface_area, lambda x:x)
+	body_surface_area = property(_get_body_surface_area)
 
 	#--------------------------------------------------------
 	def _get_body_mass_index(self):
@@ -875,8 +875,8 @@ class cClinicalCalculator(object):
 		_log.debug('%s' % result)
 		return result
 
-	body_mass_index = property(_get_body_mass_index, lambda x:x)
-	bmi = property(_get_body_mass_index, lambda x:x)
+	body_mass_index = property(_get_body_mass_index)
+	bmi = property(_get_body_mass_index)
 
 	#--------------------------------------------------------
 	# helper functions

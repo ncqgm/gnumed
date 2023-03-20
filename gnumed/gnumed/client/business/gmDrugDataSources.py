@@ -192,7 +192,7 @@ class cGelbeListeCSVFile(object):
 	def _get_has_unknown_fields(self):
 		return (gmTools.default_csv_reader_rest_key in self.csv_fieldnames)
 
-	has_unknown_fields = property(_get_has_unknown_fields, lambda x:x)
+	has_unknown_fields = property(_get_has_unknown_fields)
 
 #============================================================
 class cGelbeListeWindowsInterface(cDrugDataSourceInterface):

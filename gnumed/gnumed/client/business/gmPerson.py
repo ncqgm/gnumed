@@ -764,7 +764,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 		return [ gmDemographicRecord.cPersonTag(row = {'data': r, 'idx': idx, 'pk_field': 'pk_identity_tag'}) for r in rows ]
 
-	tags = property(get_tags, lambda x:x)
+	tags = property(get_tags)
 
 	#--------------------------------------------------------
 	def add_tag(self, tag):
@@ -1711,7 +1711,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			pk_patient = self.pk_obj
 		)
 
-	bills = property(get_bills, lambda x:x)
+	bills = property(get_bills)
 	#----------------------------------------------------------------------
 	# relatives API
 	#----------------------------------------------------------------------
@@ -2095,7 +2095,7 @@ class cPatient(cPerson):
 		self.__emr_access_lock.release()
 		return self.__emr
 
-	emr = property(get_emr, lambda x:x)
+	emr = property(get_emr)
 
 	#----------------------------------------------------------
 	def get_document_folder(self):
@@ -2103,7 +2103,7 @@ class cPatient(cPerson):
 			self.__doc_folder = cDocumentFolder(aPKey = self._payload[self._idx['pk_identity']])
 		return self.__doc_folder
 
-	document_folder = property(get_document_folder, lambda x:x)
+	document_folder = property(get_document_folder)
 
 #============================================================
 class gmCurrentPatient(gmBorg.cBorg):
@@ -2275,7 +2275,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 	def _get_connected(self):
 		return (not isinstance(self.patient, gmNull.cNull))
 
-	connected = property(_get_connected, lambda x:x)
+	connected = property(_get_connected)
 
 	#--------------------------------------------------------
 	def _get_locked(self):

@@ -358,7 +358,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 		)
 		return [ cMeasurementType(row = {'data': r, 'idx': idx, 'pk_field': 'pk_test_type'}) for r in rows ]
 
-	test_types = property(_get_test_types, lambda x:x)
+	test_types = property(_get_test_types)
 
 	#--------------------------------------------------------
 	def _get_generic_codes(self):
@@ -623,7 +623,7 @@ class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ cMeasurementType(row = {'pk_field': 'pk_test_type', 'data': r, 'idx': idx}) for r in rows ]
 
-	included_test_types = property(_get_included_test_types, lambda x:x)
+	included_test_types = property(_get_included_test_types)
 
 #------------------------------------------------------------
 def create_meta_type(name=None, abbreviation=None, return_existing=False):
@@ -719,7 +719,7 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		return rows[0][0]
 
-	in_use = property(_get_in_use, lambda x:x)
+	in_use = property(_get_in_use)
 
 	#--------------------------------------------------------
 	def get_most_recent_results(self, patient=None, max_no_of_results=1):
@@ -764,7 +764,7 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 
 		return [ cTestPanel(aPK_obj = pk) for pk in self._payload[self._idx['pk_test_panels']] ]
 
-	test_panels = property(_get_test_panels, lambda x:x)
+	test_panels = property(_get_test_panels)
 
 	#--------------------------------------------------------
 	def get_meta_test_type(self, real_one_only=True):
@@ -774,7 +774,7 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 			return None
 		return cMetaTestType(aPK_obj = self._payload[self._idx['pk_meta_test_type']])
 
-	meta_test_type = property(get_meta_test_type, lambda x:x)
+	meta_test_type = property(get_meta_test_type)
 
 	#--------------------------------------------------------
 	def get_temporally_closest_normal_range(self, unit, timestamp=None):
@@ -889,7 +889,7 @@ LIMIT 1"""
 			return None
 		return rows[0]['val_unit']
 
-	temporally_closest_unit = property(get_temporally_closest_unit, lambda x:x)
+	temporally_closest_unit = property(get_temporally_closest_unit)
 
 	#--------------------------------------------------------
 	def format(self, patient=None):
@@ -1432,7 +1432,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			self._payload[self._idx['val_normal_max']] is not None
 		)
 
-	has_normal_min_or_max = property(_get_has_normal_min_or_max, lambda x:x)
+	has_normal_min_or_max = property(_get_has_normal_min_or_max)
 
 	#--------------------------------------------------------
 	def _get_normal_min_max(self):
@@ -1449,7 +1449,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			gmTools.coalesce(self._payload[self._idx['val_normal_max']], '?')
 		)
 
-	normal_min_max = property(_get_normal_min_max, lambda x:x)
+	normal_min_max = property(_get_normal_min_max)
 
 	#--------------------------------------------------------
 	def _get_formatted_normal_range(self):
@@ -1479,7 +1479,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			return None
 		return range_info
 
-	formatted_normal_range = property(_get_formatted_normal_range, lambda x:x)
+	formatted_normal_range = property(_get_formatted_normal_range)
 
 	#--------------------------------------------------------
 	def _get_has_clinical_min_or_max(self):
@@ -1489,7 +1489,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			self._payload[self._idx['val_target_max']] is not None
 		)
 
-	has_clinical_min_or_max = property(_get_has_clinical_min_or_max, lambda x:x)
+	has_clinical_min_or_max = property(_get_has_clinical_min_or_max)
 
 	#--------------------------------------------------------
 	def _get_clinical_min_max(self):
@@ -1506,7 +1506,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			gmTools.coalesce(self._payload[self._idx['val_target_max']], '?')
 		)
 
-	clinical_min_max = property(_get_clinical_min_max, lambda x:x)
+	clinical_min_max = property(_get_clinical_min_max)
 
 	#--------------------------------------------------------
 	def _get_formatted_clinical_range(self):
@@ -1536,7 +1536,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			return None
 		return range_info
 
-	formatted_clinical_range = property(_get_formatted_clinical_range, lambda x:x)
+	formatted_clinical_range = property(_get_formatted_clinical_range)
 
 	#--------------------------------------------------------
 	def _get_temporally_closest_normal_range(self):
@@ -1577,7 +1577,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			return None
 		return cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': rows[0]})
 
-	temporally_closest_normal_range = property(_get_temporally_closest_normal_range, lambda x:x)
+	temporally_closest_normal_range = property(_get_temporally_closest_normal_range)
 
 	#--------------------------------------------------------
 	def _get_formatted_range(self):
@@ -1640,13 +1640,13 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 
 		return None
 
-	formatted_range = property(_get_formatted_range, lambda x:x)
+	formatted_range = property(_get_formatted_range)
 
 	#--------------------------------------------------------
 	def _get_test_type(self):
 		return cMeasurementType(aPK_obj = self._payload[self._idx['pk_test_type']])
 
-	test_type = property(_get_test_type, lambda x:x)
+	test_type = property(_get_test_type)
 
 	#--------------------------------------------------------
 	def _get_is_considered_elevated(self):
@@ -1677,7 +1677,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 				return True
 		return None
 
-	is_considered_elevated = property(_get_is_considered_elevated, lambda x:x)
+	is_considered_elevated = property(_get_is_considered_elevated)
 
 	#--------------------------------------------------------
 	def _get_is_considered_lowered(self):
@@ -1708,7 +1708,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 				return True
 		return None
 
-	is_considered_lowered = property(_get_is_considered_lowered, lambda x:x)
+	is_considered_lowered = property(_get_is_considered_lowered)
 
 	#--------------------------------------------------------
 	def _get_is_considered_abnormal(self):
@@ -1720,7 +1720,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			return False
 		return self._payload[self._idx['is_technically_abnormal']]
 
-	is_considered_abnormal = property(_get_is_considered_abnormal, lambda x:x)
+	is_considered_abnormal = property(_get_is_considered_abnormal)
 
 	#--------------------------------------------------------
 	def _set_reference_range(self, ref_range):
@@ -1819,7 +1819,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 
 		return None
 
-	formatted_abnormality_indicator = property(_get_formatted_abnormality_indicator, lambda x:x)
+	formatted_abnormality_indicator = property(_get_formatted_abnormality_indicator)
 
 	#--------------------------------------------------------
 	def _get_is_long_text(self):
@@ -1830,7 +1830,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			return True
 		return False
 
-	is_long_text = property(_get_is_long_text, lambda x:x)
+	is_long_text = property(_get_is_long_text)
 
 	#--------------------------------------------------------
 	def _get_estimate_numeric_value_from_alpha(self):
@@ -1850,7 +1850,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			return None
 		return val * factor
 
-	estimate_numeric_value_from_alpha = property(_get_estimate_numeric_value_from_alpha, lambda x:x)
+	estimate_numeric_value_from_alpha = property(_get_estimate_numeric_value_from_alpha)
 
 	#--------------------------------------------------------
 	def set_review(self, technically_abnormal=None, clinically_relevant=None, comment=None, make_me_responsible=False):

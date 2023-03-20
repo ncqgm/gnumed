@@ -259,7 +259,7 @@ class cSubstance(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows[0][0]
 
-	is_in_use_by_patients = property(_get_is_in_use_by_patients, lambda x:x)
+	is_in_use_by_patients = property(_get_is_in_use_by_patients)
 
 	#--------------------------------------------------------
 	def _get_is_drug_component(self):
@@ -275,7 +275,7 @@ class cSubstance(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows[0][0]
 
-	is_drug_component = property(_get_is_drug_component, lambda x:x)
+	is_drug_component = property(_get_is_drug_component)
 
 #------------------------------------------------------------
 def get_substances(order_by=None, return_pks=False):
@@ -455,7 +455,7 @@ class cSubstanceDose(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows[0][0]
 
-	is_in_use_by_patients = property(_get_is_in_use_by_patients, lambda x:x)
+	is_in_use_by_patients = property(_get_is_in_use_by_patients)
 
 	#--------------------------------------------------------
 	def _get_is_drug_component(self):
@@ -470,7 +470,7 @@ class cSubstanceDose(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows[0][0]
 
-	is_drug_component = property(_get_is_drug_component, lambda x:x)
+	is_drug_component = property(_get_is_drug_component)
 
 	#--------------------------------------------------------
 	def _get_formatted_units(self, short=True):
@@ -480,7 +480,7 @@ class cSubstanceDose(gmBusinessDBObject.cBusinessDBObject):
 			short = short
 		)
 
-	formatted_units = property(_get_formatted_units, lambda x:x)
+	formatted_units = property(_get_formatted_units)
 
 #------------------------------------------------------------
 def get_substance_doses(order_by=None, return_pks=False):
@@ -1265,25 +1265,25 @@ class cDrugComponent(gmBusinessDBObject.cBusinessDBObject):
 	def _get_containing_drug(self):
 		return cDrugProduct(aPK_obj = self._payload[self._idx['pk_drug_product']])
 
-	containing_drug = property(_get_containing_drug, lambda x:x)
+	containing_drug = property(_get_containing_drug)
 
 	#--------------------------------------------------------
 	def _get_is_in_use_by_patients(self):
 		return self._payload[self._idx['is_in_use']]
 
-	is_in_use_by_patients = property(_get_is_in_use_by_patients, lambda x:x)
+	is_in_use_by_patients = property(_get_is_in_use_by_patients)
 
 	#--------------------------------------------------------
 	def _get_substance_dose(self):
 		return cSubstanceDose(aPK_obj = self._payload[self._idx['pk_dose']])
 
-	substance_dose =  property(_get_substance_dose, lambda x:x)
+	substance_dose =  property(_get_substance_dose)
 
 	#--------------------------------------------------------
 	def _get_substance(self):
 		return cSubstance(aPK_obj = self._payload[self._idx['pk_substance']])
 
-	substance =  property(_get_substance, lambda x:x)
+	substance =  property(_get_substance)
 
 	#--------------------------------------------------------
 	def _get_formatted_units(self, short=True):
@@ -1293,7 +1293,7 @@ class cDrugComponent(gmBusinessDBObject.cBusinessDBObject):
 			self._payload[self._idx['l10n_preparation']]
 		)
 
-	formatted_units = property(_get_formatted_units, lambda x:x)
+	formatted_units = property(_get_formatted_units)
 
 #------------------------------------------------------------
 def get_drug_components(return_pks=False):
@@ -1674,14 +1674,14 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 	def _get_external_code(self):
 		return self._payload[self._idx['external_code']]
 
-	external_code = property(_get_external_code, lambda x:x)
+	external_code = property(_get_external_code)
 
 	#--------------------------------------------------------
 	def _get_external_code_type(self):
 		# FIXME: maybe evaluate fk_data_source ?
 		return self._payload[self._idx['external_code_type']]
 
-	external_code_type = property(_get_external_code_type, lambda x:x)
+	external_code_type = property(_get_external_code_type)
 
 	#--------------------------------------------------------
 	def _get_components(self):
@@ -1690,7 +1690,7 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ cDrugComponent(row = {'data': r, 'idx': idx, 'pk_field': 'pk_component'}) for r in rows ]
 
-	components = property(_get_components, lambda x:x)
+	components = property(_get_components)
 
 	#--------------------------------------------------------
 	def _get_components_as_doses(self):
@@ -1702,7 +1702,7 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ cSubstanceDose(row = {'data': r, 'idx': idx, 'pk_field': 'pk_dose'}) for r in rows ]
 
-	components_as_doses = property(_get_components_as_doses, lambda x:x)
+	components_as_doses = property(_get_components_as_doses)
 
 	#--------------------------------------------------------
 	def _get_components_as_substances(self):
@@ -1714,19 +1714,19 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ cSubstance(row = {'data': r, 'idx': idx, 'pk_field': 'pk_substance'}) for r in rows ]
 
-	components_as_substances = property(_get_components_as_substances, lambda x:x)
+	components_as_substances = property(_get_components_as_substances)
 
 	#--------------------------------------------------------
 	def _get_is_fake_product(self):
 		return self._payload[self._idx['is_fake_product']]
 
-	is_fake_product = property(_get_is_fake_product, lambda x:x)
+	is_fake_product = property(_get_is_fake_product)
 
 	#--------------------------------------------------------
 	def _get_is_vaccine(self):
 		return self._payload[self._idx['is_vaccine']]
 
-	is_vaccine = property(_get_is_vaccine, lambda x:x)
+	is_vaccine = property(_get_is_vaccine)
 
 	#--------------------------------------------------------
 	def _get_is_in_use_by_patients(self):
@@ -1742,7 +1742,7 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows[0][0]
 
-	is_in_use_by_patients = property(_get_is_in_use_by_patients, lambda x:x)
+	is_in_use_by_patients = property(_get_is_in_use_by_patients)
 
 	#--------------------------------------------------------
 	def _get_is_in_use_as_vaccine(self):
@@ -1753,7 +1753,7 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows[0][0]
 
-	is_in_use_as_vaccine = property(_get_is_in_use_as_vaccine, lambda x:x)
+	is_in_use_as_vaccine = property(_get_is_in_use_as_vaccine)
 
 #------------------------------------------------------------
 def get_drug_products(return_pks=False):
@@ -2316,7 +2316,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 
 		return drug.external_code
 
-	external_code = property(_get_external_code, lambda x:x)
+	external_code = property(_get_external_code)
 
 	#--------------------------------------------------------
 	def _get_external_code_type(self):
@@ -2327,7 +2327,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 
 		return drug.external_code_type
 
-	external_code_type = property(_get_external_code_type, lambda x:x)
+	external_code_type = property(_get_external_code_type)
 
 	#--------------------------------------------------------
 	def _get_containing_drug(self):
@@ -2336,7 +2336,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 
 		return cDrugProduct(aPK_obj = self._payload[self._idx['pk_drug_product']])
 
-	containing_drug = property(_get_containing_drug, lambda x:x)
+	containing_drug = property(_get_containing_drug)
 
 	#--------------------------------------------------------
 	def _get_formatted_units(self, short=True):
@@ -2347,7 +2347,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 			short = short
 		)
 
-	formatted_units = property(_get_formatted_units, lambda x:x)
+	formatted_units = property(_get_formatted_units)
 
 	#--------------------------------------------------------
 	def _get_medically_formatted_start(self):
@@ -2391,7 +2391,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 			)
 		)
 
-	medically_formatted_start = property(_get_medically_formatted_start, lambda x:x)
+	medically_formatted_start = property(_get_medically_formatted_start)
 
 	#--------------------------------------------------------
 	def _get_medically_formatted_start_end_of_stopped(self, now):
@@ -2593,19 +2593,19 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		# assemble
 		return (' %s ' % gmTools.u_arrow2right_thick).join(arrow_parts)
 
-	medically_formatted_start_end = property(_get_medically_formatted_start_end, lambda x:x)
+	medically_formatted_start_end = property(_get_medically_formatted_start_end)
 
 	#--------------------------------------------------------
 	def _get_as_amts_latex(self, strict=True):
 		return format_substance_intake_as_amts_latex(intake = self, strict=strict)
 
-	as_amts_latex = property(_get_as_amts_latex, lambda x:x)
+	as_amts_latex = property(_get_as_amts_latex)
 
 	#--------------------------------------------------------
 	def _get_as_amts_data(self, strict=True):
 		return format_substance_intake_as_amts_data(intake = self, strict = strict)
 
-	as_amts_data = property(_get_as_amts_data, lambda x:x)
+	as_amts_data = property(_get_as_amts_data)
 
 #------------------------------------------------------------
 def get_substance_intakes(pk_patient=None, return_pks=False):

@@ -1173,7 +1173,7 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 	def get_picks(self):
 		return self._LCTRL_right.get_item_data()
 
-	picks = property(get_picks, lambda x:x)
+	picks = property(get_picks)
 
 	#------------------------------------------------------------
 	def _set_extra_button(self, definition):
@@ -2192,7 +2192,7 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 			labels.append(col.Text)
 		return labels
 
-	column_labels = property(get_column_labels, lambda x:x)
+	column_labels = property(get_column_labels)
 
 	#------------------------------------------------------------
 	def get_item(self, item_idx=None):
@@ -2215,7 +2215,7 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 			return []
 		return [ self.GetItem(item_idx) for item_idx in range(self.ItemCount) ]
 
-	items = property(get_items, lambda x:x)
+	items = property(get_items)
 
 	#------------------------------------------------------------
 	def get_selected_items(self, only_one=False):
@@ -2236,7 +2236,7 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 
 		return items
 
-	selected_items = property(get_selected_items, lambda x:x)
+	selected_items = property(get_selected_items)
 
 	#------------------------------------------------------------
 	def get_selected_string_items(self, only_one=False):
@@ -2257,7 +2257,7 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 
 		return items
 
-	selected_string_items = property(get_selected_string_items, lambda x:x)
+	selected_string_items = property(get_selected_string_items)
 
 	#------------------------------------------------------------
 	def get_item_data(self, item_idx=None):
@@ -2273,7 +2273,7 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 		# gives the chance to figure out what is going on
 		return [ self.__data[self.map_item_idx2data_idx(item_idx)] for item_idx in range(self.GetItemCount()) ]
 
-	item_data = property(get_item_data, lambda x:x)
+	item_data = property(get_item_data)
 
 	#------------------------------------------------------------
 	def get_selected_item_data(self, only_one=False):
@@ -2296,7 +2296,7 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 
 		return data
 
-	selected_item_data = property(get_selected_item_data, lambda x:x)
+	selected_item_data = property(get_selected_item_data)
 
 	#------------------------------------------------------------
 	def deselect_selected_item(self):

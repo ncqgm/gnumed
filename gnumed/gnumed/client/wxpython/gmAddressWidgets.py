@@ -1175,7 +1175,7 @@ class cAddressPhraseWheel(gmPhraseWheel.cPhraseWheel):
 #
 #	xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 #	must have access to pk_identity
-#	person_address = property(__get_person_address, lambda x:x)
+#	person_address = property(__get_person_address)
 
 #============================================================
 from Gnumed.wxGladeWidgets import wxgAddressSelectionDlg
@@ -1189,7 +1189,7 @@ class cAddressSelectionDlg(wxgAddressSelectionDlg.wxgAddressSelectionDlg):
 	def _get_address(self):
 		return self._PRW_address_searcher.address
 
-	address = property(_get_address, lambda x:x)
+	address = property(_get_address)
 	#--------------------------------------------------------
 	def _set_message(self, msg):
 		self._LBL_msg.SetLabel(msg)

@@ -218,7 +218,7 @@ class cDynamicHintDlg(wxgDynamicHintDlg.wxgDynamicHintDlg):
 	def _get_rationale(self):
 		return self._TCTRL_rationale.GetValue().strip()
 
-	rationale = property(_get_rationale, lambda x:x)
+	rationale = property(_get_rationale)
 
 	#------------------------------------------------------------
 	# internal helpers

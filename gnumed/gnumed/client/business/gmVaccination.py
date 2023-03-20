@@ -475,7 +475,7 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 	def _get_product(self):
 		return gmMedication.cDrugProduct(aPK_obj = self._payload[self._idx['pk_drug_product']])
 
-	product = property(_get_product, lambda x:x)
+	product = property(_get_product)
 
 	#--------------------------------------------------------
 	def _get_is_in_use(self):
@@ -484,7 +484,7 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows[0][0]
 
-	is_in_use = property(_get_is_in_use, lambda x:x)
+	is_in_use = property(_get_is_in_use)
 
 #------------------------------------------------------------
 def create_vaccine(pk_drug_product=None, product_name=None, indications=None, is_live=None):
@@ -622,7 +622,7 @@ class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 	def _get_vaccine(self):
 		return cVaccine(aPK_obj = self._payload[self._idx['pk_vaccine']])
 
-	vaccine = property(_get_vaccine, lambda x:x)
+	vaccine = property(_get_vaccine)
 
 #------------------------------------------------------------
 def get_vaccinations(pk_identity=None, pk_episodes=None, pk_health_issues=None, pk_encounters=None, order_by=None, return_pks=False):

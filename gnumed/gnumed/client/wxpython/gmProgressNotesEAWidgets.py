@@ -343,7 +343,7 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 			soap['p'] = [tmp]
 		return soap
 
-	soap = property(_get_soap, lambda x:x)
+	soap = property(_get_soap)
 	#--------------------------------------------------------
 	def _get_empty(self):
 		if self.__use_soap_fields:
@@ -388,7 +388,7 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 
 		return True
 
-	empty = property(_get_empty, lambda x:x)
+	empty = property(_get_empty)
 
 #============================================================
 # main

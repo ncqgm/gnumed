@@ -1264,7 +1264,7 @@ class cMultiPhraseWheel(cPhraseWheelBase):
 	def _get_displayed_strings(self):
 		return [ p.strip() for p in self.__phrase_separators.split(self.GetValue().strip()) if p.strip() != '' ]
 
-	displayed_strings = property(_get_displayed_strings, lambda x:x)
+	displayed_strings = property(_get_displayed_strings)
 #============================================================
 # main
 #------------------------------------------------------------

@@ -81,7 +81,7 @@ class cOrg(gmBusinessDBObject.cBusinessDBObject):
 	def _get_units(self):
 		return get_org_units(order_by = 'unit', org = self._payload[self._idx['pk_org']])
 
-	units = property(_get_units, lambda x:x)
+	units = property(_get_units)
 
 #------------------------------------------------------------
 def org_exists(organization:str=None, category=None, link_obj=None) -> cOrg:
@@ -207,7 +207,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 				}) for r in rows
 			]
 
-	comm_channels = property(get_comm_channels, lambda x:x)
+	comm_channels = property(get_comm_channels)
 
 	#--------------------------------------------------------
 	def link_comm_channel(self, comm_medium=None, url=None, is_confidential=False, pk_channel_type=None):
@@ -252,7 +252,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 
 		return rows
 
-	external_ids = property(get_external_ids, lambda x:x)
+	external_ids = property(get_external_ids)
 	#--------------------------------------------------------
 	def add_external_id(self, type_name=None, value=None, issuer=None, comment=None, pk_type=None):
 		"""Adds an external ID to an org unit.
@@ -415,10 +415,10 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 	def _get_org(self):
 		return cOrg(aPK_obj = self._payload[self._idx['pk_org']])
 
-	organization = property(_get_org, lambda x:x)
-	org = property(_get_org, lambda x:x)
+	organization = property(_get_org)
+	org = property(_get_org)
 
-	comm_channels = property(get_comm_channels, lambda x:x)
+	comm_channels = property(get_comm_channels)
 
 #------------------------------------------------------------
 def create_org_unit(pk_organization:str=None, unit:str=None, link_obj=None) -> cOrgUnit:

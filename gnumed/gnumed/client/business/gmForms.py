@@ -601,7 +601,7 @@ class gmOOoConnector(gmBorg.cBorg):
 		_log.debug('got OOo desktop handle')
 		return self.__desktop
 
-	desktop = property(_get_desktop, lambda x:x)
+	desktop = property(_get_desktop)
 
 #------------------------------------------------------------
 class cOOoLetter(object):

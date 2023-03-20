@@ -440,7 +440,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			return None
 		return gmDocuments.cDocumentPart(aPK_obj = self._payload[self._idx['pk_doc_obj']])
 
-	document_part = property(_get_doc_part, lambda x:x)
+	document_part = property(_get_doc_part)
 
 	#--------------------------------------------------------
 	def _get_is_print_job(self):

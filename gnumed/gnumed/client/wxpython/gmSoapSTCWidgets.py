@@ -52,7 +52,7 @@ class cWxTextCtrlCompatibility_StcMixin():
 	def GetLastPosition(self):
 		return self.Length
 
-	LastPosition = property(GetLastPosition, lambda x:x)
+	LastPosition = property(GetLastPosition)
 
 	#--------------------------------------------------
 	def GetNumberOfLines(self):
@@ -362,7 +362,7 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 			soap[cat].append(lines[line_idx])
 		return soap
 
-	soap = property(GetText_as_SOAP, lambda x:x)
+	soap = property(GetText_as_SOAP)
 
 	#--------------------------------------------------------
 	def _get_empty(self):
@@ -372,7 +372,7 @@ class cSoapSTC(cUnicodeInsertion_TextCtrlMixin, gmKeywordExpansionWidgets.cKeywo
 				return False
 		return True
 
-	empty = property(_get_empty, lambda x:x)
+	empty = property(_get_empty)
 
 	#-------------------------------------------------------
 	def sort_by_SOAP(self, sort_order=None):

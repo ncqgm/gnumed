@@ -1151,13 +1151,13 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 	def _get_name(self):
 		return self._TCTRL_final_name.GetValue().strip()
 
-	name = property(_get_name, lambda x:x)
+	name = property(_get_name)
 
 	#------------------------------------------------------------
 	def _get_address(self):
 		return self._PRW_other_address.address
 
-	address = property(_get_address, lambda x:x)
+	address = property(_get_address)
 
 #============================================================
 # main

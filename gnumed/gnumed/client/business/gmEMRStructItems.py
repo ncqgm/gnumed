@@ -547,14 +547,14 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	def _get_external_care(self, order_by=None):
 		return gmExternalCare.get_external_care_items(pk_health_issue = self.pk_obj, order_by = order_by)
 
-	external_care = property(_get_external_care, lambda x:x)
+	external_care = property(_get_external_care)
 
 	#--------------------------------------------------------
-	episodes = property(get_episodes, lambda x:x)
+	episodes = property(get_episodes)
 
-	open_episode = property(get_open_episode, lambda x:x)
+	open_episode = property(get_open_episode)
 
-	has_open_episode = property(has_open_episode, lambda x:x)
+	has_open_episode = property(has_open_episode)
 
 	#--------------------------------------------------------
 	def _get_first_episode(self):
@@ -660,7 +660,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			return None
 		return cEpisode(aPK_obj = rows[0]['pk_episode'])
 
-	first_episode = property(_get_first_episode, lambda x:x)
+	first_episode = property(_get_first_episode)
 
 	#--------------------------------------------------------
 	def _get_latest_episode(self):
@@ -735,7 +735,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			return None
 		return cEpisode(aPK_obj = rows[0]['pk_episode'])
 
-	latest_episode = property(_get_latest_episode, lambda x:x)
+	latest_episode = property(_get_latest_episode)
 
 	#--------------------------------------------------------
 	# Steffi suggested we divide into safe and assumed (= possible) start dates
@@ -781,7 +781,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		#	return end
 		return start
 
-	safe_start_date = property(_get_safe_start_date, lambda x:x)
+	safe_start_date = property(_get_safe_start_date)
 
 	#--------------------------------------------------------
 	def _get_possible_start_date(self):
@@ -903,13 +903,13 @@ FROM (
 		except KeyError:
 			return '<?>'
 
-	laterality_description = property(_get_laterality_description, lambda x:x)
+	laterality_description = property(_get_laterality_description)
 
 	#--------------------------------------------------------
 	def _get_diagnostic_certainty_description(self):
 		return diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']])
 
-	diagnostic_certainty_description = property(_get_diagnostic_certainty_description, lambda x:x)
+	diagnostic_certainty_description = property(_get_diagnostic_certainty_description)
 
 	#--------------------------------------------------------
 	def _get_formatted_revision_history(self):
@@ -969,7 +969,7 @@ FROM (
 		)
 		return '\n'.join(self._get_revision_history(cmd, args, title))
 
-	formatted_revision_history = property(_get_formatted_revision_history, lambda x:x)
+	formatted_revision_history = property(_get_formatted_revision_history)
 	#--------------------------------------------------------
 	def _get_generic_codes(self):
 		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
@@ -1633,7 +1633,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 	def _get_diagnostic_certainty_description(self):
 		return diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']])
 
-	diagnostic_certainty_description = property(_get_diagnostic_certainty_description, lambda x:x)
+	diagnostic_certainty_description = property(_get_diagnostic_certainty_description)
 
 	#--------------------------------------------------------
 	def _get_formatted_revision_history(self):
@@ -1675,7 +1675,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		)
 		return '\n'.join(self._get_revision_history(cmd, args, title))
 
-	formatted_revision_history = property(_get_formatted_revision_history, lambda x:x)
+	formatted_revision_history = property(_get_formatted_revision_history)
 
 	#--------------------------------------------------------
 	def _get_generic_codes(self):
@@ -1733,7 +1733,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows[0][0]
 
-	has_narrative = property(_get_has_narrative, lambda x:x)
+	has_narrative = property(_get_has_narrative)
 
 	#--------------------------------------------------------
 	def _get_health_issue(self):
@@ -2361,7 +2361,7 @@ limit 1
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ cEpisode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_episode'})  for r in rows ]
 
-	episodes = property(get_episodes, lambda x:x)
+	episodes = property(get_episodes)
 
 	#--------------------------------------------------------
 	def add_code(self, pk_code=None, field=None):
@@ -2999,14 +2999,14 @@ limit 1
 			return None
 		return gmPraxis.get_praxis_branch_by_org_unit(pk_org_unit = self._payload[self._idx['pk_org_unit']])
 
-	praxis_branch = property(_get_praxis_branch, lambda x:x)
+	praxis_branch = property(_get_praxis_branch)
 	#--------------------------------------------------------
 	def _get_org_unit(self):
 		if self._payload[self._idx['pk_org_unit']] is None:
 			return None
 		return gmOrganization.cOrgUnit(aPK_obj = self._payload[self._idx['pk_org_unit']])
 
-	org_unit = property(_get_org_unit, lambda x:x)
+	org_unit = property(_get_org_unit)
 	#--------------------------------------------------------
 	def _get_formatted_revision_history(self):
 		cmd = """SELECT
@@ -3043,7 +3043,7 @@ limit 1
 		)
 		return '\n'.join(self._get_revision_history(cmd, args, title))
 
-	formatted_revision_history = property(_get_formatted_revision_history, lambda x:x)
+	formatted_revision_history = property(_get_formatted_revision_history)
 
 #-----------------------------------------------------------
 def create_encounter(fk_patient=None, enc_type=None):
@@ -3344,7 +3344,7 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 	def get_diagnostic_certainty_description(self):
 		return diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']])
 
-	diagnostic_certainty_description = property(get_diagnostic_certainty_description, lambda x:x)
+	diagnostic_certainty_description = property(get_diagnostic_certainty_description)
 	#--------------------------------------------------------
 	def _get_generic_codes(self):
 		if self._payload[self._idx['type']] == 'issue':
@@ -3367,7 +3367,7 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
 
-	generic_codes = property(_get_generic_codes, lambda x:x)
+	generic_codes = property(_get_generic_codes)
 #-----------------------------------------------------------
 def problem2episode(problem=None):
 	"""Retrieve the cEpisode instance equivalent to the given problem.
@@ -3508,7 +3508,7 @@ class cHospitalStay(gmBusinessDBObject.cBusinessDBObject):
 	def _get_documents(self):
 		return [ gmDocuments.cDocument(aPK_obj = pk_doc) for pk_doc in  self._payload[self._idx['pk_documents']] ]
 
-	documents = property(_get_documents, lambda x:x)
+	documents = property(_get_documents)
 
 #-----------------------------------------------------------
 def get_latest_patient_hospital_stay(patient=None):
@@ -3705,13 +3705,13 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 			return None
 		return cHospitalStay(aPK_obj = self._payload[self._idx['pk_hospital_stay']])
 
-	hospital_stay = property(_get_stay, lambda x:x)
+	hospital_stay = property(_get_stay)
 
 	#--------------------------------------------------------
 	def _get_org_unit(self):
 		return gmOrganization.cOrgUnit(self._payload[self._idx['pk_org_unit']])
 
-	org_unit = property(_get_org_unit, lambda x:x)
+	org_unit = property(_get_org_unit)
 
 	#--------------------------------------------------------
 	def _get_doc(self):
@@ -3719,7 +3719,7 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 			return None
 		return gmDocuments.cDocument(aPK_obj = self._payload[self._idx['pk_doc']])
 
-	doc = property(_get_doc, lambda x:x)
+	doc = property(_get_doc)
 
 	#--------------------------------------------------------
 	def _get_generic_codes(self):

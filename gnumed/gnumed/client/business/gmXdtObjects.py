@@ -193,7 +193,7 @@ class cLDTFile(object):
 		ldt_file.close()
 		return self.__header
 
-	header = property(_get_header, lambda x:x)
+	header = property(_get_header)
 	#----------------------------------------------------------
 	def _get_tail(self):
 
@@ -221,7 +221,7 @@ class cLDTFile(object):
 		ldt_file.close()
 		return self.__tail
 
-	tail = property(_get_tail, lambda x:x)
+	tail = property(_get_tail)
 	#----------------------------------------------------------
 	def split_by_patient(self, dir=None, file=None):
 
