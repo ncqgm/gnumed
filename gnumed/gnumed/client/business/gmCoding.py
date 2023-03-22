@@ -43,8 +43,8 @@ class cGenericLinkedCode(gmBusinessDBObject.cBusinessDBObject):
 	READ ONLY
 	"""
 	_cmd_fetch_payload = _SQL_get_generic_linked_codes % "pk_lnk_code2item = %s"
-	_cmds_store_payload = []
-	_updatable_fields = []
+	_cmds_store_payload:list = []
+	_updatable_fields:list = []
 #------------------------------------------------------------
 def get_generic_linked_codes(order_by=None):
 	if order_by is None:
@@ -63,8 +63,8 @@ _SQL_get_generic_code = "SELECT * FROM ref.v_generic_codes WHERE %s"
 class cGenericCode(gmBusinessDBObject.cBusinessDBObject):
 	"""READ ONLY"""
 	_cmd_fetch_payload = _SQL_get_generic_code % "pk_generic_code = %s"
-	_cmds_store_payload = []
-	_updatable_fields = []
+	_cmds_store_payload:list = []
+	_updatable_fields:list = []
 #------------------------------------------------------------
 def get_generic_codes(order_by=None):
 	if order_by is None:

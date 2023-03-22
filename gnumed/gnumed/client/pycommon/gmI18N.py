@@ -496,7 +496,9 @@ if __name__ == "__main__":
 
 	del _
 
-	import gmLog2
+	sys.path.insert(0, '../../')
+	from Gnumed.pycommon import gmLog2
+	print(gmLog2._logfile_name)
 	#----------------------------------------------------------------------
 	def test_strcoll():
 		candidates = [
@@ -553,8 +555,6 @@ if __name__ == "__main__":
 
 	test_translating()
 	test_strcoll()
-
-	print(gmLog2._logfile_name)
 
 	# ********************************************************************* #
 	# == do not remove this line ========================================== #

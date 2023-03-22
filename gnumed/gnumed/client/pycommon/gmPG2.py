@@ -852,11 +852,11 @@ def get_col_names(link_obj=None, schema='public', table=None):
 	return cols
 
 #------------------------------------------------------------------------
-def revalidate_constraints(link_obj=None):
+def revalidate_constraints(link_obj=None) -> str:
 	"""This needs quite extensive permissions, say, <postgres> at the PG level.
 
 	Returns:
-		False on error, magic cookie on success.
+		Magic cookie on success.
 	"""
 	_log.debug('revalidating all constraints in database')
 	SQL = """DO $$
@@ -880,7 +880,7 @@ def revalidate_constraints(link_obj=None):
 	return __LLAP
 
 #------------------------------------------------------------------------
-def reindex_database(conn=None) -> bool:
+def reindex_database(conn=None) -> bool: # | str:
 	"""Reindex the database "conn" is connected to.
 
 	Args:

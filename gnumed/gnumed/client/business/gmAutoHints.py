@@ -245,9 +245,9 @@ _SQL_get_suppressed_hints = "SELECT * FROM clin.v_suppressed_hints WHERE %s"
 class cSuppressedHint(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents suppressed dynamic hints per patient."""
 
-	_cmd_fetch_payload = _SQL_get_suppressed_hints % "pk_suppressed_hint = %s"
-	_cmds_store_payload = []
-	_updatable_fields = []
+	_cmd_fetch_payload:str = _SQL_get_suppressed_hints % "pk_suppressed_hint = %s"
+	_cmds_store_payload:list = []
+	_updatable_fields:list = []
 	#--------------------------------------------------------
 	def format(self):
 		txt = '%s               [#%s]\n' % (

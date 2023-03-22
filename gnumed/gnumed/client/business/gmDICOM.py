@@ -1645,7 +1645,8 @@ def run_file2dicom_tool(fname:str=None, dcm_template:str=None) -> str:
 		from Gnumed.business import gmPersonSearch
 		pat = gmPersonSearch.ask_for_patient()
 		if pat is None:
-			return
+			return None
+
 	else:
 		pat = None
 
@@ -1656,7 +1657,7 @@ def run_file2dicom_tool(fname:str=None, dcm_template:str=None) -> str:
 			dt = pydt.datetime.fromisoformat(iso)
 		except ValueError:
 			if iso.strip() == '':
-				return
+				return None
 			dt = None
 
 	desc = input('enter description (ASCII): ')

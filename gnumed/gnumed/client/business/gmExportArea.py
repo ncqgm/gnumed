@@ -922,7 +922,7 @@ class cExportArea(object):
 		return delete_export_item(pk_export_item = item['pk_export_item'])
 
 	#--------------------------------------------------------
-	def dump_items_to_disk(self, base_dir:str=None, items:[]=None, passphrase:str=None, convert2pdf:bool=False) -> str:
+	def dump_items_to_disk(self, base_dir:str=None, items:list=None, passphrase:str=None, convert2pdf:bool=False) -> str:
 		"""Dump export area items to disk.
 
 		Args:
@@ -955,7 +955,7 @@ class cExportArea(object):
 		return base_dir
 
 	#--------------------------------------------------------
-	def dump_items_to_disk_as_zip(self, base_dir:str=None, items:[]=None, passphrase:str=None) -> str:
+	def dump_items_to_disk_as_zip(self, base_dir:str=None, items:list=None, passphrase:str=None) -> str:
 		"""Dump items to disk into a zip archive.
 
 			Calls dump_items_to_disk().
@@ -1522,7 +1522,7 @@ def store_passphrase_of_file_callback(filename:str=None, passphrase:str=None, co
 	)
 
 #---------------------------------------------------------------------------
-def store_passphrase_of_file(filename:str=None, passphrase:str=None, hash_type:str='md5', comment:{}=None) -> bool:
+def store_passphrase_of_file(filename:str=None, passphrase:str=None, hash_type:str='md5', comment:dict=None) -> bool:
 	"""Call store_object_passphrase on a given file."""
 	try:
 		f = open(filename, 'rb')
@@ -1541,7 +1541,7 @@ def store_passphrase_of_file(filename:str=None, passphrase:str=None, hash_type:s
 	)
 
 #---------------------------------------------------------------------------
-def store_object_passphrase(obj=None, passphrase:str=None, hash_type:str='md5', owner=None, comment:{}=None) -> bool:
+def store_object_passphrase(obj=None, passphrase:str=None, hash_type:str='md5', owner=None, comment:dict=None) -> bool:
 	"""Store in the database the (encrypted) passphrase for an object.
 
 	The passphrase is stored encrypted with the public key of
@@ -1613,7 +1613,7 @@ def store_object_passphrase(obj=None, passphrase:str=None, hash_type:str='md5', 
 	return True
 
 #---------------------------------------------------------------------------
-def save_file_passphrases_into_files() -> []:
+def save_file_passphrases_into_files() -> list[str]: # | None:
 	try:
 		hash_val = input('Please enter the file hash: ')
 	except KeyboardInterrupt:
@@ -1622,7 +1622,7 @@ def save_file_passphrases_into_files() -> []:
 	return save_object_passphrase_to_file(hash_val)
 
 #---------------------------------------------------------------------------
-def save_object_passphrase_to_file(hash:str=None) -> []:
+def save_object_passphrase_to_file(hash:str=None) -> list[str]:
 	"""Save encrypted passphrases known for a hash into files.
 
 	Args:
@@ -1637,18 +1637,18 @@ def save_object_passphrase_to_file(hash:str=None) -> []:
 	if not rows:
 		return None
 
-	pk_files = []
+	phrase_files = []
 	for row in rows:
-		pk_fname = '%s-%s-passphrase.txt.asc' % (row['hash'], row['hash_type'])
-		with open(pk_fname, mode = 'wt', encoding = 'utf8') as pk_file:
-			pk_file.write('%s: %s\n' % (row['hash_type'], row['hash']))
+		phrasefile_name = '%s-%s-passphrase.txt.asc' % (row['hash'], row['hash_type'])
+		with open(phrasefile_name, mode = 'wt', encoding = 'utf8') as phrasefile:
+			phrasefile.write('%s: %s\n' % (row['hash_type'], row['hash']))
 			if row['description']:
-				pk_file.write('%s' % row['description'])
-				pk_file.write('\n')
-			pk_file.write('\n')
-			pk_file.write(row['phrase'])
-		pk_files.append(pk_fname)
-	return pk_files
+				phrasefile.write('%s' % row['description'])
+				phrasefile.write('\n')
+			phrasefile.write('\n')
+			phrasefile.write(row['phrase'])
+		phrase_files.append(phrasefile_name)
+	return phrase_files
 
 #============================================================
 #============================================================

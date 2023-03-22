@@ -277,7 +277,7 @@ def deactivate_staff(conn=None, pk_staff=None):
 	return True
 
 #------------------------------------------------------------
-def get_public_keys_of_passphrase_trustees(as_files:bool=False) -> []:
+def get_public_keys_of_passphrase_trustees(as_files:bool=False) -> list[str]:
 	"""Retrieve the public keys of passphrase trustees.
 
 	Returns:

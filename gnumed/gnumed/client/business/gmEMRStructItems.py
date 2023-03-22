@@ -200,10 +200,6 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		return False
 
 	#--------------------------------------------------------
-	def has_open_episode(self):
-		return self._payload[self._idx['has_open_episode']]
-
-	#--------------------------------------------------------
 	def get_open_episode(self):
 		cmd = "select pk from clin.episode where fk_health_issue = %s and is_open IS True LIMIT 1"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
@@ -553,8 +549,6 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	episodes = property(get_episodes)
 
 	open_episode = property(get_open_episode)
-
-	has_open_episode = property(has_open_episode)
 
 	#--------------------------------------------------------
 	def _get_first_episode(self):
@@ -3254,8 +3248,8 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 		.is_open=True episodes
 	"""
 	_cmd_fetch_payload = ''					# will get programmatically defined in __init__
-	_cmds_store_payload = ["select 1"]
-	_updatable_fields = []
+	_cmds_store_payload:list = ["select 1"]
+	_updatable_fields:list = []
 
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, try_potential_problems=False):

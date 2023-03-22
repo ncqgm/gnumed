@@ -401,7 +401,7 @@ if __name__ == '__main__':
 	print("updatable:", allg.get_updatable_fields())
 	enc_id = allg['pk_encounter']
 	epi_id = allg['pk_episode']
-	status, allg = create_allergy (
+	allg = create_allergy (
 		allergene = 'test substance',
 		allg_type = 1,
 		episode_id = epi_id,

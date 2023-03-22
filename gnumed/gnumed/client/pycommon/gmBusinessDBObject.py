@@ -483,10 +483,11 @@ class cBusinessDBObject(object):
 		return self._is_modified
 
 	#--------------------------------------------------------
-	def get_fields(self) -> list[str]:
+	def get_fields(self) -> list[str]:  # | str:
 		"""Return list of accessible fields."""
 		try:
 			return list(self._idx)
+
 		except AttributeError:
 			return 'nascent [%s @ %s], cannot return keys' %(self.__class__.__name__, id(self))
 

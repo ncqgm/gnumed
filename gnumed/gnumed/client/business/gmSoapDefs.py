@@ -22,7 +22,7 @@ else:
 _U_ELLIPSIS = '\u2026'
 
 KNOWN_SOAP_CATS = list('soapu')
-KNOWN_SOAP_CATS.append(None)
+KNOWN_SOAP_CATS.append(None)		# admin category
 
 
 soap_cat2l10n = {
@@ -31,8 +31,8 @@ soap_cat2l10n = {
 	'a': _('SOAP_char_A=A').replace('SOAP_char_A=', ''),
 	'p': _('SOAP_char_P=P').replace('SOAP_char_P=', ''),
 	'u': _('SOAP_char_U=U').replace('SOAP_char_U=', ''),
-	'': _U_ELLIPSIS,
-	None: _U_ELLIPSIS
+	'': _U_ELLIPSIS,		# admin
+	None: _U_ELLIPSIS		# admin
 }
 
 
@@ -60,13 +60,15 @@ l10n2soap_cat = {
 }
 
 #============================================================
-def soap_cats_str2list(soap_cats:str) -> []:
-	"""Normalizes a string or list of SOAP categories, preserving order.
+def soap_cats_str2list(soap_cats:str) -> list[str]:
+	"""Normalize SOAP categories, preserving order.
 
-		None -> gmSoapDefs.KNOWN_SOAP_CATS (all)
-		[] -> []
-		'' -> []
-		' ' -> [None]	(admin)
+	Args:
+		soap_cats: string or list
+		* None -> gmSoapDefs.KNOWN_SOAP_CATS (all)
+		* [] -> []
+		* '' -> []
+		* ' ' -> [None]	(admin)
 	"""
 	if soap_cats is None:
 		return KNOWN_SOAP_CATS
@@ -87,6 +89,12 @@ def soap_cats_str2list(soap_cats:str) -> []:
 
 #============================================================
 def are_valid_soap_cats(soap_cats:str, allow_upper:bool=True) -> bool:
+	"""Check whether _soap_cats_ contains valid category markers only.
+
+	Args:
+		soap_cats: string or list
+		allow_upper: whether uppercase is considered valid
+	"""
 	for cat2test in soap_cats:
 		if cat2test in KNOWN_SOAP_CATS:
 			continue
@@ -100,7 +108,7 @@ def are_valid_soap_cats(soap_cats:str, allow_upper:bool=True) -> bool:
 	return True
 
 #============================================================
-def normalize_soap_cat(soap_cat:str):
+def normalize_soap_cat(soap_cat:str) -> str: # | bool:
 	soap_cat = soap_cat.casefold()
 	if soap_cat in KNOWN_SOAP_CATS:
 		return soap_cat
