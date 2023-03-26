@@ -3072,11 +3072,12 @@ class gmTopLevelFrame(wx.Frame):
 		_log.debug('gmTopLevelFrame._clean_exit() start')
 
 		# shut down backend notifications listener
-		listener = gmBackendListener.gmBackendListener()
-		try:
-			listener.shutdown()
-		except Exception:
-			_log.exception('cannot stop backend notifications listener thread')
+		if 'no_db_listener' not in _cfg.get(option = 'special'):
+			listener = gmBackendListener.gmBackendListener()
+			try:
+				listener.shutdown()
+			except Exception:
+				_log.exception('cannot stop backend notifications listener thread')
 
 		# shutdown application scripting listener
 		if _scripting_listener is not None:

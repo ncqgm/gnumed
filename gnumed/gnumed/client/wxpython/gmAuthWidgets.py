@@ -283,8 +283,11 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 			text = gmPG2.get_db_fingerprint(eol = '\n')
 		)
 
-		conn = gmPG2.get_connection(verbose = True, connection_name = 'GNUmed-[DbListenerThread]', pooled = False)
-		listener = gmBackendListener.gmBackendListener(conn = conn)
+		if 'no_db_listener' in _cfg.get(option = 'special'):
+			_log.debug('--special contains "no_db_listener", NOT starting backend listener')
+		else:
+			conn = gmPG2.get_connection(verbose = True, connection_name = 'GNUmed-[DbListenerThread]', pooled = False)
+			listener = gmBackendListener.gmBackendListener(conn = conn)
 		break
 
 	dlg.DestroyLater()
