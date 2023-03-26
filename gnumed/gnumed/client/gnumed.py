@@ -49,6 +49,8 @@ care of all the pre- and post-GUI runtime environment setup.
 --wxp=<version>
  Explicitely request a wxPython version. Can be set to either "2" or "3".
  Defaults to "try 3, then 2" if not set.
+--special=<special>
+ Used for debugging.
 --version, -V
  Show version information.
 --help, -h, or -?
@@ -119,7 +121,8 @@ _known_long_options = [
 	'version',
 	'hipaa',
 	'wxp=',
-	'tool='
+	'tool=',
+	'special='
 ]
 
 _known_ui_types = [
@@ -518,6 +521,14 @@ def setup_cli():
 		option = 'client_branch',
 		value = current_client_branch
 	)
+
+	value = _cfg.get(option = '--special', source_order = [('cli', 'return')])
+	if value:
+		value = value.split(',')
+		print('GNUmed startup: --special:', value)
+	else:
+		value = []
+	_cfg.set_option(option = 'special', value = value)
 
 #==========================================================
 def handle_sig_term(signum, frame):

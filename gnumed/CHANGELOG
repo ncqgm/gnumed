@@ -6,6 +6,10 @@
 # rel-1-8-patches
 ------------------------------------------------
 
+	1.8.11
+
+IMPROVED: add --special commandline option
+
 	1.8.10
 
 FIX: bills: exception on saving invoice PDF [thanks Aimee]
