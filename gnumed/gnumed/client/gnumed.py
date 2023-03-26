@@ -25,6 +25,7 @@ Use at your own risk. You have been warned.
 .RB [--override-schema-check]
 .RB [--skip-update-check]
 .RB [--local-import]
+.RB [--special=SPECIAL]
 .RB [--help]
 .RB [--version]
 .RB [-V]
@@ -117,6 +118,9 @@ development or when the update check URL is unavailable.
 At startup adjust the PYTHONPATH such that the GNUmed client is
 run from a local copy of the source tree (say an unpacked tarball
 or a GIT repo) rather than from a proper system-wide installation.
+.TP
+.B \--special=SPECIAL
+Used for debugging.
 .TP
 .B \--version, -V
 Show version information about the GNUmed client and the
@@ -357,6 +361,7 @@ _known_long_options = [
 	'hipaa',
 	'wxp=',
 	'tool=',
+	'special=',
 	'tui'
 ]
 
@@ -739,6 +744,14 @@ def setup_cli():
 		option = 'local-import',
 		value = val
 	)
+
+	value = _cfg.get(option = '--special', source_order = [('cli', 'return')])
+	if value:
+		value = value.split(',')
+		print('GNUmed startup: --special:', value)
+	else:
+		value = []
+	_cfg.set_option(option = 'special', value = value)
 
 	_cfg.set_option (
 		option = 'client_version',
