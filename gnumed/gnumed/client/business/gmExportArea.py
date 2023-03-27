@@ -1513,7 +1513,7 @@ class cExportArea(object):
 #===========================================================================
 # passphrase escrow
 #---------------------------------------------------------------------------
-def store_passphrase_of_file_callback(filename:str=None, passphrase:str=None, comment:str=None):
+def store_passphrase_of_file_callback(filename:str=None, passphrase:str=None, comment:dict=None):
 	return store_passphrase_of_file (
 		filename = filename,
 		passphrase = passphrase,

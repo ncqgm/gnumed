@@ -79,7 +79,7 @@ form_engine_template_wildcards = {
 }
 
 # is filled in further below after each engine is defined
-form_engines = {}
+form_engines:dict = {}
 
 #============================================================
 # match providers

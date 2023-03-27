@@ -242,17 +242,17 @@ class cOrthancServer:
 
 		if fuzzy:
 			search_term = '*%s*' % search_term
-		search_data = {
+		search_data:dict = {
 			'Level': 'Patient',
 			'CaseSensitive': False,
-			'Expand': True,
-			'Query': {'PatientName': search_term}
+			'Expand': True
 		}
-		if gender is not None:
+		search_data['Query']:dict = {'PatientName': search_term}
+		if gender:
 			gender = _map_gender_gm2dcm[gender.casefold()]
-			if gender is not None:
+			if gender:
 				search_data['Query']['PatientSex'] = gender
-		if dob is not None:
+		if dob:
 			search_data['Query']['PatientBirthDate'] = dob.strftime('%Y%m%d')
 		_log.info('server-side C-FIND SCU over REST search, mogrified search data: %s', search_data)
 		matches = self.__run_POST(url = '%s/tools/find' % self.__server_url, data = search_data)
@@ -378,7 +378,7 @@ class cOrthancServer:
 		if filename is None:
 			filename = gmTools.get_unique_filename(prefix = r'DCM-', suffix = r'.zip')
 		_log.info('exporting study [%s] into [%s]', study_id, filename)
-		f = io.open(filename, 'wb')
+		f = open(filename, 'wb')
 		f.write(self.__run_GET(url = '%s/studies/%s/archive' % (self.__server_url, str(study_id)), allow_cached = True))
 		f.close()
 		return filename
@@ -388,7 +388,7 @@ class cOrthancServer:
 		if filename is None:
 			filename = gmTools.get_unique_filename(prefix = r'DCM-', suffix = r'.zip')
 		_log.info('exporting study [%s] into [%s]', study_id, filename)
-		f = io.open(filename, 'wb')
+		f = open(filename, 'wb')
 		f.write(self.__run_GET(url = '%s/studies/%s/media' % (self.__server_url, str(study_id)), allow_cached = True))
 		f.close()
 		return filename
@@ -399,7 +399,7 @@ class cOrthancServer:
 			filename = gmTools.get_unique_filename(prefix = r'DCM-', suffix = r'.zip')
 		if study_ids is None:
 			_log.info('exporting all studies of patient [%s] into [%s]', patient_id, filename)
-			f = io.open(filename, 'wb')
+			f = open(filename, 'wb')
 			f.write(self.__run_GET(url = '%s/patients/%s/archive' % (self.__server_url, str(patient_id)), allow_cached = True))
 			f.close()
 			return filename
@@ -413,7 +413,7 @@ class cOrthancServer:
 		# all studies
 		if study_ids is None:
 			_log.info('exporting all studies of patient [%s] into [%s]', patient_id, filename)
-			f = io.open(filename, 'wb')
+			f = open(filename, 'wb')
 			url = '%s/patients/%s/media' % (self.__server_url, str(patient_id))
 			_log.debug(url)
 			f.write(self.__run_GET(url = url, allow_cached = True))
@@ -473,7 +473,7 @@ class cOrthancServer:
 			return False
 		# paranoia
 		try:
-			io.open(target_dicomdir_name)
+			open(target_dicomdir_name)
 		except Exception:
 			_log.error('[%s] not generated, aborting', target_dicomdir_name)
 			return False
@@ -506,7 +506,7 @@ class cOrthancServer:
 			if patient_id is None:
 				raise ValueError('<patient_id> must be defined if <study_ids> is None')
 			_log.info('exporting all studies of patient [%s] into [%s]', patient_id, filename)
-			f = io.open(filename, 'wb')
+			f = open(filename, 'wb')
 			url = '%s/patients/%s/media' % (self.__server_url, str(patient_id))
 			_log.debug(url)
 			f.write(self.__run_GET(url = url, allow_cached = True))
@@ -522,7 +522,7 @@ class cOrthancServer:
 		# selection of studies
 		_log.info('exporting %s studies into [%s]', len(study_ids), filename)
 		_log.debug('studies: %s', study_ids)
-		f = io.open(filename, 'wb')
+		f = open(filename, 'wb')
 		#  You have to make a POST request against URI "/tools/create-media", with a
 		#  JSON body that contains the array of the resources of interest (as Orthanc
 		#  identifiers). Here is a sample command-line:
@@ -575,7 +575,7 @@ class cOrthancServer:
 			filename = gmTools.get_unique_filename(suffix = '.png')
 		_log.debug('exporting preview for instance [%s] into [%s]', instance_id, filename)
 		download_url = '%s/instances/%s/preview' % (self.__server_url, instance_id)
-		f = io.open(filename, 'wb')
+		f = open(filename, 'wb')
 		try:
 			f.write(self.__run_GET(url = download_url, allow_cached = True))
 		except Exception:
@@ -592,7 +592,7 @@ class cOrthancServer:
 
 		_log.debug('exporting instance [%s] into [%s]', instance_id, filename)
 		download_url = '%s/instances/%s/attachments/dicom/data' % (self.__server_url, instance_id)
-		f = io.open(filename, 'wb')
+		f = open(filename, 'wb')
 		f.write(self.__run_GET(url = download_url, allow_cached = allow_cached))
 		f.close()
 		return filename
@@ -749,7 +749,7 @@ class cOrthancServer:
 				return False
 
 		try:
-			f = io.open(filename, 'rb')
+			f = open(filename, 'rb')
 		except Exception:
 			_log.exception('failed to open file')
 			return False
@@ -814,9 +814,9 @@ class cOrthancServer:
 				download_url = '%s/instances/%s/attachments/%s/data' % (self.__server_url, instance_id, attachment)
 				attachment_data = self.__run_GET(url = download_url, allow_cached = False)
 				if isinstance(attachment_data, bytes):
-					attachment_file = io.open(attachment_filename, 'wb')
+					attachment_file = open(attachment_filename, 'wb')
 				else:
-					attachment_file = io.open(attachment_filename, 'wt')
+					attachment_file = open(attachment_filename, 'wt')
 					attachment_data = '%s' % attachment_data
 				attachment_file.write(attachment_data)
 				del attachment_data

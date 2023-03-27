@@ -73,7 +73,7 @@ def soap_cats_str2list(soap_cats:str) -> list[str]:
 	if soap_cats is None:
 		return KNOWN_SOAP_CATS
 
-	normalized_cats = []
+	normalized_cats:list = []
 	for cat in soap_cats:
 		if cat in [' ', None]:
 			if None in normalized_cats:

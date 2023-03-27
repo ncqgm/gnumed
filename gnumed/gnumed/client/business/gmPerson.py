@@ -1010,7 +1010,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 		now_here = gmDateTime.pydt_strftime(gmDateTime.pydt_now_here())
 		distinguisher = _('merge of #%s into #%s @ %s') % (other_identity.ID, self.ID, now_here)
-		queries = []
+		queries:list[dict] = []
 		args = {'pat2del': other_identity.ID, 'pat2keep': self.ID}
 		# merge allergy state
 		queries.append ({
