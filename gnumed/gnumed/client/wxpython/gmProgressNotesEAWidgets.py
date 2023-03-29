@@ -190,7 +190,7 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 			episode = None
 		else:
 			issue = self.problem['pk_health_issue']
-			episode = gmEMRStructItems.problem2episode(self.problem)
+			episode = gmEMRStructItems.cEpisode.from_problem(self.problem)
 
 		wx.CallAfter (
 			gmVisualProgressNoteWidgets.edit_visual_progress_note,
@@ -214,7 +214,7 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 				return False
 		# existing episode
 		else:
-			episode = emr.problem2episode(self.problem)
+			episode = gmEMRStructItems.cEpisode.from_problem(self.problem)
 
 		if encounter is None:
 			encounter = emr.current_encounter['pk_encounter']
@@ -256,7 +256,7 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 				'(which will become a new, unassociated episode):\n'
 			)
 		else:
-			issue = emr.problem2issue(self.problem)
+			issue = gmEMRStructItems.cHealthIssue.from_problem(self.problem)
 			msg = _(
 				'Enter a short working name for this new\n'
 				'episode under the existing health issue\n'
@@ -290,7 +290,7 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 		new_episode.save()
 
 		if self.problem is not None:
-			issue = emr.problem2issue(self.problem)
+			issue = gmEMRStructItems.cHealthIssue.from_problem(self.problem)
 			if not gmEMRStructWidgets.move_episode_to_issue(episode = new_episode, target_issue = issue, save_to_backend = True):
 				gmGuiHelpers.gm_show_warning (
 					_(

@@ -1257,14 +1257,6 @@ WHERE
 		return problems
 
 	#--------------------------------------------------------
-	def problem2episode(self, problem=None):
-		return gmEMRStructItems.problem2episode(problem = problem)
-
-	#--------------------------------------------------------
-	def problem2issue(self, problem=None):
-		return gmEMRStructItems.problem2issue(problem = problem)
-
-	#--------------------------------------------------------
 	def reclass_problem(self, problem):
 		return gmEMRStructItems.reclass_problem(problem = problem)
 

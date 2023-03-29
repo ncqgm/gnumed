@@ -202,7 +202,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 			active_problems.append(problem)
 
 			if problem['type'] == 'issue':
-				issue = emr.problem2issue(problem)
+				issue = gmEMRStructItems.cHealthIssue.from_problem(problem)
 				last_encounter = emr.get_last_encounter(issue_id = issue['pk_health_issue'])
 				if last_encounter is None:
 					last = issue['modified_when'].strftime('%m/%Y')
@@ -212,7 +212,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 				list_items.append([last, problem['problem'], gmTools.u_left_arrow_with_tail])
 
 			elif problem['type'] == 'episode':
-				epi = emr.problem2episode(problem)
+				epi = gmEMRStructItems.cEpisode.from_problem(problem)
 				last_encounter = emr.get_last_encounter(episode_id = epi['pk_episode'])
 				if last_encounter is None:
 					last = epi['episode_modified_when'].strftime('%m/%Y')

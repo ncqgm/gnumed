@@ -1051,7 +1051,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		list_data = []
 		for problem in problems:
 			if problem['type'] == 'issue':
-				issue = emr.problem2issue(problem)
+				issue = gmEMRStructItems.cHealthIssue.from_problem(problem)
 				if issue['pk_health_issue'] in epi_issues:
 					continue	# skip duplicates (issue/episode)
 				last_encounter = emr.get_last_encounter(issue_id = issue['pk_health_issue'])
@@ -1061,7 +1061,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 					last = last_encounter['last_affirmed'].strftime('%m/%Y')
 				list_items.append('%s: %s' % (problem['problem'], last))
 			elif problem['type'] == 'episode':
-				epi = emr.problem2episode(problem)
+				epi = gmEMRStructItems.cEpisode.from_problem(problem)
 				last_encounter = emr.get_last_encounter(episode_id = epi['pk_episode'])
 				if last_encounter is None:
 					last = epi['episode_modified_when'].strftime('%m/%Y')
@@ -1102,7 +1102,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		emr = gmPerson.gmCurrentPatient().emr
 
 		if data['type'] == 'issue':
-			issue = emr.problem2issue(data)
+			issue = gmEMRStructItems.cHealthIssue.from_problem(data)
 			tt = issue.format (
 				patient = gmPerson.gmCurrentPatient(),
 				with_medications = False,
@@ -1116,7 +1116,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			return tt
 
 		if data['type'] == 'episode':
-			epi = emr.problem2episode(data)
+			epi = gmEMRStructItems.cEpisode.from_problem(data)
 			tt = epi.format (
 				patient = gmPerson.gmCurrentPatient(),
 				with_encounters = False,
@@ -1140,10 +1140,10 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			if wx.GetKeyState(wx.WXK_CONTROL):
 				emr = gmPerson.gmCurrentPatient().emr
 				if data['type'] == 'issue':
-					gmEMRStructWidgets.edit_health_issue(parent = self, issue = emr.problem2issue(data))
+					gmEMRStructWidgets.edit_health_issue(parent = self, issue = gmEMRStructItems.cHealthIssue.from_problem(data))
 					return
 				if data['type'] == 'episode':
-					gmEMRStructWidgets.edit_episode(parent = self, episode = emr.problem2episode(data))
+					gmEMRStructWidgets.edit_episode(parent = self, episode = gmEMRStructItems.cEpisode.from_problem(data))
 					return
 
 		gmDispatcher.send(signal = 'display_widget', name = 'gmEMRBrowserPlugin')

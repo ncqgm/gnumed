@@ -486,7 +486,7 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 			if not problem['problem_active']:
 				continue
 			if problem['type'] == 'issue':
-				issue = emr.problem2issue(problem)
+				issue = gmEMRStructItems.cHealthIssue.from_problem(problem)
 				last_encounter = emr.get_last_encounter(issue_id = issue['pk_health_issue'])
 				if last_encounter is None:
 					last = issue['modified_when'].strftime('%m/%Y')
@@ -494,7 +494,7 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 					last = last_encounter['last_affirmed'].strftime('%m/%Y')
 				label = '%s: %s "%s"' % (last, problem['l10n_type'], problem['problem'])
 			elif problem['type'] == 'episode':
-				epi = emr.problem2episode(problem)
+				epi = gmEMRStructItems.cEpisode.from_problem(problem)
 				last_encounter = emr.get_last_encounter(episode_id = epi['pk_episode'])
 				if last_encounter is None:
 					last = epi['episode_modified_when'].strftime('%m/%Y')
@@ -811,7 +811,7 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 			new_episode = emr.add_episode(episode_name = epi_name[:45], pk_health_issue = None, is_open = True)
 
 			if self.__problem is not None:
-				issue = emr.problem2issue(self.__problem)
+				issue = gmEMRStructItems.cHealthIssue.from_problem(self.__problem)
 				if not gmEMRStructWidgets.move_episode_to_issue(episode = new_episode, target_issue = issue, save_to_backend = True):
 					print("error moving episode to issue")
 

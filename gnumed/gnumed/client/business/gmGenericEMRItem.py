@@ -162,9 +162,9 @@ __SQL_union = """(
 class cGenericEMRItem(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents an entry in clin.v_emr_journal."""
 
-	_cmd_fetch_payload = _SQL_get_generic_emr_items + "WHERE src_table = %(src_table)s AND src_pk = %(src_pk)s"
-	_cmds_store_payload = []
-	_updatable_fields = ['']
+	_cmd_fetch_payload:str = _SQL_get_generic_emr_items + "WHERE src_table = %(src_table)s AND src_pk = %(src_pk)s"
+	_cmds_store_payload:list = []
+	_updatable_fields:list = ['']
 
 	#--------------------------------------------------------
 	def format(self, eol=None):

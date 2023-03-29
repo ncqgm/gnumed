@@ -7,7 +7,6 @@ __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 
 # stdlib
-import io
 import os
 import sys
 import re as regex
@@ -247,7 +246,7 @@ class cOrthancServer:
 			'CaseSensitive': False,
 			'Expand': True
 		}
-		search_data['Query']:dict = {'PatientName': search_term}
+		search_data['Query'] = {'PatientName': search_term}
 		if gender:
 			gender = _map_gender_gm2dcm[gender.casefold()]
 			if gender:

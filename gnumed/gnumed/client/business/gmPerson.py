@@ -71,7 +71,7 @@ BEGIN;
 """
 
 #============================================================
-def external_id_exists(pk_issuer, value) -> int:
+def external_id_exists(pk_issuer:int, value:str) -> int:
 	"""Check whether an external ID exists for a given ID issuer.
 
 	Args:
@@ -87,7 +87,7 @@ def external_id_exists(pk_issuer, value) -> int:
 	return rows[0][0]
 
 #============================================================
-def get_potential_person_dupes(lastnames:str, dob, firstnames:str=None, active_only:bool=True) -> int:
+def get_potential_person_dupes(lastnames:str, dob:pyDT.datetime, firstnames:str=None, active_only:bool=True) -> int:
 	"""Get number of potential duplicates of a person.
 
 	Args:
@@ -122,7 +122,7 @@ def get_potential_person_dupes(lastnames:str, dob, firstnames:str=None, active_o
 	return rows[0][0]
 
 #============================================================
-def get_person_duplicates(lastnames:str, firstnames:str, dob, gender:str, comment:str) -> list:
+def get_person_duplicates(lastnames:str, firstnames:str, dob:pyDT.datetime, gender:str, comment:str) -> list:
 	"""Check whether a given person record exists in the database.
 
 	Args:
@@ -570,7 +570,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	ID = property(_get_ID)
 
 	#--------------------------------------------------------
-	def __setitem__(self, attribute, value):
+	def __setitem__(self, attribute:str, value):
 
 		if attribute == 'dob':
 			if value is not None:
@@ -603,10 +603,10 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		pass
 
 	#--------------------------------------------------------
-	def _get_is_patient(self):
+	def _get_is_patient(self) -> bool:
 		return identity_is_patient(self._payload[self._idx['pk_identity']])
 
-	def _set_is_patient(self, turn_into_patient):
+	def _set_is_patient(self, turn_into_patient:bool) -> bool:
 		if turn_into_patient:
 			return turn_identity_into_patient(self._payload[self._idx['pk_identity']])
 		return False
@@ -614,7 +614,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	is_patient = property(_get_is_patient, _set_is_patient)
 
 	#--------------------------------------------------------
-	def _get_as_patient(self):
+	def _get_as_patient(self) -> 'cPatient':
 		return cPatient(self._payload[self._idx['pk_identity']])
 
 	as_patient = property(_get_as_patient)
@@ -698,7 +698,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 	description_gender = property(get_description_gender)
 	#--------------------------------------------------------
-	def get_description(self, with_nickname=True):
+	def get_description(self, with_nickname:bool=True) -> str:
 		if with_nickname:
 			template = _('%(last)s,%(title)s %(first)s%(nick)s')
 		else:
@@ -712,7 +712,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 	description = property(get_description)
 	#--------------------------------------------------------
-	def add_name(self, firstnames, lastnames, active=True):
+	def add_name(self, firstnames:str, lastnames:str, active:bool=True) -> cPersonName:
 		"""Add a name.
 
 		@param firstnames The first names.
@@ -753,7 +753,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		return True
 
 	#--------------------------------------------------------
-	def get_tags(self, order_by=None):
+	def get_tags(self, order_by:str=None) -> list[gmDemographicRecord.cPersonTag]:
 		if order_by is None:
 			order_by = ''
 		else:
@@ -767,7 +767,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	tags = property(get_tags)
 
 	#--------------------------------------------------------
-	def add_tag(self, tag):
+	def add_tag(self, tag) -> gmDemographicRecord.cPersonTag:
 		args = {
 			'tag': tag,
 			'identity': self.ID
@@ -983,7 +983,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	#--------------------------------------------------------
-	def assimilate_identity(self, other_identity=None, link_obj=None, dry_run:bool=True) -> tuple:
+	def assimilate_identity(self, other_identity:'cPerson'=None, link_obj=None, dry_run:bool=True) -> tuple[bool, str]:
 		"""Merge another identity into this one (self).
 
 		Args:
@@ -1990,7 +1990,7 @@ def identity_is_patient(pk_identity:int) -> bool:
 	return False
 
 #------------------------------------------------------------
-def turn_identity_into_patient(pk_identity):
+def turn_identity_into_patient(pk_identity:int) -> bool:
 	cmd = """
 		INSERT INTO clin.patient (fk_identity)
 		SELECT %(pk_ident)s WHERE NOT EXISTS (
@@ -2420,7 +2420,7 @@ class cMatchProvider_Provider(gmMatchProvider.cMatchProvider_SQL2):
 #============================================================
 # convenience functions
 #============================================================
-def create_name(pk_person, firstnames, lastnames, active=False):
+def create_name(pk_person, firstnames, lastnames, active=False) -> cPersonName:
 	queries = [{
 		'cmd': "select dem.add_name(%s, %s, %s, %s)",
 		'args': [pk_person, firstnames, lastnames, active]
@@ -2521,7 +2521,7 @@ def set_active_patient(patient=None, forced_reload=False):
 #============================================================
 # gender related
 #------------------------------------------------------------
-def get_gender_list():
+def get_gender_list() -> tuple:
 	"""Retrieves the list of known genders from the database."""
 	global __gender_idx
 	global __gender_list

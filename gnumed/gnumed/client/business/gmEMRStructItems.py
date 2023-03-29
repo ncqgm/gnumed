@@ -143,6 +143,21 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
+	@classmethod
+	def from_problem(problem:'cProblem') -> 'cHealthIssue':
+		"""Retrieve the cIssue instance equivalent to the given problem.
+
+		The problem's type attribute must be 'issue'.
+		"""
+		if isinstance(problem, cHealthIssue):
+			return problem
+
+		assert isinstance(problem, cProblem), 'cannot convert [%s] to health issue' % problem
+		assert problem['type'] == 'issue', 'cannot convert [%s] to health issue' % problem
+
+		return cHealthIssue(aPK_obj = problem['pk_health_issue'])
+
+	#--------------------------------------------------------
 	def rename(self, description=None):
 		"""Method for issue renaming.
 
@@ -1137,6 +1152,17 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	# external API
+	#--------------------------------------------------------
+	@classmethod
+	def from_problem(problem:'cProblem') -> 'cEpisode':
+		if isinstance(problem, cEpisode):
+			return problem
+
+		assert isinstance(problem, cProblem), 'cannot convert [%s] to episode' % problem
+		assert problem['type'] == 'episode', 'cannot convert [%s] to episode' % problem
+
+		return cEpisode(aPK_obj = problem['pk_episode'])
+
 	#--------------------------------------------------------
 	def get_patient(self):
 		return self._payload[self._idx['pk_patient']]
@@ -3362,48 +3388,9 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
 
 	generic_codes = property(_get_generic_codes)
+
 #-----------------------------------------------------------
-def problem2episode(problem=None):
-	"""Retrieve the cEpisode instance equivalent to the given problem.
-
-	The problem's type attribute must be 'episode'
-
-	@param problem: The problem to retrieve its related episode for
-	@type problem: A gmEMRStructItems.cProblem instance
-	"""
-	if isinstance(problem, cEpisode):
-		return problem
-
-	exc = TypeError('cannot convert [%s] to episode' % problem)
-
-	if not isinstance(problem, cProblem):
-		raise exc
-
-	if problem['type'] != 'episode':
-		raise exc
-
-	return cEpisode(aPK_obj = problem['pk_episode'])
 #-----------------------------------------------------------
-def problem2issue(problem=None):
-	"""Retrieve the cIssue instance equivalent to the given problem.
-
-	The problem's type attribute must be 'issue'.
-
-	@param problem: The problem to retrieve the corresponding issue for
-	@type problem: A gmEMRStructItems.cProblem instance
-	"""
-	if isinstance(problem, cHealthIssue):
-		return problem
-
-	exc = TypeError('cannot convert [%s] to health issue' % problem)
-
-	if not isinstance(problem, cProblem):
-		raise exc
-
-	if  problem['type'] != 'issue':
-		raise exc
-
-	return cHealthIssue(aPK_obj = problem['pk_health_issue'])
 #-----------------------------------------------------------
 def reclass_problem(problem=None):
 	"""Transform given problem into either episode or health issue instance.

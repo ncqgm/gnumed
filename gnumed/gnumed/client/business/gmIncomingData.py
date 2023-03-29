@@ -169,8 +169,9 @@ def create_incoming_data(data_type, filename):
 	incoming = cIncomingData(aPK_obj = pk)
 	if not incoming.update_data_from_file(fname = filename):
 		_log.debug('cannot update newly created incoming_data record from file, deleting stub')
-		delete_incoming_data(incoming_data = pk)
+		delete_incoming_data(pk_incoming_data = pk)
 		return None
+
 	return incoming
 
 #------------------------------------------------------------
