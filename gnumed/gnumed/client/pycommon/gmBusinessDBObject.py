@@ -81,20 +81,20 @@ episode, encounter).
 
 One can offer all the data to the user:
 
-self.payload_most_recently_fetched:
+* self.payload_most_recently_fetched:
 
-	* contains the data at the last successful refetch
+  contains the data at the last successful refetch
 
-self.payload_most_recently_attempted_to_store:
+* self.payload_most_recently_attempted_to_store:
 
-	* contains the modified payload just before the last
-	  failure of save_payload() - IOW what is currently
-	  in the database
+  contains the modified payload just before the last
+  failure of save_payload() - IOW what is currently
+  in the database
 
-self._payload:
+* self._payload:
 
-	* contains the currently active payload which may or
-	  may not contain changes
+  contains the currently active payload which may or
+  may not contain changes
 
 For discussion on this see the thread starting at:
 
@@ -109,21 +109,20 @@ Problem cases with XMIN:
 
 1) not unlikely:
 
-	* a very old row is read with XMIN
-	* vacuum comes along and sets XMIN to FrozenTransactionId
-		* now XMIN changed but the row actually didn't !
-	* an update with "... where xmin = old_xmin ..." fails
-	  although there is no need to fail
+* a very old row is read with XMIN
+* vacuum comes along and sets XMIN to FrozenTransactionId
+	* now XMIN changed but the row actually didn't !
+* an update with "... where xmin = old_xmin ..." fails although there is no need to fail
 
 2) quite unlikely:
 
-	* a row is read with XMIN
-	* a long time passes
-	* the original XMIN gets frozen to FrozenTransactionId
-	* another writer comes along and changes the row
-	* incidentally the exact same old row gets the old XMIN *again*
-		* now XMIN is (again) the same but the data changed !
-	* a later update fails to detect the concurrent change !!
+* a row is read with XMIN
+* a long time passes
+* the original XMIN gets frozen to FrozenTransactionId
+* another writer comes along and changes the row
+* incidentally the exact same old row gets the old XMIN *again*
+	* now XMIN is (again) the same but the data changed !
+* a later update fails to detect the concurrent change !!
 
 TODO:
 The solution is to use our own column for optimistic locking
@@ -283,43 +282,41 @@ class cBusinessDBObject(object):
 		* does NOT lazy-fetch fields on access
 
 	Class scope SQL commands and variables:
-		* _cmd_fetch_payload:
-			* must return exactly one row
-			* WHERE clause argument values are expected in
-			  self.pk_obj (taken from __init__(aPK_obj))
-			* must return xmin of all rows that _cmds_store_payload
-			  will be updating, so views must support the xmin columns
-			  of their underlying tables
 
-		* _cmds_store_payload:
+	* _cmd_fetch_payload:
+		* must return exactly one row
+		* WHERE clause argument values are expected in
+		  self.pk_obj (taken from __init__(aPK_obj))
+		* must return xmin of all rows that _cmds_store_payload
+		  will be updating, so views must support the xmin columns
+		  of their underlying tables
 
-			* one or multiple "update ... set ... where xmin_* = ... and pk* = ..."
-			  statements which actually update the database from the data in self._payload,
-			* the last query must refetch at least the XMIN values needed to detect
-			  concurrent updates, their field names had better be the same as
-			  in _cmd_fetch_payload,
-			* the last query CAN return other fields which is particularly
-			  useful when those other fields are computed in the backend
-			  and may thus change upon save but will not have been set by
-			  the client code explicitly - this is only really of concern
-			  if the saved subclass is to be reused after saving rather
-			  than re-instantiated
-			* when subclasses tend to live a while after save_payload() was
-			  called and they support computed fields (say, _(some_column)
-			  you need to return *all* columns (see cEncounter)
+	* _cmds_store_payload:
 
-		* _updatable_fields:
-			* a list of fields available for update via object['field']
+		* one or multiple "update ... set ... where xmin_* = ... and pk* = ..."
+		  statements which actually update the database from the data in self._payload,
+		* the last query must refetch at least the XMIN values needed to detect
+		  concurrent updates, their field names had better be the same as
+		  in _cmd_fetch_payload,
+		* the last query CAN return other fields which is particularly
+		  useful when those other fields are computed in the backend
+		  and may thus change upon save but will not have been set by
+		  the client code explicitly - this is only really of concern
+		  if the saved subclass is to be reused after saving rather
+		  than re-instantiated
+		* when subclasses tend to live a while after save_payload() was
+		  called and they support computed fields (say, _(some_column)
+		  you need to return *all* columns (see cEncounter)
+
+	* _updatable_fields:
+		* a list of fields available for update via object['field']
 	"""
-
 	_cmd_fetch_payload:str = None
 	_cmds_store_payload:list[str] = None
 	_updatable_fields:list[str] = None
 	#--------------------------------------------------------
-	def __init__(self, aPK_obj=None, row:dict=None, link_obj=None):
-		"""Init business object.
-
-		Call from child classes like so:
+	def __init__(self, aPK_obj=None, row:gmPG2.dbapi.extras.DictRow=None, link_obj=None):
+		"""Call __init__ from child classes like so:
 
 			super().__init__(aPK_obj = aPK_obj, row = row, link_obj = link_obj)
 
@@ -341,8 +338,7 @@ class cBusinessDBObject(object):
 				OR
 			* pk_obj: a dictionary suitable for passed to cursor.execute
 			    and holding the primary key values, used for composite PKs
-
-		Examples::
+			* for example:
 
 				row = {
 					'data': rows[0],
@@ -352,7 +348,6 @@ class cBusinessDBObject(object):
 				}
 				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 				objects = [ cChildClass(row = {'data': r, 'idx': idx, 'pk_field': 'the PK column name'}) for r in rows ]
-
 		"""
 		# initialize those "too early" because sanity checking descendants might
 		# fail which will then call __str__ in stack trace logging if --debug
@@ -399,7 +394,7 @@ class cBusinessDBObject(object):
 			raise gmExceptions.ConstructorError("[%s:%s]: error loading instance" % (self.__class__.__name__, self.pk_obj))
 
 	#--------------------------------------------------------
-	def _init_from_row_data(self, row:dict=None):
+	def _init_from_row_data(self, row:gmPG2.dbapi.extras.DictRow=None):
 		"""Creates a new clinical item instance given its fields.
 
 		row must be a dict with the fields:
@@ -437,6 +432,7 @@ class cBusinessDBObject(object):
 		for field in self._idx:
 			self.payload_most_recently_fetched[field] = self._payload[self._idx[field]]
 
+	#--------------------------------------------------------
 	#--------------------------------------------------------
 	def __del__(self):
 		if '_is_modified' in self.__dict__:

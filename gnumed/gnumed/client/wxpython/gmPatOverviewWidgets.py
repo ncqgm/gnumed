@@ -1090,16 +1090,15 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		self._LCTRL_problems.set_data(data = list_data)
 
 	#-----------------------------------------------------
-	def _calc_problem_list_item_tooltip(self, data):
+	def _calc_problem_list_item_tooltip(self, data) -> str:
 
 		if isinstance(data, gmExternalCare.cExternalCareItem):
-			return '\n'.join(data.format (
+			tt = '\n'.join(data.format (
 				with_health_issue = True,
 				with_address = True,
 				with_comms = True
 			))
-
-		emr = gmPerson.gmCurrentPatient().emr
+			return tt
 
 		if data['type'] == 'issue':
 			issue = gmEMRStructItems.cHealthIssue.from_problem(data)
@@ -1135,13 +1134,13 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	#-----------------------------------------------------
 	def _on_problem_activated(self, event):
 		data = self._LCTRL_problems.get_selected_item_data(only_one = True)
-		if data is not None:
+		if data:
 			# <ctrl> down ?
 			if wx.GetKeyState(wx.WXK_CONTROL):
-				emr = gmPerson.gmCurrentPatient().emr
 				if data['type'] == 'issue':
 					gmEMRStructWidgets.edit_health_issue(parent = self, issue = gmEMRStructItems.cHealthIssue.from_problem(data))
 					return
+
 				if data['type'] == 'episode':
 					gmEMRStructWidgets.edit_episode(parent = self, episode = gmEMRStructItems.cEpisode.from_problem(data))
 					return

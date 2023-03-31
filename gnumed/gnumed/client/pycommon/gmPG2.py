@@ -24,7 +24,6 @@ import logging
 import datetime as pydt
 import hashlib
 import shutil
-from typing import List
 
 
 # GNUmed
@@ -2007,7 +2006,7 @@ def sanitize_pg_regex(expression=None, escape_all=False):
 		#']', '\]',			# not needed
 
 #------------------------------------------------------------------------
-def run_ro_queries(link_obj=None, queries:List[dict]=None, verbose:bool=False, return_data:bool=True, get_col_idx:bool=False) -> tuple:
+def run_ro_queries(link_obj=None, queries:list[dict]=None, verbose:bool=False, return_data:bool=True, get_col_idx:bool=False) -> tuple[list[dbapi.extras.DictRow], dict]:
 	"""Run read-only queries.
 
 	Args:
@@ -2125,50 +2124,53 @@ def run_ro_queries(link_obj=None, queries:List[dict]=None, verbose:bool=False, r
 	return (data, col_idx)
 
 #------------------------------------------------------------------------
-def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, get_col_idx=False, verbose=False):
-	"""Convenience function for running a transaction
-	   that is supposed to get committed.
+def run_rw_queries (
+	link_obj=None,
+	queries:dict=None,
+	end_tx:bool=False,
+	return_data:bool=None,
+	get_col_idx:bool=False,
+	verbose:bool=False
+) -> tuple[list[dbapi.extras.DictRow], dict]:
+	"""Convenience function for running a transaction that is supposed to get committed.
 
-	<link_obj>
-		can be either:
-		- a cursor
-		- a connection
+	Args:
+		link_obj: None, cursor, connection
+		queries: a list of dicts [{'cmd': <string>, 'args': <dict> or <tuple>)
+		  to be executed as a single transaction, the last
+		  query may usefully return rows (such as a
+		  "SELECT currval('some_sequence')" statement)
+		end_tx:
 
-	<queries>
-		is a list of dicts [{'cmd': <string>, 'args': <dict> or <tuple>)
-		to be executed as a single transaction, the last
-		query may usefully return rows (such as a
-		"SELECT currval('some_sequence')" statement)
-
-	<end_tx>
-		- controls whether the transaction is finalized (eg.
+		* controls whether the transaction is finalized (eg.
 		  COMMITted/ROLLed BACK) or not, this allows the
 		  call to run_rw_queries() to be part of a framing
 		  transaction
-		- if link_obj is a *connection* then <end_tx> will
+		* if link_obj is a *connection* then <end_tx> will
 		  default to False unless it is explicitly set to
 		  True which is taken to mean "yes, you do have full
 		  control over the transaction" in which case the
 		  transaction is properly finalized
-		- if link_obj is a *cursor* we CANNOT finalize the
+		* if link_obj is a *cursor* we CANNOT finalize the
 		  transaction because we would need the connection for that
-		- if link_obj is *None* <end_tx> will, of course, always
+		* if link_obj is *None* <end_tx> will, of course, always
 		  be True, because we always have full control over the
 		  connection
 
-	<return_data>
-		- if true, the returned data will include the rows
-		  the last query selected
-		- if false, it returns None instead
+		return_data:
+		* if true, the returned data will include the rows
+		    the last query selected
+		* if false, it returns None instead
 
-	<get_col_idx>
-		- if true, the returned data will include a dictionary
-		  mapping field names to column positions
-		- if false, the returned data returns None instead
+		get_col_idx:
+		* if true, the returned data will include a dictionary
+		    mapping field names to column positions
+		* if false, the returned data returns None instead
 
-	method result:
-		- returns a tuple (data, idx)
-		- <data>:
+	Returns:
+
+		* returns a tuple (data, idx)
+		* <data>:
 			* (None, None) if last query did not return rows
 			* ("fetchall() result", <index>) if last query returned any rows
 			* for <index> see <get_col_idx>
@@ -2359,10 +2361,9 @@ def run_insert(link_obj=None, schema=None, table=None, values=None, returning=No
 def get_raw_connection(verbose=False, readonly=True, connection_name=None, autocommit=False):
 	"""Get a raw, unadorned connection.
 
-	- this will not set any parameters such as encoding, timezone, datestyle
-	- the only requirement is valid connection parameters having been passed to the connection pool
-	- hence it can be used for "service" connections
-	  for verifying encodings etc
+	* this will not set any parameters such as encoding, timezone, datestyle
+	* the only requirement is valid connection parameters having been passed to the connection pool
+	* hence it can be used for "service" connections for verifying encodings etc
 	"""
 	return gmConnectionPool.gmConnectionPool().get_raw_connection (
 		readonly = readonly,
@@ -3128,13 +3129,19 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_revalidate_constraints()
 	#test_reindex_database()
 
-	print(conn_class)
-	print(curs_class)
+	#print(dbapi.extras.DictRow)
+	#print(conn_class)
+	#print(curs_class)
 
 	request_login_params(setup_pool = True, force_tui = True)
 
+	rows, idx = run_ro_queries(queries = [{'cmd': 'select 1'}], get_col_idx = True)
+	print(type(idx))
+	print(type(rows))
+	print(type(rows[0]))
+
 	#test_sanity_check_collation_versions()
-	test_sanity_check_database_settings()
+	#test_sanity_check_database_settings()
 	#test_refresh_collations_version_information()
 
 #	try:

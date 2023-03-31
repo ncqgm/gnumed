@@ -144,32 +144,25 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	# external API
 	#--------------------------------------------------------
 	@classmethod
-	def from_problem(problem:'cProblem') -> 'cHealthIssue':
-		"""Retrieve the cIssue instance equivalent to the given problem.
-
-		The problem's type attribute must be 'issue'.
-		"""
+	def from_problem(cls, problem:'cProblem') -> 'cHealthIssue':
+		"""Initialize health issue from issue-type problem."""
 		if isinstance(problem, cHealthIssue):
 			return problem
 
 		assert isinstance(problem, cProblem), 'cannot convert [%s] to health issue' % problem
 		assert problem['type'] == 'issue', 'cannot convert [%s] to health issue' % problem
-
-		return cHealthIssue(aPK_obj = problem['pk_health_issue'])
+		return cls(aPK_obj = problem['pk_health_issue'])
 
 	#--------------------------------------------------------
-	def rename(self, description=None):
-		"""Method for issue renaming.
+	def rename(self, description:str=None) -> bool:
+		"""Rename health issue.
 
-		@param description
-			- the new descriptive name for the issue
-		@type description
-			- a string instance
+		Args:
+			description: the new descriptive name for the issue
 		"""
-		# sanity check
-		if not type(description) in [str, str] or description.strip() == '':
-			_log.error('<description> must be a non-empty string')
+		if description.strip() == '':
 			return False
+
 		# update the issue description
 		old_description = self._payload[self._idx['description']]
 		self._payload[self._idx['description']] = description.strip()
@@ -179,48 +172,59 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			_log.error('cannot rename health issue [%s] with [%s]' % (self, description))
 			self._payload[self._idx['description']] = old_description
 			return False
+
 		return True
 
 	#--------------------------------------------------------
-	def get_episodes(self):
+	def get_episodes(self) -> list['cEpisode']:
+		"""The episodes linked to this health issue."""
 		cmd = "SELECT * FROM clin.v_pat_episodes WHERE pk_health_issue = %(pk)s"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj}}], get_col_idx = True)
 		return [ cEpisode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_episode'})  for r in rows ]
 
+	episodes = property(get_episodes)
+
 	#--------------------------------------------------------
-	def close_expired_episode(self, ttl=180):
-		"""ttl in days"""
+	def close_expired_episode(self, ttl:int=180) -> bool:
+		"""Close open episode if "older" than the Time To Live.
+
+		Args:
+			ttl: maximum "age" of episode in days
+		"""
 		open_episode = self.open_episode
 		if open_episode is None:
 			return True
+
 		#clinical_end = open_episode.best_guess_clinical_end_date
 		clinical_end = open_episode.latest_access_date		# :-/
 		ttl = datetime.timedelta(ttl)
 		now = datetime.datetime.now(tz = clinical_end.tzinfo)
 		if (clinical_end + ttl) > now:
 			return False
-		open_episode['episode_open'] = False
-		success, data = open_episode.save_payload()
-		if success:
-			return True
-		return False		# should be an exception
 
-	#--------------------------------------------------------
-	def close_episode(self):
-		open_episode = self.get_open_episode()
 		open_episode['episode_open'] = False
 		success, data = open_episode.save_payload()
 		if success:
 			return True
+
 		return False
 
 	#--------------------------------------------------------
-	def get_open_episode(self):
+	def close_episode(self) -> bool:
+		"""Unconditionally close the open episode, if any."""
+		open_episode = self.get_open_episode()
+		open_episode['episode_open'] = False
+		success_state, data = open_episode.save_payload()
+		return success_state
+
+	#--------------------------------------------------------
+	def get_open_episode(self) -> 'cEpisode':
 		cmd = "select pk from clin.episode where fk_health_issue = %s and is_open IS True LIMIT 1"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
-		if len(rows) == 0:
-			return None
-		return cEpisode(aPK_obj=rows[0][0])
+		if rows:
+			return cEpisode(aPK_obj = rows[0][0])
+
+		return None
 
 	#--------------------------------------------------------
 	def age_noted_human_readable(self):
@@ -561,8 +565,6 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	external_care = property(_get_external_care)
 
 	#--------------------------------------------------------
-	episodes = property(get_episodes)
-
 	open_episode = property(get_open_episode)
 
 	#--------------------------------------------------------
@@ -1154,14 +1156,14 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 	# external API
 	#--------------------------------------------------------
 	@classmethod
-	def from_problem(problem:'cProblem') -> 'cEpisode':
+	def from_problem(cls, problem:'cProblem') -> 'cEpisode':
+		"""Initialize episode from episody-type problem."""
 		if isinstance(problem, cEpisode):
 			return problem
 
 		assert isinstance(problem, cProblem), 'cannot convert [%s] to episode' % problem
 		assert problem['type'] == 'episode', 'cannot convert [%s] to episode' % problem
-
-		return cEpisode(aPK_obj = problem['pk_episode'])
+		return cls(aPK_obj = problem['pk_episode'])
 
 	#--------------------------------------------------------
 	def get_patient(self):
