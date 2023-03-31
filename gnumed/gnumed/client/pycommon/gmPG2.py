@@ -2397,7 +2397,7 @@ def __noop():
 	pass
 
 #-----------------------------------------------------------------------
-def log_pg_exception(exc: Exception, msg:str=None):
+def log_pg_exception(exc:Exception, msg:str=None):
 	gmConnectionPool.log_pg_exception_details(exc)
 	_log.exception(msg)
 

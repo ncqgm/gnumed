@@ -140,7 +140,8 @@ class cPGCredentials:
 	#--------------------------------------------------
 	# properties
 	#--------------------------------------------------
-	def __format_credentials(self):
+	def __format_credentials(self) -> str:
+		"""Database credentials formatted as string."""
 		cred_parts = [
 			'dbname=%s' % self.__database,
 			'host=%s' % self.__host,
@@ -153,9 +154,10 @@ class cPGCredentials:
 
 	#--------------------------------------------------
 	def generate_credentials_kwargs(self, connection_name:str=None) -> dict:
-		"""Return dictionary with credentials suitable as psycopg2.connection() keyword arguments."""
+		"""Return dictionary with credentials suitable for psycopg2.connection() keyword arguments."""
 		assert (self.__database is not None), 'self.__database must be defined'
 		assert (self.__user is not None), 'self.__user must be defined'
+
 		kwargs = {
 			'dbname': self.__database,
 			'user': self.__user,
@@ -178,7 +180,7 @@ class cPGCredentials:
 	credentials_kwargs = property(generate_credentials_kwargs)
 
 	#--------------------------------------------------
-	def _get_database(self):
+	def _get_database(self) -> str:
 		return self.__database
 
 	def _set_database(self, database:str=None):
@@ -191,7 +193,7 @@ class cPGCredentials:
 	database = property(_get_database, _set_database)
 
 	#--------------------------------------------------
-	def _get_host(self):
+	def _get_host(self) -> str:
 		return self.__host
 
 	def _set_host(self, host:str=None):
@@ -201,12 +203,11 @@ class cPGCredentials:
 				host = None
 		self.__host = host
 		_log.info('[%s]', self.__host)
-		return
 
 	host = property(_get_host, _set_host)
 
 	#--------------------------------------------------
-	def _get_port(self):
+	def _get_port(self) -> int:
 		return self.__port
 
 	def _set_port(self, port=None):
@@ -220,7 +221,7 @@ class cPGCredentials:
 	port = property(_get_port, _set_port)
 
 	#--------------------------------------------------
-	def _get_user(self):
+	def _get_user(self) -> str:
 		return self.__user
 
 	def _set_user(self, user:str=None):
@@ -232,7 +233,7 @@ class cPGCredentials:
 	user = property(_get_user, _set_user)
 
 	#--------------------------------------------------
-	def _get_password(self):
+	def _get_password(self) -> str:
 		return self.__password
 
 	def _set_password(self, password:str=None):
@@ -269,7 +270,7 @@ class gmConnectionPool(gmBorg.cBorg):
 	#--------------------------------------------------
 	# connection API
 	#--------------------------------------------------
-	def get_connection(self, readonly:bool=True, verbose:bool=False, pooled:bool=True, connection_name:str=None, autocommit:bool=False, credentials:cPGCredentials=None):
+	def get_connection(self, readonly:bool=True, verbose:bool=False, pooled:bool=True, connection_name:str=None, autocommit:bool=False, credentials:cPGCredentials=None) -> dbapi._psycopg.connection:
 		"""Provide a database connection.
 
 		Readonly connections can be pooled. If there is no
@@ -338,19 +339,20 @@ class gmConnectionPool(gmBorg.cBorg):
 		return conn
 
 	#--------------------------------------------------
-	def get_rw_conn(self, verbose=False, connection_name=None, autocommit=False):
+	def get_rw_conn(self, verbose:bool=False, connection_name:str=None, autocommit:bool=False) -> dbapi._psycopg.connection:
 		return self.get_connection(verbose = verbose, readonly = False, connection_name = connection_name, autocommit = autocommit)
 
 	#--------------------------------------------------
-	def get_ro_conn(self, verbose=False, connection_name=None, autocommit=False):
+	def get_ro_conn(self, verbose:bool=False, connection_name:str=None, autocommit:bool=False) -> dbapi._psycopg.connection:
 		return self.get_connection(verbose = verbose, readonly = False, connection_name = connection_name, autocommit = autocommit)
 
 	#--------------------------------------------------
-	def get_raw_connection(self, verbose=False, readonly=True, connection_name=None, autocommit=False, credentials:cPGCredentials=None):
+	def get_raw_connection(self, verbose:bool=False, readonly:bool=True, connection_name:str=None, autocommit:bool=False, credentials:cPGCredentials=None) -> dbapi._psycopg.connection:
 		"""Get a raw, unadorned connection.
 
-		- this will not set any parameters such as encoding, timezone, datestyle
-		- hence it can be used for "service" connections for verifying encodings etc
+		This will not set any parameters such as encoding,
+		timezone, or datestyle, hence it can be used for
+		"service" connections for verifying encodings etc
 		"""
 #		# FIXME: support verbose
 		if credentials is None:
@@ -414,7 +416,7 @@ class gmConnectionPool(gmBorg.cBorg):
 		return conn
 
 	#--------------------------------------------------
-	def get_dbowner_connection(self, readonly=True, verbose=False, connection_name=None, autocommit=False, dbo_password=None, dbo_account='gm-dbo'):
+	def get_dbowner_connection(self, readonly:bool=True, verbose:bool=False, connection_name:str=None, autocommit:bool=False, dbo_password:str=None, dbo_account:str='gm-dbo') -> dbapi._psycopg.connection:
 		"""Return a connection for the database owner.
 
 		Will not touch the pool.
@@ -466,7 +468,7 @@ class gmConnectionPool(gmBorg.cBorg):
 	#--------------------------------------------------
 	# utility functions
 	#--------------------------------------------------
-	def __log_on_first_contact(self, conn):
+	def __log_on_first_contact(self, conn:dbapi._psycopg.connection):
 		global postgresql_version
 		if postgresql_version is not None:
 			return
@@ -515,7 +517,7 @@ class gmConnectionPool(gmBorg.cBorg):
 				_log.debug('$PGPASSFILE=%s -> file not found')
 
 	#--------------------------------------------------
-	def __detect_client_timezone(self, conn):
+	def __detect_client_timezone(self, conn:dbapi._psycopg.connection):
 		"""This is run on the very first connection."""
 
 		if self.__client_timezone is not None:
@@ -553,7 +555,7 @@ class gmConnectionPool(gmBorg.cBorg):
 		# FIXME: value as what we eventually detect
 
 	#--------------------------------------------------
-	def __expand_timezone(self, conn, timezone):
+	def __expand_timezone(self, conn:dbapi._psycopg.connection, timezone:str):
 		"""Some timezone defs are abbreviations so try to expand
 		them because "set time zone" doesn't take abbreviations"""
 
@@ -576,7 +578,7 @@ class gmConnectionPool(gmBorg.cBorg):
 		return result
 
 	#---------------------------------------------------
-	def __validate_timezone(self, conn, timezone):
+	def __validate_timezone(self, conn:dbapi._psycopg.connection, timezone:str) -> bool:
 		_log.debug('validating timezone [%s]', timezone)
 		cmd = 'SET timezone TO %(tz)s'
 		args = {'tz': timezone}
@@ -612,7 +614,7 @@ class gmConnectionPool(gmBorg.cBorg):
 	#--------------------------------------------------
 	# properties
 	#--------------------------------------------------
-	def _get_credentials(self):
+	def _get_credentials(self) -> cPGCredentials:
 		return self.__creds
 
 	def _set_credentials(self, creds:cPGCredentials=None):
@@ -639,7 +641,7 @@ class gmConnectionPool(gmBorg.cBorg):
 	credentials = property(_get_credentials, _set_credentials)
 
 	#--------------------------------------------------
-	def _get_pool_key(self):
+	def _get_pool_key(self) -> str:
 		return '%s::thread=%s' % (
 			self.__creds.formatted_credentials,
 			threading.current_thread().ident
@@ -648,7 +650,7 @@ class gmConnectionPool(gmBorg.cBorg):
 	pool_key = property(_get_pool_key)
 
 	#--------------------------------------------------
-	def __is_auth_fail_msg(self, msg):
+	def __is_auth_fail_msg(self, msg:str) -> bool:
 		if 'fe_sendauth' in msg:
 			return True
 
@@ -890,7 +892,7 @@ Query
 	gmLog2.log_multiline(logging.DEBUG, message = 'Link state:', line_prefix = '', text = txt)
 
 #--------------------------------------------------
-def log_conn_state(conn) -> None:
+def log_conn_state(conn:dbapi._psycopg.connection) -> None:
 	"""Log details about a DB-API connection."""
 	tx_status = conn.get_transaction_status()
 	if tx_status in [ psycopg2.extensions.TRANSACTION_STATUS_INERROR, psycopg2.extensions.TRANSACTION_STATUS_UNKNOWN ]:
@@ -928,7 +930,7 @@ def log_conn_state(conn) -> None:
 		_log.debug('%s: %s', key, d[key])
 
 #------------------------------------------------------------
-def _safe_transaction_rollback(self):
+def _safe_transaction_rollback(self) -> bool:
 	"""Make connection.rollback() somewhat fault tolerant.
 
 	Will *not* fail if the connection is already closed.
