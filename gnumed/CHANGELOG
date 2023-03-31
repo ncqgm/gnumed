@@ -53,6 +53,8 @@ FIX: Py3.13: will remove mailcap module
 
 	1.8.11
 
+FIX: SOAP: exception on splitter sash setting [thanks Marc]
+
 IMPROVED: add --special commandline option
 
 	1.8.10
