@@ -506,10 +506,11 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 				)
 			self.__LST_problems.Append(label, problem)
 		splitter_width = self.__splitter.GetSize()[0]
-		self.__splitter.SetSashPosition((splitter_width / 2), True)
+		self.__splitter.SetSashPosition((splitter_width // 2), True)
 		self.Refresh()
 		#self.Update()
 		return True
+
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
