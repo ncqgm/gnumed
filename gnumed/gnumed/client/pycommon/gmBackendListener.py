@@ -18,6 +18,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmBorg
+#from Gnumed.pycommon import gmLog2
 
 
 _log = logging.getLogger('gm.db')
@@ -32,7 +33,7 @@ signals2listen4 = [
 #=====================================================================
 class gmBackendListener(gmBorg.cBorg):
 
-	def __init__(self, conn=None, poll_interval=3):
+	def __init__(self, conn=None, poll_interval:int=3):
 
 		try:
 			self.already_inited
@@ -41,22 +42,26 @@ class gmBackendListener(gmBorg.cBorg):
 		except AttributeError:
 			pass
 
+		#gmLog2.log_step(restart = True)
+		assert conn, '<conn> must be given'
+
+		_log.info('setting up backend notifications listener')
 		self.debug = False
 		self.__notifications_received = 0
 		self.__messages_sent = 0
-
-		_log.info('starting backend notifications listener thread')
-
 		# the listener thread will regularly try to acquire
-		# this lock, when it succeeds it will quit
+		# this lock, when it succeeds the thread will quit
 		self._quit_lock = threading.Lock()
 		# take the lock now so it cannot be taken by the worker
 		# thread until it is released in shutdown()
-		if not self._quit_lock.acquire(0):
+		#gmLog2.log_step(message = 'getting quit-lock')
+		if not self._quit_lock.acquire(blocking = False):
 			_log.error('cannot acquire thread-quit lock, aborting')
 			raise EnvironmentError("cannot acquire thread-quit lock")
 
+		#gmLog2.log_step(message = 'got quit-lock')
 		self._conn = conn
+		#gmLog2.log_step(message = 'getting backend PID')
 		self.backend_pid = self._conn.get_backend_pid()
 		_log.debug('notification listener connection has backend PID [%s]', self.backend_pid)
 		self._conn.set_isolation_level(0)		# autocommit mode = psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT
@@ -66,7 +71,6 @@ class gmBackendListener(gmBorg.cBorg):
 		except AttributeError:
 			self._conn_fd = self._cursor.fileno()
 		self._conn_lock = threading.Lock()		# lock for access to connection object
-
 		self.__register_interests()
 
 		# check for messages every 'poll_interval' seconds
@@ -75,6 +79,7 @@ class gmBackendListener(gmBorg.cBorg):
 		self.__start_thread()
 
 		self.already_inited = True
+		#gmLog2.log_step(message = 'done with backend listener setup')
 
 	#-------------------------------
 	# public API
@@ -117,25 +122,28 @@ class gmBackendListener(gmBorg.cBorg):
 	# internal helpers
 	#-------------------------------
 	def __register_interests(self):
+		#gmLog2.log_step(message = 'registering interests')
 		# determine unspecific notifications
 		self.unspecific_notifications = signals2listen4
 		_log.info('configured unspecific notifications:')
 		_log.info('%s' % self.unspecific_notifications)
 		gmDispatcher.known_signals.extend(self.unspecific_notifications)
-
 		# listen to unspecific notifications
 		self.__register_unspecific_notifications()
+		#gmLog2.log_step(message = 'done registering interests')
 
 	#-------------------------------
 	def __register_unspecific_notifications(self):
+		#gmLog2.log_step(message = 'before')
 		for sig in self.unspecific_notifications:
 			_log.info('starting to listen for [%s]' % sig)
 			cmd = 'LISTEN "%s"' % sig
-			self._conn_lock.acquire(1)
+			self._conn_lock.acquire(blocking = True)
 			try:
 				self._cursor.execute(cmd)
 			finally:
 				self._conn_lock.release()
+		#gmLog2.log_step(message = 'after')
 
 	#-------------------------------
 	def __unregister_unspecific_notifications(self):
@@ -164,6 +172,7 @@ class gmBackendListener(gmBorg.cBorg):
 		if self._conn is None:
 			raise ValueError("no connection to backend available, useless to start thread")
 
+		#gmLog2.log_step(message = 'setting up thread')
 		self._listener_thread = threading.Thread (
 			target = self._process_notifications,
 			name = self.__class__.__name__,
@@ -171,6 +180,7 @@ class gmBackendListener(gmBorg.cBorg):
 		)
 		_log.info('starting listener thread')
 		self._listener_thread.start()
+		#gmLog2.log_step(message = 'started thread')
 
 	#-------------------------------
 	# the actual thread code
@@ -305,7 +315,6 @@ if __name__ == "__main__":
 
 	if sys.argv[1] not in ['test', 'monitor']:
 		sys.exit()
-
 
 	notifies = 0
 
