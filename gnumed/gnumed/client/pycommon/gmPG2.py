@@ -52,8 +52,6 @@ except ImportError:
 
 import psycopg2.errorcodes as sql_error_codes
 import psycopg2.sql as psysql
-from psycopg2.extensions import connection as conn_class
-from psycopg2.extensions import cursor as curs_class
 
 PG_ERROR_EXCEPTION = dbapi.Error
 
@@ -823,8 +821,8 @@ def get_col_indices(cursor = None):
 			col_name = '%s_%s' % (col_name, col_index)
 		col_indices[col_name] = col_index
 		col_index += 1
-
 	return col_indices
+
 #------------------------------------------------------------------------
 def get_col_defs(link_obj=None, schema='public', table=None):
 	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': query_table_col_defs, 'args': (schema, table)}])
@@ -841,6 +839,7 @@ def get_col_defs(link_obj=None, schema='public', table=None):
 	col_defs.append(col_names)
 	col_defs.append(col_type)
 	return col_defs
+
 #------------------------------------------------------------------------
 def get_col_names(link_obj=None, schema='public', table=None):
 	"""Return column attributes of table"""
@@ -852,7 +851,9 @@ def get_col_names(link_obj=None, schema='public', table=None):
 
 #------------------------------------------------------------------------
 def revalidate_constraints(link_obj=None) -> str:
-	"""This needs quite extensive permissions, say, <postgres> at the PG level.
+	"""Revalidate all database constraints.
+
+	This needs quite extensive permissions, say, <postgres> at the PG level.
 
 	Returns:
 		Magic cookie on success.
@@ -1394,13 +1395,13 @@ def row_is_locked(table=None, pk=None) -> bool:
 #------------------------------------------------------------------------
 # BYTEA cache handling
 #------------------------------------------------------------------------
-def __generate_cached_filename(cache_key_data):
+def __generate_cached_filename(cache_key_data) -> str:
 	md5 = hashlib.md5()
 	md5.update(('%s' % cache_key_data).encode('utf8'))
 	return os.path.join(gmTools.gmPaths().bytea_cache_dir, md5.hexdigest())
 
 #------------------------------------------------------------------------
-def __store_file_in_cache(filename, cache_key_data):
+def __store_file_in_cache(filename, cache_key_data) -> str:
 	cached_name = __generate_cached_filename(cache_key_data)
 	_log.debug('[%s] -> [%s] -> [%s]', filename, cache_key_data, cached_name)
 	if not gmTools.remove_file(cached_name, log_error = True, force = True):
@@ -1430,7 +1431,7 @@ def __store_file_in_cache(filename, cache_key_data):
 	return cached_name
 
 #------------------------------------------------------------------------
-def __get_filename_in_cache(cache_key_data=None, data_size=None):
+def __get_filename_in_cache(cache_key_data=None, data_size=None) -> str:
 	"""Calculate and verify filename in cache given cache key details."""
 	cached_name = __generate_cached_filename(cache_key_data)
 	try:
@@ -1457,7 +1458,7 @@ def __get_filename_in_cache(cache_key_data=None, data_size=None):
 	raise Exception('cannot remove suspicious object from cache dir: %s', cached_name)
 
 #------------------------------------------------------------------------
-def __get_file_from_cache(filename, cache_key_data=None, data_size=None, link2cached=True):
+def __get_file_from_cache(filename, cache_key_data=None, data_size=None, link2cached=True) -> bool:
 	"""Get file from cache if available."""
 	cached_filename = __get_filename_in_cache(cache_key_data = cache_key_data, data_size = data_size)
 	if cached_filename is None:
@@ -1488,7 +1489,39 @@ def __get_file_from_cache(filename, cache_key_data=None, data_size=None, link2ca
 	return False
 
 #------------------------------------------------------------------------
-def bytea2file(data_query=None, filename=None, chunk_size=0, data_size=None, data_size_query=None, conn=None, link2cached=True):
+def bytea2file (
+	data_query:dict=None,
+	filename:str=None,
+	chunk_size:int=0,
+	data_size:int=None,
+	data_size_query:dict=None,
+	conn=None,
+	link2cached:bool=True
+) -> bool:
+	"""Store data from a bytea field into a file.
+
+	Args:
+		data_query:
+
+		* data_query['cmd']:str, SQL to retrieve the BYTEA column (say, <data>),
+		  must contain '... SUBSTRING(data FROM %(start)s FOR %(size)s) ...',
+		  must return one row with one field of type bytea
+		* data_query['args']:dict, must contain selectors for the BYTEA row
+
+		filename: the file to store into
+		data_size: total size of the expected data, or None
+		data_size_query:
+
+		* only used when data_size is None
+		* dict {'cmd': ..., 'args': ...}
+		* must return one row with one field with the octet_length() of the data field
+
+		link2cached: if the bytea data is found in the cache, whether to return a link
+		  to the cache file or to create a copy thereof
+
+	Returns:
+		True/False based on success. Exception on errors.
+	"""
 
 	if data_size == 0:
 		open(filename, 'wb').close()
@@ -1496,13 +1529,18 @@ def bytea2file(data_query=None, filename=None, chunk_size=0, data_size=None, dat
 
 	if data_size is None:
 		rows, idx = run_ro_queries(link_obj = conn, queries = [data_size_query])
+		if not rows:
+			_log.error('cannot determine size: %s', data_size_query)
+			return False
+
 		data_size = rows[0][0]
+		if data_size is None:
+			_log.error('cannot determine size: %s', data_size_query)
+			return False
+
 		if data_size == 0:
 			open(filename, 'wb').close()
 			return True
-
-		if data_size is None:
-			return False
 
 	if conn is None:
 		conn = gmConnectionPool.gmConnectionPool().get_connection()
@@ -1512,36 +1550,40 @@ def bytea2file(data_query=None, filename=None, chunk_size=0, data_size=None, dat
 		# FIXME: start thread checking cache staleness on file
 		return True
 
-	outfile = open(filename, 'wb')
-	result = bytea2file_object (
-		data_query = data_query,
-		file_obj = outfile,
-		chunk_size = chunk_size,
-		data_size = data_size,
-		data_size_query = data_size_query,
-		conn = conn
-	)
-	outfile.close()
+	with open(filename, 'wb') as outfile:
+		result = bytea2file_object (
+			data_query = data_query,
+			file_obj = outfile,
+			chunk_size = chunk_size,
+			data_size = data_size,
+			data_size_query = data_size_query,
+			conn = conn
+		)
 	__store_file_in_cache(filename, cache_key_data)
 	return result
 
 #------------------------------------------------------------------------
-def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=None, data_size_query=None, conn=None):
-	"""Store data from a bytea field into a file.
+def bytea2file_object(data_query:dict=None, file_obj=None, chunk_size=0, data_size:int=None, data_size_query:dict=None, conn=None) -> bool:
+	"""Stream data from a bytea field into a file-like object.
 
-	<data_query>
-	- dict {'cmd': ..., 'args': ...}
-	- 'cmd' must be a string containing "... substring(data from %(start)s for %(size)s) ..."
-	- 'args' must be a dict
-	- must return one row with one field of type bytea
-	<file>
-	- must be a file like Python object
-	<data_size>
-	- integer of the total size of the expected data or None
-	<data_size_query>
-	- dict {'cmd': ..., 'args': ...}
-	- must return one row with one field with the octet_length() of the data field
-	- used only when <data_size> is None
+	Args:
+		data_query:
+
+		* data_query['cmd']:str, SQL to retrieve the BYTEA column (say, <data>),
+		  must contain '... SUBSTRING(data FROM %(start)s FOR %(size)s) ...',
+		  must return one row with one field of type bytea
+		* data_query['args']:dict, must contain selectors for the BYTEA row
+
+		file_obj: a file-like Python object
+		data_size: total size of the expected data, or None
+		data_size_query:
+
+		* only used when data_size is None
+		* dict {'cmd': ..., 'args': ...}
+		* must return one row with one field with the octet_length() of the data field
+
+	Returns:
+		True on success. Exception on errors.
 	"""
 	if data_size == 0:
 		return True
@@ -1616,32 +1658,38 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 	return True
 
 #------------------------------------------------------------------------
-def file2bytea(query:str=None, filename:str=None, args=None, conn=None, file_md5:str=None) -> bool:
+def file2bytea(query:str=None, filename:str=None, args:dict=None, conn=None, file_md5:str=None) -> bool:
 	"""Store data from a file into a bytea field.
 
 	Args:
-		query: SQL, must:
-			- contain a format spec named %(data)s for the bytea data, say '... <bytea data column> = %(data)s::bytea'
-			- if UPDATE: contain a format spec identifying the row (eg a primary key), say '... AND pk_column = %(pk_val)s'
-			- can contain a '... RETURNING md5(<bytea data column>) AS md5'
-		args: must (if UPDATE) contain primary key placeholder matching "query", say {'pk_val': pk_value, ...}
-		file_md5: md5 of the file in "filename"; if given, AND "query" returns a column 'md5', the returned value is compared to the given value
+		query: SQL,
+
+		* INSERT or UPDATE
+		* must contain a format spec named '%(data)s' for the BYTEA data, say '... <BYTEA data column> = %(data)s::BYTEA'
+		* if UPDATE, must contain a format spec identifying the row (eg a primary key), say '... AND pk_column = %(pk_val)s'
+		* can contain a '... RETURNING md5(<BYTEA data column>) AS md5'
+
+		args: if UPDATE, must contain primary key placeholder matching format spec in <query>, say {'pk_val': pk_value, ...}
+
+		file_md5:
+
+		* md5 sum of the file in "filename"
+		* if given, and <query> RETURNs a column 'md5', the returned value is compared to the given value
 
 	Returns:
 		Whether operation seems to have succeeded.
 	"""
-	retry_delay = 100		# milliseconds
 	attempt = 0
-	max_attempts = 3
-	while attempt < max_attempts:
+	infile = None
+	while attempt < 3:
 		attempt += 1
 		try:
 			infile = open(filename, "rb")
 		except (BlockingIOError, FileNotFoundError, PermissionError):
 			_log.exception('#%s: cannot open [%s]', attempt, filename)
-			_log.error('retrying after %sms', retry_delay)
-			infile = None
-			time.sleep(retry_delay / 1000)
+			_log.error('retrying after 100ms')
+			time.sleep(0.1)
+		break
 	if infile is None:
 		return False
 
@@ -1649,30 +1697,35 @@ def file2bytea(query:str=None, filename:str=None, args=None, conn=None, file_md5
 	infile.close()
 	if args is None:
 		args = {}
-	# really still needed for BYTEA input ?
-	args['data'] = memoryview(data_as_byte_string)
+	args['data'] = memoryview(data_as_byte_string)		# really still needed for BYTEA input ?
 	del(data_as_byte_string)
 	if conn is None:
 		conn = get_raw_connection(readonly = False)
-		close_conn = True
+		conn_close = conn.close
 	else:
-		close_conn = False
-	rows, idx = run_rw_queries(link_obj = conn, queries = [{'cmd': query, 'args': args}], end_tx = False, return_data = (file_md5 is not None))
-	success_status = True
+		conn_close = lambda x:x
+	rows, idx = run_rw_queries (
+		link_obj = conn,
+		queries = [{'cmd': query, 'args': args}],
+		end_tx = False,
+		return_data = (file_md5 is not None)
+	)
 	if file_md5 is None:
 		conn.commit()
-	else:
-		db_md5 = rows[0]['md5']
-		if file_md5 != db_md5:
-			conn.rollback()
-			success_status = False
-			_log.error('MD5 sums of data file and database BYTEA field do not match: [file::%s] <> [DB::%s]', file_md5, db_md5)
-		else:
-			conn.commit()
-			_log.debug('MD5 sums of data file and database BYTEA field match: [file::%s] = [DB::%s]', file_md5, db_md5)
-	if close_conn:
-		conn.close()
-	return success_status
+		conn_close()
+		return True
+
+	db_md5 = rows[0]['md5']
+	if file_md5 == db_md5:
+		conn.commit()
+		conn_close()
+		_log.debug('MD5 sums of data file and database BYTEA field match: [file::%s] = [DB::%s]', file_md5, db_md5)
+		return True
+
+	conn.rollback()
+	conn_close()
+	_log.error('MD5 sums of data file and database BYTEA field do not match: [file::%s] <> [DB::%s]', file_md5, db_md5)
+	return False
 
 #------------------------------------------------------------------------
 def file2lo(filename=None, conn=None, check_md5=False, file_md5=None):
@@ -1686,7 +1739,7 @@ def file2lo(filename=None, conn=None, check_md5=False, file_md5=None):
 		conn = get_raw_connection(readonly = False)
 		close_conn = conn.close
 	else:
-		close_conn = __noop
+		close_conn = lambda x:x
 	_log.debug('[%s] -> large object', filename)
 
 	# insert the data
@@ -1726,7 +1779,7 @@ def __file2bytea_lo(filename=None, conn=None, file_md5=None):
 		conn = get_raw_connection(readonly = False)
 		close_conn = conn.close
 	else:
-		close_conn = __noop
+		close_conn = lambda x:x
 	_log.debug('[%s] -> large object', filename)
 
 	# insert the data
@@ -1835,7 +1888,7 @@ def __file2bytea_overlay(query=None, args=None, filename=None, conn=None, md5_qu
 		conn = get_raw_connection(readonly = False)
 		close_conn = conn.close
 	else:
-		close_conn = __noop
+		close_conn = lambda x:x
 
 	infile = open(filename, "rb")
 	# write chunks
@@ -2006,7 +2059,13 @@ def sanitize_pg_regex(expression=None, escape_all=False):
 		#']', '\]',			# not needed
 
 #------------------------------------------------------------------------
-def run_ro_queries(link_obj=None, queries:list[dict]=None, verbose:bool=False, return_data:bool=True, get_col_idx:bool=False) -> tuple[list[dbapi.extras.DictRow], dict]:
+def run_ro_queries (
+	link_obj=None,
+	queries:list[dict]=None,
+	verbose:bool=False,
+	return_data:bool=True,
+	get_col_idx:bool=False
+) -> tuple[list[dbapi.extras.DictRow], dict]:
 	"""Run read-only queries.
 
 	Args:
@@ -2126,7 +2185,7 @@ def run_ro_queries(link_obj=None, queries:list[dict]=None, verbose:bool=False, r
 #------------------------------------------------------------------------
 def run_rw_queries (
 	link_obj=None,
-	queries:dict=None,
+	queries:list[dict]=None,
 	end_tx:bool=False,
 	return_data:bool=None,
 	get_col_idx:bool=False,
@@ -2358,7 +2417,7 @@ def run_insert(link_obj=None, schema=None, table=None, values=None, returning=No
 # =======================================================================
 # connection handling API
 # -----------------------------------------------------------------------
-def get_raw_connection(verbose=False, readonly=True, connection_name=None, autocommit=False):
+def get_raw_connection(verbose:bool=False, readonly:bool=True, connection_name:str=None, autocommit:bool=False) -> dbapi._psycopg.connection:
 	"""Get a raw, unadorned connection.
 
 	* this will not set any parameters such as encoding, timezone, datestyle
@@ -2373,7 +2432,7 @@ def get_raw_connection(verbose=False, readonly=True, connection_name=None, autoc
 	)
 
 # =======================================================================
-def get_connection(readonly=True, verbose=False, pooled=True, connection_name=None, autocommit=False):
+def get_connection(readonly:bool=True, verbose:bool=False, pooled:bool=True, connection_name:str=None, autocommit:bool=False) -> dbapi._psycopg.connection:
 	return gmConnectionPool.gmConnectionPool().get_connection (
 		readonly = readonly,
 		verbose = verbose,
@@ -2392,10 +2451,6 @@ def shutdown():
 
 # ======================================================================
 # internal helpers
-#-----------------------------------------------------------------------
-def __noop():
-	pass
-
 #-----------------------------------------------------------------------
 def log_pg_exception(exc:Exception, msg:str=None):
 	gmConnectionPool.log_pg_exception_details(exc)
@@ -2419,37 +2474,30 @@ def sanity_check_time_skew(tolerance:int=60) -> bool:
 		tolerance: seconds
 	"""
 	_log.debug('maximum skew tolerance (seconds): %s', tolerance)
-
 	cmd = "SELECT now() at time zone 'UTC'"
-	conn = get_raw_connection(readonly=True)
+	conn = get_raw_connection(readonly = True)
 	curs = conn.cursor()
-
 	start = time.time()
 	rows, idx = run_ro_queries(link_obj = curs, queries = [{'cmd': cmd}])
 	end = time.time()
 	client_now_as_utc = pydt.datetime.utcnow()
-
 	curs.close()
 	conn.commit()
-
 	server_now_as_utc = rows[0][0]
 	query_duration = end - start
 	_log.info('server "now" (UTC): %s', server_now_as_utc)
 	_log.info('client "now" (UTC): %s', client_now_as_utc)
 	_log.debug('wire roundtrip (seconds): %s', query_duration)
-
 	if query_duration > tolerance:
 		_log.error('useless to check client/server time skew, wire roundtrip > tolerance')
 		return False
 
 	if server_now_as_utc > client_now_as_utc:
-		real_skew = server_now_as_utc - client_now_as_utc
+		current_skew = server_now_as_utc - client_now_as_utc
 	else:
-		real_skew = client_now_as_utc - server_now_as_utc
-
-	_log.debug('client/server time skew: %s', real_skew)
-
-	if real_skew > pydt.timedelta(seconds = tolerance):
+		current_skew = client_now_as_utc - server_now_as_utc
+	_log.debug('client/server time skew: %s', current_skew)
+	if current_skew > pydt.timedelta(seconds = tolerance):
 		_log.error('client/server time skew > tolerance')
 		return False
 
@@ -2466,9 +2514,10 @@ def sanity_check_database_settings(hipaa:bool=True) -> tuple:
 		(status, message)
 
 		status
-			0: no problem
-			1: non-fatal problem
-			2: fatal problem
+
+		* 0: no problem
+		* 1: non-fatal problem
+		* 2: fatal problem
 	"""
 	_log.debug('checking database settings')
 	conn = get_connection()
@@ -3130,8 +3179,8 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_reindex_database()
 
 	#print(dbapi.extras.DictRow)
-	#print(conn_class)
-	#print(curs_class)
+	#print(dbapi._psycopg.connection)
+	#print(dbapi._psycopg.cursor)
 
 	request_login_params(setup_pool = True, force_tui = True)
 

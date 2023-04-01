@@ -197,7 +197,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 
 		#clinical_end = open_episode.best_guess_clinical_end_date
 		clinical_end = open_episode.latest_access_date		# :-/
-		ttl = datetime.timedelta(ttl)
+		ttl = datetime.timedelta(ttl)								# type: ignore
 		now = datetime.datetime.now(tz = clinical_end.tzinfo)
 		if (clinical_end + ttl) > now:
 			return False

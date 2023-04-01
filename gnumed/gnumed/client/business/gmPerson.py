@@ -606,10 +606,17 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	def _get_is_patient(self) -> bool:
 		return identity_is_patient(self._payload[self._idx['pk_identity']])
 
-	def _set_is_patient(self, turn_into_patient:bool) -> bool:
-		if turn_into_patient:
-			return turn_identity_into_patient(self._payload[self._idx['pk_identity']])
-		return False
+	def _set_is_patient(self, turn_into_patient:bool):
+		if not turn_into_patient:
+			return
+
+		SQL = """
+			INSERT INTO clin.patient (fk_identity)
+			SELECT %(pk_ident)s WHERE NOT EXISTS (
+				SELECT 1 FROM clin.patient c_p WHERE fk_identity = %(pk_ident)s
+			)"""
+		args = {'pk_ident': self._payload['pk_identity']}
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	is_patient = property(_get_is_patient, _set_is_patient)
 
@@ -1988,18 +1995,6 @@ def identity_is_patient(pk_identity:int) -> bool:
 		return True
 
 	return False
-
-#------------------------------------------------------------
-def turn_identity_into_patient(pk_identity:int) -> bool:
-	cmd = """
-		INSERT INTO clin.patient (fk_identity)
-		SELECT %(pk_ident)s WHERE NOT EXISTS (
-			SELECT 1 FROM clin.patient c_p WHERE fk_identity = %(pk_ident)s
-		)"""
-	args = {'pk_ident': pk_identity}
-	queries = [{'cmd': cmd, 'args': args}]
-	gmPG2.run_rw_queries(queries = queries)
-	return True
 
 #============================================================
 # helper functions

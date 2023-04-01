@@ -373,47 +373,51 @@ class cBusinessDBObject(object):
 	def __init_from_pk(self, aPK_obj=None, link_obj=None):
 		"""Creates a new clinical item instance by its PK.
 
-		aPK_obj can be:
-			- a simple value
-			  * the primary key WHERE condition must be
-				a simple column
-			- a dictionary of values
-			  * the primary key WHERE condition must be a
-				subselect consuming the dict and producing
-				the single-value primary key
+		Args:
+			aPK_obj:
+
+			* a simple value -> the primary key WHERE condition must be	a simple column
+			* a dictionary of values -> the primary key WHERE condition must be a
+			    subselect consuming the dict and producing the single-value primary key
 		"""
 		self.pk_obj = aPK_obj
-		result = self.refetch_payload(link_obj = link_obj)
-		if result is True:
+		if self.refetch_payload(link_obj = link_obj):
 			self.payload_most_recently_fetched = {}
 			for field in self._idx:
 				self.payload_most_recently_fetched[field] = self._payload[self._idx[field]]
-			return True
+			return
 
-		if result is False:
-			raise gmExceptions.ConstructorError("[%s:%s]: error loading instance" % (self.__class__.__name__, self.pk_obj))
+		raise gmExceptions.ConstructorError("[%s:%s]: error loading instance" % (self.__class__.__name__, self.pk_obj))
 
 	#--------------------------------------------------------
 	def _init_from_row_data(self, row:gmPG2.dbapi.extras.DictRow=None):
 		"""Creates a new clinical item instance given its fields.
 
-		row must be a dict with the fields:
-			- idx: a dict mapping field names to position
-			- data: the field values in a list (as returned by
-			  cursor.fetchone() in the DB-API)
-			- pk_field: the name of the primary key field
-			OR
-			- pk_obj: a dictionary suitable for passed to cursor.execute
-			  and holding the primary key values, used for composite PKs
+		Args:
+			row: EITHER {'idx': ..., 'data': ..., 'pk_field': ...}
 
-		row = {
-			'data': rows[0],
-			'idx': idx,
-			'pk_field': 'pk_XXX (the PK column name)',
-			'pk_obj': {'pk_col1': pk_col1_val, 'pk_col2': pk_col2_val}
-		}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		objects = [ cChildClass(row = {'data': r, 'idx': idx, 'pk_field': 'the PK column name'}) for r in rows ]
+			* idx: a dict mapping field names to list position inside row['data']
+			* data: the field values in a list (as returned by cursor.fetchone() in the DB-API)
+			* pk_field: the name of the primary key field
+
+			OR
+
+			* pk_obj: a dictionary suitable for passing to cursor.execute(),
+			  holding the primary key values; used for composite PKs
+
+		Examples:
+
+				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+				objects = [ cChildClass(row = {'data': r, 'idx': idx, 'pk_field': 'the PK column name'}) for r in rows ]
+
+		Copy/Paste:
+
+				row = {
+					'data': rows[0],
+					'idx': idx,
+					'pk_field': 'pk_XXX (the PK column name)',
+					'pk_obj': {'pk_col1': pk_col1_val, 'pk_col2': pk_col2_val}
+				}
 		"""
 		assert ('data' in row), "[%s:??]: 'data' missing from <row> argument: %s" % (self.__class__.__name__, row)
 		assert ('idx' in row), "[%s:??]: 'idx' missing from <row> argument: %s" % (self.__class__.__name__, row)
@@ -424,10 +428,9 @@ class cBusinessDBObject(object):
 		self._idx = row['idx']
 		self._payload = row['data']
 		if 'pk_field' in row:
-			self.pk_obj = row['data'][row['idx'][row['pk_field']]]
+			self.pk_obj = self._payload[self._idx[row['pk_field']]]
 		else:
 			self.pk_obj = row['pk_obj']
-
 		self.payload_most_recently_fetched = {}
 		for field in self._idx:
 			self.payload_most_recently_fetched[field] = self._payload[self._idx[field]]
@@ -449,12 +452,18 @@ class cBusinessDBObject(object):
 				if self._payload[self._idx[attr]] is None:
 					lines.append('%s: NULL' % attr)
 				else:
-					lines.append('%s: %s [%s]' % (
+					lines.append('%s [%s]: %s' % (
 						attr,
-						self._payload[self._idx[attr]],
-						type(self._payload[self._idx[attr]])
+						type(self._payload[self._idx[attr]]),
+						self._payload[self._idx[attr]]
 					))
-			return '[%s:%s]:\n%s' % (self.__class__.__name__, self.pk_obj, '\n'.join(lines))
+			return '[%s:%s] %s:\n%s' % (
+				self.__class__.__name__,
+				self.pk_obj,
+				self._is_modified,
+				'\n'.join(lines)
+			)
+
 		except Exception:
 			return 'likely nascent [%s @ %s], cannot show payload and primary key' %(self.__class__.__name__, id(self))
 
@@ -480,7 +489,7 @@ class cBusinessDBObject(object):
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
-	def same_payload(self, another_object=None):
+	def same_payload(self, another_object:'cBusinessDBObject'=None) -> bool:
 		"""Check whether *self* and *another_object* hold the same payload."""
 		raise NotImplementedError('comparison between [%s] and [%s] not implemented' % (self, another_object))
 
@@ -504,7 +513,7 @@ class cBusinessDBObject(object):
 		return self.__class__._updatable_fields
 
 	#--------------------------------------------------------
-	def fields_as_dict(self, date_format='%Y %b %d  %H:%M', none_string='', escape_style=None, bool_strings=None) -> dict:
+	def fields_as_dict(self, date_format:str='%Y %b %d  %H:%M', none_string:str='', escape_style:str=None, bool_strings:[]=None) -> dict:
 		"""Return field values as a dictionary of strings."""
 		if bool_strings is None:
 			bools = {True: 'True', False: 'False'}
@@ -590,7 +599,7 @@ class cBusinessDBObject(object):
 			args = {'db_u': mod_by}
 			cmd = "SELECT pk FROM dem.staff WHERE db_user = %(db_u)s"
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-			if len(rows) > 0:
+			if rows:
 				# logically, they are all the same provider, because they share the DB account
 				return rows[0][0]
 
@@ -601,7 +610,7 @@ class cBusinessDBObject(object):
 			args = {'db_u': mod_by.lstrip('<').rstrip('>')}
 			cmd = "SELECT pk FROM dem.staff WHERE db_user = %(db_u)s"
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-			if len(rows) > 0:
+			if rows:
 				# logically, they are all the same provider, because they share the DB account
 				return rows[0][0]
 
@@ -609,7 +618,7 @@ class cBusinessDBObject(object):
 		args = {'alias': mod_by}
 		cmd = "SELECT pk FROM dem.staff WHERE short_alias = %(alias)s"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-		if len(rows) > 0:
+		if rows:
 			# logically, they are all the same provider, because they share the DB account
 			return rows[0][0]
 
@@ -619,7 +628,7 @@ class cBusinessDBObject(object):
 	staff_id = property(_get_staff_id)
 
 	#--------------------------------------------------------
-	def format(self, *args, **kwargs):
+	def format(self, *args, **kwargs) -> list[str]:
 		"""Return instance data generically formatted as a table."""
 		return format_dict_like (
 			self.fields_as_dict(none_string = '<?>'),
@@ -628,25 +637,23 @@ class cBusinessDBObject(object):
 		).split('\n')
 
 	#--------------------------------------------------------
-	def _get_revision_history(self, query, args, title):
+	def _get_revision_history(self, query:str, args:dict, title:str) -> list[str]:
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': query, 'args': args}], get_col_idx = True)
+		if not rows:
+			return ['%s (no versions)' % title]
 
-		lines = []
-		if rows == 0:
-			lines.append('%s (no versions)' % title)
-		else:
-			lines.append('%s (%s versions)' % (title, rows[0]['row_version'] + 1))
-			column_labels = [ 'rev %s (%s)' % (r['row_version'], pydt_strftime(r['audit__action_when'], format = '%Y %b %d %H:%M', none_str = 'live row')) for r in rows ]
-			lines.extend (dicts2table (
-				rows,
-				left_margin = 1,
-				eol = None,
-				keys2ignore = ['audit__action_when', 'row_version', 'pk_audit'],
-				show_only_changes = True,
-				column_labels = column_labels,
-				date_format = '%Y %b %d %H:%M',
-				equality_value = u_left_arrow
-			))
+		lines = ['%s (%s versions)' % (title, rows[0]['row_version'] + 1)]
+		column_labels = [ 'rev %s (%s)' % (r['row_version'], pydt_strftime(r['audit__action_when'], format = '%Y %b %d %H:%M', none_str = 'live row')) for r in rows ]
+		lines.extend (dicts2table (
+			rows,
+			left_margin = 1,
+			eol = None,
+			keys2ignore = ['audit__action_when', 'row_version', 'pk_audit'],
+			show_only_changes = True,
+			column_labels = column_labels,
+			date_format = '%Y %b %d %H:%M',
+			equality_value = u_left_arrow
+		))
 		return lines
 
 	#--------------------------------------------------------
@@ -686,16 +693,12 @@ class cBusinessDBObject(object):
 		return True
 
 	#--------------------------------------------------------
-	def __noop(self):
-		pass
-
-	#--------------------------------------------------------
-	def save(self, conn:gmPG2.conn_class=None):
+	def save(self, conn:gmPG2.dbapi._psycopg.connection=None) -> tuple[bool, tuple]:
 		"""Just calls save_payload()."""
 		return self.save_payload(conn = conn)
 
 	#--------------------------------------------------------
-	def save_payload(self, conn:gmPG2.conn_class=None):
+	def save_payload(self, conn:gmPG2.dbapi._psycopg.connection=None) -> tuple[bool, tuple]:
 		"""Store updated values (if any) into database.
 
 		Optionally accepts a pre-existing connection
@@ -714,10 +717,10 @@ class cBusinessDBObject(object):
 			args[field] = self._payload[self._idx[field]]
 		self.payload_most_recently_attempted_to_store = args
 
-		close_conn = self.__noop
+		conn_close = lambda x:x
 		if conn is None:
 			conn = gmPG2.get_connection(readonly=False)
-			close_conn = conn.close
+			conn_close = conn.close
 
 		queries = []
 		for query in self.__class__._cmds_store_payload:
@@ -749,7 +752,7 @@ class cBusinessDBObject(object):
 				self._payload[self._idx[key]] = row[idx[key]]
 			except KeyError:
 				conn.rollback()
-				close_conn()
+				conn_close()
 				_log.error('[%s:%s]: cannot update instance, XMIN-refetch key mismatch on [%s]' % (self.__class__.__name__, self.pk_obj, key))
 				_log.error('payload keys: %s' % str(self._idx))
 				_log.error('XMIN-refetch keys: %s' % str(idx))
@@ -762,7 +765,7 @@ class cBusinessDBObject(object):
 		# right before that
 		self._is_modified = False
 		conn.commit()
-		close_conn()
+		conn_close()
 
 		# update to new "original" payload
 		self.payload_most_recently_fetched = {}
