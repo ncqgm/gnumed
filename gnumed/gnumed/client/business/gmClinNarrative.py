@@ -188,8 +188,8 @@ def create_progress_note(soap=None, episode_id=None, encounter_id=None, link_obj
 		conn_commit = link_obj.commit
 		conn_close = link_obj.close
 	else:
-		conn_commit = lambda *x:None
-		conn_close = lambda *x:None
+		conn_commit = lambda *x: None
+		conn_close = lambda *x: None
 
 	instances = {}
 	for cat in soap:

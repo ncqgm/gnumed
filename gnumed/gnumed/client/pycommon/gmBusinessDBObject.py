@@ -505,7 +505,7 @@ class cBusinessDBObject(object):
 			return list(self._idx)
 
 		except AttributeError:
-			return 'nascent [%s @ %s], cannot return keys' %(self.__class__.__name__, id(self))
+			return 'nascent [%s @ %s], cannot return keys' % (self.__class__.__name__, id(self))
 
 	#--------------------------------------------------------
 	def get_updatable_fields(self) -> list[str]:
@@ -513,7 +513,7 @@ class cBusinessDBObject(object):
 		return self.__class__._updatable_fields
 
 	#--------------------------------------------------------
-	def fields_as_dict(self, date_format:str='%Y %b %d  %H:%M', none_string:str='', escape_style:str=None, bool_strings:[]=None) -> dict:
+	def fields_as_dict(self, date_format:str='%Y %b %d  %H:%M', none_string:str='', escape_style:str=None, bool_strings:list[str]=None) -> dict:
 		"""Return field values as a dictionary of strings."""
 		if bool_strings is None:
 			bools = {True: 'True', False: 'False'}
@@ -717,7 +717,7 @@ class cBusinessDBObject(object):
 			args[field] = self._payload[self._idx[field]]
 		self.payload_most_recently_attempted_to_store = args
 
-		conn_close = lambda x:x
+		conn_close = lambda *x: None
 		if conn is None:
 			conn = gmPG2.get_connection(readonly=False)
 			conn_close = conn.close

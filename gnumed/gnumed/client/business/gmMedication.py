@@ -1797,8 +1797,8 @@ def create_drug_product(product_name=None, preparation=None, return_existing=Fal
 		conn_commit = link_obj.commit
 		conn_close = link_obj.close
 	else:
-		conn_commit = lambda *x:None
-		conn_close = lambda *x:None
+		conn_commit = lambda *x: None
+		conn_close = lambda *x: None
 	cmd = 'INSERT INTO ref.drug_product (description, preparation) VALUES (%(prod_name)s, %(prep)s) RETURNING pk'
 	args = {'prod_name': product_name, 'prep': preparation}
 	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)

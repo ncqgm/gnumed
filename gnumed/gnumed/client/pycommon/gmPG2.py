@@ -1703,7 +1703,7 @@ def file2bytea(query:str=None, filename:str=None, args:dict=None, conn=None, fil
 		conn = get_raw_connection(readonly = False)
 		conn_close = conn.close
 	else:
-		conn_close = lambda x:x
+		conn_close = lambda *x: None
 	rows, idx = run_rw_queries (
 		link_obj = conn,
 		queries = [{'cmd': query, 'args': args}],
@@ -1739,7 +1739,7 @@ def file2lo(filename=None, conn=None, check_md5=False, file_md5=None):
 		conn = get_raw_connection(readonly = False)
 		close_conn = conn.close
 	else:
-		close_conn = lambda x:x
+		close_conn = lambda *x: None
 	_log.debug('[%s] -> large object', filename)
 
 	# insert the data
@@ -1779,7 +1779,7 @@ def __file2bytea_lo(filename=None, conn=None, file_md5=None):
 		conn = get_raw_connection(readonly = False)
 		close_conn = conn.close
 	else:
-		close_conn = lambda x:x
+		close_conn = lambda *x: None
 	_log.debug('[%s] -> large object', filename)
 
 	# insert the data
@@ -1888,7 +1888,7 @@ def __file2bytea_overlay(query=None, args=None, filename=None, conn=None, md5_qu
 		conn = get_raw_connection(readonly = False)
 		close_conn = conn.close
 	else:
-		close_conn = lambda x:x
+		close_conn = lambda *x: None
 
 	infile = open(filename, "rb")
 	# write chunks
@@ -2084,9 +2084,9 @@ def run_ro_queries (
 	"""
 	if isinstance(link_obj, dbapi._psycopg.cursor):
 		curs = link_obj
-		curs_close = lambda *x:None
-		tx_rollback = lambda *x:None
-		readonly_rollback_just_in_case = lambda *x:None
+		curs_close = lambda *x: None
+		tx_rollback = lambda *x: None
+		readonly_rollback_just_in_case = lambda *x: None
 	elif isinstance(link_obj, dbapi._psycopg.connection):
 		curs = link_obj.cursor()
 		curs_close = curs.close
@@ -2097,7 +2097,7 @@ def run_ro_queries (
 			# do not rollback readonly queries on passed-in readwrite
 			# connections just in case because they may have already
 			# seen fully legitimate write action which would get lost
-			readonly_rollback_just_in_case = lambda *x:None
+			readonly_rollback_just_in_case = lambda *x: None
 	elif link_obj is None:
 		conn = get_connection(readonly = True, verbose = verbose)
 		curs = conn.cursor()
@@ -2235,20 +2235,20 @@ def run_rw_queries (
 			* for <index> see <get_col_idx>
 	"""
 	if isinstance(link_obj, dbapi._psycopg.cursor):
-		conn_close = lambda *x:None
-		conn_commit = lambda *x:None
-		tx_rollback = lambda *x:None
+		conn_close = lambda *x: None
+		conn_commit = lambda *x: None
+		tx_rollback = lambda *x: None
 		curs = link_obj
-		curs_close = lambda *x:None
+		curs_close = lambda *x: None
 		notices_accessor = curs.connection
 	elif isinstance(link_obj, dbapi._psycopg.connection):
-		conn_close = lambda *x:None
+		conn_close = lambda *x: None
 		if end_tx:
 			conn_commit = link_obj.commit
 			tx_rollback = link_obj.rollback
 		else:
-			conn_commit = lambda *x:None
-			tx_rollback = lambda *x:None
+			conn_commit = lambda *x: None
+			tx_rollback = lambda *x: None
 		curs = link_obj.cursor()
 		curs_close = curs.close
 		notices_accessor = link_obj

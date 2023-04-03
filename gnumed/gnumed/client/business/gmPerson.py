@@ -616,7 +616,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 				SELECT 1 FROM clin.patient c_p WHERE fk_identity = %(pk_ident)s
 			)"""
 		args = {'pk_ident': self._payload['pk_identity']}
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}])
 
 	is_patient = property(_get_is_patient, _set_is_patient)
 
@@ -1999,7 +1999,7 @@ def identity_is_patient(pk_identity:int) -> bool:
 #============================================================
 # helper functions
 #------------------------------------------------------------
-_yield = lambda *x:None
+_yield = lambda *x: None
 
 def set_yielder(yielder):
 	if not callable(yielder):
