@@ -4,17 +4,16 @@
 DIRS="../client/pycommon ../client/business ../client/wxpython"
 echo "=== $(date): pyflakes3 '${DIRS}' ==========" > source-coding_errors.log
 pyflakes3 ${DIRS} &>> tmp-pyflakes3.log
-#grep --invert-match "'Gnumed.pycommon.gmLog2' imported but unused" tmp-pyflakes3.log &>> tmp-grep_gmlog2.log
-#grep --invert-match "undefined name '_'" tmp-grep_gmlog2.log &>> source-coding_errors.log
 grep --invert-match "undefined name '_'" tmp-pyflakes3.log &>> source-coding_errors.log
+rm tmp-pyflakes3.log
 
 
 echo "=== maintainability -- $(date): radon mi (lower = better, A/B not shown) ==========" > source-maintainability.log
 radon mi ${DIRS} | egrep '\-\s[^AB]$' &>> source-maintainability.log
 
 
-echo "=== cyclic complexity -- $(date) - radon cc (lower = better, A/B/C/D not shown) ==========" > source-cyclic_complexity.log
-radon cc ${DIRS} | egrep '(\-\s[^ABCD])|(.py)$' &>> source-cyclic_complexity.log
+echo "=== cyclic complexity -- $(date) - radon cc (lower = better, A/B/C/D/E not shown) ==========" > source-cyclic_complexity.log
+radon cc ${DIRS} | egrep '(\-\s[^ABCDE])|(.py)$' &>> source-cyclic_complexity.log
 
 
 DIRS="../client/pycommon ../client/business"
@@ -25,16 +24,19 @@ for DIR in ${DIRS} ; do
 done
 
 
+MYPY_CMD="mypy --pretty --warn-unreachable --allow-redefinition --no-strict-optional --ignore-missing-imports --follow-imports silent"
 echo "=== $(date): mypy ==========" > source-type_checking.log
+echo "${MYPY_CMD}" &>> source-type_checking.log
 for DIR in ${DIRS} ; do
 	echo "=== ${DIR} ==========" &>> source-type_checking.log
 	for PYFILE in ${DIR}/*.py ; do
 		echo "----- ${PYFILE} --------------------------------------" &>> source-type_checking.log
-		mypy --pretty --no-strict-optional --ignore-missing-imports --follow-imports silent ${PYFILE} &>> source-type_checking.log
+		${MYPY_CMD} ${PYFILE} &>> source-type_checking.log
 	done
 done
-##mypy --allow-redefinition --ignore-missing-imports --check-untyped-defs --warn-return-any --warn-unreachable --pretty ${DIRS} &>> source-type_checking.log
-##mypy --html-report ./ --allow-redefinition --ignore-missing-imports --check-untyped-defs --warn-return-any --warn-unreachable ${DIRS}
+##--check-untyped-defs
+##--warn-return-any
+##--html-report ./
 ## --allow-untyped-globals
 
 

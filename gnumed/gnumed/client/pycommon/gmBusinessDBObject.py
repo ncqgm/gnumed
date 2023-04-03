@@ -136,6 +136,7 @@ __license__ = "GPL v2 or later"
 import sys
 import logging
 import datetime
+from typing import Union
 
 
 if __name__ == '__main__':
@@ -153,6 +154,8 @@ from Gnumed.pycommon.gmTools import u_left_arrow
 
 
 _log = logging.getLogger('gm.db')
+
+TIorD = Union[int, dict]
 
 #============================================================
 # business object template
@@ -283,39 +286,41 @@ class cBusinessDBObject(object):
 
 	Class scope SQL commands and variables:
 
-	* _cmd_fetch_payload:
-		* must return exactly one row
-		* WHERE clause argument values are expected in
-		  self.pk_obj (taken from __init__(aPK_obj))
-		* must return xmin of all rows that _cmds_store_payload
-		  will be updating, so views must support the xmin columns
-		  of their underlying tables
+	_cmd_fetch_payload:
 
-	* _cmds_store_payload:
+	* must return exactly one row
+	* WHERE clause argument values are expected in
+	  self.pk_obj (taken from __init__(aPK_obj))
+	* must return xmin of all rows that _cmds_store_payload
+	  will be updating, so views must support the xmin columns
+	  of their underlying tables
 
-		* one or multiple "update ... set ... where xmin_* = ... and pk* = ..."
-		  statements which actually update the database from the data in self._payload,
-		* the last query must refetch at least the XMIN values needed to detect
-		  concurrent updates, their field names had better be the same as
-		  in _cmd_fetch_payload,
-		* the last query CAN return other fields which is particularly
-		  useful when those other fields are computed in the backend
-		  and may thus change upon save but will not have been set by
-		  the client code explicitly - this is only really of concern
-		  if the saved subclass is to be reused after saving rather
-		  than re-instantiated
-		* when subclasses tend to live a while after save_payload() was
-		  called and they support computed fields (say, _(some_column)
-		  you need to return *all* columns (see cEncounter)
+	_cmds_store_payload:
 
-	* _updatable_fields:
-		* a list of fields available for update via object['field']
+	* one or multiple "update ... set ... where xmin_* = ... and pk* = ..."
+	  statements which actually update the database from the data in self._payload,
+	* the last query must refetch at least the XMIN values needed to detect
+	  concurrent updates, their field names had better be the same as
+	  in _cmd_fetch_payload,
+	* the last query CAN return other fields which is particularly
+	  useful when those other fields are computed in the backend
+	  and may thus change upon save but will not have been set by
+	  the client code explicitly - this is only really of concern
+	  if the saved subclass is to be reused after saving rather
+	  than re-instantiated
+	* when subclasses tend to live a while after save_payload() was
+	  called and they support computed fields (say, _(some_column)
+	  you need to return *all* columns (see cEncounter)
+
+	_updatable_fields:
+
+	* a list of fields available for update via object['field']
 	"""
 	_cmd_fetch_payload:str = None
 	_cmds_store_payload:list[str] = None
 	_updatable_fields:list[str] = None
 	#--------------------------------------------------------
-	def __init__(self, aPK_obj=None, row:gmPG2.dbapi.extras.DictRow=None, link_obj=None):
+	def __init__(self, aPK_obj:TIorD=None, row:gmPG2.dbapi.extras.DictRow=None, link_obj=None):
 		"""Call __init__ from child classes like so:
 
 			super().__init__(aPK_obj = aPK_obj, row = row, link_obj = link_obj)
@@ -352,7 +357,7 @@ class cBusinessDBObject(object):
 		# initialize those "too early" because sanity checking descendants might
 		# fail which will then call __str__ in stack trace logging if --debug
 		# was given which in turn needs those instance variables
-		self.pk_obj = '<uninitialized>'
+		self.pk_obj:TIorD = -1
 		self._idx:dict = {}
 		self._payload:list = []		# the cache for backend object values (mainly table fields)
 		self._ext_cache:dict = {}	# the cache for extended method's results
@@ -370,7 +375,7 @@ class cBusinessDBObject(object):
 		self._is_modified = False
 
 	#--------------------------------------------------------
-	def __init_from_pk(self, aPK_obj=None, link_obj=None):
+	def __init_from_pk(self, aPK_obj:TIorD=None, link_obj=None):
 		"""Creates a new clinical item instance by its PK.
 
 		Args:
