@@ -5,6 +5,7 @@ TODO: iterator/generator batch fetching:
 	- search Google for "Geneator/Iterator Nesting Problem - Any Ideas? 2.4"
 
 winner:
+
 def resultset_functional_batchgenerator(cursor, size=100):
 	for results in iter(lambda: cursor.fetchmany(size), []):
 		for rec in results:
@@ -24,6 +25,7 @@ import logging
 import datetime as pydt
 import hashlib
 import shutil
+from typing import Union, Any
 
 
 # GNUmed
@@ -347,13 +349,21 @@ def __request_login_params_gui_wx():
 	return login, creds
 
 #---------------------------------------------------
-def request_login_params(setup_pool=False, force_tui=False):
-	"""Request login parameters for database connection."""
+def request_login_params(setup_pool:bool=False, force_tui:bool=False) -> tuple(gmLoginInfo.LoginInfo, gmConnectionPool.cPGCredentials):
+	"""Request login parameters for database connection.
+
+	Args:
+		setup_pool: initialize connection pool
+		force_tui: do not attempt to use wxPython as UI
+
+	Returns:
+		A tuple with login info.
+	"""
 	# are we inside X ?
-	# if we aren't wxGTK will crash hard at the C-level with "can't open Display"
+	# if we aren't wxGTK would crash hard at the C-level with "can't open Display"
 	if 'DISPLAY' in os.environ and not force_tui:
-		# try wxPython GUI
 		try:
+			# try wxPython GUI
 			login, creds = __request_login_params_gui_wx()
 		except Exception:
 			_log.exception('cannot request creds via wxPython')
@@ -782,11 +792,11 @@ def table_exists(link_obj=None, schema:str=None, table:str=None) -> bool:
 select exists (
 	select 1 from information_schema.tables
 	where
-		table_schema = %s and
-		table_name = %s and
+		table_schema = %(ns)s and
+		table_name = %(tbl)s and
 		table_type = 'BASE TABLE'
 )"""
-	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': (schema, table)}])
+	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': {'ns': schema, 'tbl': table}}])
 	return rows[0][0]
 
 #------------------------------------------------------------------------
@@ -2039,7 +2049,7 @@ def sanitize_pg_regex(expression=None, escape_all=False):
 
 	<escape_all>
 		True: try to escape *all* metacharacters
-		False: only escape those which render the regex invalid
+		False: only escape those which are known to render the regex invalid
 	"""
 	return expression.replace (
 			'(', '\('
@@ -2061,7 +2071,7 @@ def sanitize_pg_regex(expression=None, escape_all=False):
 #------------------------------------------------------------------------
 def run_ro_queries (
 	link_obj=None,
-	queries:list[dict]=None,
+	queries:list[dict[str, Union[str, Union[list, dict[str, Any]]]]]=None,
 	verbose:bool=False,
 	return_data:bool=True,
 	get_col_idx:bool=False
@@ -2185,7 +2195,7 @@ def run_ro_queries (
 #------------------------------------------------------------------------
 def run_rw_queries (
 	link_obj=None,
-	queries:list[dict]=None,
+	queries:list[dict[str, Union[str, Union[list, dict[str, Any]]]]]=None,
 	end_tx:bool=False,
 	return_data:bool=None,
 	get_col_idx:bool=False,
@@ -2195,52 +2205,60 @@ def run_rw_queries (
 
 	Args:
 		link_obj: None, cursor, connection
-		queries: a list of dicts [{'cmd': <string>, 'args': <dict> or <tuple>)
-		  to be executed as a single transaction, the last
-		  query may usefully return rows (such as a
-		  "SELECT currval('some_sequence')" statement)
+		queries:
+
+		* a list of dicts [{'cmd': <string>, 'args': <dict> or <tuple>)
+		* to be executed as a single transaction
+		* the last query may usefully return rows, such as:
+
+			SELECT currval('some_sequence');
+				or
+			INSERT/UPDATE ... RETURNING some_value;
+
 		end_tx:
 
 		* controls whether the transaction is finalized (eg.
 		  COMMITted/ROLLed BACK) or not, this allows the
 		  call to run_rw_queries() to be part of a framing
 		  transaction
-		* if link_obj is a *connection* then <end_tx> will
+		* if link_obj is a *connection* then "end_tx" will
 		  default to False unless it is explicitly set to
 		  True which is taken to mean "yes, you do have full
 		  control over the transaction" in which case the
 		  transaction is properly finalized
 		* if link_obj is a *cursor* we CANNOT finalize the
 		  transaction because we would need the connection for that
-		* if link_obj is *None* <end_tx> will, of course, always
+		* if link_obj is *None* "end_tx" will, of course, always
 		  be True, because we always have full control over the
-		  connection
+		  connection, not ending the transaction would be pointless
 
 		return_data:
+
 		* if true, the returned data will include the rows
 		    the last query selected
 		* if false, it returns None instead
 
 		get_col_idx:
-		* if true, the returned data will include a dictionary
+
+		* True: the returned tuple will include a dictionary
 		    mapping field names to column positions
-		* if false, the returned data returns None instead
+		* False: the returned tuple includes None instead of a field mapping dictionary
 
 	Returns:
 
-		* returns a tuple (data, idx)
-		* <data>:
-			* (None, None) if last query did not return rows
-			* ("fetchall() result", <index>) if last query returned any rows
-			* for <index> see <get_col_idx>
+		* (None, None) if last query did not return rows
+		* ("fetchall() result", <index>) if last query returned any rows and "return_data" was True
+
+		* for *index* see "get_col_idx"
 	"""
-	if isinstance(link_obj, dbapi._psycopg.cursor):
-		conn_close = lambda *x: None
-		conn_commit = lambda *x: None
-		tx_rollback = lambda *x: None
-		curs = link_obj
-		curs_close = lambda *x: None
-		notices_accessor = curs.connection
+	if link_obj is None:
+		conn = get_connection(readonly = False)
+		conn_close = conn.close
+		conn_commit = conn.commit
+		tx_rollback = conn.rollback
+		curs = conn.cursor()
+		curs_close = curs.close
+		notices_accessor = conn
 	elif isinstance(link_obj, dbapi._psycopg.connection):
 		conn_close = lambda *x: None
 		if end_tx:
@@ -2252,14 +2270,13 @@ def run_rw_queries (
 		curs = link_obj.cursor()
 		curs_close = curs.close
 		notices_accessor = link_obj
-	elif link_obj is None:
-		conn = get_connection(readonly=False)
-		conn_close = conn.close
-		conn_commit = conn.commit
-		tx_rollback = conn.rollback
-		curs = conn.cursor()
-		curs_close = curs.close
-		notices_accessor = conn
+	elif isinstance(link_obj, dbapi._psycopg.cursor):
+		conn_close = lambda *x: None
+		conn_commit = lambda *x: None
+		tx_rollback = lambda *x: None
+		curs = link_obj
+		curs_close = lambda *x: None
+		notices_accessor = curs.connection
 	else:
 		raise ValueError('link_obj must be cursor, connection or None but not [%s]' % link_obj)
 

@@ -359,7 +359,7 @@ class cBusinessDBObject(object):
 		# was given which in turn needs those instance variables
 		self.pk_obj:TIorD = -1
 		self._idx:dict = {}
-		self._payload:list = []		# the cache for backend object values (mainly table fields)
+		self._payload:'gmPG2.dbapi.extras.DictRow' = []	# the cache for backend object values (mainly table fields)
 		self._ext_cache:dict = {}	# the cache for extended method's results
 		self._is_modified:bool = False
 		self.original_payload:list = None
@@ -504,13 +504,16 @@ class cBusinessDBObject(object):
 		return self._is_modified
 
 	#--------------------------------------------------------
-	def get_fields(self) -> list[str]:  # | str:
+	def get_fields(self) -> list[str]:
 		"""Return list of accessible fields."""
 		try:
 			return list(self._idx)
 
 		except AttributeError:
-			return 'nascent [%s @ %s], cannot return keys' % (self.__class__.__name__, id(self))
+			return [
+				'[%s @ %s]' % (self.__class__.__name__, id(self)),
+				'cannot return keys, nascent ?'
+			]
 
 	#--------------------------------------------------------
 	def get_updatable_fields(self) -> list[str]:
@@ -666,7 +669,7 @@ class cBusinessDBObject(object):
 		"""Fetch field values from backend.
 
 		Args:
-			ignore_changes: True -- loose local changes if data on the backend changed
+			ignore_changes: True -> loose local changes if data on the backend changed
 		"""
 		if self._is_modified:
 			compare_dict_likes(self.original_payload, self.fields_as_dict(date_format = None, none_string = None), 'original payload', 'modified payload')
@@ -679,9 +682,9 @@ class cBusinessDBObject(object):
 				return False
 
 		if isinstance(self.pk_obj, dict):
-			args = self.pk_obj
+			args:dict = self.pk_obj		# type: ignore
 		else:
-			args = [self.pk_obj]
+			args:list = [self.pk_obj]	# type: ignore
 		rows, self._idx = gmPG2.run_ro_queries (
 			link_obj = link_obj,
 			queries = [{'cmd': self.__class__._cmd_fetch_payload, 'args': args}],
