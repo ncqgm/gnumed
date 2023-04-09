@@ -25,7 +25,7 @@ import logging
 import datetime as pydt
 import hashlib
 import shutil
-from typing import Union, Any
+from typing import Union, Any, Optional
 
 
 # GNUmed
@@ -349,7 +349,7 @@ def __request_login_params_gui_wx():
 	return login, creds
 
 #---------------------------------------------------
-def request_login_params(setup_pool:bool=False, force_tui:bool=False) -> tuple(gmLoginInfo.LoginInfo, gmConnectionPool.cPGCredentials):
+def request_login_params(setup_pool:bool=False, force_tui:bool=False) -> tuple[gmLoginInfo.LoginInfo, gmConnectionPool.cPGCredentials]:
 	"""Request login parameters for database connection.
 
 	Args:
@@ -2075,7 +2075,7 @@ def run_ro_queries (
 	verbose:bool=False,
 	return_data:bool=True,
 	get_col_idx:bool=False
-) -> tuple[list[dbapi.extras.DictRow], dict]:
+) -> tuple[list[dbapi.extras.DictRow], Optional[dict[str, int]]]:
 	"""Run read-only queries.
 
 	Args:
@@ -2195,12 +2195,13 @@ def run_ro_queries (
 #------------------------------------------------------------------------
 def run_rw_queries (
 	link_obj=None,
-	queries:list[dict[str, Union[str, Union[list, dict[str, Any]]]]]=None,
+	queries:list[dict[str, Any]]=None,	#[str, Union[str, Union[list, dict[str, Any]]]]
+	#queries:list[dict[str, Union[str, Union[list[Any], dict[str, Any]]]]]=None,
 	end_tx:bool=False,
 	return_data:bool=None,
 	get_col_idx:bool=False,
 	verbose:bool=False
-) -> tuple[list[dbapi.extras.DictRow], dict]:
+) -> tuple[list[dbapi.extras.DictRow], Optional[dict[str, int]]]:
 	"""Convenience function for running a transaction that is supposed to get committed.
 
 	Args:
@@ -2251,6 +2252,8 @@ def run_rw_queries (
 
 		* for *index* see "get_col_idx"
 	"""
+	assert queries is not None, '<queries> must not be None'
+
 	if link_obj is None:
 		conn = get_connection(readonly = False)
 		conn_close = conn.close

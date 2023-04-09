@@ -136,7 +136,7 @@ __license__ = "GPL v2 or later"
 import sys
 import logging
 import datetime
-from typing import Union
+from typing import Union, Any
 
 
 if __name__ == '__main__':
@@ -358,7 +358,7 @@ class cBusinessDBObject(object):
 		# fail which will then call __str__ in stack trace logging if --debug
 		# was given which in turn needs those instance variables
 		self.pk_obj:TIorD = -1
-		self._idx:dict = {}
+		self._idx:dict[str, int] = {}
 		self._payload:'gmPG2.dbapi.extras.DictRow' = []	# the cache for backend object values (mainly table fields)
 		self._ext_cache:dict = {}	# the cache for extended method's results
 		self._is_modified:bool = False
@@ -542,7 +542,7 @@ class cBusinessDBObject(object):
 				continue
 			if isinstance(val, datetime.datetime):
 				if date_format is None:
-					data[field] = val
+					data[field] = val			# type: ignore [assignment]
 					continue
 				data[field] = pydt_strftime(val, format = date_format)
 				if escape_style in ['latex', 'tex']:
@@ -682,9 +682,9 @@ class cBusinessDBObject(object):
 				return False
 
 		if isinstance(self.pk_obj, dict):
-			args:dict = self.pk_obj		# type: ignore
+			args:dict = self.pk_obj
 		else:
-			args:list = [self.pk_obj]	# type: ignore
+			args:list = [self.pk_obj]		# type: ignore [no-redef]
 		rows, self._idx = gmPG2.run_ro_queries (
 			link_obj = link_obj,
 			queries = [{'cmd': self.__class__._cmd_fetch_payload, 'args': args}],
@@ -720,7 +720,7 @@ class cBusinessDBObject(object):
 		if not self._is_modified:
 			return (True, None)
 
-		args = {}
+		args:dict[str, Any] = {}
 		for field in self._idx:
 			args[field] = self._payload[self._idx[field]]
 		self.payload_most_recently_attempted_to_store = args

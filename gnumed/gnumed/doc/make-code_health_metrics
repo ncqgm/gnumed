@@ -24,7 +24,7 @@ for DIR in ${DIRS} ; do
 done
 
 
-MYPY_CMD="mypy --pretty --allow-redefinition --no-strict-optional --ignore-missing-imports --follow-imports silent"
+MYPY_CMD="mypy --pretty --allow-redefinition --no-strict-optional --ignore-missing-imports --follow-imports silent --show-error-codes"
 echo "=== $(date): mypy ==========" > source-type_checking.log
 echo "${MYPY_CMD}" &>> source-type_checking.log
 for DIR in ${DIRS} ; do
