@@ -3021,8 +3021,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		dict2return = {}
 		for key in dict(dict_like):
 			# FIXME: harden against BYTEA fields
-			#if type(self._payload[self._idx[key]]) == ...
-			#	dict2return[key] = _('<%s bytes of binary data>') % len(self._payload[self._idx[key]])
+			#if type(self._payload[key]) == ...
+			#	dict2return[key] = _('<%s bytes of binary data>') % len(self._payload[key])
 			#	continue
 			val = dict_like[key]
 			if val is None:

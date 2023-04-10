@@ -1148,6 +1148,20 @@ def import_module_from_directory(module_path=None, module_name=None, always_remo
 #===========================================================================
 # text related tools
 #---------------------------------------------------------------------------
+def empty_str(text:str) -> bool:
+	"""Check "text" for emptiness.
+
+	Returns:
+
+	* True: None, '', '\w*'
+	* False: ' anything else 1234'
+	"""
+	if text: return False
+	# could still be '\w+'
+	if text.strip(): return False
+	return True
+
+#---------------------------------------------------------------------------
 def size2str(size=0, template='%s'):
 	if size == 1:
 		return template % _('1 Byte')
