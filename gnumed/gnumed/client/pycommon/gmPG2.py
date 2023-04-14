@@ -3204,10 +3204,14 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 
 	request_login_params(setup_pool = True, force_tui = True)
 
-	rows, idx = run_ro_queries(queries = [{'cmd': 'select 1'}], get_col_idx = True)
-	print(type(idx))
-	print(type(rows))
-	print(type(rows[0]))
+	rows, idx = run_ro_queries(queries = [{'cmd': 'select 1 as one, 2 as two'}], get_col_idx = True)
+	#print(type(idx))
+	#print(type(rows))
+	r = rows[0]
+	for field in r.keys():
+		#print(field)
+		print(field, r[field])
+	#print(type(rows[0]))
 
 	#test_sanity_check_collation_versions()
 	#test_sanity_check_database_settings()
