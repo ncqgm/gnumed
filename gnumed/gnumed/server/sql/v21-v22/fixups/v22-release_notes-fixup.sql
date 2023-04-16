@@ -17,20 +17,19 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.8.10 (database v22.20)',
-	'GNUmed 1.8.10 Release Notes:
+	'Release Notes for GNUmed 1.8.11 (database v22.21)',
+	'GNUmed 1.8.11 Release Notes:
 
-	1.8.10
+	1.8.11
 
-FIX: bills: exception on saving invoice PDF [thanks Aimee]
-FIX: orgs: deleting org unit used by external care [thanks Aimee]
-FIX: forms: managing addresses from letter receiver selection [thanks Aimee]
-FIX: episode PRW: only search matches if patient is set [thanks Marc]
+FIX: SOAP: exception on splitter sash setting [thanks Marc]
 
-	22.20
+IMPROVED: add --special commandline option
 
-No changes over 22.19.
+	22.21
+
+No changes over 22.20/22.19.
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.20@1.8.10');
+select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.21@1.8.11');
