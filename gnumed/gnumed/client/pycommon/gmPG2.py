@@ -6,10 +6,10 @@ TODO: iterator/generator batch fetching:
 
 winner:
 
-def resultset_functional_batchgenerator(cursor, size=100):
-	for results in iter(lambda: cursor.fetchmany(size), []):
-		for rec in results:
-			yield rec
+	def resultset_functional_batchgenerator(cursor, size=100):
+		for results in iter(lambda: cursor.fetchmany(size), []):
+			for rec in results:
+				yield rec
 """
 # =======================================================================
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -53,11 +53,11 @@ except ImportError:
 	raise
 
 import psycopg2.errorcodes as sql_error_codes
-import psycopg2.sql as psysql
-
-PG_ERROR_EXCEPTION = dbapi.Error
+import psycopg2.sql as pgSQL
 
 # =======================================================================
+PG_ERROR_EXCEPTION = dbapi.Error
+
 default_database = 'gnumed_v23'
 
 postgresql_version_string = None
@@ -142,26 +142,26 @@ map_client_branch2required_db_version = {
 }
 
 # get columns and data types for a given table
-query_table_col_defs = """select
+SQL__col_defs4table = """select
 	cols.column_name,
 	cols.udt_name
 from
 	information_schema.columns cols
 where
-	cols.table_schema = %s
+	cols.table_schema = %(schema)s
 		and
-	cols.table_name = %s
+	cols.table_name = %(table)s
 order by
 	cols.ordinal_position"""
 
-query_table_attributes = """select
+SQL__cols4table = """select
 	cols.column_name
 from
 	information_schema.columns cols
 where
-	cols.table_schema = %s
+	cols.table_schema = %(schema)s
 		and
-	cols.table_name = %s
+	cols.table_name = %(table)s
 order by
 	cols.ordinal_position"""
 
@@ -284,6 +284,9 @@ WHERE
 
 __MIND_MELD = '_ı/'
 __LLAP = '_\\//'
+
+
+_TLnkObj = Optional[Union[dbapi.extras.DictConnection, dbapi.extras.DictCursor]]
 
 # =======================================================================
 # login API
@@ -496,7 +499,7 @@ end;';
 select md5(gm.concat_table_structure(%(ver)s::integer)) AS md5;
 """
 
-def database_schema_compatible(link_obj=None, version=None, verbose=True):
+def database_schema_compatible(link_obj:_TLnkObj=None, version:int=None, verbose:bool=True) -> bool:
 	expected_hash = known_schema_hashes[version]
 	if version == 0:
 		args = {'ver': 9999}
@@ -532,26 +535,27 @@ def database_schema_compatible(link_obj=None, version=None, verbose=True):
 	return False
 
 #------------------------------------------------------------------------
-def get_schema_version(link_obj=None):
+def get_schema_version(link_obj:_TLnkObj=None) -> int:
 	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': 'select md5(gm.concat_table_structure()) as md5'}])
 	try:
 		return map_schema_hash2version[rows[0]['md5']]
+
 	except KeyError:
-		return 'unknown database schema version, MD5 hash is [%s]' % rows[0]['md5']
+		return 'unknown database schema version, MD5 hash is [%s]' % rows[0]['md5']		# type: ignore [return-value]
 
 #------------------------------------------------------------------------
-def get_schema_structure(link_obj=None):
+def get_schema_structure(link_obj:_TLnkObj=None) -> str:
+	"""Get standardized text listing of database schema."""
 	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': 'select gm.concat_table_structure()'}])
 	return rows[0][0]
 
 #------------------------------------------------------------------------
-def get_schema_hash(link_obj=None):
+def get_schema_hash(link_obj:_TLnkObj=None) -> str:
 	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': 'select md5(gm.concat_table_structure()) as md5'}])
 	return rows[0]['md5']
 
 #------------------------------------------------------------------------
-def get_schema_revision_history(link_obj=None):
-
+def get_schema_revision_history(link_obj:_TLnkObj=None) -> list[str]:
 	if table_exists(link_obj = link_obj, schema = 'gm', table = 'schema_revision'):
 		cmd = """
 			SELECT
@@ -587,7 +591,10 @@ def get_db_fingerprint(conn=None, fname:str=None, with_dump:bool=False, eol:str=
 		eol: concatenate list by this string when returning text (rather than when writing to a file)
 
 	Returns:
-		Filename or (list of) string(s).
+
+		* if "fname" is not None: filename
+		* if "eol" is None: list of lines with fingerprint data
+		* if "eol" is not None: lines with fingerprint data joined with "eol"
 	"""
 	queries = [
 		("Version (PG)", "SELECT setting FROM pg_settings WHERE name = 'server_version'"),
@@ -779,14 +786,14 @@ where
 	return rows
 
 #------------------------------------------------------------------------
-def schema_exists(link_obj=None, schema='gm') -> bool:
+def schema_exists(link_obj:_TLnkObj=None, schema='gm') -> bool:
 	cmd = "SELECT EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = %(schema)s)"
 	args = {'schema': schema}
 	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
 	return rows[0][0]
 
 #------------------------------------------------------------------------
-def table_exists(link_obj=None, schema:str=None, table:str=None) -> bool:
+def table_exists(link_obj:_TLnkObj=None, schema:str=None, table:str=None) -> bool:
 	"""Returns false, true."""
 	cmd = """
 select exists (
@@ -800,7 +807,7 @@ select exists (
 	return rows[0][0]
 
 #------------------------------------------------------------------------
-def function_exists(link_obj=None, schema=None, function=None):
+def function_exists(link_obj:_TLnkObj=None, schema=None, function=None):
 
 	cmd = """
 		SELECT EXISTS (
@@ -834,8 +841,9 @@ def get_col_indices(cursor = None):
 	return col_indices
 
 #------------------------------------------------------------------------
-def get_col_defs(link_obj=None, schema='public', table=None):
-	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': query_table_col_defs, 'args': (schema, table)}])
+def get_col_defs(link_obj:_TLnkObj=None, schema='public', table=None):
+	args = {'schema': schema, 'table': table}
+	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': SQL__col_defs4table, 'args': args}])
 	col_names = []
 	col_type = {}
 	for row in rows:
@@ -847,20 +855,18 @@ def get_col_defs(link_obj=None, schema='public', table=None):
 			col_type[row[0]] = row[1]
 	col_defs = []
 	col_defs.append(col_names)
-	col_defs.append(col_type)
+	col_defs.append(col_type)			# type: ignore [arg-type]
 	return col_defs
 
 #------------------------------------------------------------------------
-def get_col_names(link_obj=None, schema='public', table=None):
+def get_col_names(link_obj:_TLnkObj=None, schema='public', table=None):
 	"""Return column attributes of table"""
-	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': query_table_attributes, 'args': (schema, table)}])
-	cols = []
-	for row in rows:
-		cols.append(row[0])
-	return cols
+	args = {'schema': schema, 'table': table}
+	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': SQL__cols4table, 'args': args}])
+	return [ row[0] for row in rows]
 
 #------------------------------------------------------------------------
-def revalidate_constraints(link_obj=None) -> str:
+def revalidate_constraints(link_obj:_TLnkObj=None) -> str:
 	"""Revalidate all database constraints.
 
 	This needs quite extensive permissions, say, <postgres> at the PG level.
@@ -904,8 +910,8 @@ def reindex_database(conn=None) -> bool: # | str:
 	assert conn, '<conn> must be given'
 
 	_log.debug('rebuilding all indices in database')
-	SQL = psysql.SQL('REINDEX (VERBOSE) DATABASE {}').format (
-		psysql.Identifier(conn.get_dsn_parameters()['dbname'])
+	SQL = pgSQL.SQL('REINDEX (VERBOSE) DATABASE {}').format (
+		pgSQL.Identifier(conn.get_dsn_parameters()['dbname'])
 	)
 	# REINDEX must be run outside transactions
 	conn.commit()
@@ -920,7 +926,7 @@ def reindex_database(conn=None) -> bool: # | str:
 	finally:
 		curs.close()
 		conn.commit()
-	return status
+	return status			# type: ignore [return-value]
 
 #------------------------------------------------------------------------
 def sanity_check_database_default_collation_version(conn=None) -> bool:
@@ -1158,7 +1164,7 @@ def export_translations_from_database(filename=None):
 	return True
 
 #------------------------------------------------------------------------
-def delete_translation_from_database(link_obj=None, language=None, original=None):
+def delete_translation_from_database(link_obj:_TLnkObj=None, language=None, original=None):
 	cmd = 'DELETE FROM i18n.translations WHERE lang = %(lang)s AND orig = %(orig)s'
 	args = {'lang': language, 'orig': original}
 	run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = False, end_tx = True)
@@ -1326,7 +1332,7 @@ def is_pg_interval(candidate:str=None) -> bool:
 	return True
 
 #------------------------------------------------------------------------
-def lock_row(link_obj=None, table:str=None, pk:int=None, exclusive:bool=False) -> bool:
+def lock_row(link_obj:_TLnkObj=None, table:str=None, pk:int=None, exclusive:bool=False) -> bool:
 	"""Get advisory lock on a table row.
 
 	Uses pg_advisory(_shared). Technically, <table> and <pk>
@@ -1336,6 +1342,7 @@ def lock_row(link_obj=None, table:str=None, pk:int=None, exclusive:bool=False) -
 	Locks stack upon each other and need one unlock per lock.
 
 	Same connection: all locks succeed
+
 	Different connections:
 
 		- shared + shared: succeeds
@@ -1363,7 +1370,7 @@ def lock_row(link_obj=None, table:str=None, pk:int=None, exclusive:bool=False) -
 	return False
 
 #------------------------------------------------------------------------
-def unlock_row(link_obj=None, table:str=None, pk:int=None, exclusive:bool=False) -> bool:
+def unlock_row(link_obj:_TLnkObj=None, table:str=None, pk:int=None, exclusive:bool=False) -> bool:
 	"""Uses pg_advisory_unlock(_shared).
 
 	- each lock needs one unlock
@@ -1586,6 +1593,7 @@ def bytea2file_object(data_query:dict=None, file_obj=None, chunk_size=0, data_si
 
 		file_obj: a file-like Python object
 		data_size: total size of the expected data, or None
+
 		data_size_query:
 
 		* only used when data_size is None
@@ -1987,7 +1995,7 @@ def read_all_rows_of_table(schema=None, table=None):
 	# get PK values
 	qualified_table = '%s.%s' % (schema, table)
 	qualified_pk_name = '%s.%s.%s' % (schema, table, pk_name)
-	cmd = psysql.SQL('SELECT {schema_table_pk} FROM {schema_table} ORDER BY 1'.format (
+	cmd = pgSQL.SQL('SELECT {schema_table_pk} FROM {schema_table} ORDER BY 1'.format (
 		schema_table_pk = qualified_pk_name,
 		schema_table = qualified_table
 	))
@@ -1998,7 +2006,7 @@ def read_all_rows_of_table(schema=None, table=None):
 
 	# dump table rows
 	_log.debug('dumping %s rows', len(rows))
-	cmd = psysql.SQL('SELECT * FROM {schema_table} WHERE {schema_table_pk} = %(pk_val)s'.format (
+	cmd = pgSQL.SQL('SELECT * FROM {schema_table} WHERE {schema_table_pk} = %(pk_val)s'.format (
 		schema_table = qualified_table,
 		schema_table_pk = qualified_pk_name
 	))
@@ -2070,7 +2078,7 @@ def sanitize_pg_regex(expression=None, escape_all=False):
 
 #------------------------------------------------------------------------
 def run_ro_queries (
-	link_obj=None,
+	link_obj:_TLnkObj=None,
 	queries:list[dict[str, Union[str, Union[list, dict[str, Any]]]]]=None,
 	verbose:bool=False,
 	return_data:bool=True,
@@ -2194,7 +2202,7 @@ def run_ro_queries (
 
 #------------------------------------------------------------------------
 def run_rw_queries (
-	link_obj=None,
+	link_obj:_TLnkObj=None,
 	queries:list[dict[str, Any]]=None,	#[str, Union[str, Union[list, dict[str, Any]]]]
 	#queries:list[dict[str, Union[str, Union[list[Any], dict[str, Any]]]]]=None,
 	end_tx:bool=False,
@@ -2391,7 +2399,7 @@ def run_rw_queries (
 	return (data, col_idx)
 
 #------------------------------------------------------------------------
-def run_insert(link_obj=None, schema=None, table=None, values=None, returning=None, end_tx=False, get_col_idx=False, verbose=False):
+def run_insert(link_obj:_TLnkObj=None, schema=None, table=None, values=None, returning=None, end_tx=False, get_col_idx=False, verbose=False):
 	"""Generates and runs SQL for an INSERT query.
 
 	values: dict of values keyed by field to insert them into

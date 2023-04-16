@@ -111,7 +111,9 @@ Problem cases with XMIN:
 
 * a very old row is read with XMIN
 * vacuum comes along and sets XMIN to FrozenTransactionId
+
 	* now XMIN changed but the row actually didn't !
+
 * an update with "... where xmin = old_xmin ..." fails although there is no need to fail
 
 2) quite unlikely:
@@ -121,7 +123,9 @@ Problem cases with XMIN:
 * the original XMIN gets frozen to FrozenTransactionId
 * another writer comes along and changes the row
 * incidentally the exact same old row gets the old XMIN *again*
+
 	* now XMIN is (again) the same but the data changed !
+
 * a later update fails to detect the concurrent change !!
 
 TODO:
@@ -160,7 +164,7 @@ TypeIntOrDict = Union[int, dict]
 #============================================================
 # business object template
 #------------------------------------------------------------
-"""
+__TEMPLATE = """
 #------------------------------------------------------------
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
@@ -832,7 +836,7 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	class cTestObj(cBusinessDBObject):
 		_cmd_fetch_payload = ''
-		_cmds_store_payload = ''
+		_cmds_store_payload = []
 		_updatable_fields = ['test']			# type: ignore
 		#----------------------------------------------------
 		def get_something(self):
