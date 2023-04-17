@@ -836,8 +836,8 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	class cTestObj(cBusinessDBObject):
 		_cmd_fetch_payload = ''
-		_cmds_store_payload = []
-		_updatable_fields = ['test']			# type: ignore
+		_cmds_store_payload:list[str] = []
+		_updatable_fields = ['test']
 		#----------------------------------------------------
 		def get_something(self):
 			pass

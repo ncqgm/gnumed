@@ -27,7 +27,7 @@ import datetime as pydt
 
 
 # 3rd party library imports
-import psycopg2 as dbapi	# type: ignore
+import psycopg2 as dbapi
 
 if not (float(dbapi.apilevel) >= 2.0):
 	raise ImportError('gmPG2: supported DB-API level too low')
@@ -54,8 +54,8 @@ except ValueError:
 	raise ImportError('gmPG2: lacking v3 backend protocol support in psycopg2')
 
 
-import psycopg2.extensions						# type: ignore
-import psycopg2.extras							# type: ignore
+import psycopg2.extensions
+import psycopg2.extras
 import psycopg2.errorcodes as SQL_error_codes	# type: ignore
 
 
@@ -187,7 +187,7 @@ class cPGCredentials:
 		assert database, '<database> must not be None'
 		assert database.strip(), '<database> must not be empty'
 		assert ('salaam.homeunix' not in database), 'The public database is not hosted by <salaam.homeunix.com> anymore.\n\nPlease point your configuration files to <publicdb.gnumed.de>.'
-		self.__database = database.strip()		# type: ignore
+		self.__database = database.strip()
 		_log.info('[%s]', self.__database)
 
 	database = property(_get_database, _set_database)
