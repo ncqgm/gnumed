@@ -1,5 +1,28 @@
 #!/bin/bash
 
+PYFILE="$1"
+
+MYPY_CMD="mypy --pretty --allow-redefinition --no-strict-optional --ignore-missing-imports --follow-imports silent --show-error-codes --warn-unused-ignores"
+
+if test "${PYFILE}" != "" ; then
+
+	echo "=== $(date): pyflakes3 '${PYFILE}' ==========" > source-coding_errors.log
+	pyflakes3 ${PYFILE} &>> tmp-pyflakes3.log
+	grep --invert-match "undefined name '_'" tmp-pyflakes3.log &>> source-coding_errors.log
+	rm tmp-pyflakes3.log
+
+	LOG=$(basename ${PYFILE})
+	echo "=== $(date): pylint ${PYFILE} ==========" > source-coding_errors-pylint_${LOG}.log
+	pylint --errors-only ${PYFILE} &>> source-coding_errors-pylint_${LOG}.log
+
+	echo "=== $(date): mypy ==========" > source-type_checking.log
+	echo "${MYPY_CMD}" &>> source-type_checking.log
+	echo "----- ${PYFILE} --------------------------------------" &>> source-type_checking.log
+	${MYPY_CMD} ${PYFILE} &>> source-type_checking.log
+
+	exit
+fi ;
+
 
 DIRS="../client/pycommon ../client/business ../client/wxpython"
 echo "=== $(date): pyflakes3 '${DIRS}' ==========" > source-coding_errors.log
@@ -24,7 +47,6 @@ for DIR in ${DIRS} ; do
 done
 
 
-MYPY_CMD="mypy --pretty --allow-redefinition --no-strict-optional --ignore-missing-imports --follow-imports silent --show-error-codes --warn-unused-ignores"
 echo "=== $(date): mypy ==========" > source-type_checking.log
 echo "${MYPY_CMD}" &>> source-type_checking.log
 for DIR in ${DIRS} ; do
