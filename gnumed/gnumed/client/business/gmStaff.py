@@ -208,7 +208,7 @@ def create_staff(conn=None, db_account=None, password=None, identity=None, short
 		rows, idx = gmPG2.run_rw_queries(link_obj = conn, queries = queries, end_tx = True)
 		created = True
 	except gmPG2.dbapi.IntegrityError as e:
-		if e.pgcode != gmPG2.sql_error_codes.UNIQUE_VIOLATION:
+		if e.pgcode != gmPG2.PG_error_codes.UNIQUE_VIOLATION:
 			raise
 
 	if created:
@@ -231,7 +231,7 @@ def delete_staff(conn=None, pk_staff=None):
 		rows, idx = gmPG2.run_rw_queries(link_obj = conn, queries = queries, end_tx = True)
 		deleted = True
 	except gmPG2.dbapi.IntegrityError as e:
-		if e.pgcode != gmPG2.sql_error_codes.FOREIGN_KEY_VIOLATION:		# 23503  foreign_key_violation
+		if e.pgcode != gmPG2.PG_error_codes.FOREIGN_KEY_VIOLATION:		# 23503  foreign_key_violation
 			raise
 
 	if deleted:

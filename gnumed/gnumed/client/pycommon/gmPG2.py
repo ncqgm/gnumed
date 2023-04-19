@@ -52,8 +52,8 @@ except ImportError:
 	print("CRITICAL ERROR: Cannot find module psycopg2 for connecting to the database server.")
 	raise
 
-import psycopg2.errorcodes as sql_error_codes
-import psycopg2.sql as pgSQL
+import psycopg2.errorcodes as PG_error_codes
+import psycopg2.sql as PG_SQL
 
 # =======================================================================
 PG_ERROR_EXCEPTION = dbapi.Error
@@ -910,8 +910,8 @@ def reindex_database(conn=None) -> bool: # | str:
 	assert conn, '<conn> must be given'
 
 	_log.debug('rebuilding all indices in database')
-	SQL = pgSQL.SQL('REINDEX (VERBOSE) DATABASE {}').format (
-		pgSQL.Identifier(conn.get_dsn_parameters()['dbname'])
+	SQL = PG_SQL.SQL('REINDEX (VERBOSE) DATABASE {}').format (
+		PG_SQL.Identifier(conn.get_dsn_parameters()['dbname'])
 	)
 	# REINDEX must be run outside transactions
 	conn.commit()
@@ -1995,7 +1995,7 @@ def read_all_rows_of_table(schema=None, table=None):
 	# get PK values
 	qualified_table = '%s.%s' % (schema, table)
 	qualified_pk_name = '%s.%s.%s' % (schema, table, pk_name)
-	cmd = pgSQL.SQL('SELECT {schema_table_pk} FROM {schema_table} ORDER BY 1'.format (
+	cmd = PG_SQL.SQL('SELECT {schema_table_pk} FROM {schema_table} ORDER BY 1'.format (
 		schema_table_pk = qualified_pk_name,
 		schema_table = qualified_table
 	))
@@ -2006,7 +2006,7 @@ def read_all_rows_of_table(schema=None, table=None):
 
 	# dump table rows
 	_log.debug('dumping %s rows', len(rows))
-	cmd = pgSQL.SQL('SELECT * FROM {schema_table} WHERE {schema_table_pk} = %(pk_val)s'.format (
+	cmd = PG_SQL.SQL('SELECT * FROM {schema_table} WHERE {schema_table_pk} = %(pk_val)s'.format (
 		schema_table = qualified_table,
 		schema_table_pk = qualified_pk_name
 	))
@@ -2150,7 +2150,7 @@ def run_ro_queries (
 			except PG_ERROR_EXCEPTION as pg_exc2:
 				_log.exception('cannot rollback transaction')
 				gmConnectionPool.log_pg_exception_details(pg_exc2)
-			if pg_exc.pgcode == sql_error_codes.INSUFFICIENT_PRIVILEGE:
+			if pg_exc.pgcode == PG_error_codes.INSUFFICIENT_PRIVILEGE:
 				details = 'Query: [%s]' % curs.query.decode(errors = 'replace').strip().strip('\n').strip().strip('\n')
 				if curs.statusmessage != '':
 					details = 'Status: %s\n%s' % (
@@ -2321,7 +2321,7 @@ def run_rw_queries (
 				_log.exception('cannot rollback transaction')
 				gmConnectionPool.log_pg_exception_details(pg_exc2)
 			# privilege problem
-			if pg_exc.pgcode == sql_error_codes.INSUFFICIENT_PRIVILEGE:
+			if pg_exc.pgcode == PG_error_codes.INSUFFICIENT_PRIVILEGE:
 				details = 'Query: [%s]' % curs.query.decode(errors = 'replace').strip().strip('\n').strip().strip('\n')
 				if curs.statusmessage != '':
 					details = 'Status: %s\n%s' % (

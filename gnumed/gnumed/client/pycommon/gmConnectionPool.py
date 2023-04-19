@@ -56,7 +56,7 @@ except ValueError:
 
 import psycopg2.extensions
 import psycopg2.extras
-import psycopg2.errorcodes as SQL_error_codes	# type: ignore
+import psycopg2.errorcodes as PG_error_codes
 
 
 # GNUmed module imports
@@ -743,7 +743,7 @@ def log_pg_exception_details(exc: Exception) -> bool:
 	if exc.pgcode is None:
 		_log.debug('pgcode : %s', exc.pgcode)
 	else:
-		_log.debug('pgcode : %s (%s)', exc.pgcode, SQL_error_codes.lookup(exc.pgcode))
+		_log.debug('pgcode : %s (%s)', exc.pgcode, PG_error_codes.lookup(exc.pgcode))
 	log_cursor_state(exc.cursor)
 	try:
 		diags = exc.diag

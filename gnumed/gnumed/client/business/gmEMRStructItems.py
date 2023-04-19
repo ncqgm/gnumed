@@ -197,7 +197,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 
 		#clinical_end = open_episode.best_guess_clinical_end_date
 		clinical_end = open_episode.latest_access_date		# :-/
-		ttl = datetime.timedelta(ttl)								# type: ignore
+		ttl = datetime.timedelta(ttl)
 		now = datetime.datetime.now(tz = clinical_end.tzinfo)
 		if (clinical_end + ttl) > now:
 			return False
@@ -3262,7 +3262,7 @@ def delete_encounter_type(description=None):
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		deleted = True
 	except gmPG2.dbapi.IntegrityError as e:
-		if e.pgcode != gmPG2.sql_error_codes.FOREIGN_KEY_VIOLATION:
+		if e.pgcode != gmPG2.PG_error_codes.FOREIGN_KEY_VIOLATION:
 			raise
 
 	return deleted
