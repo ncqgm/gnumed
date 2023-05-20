@@ -350,7 +350,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 	"""
 	A StyledTextCrl that monitors the size of its internal text and
 	resizes the parent accordingly.
-	
+
 	MUST ONLY be used inside ResizingWindow !
 
 	FIXME: override standard STC popup menu
@@ -527,7 +527,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		self.Bind(wx.stc.EVT_STC_MODIFIED, self.__on_STC_modified)
 		self.Bind(wx.EVT_KEY_DOWN, self.__on_key_down)
 		self.Bind(wx.EVT_KEY_UP, self.__OnKeyUp)
-		wx.EVT_KEY_UP (self, self.__OnKeyUp)
+		#wx.EVT_KEY_UP (self, self.__OnKeyUp)
 		self.Bind(wx.EVT_CHAR, self.__on_char)
 
 	#------------------------------------------------
