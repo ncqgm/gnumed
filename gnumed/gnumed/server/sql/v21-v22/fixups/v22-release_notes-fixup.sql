@@ -17,19 +17,17 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.8.11 (database v22.21)',
-	'GNUmed 1.8.11 Release Notes:
+	'Release Notes for GNUmed 1.8.12 (database v22.22)',
+	'GNUmed 1.8.12 Release Notes:
 
-	1.8.11
+	1.8.12
 
-FIX: SOAP: exception on splitter sash setting [thanks Marc]
+FIX: waiting list: exception on removing entry [thanks Marc]
 
-IMPROVED: add --special commandline option
+	22.22
 
-	22.21
-
-No changes over 22.20/22.19.
+No changes over 22.21./22.20/22.19.
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.21@1.8.11');
+select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.22@1.8.12');
