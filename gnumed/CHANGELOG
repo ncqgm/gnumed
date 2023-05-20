@@ -6,6 +6,10 @@
 # rel-1-8-patches
 ------------------------------------------------
 
+	1.8.12
+
+FIX: waiting list: exception on removing entry [thanks Marc]
+
 	1.8.11
 
 FIX: SOAP: exception on splitter sash setting [thanks Marc]

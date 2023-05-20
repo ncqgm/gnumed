@@ -440,13 +440,9 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 			item['firstnames'],
 			item['l10n_gender'],
 			gmTools.coalesce (
-				gmTools.coalesce (
-					item['dob'],
-					'',
-					function4value = ('strftime', '%d %b %Y')
-				),
+				item['dob'],
 				'',
-				function4value = ('decode', gmI18N.get_encoding())
+				function4value = ('strftime', '%d %b %Y')
 			),
 			cmt
 		)
