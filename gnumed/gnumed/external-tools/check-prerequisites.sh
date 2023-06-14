@@ -313,6 +313,17 @@ else
 	echo "found"
 fi
 
+echo -n " 'pdffonts' command... "
+BIN=$(which pdffonts)
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'pdffonts' command installed."
+	echo "  INFO : It can be used by GNUmed to extract metadata from"
+	echo "  INFO : files for display within GNUmed."
+else
+	echo "found"
+fi
+
 echo -n " 'dmtxwrite' command... "
 BIN=`which dmtxwrite`
 if [ "x${BIN}x" == "xx" ]; then
