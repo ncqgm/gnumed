@@ -6,6 +6,10 @@
 # rel-1-8-patches
 ------------------------------------------------
 
+	1.8.13
+
+FIX: billing: exception on saving bill w/o address [thanks M.Schmid]
+
 	1.8.12
 
 FIX: waiting list: exception on removing entry [thanks Marc]
