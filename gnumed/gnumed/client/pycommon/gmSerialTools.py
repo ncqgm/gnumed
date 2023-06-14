@@ -88,23 +88,3 @@ def wait_for_data(aDrv = None, aTimeout = 2500):
 	# hm, waited for aTimeout but expected string not received
 	_log.warning('Timed out after %s ms while waiting for data.' % aTimeout)
 	return 0
-#========================================================
-# $Log: gmSerialTools.py,v $
-# Revision 1.3  2008-01-30 14:05:31  ncq
-# - std lib logging
-#
-# Revision 1.2  2004/12/23 16:19:34  ncq
-# - add licence
-#
-# Revision 1.1  2004/02/25 09:30:13  ncq
-# - moved here from python-common
-#
-# Revision 1.3  2003/11/21 15:59:47  ncq
-# - some cleanup
-#
-# Revision 1.2  2003/11/19 17:59:49  ncq
-# - slice must be float()ed to support sub-second slices
-#
-# Revision 1.1  2003/11/19 17:35:28  ncq
-# - initial check in
-#
