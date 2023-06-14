@@ -51,6 +51,10 @@ FIX: Py3.13: will remove mailcap module
 # rel-1-8-maint
 ------------------------------------------------
 
+	1.8.13
+
+FIX: billing: exception on saving bill w/o address [thanks M.Schmid]
+
 	1.8.12
 
 FIX: waiting list: exception on removing entry [thanks Marc]

@@ -47,7 +47,7 @@ from Gnumed.wxpython import gmDataPackWidgets
 _log = logging.getLogger('gm.ui')
 
 #================================================================
-def edit_billable(parent=None, billable=None):
+def edit_billable(parent=None, billable=None) -> bool:
 	ea = cBillableEAPnl(parent, -1)
 	ea.data = billable
 	ea.mode = gmTools.coalesce(billable, 'new', 'edit')
@@ -61,6 +61,7 @@ def edit_billable(parent=None, billable=None):
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.DestroyLater()
 		return True
+
 	dlg.DestroyLater()
 	return False
 
@@ -893,14 +894,16 @@ def manage_bills(parent=None, patient=None):
 			edit_bill(parent = parent, bill = bill, single_entry = True)
 			if bill['pk_receiver_address'] is None:
 				return False
+
 		if bill['close_date'] is None:
 			bill['close_date'] = gmDateTime.pydt_now_here()
 			bill.save()
-
 		return create_invoice_from_bill(parent = parent, bill = bill, print_it = True, keep_a_copy = True)
+
 	#------------------------------------------------------------
 	def edit(bill):
 		return edit_bill(parent = parent, bill = bill, single_entry = True)
+
 	#------------------------------------------------------------
 	def delete(bill):
 		return delete_bill(parent = parent, bill = bill)
@@ -1013,11 +1016,19 @@ class cBillEAPnl(wxgBillEAPnl.wxgBillEAPnl, gmEditArea.cGenericEditAreaMixin):
 			self._CHBOX_vat_applies.SetFocus()
 			self._CHBOX_vat_applies.SetBackgroundColour('yellow')
 
+		# "bill_bill_sane_recv_adr" CHECK (fk_receiver_address IS NOT NULL OR close_date IS NULL)
+		if self._PRW_close_date.GetData():
+			if not self.data['pk_receiver_address']:
+				validity = False
+				self.StatusText = _('Must select address (perhaps first add to patient) if closing bill.')
+				self._TCTRL_address.SetValue(_('<missing>'))
 		return validity
+
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 		# not intended to be used
 		return False
+
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 		self.data['close_date'] = self._PRW_close_date.GetData()
@@ -1025,24 +1036,25 @@ class cBillEAPnl(wxgBillEAPnl.wxgBillEAPnl, gmEditArea.cGenericEditAreaMixin):
 		self.data['comment'] = self._TCTRL_comment.GetValue()
 		self.data.save()
 		return True
+
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		pass # not used
+
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
+
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		self._TCTRL_invoice_id.SetValue(self.data['invoice_id'])
 		self._PRW_close_date.SetText(data = self.data['close_date'])
-
 		self.data.set_missing_address_from_default()
 		if self.data['pk_receiver_address'] is None:
 			self._TCTRL_address.SetValue('')
 		else:
 			adr = self.data.address
 			self._TCTRL_address.SetValue(adr.format(single_line = True, show_type = False))
-
 		self._TCTRL_value.SetValue('%(currency)s%(total_amount)s' % self.data)
 		self._CHBOX_vat_applies.ThreeStateValue = self.bool_to_3state[self.data['apply_vat']]
 		self._CHBOX_vat_applies.SetLabel(_('&VAT applies (%s%%)') % self.data['percent_vat'])
@@ -1057,10 +1069,9 @@ class cBillEAPnl(wxgBillEAPnl.wxgBillEAPnl, gmEditArea.cGenericEditAreaMixin):
 			self._TCTRL_value_with_vat.SetValue('?')
 		else:
 			self._TCTRL_value_with_vat.SetValue('')
-
 		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], ''))
-
 		self._PRW_close_date.SetFocus()
+
 	#----------------------------------------------------------------
 	# event handling
 	#----------------------------------------------------------------
@@ -1073,10 +1084,13 @@ class cBillEAPnl(wxgBillEAPnl.wxgBillEAPnl, gmEditArea.cGenericEditAreaMixin):
 			)
 			self._TCTRL_value_with_vat.SetValue(tmp % self.data)
 			return
+
 		if self._CHBOX_vat_applies.ThreeStateValue == wx.CHK_UNDETERMINED:
 			self._TCTRL_value_with_vat.SetValue('?')
 			return
+
 		self._TCTRL_value_with_vat.SetValue('')
+
 	#----------------------------------------------------------------
 	def _on_select_address_button_pressed(self, event):
 		adr = gmPersonContactWidgets.select_address (
@@ -1089,6 +1103,7 @@ class cBillEAPnl(wxgBillEAPnl.wxgBillEAPnl, gmEditArea.cGenericEditAreaMixin):
 				aMessage = _('GNUmed does not know any addresses for this patient.')
 			)
 			return
+
 		self.data['pk_receiver_address'] = adr['pk_lnk_person_org_address']
 		self.data.save()
 		self._TCTRL_address.SetValue(adr.format(single_line = True, show_type = False))
