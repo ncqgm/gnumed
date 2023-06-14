@@ -1085,7 +1085,11 @@ def refresh_collations_version_information(conn=None, use_the_source_luke=False)
 					collencoding <> _db_encoding
 			) LOOP
 				RAISE NOTICE 'dropping collation #% "%.%" (encoding: %)', _rec.oid, _rec.collnamespace::regnamespace, _rec.collname, pg_encoding_to_char(_rec.collencoding);
-				EXECUTE 'DROP COLLATION ' || _rec.collnamespace::regnamespace || '."' || _rec.collname || '"';
+				BEGIN
+					EXECUTE 'DROP COLLATION ' || _rec.collnamespace::regnamespace || '."' || _rec.collname || '"';
+				EXCEPTION
+					WHEN undefined_object THEN RAISE NOTICE 'collation does not seem to exist (perhaps for the DB encoding ?)';
+				END;
 			END LOOP;
 			RAISE NOTICE 'refreshing collation version information in pg_collations';
 			FOR _rec IN (
@@ -1121,7 +1125,11 @@ def refresh_collations_version_information(conn=None, use_the_source_luke=False)
 					collencoding <> _db_encoding
 			) LOOP
 				RAISE NOTICE 'dropping collation #% "%.%" (encoding: %)', _rec.oid, _rec.collnamespace::regnamespace, _rec.collname, pg_encoding_to_char(_rec.collencoding);
-				EXECUTE 'DROP COLLATION ' || _rec.collnamespace::regnamespace || '."' || _rec.collname || '"';
+				BEGIN
+					EXECUTE 'DROP COLLATION ' || _rec.collnamespace::regnamespace || '."' || _rec.collname || '"';
+				EXCEPTION
+					WHEN undefined_object THEN RAISE NOTICE 'collation does not seem to exist (perhaps for the DB encoding ?)';
+				END;
 			END LOOP;
 		END
 	$refresh_pg_coll_version_info$;"""
