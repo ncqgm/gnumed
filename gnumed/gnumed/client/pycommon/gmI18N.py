@@ -262,7 +262,6 @@ def activate_locale():
 		_log.exception('Windows does not support locale.LC_ALL')
 	except Exception:
 		_log.exception('error activating user-default locale')
-		_log.log_stack_trace()
 	__log_locale_settings('locale settings after activating user-default locale')
 	# assume en_EN if we did not find any locale settings
 	if loc in [None, 'C']:
