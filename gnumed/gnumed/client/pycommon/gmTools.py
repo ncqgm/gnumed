@@ -802,7 +802,7 @@ def remove_file(filename:str, log_error:bool=True, force:bool=False) -> bool:
 	return False
 
 #---------------------------------------------------------------------------
-def rename_file(filename:str, new_filename:str, overwrite:bool=False, allow_symlink:bool=False) -> bool:
+def rename_file(filename:str, new_filename:str, overwrite:bool=False, allow_symlink:bool=False, allow_hardlink:bool=True) -> bool:
 	"""Rename a file.
 
 	Args:
@@ -810,12 +810,14 @@ def rename_file(filename:str, new_filename:str, overwrite:bool=False, allow_syml
 		new_filename: target filename
 		overwrite: overwrite existing target ?
 		allow_symlink: allow soft links ?
+		allow_hardlink: allow hard links ?
 
 	Returns:
 		True/False: Renamed or not.
 	"""
-	_log.debug('renaming: source [%s] -> target [%s]', filename, new_filename)
+	_log.debug('renaming: [%s] -> [%s]', filename, new_filename)
 	if filename == new_filename:
+		_log.debug('no copy onto self')
 		return True
 
 	if not os.path.lexists(filename):
@@ -840,22 +842,21 @@ def rename_file(filename:str, new_filename:str, overwrite:bool=False, allow_syml
 	except Exception:
 		_log.exception('os.replace() failed')
 
-	try:
-		os.link(filename, new_filename)
-		return True
+	if allow_hardlink:
+		try:
+			os.link(filename, new_filename)
+			return True
 
-	except Exception:
-		_log.exception('os.link() failed')
+		except Exception:
+			_log.exception('os.link() failed')
 
-	if not allow_symlink:
-		return False
+	if allow_symlink:
+		try:
+			os.symlink(filename, new_filename)
+			return True
 
-	try:
-		os.symlink(filename, new_filename)
-		return True
-
-	except Exception:
-		_log.exception('os.symlink() failed')
+		except Exception:
+			_log.exception('os.symlink() failed')
 
 	return False
 
@@ -2749,6 +2750,16 @@ second line\n
 		print(dir_list_files(directory = sys.argv[2], exclude_subdirs = False))
 
 	#-----------------------------------------------------------------------
+	def test_rename_file():
+		print(rename_file (
+			sys.argv[2],
+			sys.argv[3],
+			overwrite = True,
+			allow_symlink = False,
+			allow_hardlink = False
+		))
+
+	#-----------------------------------------------------------------------
 	#test_coalesce()
 	#test_capitalize()
 	#test_import_module()
@@ -2768,7 +2779,7 @@ second line\n
 	#test_xml_escape()
 	#test_strip_trailing_empty_lines()
 	#test_fname_stem()
-	test_tex_escape()
+	#test_tex_escape()
 	#test_rst2latex_snippet()
 	#test_dir_is_empty()
 	#test_compare_dicts()
@@ -2787,5 +2798,6 @@ second line\n
 	#test_create_dir_desc_file()
 	#test_dir_list_files()
 	#test_decorate_window_title()
+	test_rename_file()
 
 #===========================================================================
