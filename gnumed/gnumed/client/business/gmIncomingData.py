@@ -112,10 +112,7 @@ class cIncomingData(gmBusinessDBObject.cBusinessDBObject):
 			return True
 
 		SQL = 'SELECT (md5(data) = %(local_md5)s) AS verified FROM clin.incoming_data_unmatched WHERE pk = %(pk)s'
-		args = {
-			'pk': self.pk_obj,
-			'local_md5': gmTools.file2md5(filename = fname)
-		}
+		args = {'pk': self.pk_obj, 'local_md5': gmTools.file2md5(filename = fname)}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
 		return rows[0]['verified']
 
@@ -164,10 +161,11 @@ def get_incoming_data(order_by=None, return_pks=False):
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	if return_pks:
 		return [ r['pk_incoming_data_unmatched'] for r in rows ]
+
 	return [ cIncomingData(row = {'data': r, 'idx': idx, 'pk_field': 'pk_incoming_data_unmatched'}) for r in rows ]
 
 #------------------------------------------------------------
-def create_incoming_data(data_type, filename, verify_import:bool=False):
+def create_incoming_data(data_type:str=None, filename:str=None, verify_import:bool=False) -> cIncomingData:
 	conn = gmPG2.get_connection(readonly = False)
 	args = {'typ': data_type}
 	cmd = """
@@ -186,7 +184,7 @@ def create_incoming_data(data_type, filename, verify_import:bool=False):
 		return incoming
 
 	conn.rollback()
-	_log.debug('cannot update newly created incoming_data record from file, deleting stub')
+	_log.debug('cannot update incoming_data stub from file, rolled back')
 	return None
 
 #------------------------------------------------------------
@@ -195,6 +193,15 @@ def delete_incoming_data(pk_incoming_data=None):
 	cmd = "DELETE FROM clin.incoming_data_unmatched WHERE pk = %(pk)s"
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
+
+#------------------------------------------------------------
+def data_exists(filename:str) -> bool:
+	"""Check by md5 hash whether data in filename already in database."""
+	local_md5 = gmTools.file2md5(filename = filename)
+	SQL = 'SELECT EXISTS(SELECT 1 FROM clin.incoming_data_unmatched WHERE md5(data) = %(local_md5)s) AS data_exists'
+	args = {'local_md5': local_md5}
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+	return rows[0]['data_exists']
 
 #============================================================
 # main

@@ -1,12 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Handling of automatic file import from specific directory.
-
-Fire a once-off timer.
-
-Timer fires off worker thread.
-
-Worker thread callback fires off next timer.
-"""
+"""Handling of automatic file import from certain directories."""
 #============================================================
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later"
@@ -33,6 +26,11 @@ from Gnumed.business import gmIncomingData
 _log = logging.getLogger('gm.autoimport')
 
 #============================================================
+def _worker__auto_import_files():
+	"""Import files. Will run in a thread."""
+	cAutoImportDir().import_files()
+
+#============================================================
 __default_dirs_created = False
 
 def setup_default_import_dirs() -> bool:
@@ -40,6 +38,7 @@ def setup_default_import_dirs() -> bool:
 	if __default_dirs_created:
 		return True
 
+	_log.debug('setting up default auto-import directories')
 	paths = [
 		# aka "~/gnumed/"
 		os.path.join(gmTools.gmPaths().user_work_dir, 'auto-import'),
@@ -59,18 +58,18 @@ be auto-imported into the GNUmed incoming area.
 
 Rules:
 
-	- any filename ending in .new will be ignored, unless
-	  it was last modified more than 24 hours ago
-
-	- amy filename ending in .imported will be ignored
-
 	- inaccessible files will be ignored
 
-	- successfully imported files will be moved to ./imported/
-	  with the current timestamp appended
+	- filenames ending in ".imported" will be ignored
 
-	- files already existing in the database (based on MD5
-	  of the file content) will be renamed to .imported
+	- filenames ending in ".new" will be ignored, unless
+	  the file was last modified more than 24 hours ago
+
+	- successfully imported files will be renamed to
+	  ".FILENAME.CURRENT_TIMESTAMP.imported"
+
+	- files already existing in the database (based on
+	  MD5 of the file content) will be removed
 
 	- only one level of subdirectories is scanned for files
 
@@ -78,14 +77,12 @@ Rules:
 
 How to safely drop files into this directory:
 
-	Copy in the file with a filename ending in '.new'. When
-	done copying rename it by removing the .new suffix. Renaming
+	Copy in the file with a filename ending in ".new". When
+	done copying rename it by removing the ".new" suffix. Renaming
 	in-place is expected to be a safe (atomic) operation.
-
-	Files ending in .new will still be imported -- but only if
-	they were last modified more than 24 hours ago.
 """ % tuple(paths)
 	for path in paths:
+		_log.debug(path)
 		if gmTools.mkdir(directory = path):
 			gmTools.create_directory_description_file(directory = path, readme = README)
 			continue
@@ -104,8 +101,8 @@ class cAutoImportDir:
 
 	Default directories:
 
-		* ~/gnumed/auto-incoming (will be auto-created)
-		* ~/.local/gnumed/auto-incoming (will be auto-created)
+		* ~/gnumed/auto-incoming/ (will be auto-created)
+		* ~/.local/gnumed/auto-incoming/ (will be auto-created)
 	"""
 	def __init__(self, path:str=None):
 		if path:
@@ -141,6 +138,7 @@ class cAutoImportDir:
 		return
 
 	#--------------------------------------------------------
+	# internal halpers
 	#--------------------------------------------------------
 	def __import_files_from_dir(self, import_dir:str) -> bool:
 		if not os.path.isdir(import_dir):
@@ -154,39 +152,63 @@ class cAutoImportDir:
 		return True
 
 	#--------------------------------------------------------
-	def __import_file(self, filename:str) -> bool:
+	def __import_file(self, filename:str, max_size:int=None) -> bool:
+		_log.debug(filename)
 		if  gmTools._GM_DIR_DESC_FILENAME_PREFIX in filename:
+			_log.debug('... skipped')
 			return True
 
 		if filename.endswith('.imported'):
+			_log.debug('... skipped')
 			return True
 
+		now = gmDateTime.pydt_now_here()
 		if filename.endswith('.new'):
 			try:
 				ts_created = os.path.getmtime(filename)
 			except OSError:
+				_log.debug('... cannot getmtime()')
 				return False
 
 			# ignore "new" files only if younger than 24 hours
-			if (gmDateTime.pydt_now_here().timestamp() - ts_created) < (24 * 3600):
+			if (now.timestamp() - ts_created) < (24 * 3600):
+				_log.debug('... skipped')
 				return True
 
-		_log.debug('importing [%s]', filename)
-		xxxx
-		gmIncoming.data_exists(xxxxxxxxxxxx)
-		local_md5 = gmTools.file2md5(filename = filename)
-		SQL = 'SELECT EXISTS(SELECT 1 FROM clin.incoming_data_unmatched WHERE md5(data) = %(local_md5)s) AS data_exists'
-		args = {'local_md5': local_md5}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
-		if rows[0]['data_exists']:
+		try:
+			fsize = os.path.getsize(filename)
+		except OSError:
+			_log.debug('... cannot getsize()')
+			return False
+
+		# FIXME: make configurable
+		max_size = max_size or (20 * gmTools._MB)
+		if fsize > max_size:
+			_log.debug('... skipped, file %s > max %s', fsize, max_size)
+			return True
+
+		if gmIncomingData.data_exists(filename):
+			_log.debug('... exists')
 			gmTools.remove_file(filename)
 			return True
 
-		incoming = gmIncomingData.create_incoming_data('auto-import file', filename, verify_import = True)
+		incoming = gmIncomingData.create_incoming_data(filename = filename, verify_import = True)
 		if not incoming:
 			return False
 
-		gmTools.remove_file(filename)
+		incoming['comment'] = _('%s (auto-import %s)' % (filename, now))
+		incoming.save()
+		new_fname = '.%s.%s.imported' % (
+			gmTools.fname_from_path(filename),
+			now.timestamp()
+		)
+		gmTools.rename_file (
+			filename,
+			os.path.join(gmTools.fname_dir(filename), new_fname),
+			overwrite = True,
+			allow_symlink = False,
+			allow_hardlink = False
+		)
 		return True
 
 #============================================================

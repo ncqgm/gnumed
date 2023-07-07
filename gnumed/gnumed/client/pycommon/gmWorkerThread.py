@@ -72,8 +72,8 @@ def execute_in_worker_thread(payload_function=None, payload_kwargs:dict=None, co
 			_log.exception('error running completion callback: %s', completion_callback)
 		_log.info('worker thread [name=%s, PID=%s] shuts down', worker_thread.name, worker_thread.ident)
 		return
-	#-------------------------------
 
+	#-------------------------------
 	if worker_name is None:
 		__thread_name = dt.datetime.now().strftime('%f-%S')
 	else:
