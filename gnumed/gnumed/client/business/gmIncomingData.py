@@ -93,7 +93,7 @@ class cIncomingData(gmBusinessDBObject.cBusinessDBObject):
 	patient_identification = property(_format_patient_identification)
 
 	#--------------------------------------------------------
-	def update_data_from_file(self, fname=None):
+	def update_data_from_file(self, fname=None, link_obj=None, verify_import:bool=False):
 		# sanity check
 		if not (os.access(fname, os.R_OK) and os.path.isfile(fname)):
 			_log.error('[%s] is not a readable file' % fname)
@@ -103,12 +103,21 @@ class cIncomingData(gmBusinessDBObject.cBusinessDBObject):
 		gmPG2.file2bytea (
 			query = "UPDATE clin.incoming_data_unmatched SET data = %(data)s::bytea WHERE pk = %(pk)s",
 			filename = fname,
-			args = {'pk': self.pk_obj}
+			args = {'pk': self.pk_obj},
+			conn = link_obj
 		)
-
 		# must update XMIN now ...
-		self.refetch_payload()
-		return True
+		self.refetch_payload(link_obj = link_obj)
+		if not verify_import:
+			return True
+
+		SQL = 'SELECT (md5(data) = %(local_md5)s) AS verified FROM clin.incoming_data_unmatched WHERE pk = %(pk)s'
+		args = {
+			'pk': self.pk_obj,
+			'local_md5': gmTools.file2md5(filename = fname)
+		}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+		return rows[0]['verified']
 
 	#--------------------------------------------------------
 	def save_to_file(self, aChunkSize=0, filename=None):
@@ -158,21 +167,27 @@ def get_incoming_data(order_by=None, return_pks=False):
 	return [ cIncomingData(row = {'data': r, 'idx': idx, 'pk_field': 'pk_incoming_data_unmatched'}) for r in rows ]
 
 #------------------------------------------------------------
-def create_incoming_data(data_type, filename):
+def create_incoming_data(data_type, filename, verify_import:bool=False):
+	conn = gmPG2.get_connection(readonly = False)
 	args = {'typ': data_type}
 	cmd = """
 		INSERT INTO clin.incoming_data_unmatched (type, data)
 		VALUES (%(typ)s, 'new data'::bytea)
 		RETURNING pk"""
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+	rows, idx = gmPG2.run_rw_queries (
+		link_obj = conn,
+		end_tx = False,
+		queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False
+	)
 	pk = rows[0]['pk']
-	incoming = cIncomingData(aPK_obj = pk)
-	if not incoming.update_data_from_file(fname = filename):
-		_log.debug('cannot update newly created incoming_data record from file, deleting stub')
-		delete_incoming_data(pk_incoming_data = pk)
-		return None
+	incoming = cIncomingData(aPK_obj = pk, link_obj = conn)
+	if incoming.update_data_from_file(fname = filename, link_obj = conn, verify_import = verify_import):
+		conn.commit()
+		return incoming
 
-	return incoming
+	conn.rollback()
+	_log.debug('cannot update newly created incoming_data record from file, deleting stub')
+	return None
 
 #------------------------------------------------------------
 def delete_incoming_data(pk_incoming_data=None):

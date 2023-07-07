@@ -17,7 +17,6 @@ import logging
 import hashlib
 import decimal
 import getpass
-import io
 import functools
 import json
 import shutil
@@ -152,6 +151,7 @@ _client_version = None
 
 
 _GM_TITLE_PREFIX = 'GMd'
+_GM_DIR_DESC_FILENAME_PREFIX = '.00-README.GNUmed'
 
 #===========================================================================
 def handle_uncaught_exception_console(t, v, tb):
@@ -167,7 +167,13 @@ def handle_uncaught_exception_console(t, v, tb):
 #===========================================================================
 # path level operations
 #---------------------------------------------------------------------------
-def mkdir(directory=None, mode=None) -> bool:
+def normalize_path(path:str) -> str:
+	norm_path = os.path.normcase(os.path.abspath(os.path.expanduser(path)))
+	_log.debug('%s -> %s', path, norm_path)
+	return norm_path
+
+#---------------------------------------------------------------------------
+def mkdir(directory:str=None, mode=None) -> bool:
 	"""Create directory.
 
 	- creates parent dirs if necessary
@@ -214,7 +220,7 @@ def create_directory_description_file(directory:str=None, readme:str=None, suffi
 	"""
 	assert (directory is not None), '<directory> must not be None'
 
-	README_fname = '.00-README.GNUmed' + coalesce(suffix, '.dir')
+	README_fname = _GM_DIR_DESC_FILENAME_PREFIX + coalesce(suffix, '.dir')
 	README_path = os.path.abspath(os.path.expanduser(os.path.join(directory, README_fname)))
 	_log.debug('%s', README_path)
 	if readme is None:
@@ -736,8 +742,8 @@ def recode_file(source_file=None, target_file=None, source_encoding='utf8', targ
 			tmp_dir = base_dir
 		)
 	_log.debug('[%s] -> [%s] (%s -> %s)', source_encoding, target_encoding, source_file, target_file)
-	in_file = io.open(source_file, mode = 'rt', encoding = source_encoding)
-	out_file = io.open(target_file, mode = 'wt', encoding = target_encoding, errors = error_mode)
+	in_file = open(source_file, mode = 'rt', encoding = source_encoding)
+	out_file = open(target_file, mode = 'wt', encoding = target_encoding, errors = error_mode)
 	for line in in_file:
 		out_file.write(line)
 	out_file.close()
@@ -854,10 +860,10 @@ def rename_file(filename:str, new_filename:str, overwrite:bool=False, allow_syml
 	return False
 
 #---------------------------------------------------------------------------
-def file2md5(filename=None, return_hex=True):
+def file2md5(filename:str=None, return_hex:bool=True):
 	blocksize = 2**10 * 128			# 128k, since md5 uses 128 byte blocks
 	_log.debug('md5(%s): <%s> byte blocks', filename, blocksize)
-	f = io.open(filename, mode = 'rb')
+	f = open(filename, mode = 'rb')
 	md5 = hashlib.md5()
 	while True:
 		data = f.read(blocksize)
