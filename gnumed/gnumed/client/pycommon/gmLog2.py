@@ -321,8 +321,6 @@ def __setup_logging():
 	)
 	logging.captureWarnings(True)
 	logger = logging.getLogger()
-	logger.log_stack_trace = log_stack_trace
-	logger.log_multiline = log_multiline
 
 	# start logging
 	#logger = logging.getLogger('gm.logging')
