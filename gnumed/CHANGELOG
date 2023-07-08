@@ -6,6 +6,10 @@
 # rel-1-8-patches
 ------------------------------------------------
 
+	1.8.14
+
+FIX: plugins: exception on raising configured but unloaded plugin
+
 	1.8.13
 
 FIX: billing: exception on saving bill w/o address [thanks M.Schmid]

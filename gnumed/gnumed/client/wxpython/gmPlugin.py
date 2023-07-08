@@ -191,7 +191,13 @@ class cNotebookPlugin:
 	def Raise(self):
 		"""Raise ourselves."""
 		nb_pages = self.gb['horstspace.notebook.pages']
-		plugin_page = nb_pages.index(self)
+		try:
+			plugin_page = nb_pages.index(self)
+		except ValueError:
+			# we may not have been loaded properly, so are not in the list ...
+			_log.error('plugin not loaded: %s', self)
+			return False
+
 		nb = self.gb['horstspace.notebook']
 		nb.SetSelection(plugin_page)
 		return True
