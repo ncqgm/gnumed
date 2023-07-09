@@ -9,6 +9,7 @@
 	1.8.14
 
 FIX: plugins: exception on raising configured but unloaded plugin
+IMPROVED: SOAP: on patient change ask if unsaved SOAP [thanks Marc]
 
 	1.8.13
 
