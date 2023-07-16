@@ -2222,6 +2222,8 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 
 	22.24
 
+IMPROVED: blobs: indices [thanks Marc]
+
 FIX: waiting list: failure in function moving entries
 
 	22.19
