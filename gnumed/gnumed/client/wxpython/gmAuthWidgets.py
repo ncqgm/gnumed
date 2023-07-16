@@ -190,18 +190,17 @@ def __database_is_acceptable_for_use(require_version:bool=True, expected_version
 
 		gmGuiHelpers.gm_show_warning(msg_time_skew_warn % max_skew, _('Verifying database settings'))
 
-	sanity_level, message = gmPG2.sanity_check_database_settings()
-	if sanity_level != 0:
+	insanity_level, message = gmPG2.sanity_check_database_settings()
+	if insanity_level > 0:
 		gmGuiHelpers.gm_show_error((msg_insanity % message), _('Verifying database settings'))
-		if sanity_level == 2:
+		if insanity_level == 2:
 			return False
 
 	gmLog2.log_multiline (
 		logging.DEBUG,
-		message = 'DB seems suitable to use, fingerprint:',
+		message = 'DB seems suitable for use, fingerprint:',
 		text = gmPG2.get_db_fingerprint(eol = '\n')
 	)
-
 	return True
 
 #----------------------------------------------------------------
@@ -277,7 +276,6 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 			break
 
 		dlg.panel.save_state()
-
 		gmExceptionHandlingWidgets.set_is_public_database(_cfg.get(option = 'is_public_db'))
 		gmExceptionHandlingWidgets.set_helpdesk(_cfg.get(option = 'helpdesk'))
 		gmLog2.log_multiline (

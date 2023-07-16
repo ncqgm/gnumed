@@ -2581,7 +2581,7 @@ def sanity_check_database_settings(hipaa:bool=True) -> tuple:
 		'synchronous_commit': [['on'], 'data loss/corruption', False],
 		'sql_inheritance': [['on'], 'query breakage, data loss/corruption', True],	# IF returned (<PG10): better be ON, if NOT returned (PG10): hardwired
 		'ignore_checksum_failure': [['off'], 'data loss/corruption', False],		# starting with PG 9.3
-		'track_commit_timestamp': [['on'], 'suboptimal auditing', False]			# starting with PG 9.3
+		'track_commit_timestamp': [['on'], 'suboptimal auditing', False],			# starting with PG 9.3
 	}
 	if hipaa:
 		options2check['log_connections'] = [['on'], 'non-compliance with HIPAA', True]
@@ -2614,6 +2614,7 @@ def sanity_check_database_settings(hipaa:bool=True) -> tuple:
 			else:
 				_log.error(options2check[option])
 				raise ValueError('invalid database configuration sanity check')
+
 			msg.append(_(' option [%s]: %s') % (option, value_found))
 			msg.append(_('  risk: %s') % risk)
 			_log.warning('PG option [%s] set to [%s], expected %s, risk: <%s>' % (option, value_found, values_expected, risk))
@@ -2640,6 +2641,18 @@ def sanity_check_database_settings(hipaa:bool=True) -> tuple:
 		_log.exception('cannot verify database encoding (probably PG < 15)')
 	finally:
 		curs.close()
+	# preloaded libraries
+	SQL = "SELECT name, setting from pg_settings where name = 'shared_preload_libraries';"
+	rows, idx = run_ro_queries (link_obj = conn, queries = [{'cmd': SQL, 'args': None}])
+	if rows:
+		value_found = rows[0]['setting']
+	else:
+		value_found = []
+	if 'auto_explain' not in value_found:
+		msg.append(_(' option [shared_preload_libraries]: %s') % value_found)
+		msg.append(_('  risk: suboptimal debugging'))
+		_log.warning('PG option [shared_preload_libraries] set to: %s, expected to include "auto_explain", risk: <suboptimal debugging>', value_found)
+		found_problem = True
 
 	if found_error:
 		return 2, '\n'.join(msg)
@@ -2952,6 +2965,13 @@ if __name__ == "__main__":
 		return status
 
 	#--------------------------------------------------------------------
+	def test_sanity_check_database_settings():
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
+		print(sanity_check_database_settings(hipaa = True))
+
+	#--------------------------------------------------------------------
 	def test_sanity_check_time_skew():
 		login, creds = request_login_params()
 		pool = gmConnectionPool.gmConnectionPool()
@@ -3200,6 +3220,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_sanitize_pg_regex()
 	#test_is_pg_interval()
 	#test_sanity_check_time_skew()
+	#test_sanity_check_database_settings()
 	#test_get_foreign_key_details()
 	#test_get_index_name()
 	#test_set_user_language()
