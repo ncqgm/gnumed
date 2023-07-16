@@ -2283,6 +2283,8 @@ FIX: PG14 does not support IS OF anymore, use pg_typeof()
 
 	22.24
 
+IMPROVED: blobs: indices [thanks Marc]
+
 FIX: waiting list: failure in function moving entries
 
 	22.19
