@@ -267,10 +267,10 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 				connected = False
 				continue
 
-		sanity_level, message = gmPG2.sanity_check_database_settings()
-		if sanity_level != 0:
+		insanity_level, message = gmPG2.sanity_check_database_settings(hipaa = _cfg.get(option = 'hipaa'))
+		if insanity_level > 0:
 			gmGuiHelpers.gm_show_error((msg_insanity % message), _('Verifying database settings'))
-			if sanity_level == 2:
+			if insanity_level == 2:
 				connected = False
 				continue
 
