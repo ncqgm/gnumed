@@ -476,7 +476,13 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 		return self.__pat
 
 	def _set_patient(self, patient):
-		#self.__pat.register_before_switching_from_patient_callback(callback = self._before_switching_from_patient_callback)
+		try:
+			self.__pat
+		except AttributeError:
+			self.__pat = None
+		if not self.__pat:
+			if patient:
+				patient.register_before_switching_from_patient_callback(callback = self._before_switching_from_patient_callback)
 		self.__pat = patient
 		self.__refresh_encounter()
 		self.__refresh_soap_notebook()
