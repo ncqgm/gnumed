@@ -2642,17 +2642,17 @@ def sanity_check_database_settings(hipaa:bool=True) -> tuple:
 	finally:
 		curs.close()
 	# preloaded libraries
-	SQL = "SELECT name, setting from pg_settings where name = 'shared_preload_libraries';"
-	rows, idx = run_ro_queries (link_obj = conn, queries = [{'cmd': SQL, 'args': None}])
-	if rows:
-		value_found = rows[0]['setting']
-	else:
-		value_found = []
-	if 'auto_explain' not in value_found:
-		msg.append(_(' option [shared_preload_libraries]: %s') % value_found)
-		msg.append(_('  risk: suboptimal debugging'))
-		_log.warning('PG option [shared_preload_libraries] set to: %s, expected to include "auto_explain", risk: <suboptimal debugging>', value_found)
-		found_problem = True
+#	SQL = "SELECT name, setting from pg_settings where name = 'shared_preload_libraries';"
+#	rows, idx = run_ro_queries (link_obj = conn, queries = [{'cmd': SQL, 'args': None}])
+#	if rows:
+#		value_found = rows[0]['setting']
+#	else:
+#		value_found = []
+#	if 'auto_explain' not in value_found:
+#		msg.append(_(' option [shared_preload_libraries]: %s') % value_found)
+#		msg.append(_('  risk: suboptimal debugging'))
+#		_log.warning('PG option [shared_preload_libraries] set to: %s, expected to include "auto_explain", risk: <suboptimal debugging>', value_found)
+#		found_problem = True
 
 	if found_error:
 		return 2, '\n'.join(msg)

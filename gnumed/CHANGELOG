@@ -56,7 +56,7 @@ FIX: Py3.13: will remove mailcap module
 FIX: plugins: exception on raising configured but unloaded plugin
 
 IMPROVED: SOAP: on patient change ask if unsaved SOAP [thanks Marc]
-IMPROVED: DB: check for auto_explain availability
+IMPROVED: DB: setup connections for auto_explain in --debug mode
 
 	1.8.13
 
