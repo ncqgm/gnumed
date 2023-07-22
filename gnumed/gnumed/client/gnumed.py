@@ -810,6 +810,7 @@ def run_tool():
 	print('----------------------------------------------')
 	print('')
 	login, creds = gmPG2.request_login_params()
+	gmConnectionPool._VERBOSE_PG_LOG = _cfg.get(option = 'debug')
 	pool = gmConnectionPool.gmConnectionPool()
 	pool.credentials = creds
 	print('')

@@ -13,7 +13,7 @@ __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 
 _DISABLE_CONNECTION_POOL = False		# set to True to disable the connection pool for debugging (= always return new connection)
-
+_VERBOSE_PG_LOG = False				# set to True to force-enable verbose connections
 
 # standard library imports
 import os
@@ -370,7 +370,7 @@ class gmConnectionPool(gmBorg.cBorg):
 		conn.autocommit = autocommit
 		conn.readonly = readonly
 		# - assume verbose=True to mean we want debugging in the database, too
-		if verbose:
+		if verbose or _VERBOSE_PG_LOG:
 			_log.debug('enabling <plpgsql.extra_warnings/_errors>')
 			curs = conn.cursor()
 			try:
@@ -385,6 +385,15 @@ class gmConnectionPool(gmBorg.cBorg):
 				curs.execute("SET plpgsql.extra_errors TO 'all'")
 			except Exception:
 				_log.exception('cannot enable <plpgsql.extra_errors>')
+			finally:
+				curs.close()
+				conn.commit()
+			_log.debug('enabling auto_explain')
+			curs = conn.cursor()
+			try:
+				curs.execute("SELECT gm.load_auto_explain(3000)")
+			except Exception:
+				_log.exception('cannot enable auto_explain')
 			finally:
 				curs.close()
 				conn.commit()
@@ -946,6 +955,18 @@ if __name__ == "__main__":
 			print(tb)
 
 	#--------------------------------------------------------------------
+	def test_verbose_get_connection():
+		creds = cPGCredentials()
+		creds.database = 'gnumed_v22'
+		creds.user = 'any-doc'
+		pool = gmConnectionPool()
+		pool.credentials = creds
+		conn = pool.get_connection(verbose = True)
+		#conn = pool.get_connection(verbose = False)
+		curs = conn.cursor()
+		curs.execute('select pg_sleep(4);')
+
+	#--------------------------------------------------------------------
 	def test_get_connection():
 		print("testing get_connection() from new pool")
 
@@ -1080,7 +1101,8 @@ if __name__ == "__main__":
 		conn = pool.get_connection()
 
 	#--------------------------------------------------------------------
-	test_credentials()
+	#test_credentials()
 	#test_exceptions()
 	#test_get_connection()
+	test_verbose_get_connection()
 	#test_change_creds()

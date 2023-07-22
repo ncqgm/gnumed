@@ -115,6 +115,8 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 	global current_db_name
 	current_db_name = 'gnumed_v%s' % expected_version
 
+	gmConnectionPool._VERBOSE_PG_LOG = _cfg.get(option = 'debug')
+
 	attempt = 0
 
 	dlg = cLoginDialog(None, -1, client_version = client_version)
