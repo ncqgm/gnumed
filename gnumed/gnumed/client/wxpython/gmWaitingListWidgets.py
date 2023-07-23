@@ -19,7 +19,6 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmMatchProvider
-from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmDateTime
 

@@ -2970,6 +2970,9 @@ if __name__ == "__main__":
 		pool = gmConnectionPool.gmConnectionPool()
 		pool.credentials = creds
 		print(sanity_check_database_settings(hipaa = True))
+		status, msg = sanity_check_database_settings()
+		print(status)
+		print(msg)
 
 	#--------------------------------------------------------------------
 	def test_sanity_check_time_skew():
@@ -2977,12 +2980,6 @@ if __name__ == "__main__":
 		pool = gmConnectionPool.gmConnectionPool()
 		pool.credentials = creds
 		sanity_check_time_skew()
-
-	#--------------------------------------------------------------------
-	def test_sanity_check_database_settings():
-		status, msg = sanity_check_database_settings()
-		print(status)
-		print(msg)
 
 	#--------------------------------------------------------------------
 	def test_get_foreign_key_details():
