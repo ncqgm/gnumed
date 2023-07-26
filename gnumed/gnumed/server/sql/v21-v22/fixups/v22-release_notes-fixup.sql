@@ -17,17 +17,22 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.8.13 (database v22.23)',
-	'GNUmed 1.8.13 Release Notes:
+	'Release Notes for GNUmed 1.8.14 (database v22.24)',
+	'GNUmed 1.8.14 Release Notes:
 
-	1.8.13
+	1.8.14
 
-FIX: billing: exception on saving bill w/o address [thanks M.Schmid]
+FIX: plugins: exception on raising configured but unloaded plugin
 
-	22.23
+IMPROVED: SOAP: on patient change ask if unsaved SOAP [thanks Marc]
+IMPROVED: DB: setup connections for auto_explain in --debug mode
 
-No changes over v22.19 database.
+	22.24
+
+IMPROVED: blobs: indices [thanks Marc]
+
+FIX: waiting list: failure in function moving entries
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.23@1.8.13');
+select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.24@1.8.14');
