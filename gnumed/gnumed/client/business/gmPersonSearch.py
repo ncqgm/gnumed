@@ -118,19 +118,34 @@ class cPatientSearcher_SQL:
 			return aString
 
 		# umlauts
-		normalized =    aString.replace('Ä', '(Ä|AE|Ae|A|E)')
-		normalized = normalized.replace('Ö', '(Ö|OE|Oe|O)')
+		normalized = aString.replace('Ö', '(Ö|OE|Oe|O)')
 		normalized = normalized.replace('Ü', '(Ü|UE|Ue|U)')
-		normalized = normalized.replace('ä', '(ä|ae|e|a)')
 		normalized = normalized.replace('ö', '(ö|oe|o)')
 		normalized = normalized.replace('ü', '(ü|ue|u|y)')
 		normalized = normalized.replace('ß', '(ß|sz|ss|s)')
 
 		# common soundalikes
 		# - René, Desiré, Inés ...
+		normalized = normalized.replace('e', '***DUMMY***')
 		normalized = normalized.replace('é', '***DUMMY***')
 		normalized = normalized.replace('è', '***DUMMY***')
-		normalized = normalized.replace('***DUMMY***', '(é|e|è|ä|ae)')
+		normalized = normalized.replace('ë', '***DUMMY***')
+		normalized = normalized.replace('ê', '***DUMMY***')
+		normalized = normalized.replace('ä', '***DUMMY***')
+		normalized = normalized.replace('æ', '***DUMMY***')
+		normalized = normalized.replace('ae', '***DUMMY***')
+		normalized = normalized.replace('***DUMMY***', '(e|é|è|ë|ê|ä|æ|ae)')
+		# upper case
+		normalized = normalized.replace('E', '***DUMMY***')
+		normalized = normalized.replace('É', '***DUMMY***')
+		normalized = normalized.replace('È', '***DUMMY***')
+		normalized = normalized.replace('Ë', '***DUMMY***')
+		normalized = normalized.replace('Ê', '***DUMMY***')
+		normalized = normalized.replace('Ä', '***DUMMY***')
+		normalized = normalized.replace('Æ', '***DUMMY***')
+		normalized = normalized.replace('Ae', '***DUMMY***')
+		normalized = normalized.replace('AE', '***DUMMY***')
+		normalized = normalized.replace('***DUMMY***', '(E|É|È|Ë|Ê|Ä|Æ|Ae|AE)')
 
 		# FIXME: missing i/a/o - but uncommon in German
 		normalized = normalized.replace('v', '***DUMMY***')
@@ -193,8 +208,8 @@ class cPatientSearcher_SQL:
 			) AS sorted_list"""
 		args = {
 			'match': _('first name'),
-			'first': '^' + tmp,
-			'first_w_caps': '^' + gmTools.capitalize(tmp, mode = gmTools.CAPS_NAMES)
+			'first': '\m' + tmp,
+			'first_w_caps': '\m' + gmTools.capitalize(tmp, mode = gmTools.CAPS_NAMES)
 		}
 		return [{'cmd': cmd, 'args': args}]
 
@@ -204,18 +219,10 @@ class cPatientSearcher_SQL:
 		if regex.match("\w+\s*,$", raw) is None:
 			return []
 		_log.debug("[%s]: a lastname" % raw)
-		tmp = self._normalize_soundalikes(raw.strip(' ,'))
-		cmd = """
+		normalized = self._normalize_soundalikes(raw.strip(' ,'))
+		cmd = """-- find patients by "lastname,":
 			SELECT DISTINCT ON (pk_identity) * FROM (
 				SELECT *, %(match)s AS match_type FROM ((
-					SELECT d_vap.*
-					FROM dem.names, dem.v_active_persons d_vap
-					WHERE dem.names.lastnames ~ %(last)s and d_vap.pk_identity = dem.names.id_identity
-				) union all (
-					SELECT d_vap.*
-					FROM dem.names, dem.v_active_persons d_vap
-					WHERE dem.names.lastnames ~ %(last_w_caps)s and d_vap.pk_identity = dem.names.id_identity
-				) union all (
 					SELECT d_vap.*
 					FROM dem.names, dem.v_active_persons d_vap
 					WHERE lower(dem.names.lastnames) ~ lower(%(last)s) and d_vap.pk_identity = dem.names.id_identity
@@ -223,8 +230,8 @@ class cPatientSearcher_SQL:
 			) AS sorted_list"""
 		args = {
 			'match': _('last name'),
-			'last': '^' + tmp,
-			'last_w_caps': '^' + gmTools.capitalize(tmp, mode=gmTools.CAPS_NAMES)
+			'last': '\m%s' % normalized,
+#			'last_w_caps': '^' + gmTools.capitalize(tmp, mode=gmTools.CAPS_NAMES)
 		}
 		return [{'cmd': cmd, 'args': args}]
 
@@ -238,22 +245,17 @@ class cPatientSearcher_SQL:
 			return []
 		_log.debug("[%s]: a lastname" % raw)
 		tmp = self._normalize_soundalikes(raw)
-		cmd = """
+		cmd = """-- find patients by "LASTNAME":
 			SELECT DISTINCT ON (pk_identity) * FROM (
-				SELECT *, %(match)s AS match_type FROM ((
+				SELECT *, %(match)s AS match_type FROM (
 					SELECT d_vap.*
 					FROM dem.names, dem.v_active_persons d_vap
-					WHERE dem.names.lastnames ~ %(last_w_caps)s and d_vap.pk_identity = dem.names.id_identity
-				) union all (
-					SELECT d_vap.*
-					FROM dem.names, dem.v_active_persons d_vap
-					WHERE lower(dem.names.lastnames) ~ lower(%(last)s) and d_vap.pk_identity = dem.names.id_identity
-				)) AS super_list ORDER BY lastnames, firstnames, dob
+					WHERE dem.names.lastnames ~* %(last)s and d_vap.pk_identity = dem.names.id_identity
+				) AS super_list ORDER BY lastnames, firstnames, dob
 			) AS sorted_list"""
 		args = {
 			'match': _('last name'),
-			'last': '^' + tmp,
-			'last_w_caps': '^' + gmTools.capitalize(tmp.casefold(), mode=gmTools.CAPS_NAMES)
+			'last': '\m' + tmp
 		}
 		return [{'cmd': cmd, 'args': args}]
 
@@ -282,63 +284,93 @@ class cPatientSearcher_SQL:
 		_log.debug("[%s]: <LASTNAME firstname> or firstname LASTNAME" % raw)
 		last = self._normalize_soundalikes(last)
 		first = self._normalize_soundalikes(first)
-		cmd = """
-			SELECT DISTINCT ON (pk_identity) * FROM (
-				SELECT *, %(match)s AS match_type FROM ((
+		cmd = """-- get patients by "LASTNAME firstname"
+			SELECT DISTINCT ON (pk_identity) *
+			FROM (
+				SELECT *, %(match)s AS match_type
+				FROM (
 					SELECT d_vap.*
 					FROM dem.names, dem.v_active_persons d_vap
 					WHERE
-						dem.names.lastnames ~ %(last)s
+						dem.names.lastnames ~* %(last)s
 							AND
-						dem.names.firstnames ~ %(first)s
-							AND
-						d_vap.pk_identity = dem.names.id_identity
-				) union all (
-					SELECT d_vap.*
-					FROM dem.names, dem.v_active_persons d_vap
-					WHERE
-						lower(dem.names.lastnames) ~ lower(%(last)s)
-							AND
-						lower(dem.names.firstnames) ~ lower(%(first)s)
+						dem.names.firstnames ~* %(first)s
 							AND
 						d_vap.pk_identity = dem.names.id_identity
-				)) AS super_list ORDER BY lastnames, firstnames, dob
+				) AS super_list
+				ORDER BY lastnames, firstnames, dob
 			) AS sorted_list"""
 		args = {
 			'match': _('LASTNAME and firstname'),
-			'last': '^' + last,
-			'first': '^' + first
+			'last': '\m' + last,
+			'first': '\m' + first
 		}
 		return [{'cmd': cmd, 'args': args}]
 
 	#--------------------------------------------------------
+	def __queries_for_DOB(self, raw):
+		if len(raw) < 8:
+			return []
+
+		dob = raw.lstrip('*$')
+		dob = dob.replace('.', '-')
+		dob = dob.replace('/', '-')
+		dob = dob.replace(' ', '-')
+		dob = dob.replace('\t', '-')
+		digits = dob.replace('-', '')
+		if len(digits) < 8:
+			return []
+
+		if not digits.isdigit():
+			return []
+
+		_log.debug("[%s]: a DOB (-> %s)" % (raw, dob))
+		SQL = """-- find patients by DOB:
+SELECT *, %(match_type)s AS match_type
+FROM dem.v_active_persons
+WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %(dob)s::timestamp with time zone)
+ORDER BY lastnames, firstnames, dob"""
+		args = {
+			'match_type': _('date of birth'),
+			'dob': dob
+		}
+		return [{'cmd': SQL, 'args': args}]
+
+	#--------------------------------------------------------
 	def _generate_simple_query(self, raw):
 		"""Compose queries if search term seems unambiguous."""
-		queries = []
-
 		#raw = raw.strip(' ,;')
 		raw = raw.strip()
+		if not raw:
+			return []
+
+		# "*..." or "$..." - DOB ?
+		if raw[0] in '*$':
+			queries = self.__queries_for_DOB(raw)
+			if queries:
+				return queries
 
 		# "<digits>" - GNUmed patient PK or DOB
-		if regex.match("^(\s|\t)*\d+(\s|\t)*$", raw):
+		if raw.isdigit():
+			queries = []
 			_log.debug("[%s]: a PK or DOB" % raw)
 			queries.append ({
-				'cmd': "SELECT *, %s::text AS match_type FROM dem.v_active_persons WHERE pk_identity = %s ORDER BY lastnames, firstnames, dob",
+				'cmd': "-- patient search: by PK\nSELECT *, %s::text AS match_type FROM dem.v_active_persons WHERE pk_identity = %s ORDER BY lastnames, firstnames, dob",
 				'args': [_('internal patient ID'), raw]
 			})
 			if len(raw) > 7:	# DOB needs at least 8 digits
 				queries.append ({
-					'cmd': "SELECT *, %s::text AS match_type FROM dem.v_active_persons WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) ORDER BY lastnames, firstnames, dob",
+					'cmd': "-- patient search: by DOB\nSELECT *, %s::text AS match_type FROM dem.v_active_persons WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) ORDER BY lastnames, firstnames, dob",
 					'args': [_('date of birth'), raw.replace(',', '.')]
 				})
 			queries.append ({
-				'cmd': """
+				'cmd': """-- patient search: by external ID
 					SELECT vba.*, %s::text AS match_type
 					FROM
 						dem.lnk_identity2ext_id li2ext_id,
 						dem.v_active_persons vba
 					WHERE
-						vba.pk_identity = li2ext_id.id_identity and lower(li2ext_id.external_id) ~* lower(%s)
+						vba.pk_identity = li2ext_id.id_identity AND li2ext_id.external_id ~* %s
 					ORDER BY
 						lastnames, firstnames, dob
 				""",
@@ -348,6 +380,7 @@ class cPatientSearcher_SQL:
 
 		# "<d igi ts>" - DOB or patient PK
 		if regex.match("^(\d|\s|\t)+$", raw):
+			queries = []
 			_log.debug("[%s]: a DOB or PK" % raw)
 			queries.append ({
 				'cmd': "SELECT *, %s::text AS match_type FROM dem.v_active_persons WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) ORDER BY lastnames, firstnames, dob",
@@ -362,7 +395,8 @@ class cPatientSearcher_SQL:
 			return queries
 
 		# "#<di git  s>" - GNUmed patient PK
-		if regex.match("^(\s|\t)*#(\d|\s|\t)+$", raw):
+		if regex.match("^#(\d|\s|\t)+$", raw):
+			queries = []
 			_log.debug("[%s]: a PK" % raw)
 			tmp = raw.replace('#', '')
 			tmp = tmp.strip()
@@ -391,7 +425,8 @@ class cPatientSearcher_SQL:
 #			})
 
 		# "#<di git s or c-hars>" - external ID
-		if regex.match("^(\s|\t)*#.+$", raw):
+		if raw.startswith('#') and len(raw) > 1:
+			queries = []
 			_log.debug("[%s]: an external ID" % raw)
 			tmp = raw.replace('#', '')
 			tmp = tmp.strip()
@@ -420,6 +455,7 @@ class cPatientSearcher_SQL:
 
 		# digits interspersed with "./-" or blank space - DOB
 		if regex.match("^(\s|\t)*\d+(\s|\t|\.|\-|/)*\d+(\s|\t|\.|\-|/)*\d+(\s|\t|\.)*$", raw):
+			queries = []
 			_log.debug("[%s]: a DOB" % raw)
 			tmp = raw.strip()
 			while '\t\t' in tmp: tmp = tmp.replace('\t\t', ' ')
@@ -435,34 +471,28 @@ class cPatientSearcher_SQL:
 
 		# " , <alpha>" - first name
 		queries = self.__queries_for_firstname_with_comma(raw)
-		if len(queries) > 0:
+		if queries:
 			return queries
 
 		# "<alpha>, " - last name
 		queries = self.__queries_for_lastname_with_comma(raw)
-		if len(queries) > 0:
+		if queries:
 			return queries
 
 		# "<ALPHA>" - last name
 		queries = self.__queries_for_LASTNAME(raw)
-		if len(queries) > 0:
+		if queries:
 			return queries
 
 		# "<alpha alpha>" - first last or last first, depending on UPPERCASE
 		queries = self.__queries_for_LAST_and_first(raw)
-		if len(queries) > 0:
+		if queries:
 			return queries
 
-		# "*|$<...>" - DOB
-		if regex.match("\s*(\*|\$).+$", raw):
-			_log.debug("[%s]: a DOB" % raw)
-			tmp = raw.replace('*', '')
-			tmp = tmp.replace('$', '')
-			queries.append ({
-				'cmd': "SELECT *, %s AS match_type FROM dem.v_active_persons WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) ORDER BY lastnames, firstnames, dob",
-				'args': [_('date of birth'), tmp.replace(',', '.')]
-			})
-			return queries
+#		# "*|$<...>" - DOB
+#		queries = self.__queries_for_DOB(raw)
+#		if queries:
+#			return queries
 
 		return []
 
@@ -582,16 +612,14 @@ class cPatientSearcher_SQL:
 							d_vap.*,
 							%s::text AS match_type
 						FROM
-							dem.v_active_persons d_vap,
-							dem.names n
+							dem.v_active_persons d_vap
+								left join dem.names n on (n.id_identity = d_vap.pk_identity)
 						WHERE
-							d_vap.pk_identity = n.id_identity
-								AND
 							-- name_parts[0]
-							lower(n.firstnames || ' ' || n.lastnames) ~* lower(%s)
+							(n.firstnames || ' ' || n.lastnames) ~* %s
 								AND
 							-- name_parts[1]
-							lower(n.firstnames || ' ' || n.lastnames) ~* lower(%s)""",
+							(n.firstnames || ' ' || n.lastnames) ~* lower(%s)""",
 				'args': [_('name'), name_parts[0], name_parts[1]]
 			})
 			return queries
@@ -1060,24 +1088,28 @@ if __name__ == '__main__':
 		print("testing _generate_simple_query()")
 		print("----------------------------")
 		data = [
-			'51234', '1 134 153', '#13 41 34', '#3-AFY322.4', '22-04-1906', '1235/32/3525',
-			', tiberiu',# firstname
-			'KIRK',		# lastname
-			'kirk,',	# lastname
+#			'51234', '1 134 153', '#13 41 34', '#3-AFY322.4', '22-04-1906', '1235/32/3525',
+#			', tiberiu',# firstname
+#			'KIRK',		# lastname
+#			'kirk,',	# lastname + comma
+#			'Kirk,',	# lastname + comma
 			'KIR tib',	# LAST first
-			'Tib KI'	# first LAST
+#			'Tib KI'	# first LAST
 		]
 		for fragment in data:
 			print("fragment:", fragment)
 			qs = searcher._generate_simple_query(fragment)
 			for q in qs:
 				print('')
-				print(" match on:", q['args'])
 				print(" query   :", q['cmd'])
+				print(" match on:", q['args'])
+				print(gmPG2.run_ro_queries(queries = [q]))
 			input('press [ENTER] to continue')
 			print("============")
 
 	#--------------------------------------------------------
+	gmPG2.request_login_params(setup_pool = True)
+
 	test_generate_simple_query()
 	#test_patient_search_queries()
 	#test_ask_for_patient()
