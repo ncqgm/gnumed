@@ -51,6 +51,10 @@ FIX: Py3.13: will remove mailcap module
 # rel-1-8-maint
 ------------------------------------------------
 
+	1.8.15
+
+IMPROVED: person search: query speed
+
 	1.8.14
 
 FIX: plugins: exception on raising configured but unloaded plugin
@@ -2279,6 +2283,10 @@ FIX: PG14 does not support IS OF anymore, use pg_typeof()
 ------------------------------------------------
 # gnumed_v22
 ------------------------------------------------
+
+	22.25
+
+IMPROVED: identity/names: indices
 
 	22.24
 
