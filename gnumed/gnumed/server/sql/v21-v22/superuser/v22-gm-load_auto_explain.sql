@@ -6,7 +6,7 @@
 --
 -- ==============================================================
 \set ON_ERROR_STOP 1
-set default_transaction_read_only to off;
+--set default_transaction_read_only to off;
 
 set check_function_bodies to on;
 
@@ -33,8 +33,7 @@ END;';
 COMMENT ON FUNCTION gm.load_auto_explain(IN _min_duration integer) IS
 'Load and configure auto_explain.
 .
-Integer argument = auto_explain.log_min_duration in milliseconds with a lower bound of 2000.'
-;
+Integer argument = auto_explain.log_min_duration in milliseconds with a lower bound of 2000.';
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-gm-load_auto_explain.sql', '22.24');
+select gm.log_script_insertion('v22-gm-load_auto_explain.sql', '22.25');
