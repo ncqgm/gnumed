@@ -733,7 +733,7 @@ cp -R ../../server/sql/v21-v22/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/s
 cp -R ../../server/sql/v21-v22/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v21-v22/static
 cp -R ../../server/sql/v21-v22/data/* ./gnumed-client.$CLIENTREV/server/sql/v21-v22/data
 cp -R ../../server/sql/v21-v22/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v21-v22/python
-#cp -R ../../server/sql/v21-v22/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v21-v22/superuser
+cp -R ../../server/sql/v21-v22/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v21-v22/superuser
 cp -R ../../server/sql/v21-v22/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v21-v22/fixups
 
 
