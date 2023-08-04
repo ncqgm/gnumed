@@ -1,5 +1,61 @@
 # -*- coding: utf-8 -*-
-"""GNUmed person searching code."""
+"""GNUmed person searching code.
+
+	How-To search:
+		name:		Leonard Spock "Pointy-Ears" NIMOY-ZALDANA
+		DOB:		Oct 15 1975
+		ID:			12345678
+		ext ID:		abcd-13d-4d
+		ext ID:		#abcd-13d-4d
+
+	find patient by name (first, last, nick):
+		'leon'
+		'spo'
+		'nimo'
+		'zald'
+		'pointy'
+
+	find patient by lastname:
+		'NIMO'
+		'ZALD'
+		'nIm,'
+		'Zal,'
+
+	find patient by firstname:
+		', spo'
+		',Leon'
+
+	find patient by nickname:
+		'!point'
+		'!ear'
+
+	find patient by firstname and lastname:
+		'Leonard NIMO'
+		'spock ZALDA'
+
+	find patient by fragment anywhere inside name:
+		'...ock'
+		'...ldan'
+		'...moY'
+		'...Nar'
+		'...Ear'
+
+	find patient by GNUmed ID:
+		'12345678' (also searches by DOB)
+		'#12345678' (also searches by external ID)
+
+	find patient by DOB:
+		'15101975' (also searches for GNUmed ID)
+		'*15101975'
+		'*15/10/1975'
+		'*15-10-1975'
+		'*15.10.1975'
+		'*15 10 1975'
+
+	find patient by external ID:
+		'##abcd-13d-4d'		(finds ID "abcd-13d-4d")
+		'## #abcd-13d-4d'	(finds ID "#abcd-13d-4d")
+"""
 #============================================================
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -235,13 +291,15 @@ class cPatientSearcher_SQL:
 	#--------------------------------------------------------
 	def __queries_for_LASTNAME(self, raw):
 		"""Generate search queries for [ <ALPHA> ] search terms."""
-		if regex.match("\w+$", raw) is None:
+		if not raw.isalpha():
 			return []
+
 		if raw != raw.upper():
 			# not all UPPERCASE
 			return []
+
 		_log.debug("[%s]: a lastname" % raw)
-		tmp = self._normalize_soundalikes(raw)
+		normalized = self._normalize_soundalikes(raw)
 		cmd = """-- find patients by "LASTNAME":
 			SELECT DISTINCT ON (pk_identity) * FROM (
 				SELECT *, %(match)s AS match_type FROM (
@@ -252,9 +310,80 @@ class cPatientSearcher_SQL:
 			) AS sorted_list"""
 		args = {
 			'match': _('last name'),
-			'last': '\m' + tmp
+			'last': '\m' + normalized
 		}
 		return [{'cmd': cmd, 'args': args}]
+
+	#--------------------------------------------------------
+	def __queries_for_name_fragment(self, raw):
+		raw = raw.lstrip('.')
+		if not raw.isalpha():
+			return []
+
+		_log.debug("[%s]: a singular name fragment" % raw)
+		fragment = self._normalize_soundalikes(raw)
+		SQL = """-- find patients by name fragments anywhere in name:
+			SELECT DISTINCT ON (pk_identity) * FROM (
+				SELECT *, %(match)s AS match_type FROM (
+					SELECT d_vap.*
+					FROM dem.names JOIN dem.v_active_persons d_vap ON (d_vap.pk_identity = dem.names.id_identity)
+					WHERE
+						dem.names.lastnames ~* %(fragment)s
+						OR dem.names.firstnames ~* %(fragment)s
+						OR dem.names.preferred ~* %(fragment)s
+				) AS super_list
+				ORDER BY lastnames, firstnames, dob
+			) AS sorted_list"""
+		args = {
+			'match': _('name part'),
+			'fragment': fragment
+		}
+		return [{'cmd': SQL, 'args': args}]
+
+	#--------------------------------------------------------
+	def __queries_for_nickname(self, raw):
+		if not raw.startswith('!'):
+			return []
+
+		raw = raw[1:]
+		_log.debug("[%s]: a nickname" % raw)
+		nick = self._normalize_soundalikes(raw)
+		SQL = """-- find patients by name fragments anywhere in name:
+			SELECT DISTINCT ON (pk_identity) * FROM (
+				SELECT *, %(match)s AS match_type FROM (
+					SELECT d_vap.*
+					FROM dem.names JOIN dem.v_active_persons d_vap ON (d_vap.pk_identity = dem.names.id_identity)
+					WHERE dem.names.preferred ~* %(nick)s
+				) AS super_list
+				ORDER BY lastnames, firstnames, dob
+			) AS sorted_list"""
+		args = {
+			'match': _('nickname'),
+			'nick': nick
+		}
+		return [{'cmd': SQL, 'args': args}]
+
+	#--------------------------------------------------------
+	def __queries_for_singular_name_part(self, raw):
+		if not raw.isalpha():
+			return []
+
+		_log.debug("[%s]: a singular name part" % raw)
+		name = self._normalize_soundalikes(raw)
+		SQL = """-- find patients by name part even inside multi-part names:
+			SELECT DISTINCT ON (pk_identity) * FROM (
+				SELECT *, %(match)s AS match_type FROM (
+					SELECT d_vap.*
+					FROM dem.names JOIN dem.v_active_persons d_vap ON (d_vap.pk_identity = dem.names.id_identity)
+					WHERE dem.names.lastnames ~* %(name)s OR dem.names.firstnames ~* %(name)s OR dem.names.preferred ~* %(name)s
+				) AS super_list
+				ORDER BY lastnames, firstnames, dob
+			) AS sorted_list"""
+		args = {
+			'match': _('name part'),
+			'name': '\m%s' % name
+		}
+		return [{'cmd': SQL, 'args': args}]
 
 	#--------------------------------------------------------
 	def __queries_for_LAST_and_first(self, raw):
@@ -357,7 +486,7 @@ class cPatientSearcher_SQL:
 		if len(raw) < 8:
 			return []
 
-		dob = raw.lstrip('*$')
+		dob = raw.lstrip('*')
 		dob = dob.replace('.', '-')
 		dob = dob.replace('/', '-')
 		dob = dob.replace(' ', '-')
@@ -371,10 +500,10 @@ class cPatientSearcher_SQL:
 
 		_log.debug("[%s]: a DOB (-> %s)" % (raw, dob))
 		SQL = """-- find patients by DOB:
-SELECT *, %(match_type)s AS match_type
-FROM dem.v_active_persons
-WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %(dob)s::timestamp with time zone)
-ORDER BY lastnames, firstnames, dob"""
+			SELECT *, %(match_type)s AS match_type
+			FROM dem.v_active_persons
+			WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %(dob)s::timestamp with time zone)
+			ORDER BY lastnames, firstnames, dob"""
 		args = {
 			'match_type': _('date of birth'),
 			'dob': dob
@@ -382,15 +511,21 @@ ORDER BY lastnames, firstnames, dob"""
 		return [{'cmd': SQL, 'args': args}]
 
 	#--------------------------------------------------------
-	def _generate_simple_query(self, raw):
-		"""Compose queries if search term seems unambigous."""
+	def generate_simple_query(self, raw):
+		"""Compose queries if search term seems unambiguous."""
 		raw = raw.strip()
 		if not raw:
 			return []
 
-		# "*..." or "$..." - DOB ?
-		if raw[0] in '*$':
+		# "*..." - DOB
+		if raw.startswith('*'):
 			queries = self.__queries_for_DOB(raw)
+			if queries:
+				return queries
+
+		# "##.*" - external ID
+		if raw.startswith('##'):
+			queries = self.__queries_for_external_id(raw)
 			if queries:
 				return queries
 
@@ -400,129 +535,32 @@ ORDER BY lastnames, firstnames, dob"""
 			if queries:
 				return queries
 
+		# "...<alpha>" - *anywhere* inside first or last or nick
+		if raw.startswith('...'):
+			queries = self.__queries_for_name_fragment(raw)
+			if queries:
+				return queries
+
+		# "!.*" - nickname
+		if raw.startswith('!'):
+			queries = self.__queries_for_nickname(raw)
+			if queries:
+				return queries
+
 		# "<digits>" - GNUmed patient PK or DOB
 		if raw.isdigit():
 			queries = self.__queries_for_pk(raw)
 			queries.extend(self.__queries_for_DOB(raw))
-#			queries = []
-#			_log.debug("[%s]: a PK or DOB" % raw)
-#			queries.append ({
-#				'cmd': "-- patient search: by PK\nSELECT *, %s::text AS match_type FROM dem.v_active_persons WHERE pk_identity = %s ORDER BY lastnames, firstnames, dob",
-#				'args': [_('internal patient ID'), raw]
-#			})
-#			if len(raw) > 7:	# DOB needs at least 8 digits
-#				queries.append ({
-#					'cmd': "-- patient search: by DOB\nSELECT *, %s::text AS match_type FROM dem.v_active_persons WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) ORDER BY lastnames, firstnames, dob",
-#					'args': [_('date of birth'), raw.replace(',', '.')]
-#				})
-#			queries.append ({
-#				'cmd': """-- patient search: by external ID
-#					SELECT vba.*, %s::text AS match_type
-#					FROM
-#						dem.lnk_identity2ext_id li2ext_id,
-#						dem.v_active_persons vba
-#					WHERE
-#						vba.pk_identity = li2ext_id.id_identity AND li2ext_id.external_id ~* %s
-#					ORDER BY
-#						lastnames, firstnames, dob
-#				""",
-#				'args': [_('external patient ID'), raw]
-#			})
 			return queries
 
 		# "<d igi ts>" - DOB
-#		# "<d igi ts>" - DOB or patient PK
 		if regex.match("^(\d|\s|\t)+$", raw):
-#			queries = []
-#			_log.debug("[%s]: a DOB or PK" % raw)
-#			queries.append ({
-#				'cmd': "SELECT *, %s::text AS match_type FROM dem.v_active_persons WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) ORDER BY lastnames, firstnames, dob",
-#				'args': [_('date of birth'), raw.replace(',', '.')]
-#			})
-#			tmp = raw.replace(' ', '')
-#			tmp = tmp.replace('\t', '')
-#			queries.append ({
-#				'cmd': "SELECT *, %s::text AS match_type FROM dem.v_active_persons WHERE pk_identity LIKE %s%%",
-#				'args': [_('internal patient ID'), tmp]
-#			})
 			queries = self.__queries_for_DOB(raw)
 			if queries:
 				return queries
 
-		# "#<di git  s>" - GNUmed patient PK
-#		if regex.match("^#(\d|\s|\t)+$", raw):
-#			queries = []
-#			_log.debug("[%s]: a PK" % raw)
-#			tmp = raw.replace('#', '')
-#			tmp = tmp.strip()
-#			tmp = tmp.replace(' ', '')
-#			tmp = tmp.replace('\t', '')
-			# this seemingly stupid query ensures the PK actually exists
-#			queries.append ({
-#				'cmd': "SELECT *, %s::text AS match_type FROM dem.v_active_persons WHERE pk_identity = %s ORDER BY lastnames, firstnames, dob",
-#				'args': [_('internal patient ID'), tmp]
-#			})
-#			return queries
-
-		# "##<di git s or c-hars>" - external ID"
-		# but might also be an external ID
-#			tmp = raw.replace('#', '')
-#			tmp = tmp.strip()
-#			tmp = tmp.replace(' ',  '***DUMMY***')
-#			tmp = tmp.replace('\t', '***DUMMY***')
-#			tmp = tmp.replace('***DUMMY***', '(\s|\t|-|/)*')
-#			queries.append ({
-#				'cmd': """
-#					SELECT vba.*, %s::text AS match_type FROM dem.lnk_identity2ext_id li2ext_id, dem.v_active_persons vba
-#					WHERE vba.pk_identity = li2ext_id.id_identity and lower(li2ext_id.external_id) ~* lower(%s)
-#					ORDER BY lastnames, firstnames, dob""",
-#				'args': [_('external patient ID'), tmp]
-#			})
-
-		# "#<di git s or c-hars>" - external ID
-#		if raw.startswith('#') and len(raw) > 1:
-#			queries = []
-#			_log.debug("[%s]: an external ID" % raw)
-#			tmp = raw.replace('#', '')
-#			tmp = tmp.strip()
-#			tmp = tmp.replace(' ',  '***DUMMY***')
-#			tmp = tmp.replace('\t', '***DUMMY***')
-#			tmp = tmp.replace('-',  '***DUMMY***')
-#			tmp = tmp.replace('/',  '***DUMMY***')
-#			tmp = tmp.replace('***DUMMY***', '(\s|\t|-|/)*')
-#			queries.append ({
-#				'cmd': """
-#					SELECT
-#						vba.*,
-#						%s::text AS match_type
-#					FROM
-#						dem.lnk_identity2ext_id li2ext_id,
-#						dem.v_active_persons vba
-#					WHERE
-#						vba.pk_identity = li2ext_id.id_identity
-#							AND
-#						lower(li2ext_id.external_id) ~* lower(%s)
-#					ORDER BY
-#						lastnames, firstnames, dob""",
-#				'args': [_('external patient ID'), tmp]
-#			})
-#			return queries
-
 		# digits interspersed with "./-" or blank space - DOB
-		if regex.match("^(\s|\t)*\d+(\s|\t|\.|\-|/)*\d+(\s|\t|\.|\-|/)*\d+(\s|\t|\.)*$", raw):
-#			queries = []
-#			_log.debug("[%s]: a DOB" % raw)
-#			tmp = raw.strip()
-#			while '\t\t' in tmp: tmp = tmp.replace('\t\t', ' ')
-#			while '  ' in tmp: tmp = tmp.replace('  ', ' ')
-			# apparently not needed due to PostgreSQL smarts...
-			#tmp = tmp.replace('-', '.')
-			#tmp = tmp.replace('/', '.')
-#			queries.append ({
-#				'cmd': "SELECT *, %s AS match_type FROM dem.v_active_persons WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) ORDER BY lastnames, firstnames, dob",
-#				'args': [_('date of birth'), tmp.replace(',', '.')]
-#			})
-#			return queries
+		if regex.match("^\d+(\s|\t|\.|\-|/)*\d+(\s|\t|\.|\-|/)*\d+\.*$", raw):
 			queries = self.__queries_for_DOB(raw)
 			if queries:
 				return queries
@@ -547,10 +585,10 @@ ORDER BY lastnames, firstnames, dob"""
 		if queries:
 			return queries
 
-#		# "*|$<...>" - DOB
-#		queries = self.__queries_for_DOB(raw)
-#		if queries:
-#			return queries
+		# "<alpha>" - first OR last name OR nick
+		queries = self.__queries_for_singular_name_part(raw)
+		if queries:
+			return queries
 
 		return []
 
@@ -737,7 +775,7 @@ ORDER BY lastnames, firstnames, dob"""
 			return []
 
 		# check to see if we get away with a simple query ...
-		queries = self._generate_simple_query(search_term)
+		queries = self.generate_simple_query(search_term)
 		if len(queries) > 0:
 			_log.debug('[%s]: search term with a simple, unambigous structure' % search_term)
 			return queries
@@ -1143,9 +1181,12 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_generate_simple_query():
 		searcher = cPatientSearcher_SQL()
-		print("testing _generate_simple_query()")
+		print("testing generate_simple_query()")
 		print("----------------------------")
 		data = [
+			'...tiber',
+			'...iber',
+			'kirk',
 			'#123',
 			'#1 23',
 			'##123',
@@ -1156,6 +1197,7 @@ if __name__ == '__main__':
 			'123',
 			'1 23',
 			'1 23 1974'
+			'!Pointy'
 #			'51234', '1 134 153', '#13 41 34', '#3-AFY322.4', '22-04-1906', '1235/32/3525',
 #			', tiberiu',# firstname
 #			'KIRK',		# lastname
@@ -1166,7 +1208,7 @@ if __name__ == '__main__':
 		]
 		for fragment in data:
 			print("fragment:", fragment)
-			qs = searcher._generate_simple_query(fragment)
+			qs = searcher.generate_simple_query(fragment)
 			for q in qs:
 				print('')
 				print(" query   :", q['cmd'])
