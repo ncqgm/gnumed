@@ -20,7 +20,10 @@ import shutil
 import time
 import datetime as pydt
 from urllib.parse import urlencode
-import distutils.version as version
+
+
+# 3rd party
+from packaging import version
 
 
 # GNUmed modules
@@ -55,7 +58,7 @@ class cOrthancServer:
 #		self.__server_url = None
 
 	#--------------------------------------------------------
-	def connect(self, host, port, user, password, expected_minimal_version=None, expected_name=None, expected_aet=None):
+	def connect(self, host, port, user, password, expected_minimal_version=None, expected_name=None, expected_aet=None) -> bool:
 		try:
 			int(port)
 		except Exception:
@@ -68,6 +71,7 @@ class cOrthancServer:
 		except Exception:
 			_log.exception('cannot create server url from: host [%s] and port [%s]', host, port)
 			return False
+
 		self.__user = user
 		self.__password = password
 		_log.info('connecting as [%s] to Orthanc server at [%s]', self.__user, self.__server_url)
@@ -81,21 +85,25 @@ class cOrthancServer:
 		if self.server_identification is False:
 			self.connect_error += 'retrieving server identification failed'
 			return False
+
 		if expected_minimal_version is not None:
-			if version.LooseVersion(self.server_identification['Version']) < version.LooseVersion(expected_min_version):
-				_log.error('server too old, needed [%s]', expected_min_version)
-				self.connect_error += 'server too old, needed version [%s]' % expected_min_version
+			if version.parse(self.server_identification['Version']) < version.parse(expected_minimal_version):
+				_log.error('server too old, needed [%s]', expected_minimal_version)
+				self.connect_error += 'server too old, needed version [%s]' % expected_minimal_version
 				return False
+
 		if expected_name is not None:
 			if self.server_identification['Name'] != expected_name:
 				_log.error('wrong server name, expected [%s]', expected_name)
 				self.connect_error += 'wrong server name, expected [%s]' % expected_name
 				return False
+
 		if expected_aet is not None:
 			if self.server_identification['DicomAet'] != expected_name:
 				_log.error('wrong server AET, expected [%s]', expected_aet)
 				self.connect_error += 'wrong server AET, expected [%s]' % expected_aet
 				return False
+
 		return True
 
 	#--------------------------------------------------------
@@ -1712,7 +1720,7 @@ if __name__ == "__main__":
 
 		global orthanc
 		orthanc = cOrthancServer()
-		if not orthanc.connect(host, port, user = None, password = None):		#, expected_aet = 'another AET'
+		if not orthanc.connect(host, port, user = None, password = None, expected_minimal_version = '1'):		#, expected_aet = 'another AET'
 			print('error connecting to server:', orthanc.connect_error)
 			sys.exit(-1)
 		print('Connected to Orthanc server "%s" (AET [%s] - version [%s] - DB [%s])' % (
@@ -1733,7 +1741,7 @@ if __name__ == "__main__":
 	#run_console()
 	#test_verify_instance()
 	#test_modify_patient_id()
-	test_upload_files()
+	#test_upload_files()
 	#test_upload_file()
 	#test_get_instance_preview()
 	#test_get_instance_tags()

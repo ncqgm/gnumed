@@ -8,18 +8,6 @@ missing = False
 print("Checking for Python modules")
 print("===========================")
 
-# not currently available for Python 3:
-#print(" mx.DateTime...", end=' ')
-#try:
-#	import mx.DateTime
-#	print("found")
-#except ImportError:
-#	missing = True
-#	print("")
-#	print("  ERROR: mxDateTime not installed")
-#	print("  ERROR: this is needed to handle dates and times")
-#	print("  ERROR: mxDateTime is available from http://www.egenix.com/files/python/")
-
 print(" enchant...", end = " ")
 try:
 	import enchant
@@ -139,6 +127,16 @@ except ImportError:
 	print("  INFO : GNUmed will still work without it")
 	print("  INFO : note that you need v0.2.1 (not 0.2.2)")
 	print("  INFO :  <pip3 install pysvg==0.2.1>")
+
+print(" packaging...", end=' ')
+try:
+	import packaging
+	print("found")
+except ImportError:
+	missing = True
+	print("")
+	print("  ERROR: packaging not installed")
+	print("  INFO : this is needed to check Orthanc versions")
 
 print(" vobject...", end=' ')
 try:
