@@ -40,6 +40,11 @@
 		'...Nar'
 		'...Ear'
 
+	find patient by several name parts:
+		'leon nim'
+		'spo zal'
+		'leon nim zald'
+
 	find patient by GNUmed ID:
 		'12345678' (also searches by DOB)
 		'#12345678' (also searches by external ID)
@@ -242,52 +247,52 @@ class cPatientSearcher_SQL:
 	#--------------------------------------------------------
 	def __queries_for_firstname_with_comma(self, raw):
 		"""Generate search queries for [ , <alpha> ] search terms."""
-		if regex.match(",\s*\w+$", raw.strip()) is None:
+		if not raw.startswith(','):
 			return []
+
+		raw = raw.lstrip(' ,')
+		if not raw.isalpha():
+			return []
+
 		_log.debug("[%s]: a firstname" % raw)
-		tmp = self._normalize_soundalikes(raw.strip(' ,'))
-		cmd = """
+		normalized = self._normalize_soundalikes(raw)
+		cmd = """-- find patients by ",firstname"
 			SELECT DISTINCT ON (pk_identity) * FROM (
-				SELECT *, %(match)s AS match_type FROM ((
+				SELECT *, %(match)s AS match_type FROM (
 					SELECT d_vap.*
 					FROM dem.names, dem.v_active_persons d_vap
-					WHERE dem.names.firstnames ~ %(first)s and d_vap.pk_identity = dem.names.id_identity
-				) union all (
-					SELECT d_vap.*
-					FROM dem.names, dem.v_active_persons d_vap
-					WHERE dem.names.firstnames ~ %(first_w_caps)s and d_vap.pk_identity = dem.names.id_identity
-				) union all (
-					SELECT d_vap.*
-					FROM dem.names, dem.v_active_persons d_vap
-					WHERE lower(dem.names.firstnames) ~ lower(%(first)s) and d_vap.pk_identity = dem.names.id_identity
-				)) AS super_list ORDER BY lastnames, firstnames, dob
+					WHERE dem.names.firstnames ~* %(first)s and d_vap.pk_identity = dem.names.id_identity
+				) AS super_list ORDER BY lastnames, firstnames, dob
 			) AS sorted_list"""
 		args = {
 			'match': _('first name'),
-			'first': '\m' + tmp,
-			'first_w_caps': '\m' + gmTools.capitalize(tmp, mode = gmTools.CAPS_NAMES)
+			'first': '\m' + normalized
 		}
 		return [{'cmd': cmd, 'args': args}]
 
 	#--------------------------------------------------------
 	def __queries_for_lastname_with_comma(self, raw):
 		"""Generate search queries for [ <alpha> , ] search terms."""
-		if regex.match("\w+\s*,$", raw) is None:
+		if not raw.endswith(','):
 			return []
+
+		raw = raw.rstrip(' ,')
+		if not raw.isalpha():
+			return []
+
 		_log.debug("[%s]: a lastname" % raw)
-		normalized = self._normalize_soundalikes(raw.strip(' ,'))
+		normalized = self._normalize_soundalikes(raw)
 		cmd = """-- find patients by "lastname,":
 			SELECT DISTINCT ON (pk_identity) * FROM (
 				SELECT *, %(match)s AS match_type FROM ((
 					SELECT d_vap.*
 					FROM dem.names, dem.v_active_persons d_vap
-					WHERE lower(dem.names.lastnames) ~ lower(%(last)s) and d_vap.pk_identity = dem.names.id_identity
+					WHERE dem.names.lastnames ~* %(last)s and d_vap.pk_identity = dem.names.id_identity
 				)) AS super_list ORDER BY lastnames, firstnames, dob
 			) AS sorted_list"""
 		args = {
 			'match': _('last name'),
-			'last': '\m%s' % normalized,
-#			'last_w_caps': '^' + gmTools.capitalize(tmp, mode=gmTools.CAPS_NAMES)
+			'last': '\m%s' % normalized
 		}
 		return [{'cmd': cmd, 'args': args}]
 
@@ -298,7 +303,6 @@ class cPatientSearcher_SQL:
 			return []
 
 		if raw != raw.upper():
-			# not all UPPERCASE
 			return []
 
 		_log.debug("[%s]: a lastname" % raw)
@@ -319,6 +323,9 @@ class cPatientSearcher_SQL:
 
 	#--------------------------------------------------------
 	def __queries_for_name_fragment(self, raw):
+		if not raw.startswith('...'):
+			return []
+
 		raw = raw.lstrip('.')
 		if not raw.isalpha():
 			return []
@@ -371,6 +378,9 @@ class cPatientSearcher_SQL:
 		if not raw.isalpha():
 			return []
 
+		if len(raw) < 3:
+			return []
+
 		_log.debug("[%s]: a singular name part" % raw)
 		name = self._normalize_soundalikes(raw)
 		SQL = """-- find patients by name part even inside multi-part names:
@@ -389,27 +399,81 @@ class cPatientSearcher_SQL:
 		return [{'cmd': SQL, 'args': args}]
 
 	#--------------------------------------------------------
+	def __queries_for_several_name_parts(self, raw):
+		parts = regex.split('[,\.\-\s]+', raw)
+		print(parts)
+		for p in parts:
+			if not p.isalpha():
+				return []
+
+		parts = [ p for p in parts if len(p) > 1 ]
+		if len(parts) < 2:
+			return []
+
+		_log.debug("[%s]: several name parts" % parts)
+		parts = [ '\m' + self._normalize_soundalikes(p) for p in parts ]
+		SQL = """-- find patients by name parts even inside multi-part names:
+			SELECT DISTINCT ON (pk_identity) * FROM (
+				SELECT *, %(match)s AS match_type FROM (
+					SELECT d_vap.*
+					FROM dem.names JOIN dem.v_active_persons d_vap ON (d_vap.pk_identity = dem.names.id_identity)
+					WHERE dem.names.lastnames ~* ANY(%(parts)s) AND dem.names.firstnames ~* ANY(%(parts)s)
+					-- AND dem.names.preferred ~* ANY(%(parts)s)
+				) AS super_list
+				ORDER BY lastnames, firstnames, dob
+			) AS sorted_list"""
+		args = {
+			'match': _('name parts'),
+			'parts': parts
+		}
+		return [{'cmd': SQL, 'args': args}]
+
+	#--------------------------------------------------------
 	def __queries_for_LAST_and_first(self, raw):
 		"""Generate search queries for [ <ALPHA> <alpha> ] or [ <alpha> <ALPHA> ] search terms."""
-		if regex.match("\w+\s+\w+$", raw) is None:
+#		if regex.match('^\w+\s+\w+$', raw) is None:
+#			return []
+#		if raw == raw.upper():
+#			# ALL caps
+#			return []
+#		if raw == raw.lower():
+#			# ALL lowercase
+#			return []
+#		parts = [ p for p in regex.split('\s+', raw) ]
+		parts = raw.split()
+		if len(parts) != 2:
 			return []
-		if raw == raw.upper():
-			# ALL caps
+
+		for p in parts:
+			if not p.isalpha():
+				return []
+
+		p1_upcase = parts[0] == parts[0].upper()
+		p2_upcase = parts[1] == parts[1].upper()
+		if p1_upcase and p2_upcase:
 			return []
-		if raw == raw.casefold():
-			# ALL lowercase
+
+		if True not in [p1_upcase, p2_upcase]:
 			return []
-		parts = [ p for p in regex.split('\s+', raw) ]
-		last = None
-		if parts[0] == parts[0].upper():
+
+		if p1_upcase:
 			last = parts[0]
 			first = parts[1]
-		if parts[1] == parts[1].upper():
+		else:
 			last = parts[1]
 			first = parts[0]
+
+#		last = None
+#		if parts[0] == parts[0].upper():
+#			last = parts[0]
+#			first = parts[1]
+#		if parts[1] == parts[1].upper():
+#			last = parts[1]
+#			first = parts[0]
 		# found no UPPERCASE
-		if last is None:
-			return []
+#		if last is None:
+#			return []
+
 		_log.debug("[%s]: <LASTNAME firstname> or firstname LASTNAME" % raw)
 		last = self._normalize_soundalikes(last)
 		first = self._normalize_soundalikes(first)
@@ -590,6 +654,11 @@ class cPatientSearcher_SQL:
 
 		# "<alpha>" - first OR last name OR nick
 		queries = self.__queries_for_singular_name_part(raw)
+		if queries:
+			return queries
+
+		# "<alpha> <alpha> <alpha> ..." - first OR last name OR nick
+		queries = self.__queries_for_several_name_parts(raw)
 		if queries:
 			return queries
 
@@ -1187,6 +1256,7 @@ if __name__ == '__main__':
 		print("testing generate_simple_query()")
 		print("----------------------------")
 		data = [
+			'jam tib, kir',
 			'...tiber',
 			'...iber',
 			'kirk',
@@ -1223,9 +1293,9 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	gmPG2.request_login_params(setup_pool = True)
 
-	test_generate_simple_query()
+	#test_generate_simple_query()
 	#test_patient_search_queries()
-	#test_ask_for_patient()
+	test_ask_for_patient()
 	#test_search_by_dto()
 
 #============================================================
