@@ -33,7 +33,7 @@ As root (or with sudo):
 
 -------------------------------------
 	$> apt-cache policy gnumed-server
-	$> gm-fixup_server
+	$> gm-fixup_server XY
 -------------------------------------
 
 ==== Other systems
