@@ -3237,8 +3237,11 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#print(dbapi._psycopg.cursor)
 
 	request_login_params(setup_pool = True, force_tui = True)
+	gmConnectionPool._VERBOSE_PG_LOG = True
 
-	rows, idx = run_ro_queries(queries = [{'cmd': 'select 1 as one, 2 as two'}], get_col_idx = True)
+	SQL = 'select 1 as one, 2 as two'
+	SQL = 'SELECT pg_sleep(4)'
+	rows, idx = run_ro_queries(queries = [{'cmd': SQL}], get_col_idx = True)
 	#print(type(idx))
 	#print(type(rows))
 	r = rows[0]
