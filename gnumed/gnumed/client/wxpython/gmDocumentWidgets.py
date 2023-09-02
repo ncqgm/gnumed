@@ -1385,7 +1385,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 
 	#--------------------------------------------------------
 	def _on_update_file_description(self, result):
-		status, description = result
+		status, description, cookie = result
 		fname, source = self._LCTRL_doc_pages.get_selected_item_data(only_one = True)
 		txt = _(
 			'Source: %s\n'

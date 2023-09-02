@@ -649,7 +649,7 @@ insert into blobs.reviewed_doc_objs (
 			_log.error('problem downloading part')
 			return (False, _('problem downloading document part'))
 
-		status, desc = gmMimeLib.describe_file(filename)
+		status, desc, cookie = gmMimeLib.describe_file(filename)
 		return (status, desc, self.pk_obj)
 
 #------------------------------------------------------------
