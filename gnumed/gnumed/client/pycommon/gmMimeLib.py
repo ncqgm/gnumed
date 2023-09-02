@@ -37,6 +37,32 @@ _log = logging.getLogger('gm.mime')
 WORST_CASE_MIMETYPE = 'application/octet-stream'
 
 #=======================================================================================
+# mime type handling
+#---------------------------------------------------------------------------------------
+def is_probably_textfile(filename:str=None) -> bool:
+	"""Check whether a file might be a text file by mime type."""
+	if guess_mimetype(filename).startswith('text/'):
+		return True
+
+	return False
+
+#---------------------------------------------------------------------------------------
+def is_probably_image(filename:str=None) -> bool:
+	"""Check whether a file might be an image file by mime type."""
+	if guess_mimetype(filename).startswith('image/'):
+		return True
+
+	return False
+
+#---------------------------------------------------------------------------------------
+def is_probably_pdf(filename:str=None) -> bool:
+	"""Check whether a file might be a PDF file by mime type."""
+	if guess_mimetype(filename) == 'application/pdf':
+		return True
+
+	return False
+
+#---------------------------------------------------------------------------------------
 def __guess_mimetype__pylibextractor(filename:str=None) -> str:
 	# Python libextractor
 	try:
@@ -426,6 +452,37 @@ def __convert_odt_to_pdf(filename:str=None, verbose:bool=False):
 	return gmTools.fname_stem_with_path(filename) + '.pdf'
 
 #-----------------------------------------------------------------------------------
+def __convert_pdf_to_image(filename:str=None, verbose:bool=False) -> str:
+	cmd_line = ['convert']
+	if verbose:
+		cmd_line.append('-verbose')
+	cmd_line.append('%s[0]' % filename)
+	png_name = '%s.png' % filename
+	cmd_line.append(png_name)
+	success, returncode, stdout = gmShellAPI.run_process(cmd_line = cmd_line, verbose = True)
+	if not success:
+		return None
+
+	return png_name
+
+#-----------------------------------------------------------------------------------
+def __convert_pdf_to_text(filename:str=None, verbose:bool=False) -> str:
+	txt_fname = '%s.txt' % filename
+	cmd_line = [
+		'pdftotext',
+		'-f', '1',
+		'-l', '1',
+		'-layout',
+		filename,
+		txt_fname
+	]
+	success, returncode, stdout = gmShellAPI.run_process(cmd_line = cmd_line, verbose = True)
+	if not success:
+		return None
+
+	return txt_fname
+
+#-----------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------
 __CONVERSION_DELEGATES = {
 	'application/vnd.oasis.opendocument.text': {
@@ -433,6 +490,17 @@ __CONVERSION_DELEGATES = {
 	},
 	'text/latex': {
 		'application/pdf': convert_latex_to_pdf
+	},
+	'application/pdf': {
+		'image/any': __convert_pdf_to_image,
+		'image/*': __convert_pdf_to_image,
+		'image/': __convert_pdf_to_image,
+		'image': __convert_pdf_to_image,
+		'text/plain': __convert_pdf_to_text,
+		'text/any': __convert_pdf_to_text,
+		'text/*': __convert_pdf_to_text,
+		'text/': __convert_pdf_to_text,
+		'text': __convert_pdf_to_text
 	}
 }
 
@@ -440,6 +508,14 @@ __CONVERSION_DELEGATES['text/tex'] = __CONVERSION_DELEGATES['text/latex']
 __CONVERSION_DELEGATES['text/x-tex'] = __CONVERSION_DELEGATES['text/latex']
 __CONVERSION_DELEGATES['application/x-latex'] = __CONVERSION_DELEGATES['text/latex']
 __CONVERSION_DELEGATES['application/x-tex'] = __CONVERSION_DELEGATES['text/latex']
+
+#-----------------------------------------------------------------------------------
+def convert_file_to_image(filename:str=None, verbose:bool=False) -> str:
+	return convert_file(filename = filename, target_mime = 'image/*', verbose = verbose)
+
+#-----------------------------------------------------------------------------------
+def convert_file_to_text(filename:str=None, verbose:bool=False) -> str:
+	return convert_file(filename = filename, target_mime = 'text/*', verbose = verbose)
 
 #-----------------------------------------------------------------------------------
 def convert_file(filename=None, target_mime=None, target_filename=None, target_extension=None, verbose=False):
@@ -452,7 +528,12 @@ def convert_file(filename=None, target_mime=None, target_filename=None, target_e
 	assert (filename != target_filename), '<target_filename> must be different from <filename>'
 
 	source_mime = guess_mimetype(filename = filename)
-	if source_mime.casefold() == target_mime.casefold():
+	target_mime_parts = target_mime.rsplit('/', 1)
+	if (len(target_mime_parts) == 1) or (target_mime_parts[1].strip().casefold() in ['', '*', 'any']):
+		_log.debug('generic target mime type')
+		target_mime = target_mime_parts[0] + '/'
+
+	if source_mime.casefold().startswith(target_mime.casefold()):
 		_log.debug('source file [%s] already target mime type [%s]', filename, target_mime)
 		if target_filename is None:
 			return filename
@@ -493,7 +574,7 @@ def convert_file(filename=None, target_mime=None, target_filename=None, target_e
 			return target_filename
 
 	# try built-in conversions
-	_log.debug('trying built-in conversion function')
+	_log.debug('trying built-in conversion functions')
 	try:
 		conversion_func = __CONVERSION_DELEGATES[source_mime][target_mime]
 	except KeyError:
@@ -543,7 +624,7 @@ def convert_file(filename=None, target_mime=None, target_filename=None, target_e
 
 	_log.info('conversion target file size > 0')
 	achieved_mime = guess_mimetype(filename = converted_fname)
-	if achieved_mime != target_mime:
+	if not achieved_mime.casefold().startswith(target_mime.casefold()):
 		_log.error('target: [%s], achieved: [%s]', target_mime, achieved_mime)
 		return None
 
@@ -807,8 +888,14 @@ if __name__ == "__main__":
 		print(join_files_as_pdf(files = gmTools.dir_list_files(sys.argv[2])))
 
 	#--------------------------------------------------------
+	def test_check_is_textfile():
+		for fname in gmTools.dir_list_files(sys.argv[2]):
+			print(fname)
+			print(' =>', is_probably_textfile(filename = fname))
+
+	#--------------------------------------------------------
 #	print(_system_startfile_cmd)
-	print(guess_mimetype(filename))
+#	print(guess_mimetype(filename))
 #	print(get_viewer_cmd(guess_mimetype(filename), filename))
 #	print(get_editor_cmd(guess_mimetype(filename), filename))
 #	print(get_editor_cmd('application/x-latex', filename))
@@ -824,3 +911,4 @@ if __name__ == "__main__":
 	#print(test_edit())
 	#test_convert_file()
 	#test_join_files_as_pdf()
+	test_check_is_textfile()
