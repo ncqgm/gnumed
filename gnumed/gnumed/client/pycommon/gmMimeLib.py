@@ -637,7 +637,7 @@ def convert_file(filename=None, target_mime=None, target_filename=None, target_e
 	return target_filename
 
 #-----------------------------------------------------------------------------------
-def __run_file_describer(filename=None):
+def __run_file_describer(filename=None, cookie=None):
 	base_name = 'gm-describe_file'
 	paths = gmTools.gmPaths()
 	local_script = os.path.join(paths.local_base_dir, '..', 'external-tools', base_name)
@@ -645,7 +645,7 @@ def __run_file_describer(filename=None):
 	found, binary = gmShellAPI.find_first_binary(binaries = candidates)
 	if not found:
 		_log.error('cannot find <%s(.bat)>', base_name)
-		return (False, _('<%s(.bat)> not found') % base_name)
+		return (False, _('<%s(.bat)> not found') % base_name, cookie)
 
 	cmd_line = [binary, filename]
 	_log.debug('describing: %s', cmd_line)
@@ -661,22 +661,23 @@ def __run_file_describer(filename=None):
 		)
 	except (subprocess.TimeoutExpired, FileNotFoundError):
 		_log.exception('there was a problem running external process')
-		return (False, _('problem with <%s>') % binary)
+		return (False, _('problem with <%s>') % binary, cookie)
 
 	_log.info('exit code [%s]', proc_result.returncode)
 	if proc_result.returncode != 0:
 		_log.error('[%s] failed', binary)
 		_log.error('STDERR:\n%s', proc_result.stderr)
 		_log.error('STDOUT:\n%s', proc_result.stdout)
-		return (False, _('problem with <%s>') % binary)
-	return (True, proc_result.stdout)
+		return (False, _('problem with <%s>') % binary, cookie)
+
+	return (True, proc_result.stdout, cookie)
 
 #-----------------------------------------------------------------------------------
-def describe_file(filename, callback=None):
+def describe_file(filename, callback=None, cookie=None):
 	if callback is None:
 		return __run_file_describer(filename)
 
-	payload_kwargs = {'filename': filename}
+	payload_kwargs = {'filename': filename, 'cookie': cookie}
 	gmWorkerThread.execute_in_worker_thread (
 		payload_function = __run_file_describer,
 		payload_kwargs = payload_kwargs,
