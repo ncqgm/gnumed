@@ -75,6 +75,12 @@ system_locale_level = {}
 _translate_via_gettext = lambda x:x
 _substitutes_regex = regex.compile(r'%\(.+?\)s')
 
+try:
+	__LOCALE_ERROR = locale.Error		# only defined in Python 3.11+
+except AttributeError:
+	print('locale.Error undefined (Python < 3.11), monkey-patching')
+	__LOCALE_ERROR = Exception
+
 # ***************************************************************************
 # ***************************************************************************
 # The following line is needed to check for successful
@@ -260,7 +266,10 @@ def activate_locale():
 		_log.debug("activating user-default locale with <locale.setlocale(locale.LC_ALL, '')> returns: [%s]" % loc)
 	except AttributeError:
 		_log.exception('Windows does not support locale.LC_ALL')
-	except Exception:
+#	except locale.Error:	# 3.11+
+#		_log.exception('error activating user-default locale')
+#	except Exception:		# < 3.11
+	except __LOCALE_ERROR:
 		_log.exception('error activating user-default locale')
 	__log_locale_settings('locale settings after activating user-default locale')
 	# assume en_EN if we did not find any locale settings
