@@ -28,22 +28,19 @@ from Gnumed.business import gmPersonSearch
 _log = logging.getLogger('gm.guitest')
 
 #==============================================================================
-def test_widget(widget_class, patient=None, size=None):
+def test_widget(widget_class, *widget_args, patient=None, size=None, **widget_kw_args):
 	gmPG2.request_login_params(setup_pool = True, force_tui = True)
 	gmPraxis.activate_first_praxis_branch()
-	if patient is None:
-		patient = gmPersonSearch.ask_for_patient()
-	if patient is None:
+	if not __activate_patient(patient = patient):
 		sys.exit()
 
-	gmPerson.set_active_patient(patient = patient)
 	app = wx.App()
 	if size is None:
 		size = (800, 600)
 	frame = wx.Frame(None, id = -1, title = _('GNUmed widget test: %s') % widget_class, size = size)
 	frame.CentreOnScreen(wx.BOTH)
 	app.SetTopWindow(frame)
-	widget = widget_class(frame)
+	widget = widget_class(frame, *widget_args, **widget_kw_args)
 	#widget.matcher.print_queries = True
 	frame.Show(True)
 	try:
@@ -89,6 +86,23 @@ def setup_widget_test_env(patient=None):
 	return frame
 
 #==============================================================================
+# helpers
+#------------------------------------------------------------------------------
+def __activate_patient(patient=None):
+	if patient is None:
+		return True
+
+	if patient == -1:
+		patient = gmPersonSearch.ask_for_patient()
+		if patient is None:
+			return False
+
+	gmPerson.set_active_patient(patient = patient)
+	print('activating patient:', patient)
+	return True
+
+#==============================================================================
+# main
 #==============================================================================
 if __name__ == '__main__':
 
@@ -108,5 +122,5 @@ if __name__ == '__main__':
 		print(setup_widget_test_env())
 
 	#--------------------------------------------------------------------------
-	#test__test_widget()
-	test__setup_widget_test_env()
+	test__test_widget()
+	#test__setup_widget_test_env()
