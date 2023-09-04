@@ -2021,9 +2021,13 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 		return False
 
 	#------------------------------------------------------------
-	def set_string_items(self, items=None, reshow=True, unwrap=True):
-		"""All item members must be str()able or None."""
+	def set_string_items(self, items=None, reshow=True, unwrap:bool=True):
+		"""All item members must be str()able or None.
 
+		Args:
+			reshow: whether to ensure the previously top-most visible item is visible again after updating the list
+			unwrap: whether to unfold multi-line text into a single line
+		"""
 		wx.BeginBusyCursor()
 		self.invalidate_sorting_metadata()
 
