@@ -26,7 +26,7 @@ class wxgPDFViewerPnl(wx.Panel):
 		self._PDF_control_buttons_pnl = cPDFButtonPnl(self, wx.ID_ANY)
 		__szr_main.Add(self._PDF_control_buttons_pnl, 0, wx.EXPAND, 0)
 
-		self._PDF_content_pnl = cPDFContentPnl(self, wx.ID_ANY)
+		self._PDF_content_pnl = cPDFContentPnl(self, wx.ID_ANY, style=wx.TAB_TRAVERSAL)
 		__szr_main.Add(self._PDF_content_pnl, 1, wx.EXPAND | wx.TOP, 3)
 
 		self.SetSizer(__szr_main)

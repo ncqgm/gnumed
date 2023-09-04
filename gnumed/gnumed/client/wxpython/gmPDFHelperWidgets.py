@@ -73,11 +73,30 @@ class cPDFContentPnl(pdflib.pdfViewer):
 			self.__stub = True
 
 	#--------------------------------------------------------
-	def LoadFile(self, pdf_file):
+	# public API
+	#--------------------------------------------------------
+	def LoadFile(self, pdf_file=None):
 		if self.__stub:
 			return
 
 		return super().LoadFile(pdf_file)
+
+	#--------------------------------------------------------
+	def __get_filename(self):
+		return self.pdfpathname
+
+	def __set_filename(self, filename):
+#		for m in dir(self):
+#			print(m)
+		if self.__stub:
+			return
+
+		print('loading', filename)
+		self.LoadFile(filename)
+
+	filename = property(__get_filename, __set_filename)
+
+	#--------------------------------------------------------
 
 #============================================================
 # main
