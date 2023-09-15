@@ -196,7 +196,7 @@ class cAutoImportDir:
 		if not incoming:
 			return False
 
-		incoming['comment'] = _('%s (auto-import %s)' % (filename, now))
+		incoming['comment'] = _('%s (auto-import %s)' % (filename, now.strftime('%c')))
 		incoming.save()
 		new_fname = '.%s.%s.imported' % (
 			gmTools.fname_from_path(filename),
