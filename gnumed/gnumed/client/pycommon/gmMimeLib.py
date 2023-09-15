@@ -456,6 +456,8 @@ def __convert_pdf_to_image(filename:str=None, verbose:bool=False) -> str:
 	cmd_line = ['convert']
 	if verbose:
 		cmd_line.append('-verbose')
+	cmd_line.append('-density')
+	cmd_line.append('300x300')
 	cmd_line.append('%s[0]' % filename)
 	png_name = '%s.png' % filename
 	cmd_line.append(png_name)
@@ -895,6 +897,10 @@ if __name__ == "__main__":
 			print(' =>', is_probably_textfile(filename = fname))
 
 	#--------------------------------------------------------
+	def test__convert_pdf_to_img():
+		print(__convert_pdf_to_image(sys.argv[2], verbose = True))
+
+	#--------------------------------------------------------
 #	print(_system_startfile_cmd)
 #	print(guess_mimetype(filename))
 #	print(get_viewer_cmd(guess_mimetype(filename), filename))
@@ -911,5 +917,6 @@ if __name__ == "__main__":
 	#test_describer()
 	#print(test_edit())
 	#test_convert_file()
+	test__convert_pdf_to_img()
 	#test_join_files_as_pdf()
-	test_check_is_textfile()
+	#test_check_is_textfile()
