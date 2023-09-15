@@ -5,11 +5,13 @@
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL v2 or later (details at https://www.gnu.org)'
 
-import logging
+
 import sys
+import logging
 
 
 import wx
+from wx.lib.mixins import inspection
 
 
 if __name__ == '__main__':
@@ -28,21 +30,22 @@ from Gnumed.business import gmPersonSearch
 _log = logging.getLogger('gm.guitest')
 
 #==============================================================================
-def test_widget(widget_class, *widget_args, patient=None, size=None, **widget_kw_args):
+def test_widget(widget_class, *widget_args, patient=-1, size=None, **widget_kwargs):
 	gmPG2.request_login_params(setup_pool = True, force_tui = True)
 	gmPraxis.activate_first_praxis_branch()
 	if not __activate_patient(patient = patient):
 		sys.exit()
 
-	app = wx.App()
+	app = inspection.InspectableApp()
+	app.InitInspection()
 	if size is None:
 		size = (800, 600)
 	frame = wx.Frame(None, id = -1, title = _('GNUmed widget test: %s') % widget_class, size = size)
 	frame.CentreOnScreen(wx.BOTH)
 	app.SetTopWindow(frame)
-	widget = widget_class(frame, *widget_args, **widget_kw_args)
-	#widget.matcher.print_queries = True
+	widget = widget_class(frame, *widget_args, **widget_kwargs)
 	frame.Show(True)
+	app.ShowInspectionTool()
 	try:
 		app.MainLoop()
 	except Exception:
@@ -50,7 +53,7 @@ def test_widget(widget_class, *widget_args, patient=None, size=None, **widget_kw
 	return widget
 
 #==============================================================================
-def setup_widget_test_env(patient=None):
+def setup_widget_test_env(patient=-1):
 	"""Setup widget test environment.
 
 	- connect to DB
@@ -64,7 +67,7 @@ def setup_widget_test_env(patient=None):
 
 	main_frame = setup_widget_test_env(...)
 	my_widget = cWidgetClass(main_frame, ...)
-	my_widget.whatever(...)
+	my_widget.whatever_else_is_necessary(...)
 	wx.GetApp().MainLoop()
 
 	Returns:
@@ -72,17 +75,16 @@ def setup_widget_test_env(patient=None):
 	"""
 	gmPG2.request_login_params(setup_pool = True, force_tui = True)
 	gmPraxis.activate_first_praxis_branch()
-	if patient is None:
-		patient = gmPersonSearch.ask_for_patient()
-	if patient is None:
+	if not __activate_patient(patient = patient):
 		sys.exit()
 
-	gmPerson.set_active_patient(patient = patient)
-	app = wx.App()
+	app = inspection.InspectableApp()
+	app.InitInspection()
 	frame = wx.Frame(None, id = -1, title = _('GNUmed widget test'), size = (800, 600))
 	frame.CentreOnScreen(wx.BOTH)
 	app.SetTopWindow(frame)
 	frame.Show(True)
+	app.ShowInspectionTool()
 	return frame
 
 #==============================================================================
@@ -114,13 +116,17 @@ if __name__ == '__main__':
 
 	#--------------------------------------------------------------------------
 	def test__test_widget():
-		panel = wx.TextCtrl
-		test_widget(panel, patient = None)
+		ctrl = wx.TextCtrl
+		test_widget(ctrl, patient = None)
 
 	#--------------------------------------------------------------------------
 	def test__setup_widget_test_env():
-		print(setup_widget_test_env())
+		frame = setup_widget_test_env()
+		print(frame)
+		tctrl = wx.TextCtrl(frame, -1)
+		tctrl.Value = 'GNUmed GUI Test test'
+		wx.GetApp().MainLoop()
 
 	#--------------------------------------------------------------------------
-	test__test_widget()
-	#test__setup_widget_test_env()
+	#test__test_widget()
+	test__setup_widget_test_env()
