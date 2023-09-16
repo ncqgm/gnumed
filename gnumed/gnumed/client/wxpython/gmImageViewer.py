@@ -23,6 +23,8 @@ else:
 		gmI18N.activate_locale()
 		gmI18N.install_domain()
 
+from Gnumed.pycommon import gmMimeLib
+
 
 _log = logging.getLogger('gm.img_ui')
 
@@ -32,43 +34,44 @@ from Gnumed.wxGladeWidgets.wxgSingleImageViewerPnl import wxgSingleImageViewerPn
 class cSingleImageViewerPnl(wxgSingleImageViewerPnl):
 	"""Panel showing an image allowing for manipulation."""
 	def __init__(self, *args, **kwargs):
+		self.__filename = None
 		try:
 			fname = kwargs['filename']
 			del kwargs['filename']
 		except KeyError:
 			fname = None
 		super().__init__(*args, **kwargs)
-		self._BMP_image.filename = fname
-
-#		self.Bind(wx.EVT_CHAR, self._on_char)
+		self.filename = fname
 
 	#--------------------------------------------------------
-	def process_char(self, char) -> bool:
-		return self._BMP_image.process_char(char)
+	def show_previous_page(self):
+		if not self.__image_pages:
+			return
 
-#	#--------------------------------------------------------
-#	def process_keycode(self, keycode) -> bool:
-#		"""Call action based  on translated key code.
-#
-#		Returns:
-#			True/False based on whether the key code mapped to a command.
-#		"""
-#		match keycode:
-#			case 317:
-#				print('scroll down')
-#				x_scroll_step, y_scroll_step = self.GetScrollPixelsPerUnit()
-#				x_view, y_view = self.GetViewStart()
-#				print('going to:', x_view, y_view + y_scroll_step)
-#				self.Scroll(x_view, y_view + y_scroll_step)
-#			case 315: print('scroll up')
-#			case 314: print('scroll left')
-#			case 316: print('scroll right')
-#			case _:
-#				return False
-#
-#		return True
+		if self.__current_page == 0:
+			return
+
+		self.__current_page -= 1
+		self._BMP_image.filename = self.__image_pages[self.__current_page]
 
 	#--------------------------------------------------------
+	def show_next_page(self):
+		if not self.__image_pages:
+			return
+
+		if self.__current_page + 1 == len(self.__image_pages):
+			return
+
+		self.__current_page += 1
+		self._BMP_image.filename = self.__image_pages[self.__current_page]
+
+	#--------------------------------------------------------
+	def show_first_page(self):
+		if not self.__image_pages:
+			return
+
+		self.__current_page = 0
+		self._BMP_image.filename = self.__image_pages[0]
 
 	#--------------------------------------------------------
 	# properties
@@ -77,19 +80,31 @@ class cSingleImageViewerPnl(wxgSingleImageViewerPnl):
 		return self._BMP_image.filename
 
 	def __set_filename(self, filename):
-		self._BMP_image.filename = filename
+		if not filename:
+			self.__image_pages = []
+			self._BMP_image.filename = None
+			self.Layout()
+			return
+
+		self.__image_pages = gmMimeLib.split_multipage_image(filename)
+		if not self.__image_pages:
+			self._BMP_image.filename = None
+			self.Layout()
+			return
+
+		self.__current_page = 0
+		self._BMP_image.filename = self.__image_pages[0]
 		self.Layout()
 
 	filename = property(__get_filename, __set_filename)
 
 	#--------------------------------------------------------
-	def __get_target_width(self):
-		return self._BMP_image.__target_width
+	# internal helpers
+	#--------------------------------------------------------
 
-	def __set_target_width(self, width):
-		self._BMP_image.__target_width = width
-
-	target_width = property(__get_target_width, __set_target_width)
+	#--------------------------------------------------------
+	# event handlers
+	#--------------------------------------------------------
 
 #============================================================
 # main

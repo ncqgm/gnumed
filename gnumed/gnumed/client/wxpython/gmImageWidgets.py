@@ -35,7 +35,6 @@ class cImageDisplay(wx.lib.statbmp.GenStaticBitmap):
 		super().__init__(parent, ID, self.__empty_bmp, **kwargs)
 		self.__init_ui()
 		self.__filename = None
-		self.__target_width = 0
 		self.__zoom_count = 0
 		self.__min_width = 25
 		self.__current_rotation = 0		# in degrees
@@ -49,6 +48,7 @@ class cImageDisplay(wx.lib.statbmp.GenStaticBitmap):
 		Returns:
 			True/False based on whether the character mapped to a command.
 		"""
+
 		match char:
 			case 'r':
 				self.__current_rotation += 90
@@ -62,6 +62,7 @@ class cImageDisplay(wx.lib.statbmp.GenStaticBitmap):
 				self.refresh()
 			case 'o':
 				self.__zoom_count = 0
+				self.__current_rotation = 0
 				self.refresh()
 			case '+':
 				self.__zoom_count += 1
@@ -75,11 +76,23 @@ class cImageDisplay(wx.lib.statbmp.GenStaticBitmap):
 		return True
 
 	#--------------------------------------------------------
-	def display_file(self, filename:str, target_width:int=None) -> bool:
-		if target_width:
-			self.__target_width = target_width
-		self.__filename = filename
-		return self.refresh()
+	def process_keycode(self, keycode) -> bool:
+		"""Call action based on translated key code.
+
+		Returns:
+			True/False based on whether the key code mapped to a command.
+		"""
+		return False
+#		match keycode:
+#			case 317: print('scroll down')
+#			case 315: print('scroll up')
+#			case 314: print('scroll left')
+#			case 316: print('scroll right')
+#			case _:
+#				print('bmp/unmapped keycode:', keycode)
+#				return False
+#
+#		return True
 
 	#--------------------------------------------------------
 	# event handlers
@@ -99,13 +112,14 @@ class cImageDisplay(wx.lib.statbmp.GenStaticBitmap):
 				event.Skip()
 			return
 
-#		kc = event.KeyCode
-#		if kc != wx.WXK_NONE:
-#			if not self.process_keycode(kc):
-#				event.Skip()
-#			return
+		kc = event.KeyCode
+		if kc != wx.WXK_NONE:
+			self.process_keycode(kc)
+			if not self.process_keycode(kc):
+				event.Skip()
+			return
 
-		print('unmapped key:', event.RawKeyCode)
+		event.Skip()
 
 	#--------------------------------------------------------
 	# properties
@@ -113,21 +127,14 @@ class cImageDisplay(wx.lib.statbmp.GenStaticBitmap):
 	def __get_filename(self):
 		return self.__filename
 
-	def __set_filename(self, filename):
-		self.__zoom_count = 0
-		self.__current_rotation = 0
-		self.display_file(filename)
+	def __set_filename(self, filename:str):
+		if filename != self.__filename:
+			self.__zoom_count = 0
+			self.__current_rotation = 0
+		self.__filename = filename
+		self.refresh()
 
 	filename = property(__get_filename, __set_filename)
-
-	#--------------------------------------------------------
-	def __get_target_width(self):
-		return self.__target_width
-
-	def __set_target_width(self, width):
-		self.__target_width = width
-
-	target_width = property(__get_target_width, __set_target_width)
 
 	#--------------------------------------------------------
 	# internal helpers
@@ -135,35 +142,6 @@ class cImageDisplay(wx.lib.statbmp.GenStaticBitmap):
 	def __init_ui(self):
 		self.Bind(wx.EVT_LEFT_UP, self._on_bitmap_leftclicked)
 		self.Bind(wx.EVT_CHAR, self._on_char)
-
-	#--------------------------------------------------------
-	def __rescale2width(self):
-		try:
-			img_data = wx.Image(self.__filename, wx.BITMAP_TYPE_ANY)
-			orig_width = img_data.GetWidth()
-		except Exception:
-			_log.exception('cannot load image from [%s]', self.__filename)
-			return False
-
-		if self.__target_width:
-			target_width = max(self.__target_width, self.__min_width)
-		else:
-			target_width = max(orig_width, self.__min_width)
-		try:
-			orig_height = img_data.GetHeight()
-			target_height = round(orig_height / orig_width) * target_width
-			img_data.Rescale(target_width, target_height, quality = wx.IMAGE_QUALITY_HIGH)
-		except Exception:
-			_log.exception('cannot resize image from [%s]', self.__filename)
-			return False
-
-		try:
-			bitmap = wx.Bitmap(img_data)
-		except Exception:
-			_log.exception('cannot create bitmap from image in [%s]', self.__filename)
-			return False
-
-		return bitmap
 
 	#--------------------------------------------------------
 	def __adjust_bitmap(self):
@@ -203,7 +181,6 @@ class cImageDisplay(wx.lib.statbmp.GenStaticBitmap):
 		if not self.__filename:
 			return None
 
-		#bitmap = self.__rescale2width()
 		bitmap = self.__adjust_bitmap()
 		if not bitmap:
 			return False
@@ -238,7 +215,6 @@ if __name__ == "__main__":
 		main_pnl = wx.Panel(main_frame)
 		img_display = cImageDisplay(main_pnl, ID = -1, bitmap = None)
 		img_display.patient = gmPerson.gmCurrentPatient()
-		img_display.target_width = 800
 		img_display.filename = sys.argv[2]
 		main_szr = wx.BoxSizer(wx.VERTICAL)
 		main_szr.Add(img_display)
