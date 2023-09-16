@@ -48,7 +48,6 @@ class cImageDisplay(wx.lib.statbmp.GenStaticBitmap):
 		Returns:
 			True/False based on whether the character mapped to a command.
 		"""
-
 		match char:
 			case 'r':
 				self.__current_rotation += 90
