@@ -1625,7 +1625,7 @@ class DnDMixin:
 		return None
 
 #================================================================
-class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorterMixin, SelectionStateMixin, wx.ListCtrl):#
+class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorterMixin, SelectionStateMixin, wx.ListCtrl):
 
 	# sorting: at set_string_items() time all items will be
 	# adorned with their initial row number as wxPython data,
@@ -2317,6 +2317,26 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 		self.DeleteItem(item_idx)
 		self.__tt_last_item = None
 		self.invalidate_sorting_metadata()
+
+	#------------------------------------------------------------
+	# checked items interface
+	#------------------------------------------------------------
+	def get_checked_items(self):
+		if self.ItemCount == 0:
+			return []
+
+		return [ item_idx for item_idx in range(self.ItemCount) if self.IsItemChecked(item_idx) ]
+
+	checked_items = property(get_checked_items)
+
+	#------------------------------------------------------------
+	def get_checked_items_data(self):
+		if self.ItemCount == 0:
+			return []
+
+		return [ self.__data[self.map_item_idx2data_idx(item_idx)] for item_idx in range(self.ItemCount) if self.IsItemChecked(item_idx) ]
+
+	checked_items_data = property(get_checked_items_data)
 
 	#------------------------------------------------------------
 	# internal helpers
