@@ -24,6 +24,12 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
+else:
+	try: _		# do we already have _() ?
+	except NameError:
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmTools
@@ -891,6 +897,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 		return self.__person
 
 	person = property(_get_person, _set_person)
+
 	#--------------------------------------------------------
 	# utility methods
 	#--------------------------------------------------------
@@ -898,9 +905,10 @@ class cPersonSearchCtrl(wx.TextCtrl):
 		name = ''
 
 		if self.person is not None:
-			name = self.person['description']
+			name = self.person.description
 
 		self.SetValue(name)
+
 	#--------------------------------------------------------
 	def _remember_ident(self, ident=None):
 
@@ -919,6 +927,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 			self.__prev_idents.pop(0)
 
 		return True
+
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
@@ -1024,7 +1033,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 
 		# same person anyways ?
 		if self.person is not None:
-			if curr_search_term == self.person['description']:
+			if curr_search_term == self.person.description:
 				return None
 
 		# remember search fragment
@@ -1377,14 +1386,31 @@ class cActivePatientSelector(cPersonSearchCtrl):
 #------------------------------------------------------------
 if __name__ == "__main__":
 
-	if len(sys.argv) > 1:
-		if sys.argv[1] == 'test':
+	if len(sys.argv) < 2:
+		sys.exit()
 
-			app = wx.PyWidgetTester(size = (200, 40))
-#			app.SetWidget(cSelectPersonFromListDlg, -1)
-			app.SetWidget(cPersonSearchCtrl, -1)
-#			app.SetWidget(cActivePatientSelector, -1)
-			app.MainLoop()
+	if sys.argv[1] != 'test':
+		sys.exit()
+
+	from Gnumed.pycommon import gmLog2
+	# setup a real translation
+	del _
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
+
+	from Gnumed.wxpython import gmGuiTest
+
+	#--------------------------------------------------------
+	def test_searcher():
+		wx.Log.EnableLogging(enable = False)
+		gmGuiTest.test_widget(cPersonSearchCtrl, patient = None)
+
+	#--------------------------------------------------------
+	test_searcher()
+
+#	app.SetWidget(cSelectPersonFromListDlg, -1)
+#	app.SetWidget(cActivePatientSelector, -1)
 
 #============================================================
 # docs
