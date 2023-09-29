@@ -51,6 +51,10 @@ FIX: Py3.13: will remove mailcap module
 # rel-1-8-maint
 ------------------------------------------------
 
+	1.8.16
+
+IMPROVED: plugin PACS: layout
+
 	1.8.15
 
 IMPROVED: person search: query speed

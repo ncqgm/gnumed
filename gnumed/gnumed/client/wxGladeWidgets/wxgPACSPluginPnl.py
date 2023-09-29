@@ -151,6 +151,8 @@ class wxgPACSPluginPnl(wx.Panel):
 		self._BTN_verify_patient_data.Enable(False)
 		__szr_patient_buttons.Add(self._BTN_verify_patient_data, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.TOP, 3)
 
+		__szr_image_and_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+
 		__szr_pacs_buttons = wx.StaticBoxSizer(wx.StaticBox(self, wx.ID_ANY, _("PACS")), wx.VERTICAL)
 		__szr_image_and_buttons.Add(__szr_pacs_buttons, 0, wx.EXPAND | wx.LEFT, 2)
 
