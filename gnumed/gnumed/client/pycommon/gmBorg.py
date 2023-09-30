@@ -5,7 +5,7 @@ __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL v2 or later"
 
 #===================================================
-class cBorg(object):
+class cBorg:
 	"""A generic Borg mixin for new-style classes.
 
 	- mixin this class with your class' ancestors to borg it
