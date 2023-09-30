@@ -151,6 +151,20 @@ class cIncomingData(gmBusinessDBObject.cBusinessDBObject):
 	def unlock(self, exclusive=False):
 		return gmPG2.unlock_row(table = 'clin.incoming_data_unmatched', pk = self.pk_obj, exclusive = exclusive)
 
+	#--------------------------------------------------------
+	def _set_patient(self, patient, conn=None):
+		if isinstance(patient, int):
+			pk_pat = patient
+		else:
+			pk_pat = patient['pk_identity']
+		if self['pk_identity_disambiguated'] == pk_pat:
+			return
+
+		self['pk_identity_disambiguated'] = patient
+		self.save(conn = conn)
+
+	patient = property(fset = _set_patient)
+
 #------------------------------------------------------------
 def get_incoming_data(order_by=None, return_pks=False):
 	if order_by is None:
