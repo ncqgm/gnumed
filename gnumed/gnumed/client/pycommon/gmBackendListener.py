@@ -36,7 +36,7 @@ class gmBackendListener(gmBorg.cBorg):
 	def __init__(self, conn=None, poll_interval:int=3):
 		try:
 			# pylint: disable=access-member-before-definition
-			self.already_inited:bool
+			self.already_inited
 			return
 
 		except AttributeError:
