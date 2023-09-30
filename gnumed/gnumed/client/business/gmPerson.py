@@ -704,6 +704,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		}
 
 	description_gender = property(get_description_gender)
+
 	#--------------------------------------------------------
 	def get_description(self, with_nickname:bool=True) -> str:
 		if with_nickname:
@@ -718,6 +719,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		}
 
 	description = property(get_description)
+
 	#--------------------------------------------------------
 	def add_name(self, firstnames:str, lastnames:str, active:bool=True) -> cPersonName:
 		"""Add a name.
