@@ -433,16 +433,13 @@ class gmPaths(gmBorg.cBorg):
 			wx: wxPython module reference, optional, used to detect more standard paths
 		"""
 		if hasattr(self, 'already_inited'):
-			return
+			if not wx:
+				return
+			if self.__wx:
+				return
 
-#		try:
-#			self.already_inited:bool			# pylint: disable=access-member-before-definition
-#			return
-#
-#		except AttributeError:
-#			pass
-
-		self.init_paths(app_name = app_name, wx = wx)
+		self.__wx = wx
+		self.init_paths(app_name = app_name)
 		self.already_inited:bool = True
 
 	#--------------------------------------
@@ -455,7 +452,9 @@ class gmPaths(gmBorg.cBorg):
 			app_name: name of application, default "name of main script without .py"
 			wx: wxPython module reference, optional, used to better detect standard paths
 		"""
-		if wx is None:
+		if not self.__wx:
+			self.__wx = wx
+		if not self.__wx:
 			_log.debug('wxPython not available')
 		_log.debug('detecting paths directly')
 
@@ -549,14 +548,13 @@ class gmPaths(gmBorg.cBorg):
 		create_directory_description_file(directory = self.bytea_cache_dir, readme = 'cache dir for BYTEA data')
 
 		self.__log_paths()
-		if wx is None:
+		if not self.__wx:
 			return True
 
 		# retry with wxPython
 		_log.debug('re-detecting paths with wxPython')
-
-		std_paths = wx.StandardPaths.Get()
-		_log.info('wxPython app name is [%s]', wx.GetApp().GetAppName())
+		std_paths = self.__wx.StandardPaths.Get()
+		_log.info('wxPython app name is [%s]', self.__wx.GetApp().GetAppName())
 
 		# user-specific config dir, usually below the home dir
 		_dir = std_paths.UserConfigDir
@@ -582,7 +580,7 @@ class gmPaths(gmBorg.cBorg):
 		# system-wide application data dir
 		# Robin attests that the following doesn't always
 		# give sane values on Windows, so IFDEF it
-		if 'wxMSW' in wx.PlatformInfo:
+		if 'wxMSW' in self.__wx.PlatformInfo:
 			_log.warning('this platform (wxMSW) sometimes returns a broken value for the system-wide application data dir')
 		else:
 			try:
@@ -2360,13 +2358,14 @@ if __name__ == '__main__':
 	def test_gmPaths():
 		print("testing gmPaths()")
 		print("-----------------")
+		#paths = gmPaths(wx=wx, app_name='gnumed')
 		paths = gmPaths(wx=None, app_name='gnumed')
 		print("user       home dir:", paths.home_dir)
 		print("user     config dir:", paths.user_config_dir)
 		print("user    appdata dir:", paths.user_appdata_dir)
 		print("user       work dir:", paths.user_work_dir)
 		print("user       temp dir:", paths.user_tmp_dir)
-		print("user+app   temp dir:", paths.tmp_dir)
+		print("app@user   temp dir:", paths.tmp_dir)
 		print("system   config dir:", paths.system_config_dir)
 		print("local      base dir:", paths.local_base_dir)
 		print("system app data dir:", paths.system_app_data_dir)
@@ -2758,7 +2757,7 @@ second line\n
 	#test_capitalize()
 	#test_import_module()
 	#test_mkdir()
-	#test_gmPaths()
+	test_gmPaths()
 	#test_none_if()
 	#test_bool2str()
 	#test_bool2subst()
@@ -2792,6 +2791,6 @@ second line\n
 	#test_create_dir_desc_file()
 	#test_dir_list_files()
 	#test_decorate_window_title()
-	test_rename_file()
+	#test_rename_file()
 
 #===========================================================================

@@ -936,7 +936,6 @@ def setup_cfg():
 	Parts of this will have limited value due to
 	wxPython not yet being available.
 	"""
-
 	enc = gmI18N.get_encoding()
 	paths = gmTools.gmPaths(app_name = 'gnumed')
 

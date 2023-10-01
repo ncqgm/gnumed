@@ -45,7 +45,7 @@ class cPatientPicture(wx.StaticBitmap):
 
 		wx.StaticBitmap.__init__(self, *args, **kwargs)
 
-		paths = gmTools.gmPaths(app_name = 'gnumed', wx = wx)
+		paths = gmTools.gmPaths()
 		self.__fallback_pic_name = os.path.join(paths.system_app_data_dir, 'bitmaps', 'empty-face-in-bust.png')
 		self.__desired_width = 50
 		self.__desired_height = 54

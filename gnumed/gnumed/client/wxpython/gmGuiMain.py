@@ -3407,45 +3407,17 @@ class cStatusBar(wx.StatusBar):
 class gmApp(wx.App):
 
 	def OnInit(self):
-
 		if _cfg.get(option = 'debug'):
 			self.SetAssertMode(wx.APP_ASSERT_EXCEPTION | wx.APP_ASSERT_LOG)
 		else:
 			self.SetAssertMode(wx.APP_ASSERT_SUPPRESS)
-
 		self.__starting_up = True
-
-		# show tooltips for x msecs
-		wx.ToolTip.SetAutoPop(4000)
-
+		wx.ToolTip.SetAutoPop(3000)		# show tooltips for x msecs
 		gmExceptionHandlingWidgets.install_wx_exception_handler()
 		gmExceptionHandlingWidgets.set_client_version(_cfg.get(option = 'client_version'))
-
-		self.SetAppName('gnumed')				# set this so things like "wx.StandardPaths.GetDataDir()" work as expected
-		self.SetVendorName('gnumed_community')
-		try:
-			self.SetAppDisplayName('GNUmed %s' % _cfg.get(option = 'client_version'))
-		except AttributeError:
-			_log.info('SetAppDisplayName() not supported')
-		try:
-			self.SetVendorDisplayName('The GNUmed Development Community.')
-		except AttributeError:
-			_log.info('SetVendorDisplayName() not supported')
-		paths = gmTools.gmPaths(app_name = 'gnumed', wx = wx)
-		paths.init_paths(wx = wx, app_name = 'gnumed')
-
-		# log display properties
-		dw, dh = wx.DisplaySize()
-		_log.info('display size: %s:%s' % (wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X), wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)))
-		_log.debug('display size: %s:%s %s mm', dw, dh, wx.DisplaySizeMM())
-		for disp_idx in range(wx.Display.GetCount()):
-			disp = wx.Display(disp_idx)
-			disp_mode = disp.CurrentMode
-			_log.debug('display [%s] "%s": primary=%s, client_area=%s, geom=%s, vid_mode=[%sbpp across %sx%spx @%sHz]',
-				disp_idx, disp.Name, disp.IsPrimary(), disp.ClientArea, disp.Geometry,
-				disp_mode.bpp, disp_mode.Width, disp_mode.Height, disp_mode.refresh
-			)
-
+		self.__setup_wx_app_identifiers()
+		gmTools.gmPaths(app_name = 'gnumed', wx = wx)
+		self.__log_display_properties()
 		if not self.__setup_prefs_file():
 			return False
 
@@ -3463,27 +3435,15 @@ class gmApp(wx.App):
 
 		self.__check_db_lang()
 		self.__update_workplace_list()
-		if not _cfg.get(option = 'skip-update-check'):
-			self.__check_for_updates()
-
-		if _cfg.get(option = 'slave'):
-			if not self.__setup_scripting_listener():
-				return False
+		self.__check_for_updates()
+		if not self.__setup_scripting_listener():
+			return False
 
 		frame = gmTopLevelFrame(None, id = -1, title = _('GNUmed client'), size = (640, 440))
 		frame.CentreOnScreen(wx.BOTH)
 		self.SetTopWindow(frame)
 		frame.Show(True)
-
-		if _cfg.get(option = 'debug'):
-			self.RedirectStdio()
-			self.SetOutputWindowAttributes(title = _('GNUmed stdout/stderr window'))
-			# print this so people know what this window is for
-			# and don't get surprised when it pops up later
-			print('---=== GNUmed startup ===---')
-			print(_('redirecting STDOUT/STDERR to this log window'))
-			print('---=== GNUmed startup ===---')
-
+		self.__setup_debugging_output()
 		self.__setup_user_activity_timer()
 		self.__register_events()
 		wx.CallAfter(self._do_after_init)
@@ -3614,7 +3574,50 @@ class gmApp(wx.App):
 		self.Bind(wx.EVT_KEY_DOWN, self._on_user_activity)
 
 	#----------------------------------------------
+	def __setup_debugging_output(self):
+		if not _cfg.get(option = 'debug'):
+			return
+
+		self.RedirectStdio()
+		self.SetOutputWindowAttributes(title = _('GNUmed STDOUT/STDERR window'))
+		# print this so people know what this window is for
+		# and don't get surprised when it pops up later
+		print('---=== GNUmed startup ===---')
+		print(_('redirecting STDOUT/STDERR to this log window'))
+		print('---=== GNUmed startup ===---')
+
+	#----------------------------------------------
+	def __setup_wx_app_identifiers(self):
+		# set this so things like "wx.StandardPaths.GetDataDir()" work as expected
+		self.SetAppName('gnumed')
+		self.SetVendorName('gnumed_community')
+		try:
+			self.SetAppDisplayName('GNUmed %s' % _cfg.get(option = 'client_version'))
+		except AttributeError:
+			_log.info('SetAppDisplayName() not supported')
+		try:
+			self.SetVendorDisplayName('The GNUmed Development Community.')
+		except AttributeError:
+			_log.info('SetVendorDisplayName() not supported')
+
+	#----------------------------------------------
+	def __log_display_properties(self):
+		dw, dh = wx.DisplaySize()
+		_log.info('display size: %s:%s' % (wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X), wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)))
+		_log.debug('display size: %s:%s %s mm', dw, dh, wx.DisplaySizeMM())
+		for disp_idx in range(wx.Display.GetCount()):
+			disp = wx.Display(disp_idx)
+			disp_mode = disp.CurrentMode
+			_log.debug('display [%s] "%s": primary=%s, client_area=%s, geom=%s, vid_mode=[%sbpp across %sx%spx @%sHz]',
+				disp_idx, disp.Name, disp.IsPrimary(), disp.ClientArea, disp.Geometry,
+				disp_mode.bpp, disp_mode.Width, disp_mode.Height, disp_mode.refresh
+			)
+
+	#----------------------------------------------
 	def __check_for_updates(self):
+		if _cfg.get(option = 'skip-update-check'):
+			return
+
 		do_check = gmCfgDB.get4workplace (
 			option = 'horstspace.update.autocheck_at_startup',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
@@ -3735,8 +3738,7 @@ class gmApp(wx.App):
 	def __setup_prefs_file(self):
 		"""Setup access to a config file for storing preferences."""
 
-		paths = gmTools.gmPaths(app_name = 'gnumed', wx = wx)
-
+		paths = gmTools.gmPaths()
 		candidates = []
 		explicit_file = _cfg.get(option = '--conf-file', source_order = [('cli', 'return')])
 		if explicit_file is not None:
@@ -3774,6 +3776,8 @@ class gmApp(wx.App):
 
 	#----------------------------------------------
 	def __setup_scripting_listener(self):
+		if not _cfg.get(option = 'slave'):
+			return True
 
 		from socket import error as SocketError
 		from Gnumed.pycommon import gmScriptingListener
