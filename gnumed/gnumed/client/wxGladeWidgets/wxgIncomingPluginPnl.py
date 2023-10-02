@@ -39,10 +39,19 @@ class wxgIncomingPluginPnl(wx.Panel):
 		self._TCTRL_search_patient = cPersonSearchCtrl(self, wx.ID_ANY, "")
 		__szr_search_patient.Add(self._TCTRL_search_patient, 1, wx.EXPAND | wx.RIGHT, 3)
 
+		__szr_assign_buttons = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_lists.Add(__szr_assign_buttons, 0, wx.EXPAND, 0)
+
 		self._BTN_assign_patient2items = wx.Button(self, wx.ID_ANY, _("&Assign patient to items"))
 		self._BTN_assign_patient2items.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, 0, ""))
 		self._BTN_assign_patient2items.SetToolTip(_("Assign patient to checkmarked items."))
-		__szr_lists.Add(self._BTN_assign_patient2items, 0, wx.EXPAND | wx.TOP, 2)
+		__szr_assign_buttons.Add(self._BTN_assign_patient2items, 3, wx.EXPAND, 1)
+
+		__szr_assign_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+
+		self._BTN_unassign_patient = wx.Button(self, wx.ID_ANY, _("Unassign"))
+		self._BTN_unassign_patient.SetToolTip(_("Remvoe patient from selected item."))
+		__szr_assign_buttons.Add(self._BTN_unassign_patient, 0, wx.EXPAND, 0)
 
 		__szr_previews_with_buttons = wx.BoxSizer(wx.VERTICAL)
 		__szr_main.Add(__szr_previews_with_buttons, 2, wx.EXPAND, 0)
@@ -53,7 +62,7 @@ class wxgIncomingPluginPnl(wx.Panel):
 		__LBL_item = wx.StaticText(self, wx.ID_ANY, _("Item:"))
 		__szr_preview_buttons.Add(__LBL_item, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
 
-		self._BTN_toggle_item_checkbox = wx.Button(self, wx.ID_ANY, _(" &Check "), style=wx.BU_EXACTFIT)
+		self._BTN_toggle_item_checkbox = wx.Button(self, wx.ID_ANY, _("&Check "), style=wx.BU_EXACTFIT)
 		self._BTN_toggle_item_checkbox.SetToolTip(_("Check/uncheck selected item."))
 		__szr_preview_buttons.Add(self._BTN_toggle_item_checkbox, 0, wx.EXPAND | wx.RIGHT, 3)
 
@@ -73,10 +82,10 @@ class wxgIncomingPluginPnl(wx.Panel):
 		self._BTN_prev_page = wx.Button(self, wx.ID_ANY, _(u" ◀ &prev "), style=wx.BU_EXACTFIT)
 		__szr_preview_buttons.Add(self._BTN_prev_page, 0, wx.EXPAND | wx.RIGHT, 3)
 
-		self._BTN_first_page = wx.Button(self, wx.ID_ANY, _(" &1 "), style=wx.BU_EXACTFIT)
+		self._BTN_first_page = wx.Button(self, wx.ID_ANY, _("&1 "), style=wx.BU_EXACTFIT)
 		__szr_preview_buttons.Add(self._BTN_first_page, 0, wx.EXPAND | wx.RIGHT, 3)
 
-		self._BTN_next_page = wx.Button(self, wx.ID_ANY, _(u" &next ▶"), style=wx.BU_EXACTFIT)
+		self._BTN_next_page = wx.Button(self, wx.ID_ANY, _(u"&next ▶"), style=wx.BU_EXACTFIT)
 		__szr_preview_buttons.Add(self._BTN_next_page, 0, wx.EXPAND, 0)
 
 		__szr_preview_buttons.Add((20, 20), 1, wx.EXPAND, 0)
@@ -106,6 +115,7 @@ class wxgIncomingPluginPnl(wx.Panel):
 		self.Layout()
 
 		self.Bind(wx.EVT_BUTTON, self._on_assign_items2patient_button_pressed, self._BTN_assign_patient2items)
+		self.Bind(wx.EVT_BUTTON, self._on_unassign_patient_button_pressed, self._BTN_unassign_patient)
 		self.Bind(wx.EVT_BUTTON, self._on_toggle_item_checkbox_button_pressed, self._BTN_toggle_item_checkbox)
 		self.Bind(wx.EVT_BUTTON, self._on_remove_item_button_pressed, self._BTN_remove_item)
 		self.Bind(wx.EVT_BUTTON, self._on_view_item_button_pressed, self._BTN_view_item)
@@ -117,6 +127,10 @@ class wxgIncomingPluginPnl(wx.Panel):
 
 	def _on_assign_items2patient_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
 		print("Event handler '_on_assign_items2patient_button_pressed' not implemented!")
+		event.Skip()
+
+	def _on_unassign_patient_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
+		print("Event handler '_on_unassign_patient_button_pressed' not implemented!")
 		event.Skip()
 
 	def _on_toggle_item_checkbox_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>

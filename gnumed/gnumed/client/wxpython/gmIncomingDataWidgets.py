@@ -332,6 +332,15 @@ class cIncomingPluginPnl(wxgIncomingPluginPnl.wxgIncomingPluginPnl, gmRegetMixin
 		for incoming_item in self._LCTRL_items.checked_items_data:
 			incoming_item.patient = pat
 
+	#--------------------------------------------------------
+	def _on_unassign_patient_button_pressed(self, event):
+		event.Skip()
+		item = self._LCTRL_items.selected_item_data
+		if not item:
+			return
+
+		item.patient = None
+
 #============================================================
 # main
 #------------------------------------------------------------
