@@ -10,6 +10,10 @@
 
 -- --------------------------------------------------------------
 drop table if exists cfg.config cascade;
+drop table if exists cfg.cfg_str_array cascade;
+drop table if exists cfg.cfg_string cascade;
+drop table if exists cfg.cfg_numeric cascade;
+drop table if exists cfg.cfg_data cascade;
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v23-cfg-drop_old.sql', 'v23');
