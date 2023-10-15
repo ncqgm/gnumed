@@ -453,8 +453,8 @@ def get_devices():
 		# TWAIN does not support get_devices():
 		# devices can only be selected from within TWAIN itself
 		return None
-	except ImportError:
-		pass
+
+	except ImportError: pass
 
 	if use_XSane:
 		# neither does XSane
@@ -462,6 +462,15 @@ def get_devices():
 
 	_sane_import_module()
 	return _sane_module.get_devices()
+
+#-----------------------------------------------------
+def __acquire_pages_into_files(delay=None, filename=None, scanner=None):
+	_log.debug('requested filename: [%s]' % filename)
+	fnames = scanner.acquire_pages_into_files(filename=filename, delay=delay)
+	scanner.close()
+	_log.debug('acquired pages into files: %s', fnames)
+	return fnames
+
 #-----------------------------------------------------
 def acquire_pages_into_files(device=None, delay=None, filename=None, calling_window=None, xsane_device_settings=None):
 	"""Connect to a scanner and return the scanned pages as a file list.
@@ -473,22 +482,25 @@ def acquire_pages_into_files(device=None, delay=None, filename=None, calling_win
 	try:
 		scanner = cTwainScanner(calling_window=calling_window)
 		_log.debug('using TWAIN')
-	except ImportError:
-		if use_XSane:
-			_log.debug('using XSane')
-			scanner = cXSaneScanner()
-			scanner.device_settings_file = xsane_device_settings
-			scanner.default_device = device
-		else:
-			_log.debug('using SANE directly')
-			scanner = cSaneScanner(device=device)
+		return __acquire_pages_into_files(delay = delay, filename = filename, scanner = scanner)
 
-	_log.debug('requested filename: [%s]' % filename)
-	fnames = scanner.acquire_pages_into_files(filename=filename, delay=delay)
-	scanner.close()
-	_log.debug('acquired pages into files: %s' % str(fnames))
+	except ImportError: pass
+	try:
+		scanner = cXSaneScanner()
+		_log.debug('using XSane')
+		scanner.device_settings_file = xsane_device_settings
+		scanner.default_device = device
+		return __acquire_pages_into_files(delay = delay, filename = filename, scanner = scanner)
 
-	return fnames
+	except ImportError: pass
+	try:
+		_log.debug('using SANE directly')
+		scanner = cSaneScanner(device = device)
+		return __acquire_pages_into_files(delay = delay, filename = filename, scanner = scanner)
+
+	except ImportError: pass
+	return None
+
 #==================================================
 # main
 #==================================================
