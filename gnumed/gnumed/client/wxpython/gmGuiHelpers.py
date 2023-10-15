@@ -47,6 +47,7 @@ class cThreeValuedLogicPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp.ignored_chars = r"[.'\\(){}\[\]<>~#*$%^_=&@\t23456]+" + r'"'
 
 		self.matcher = mp
+
 # ========================================================================
 from Gnumed.wxGladeWidgets import wxg2ButtonQuestionDlg
 
@@ -121,6 +122,26 @@ class c2ButtonQuestionDlg(wxg2ButtonQuestionDlg.wxg2ButtonQuestionDlg):
 			self.EndModal(wx.ID_NO)
 		else:
 			self.Close()
+
+# ========================================================================
+def gm_show_rich_question(question:str=None, title:str=None, buttons=None):
+	"""
+		buttons = [
+			{'label': _(''), 'tooltip': _(''), 'default': True/False},
+			{'label': _(''), 'tooltip': _(''), 'default': True/False}
+		]
+	"""
+	if not buttons:
+		buttons = [
+			{'label': _('Yes'), 'tooltip': ''},
+			{'label': _('No'), 'tooltip': ''}
+		]
+	if len(buttons) == 2:
+		buttons.append({'label': _('Cancel'), 'tooltip': '', 'default': True})
+	dlg = c3ButtonQuestionDlg(None, -1, caption = title, question = question, button_defs = buttons)
+	result = dlg.ShowModal()
+	dlg.DestroyLater()
+	return result # wx.ID_YES, wx.ID_NO, wx.ID_CANCEL
 
 # ========================================================================
 from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg

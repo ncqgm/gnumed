@@ -18,43 +18,43 @@ class wxg3ButtonQuestionDlg(wx.Dialog):
 		# begin wxGlade: wxg3ButtonQuestionDlg.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_DIALOG_STYLE | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX | wx.RESIZE_BORDER | wx.STAY_ON_TOP
 		wx.Dialog.__init__(self, *args, **kwds)
-		self._LBL_question = wx.StaticText(self, wx.ID_ANY, _("Put question here."))
-		self._CHBOX_dont_ask_again = wx.CheckBox(self, wx.ID_ANY, _("Remember and don't ask again."))
-		self._BTN_1 = wx.Button(self, wx.ID_YES, "")
-		self._BTN_2 = wx.Button(self, wx.ID_NO, "")
-		self._BTN_3 = wx.Button(self, wx.ID_CANCEL, "")
+		self.SetTitle(_("Put caption here."))
 
-		self.__set_properties()
-		self.__do_layout()
+		__szr_main = wx.BoxSizer(wx.VERTICAL)
+
+		self._LBL_question = wx.StaticText(self, wx.ID_ANY, _("Put question here."))
+		__szr_main.Add(self._LBL_question, 1, wx.ALL | wx.EXPAND, 10)
+
+		__top_bottom_separator = wx.StaticLine(self, wx.ID_ANY)
+		__szr_main.Add(__top_bottom_separator, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 5)
+
+		self._CHBOX_dont_ask_again = wx.CheckBox(self, wx.ID_ANY, _("Remember and don't ask again."))
+		self._CHBOX_dont_ask_again.SetToolTip(_("Check this if you want GNUmed to remember your decision and not ask you again."))
+		__szr_main.Add(self._CHBOX_dont_ask_again, 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
+
+		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_main.Add(__szr_buttons, 0, wx.ALL | wx.EXPAND, 10)
+
+		self._BTN_1 = wx.Button(self, wx.ID_YES, "")
+		__szr_buttons.Add(self._BTN_1, 0, wx.EXPAND | wx.RIGHT, 3)
+
+		self._BTN_2 = wx.Button(self, wx.ID_NO, "")
+		__szr_buttons.Add(self._BTN_2, 0, wx.EXPAND, 0)
+
+		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+
+		self._BTN_3 = wx.Button(self, wx.ID_CANCEL, "")
+		self._BTN_3.SetDefault()
+		__szr_buttons.Add(self._BTN_3, 0, wx.EXPAND, 0)
+
+		self.SetSizer(__szr_main)
+		__szr_main.Fit(self)
+
+		self.Layout()
+		self.Centre()
 
 		self.Bind(wx.EVT_BUTTON, self._on_BTN_1_pressed, self._BTN_1)
 		self.Bind(wx.EVT_BUTTON, self._on_BTN_2_pressed, self._BTN_2)
-		# end wxGlade
-
-	def __set_properties(self):
-		# begin wxGlade: wxg3ButtonQuestionDlg.__set_properties
-		self.SetTitle(_("Put caption here."))
-		self._CHBOX_dont_ask_again.SetToolTip(_("Check this if you want GNUmed to remember your decision and not ask you again."))
-		self._BTN_1.SetDefault()
-		# end wxGlade
-
-	def __do_layout(self):
-		# begin wxGlade: wxg3ButtonQuestionDlg.__do_layout
-		__szr_main = wx.BoxSizer(wx.VERTICAL)
-		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_main.Add(self._LBL_question, 1, wx.ALL | wx.EXPAND, 10)
-		top_bottom_separator = wx.StaticLine(self, wx.ID_ANY)
-		__szr_main.Add(top_bottom_separator, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.LEFT | wx.RIGHT, 5)
-		__szr_main.Add(self._CHBOX_dont_ask_again, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT | wx.RIGHT | wx.TOP, 10)
-		__szr_buttons.Add(self._BTN_1, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.RIGHT, 3)
-		__szr_buttons.Add(self._BTN_2, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__szr_buttons.Add((20, 20), 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__szr_buttons.Add(self._BTN_3, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__szr_main.Add(__szr_buttons, 0, wx.ALL | wx.EXPAND, 10)
-		self.SetSizer(__szr_main)
-		__szr_main.Fit(self)
-		self.Layout()
-		self.Centre()
 		# end wxGlade
 
 	def _on_BTN_1_pressed(self, event):  # wxGlade: wxg3ButtonQuestionDlg.<event_handler>
