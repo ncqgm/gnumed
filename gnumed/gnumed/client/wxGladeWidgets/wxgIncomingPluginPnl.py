@@ -9,11 +9,8 @@ import wx
 import gettext
 # end wxGlade
 
-#from Gnumed.wxpython.gmIncomingDataWidgets import cIncomingDataListCtrl
-
 # begin wxGlade: extracode
-from Gnumed.wxpython.gmIncomingDataWidgets import cReportListCtrl
-from Gnumed.wxpython.gmImageViewer import cSingleFileImageViewerPnl
+from Gnumed.wxpython.gmFilePreviewer import cFilePreviewPnl
 from Gnumed.wxpython.gmPatSearchWidgets import cPersonSearchCtrl
 # end wxGlade
 
@@ -29,6 +26,7 @@ class wxgIncomingPluginPnl(wx.Panel):
 		__szr_lists = wx.BoxSizer(wx.VERTICAL)
 		__szr_main.Add(__szr_lists, 1, wx.EXPAND, 0)
 
+		from Gnumed.wxpython.gmIncomingDataWidgets import cIncomingDataListCtrl
 		self._LCTRL_items = cIncomingDataListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_HRULES | wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_VRULES)
 		__szr_lists.Add(self._LCTRL_items, 2, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 2)
 
@@ -52,64 +50,19 @@ class wxgIncomingPluginPnl(wx.Panel):
 		__szr_assign_buttons.Add((20, 20), 1, wx.EXPAND, 0)
 
 		self._BTN_unassign_patient = wx.Button(self, wx.ID_ANY, _("Unassign"))
-		self._BTN_unassign_patient.SetToolTip(_("Remvoe patient from selected item."))
+		self._BTN_unassign_patient.SetToolTip(_("Remove patient from selected item."))
 		__szr_assign_buttons.Add(self._BTN_unassign_patient, 0, wx.EXPAND, 0)
 
-		__szr_previews_with_buttons = wx.BoxSizer(wx.VERTICAL)
-		__szr_main.Add(__szr_previews_with_buttons, 2, wx.EXPAND, 0)
+		__szr_assign_buttons.Add((20, 20), 2, wx.EXPAND, 0)
 
-		__szr_preview_buttons = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_previews_with_buttons.Add(__szr_preview_buttons, 0, wx.EXPAND, 0)
+		self._BTN_remove_item = wx.Button(self, wx.ID_ANY, _("Remove"))
+		self._BTN_remove_item.SetToolTip(_("Remove item from incoming area."))
+		__szr_assign_buttons.Add(self._BTN_remove_item, 0, wx.EXPAND, 0)
 
-		__LBL_item = wx.StaticText(self, wx.ID_ANY, _("Item:"))
-		__szr_preview_buttons.Add(__LBL_item, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
+		__szr_assign_buttons.Add((20, 20), 1, wx.EXPAND, 0)
 
-		self._BTN_toggle_item_checkbox = wx.Button(self, wx.ID_ANY, _("&Check "), style=wx.BU_EXACTFIT)
-		self._BTN_toggle_item_checkbox.SetToolTip(_("Check/uncheck selected item."))
-		__szr_preview_buttons.Add(self._BTN_toggle_item_checkbox, 0, wx.EXPAND | wx.RIGHT, 3)
-
-		self._BTN_remove_item = wx.Button(self, wx.ID_ANY, _(" Remove "), style=wx.BU_EXACTFIT)
-		self._BTN_remove_item.SetToolTip(_("Remove selected item."))
-		__szr_preview_buttons.Add(self._BTN_remove_item, 0, wx.EXPAND | wx.RIGHT, 3)
-
-		self._BTN_view_item = wx.Button(self, wx.ID_ANY, _(" E&xternal "), style=wx.BU_EXACTFIT)
-		self._BTN_view_item.SetToolTip(_("Show selected item in external viewer."))
-		__szr_preview_buttons.Add(self._BTN_view_item, 0, wx.EXPAND, 2)
-
-		__szr_preview_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-
-		_LBL_previes = wx.StaticText(self, wx.ID_ANY, _("Preview:"))
-		__szr_preview_buttons.Add(_LBL_previes, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
-
-		self._BTN_prev_page = wx.Button(self, wx.ID_ANY, _(u" ◀ &prev "), style=wx.BU_EXACTFIT)
-		__szr_preview_buttons.Add(self._BTN_prev_page, 0, wx.EXPAND | wx.RIGHT, 3)
-
-		self._BTN_first_page = wx.Button(self, wx.ID_ANY, _("&1 "), style=wx.BU_EXACTFIT)
-		__szr_preview_buttons.Add(self._BTN_first_page, 0, wx.EXPAND | wx.RIGHT, 3)
-
-		self._BTN_next_page = wx.Button(self, wx.ID_ANY, _(u"&next ▶"), style=wx.BU_EXACTFIT)
-		__szr_preview_buttons.Add(self._BTN_next_page, 0, wx.EXPAND, 0)
-
-		__szr_preview_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-
-		self._BTN_switch_preview = wx.Button(self, wx.ID_ANY, _(" S&witch "), style=wx.BU_EXACTFIT)
-		self._BTN_switch_preview.SetToolTip(_("Switch to next preview among Image, Text, and Metadata."))
-		__szr_preview_buttons.Add(self._BTN_switch_preview, 0, wx.EXPAND, 0)
-
-		__szr_preview_buttons.Add((20, 20), 2, wx.EXPAND, 0)
-
-		self._SZR_previews = wx.StaticBoxSizer(wx.StaticBox(self, wx.ID_ANY, _(" Preview")), wx.VERTICAL)
-		__szr_previews_with_buttons.Add(self._SZR_previews, 1, wx.EXPAND, 0)
-
-		self._PNL_image_viewer = cSingleFileImageViewerPnl(self, wx.ID_ANY, style=wx.TAB_TRAVERSAL | wx.WANTS_CHARS)
-		self._SZR_previews.Add(self._PNL_image_viewer, 1, wx.EXPAND, 0)
-
-		self._TCTRL_preview = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.BORDER_NONE | wx.HSCROLL | wx.TE_DONTWRAP | wx.TE_MULTILINE | wx.TE_READONLY)
-		self._SZR_previews.Add(self._TCTRL_preview, 1, wx.EXPAND, 3)
-
-		self._TCTRL_metadata = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.BORDER_NONE | wx.HSCROLL | wx.TE_DONTWRAP | wx.TE_MULTILINE | wx.TE_READONLY)
-		self._TCTRL_metadata.SetFont(wx.Font(9, wx.FONTFAMILY_MODERN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
-		self._SZR_previews.Add(self._TCTRL_metadata, 1, wx.EXPAND, 2)
+		self._PNL_previews = cFilePreviewPnl(self, wx.ID_ANY, style=wx.BORDER_NONE)
+		__szr_main.Add(self._PNL_previews, 2, wx.EXPAND, 0)
 
 		self.SetSizer(__szr_main)
 		__szr_main.Fit(self)
@@ -118,13 +71,7 @@ class wxgIncomingPluginPnl(wx.Panel):
 
 		self.Bind(wx.EVT_BUTTON, self._on_assign_items2patient_button_pressed, self._BTN_assign_patient2items)
 		self.Bind(wx.EVT_BUTTON, self._on_unassign_patient_button_pressed, self._BTN_unassign_patient)
-		self.Bind(wx.EVT_BUTTON, self._on_toggle_item_checkbox_button_pressed, self._BTN_toggle_item_checkbox)
 		self.Bind(wx.EVT_BUTTON, self._on_remove_item_button_pressed, self._BTN_remove_item)
-		self.Bind(wx.EVT_BUTTON, self._on_view_item_button_pressed, self._BTN_view_item)
-		self.Bind(wx.EVT_BUTTON, self._on_prev_page_button_pressed, self._BTN_prev_page)
-		self.Bind(wx.EVT_BUTTON, self._on_first_page_button_pressed, self._BTN_first_page)
-		self.Bind(wx.EVT_BUTTON, self._on_next_page_button_pressed, self._BTN_next_page)
-		self.Bind(wx.EVT_BUTTON, self._on_switch_preview_button_pressed, self._BTN_switch_preview)
 		# end wxGlade
 
 	def _on_assign_items2patient_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
@@ -135,32 +82,8 @@ class wxgIncomingPluginPnl(wx.Panel):
 		print("Event handler '_on_unassign_patient_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_toggle_item_checkbox_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
-		print("Event handler '_on_toggle_item_checkbox_button_pressed' not implemented!")
-		event.Skip()
-
 	def _on_remove_item_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
 		print("Event handler '_on_remove_item_button_pressed' not implemented!")
-		event.Skip()
-
-	def _on_view_item_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
-		print("Event handler '_on_view_item_button_pressed' not implemented!")
-		event.Skip()
-
-	def _on_prev_page_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
-		print("Event handler '_on_prev_page_button_pressed' not implemented!")
-		event.Skip()
-
-	def _on_first_page_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
-		print("Event handler '_on_first_page_button_pressed' not implemented!")
-		event.Skip()
-
-	def _on_next_page_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
-		print("Event handler '_on_next_page_button_pressed' not implemented!")
-		event.Skip()
-
-	def _on_switch_preview_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
-		print("Event handler '_on_switch_preview_button_pressed' not implemented!")
 		event.Skip()
 
 # end of class wxgIncomingPluginPnl

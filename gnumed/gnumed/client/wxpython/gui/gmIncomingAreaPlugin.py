@@ -26,7 +26,7 @@ from Gnumed.wxpython import gmAccessPermissionWidgets
 
 _log = logging.getLogger('gm.auto-in-ui')
 #======================================================================
-class gmIncomingDataPlugin(gmPlugin.cNotebookPlugin):
+class gmIncomingAreaPlugin(gmPlugin.cNotebookPlugin):
 
 	tab_name = _('Incoming')
 	required_minimum_role = 'full clinical access'
@@ -77,7 +77,7 @@ if __name__ == "__main__":
 	#--------------------------------------------------------
 	def test_plugin():
 		#wx.Log.EnableLogging(enable = False)
-		gmGuiTest.test_widget(gmIncomingDataPlugin, patient = 12)
+		gmGuiTest.test_widget(gmIncomingAreaPlugin, patient = 12)
 
 	#--------------------------------------------------------
 	test_plugin()
