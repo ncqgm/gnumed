@@ -29,9 +29,9 @@ from Gnumed.pycommon import gmMimeLib
 _log = logging.getLogger('gm.img_ui')
 
 #============================================================
-from Gnumed.wxGladeWidgets.wxgSingleImageFileViewerPnl import wxgSingleImageFileViewerPnl
+from Gnumed.wxGladeWidgets.wxgSingleFileImageViewerPnl import wxgSingleFileImageViewerPnl
 
-class cSingleImageFileViewerPnl(wxgSingleImageFileViewerPnl):
+class cSingleFileImageViewerPnl(wxgSingleFileImageViewerPnl):
 	"""Panel showing an image allowing for manipulation.
 
 	Knows how to handle multi-page image formats.
@@ -131,7 +131,7 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------
 	def test_plugin():
-		gmGuiTest.test_widget(cSingleImageFileViewerPnl, patient = None, filename = sys.argv[2])
+		gmGuiTest.test_widget(cSingleFileImageViewerPnl, patient = None, filename = sys.argv[2])
 
 	#--------------------------------------------------------
 	test_plugin()

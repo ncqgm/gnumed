@@ -14,9 +14,9 @@ from Gnumed.wxpython.gmImageWidgets import cImageDisplay
 # end wxGlade
 
 
-class wxgSingleImageFileViewerPnl(wx.ScrolledWindow):
+class wxgSingleFileImageViewerPnl(wx.ScrolledWindow):
 	def __init__(self, *args, **kwds):
-		# begin wxGlade: wxgSingleImageFileViewerPnl.__init__
+		# begin wxGlade: wxgSingleFileImageViewerPnl.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.BORDER_NONE | wx.TAB_TRAVERSAL | wx.WANTS_CHARS
 		wx.ScrolledWindow.__init__(self, *args, **kwds)
 		self.SetScrollRate(10, 10)
@@ -32,4 +32,4 @@ class wxgSingleImageFileViewerPnl(wx.ScrolledWindow):
 		self.Layout()
 		# end wxGlade
 
-# end of class wxgSingleImageFileViewerPnl
+# end of class wxgSingleFileImageViewerPnl

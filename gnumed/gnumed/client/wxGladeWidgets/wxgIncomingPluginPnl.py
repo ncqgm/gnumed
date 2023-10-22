@@ -9,9 +9,11 @@ import wx
 import gettext
 # end wxGlade
 
+#from Gnumed.wxpython.gmIncomingDataWidgets import cIncomingDataListCtrl
+
 # begin wxGlade: extracode
-from Gnumed.wxpython.gmListWidgets import cReportListCtrl
-from Gnumed.wxpython.gmImageViewer import cSingleImageFileViewerPnl
+from Gnumed.wxpython.gmIncomingDataWidgets import cReportListCtrl
+from Gnumed.wxpython.gmImageViewer import cSingleFileImageViewerPnl
 from Gnumed.wxpython.gmPatSearchWidgets import cPersonSearchCtrl
 # end wxGlade
 
@@ -27,7 +29,7 @@ class wxgIncomingPluginPnl(wx.Panel):
 		__szr_lists = wx.BoxSizer(wx.VERTICAL)
 		__szr_main.Add(__szr_lists, 1, wx.EXPAND, 0)
 
-		self._LCTRL_items = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_HRULES | wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_VRULES)
+		self._LCTRL_items = cIncomingDataListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_HRULES | wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_VRULES)
 		__szr_lists.Add(self._LCTRL_items, 2, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 2)
 
 		__szr_search_patient = wx.BoxSizer(wx.HORIZONTAL)
@@ -99,7 +101,7 @@ class wxgIncomingPluginPnl(wx.Panel):
 		self._SZR_previews = wx.StaticBoxSizer(wx.StaticBox(self, wx.ID_ANY, _(" Preview")), wx.VERTICAL)
 		__szr_previews_with_buttons.Add(self._SZR_previews, 1, wx.EXPAND, 0)
 
-		self._PNL_image_viewer = cSingleImageFileViewerPnl(self, wx.ID_ANY, style=wx.TAB_TRAVERSAL | wx.WANTS_CHARS)
+		self._PNL_image_viewer = cSingleFileImageViewerPnl(self, wx.ID_ANY, style=wx.TAB_TRAVERSAL | wx.WANTS_CHARS)
 		self._SZR_previews.Add(self._PNL_image_viewer, 1, wx.EXPAND, 0)
 
 		self._TCTRL_preview = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.BORDER_NONE | wx.HSCROLL | wx.TE_DONTWRAP | wx.TE_MULTILINE | wx.TE_READONLY)
