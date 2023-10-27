@@ -60,18 +60,15 @@ fi
 echo "-------------------------------------------------"
 echo "config file: ${CONF}"
 echo "options: ${DEV_OPTS}"
-#export WXSUPPRESS_SIZER_FLAGS_CHECK="true"
 #python3 gnumed.py ${CONF} ${DEV_OPTS} "$@"
 #python3 gnumed.py ${CONF} ${DEV_OPTS} "$@" |& tee gm-vcs-console_output.log
 python3 gnumed.py ${CONF} ${DEV_OPTS} "$@"
 
 # - *released* tarball version:
-#export WXSUPPRESS_SIZER_FLAGS_CHECK="true"
 #echo "options: ${TARBALL_OPTS}"
 #python3 gnumed.py ${CONF} ${TARBALL_OPTS} "$@"
 
 # - production version (does not use tarball files !):
-#export WXSUPPRESS_SIZER_FLAGS_CHECK="true"
 #python3 gnumed.py "$@"
 
 # - production version with HIPAA support (does not use tarball files !):
