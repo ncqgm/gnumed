@@ -4047,17 +4047,15 @@ def log_colors_known2wx():
 
 #==============================================================================
 def main():
-
 	# make sure signals end up in the main thread,
 	# no matter the thread they came from
 	gmDispatcher.set_main_thread_caller(wx.CallAfter)
-
 	if _cfg.get(option = 'debug'):
 		gmDispatcher.connect(receiver = _signal_debugging_monitor)
 		_log.debug('gmDispatcher signal monitor activated')
-
+	else:
+		wx.SizerFlags.DisableConsistencyChecks()
 	setup_safe_wxEndBusyCursor()
-
 	setup_callbacks()
 
 	# create an instance of our GNUmed main application
