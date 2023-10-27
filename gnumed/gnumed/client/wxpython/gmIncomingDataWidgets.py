@@ -127,7 +127,11 @@ class cCurrentPatientIncomingDataListCtrl(cIncomingDataListCtrl):
 
 	#--------------------------------------------------------
 	def repopulate(self, pk_patient=None) -> bool:
-		return super().repopulate(pk_patient = gmPerson.gmCurrentPatient().ID)
+		pat = gmPerson.gmCurrentPatient()
+		if pat.connected:
+			return super().repopulate(pk_patient = gmPerson.gmCurrentPatient().ID)
+
+		return self.remove_items_safely()
 
 	#--------------------------------------------------------
 	def _get_patient_column_value(self, item) -> str:

@@ -13,7 +13,7 @@ select gm.register_notifying_table('clin', 'incoming_data_unmatched');
 
 -- --------------------------------------------------------------
 update cfg.cfg_item set
-	value = '["gmProviderInboxPlugin","gmWaitingListPlugin","gmPatientOverviewPlugin","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmSoapPlugin","gmCurrentSubstancesPlugin","gmMeasurementsGridPlugin","gmShowMedDocs","gmScanIdxMedDocsPlugin","gmIncomingDataPlugin","gmExportAreaPlugin","gmEMRTimelinePlugin","gmPrintManagerPlugin","gmDataMiningPlugin","gmSimpleSoapPlugin","gmEMRJournalPlugin","gmBillingPlugin","gmKOrganizerPlugin","gmXdtViewer"]'::jsonb
+	value = '["gmProviderInboxPlugin","gmWaitingListPlugin","gmPatientOverviewPlugin","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmSoapPlugin","gmCurrentSubstancesPlugin","gmMeasurementsGridPlugin","gmShowMedDocs","gmScanIdxMedDocsPlugin","gmIncomingAreaPlugin","gmExportAreaPlugin","gmEMRTimelinePlugin","gmPrintManagerPlugin","gmDataMiningPlugin","gmSimpleSoapPlugin","gmEMRJournalPlugin","gmBillingPlugin","gmKOrganizerPlugin","gmXdtViewer"]'::jsonb
 where
 	pk in (
 		select pk_cfg_item
@@ -26,7 +26,7 @@ where
 
 -- --------------------------------------------------------------
 update cfg.cfg_item set
-	value = '["gmProviderInboxPlugin","gmWaitingListPlugin","gmPatientOverviewPlugin","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmSoapPlugin","gmCurrentSubstancesPlugin","gmMeasurementsGridPlugin","gmShowMedDocs","gmScanIdxMedDocsPlugin","gmIncomingDataPlugin","gmExportAreaPlugin","gmEMRTimelinePlugin","gmDataMiningPlugin","gmSimpleSoapPlugin","gmEMRJournalPlugin","gmBillingPlugin","gmPrintManagerPlugin"]'::jsonb
+	value = '["gmProviderInboxPlugin","gmWaitingListPlugin","gmPatientOverviewPlugin","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmSoapPlugin","gmCurrentSubstancesPlugin","gmMeasurementsGridPlugin","gmShowMedDocs","gmScanIdxMedDocsPlugin","gmIncomingAreaPlugin","gmExportAreaPlugin","gmEMRTimelinePlugin","gmDataMiningPlugin","gmSimpleSoapPlugin","gmEMRJournalPlugin","gmBillingPlugin","gmPrintManagerPlugin"]'::jsonb
 where
 	pk in (
 		select pk_cfg_item
@@ -39,7 +39,7 @@ where
 
 -- --------------------------------------------------------------
 update cfg.cfg_item set
-	value = '["gmProviderInboxPlugin","gmWaitingListPlugin","gmNotebookedPatientEditionPlugin","gmPrintManagerPlugin","gmScanIdxMedDocsPlugin","gmIncomingDataPlugin","gmExportAreaPlugin","gmKOrganizerPlugin"]'::jsonb
+	value = '["gmProviderInboxPlugin","gmWaitingListPlugin","gmNotebookedPatientEditionPlugin","gmPrintManagerPlugin","gmScanIdxMedDocsPlugin","gmIncomingAreaPlugin","gmExportAreaPlugin","gmKOrganizerPlugin"]'::jsonb
 where
 	pk in (
 		select pk_cfg_item
@@ -52,4 +52,4 @@ where
 ;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v23-cfg-incoming_data_plugin.sql', '23.0');
+select gm.log_script_insertion('v23-cfg-incoming_area_plugin.sql', '23.0');

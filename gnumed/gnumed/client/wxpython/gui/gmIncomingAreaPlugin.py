@@ -25,6 +25,7 @@ from Gnumed.wxpython import gmAccessPermissionWidgets
 
 
 _log = logging.getLogger('gm.auto-in-ui')
+
 #======================================================================
 class gmIncomingAreaPlugin(gmPlugin.cNotebookPlugin):
 
@@ -41,7 +42,7 @@ class gmIncomingAreaPlugin(gmPlugin.cNotebookPlugin):
 		gmPlugin.cNotebookPlugin.register(self)
 
 	def name(self):
-		return gmIncomingDataPlugin.tab_name
+		return type(self).tab_name
 
 	def GetWidget(self, parent):
 		self._widget = gmIncomingDataWidgets.cIncomingPluginPnl(parent, -1)

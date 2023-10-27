@@ -31,7 +31,7 @@ class wxgIncomingPluginPnl(wx.Panel):
 		__szr_lists.Add(self._LCTRL_items, 2, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 2)
 
 		__szr_search_patient = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_lists.Add(__szr_search_patient, 0, wx.EXPAND | wx.TOP, 3)
+		__szr_lists.Add(__szr_search_patient, 0, wx.EXPAND | wx.TOP, 1)
 
 		label_1 = wx.StaticText(self, wx.ID_ANY, _("Patient:"))
 		__szr_search_patient.Add(label_1, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
@@ -40,9 +40,9 @@ class wxgIncomingPluginPnl(wx.Panel):
 		__szr_search_patient.Add(self._TCTRL_search_patient, 1, wx.EXPAND | wx.RIGHT, 3)
 
 		__szr_assign_buttons = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_lists.Add(__szr_assign_buttons, 0, wx.EXPAND, 0)
+		__szr_lists.Add(__szr_assign_buttons, 0, wx.EXPAND | wx.TOP, 2)
 
-		self._BTN_assign_patient2items = wx.Button(self, wx.ID_ANY, _("&Assign patient to items"))
+		self._BTN_assign_patient2items = wx.Button(self, wx.ID_ANY, _("&Assign patient to items "), style=wx.BU_EXACTFIT)
 		self._BTN_assign_patient2items.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, 0, ""))
 		self._BTN_assign_patient2items.SetToolTip(_("Assign patient to checkmarked items."))
 		__szr_assign_buttons.Add(self._BTN_assign_patient2items, 3, wx.EXPAND, 1)
@@ -53,7 +53,7 @@ class wxgIncomingPluginPnl(wx.Panel):
 		self._BTN_unassign_patient.SetToolTip(_("Remove patient from selected item."))
 		__szr_assign_buttons.Add(self._BTN_unassign_patient, 0, wx.EXPAND, 0)
 
-		__szr_assign_buttons.Add((20, 20), 2, wx.EXPAND, 0)
+		__szr_assign_buttons.Add((20, 20), 1, wx.EXPAND, 0)
 
 		self._BTN_remove_item = wx.Button(self, wx.ID_ANY, _("Remove"))
 		self._BTN_remove_item.SetToolTip(_("Remove item from incoming area."))
@@ -62,7 +62,7 @@ class wxgIncomingPluginPnl(wx.Panel):
 		__szr_assign_buttons.Add((20, 20), 1, wx.EXPAND, 0)
 
 		self._PNL_previews = cFilePreviewPnl(self, wx.ID_ANY, style=wx.BORDER_NONE)
-		__szr_main.Add(self._PNL_previews, 2, wx.EXPAND, 0)
+		__szr_main.Add(self._PNL_previews, 2, wx.EXPAND | wx.LEFT, 2)
 
 		self.SetSizer(__szr_main)
 		__szr_main.Fit(self)
