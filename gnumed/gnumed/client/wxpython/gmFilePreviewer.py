@@ -35,6 +35,7 @@ from Gnumed.wxGladeWidgets.wxgFilePreviewPnl import wxgFilePreviewPnl
 class cFilePreviewPnl(wxgFilePreviewPnl):
 	"""Panel for previewing a file as image or text."""
 	def __init__(self, *args, **kwargs):
+		self.__filename = None
 		try:
 			fname = kwargs['filename']
 			del kwargs['filename']
@@ -47,17 +48,22 @@ class cFilePreviewPnl(wxgFilePreviewPnl):
 	# properties
 	#--------------------------------------------------------
 	def __get_filename(self):
-		return self._PNL_image_preview.filename
+		return self.__filename
 
 	def __set_filename(self, filename):
+		if filename == self.__filename:
+			return
+
 		self._PNL_image_preview.filename = None
 		self._PNL_image_preview.Hide()
 		self._TCTRL_text_preview.Value = ''
 		self._TCTRL_text_preview.Hide()
 		if not filename:
+			self.__filename = None
 			self.Layout()
 			return
 
+		self.__filename = filename
 		self.__worker_cookie4img = '%s-%s4img' % (self.__class__.__name__, filename)
 		self.__worker_cookie4text = '%s-%s2txt' % (self.__class__.__name__, filename)
 		gmWorkerThread.execute_in_worker_thread (
@@ -82,6 +88,15 @@ class cFilePreviewPnl(wxgFilePreviewPnl):
 
 	#--------------------------------------------------------
 	# internal helpers
+	#--------------------------------------------------------
+	def __update_box_label(self):
+		box_label = ' %s (%s/%s)' % (
+			_('Image Preview'),
+			self._PNL_image_preview.current_page,
+			self._PNL_image_preview.page_count
+		)
+		self._SZR_previews.StaticBox.SetLabel(box_label)
+
 	#--------------------------------------------------------
 	# image preview
 	#--------------------------------------------------------
@@ -108,7 +123,7 @@ class cFilePreviewPnl(wxgFilePreviewPnl):
 	def __show_image_preview(self):
 		self._TCTRL_text_preview.Hide()
 		self._PNL_image_preview.Show()
-		self._SZR_previews.StaticBox.SetLabel(' ' + _('Image Preview'))
+		self.__update_box_label()
 		self.Layout()
 
 	#--------------------------------------------------------
@@ -176,16 +191,19 @@ class cFilePreviewPnl(wxgFilePreviewPnl):
 	def _on_prev_page_button_pressed(self, event):
 		event.Skip()
 		self._PNL_image_preview.show_previous_page()
+		self.__update_box_label()
 
 	#--------------------------------------------------------
 	def _on_first_page_button_pressed(self, event):
 		event.Skip()
 		self._PNL_image_preview.show_first_page()
+		self.__update_box_label()
 
 	#--------------------------------------------------------
 	def _on_next_page_button_pressed(self, event):
 		event.Skip()
 		self._PNL_image_preview.show_next_page()
+		self.__update_box_label()
 
 #============================================================
 # main

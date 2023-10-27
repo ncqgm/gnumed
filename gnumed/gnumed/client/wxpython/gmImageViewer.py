@@ -37,12 +37,14 @@ class cSingleFileImageViewerPnl(wxgSingleFileImageViewerPnl):
 	Knows how to handle multi-page image formats.
 	"""
 	def __init__(self, *args, **kwargs):
-		self.__filename = None
 		try:
 			fname = kwargs['filename']
 			del kwargs['filename']
 		except KeyError:
 			fname = None
+		self.__filename = None
+		self.__current_page = 0
+		self.__image_pages = 0
 		super().__init__(*args, **kwargs)
 		self.filename = fname
 
@@ -80,26 +82,47 @@ class cSingleFileImageViewerPnl(wxgSingleFileImageViewerPnl):
 	# properties
 	#--------------------------------------------------------
 	def __get_filename(self):
-		return self._BMP_image.filename
+		return self.__filename
 
 	def __set_filename(self, filename):
+		if filename == self.__filename:
+			return
+
+		self.__current_page = 0
 		if not filename:
 			self.__image_pages = []
+			self.__filename = None
 			self._BMP_image.filename = None
 			self.Layout()
 			return
 
 		self.__image_pages = gmMimeLib.split_multipage_image(filename)
 		if not self.__image_pages:
+			self.__filename = None
 			self._BMP_image.filename = None
 			self.Layout()
 			return
 
-		self.__current_page = 0
+		self.__filename = filename
 		self._BMP_image.filename = self.__image_pages[0]
 		self.Layout()
 
 	filename = property(__get_filename, __set_filename)
+
+	#--------------------------------------------------------
+	def __get_page_count(self):
+		if not self.__image_pages:
+			return 0
+
+		return len(self.__image_pages)
+
+	page_count = property(__get_page_count)
+
+	#--------------------------------------------------------
+	def __get_current_page(self):
+		return self.__current_page + 1
+
+	current_page = property(__get_current_page)
 
 	#--------------------------------------------------------
 	# internal helpers
