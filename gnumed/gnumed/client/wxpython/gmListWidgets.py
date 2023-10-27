@@ -2223,21 +2223,22 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 
 	#------------------------------------------------------------
 	def get_selected_items(self, only_one=False):
-
 		if self.ItemCount == 0:
 			if self.__is_single_selection or only_one:
 				return None
 			return []
 
 		if self.__is_single_selection or only_one:
-			return self.GetFirstSelected()
+			selected = self.GetFirstSelected()
+			if selected == -1:
+				return None
+			return selected
 
 		items = []
 		idx = self.GetFirstSelected()
 		while idx != -1:
 			items.append(idx)
 			idx = self.GetNextSelected(idx)
-
 		return items
 
 	selected_items = property(get_selected_items)
