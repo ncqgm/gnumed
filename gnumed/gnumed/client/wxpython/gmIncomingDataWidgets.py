@@ -192,15 +192,6 @@ class cIncomingPluginPnl(wxgIncomingPluginPnl.wxgIncomingPluginPnl, gmRegetMixin
 		self._PNL_previews.filename = item.save_to_file()
 
 	#--------------------------------------------------------
-#	def _on_toggle_item_checkbox_button_pressed(self, event):
-#		event.Skip()
-#		item_idx = self._LCTRL_items.get_selected_items(only_one = True)
-#		if item_idx in [None, -1]:
-#			return
-#
-#		self._LCTRL_items.CheckItem(item_idx, check = not self._LCTRL_items.IsItemChecked(item_idx))
-
-	#--------------------------------------------------------
 	def _on_remove_item_button_pressed(self, event):
 		event.Skip()
 		item = self._LCTRL_items.selected_item_data
