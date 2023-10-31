@@ -9,9 +9,6 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-select gm.register_notifying_table('clin', 'incoming_data_unmatched');
-
--- --------------------------------------------------------------
 update cfg.cfg_item set
 	value = '["gmProviderInboxPlugin","gmWaitingListPlugin","gmPatientOverviewPlugin","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmSoapPlugin","gmCurrentSubstancesPlugin","gmMeasurementsGridPlugin","gmShowMedDocs","gmIncomingAreaPlugin","gmExportAreaPlugin","gmEMRTimelinePlugin","gmPrintManagerPlugin","gmDataMiningPlugin","gmSimpleSoapPlugin","gmEMRJournalPlugin","gmBillingPlugin","gmKOrganizerPlugin","gmXdtViewer"]'::jsonb
 where

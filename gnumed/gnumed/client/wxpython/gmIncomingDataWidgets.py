@@ -56,7 +56,7 @@ class cIncomingDataListCtrl(gmListWidgets.cReportListCtrl):
 		data = []
 		items = gmIncomingData.get_incoming_data()
 		if pk_patient:
-			items = [ i for i in items if i['pk_identity_disambiguated'] == pk_patient ]
+			items = [ i for i in items if i['pk_identity'] == pk_patient ]
 		for i in items:
 			if i['comment']:
 				comment = i['comment'].strip()
@@ -114,10 +114,10 @@ class cIncomingDataListCtrl(gmListWidgets.cReportListCtrl):
 
 	#--------------------------------------------------------
 	def _get_patient_column_value(self, item) -> str:
-		if not item['pk_identity_disambiguated']:
+		if not item['pk_identity']:
 			return ''
 
-		return gmPerson.cPatient(item['pk_identity_disambiguated']).description_gender
+		return gmPerson.cPatient(item['pk_identity']).description_gender
 
 #============================================================
 class cCurrentPatientIncomingDataListCtrl(cIncomingDataListCtrl):
@@ -307,22 +307,13 @@ class cIncomingPluginPnl(wxgIncomingPluginPnl.wxgIncomingPluginPnl, gmRegetMixin
 	# event handlers
 	#--------------------------------------------------------
 	def _on_table_mod(self, *args, **kwargs):
-		if kwargs['table'] != 'clin.incoming_data_unmatched':
+		if kwargs['table'] != 'clin.incoming_data':
 			return
 
-		if not self._CHBOX_filter2active_patient.IsChecked():
-			self._schedule_data_reget()
-			return
-
-		pat = gmPerson.gmCurrentPatient()
-		if not pat.connected:
-			self._schedule_data_reget()
-			return
-
-		print('filter [x]ed, active pat connected:', pat.ID, kwargs['pk_identity'])
-		if kwargs['pk_identity'] == pat.ID:
-			self._schedule_data_reget()
-			return
+		# regardless of whether we filter to the active patient
+		# a table change may still be relevant as a document
+		# may have become UNassigned
+		self._schedule_data_reget()
 
 	#--------------------------------------------------------
 	def __on_item_selected(self, event):
@@ -351,7 +342,7 @@ class cIncomingPluginPnl(wxgIncomingPluginPnl.wxgIncomingPluginPnl, gmRegetMixin
 		if not do_delete:
 			return
 
-		gmIncomingData.delete_incoming_data(pk_incoming_data = part['pk_incoming_data_unmatched'])
+		gmIncomingData.delete_incoming_data(pk_incoming_data = part['pk_incoming_data'])
 		self._PNL_previews.filename = None
 
 	#--------------------------------------------------------

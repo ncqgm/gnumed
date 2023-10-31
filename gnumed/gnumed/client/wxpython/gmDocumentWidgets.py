@@ -983,7 +983,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 
 	#--------------------------------------------------------
 	def _on_table_mod(self, *args, **kwargs):
-		if kwargs['table'] != 'clin.incoming_data_unmatched':
+		if kwargs['table'] != 'clin.incoming_data':
 			return
 
 		if kwargs['pk_identity'] not in [None, -1]:
@@ -1290,7 +1290,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 
 		item = self._LCTRL_items.selected_item_data
 		if choice == wx.ID_YES:
-			return gmIncomingData.delete_incoming_data(pk_incoming_data = item['pk_incoming_data_unmatched'])
+			return gmIncomingData.delete_incoming_data(pk_incoming_data = item['pk_incoming_data'])
 
 		if choice == wx.ID_NO:
 			item.patient = None
@@ -1374,7 +1374,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			return False
 
 		for incoming in checked_incoming:
-			gmIncomingData.delete_incoming_data(pk_incoming_data = incoming['pk_incoming_data_unmatched'])
+			gmIncomingData.delete_incoming_data(pk_incoming_data = incoming['pk_incoming_data'])
 		if self._RBTN_org_is_receiver.Value is True:
 			new_doc['unit_is_receiver'] = True
 			new_doc.save()

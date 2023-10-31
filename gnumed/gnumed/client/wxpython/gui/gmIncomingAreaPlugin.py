@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""GNUmed billing plugin"""
+"""GNUmed document inbox plugin"""
 #======================================================================
 __license__ = 'GPL v2 or later (details at https://www.gnu.org)'
 
@@ -29,7 +29,7 @@ _log = logging.getLogger('gm.auto-in-ui')
 #======================================================================
 class gmIncomingAreaPlugin(gmPlugin.cNotebookPlugin):
 
-	tab_name = _('Incoming')
+	tab_name = _('Docs Inbox')
 	required_minimum_role = 'full clinical access'
 
 	@gmAccessPermissionWidgets.verify_minimum_required_role (
@@ -49,11 +49,9 @@ class gmIncomingAreaPlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 
 	def MenuInfo(self):
-		pass
+		return ('emr', _('&Attach documents'))
 
 	def can_receive_focus(self):
-#		if not self._verify_patient_avail():
-#			return None
 		return 1
 
 #============================================================

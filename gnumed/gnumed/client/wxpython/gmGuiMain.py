@@ -2301,7 +2301,7 @@ class gmTopLevelFrame(wx.Frame):
 		gmMeasurementWidgets.stage_hl7_file(parent = self)
 	#----------------------------------------------
 	def __on_incoming(self, evt):
-		gmMeasurementWidgets.browse_incoming_unmatched(parent = self)
+		gmMeasurementWidgets.browse_incoming(parent = self)
 	#----------------------------------------------
 	def __on_snellen(self, evt):
 		dlg = gmSnellen.cSnellenCfgDlg()
