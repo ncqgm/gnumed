@@ -152,7 +152,7 @@ class cIncomingData(gmBusinessDBObject.cBusinessDBObject):
 		return gmPG2.unlock_row(table = 'clin.incoming_data_unmatched', pk = self.pk_obj, exclusive = exclusive)
 
 	#--------------------------------------------------------
-	def set_patient(self, patient, conn=None):
+	def set_patient(self, patient):
 		if patient is None:
 			pk_pat = None
 		elif isinstance(patient, int):
@@ -163,8 +163,6 @@ class cIncomingData(gmBusinessDBObject.cBusinessDBObject):
 			return
 
 		self['pk_identity_disambiguated'] = pk_pat
-		if conn:
-			self.save(conn = conn)
 
 	patient = property(fset = set_patient)
 
@@ -240,4 +238,5 @@ if __name__ == "__main__":
 			print(d)
 
 	#-------------------------------------------------------
+	gmPG2.request_login_params(setup_pool = True)
 	test_incoming_data()

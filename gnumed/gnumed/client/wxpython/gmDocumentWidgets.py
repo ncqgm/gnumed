@@ -22,6 +22,12 @@ import wx.lib.mixins.treemixin as treemixin
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
+else:
+	try: _
+	except NameError:
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
 from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmMimeLib
@@ -31,8 +37,10 @@ from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmHooks
+from Gnumed.pycommon import gmScanBackend
 from Gnumed.pycommon import gmNetworkTools
 from Gnumed.pycommon import gmConnectionPool
+
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
@@ -42,6 +50,7 @@ from Gnumed.business import gmPraxis
 from Gnumed.business import gmDICOM
 from Gnumed.business import gmProviderInbox
 from Gnumed.business import gmOrganization
+from Gnumed.business import gmIncomingData
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmRegetMixin
@@ -928,7 +937,6 @@ def acquire_images_from_capture_device(device=None, calling_window=None) -> list
 
 	# do not import globally since we might want to use
 	# this module without requiring any scanner to be available
-	from Gnumed.pycommon import gmScanBackend
 	try:
 		fnames = gmScanBackend.acquire_pages_into_files (
 			device = device,
@@ -956,27 +964,44 @@ def acquire_images_from_capture_device(device=None, calling_window=None) -> list
 #------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgScanIdxPnl
 
-class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_PluginMixin):
+class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_PluginMixin, gmRegetMixin.cRegetOnPaintMixin):
 
 	def __init__(self, *args, **kwds):
 		wxgScanIdxPnl.wxgScanIdxPnl.__init__(self, *args, **kwds)
 		gmPlugin.cPatientChange_PluginMixin.__init__(self)
+		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
-		self._PhWheel_reviewer.matcher = gmPerson.cMatchProvider_Provider()
+		self.__init_ui()
+		self.__register_interests()
+		self.__reset_ui_data()
 
-		self.__init_ui_data()
-		self._PhWheel_doc_type.add_callback_on_lose_focus(self._on_doc_type_loses_focus)
+	#--------------------------------------------------------
+	# event handling
+	#--------------------------------------------------------
+	def __register_interests(self):
+		gmDispatcher.connect(signal = 'gm_table_mod', receiver = self._on_table_mod)
 
-		# make me and listctrl file drop targets
-		dt = gmGuiHelpers.cFileDropTarget(target = self)
-		self.SetDropTarget(dt)
-		dt = gmGuiHelpers.cFileDropTarget(on_drop_callback = self._drop_target_consume_filenames)
-		self._LCTRL_doc_pages.SetDropTarget(dt)
+	#--------------------------------------------------------
+	def _on_table_mod(self, *args, **kwargs):
+		if kwargs['table'] != 'clin.incoming_data_unmatched':
+			return
 
-		# do not import globally since we might want to use
-		# this module without requiring any scanner to be available
-		from Gnumed.pycommon import gmScanBackend
-		self.scan_module = gmScanBackend
+		if kwargs['pk_identity'] not in [None, -1]:
+			if kwargs['pk_identity'] != gmPerson.gmCurrentPatient().ID:
+				return
+
+		self._schedule_data_reget()
+
+	#-----------------------------------------------------
+	# reget-on-paint mixin API
+	#
+	# remember to call
+	#	self._schedule_data_reget()
+	# whenever you learn of data changes from database
+	# listener threads, dispatcher signals etc.
+	#-----------------------------------------------------
+	def _populate_with_data(self):
+		return self._LCTRL_items.repopulate()
 
 	#--------------------------------------------------------
 	# file drop target API
@@ -1003,7 +1028,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 				source = _('file dropped on client')
 				real_filenames.append(pathname)
 
-		self.add_parts_from_files(real_filenames, source)
+		self.import_files_into_incoming(real_filenames, source)
 
 	#--------------------------------------------------------
 	def repopulate_ui(self):
@@ -1013,17 +1038,38 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 	# patient change plugin API
 	#--------------------------------------------------------
 	def _pre_patient_unselection(self, **kwds):
-		# FIXME: persist pending data from here
 		pass
 
 	#--------------------------------------------------------
 	def _post_patient_selection(self, **kwds):
-		self.__init_ui_data()
+		self.__reset_ui_data()
 
 	#--------------------------------------------------------
-	# internal API
+	# internal helpers
 	#--------------------------------------------------------
-	def __init_ui_data(self):
+	def __init_ui(self):
+		self._PhWheel_reviewer.matcher = gmPerson.cMatchProvider_Provider()
+
+		self._PhWheel_doc_type.add_callback_on_lose_focus(self._on_doc_type_loses_focus)
+
+		# make me and listctrl file drop targets
+		dt = gmGuiHelpers.cFileDropTarget(target = self)
+		self.SetDropTarget(dt)
+
+		#self._LCTRL_items.select_callback = self.__on_item_selected
+		dt = gmGuiHelpers.cFileDropTarget(on_drop_callback = self._drop_target_consume_filenames)
+		self._LCTRL_items.SetDropTarget(dt)
+
+		self.__add_from_button_popup_menu = wx.Menu(title = _('Add incoming data from:'))
+		item = self.__add_from_button_popup_menu.Append(-1, _('&scanner/camera'))
+		self.Bind(wx.EVT_MENU, self._on_add_from_scanner, item)
+		item = self.__add_from_button_popup_menu.Append(-1, _('&disk'))
+		self.Bind(wx.EVT_MENU, self._on_add_from_disk, item)
+		item = self.__add_from_button_popup_menu.Append(-1, _('&clipboard'))
+		self.Bind(wx.EVT_MENU, self._on_add_from_clipboard, item)
+
+	#--------------------------------------------------------
+	def __reset_ui_data(self):
 		# -----------------------------
 		self._PhWheel_episode.SetText(value = _('other documents'), suppress_smarts = True)
 		self._PhWheel_doc_type.SetText('')
@@ -1049,59 +1095,43 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		self._ChBOX_relevant.Disable()
 		self._ChBOX_relevant.SetValue(False)
 		# -----------------------------
-		self._TBOX_description.SetValue('')
-		# -----------------------------
 		# the list holding our page files
-		self._LCTRL_doc_pages.remove_items_safely()
-		self._LCTRL_doc_pages.set_columns([_('file'), _('path')])
-		self._LCTRL_doc_pages.set_column_widths()
-
-		self._TCTRL_metadata.SetValue('')
+#		self._LCTRL_items.remove_items_safely()
+		self._LCTRL_items.repopulate()
 
 		self._PhWheel_doc_type.SetFocus()
-
-	#--------------------------------------------------------
-	def add_parts_from_files(self, filenames, source=''):
-		rows = gmTools.coalesce(self._LCTRL_doc_pages.string_items, [])
-		data = gmTools.coalesce(self._LCTRL_doc_pages.data, [])
-		rows.extend([ [gmTools.fname_from_path(f), gmTools.fname_dir(f)] for f in filenames ])
-		data.extend([ [f, source] for f in filenames ])
-		self._LCTRL_doc_pages.string_items = rows
-		self._LCTRL_doc_pages.data = data
-		self._LCTRL_doc_pages.set_column_widths()
 
 	#--------------------------------------------------------
 	def __valid_for_save(self):
 		title = _('saving document')
 
-		if self._LCTRL_doc_pages.ItemCount == 0:
+		checked_items = self._LCTRL_items.checked_items_data
+
+		if not checked_items:
 			allow_empty = gmCfgDB.get4user (
 				option =  'horstspace.scan_index.allow_partless_documents',
 				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 				default = False
 			)
-			if allow_empty:
-				save_empty = gmGuiHelpers.gm_show_question (
-					aMessage = _('No parts to save. Really save an empty document as a reference ?'),
-					aTitle = title
-				)
-				if not save_empty:
-					return False
-			else:
-				gmGuiHelpers.gm_show_error (
-					aMessage = _('No parts to save. Acquire some parts first.'),
-					aTitle = title
-				)
+			if not allow_empty:
+				gmDispatcher.send(signal = 'statustext', msg = _('No parts checked for document.'), beep = True)
 				return False
 
-		if self._LCTRL_doc_pages.ItemCount > 0:
-			for fname in [ data[0] for data in self._LCTRL_doc_pages.data ]:
-				try:
-					open(fname, 'rb').close()
-				except OSError:
-					_log.exception('cannot access [%s]', fname)
-					gmGuiHelpers.gm_show_error(title = title, error = _('Cannot access document part file:\n\n %s') % fname)
-					return False
+			save_empty = gmGuiHelpers.gm_show_question (
+				aMessage = _('No parts to save. Really save an empty document as a reference ?'),
+				aTitle = title
+			)
+			if not save_empty:
+				return False
+
+#		if self._LCTRL_items.ItemCount > 0:
+#			for fname in [ data[0] for data in self._LCTRL_items.data ]:
+#				try:
+#					open(fname, 'rb').close()
+#				except OSError:
+#					_log.exception('cannot access [%s]', fname)
+#					gmGuiHelpers.gm_show_error(title = title, error = _('Cannot access document part file:\n\n %s') % fname)
+#					return False
 
 		doc_type_pk = self._PhWheel_doc_type.GetData(can_create = True)
 		if doc_type_pk is None:
@@ -1110,14 +1140,6 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 				aTitle = title
 			)
 			return False
-
-		# this should be optional, actually
-#		if self._PRW_doc_comment.GetValue().strip() == '':
-#			gmGuiHelpers.gm_show_error (
-#				aMessage = _('No document comment supplied. Add a comment for this document.'),
-#				aTitle = title
-#			)
-#			return False
 
 		if self._PhWheel_episode.GetValue().strip() == '':
 			gmGuiHelpers.gm_show_error (
@@ -1143,8 +1165,40 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		return True
 
 	#--------------------------------------------------------
-	def get_device_to_use(self, reconfigure=False):
 
+	#--------------------------------------------------------
+	def import_file_into_incoming(self, filename, source='', remove_file:bool=False):
+		_log.debug('importing [%s]', filename)
+		if gmIncomingData.data_exists(filename):
+			_log.debug('exists')
+			gmDispatcher.send(signal = 'statustext', msg = _('Data from [%s] already exists in incoming.') % filename, beep = True)
+			return True
+
+		incoming = gmIncomingData.create_incoming_data(filename = filename, verify_import = True)
+		if not incoming:
+			gmDispatcher.send(signal = 'statustext', msg = _('Error importing [%s].') % filename, beep = True)
+			return False
+
+		incoming['comment'] = '%s: %s (%s)' % (source, filename, gmDateTime.pydt_now_here().strftime('%c'))
+		incoming.patient = gmPerson.gmCurrentPatient()
+		incoming.save()
+		if remove_file:
+			gmTools.remove_file(filename)
+		return True
+
+	#--------------------------------------------------------
+	def import_files_into_incoming(self, filenames, source='', remove_file:bool=False):
+		all_imported = True
+		for filename in filenames:
+			all_imported = self.import_file_into_incoming (
+				filename,
+				source = source,
+				remove_file = remove_file
+			) and all_imported
+		return all_imported
+
+	#--------------------------------------------------------
+	def get_device_to_use(self, reconfigure=False):
 		if not reconfigure:
 			device = gmCfgDB.get4workplace (
 				option =  'external.xsane.default_device',
@@ -1157,7 +1211,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 				return device
 
 		try:
-			devices = self.scan_module.get_devices()
+			devices = gmScanBackend.get_devices()
 		except Exception:
 			_log.exception('cannot retrieve list of image sources')
 			gmDispatcher.send(signal = 'statustext', msg = _('There is no scanner support installed on this machine.'))
@@ -1171,10 +1225,6 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		if len(devices) == 0:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot find an active scanner.'))
 			return None
-
-#		device_names = []
-#		for device in devices:
-#			device_names.append('%s (%s)' % (device[2], device[0]))
 
 		device = gmListWidgets.get_choices_from_list (
 			parent = self,
@@ -1194,14 +1244,167 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 	#--------------------------------------------------------
 	# event handling API
 	#--------------------------------------------------------
-	def _scan_btn_pressed(self, evt):
+	def _reviewed_box_checked(self, evt):
+		self._ChBOX_abnormal.Enable(enable = self._ChBOX_reviewed.GetValue())
+		self._ChBOX_relevant.Enable(enable = self._ChBOX_reviewed.GetValue())
 
+	#--------------------------------------------------------
+	def _on_part_selected(self, event):
+		event.Skip()
+		self._PNL_previews.filename = None
+		incoming = self._LCTRL_items.selected_item_data
+		if not incoming:
+			return
+
+		incoming_file = incoming.save_to_file()
+		if not incoming_file:
+			return
+
+		self._PNL_previews.filename = incoming_file
+
+	#--------------------------------------------------------
+	def _on_add_parts_button_pressed(self, event):
+		self.PopupMenu(self.__add_from_button_popup_menu, wx.DefaultPosition)
+
+	#--------------------------------------------------------
+	def _on_remove_button_pressed(self, event):
+		if self._LCTRL_items.selected_items is None:
+			return
+
+		choice = gmGuiHelpers.gm_show_rich_question (
+			title = _('Removing items'),
+			question = (
+				'Irrevocably delete this item or just remove\n'
+				'the associated patient from the item ?\n'
+				'\n'
+				'Removing the patient returns the item to\n'
+				'the general incoming area.'
+			),
+			buttons = [
+				{'label': _('&Delete item'), 'tooltip': _('Irrevocably delete item'), 'default': False},
+				{'label': _('Remove &patient'), 'tooltip': _('Remove patient from item'), 'default': True}
+			]
+		)
+		if choice == wx.ID_CANCEL:
+			return
+
+		item = self._LCTRL_items.selected_item_data
+		if choice == wx.ID_YES:
+			return gmIncomingData.delete_incoming_data(pk_incoming_data = item['pk_incoming_data_unmatched'])
+
+		if choice == wx.ID_NO:
+			item.patient = None
+			return item.save()
+
+	#--------------------------------------------------------
+	def _on_join_parts_button_pressed(self, event):  # wxGlade: wxgScanIdxPnl.<event_handler>
+		print("Event handler '_on_join_parts_button_pressed' not implemented!")
+		event.Skip()
+
+#		items = self.__get_items_to_work_on(_('Select items for PDF.'))
+#		if items is None:
+#			return
+#
+#		export_dir = self.__export_as_files (
+#			_('Creating PDF from selected items'),
+#			base_dir = None,
+#			encrypt = False,
+#			with_metadata = False,
+#			items = items,
+#			convert2pdf = False
+#		)
+#		if export_dir is None:
+#			gmDispatcher.send(signal = 'statustext', msg = _('Cannot turn into PDF: aborted or error.'))
+#			return
+#
+#		# unite files in export_dir
+#		pdf_pages = gmTools.dir_list_files(directory = export_dir, exclude_subdirs = True)
+#		if pdf_pages is None:
+#			gmDispatcher.send(signal = 'statustext', msg = _('Cannot turn into PDF: aborted or error.'))
+#			return
+#
+#		pdf_pages.sort()
+#		# ask for PDF name ?
+#		pdf_name = gmMimeLib.join_files_as_pdf(files = pdf_pages)
+#		if pdf_name is None:
+#			gmDispatcher.send(signal = 'statustext', msg = _('Cannot turn into PDF: aborted or error.'))
+#			return
+
+#		item = gmPerson.gmCurrentPatient().export_area.add_file (
+#			filename = pdf_name,
+#			hint = _('Document generated from selected items (%s)') % gmDateTime.pydt_now_here().strftime('%Y %b %d  %H:%M')
+#		)
+#		item.display_via_mime(block = False)
+		# hint about showing and ask whether to remove items from export area ?
+
+	#--------------------------------------------------------
+	def _on_save_button_pressed(self, event):
+		event.Skip()
+		if not self.__valid_for_save():
+			return False
+
+		generate_uuid = gmCfgDB.get4user (
+			option = 'horstspace.scan_index.generate_doc_uuid',
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
+			default = False
+		)
+		if generate_uuid:
+			ext_ref = gmDocuments.get_ext_ref()
+		else:
+			ext_ref = None
+		date = self._PhWheel_doc_date.GetData()
+		if date is not None:
+			date = date.get_pydt()
+		checked_incoming = self._LCTRL_items.checked_items_data
+		new_doc = save_files_as_new_document (
+			parent = self,
+			filenames = [ c_i.save_to_file() for c_i in checked_incoming ],
+			document_type = self._PhWheel_doc_type.GetValue().strip(),
+			pk_document_type = self._PhWheel_doc_type.GetData(),
+			unlock_patient = False,
+			episode = self._PhWheel_episode.GetData(can_create = True, is_open = True, as_instance = True),
+			review_as_normal = False,
+			reference = ext_ref,
+			pk_org_unit = self._PhWheel_source.GetData(),
+			date_generated = date,
+			comment = self._PRW_doc_comment.GetLineText(0).strip(),
+			reviewer = self._PhWheel_reviewer.GetData()
+		)
+		if new_doc is None:
+			return False
+
+		for incoming in checked_incoming:
+			gmIncomingData.delete_incoming_data(pk_incoming_data = incoming['pk_incoming_data_unmatched'])
+		if self._RBTN_org_is_receiver.Value is True:
+			new_doc['unit_is_receiver'] = True
+			new_doc.save()
+		if self._ChBOX_reviewed.GetValue():
+			if not new_doc.set_reviewed (
+				technically_abnormal = self._ChBOX_abnormal.GetValue(),
+				clinically_relevant = self._ChBOX_relevant.GetValue()
+			):
+				wx.EndBusyCursor()
+				msg = _('Error setting "reviewed" status of new document. The document itself has been imported properly, however.')
+				gmGuiHelpers.gm_show_error (
+					aMessage = msg,
+					aTitle = _('Saving document')
+				)
+		self.__reset_ui_data()
+		gmHooks.run_hook_script(hook = 'after_new_doc_created')
+		return True
+
+	#--------------------------------------------------------
+	def _on_clear_button_pressed(self, event):
+		event.Skip()
+		self.__reset_ui_data()
+
+	#--------------------------------------------------------
+	def _on_add_from_scanner(self, evt):
 		chosen_device = self.get_device_to_use()
-
 		# FIXME: configure whether to use XSane or sane directly
 		# FIXME: add support for xsane_device_settings argument
 		try:
-			fnames = self.scan_module.acquire_pages_into_files (
+			fnames = gmScanBackend.acquire_pages_into_files (
 				device = chosen_device,
 				delay = 5,
 				calling_window = self
@@ -1223,11 +1426,11 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		if len(fnames) == 0:		# no pages scanned
 			return True
 
-		self.add_parts_from_files(fnames, _('captured by imaging device'))
+		self.import_files_into_incoming(fnames, _('imaging device'), remove_file = True)
 		return True
 
 	#--------------------------------------------------------
-	def _load_btn_pressed(self, evt):
+	def _on_add_from_disk(self, evt):
 		dlg = wx.FileDialog (
 			parent = None,
 			message = _('Choose a file'),
@@ -1240,139 +1443,36 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		files = dlg.GetPaths()
 		if result == wx.ID_CANCEL:
 			dlg.DestroyLater()
-			return
+			return None
 
-		self.add_parts_from_files(files, _('picked from storage media'))
+		imported = self.import_files_into_incoming(files, _('file'))
+		if not imported:
+			return None
 
-	#--------------------------------------------------------
-	def _clipboard_btn_pressed(self, event):
-		event.Skip()
-		clip = gmGuiHelpers.clipboard2file()
-		if clip is None:
-			return
-		if clip is False:
-			return
-		self.add_parts_from_files([clip], _('pasted from clipboard'))
-
-	#--------------------------------------------------------
-	def _show_btn_pressed(self, evt):
-
-		# nothing to do
-		if self._LCTRL_doc_pages.ItemCount == 0:
-			return
-
-		# only one page, show that, regardless of whether selected or not
-		if self._LCTRL_doc_pages.ItemCount == 1:
-			page_fnames = [ self._LCTRL_doc_pages.get_item_data(0)[0] ]
-		else:
-			# did user select one of multiple pages ?
-			page_fnames = [ data[0] for data in self._LCTRL_doc_pages.selected_item_data ]
-			if len(page_fnames) == 0:
-				gmDispatcher.send(signal = 'statustext', msg = _('No part selected for viewing.'), beep = True)
-				return
-
-		for page_fname in page_fnames:
-			(success, msg) = gmMimeLib.call_viewer_on_file(page_fname)
-			if not success:
-				gmGuiHelpers.gm_show_warning (
-					aMessage = _('Cannot display document part:\n%s') % msg,
-					aTitle = _('displaying part')
-				)
-
-	#--------------------------------------------------------
-	def _del_btn_pressed(self, event):
-
-		if len(self._LCTRL_doc_pages.selected_items) == 0:
-			gmDispatcher.send(signal = 'statustext', msg = _('No part selected for removal.'), beep = True)
-			return
-
-		sel_idx = self._LCTRL_doc_pages.GetFirstSelected()
-		rows = self._LCTRL_doc_pages.string_items
-		data = self._LCTRL_doc_pages.data
-		del rows[sel_idx]
-		del data[sel_idx]
-		self._LCTRL_doc_pages.string_items = rows
-		self._LCTRL_doc_pages.data = data
-		self._LCTRL_doc_pages.set_column_widths()
-		self._TCTRL_metadata.SetValue('')
-
-	#--------------------------------------------------------
-	def _save_btn_pressed(self, evt):
-
-		if not self.__valid_for_save():
-			return False
-
-		# external reference
-		generate_uuid = gmCfgDB.get4user (
-			option = 'horstspace.scan_index.generate_doc_uuid',
-			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			default = False
+		delete_them = gmGuiHelpers.gm_show_question (
+			question = (
+				'All files have been imported successfully.\n'
+				'\n'
+				'Delete external source files ?'
+			),
+			title = _('Imported files.')
 		)
-		if generate_uuid:
-			ext_ref = gmDocuments.get_ext_ref()
-		else:
-			ext_ref = None
+		if not delete_them:
+			return True
 
-		# create document
-		date = self._PhWheel_doc_date.GetData()
-		if date is not None:
-			date = date.get_pydt()
-		new_doc = save_files_as_new_document (
-			parent = self,
-			filenames = [ data[0] for data in self._LCTRL_doc_pages.data ],
-			document_type = self._PhWheel_doc_type.GetValue().strip(),
-			pk_document_type = self._PhWheel_doc_type.GetData(),
-			unlock_patient = False,
-			episode = self._PhWheel_episode.GetData(can_create = True, is_open = True, as_instance = True),
-			review_as_normal = False,
-			reference = ext_ref,
-			pk_org_unit = self._PhWheel_source.GetData(),
-			date_generated = date,
-			comment = self._PRW_doc_comment.GetLineText(0).strip(),
-			reviewer = self._PhWheel_reviewer.GetData()
-		)
-		if new_doc is None:
-			return False
-
-		if self._RBTN_org_is_receiver.Value is True:
-			new_doc['unit_is_receiver'] = True
-			new_doc.save()
-
-		# - long description
-		description = self._TBOX_description.GetValue().strip()
-		if description != '':
-			if not new_doc.add_description(description):
-				wx.EndBusyCursor()
-				gmGuiHelpers.gm_show_error (
-					aMessage = _('Cannot add document description.'),
-					aTitle = _('Saving document')
-				)
-				return False
-
-		# set reviewed status
-		if self._ChBOX_reviewed.GetValue():
-			if not new_doc.set_reviewed (
-				technically_abnormal = self._ChBOX_abnormal.GetValue(),
-				clinically_relevant = self._ChBOX_relevant.GetValue()
-			):
-				wx.EndBusyCursor()
-				msg = _('Error setting "reviewed" status of new document. The document itself has been imported properly, however.')
-				gmGuiHelpers.gm_show_error (
-					aMessage = msg,
-					aTitle = _('Saving document')
-				)
-		self.__init_ui_data()
-		gmHooks.run_hook_script(hook = 'after_new_doc_created')
+		for fname in files:
+			gmTools.remove_file(fname)
 		return True
 
 	#--------------------------------------------------------
-	def _startover_btn_pressed(self, evt):
-		self.__init_ui_data()
+	def _on_add_from_clipboard(self, event):
+		event.Skip()
+		clip_file = gmGuiHelpers.clipboard2file()
+		if not clip_file:
+			return None
 
-	#--------------------------------------------------------
-	def _reviewed_box_checked(self, evt):
-		self._ChBOX_abnormal.Enable(enable = self._ChBOX_reviewed.GetValue())
-		self._ChBOX_relevant.Enable(enable = self._ChBOX_reviewed.GetValue())
+		self.import_file_into_incoming(clip_file, _('clipboard'), remove_file = True)
+		return True
 
 	#--------------------------------------------------------
 	def _on_doc_type_loses_focus(self):
@@ -1382,29 +1482,6 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		else:
 			self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = pk_doc_type)
 		return True
-
-	#--------------------------------------------------------
-	def _on_update_file_description(self, result):
-		status, description, cookie = result
-		fname, source = self._LCTRL_doc_pages.get_selected_item_data(only_one = True)
-		txt = _(
-			'Source: %s\n'
-			'File: %s\n'
-			'\n'
-			'%s'
-		) % (
-			source,
-			fname,
-			description
-		)
-		wx.CallAfter(self._TCTRL_metadata.SetValue, txt)
-
-	#--------------------------------------------------------
-	def _on_part_selected(self, event):
-		event.Skip()
-		fname, source = self._LCTRL_doc_pages.get_item_data(item_idx = event.Index)
-		self._TCTRL_metadata.SetValue('Retrieving details from [%s] ...' % fname)
-		gmMimeLib.describe_file(fname, callback = self._on_update_file_description)
 
 #============================================================
 def display_document_part(parent=None, part=None):
@@ -4533,6 +4610,14 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
+	from Gnumed.pycommon import gmLog2
+	del _
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
+
+	from Gnumed.wxpython import gmGuiTest
+
 	#----------------------------------------------------------------
 	def test_document_prw():
 		app = wx.PyWidgetTester(size = (180, 20))
@@ -4543,4 +4628,10 @@ if __name__ == '__main__':
 		app.MainLoop()
 
 	#----------------------------------------------------------------
-	test_document_prw()
+	def test_plugin():
+		wx.Log.EnableLogging(enable = False)
+		gmGuiTest.test_widget(cScanIdxDocsPnl, patient = 12)
+
+	#----------------------------------------------------------------
+	#test_document_prw()
+	test_plugin()

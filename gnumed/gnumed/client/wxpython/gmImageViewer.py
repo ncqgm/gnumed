@@ -120,6 +120,9 @@ class cSingleFileImageViewerPnl(wxgSingleFileImageViewerPnl):
 
 	#--------------------------------------------------------
 	def __get_current_page(self):
+		if not self.__image_pages:
+			return 0
+
 		return self.__current_page + 1
 
 	current_page = property(__get_current_page)

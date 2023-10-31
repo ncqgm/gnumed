@@ -10,6 +10,9 @@ import gettext
 # end wxGlade
 
 # begin wxGlade: extracode
+from Gnumed.wxpython.gmFilePreviewer import cFilePreviewPnl
+from Gnumed.wxpython.gmIncomingDataWidgets import cCurrentPatientIncomingDataListCtrl
+from Gnumed.wxpython.gmDateTimeInput import cFuzzyTimestampInput
 # end wxGlade
 
 
@@ -18,155 +21,145 @@ class wxgScanIdxPnl(wx.Panel):
 		# begin wxGlade: wxgScanIdxPnl.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.TAB_TRAVERSAL
 		wx.Panel.__init__(self, *args, **kwds)
+
+		__szr_main = wx.BoxSizer(wx.HORIZONTAL)
+
+		__szr_left = wx.BoxSizer(wx.VERTICAL)
+		__szr_main.Add(__szr_left, 1, wx.EXPAND, 0)
+
+		__szr_doc_properties = wx.StaticBoxSizer(wx.StaticBox(self, wx.ID_ANY, _("Document Properties")), wx.VERTICAL)
+		__szr_left.Add(__szr_doc_properties, 1, wx.EXPAND | wx.LEFT, 5)
+
+		__lbl_doc_type = wx.StaticText(self, wx.ID_ANY, _("Type:"))
+		__lbl_doc_type.SetForegroundColour(wx.Colour(255, 0, 0))
+		__szr_doc_properties.Add(__lbl_doc_type, 0, wx.LEFT | wx.TOP, 3)
+
 		from Gnumed.wxpython.gmDocumentWidgets import cDocumentTypeSelectionPhraseWheel
-		from Gnumed.wxpython.gmDocumentWidgets import cDocumentCommentPhraseWheel
-		from Gnumed.wxpython.gmListWidgets import cReportListCtrl
-		from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
-		from Gnumed.wxpython import gmDateTimeInput
-		from Gnumed.wxpython import gmEMRStructWidgets
-		from Gnumed.wxpython import gmOrganizationWidgets
-		self.__btn_scan = wx.Button(self, wx.ID_ANY, _("&Scan page(s)"))
-		self.__btn_load = wx.Button(self, wx.ID_ANY, _("Pick &file(s)"))
-		self.__btn_clipboard = wx.Button(self, wx.ID_ANY, _("&Clipboard"))
-		self._PhWheel_doc_type = cDocumentTypeSelectionPhraseWheel(self, wx.ID_ANY)
-		self._PhWheel_doc_date = gmDateTimeInput.cFuzzyTimestampInput(self, wx.ID_ANY)
-		self._PhWheel_episode = gmEMRStructWidgets.cEpisodeSelectionPhraseWheel(self, wx.ID_ANY)
-		self._PhWheel_source = gmOrganizationWidgets.cOrgUnitPhraseWheel(self, wx.ID_ANY)
-		self._RBTN_org_is_source = wx.RadioButton(self, wx.ID_ANY, _("Source"))
-		self._RBTN_org_is_receiver = wx.RadioButton(self, wx.ID_ANY, _("Receiver"))
-		self._PRW_doc_comment = cDocumentCommentPhraseWheel(self, wx.ID_ANY, "")
-		self.__lbl_reviewer = wx.StaticText(self, wx.ID_ANY, _("Intended reviewer:"))
-		self._PhWheel_reviewer = cPhraseWheel(self, wx.ID_ANY)
-		self._ChBOX_reviewed = wx.CheckBox(self, wx.ID_ANY, _("&review and sign"))
-		self._ChBOX_abnormal = wx.CheckBox(self, wx.ID_ANY, _("&technically abnormal"))
-		self._ChBOX_relevant = wx.CheckBox(self, wx.ID_ANY, _("&clinically relevant"))
-		self._TBOX_description = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_CHARWRAP | wx.TE_MULTILINE | wx.TE_WORDWRAP)
-		self._LCTRL_doc_pages = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
-		self.__btn_show_page = wx.Button(self, wx.ID_ANY, _("Show"))
-		self.__btn_del_page = wx.Button(self, wx.ID_ANY, _("Remove part"))
-		self.__btn_save = wx.Button(self, wx.ID_ANY, _("Save"))
-		self.__btn_discard = wx.Button(self, wx.ID_ANY, _("Discard"))
-		self._TCTRL_metadata = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_WORDWRAP)
-
-		self.__set_properties()
-		self.__do_layout()
-
-		self.Bind(wx.EVT_BUTTON, self._scan_btn_pressed, self.__btn_scan)
-		self.Bind(wx.EVT_BUTTON, self._load_btn_pressed, self.__btn_load)
-		self.Bind(wx.EVT_BUTTON, self._clipboard_btn_pressed, self.__btn_clipboard)
-		self.Bind(wx.EVT_CHECKBOX, self._reviewed_box_checked, self._ChBOX_reviewed)
-		self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._on_part_selected, self._LCTRL_doc_pages)
-		self.Bind(wx.EVT_BUTTON, self._show_btn_pressed, self.__btn_show_page)
-		self.Bind(wx.EVT_BUTTON, self._del_btn_pressed, self.__btn_del_page)
-		self.Bind(wx.EVT_BUTTON, self._save_btn_pressed, self.__btn_save)
-		self.Bind(wx.EVT_BUTTON, self._startover_btn_pressed, self.__btn_discard)
-		# end wxGlade
-
-	def __set_properties(self):
-		# begin wxGlade: wxgScanIdxPnl.__set_properties
-		self.__btn_scan.SetToolTip(_("Acquire a page from an image source (scanner, camera). This may bring up an intermediate dialog. It uses Sane (Linux) or TWAIN (Windows)."))
-		self.__btn_scan.SetFocus()
-		self.__btn_scan.SetDefault()
-		self.__btn_load.SetToolTip(_("Add a file from the filesystem as a new part. Shows a file selector dialog."))
-		self.__btn_clipboard.SetToolTip(_("Load the topmost item from the clipboard."))
+		self._PhWheel_doc_type = cDocumentTypeSelectionPhraseWheel(self, wx.ID_ANY, "", style=wx.BORDER_NONE | wx.TE_DONTWRAP)
 		self._PhWheel_doc_type.SetToolTip(_("Required: The type of this document."))
-		self._PhWheel_doc_date.SetToolTip(_("The date when the medical information described in the document was produced. This is free text so you can add approximate dates, too, such as 3/2004 where appropriate."))
+		__szr_doc_properties.Add(self._PhWheel_doc_type, 0, wx.EXPAND | wx.LEFT, 3)
+
+		__szr_date_created = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_doc_properties.Add(__szr_date_created, 1, wx.EXPAND | wx.TOP, 2)
+
+		__lbl_doc_date = wx.StaticText(self, wx.ID_ANY, _("Date created:"))
+		__szr_date_created.Add(__lbl_doc_date, 0, wx.LEFT | wx.TOP, 3)
+
+		self._PhWheel_doc_date = cFuzzyTimestampInput(self, wx.ID_ANY, "", style=wx.BORDER_NONE | wx.TE_DONTWRAP)
+		self._PhWheel_doc_date.SetToolTip(_("The date when the medical information described in the document was produced."))
+		__szr_date_created.Add(self._PhWheel_doc_date, 1, wx.EXPAND | wx.LEFT, 3)
+
+		__lbl_doc_episode = wx.StaticText(self, wx.ID_ANY, _("Episode:"))
+		__lbl_doc_episode.SetForegroundColour(wx.Colour(255, 0, 0))
+		__szr_doc_properties.Add(__lbl_doc_episode, 0, wx.LEFT | wx.TOP, 3)
+
+		from Gnumed.wxpython.gmEMRStructWidgets import cEpisodeSelectionPhraseWheel
+		self._PhWheel_episode = cEpisodeSelectionPhraseWheel(self, wx.ID_ANY, "", style=wx.BORDER_NONE | wx.TE_DONTWRAP)
 		self._PhWheel_episode.SetToolTip(_("Required: The primary episode this document is to be listed under."))
-		self._PhWheel_source.SetToolTip(_("Optional: The organization (unit) this document originates from (sender) or is intended for (receiver)."))
+		__szr_doc_properties.Add(self._PhWheel_episode, 0, wx.EXPAND | wx.LEFT | wx.TOP, 3)
+
+		__szr_org_label = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_doc_properties.Add(__szr_org_label, 1, wx.EXPAND, 0)
+
+		__lbl_doc_source = wx.StaticText(self, wx.ID_ANY, _("Organization is:"))
+		__szr_org_label.Add(__lbl_doc_source, 0, wx.LEFT | wx.TOP, 3)
+
+		self._RBTN_org_is_source = wx.RadioButton(self, wx.ID_ANY, _("Source"))
 		self._RBTN_org_is_source.SetToolTip(_("Select if the organization is the source of the document (the default)."))
 		self._RBTN_org_is_source.SetValue(1)
+		__szr_org_label.Add(self._RBTN_org_is_source, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
+
+		self._RBTN_org_is_receiver = wx.RadioButton(self, wx.ID_ANY, _("Receiver"))
 		self._RBTN_org_is_receiver.SetToolTip(_("Select if the organization is the receiver of the document.\n\nIn most cases this means that the document was created in this praxis and sent to the organization."))
+		__szr_org_label.Add(self._RBTN_org_is_receiver, 0, wx.ALIGN_CENTER_VERTICAL, 3)
+
+		from Gnumed.wxpython.gmOrganizationWidgets import cOrgUnitPhraseWheel
+		self._PhWheel_source = cOrgUnitPhraseWheel(self, wx.ID_ANY, "", style=wx.BORDER_NONE | wx.TE_DONTWRAP)
+		self._PhWheel_source.SetToolTip(_("Optional: The organization (unit) this document originates from (sender) or is intended for (receiver)."))
+		__szr_doc_properties.Add(self._PhWheel_source, 0, wx.EXPAND | wx.LEFT, 3)
+
+		__lbl_doc_comment = wx.StaticText(self, wx.ID_ANY, _("Comment / Identification:"))
+		__szr_doc_properties.Add(__lbl_doc_comment, 0, wx.LEFT | wx.TOP, 3)
+
+		from Gnumed.wxpython.gmDocumentWidgets import cDocumentCommentPhraseWheel
+		self._PRW_doc_comment = cDocumentCommentPhraseWheel(self, wx.ID_ANY, "")
 		self._PRW_doc_comment.SetToolTip(_("Optional: A short comment identifying the document. Good comments give an idea of the content and source of the document."))
+		__szr_doc_properties.Add(self._PRW_doc_comment, 0, wx.EXPAND | wx.LEFT, 3)
+
+		self.__lbl_reviewer = wx.StaticText(self, wx.ID_ANY, _("Intended reviewer:"))
 		self.__lbl_reviewer.SetForegroundColour(wx.Colour(255, 0, 0))
+		__szr_doc_properties.Add(self.__lbl_reviewer, 0, wx.LEFT | wx.TOP, 3)
+
+		from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
+		self._PhWheel_reviewer = cPhraseWheel(self, wx.ID_ANY, "", style=wx.BORDER_NONE | wx.TE_DONTWRAP)
 		self._PhWheel_reviewer.SetToolTip(_("Required: Enter the provider who will be notified about the new document so it can be reviewed. In most cases this is the primary doctor of the patient."))
+		__szr_doc_properties.Add(self._PhWheel_reviewer, 0, wx.EXPAND | wx.LEFT, 2)
+
+		__szr_review_sign = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_doc_properties.Add(__szr_review_sign, 1, wx.EXPAND, 0)
+
+		self._ChBOX_reviewed = wx.CheckBox(self, wx.ID_ANY, _("&review and sign:"))
 		self._ChBOX_reviewed.SetToolTip(_("Check this to mark the document as reviewed upon import. If checked you can (and must) decide on \"technically abnormal\" and \"clinically relevant\", too. The default can be set by an option."))
+		__szr_review_sign.Add(self._ChBOX_reviewed, 0, wx.LEFT, 3)
+
+		self._ChBOX_abnormal = wx.CheckBox(self, wx.ID_ANY, _("&technically abnormal"))
 		self._ChBOX_abnormal.SetToolTip(_("Whether this document report technically abormal results."))
 		self._ChBOX_abnormal.Enable(False)
+		__szr_review_sign.Add(self._ChBOX_abnormal, 0, wx.LEFT, 9)
+
+		self._ChBOX_relevant = wx.CheckBox(self, wx.ID_ANY, _("&clinically relevant"))
 		self._ChBOX_relevant.SetToolTip(_("Whether this document reports clinically relevant results. Note that both normal and abnormal resuslts can be relevant."))
 		self._ChBOX_relevant.Enable(False)
-		self._TBOX_description.SetToolTip(_("Optional: A free-text document description."))
-		self._LCTRL_doc_pages.SetToolTip(_("This field lists the parts belonging to the current document."))
-		self.__btn_show_page.SetToolTip(_("View the part selected in the above list."))
-		self.__btn_del_page.SetToolTip(_("Remove the part selected in the above list. Will ask before physical deletion from disk."))
-		self.__btn_save.SetToolTip(_("Save finished document."))
-		self.__btn_discard.SetToolTip(_("Start over (discards current data)."))
-		self._TCTRL_metadata.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
-		self._TCTRL_metadata.SetFont(wx.Font(8, wx.MODERN, wx.NORMAL, wx.NORMAL, 0, ""))
-		# end wxGlade
+		__szr_review_sign.Add(self._ChBOX_relevant, 0, wx.LEFT, 9)
 
-	def __do_layout(self):
-		# begin wxGlade: wxgScanIdxPnl.__do_layout
-		__szr_main = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_left = wx.BoxSizer(wx.VERTICAL)
-		__szr_bottom_third = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_middle_left = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_parts_list = wx.BoxSizer(wx.VERTICAL)
-		__szr_page_actions = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_top_left = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_top_middle = wx.StaticBoxSizer(wx.StaticBox(self, wx.ID_ANY, _("Document Properties")), wx.VERTICAL)
-		__szr_org_details = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_top_left_btns = wx.StaticBoxSizer(wx.StaticBox(self, wx.ID_ANY, _("Part Sources")), wx.VERTICAL)
-		__szr_top_left_btns.Add(self.__btn_scan, 0, wx.BOTTOM | wx.EXPAND, 2)
-		__szr_top_left_btns.Add(self.__btn_load, 0, wx.BOTTOM | wx.EXPAND, 2)
-		__szr_top_left_btns.Add(self.__btn_clipboard, 0, wx.BOTTOM | wx.EXPAND, 2)
-		__szr_top_left.Add(__szr_top_left_btns, 0, wx.EXPAND | wx.LEFT, 5)
-		__lbl_doc_type = wx.StaticText(self, wx.ID_ANY, _("Document type:"))
-		__lbl_doc_type.SetForegroundColour(wx.Colour(255, 0, 0))
-		__szr_top_middle.Add(__lbl_doc_type, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT | wx.TOP, 3)
-		__szr_top_middle.Add(self._PhWheel_doc_type, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.LEFT, 3)
-		__lbl_doc_date = wx.StaticText(self, wx.ID_ANY, _("Date document created:"))
-		__szr_top_middle.Add(__lbl_doc_date, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT | wx.TOP, 3)
-		__szr_top_middle.Add(self._PhWheel_doc_date, 0, wx.EXPAND | wx.LEFT, 3)
-		__lbl_doc_episode = wx.StaticText(self, wx.ID_ANY, _("Associate to episode:"))
-		__lbl_doc_episode.SetForegroundColour(wx.Colour(255, 0, 0))
-		__szr_top_middle.Add(__lbl_doc_episode, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT | wx.TOP, 3)
-		__szr_top_middle.Add(self._PhWheel_episode, 0, wx.EXPAND | wx.LEFT, 3)
-		__lbl_doc_source = wx.StaticText(self, wx.ID_ANY, _("Organization:"))
-		__szr_top_middle.Add(__lbl_doc_source, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT | wx.TOP, 3)
-		__szr_org_details.Add(self._PhWheel_source, 1, wx.EXPAND | wx.LEFT, 3)
-		__lbl_org_arrow = wx.StaticText(self, wx.ID_ANY, _(u"\u2794"))
-		__szr_org_details.Add(__lbl_org_arrow, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT | wx.RIGHT, 5)
-		__szr_org_details.Add(self._RBTN_org_is_source, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
-		__szr_org_details.Add(self._RBTN_org_is_receiver, 0, wx.ALIGN_CENTER_VERTICAL, 3)
-		__szr_top_middle.Add(__szr_org_details, 0, wx.EXPAND, 0)
-		__lbl_doc_comment = wx.StaticText(self, wx.ID_ANY, _("Comment / Identification:"))
-		__szr_top_middle.Add(__lbl_doc_comment, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT | wx.TOP, 3)
-		__szr_top_middle.Add(self._PRW_doc_comment, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.LEFT, 3)
-		__szr_top_middle.Add(self.__lbl_reviewer, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT | wx.TOP, 3)
-		__szr_top_middle.Add(self._PhWheel_reviewer, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.LEFT, 3)
-		__szr_top_middle.Add(self._ChBOX_reviewed, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT | wx.TOP, 3)
-		__szr_top_middle.Add(self._ChBOX_abnormal, 0, wx.LEFT, 9)
-		__szr_top_middle.Add(self._ChBOX_relevant, 0, wx.LEFT, 9)
-		__szr_top_left.Add(__szr_top_middle, 1, wx.EXPAND | wx.LEFT, 5)
-		__szr_left.Add(__szr_top_left, 0, wx.BOTTOM | wx.EXPAND, 5)
-		__szr_middle_left.Add(self._TBOX_description, 2, wx.EXPAND, 5)
-		__szr_parts_list.Add(self._LCTRL_doc_pages, 1, wx.EXPAND | wx.LEFT, 3)
-		__szr_page_actions.Add(self.__btn_show_page, 0, wx.RIGHT, 5)
-		__szr_page_actions.Add(self.__btn_del_page, 0, 0, 0)
-		__szr_parts_list.Add(__szr_page_actions, 0, wx.EXPAND | wx.TOP, 4)
-		__szr_middle_left.Add(__szr_parts_list, 3, wx.EXPAND | wx.LEFT, 5)
-		__szr_left.Add(__szr_middle_left, 1, wx.BOTTOM | wx.EXPAND, 5)
-		__szr_bottom_third.Add(self.__btn_save, 0, wx.EXPAND, 0)
-		__szr_bottom_third.Add(self.__btn_discard, 0, wx.EXPAND, 0)
-		__szr_left.Add(__szr_bottom_third, 0, wx.EXPAND, 5)
-		__szr_main.Add(__szr_left, 3, wx.EXPAND, 0)
-		__szr_main.Add(self._TCTRL_metadata, 2, wx.EXPAND | wx.LEFT, 5)
+		self._LCTRL_items = cCurrentPatientIncomingDataListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT | wx.LC_SINGLE_SEL)
+		self._LCTRL_items.SetToolTip(_("This field lists the parts belonging to the current document."))
+		__szr_left.Add(self._LCTRL_items, 1, wx.EXPAND | wx.LEFT, 3)
+
+		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_left.Add(__szr_buttons, 0, wx.EXPAND, 5)
+
+		self._BTN_get_parts = wx.Button(self, wx.ID_ANY, _(u" Get from… "), style=wx.BU_EXACTFIT)
+		self._BTN_get_parts.SetToolTip(_("Get documents from scanner/disc/clipboard."))
+		__szr_buttons.Add(self._BTN_get_parts, 0, wx.EXPAND | wx.RIGHT, 3)
+
+		self._BTN_remove = wx.Button(self, wx.ID_REMOVE, "")
+		self._BTN_remove.SetToolTip(_("Remove or unassociate patient from selected positions."))
+		__szr_buttons.Add(self._BTN_remove, 0, wx.RIGHT, 3)
+
+		self._BTN_join_parts = wx.Button(self, wx.ID_ANY, _(" Join "), style=wx.BU_EXACTFIT)
+		self._BTN_join_parts.SetToolTip(_("Join [x] checked parts into one PDF, if possible."))
+		__szr_buttons.Add(self._BTN_join_parts, 0, wx.EXPAND, 1)
+
+		__szr_buttons.Add((0, 20), 1, wx.EXPAND, 0)
+
+		__lbl_document = wx.StaticText(self, wx.ID_ANY, _("Document:"))
+		__szr_buttons.Add(__lbl_document, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
+
+		self._BTN_save = wx.Button(self, wx.ID_SAVE, "")
+		self._BTN_save.SetToolTip(_("Save [x] checked positions as one patient document."))
+		__szr_buttons.Add(self._BTN_save, 0, wx.EXPAND | wx.RIGHT, 3)
+
+		self._BTN_clear = wx.Button(self, wx.ID_CLEAR, "")
+		self._BTN_clear.SetToolTip(_("Clear document property fields."))
+		__szr_buttons.Add(self._BTN_clear, 0, wx.EXPAND, 0)
+
+		self._PNL_previews = cFilePreviewPnl(self, wx.ID_ANY, style=wx.BORDER_NONE)
+		__szr_main.Add(self._PNL_previews, 2, wx.EXPAND, 0)
+
 		self.SetSizer(__szr_main)
 		__szr_main.Fit(self)
+
 		self.Layout()
+
+		self.Bind(wx.EVT_CHECKBOX, self._reviewed_box_checked, self._ChBOX_reviewed)
+		self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._on_part_selected, self._LCTRL_items)
+		self.Bind(wx.EVT_BUTTON, self._on_get_documents_button_pressed, self._BTN_get_parts)
+		self.Bind(wx.EVT_BUTTON, self._on_remove_button_pressed, self._BTN_remove)
+		self.Bind(wx.EVT_BUTTON, self._on_join_parts_button_pressed, self._BTN_join_parts)
+		self.Bind(wx.EVT_BUTTON, self._on_save_button_pressed, self._BTN_save)
+		self.Bind(wx.EVT_BUTTON, self._on_clear_button_pressed, self._BTN_clear)
 		# end wxGlade
-
-	def _scan_btn_pressed(self, event):  # wxGlade: wxgScanIdxPnl.<event_handler>
-		print("Event handler '_scan_btn_pressed' not implemented!")
-		event.Skip()
-
-	def _load_btn_pressed(self, event):  # wxGlade: wxgScanIdxPnl.<event_handler>
-		print("Event handler '_load_btn_pressed' not implemented!")
-		event.Skip()
-
-	def _clipboard_btn_pressed(self, event):  # wxGlade: wxgScanIdxPnl.<event_handler>
-		print("Event handler '_clipboard_btn_pressed' not implemented!")
-		event.Skip()
 
 	def _reviewed_box_checked(self, event):  # wxGlade: wxgScanIdxPnl.<event_handler>
 		print("Event handler '_reviewed_box_checked' not implemented!")
@@ -176,20 +169,24 @@ class wxgScanIdxPnl(wx.Panel):
 		print("Event handler '_on_part_selected' not implemented!")
 		event.Skip()
 
-	def _show_btn_pressed(self, event):  # wxGlade: wxgScanIdxPnl.<event_handler>
-		print("Event handler '_show_btn_pressed' not implemented!")
+	def _on_get_documents_button_pressed(self, event):  # wxGlade: wxgScanIdxPnl.<event_handler>
+		print("Event handler '_on_get_documents_button_pressed' not implemented!")
 		event.Skip()
 
-	def _del_btn_pressed(self, event):  # wxGlade: wxgScanIdxPnl.<event_handler>
-		print("Event handler '_del_btn_pressed' not implemented!")
+	def _on_remove_button_pressed(self, event):  # wxGlade: wxgScanIdxPnl.<event_handler>
+		print("Event handler '_on_remove_button_pressed' not implemented!")
 		event.Skip()
 
-	def _save_btn_pressed(self, event):  # wxGlade: wxgScanIdxPnl.<event_handler>
-		print("Event handler '_save_btn_pressed' not implemented!")
+	def _on_join_parts_button_pressed(self, event):  # wxGlade: wxgScanIdxPnl.<event_handler>
+		print("Event handler '_on_join_parts_button_pressed' not implemented!")
 		event.Skip()
 
-	def _startover_btn_pressed(self, event):  # wxGlade: wxgScanIdxPnl.<event_handler>
-		print("Event handler '_startover_btn_pressed' not implemented!")
+	def _on_save_button_pressed(self, event):  # wxGlade: wxgScanIdxPnl.<event_handler>
+		print("Event handler '_on_save_button_pressed' not implemented!")
+		event.Skip()
+
+	def _on_clear_button_pressed(self, event):  # wxGlade: wxgScanIdxPnl.<event_handler>
+		print("Event handler '_on_clear_button_pressed' not implemented!")
 		event.Skip()
 
 # end of class wxgScanIdxPnl
