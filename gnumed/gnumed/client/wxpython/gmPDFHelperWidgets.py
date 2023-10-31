@@ -98,25 +98,8 @@ if __name__ == "__main__":
 	from Gnumed.wxpython import gmGuiTest
 
 	#--------------------------------------------------------
-	def test_plugin2():
-		from Gnumed.business import gmPerson
-		main_frame = gmGuiTest.setup_widget_test_env(patient = 12)
-		main_pnl = wx.Panel(main_frame)
-		img_display = cImageDisplay(main_pnl, ID = -1, bitmap = None)
-		img_display.patient = gmPerson.gmCurrentPatient()
-		img_display.target_height = 300
-		img_display.filename = sys.argv[2]
-		main_szr = wx.BoxSizer(wx.VERTICAL)
-		main_szr.Add(img_display)
-		main_pnl.SetSizer(main_szr)
-		main_szr.SetSizeHints(main_frame)
-		main_frame.Show()
-		wx.GetApp().MainLoop()
-
-	#--------------------------------------------------------
 	def test_plugin():
 		gmGuiTest.test_widget(cPDFContentPnl)
 
 	#--------------------------------------------------------
 	test_plugin()
-	#test_plugin2()

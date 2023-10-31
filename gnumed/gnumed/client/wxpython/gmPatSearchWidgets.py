@@ -899,6 +899,15 @@ class cPersonSearchCtrl(wx.TextCtrl):
 	person = property(_get_person, _set_person)
 
 	#--------------------------------------------------------
+	def __get_patient(self):
+		if not self.__person:
+			return None
+
+		return self.__person.as_patient
+
+	patient = property(__get_patient)
+
+	#--------------------------------------------------------
 	# utility methods
 	#--------------------------------------------------------
 	def _display_name(self):
