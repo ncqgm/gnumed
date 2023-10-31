@@ -60,17 +60,7 @@ confidence=
 # --enable=similarities". If you want to run only the classes checker, but have
 # no Warning level messages displayed, use "--disable=all --enable=classes
 # --disable=W".
-disable=print-statement,
-        parameter-unpacking,
-        unpacking-in-except,
-        old-raise-syntax,
-        backtick,
-        long-suffix,
-        old-ne-operator,
-        old-octal-literal,
-        import-star-module-level,
-        non-ascii-bytes-literal,
-        raw-checker-failed,
+disable=raw-checker-failed,
         bad-inline-option,
         locally-disabled,
         file-ignored,
@@ -80,8 +70,6 @@ disable=print-statement,
         use-symbolic-message-instead,
         apply-builtin,
         basestring-builtin,
-        buffer-builtin,
-        cmp-builtin,
         coerce-builtin,
         execfile-builtin,
         file-builtin,
@@ -588,5 +576,5 @@ min-public-methods=2
 
 # Exceptions that will emit a warning when being caught. Defaults to
 # "BaseException, Exception".
-overgeneral-exceptions=BaseException,
-                       Exception
+overgeneral-exceptions=builtins.BaseException,
+                       builtins.Exception
