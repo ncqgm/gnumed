@@ -46,12 +46,15 @@ FIX: CLI: --ui= not needed anymore
 FIX: documentation: links (wiki -> static pages)
 FIX: date/time: formatting intervals medically
 FIX: Py3.13: will remove mailcap module
+FIX: forward-port fix for grid selection constant names
 
 ------------------------------------------------
 # rel-1-8-maint
 ------------------------------------------------
 
 	1.8.16
+
+FIX: meds plugin: grid selection constant names
 
 IMPROVED: plugin PACS: layout
 

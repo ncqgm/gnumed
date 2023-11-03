@@ -1774,7 +1774,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		self.CreateGrid(0, 1)
 		self.EnableEditing(0)
 		self.EnableDragGridSize(1)
-		self.SetSelectionMode(wx.grid.Grid.wxGridSelectRows)
+		self.SetSelectionMode(wx.grid.Grid.GridSelectRows)
 
 		self.SetColLabelAlignment(wx.ALIGN_LEFT, wx.ALIGN_CENTER)
 
