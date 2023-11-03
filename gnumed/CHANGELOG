@@ -8,6 +8,8 @@
 
 	1.8.16
 
+FIX: meds plugin: grid selection constant names
+
 IMPROVED: plugin PACS: layout
 
 	1.8.15
