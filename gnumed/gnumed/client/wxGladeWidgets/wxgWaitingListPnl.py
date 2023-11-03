@@ -20,20 +20,90 @@ class wxgWaitingListPnl(wx.ScrolledWindow):
 		# begin wxGlade: wxgWaitingListPnl.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.BORDER_NONE | wx.TAB_TRAVERSAL
 		wx.ScrolledWindow.__init__(self, *args, **kwds)
-		self._CHBOX_active_patient_only = wx.CheckBox(self, wx.ID_ANY, _("Active &patient"))
-		self._PRW_zone = cWaitingZonePhraseWheel(self, wx.ID_ANY, "", style=wx.TE_PROCESS_ENTER)
-		self._LBL_no_of_patients = wx.StaticText(self, wx.ID_ANY, "")
-		self._LCTRL_patients = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_SIMPLE | wx.LC_REPORT)
-		self._BTN_activate = wx.Button(self, wx.ID_ANY, _("&Activate"), style=wx.BU_EXACTFIT)
-		self._BTN_activateplus = wx.Button(self, wx.ID_ANY, _(u"Activate\u00b2"), style=wx.BU_EXACTFIT)
-		self._BTN_add_patient = wx.Button(self, wx.ID_ADD, "", style=wx.BU_EXACTFIT)
-		self._BTN_remove = wx.Button(self, wx.ID_REMOVE, "", style=wx.BU_EXACTFIT)
-		self._BTN_edit = wx.Button(self, wx.ID_ANY, _("&Edit"), style=wx.BU_EXACTFIT)
-		self._BTN_up = wx.Button(self, wx.ID_UP, "", style=wx.BU_EXACTFIT)
-		self._BTN_down = wx.Button(self, wx.ID_DOWN, "", style=wx.BU_EXACTFIT)
+		self.SetScrollRate(10, 10)
 
-		self.__set_properties()
-		self.__do_layout()
+		__szr_main = wx.BoxSizer(wx.VERTICAL)
+
+		__szr_top = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_main.Add(__szr_top, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
+
+		__lbl_filter = wx.StaticText(self, wx.ID_ANY, _("Filters:"))
+		__szr_top.Add(__lbl_filter, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
+
+		self._CHBOX_active_patient_only = wx.CheckBox(self, wx.ID_ANY, _("Active &patient"))
+		self._CHBOX_active_patient_only.SetToolTip(_("Check this if you want to see entries for the active patient only."))
+		self._CHBOX_active_patient_only.Enable(False)
+		__szr_top.Add(self._CHBOX_active_patient_only, 0, wx.ALIGN_CENTER_VERTICAL, 10)
+
+		__VLINE_patient_zone = wx.StaticLine(self, wx.ID_ANY, style=wx.LI_VERTICAL)
+		__szr_top.Add(__VLINE_patient_zone, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 3)
+
+		__lbl_zone = wx.StaticText(self, wx.ID_ANY, _("Zone"))
+		__szr_top.Add(__lbl_zone, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
+
+		self._PRW_zone = cWaitingZonePhraseWheel(self, wx.ID_ANY, "", style=wx.TE_PROCESS_ENTER)
+		self._PRW_zone.SetToolTip(_("Enter the waiting zone you want to filter by here.\nIf you leave this empty all waiting patients will be shown regardless of which zone they are waiting in."))
+		__szr_top.Add(self._PRW_zone, 1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
+
+		self._LBL_no_of_patients = wx.StaticText(self, wx.ID_ANY, "")
+		__szr_top.Add(self._LBL_no_of_patients, 0, wx.ALIGN_CENTER_VERTICAL, 5)
+
+		__szr_top.Add((20, 20), 3, wx.EXPAND, 0)
+
+		self._LCTRL_patients = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_SIMPLE | wx.LC_REPORT)
+		self._LCTRL_patients.SetToolTip(_("These patients are waiting.\n\nDoubleclick to activate (entry will stay in list)."))
+		__szr_main.Add(self._LCTRL_patients, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
+
+		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_main.Add(__szr_buttons, 0, wx.BOTTOM | wx.EXPAND | wx.TOP, 5)
+
+		__szr_buttons.Add((20, 20), 2, wx.EXPAND, 0)
+
+		self._BTN_activate = wx.Button(self, wx.ID_ANY, _("&Activate"), style=wx.BU_EXACTFIT)
+		self._BTN_activate.SetToolTip(_("Activate patient but do not remove from waiting list."))
+		self._BTN_activate.Enable(False)
+		self._BTN_activate.SetDefault()
+		__szr_buttons.Add(self._BTN_activate, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
+
+		self._BTN_activateplus = wx.Button(self, wx.ID_ANY, _(u"Activate²"), style=wx.BU_EXACTFIT)
+		self._BTN_activateplus.SetToolTip(_("Activate patient and remove from waiting list."))
+		self._BTN_activateplus.Enable(False)
+		__szr_buttons.Add(self._BTN_activateplus, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+
+		self._BTN_add_patient = wx.Button(self, wx.ID_ADD, "", style=wx.BU_EXACTFIT)
+		self._BTN_add_patient.SetToolTip(_("Add the active patient to the waiting list."))
+		__szr_buttons.Add(self._BTN_add_patient, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
+
+		self._BTN_remove = wx.Button(self, wx.ID_REMOVE, "", style=wx.BU_EXACTFIT)
+		self._BTN_remove.SetToolTip(_("Remove selected patient from the waiting list."))
+		self._BTN_remove.Enable(False)
+		__szr_buttons.Add(self._BTN_remove, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
+
+		self._BTN_edit = wx.Button(self, wx.ID_ANY, _("&Edit"), style=wx.BU_EXACTFIT)
+		self._BTN_edit.SetToolTip(_("Edit details of the waiting list entry."))
+		self._BTN_edit.Enable(False)
+		__szr_buttons.Add(self._BTN_edit, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+
+		self._BTN_up = wx.Button(self, wx.ID_UP, "", style=wx.BU_EXACTFIT)
+		self._BTN_up.SetToolTip(_("Move patient up."))
+		self._BTN_up.Enable(False)
+		__szr_buttons.Add(self._BTN_up, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
+
+		self._BTN_down = wx.Button(self, wx.ID_DOWN, "", style=wx.BU_EXACTFIT)
+		self._BTN_down.SetToolTip(_("Move patient down."))
+		self._BTN_down.Enable(False)
+		__szr_buttons.Add(self._BTN_down, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		__szr_buttons.Add((20, 20), 2, wx.EXPAND, 0)
+
+		self.SetSizer(__szr_main)
+		__szr_main.Fit(self)
+
+		self.Layout()
 
 		self.Bind(wx.EVT_CHECKBOX, self._on_active_patient_only_checked, self._CHBOX_active_patient_only)
 		self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self._on_list_item_activated, self._LCTRL_patients)
@@ -44,63 +114,6 @@ class wxgWaitingListPnl(wx.ScrolledWindow):
 		self.Bind(wx.EVT_BUTTON, self._on_edit_button_pressed, self._BTN_edit)
 		self.Bind(wx.EVT_BUTTON, self._on_up_button_pressed, self._BTN_up)
 		self.Bind(wx.EVT_BUTTON, self._on_down_button_pressed, self._BTN_down)
-		# end wxGlade
-
-	def __set_properties(self):
-		# begin wxGlade: wxgWaitingListPnl.__set_properties
-		self.SetScrollRate(10, 10)
-		self._CHBOX_active_patient_only.SetToolTip(_("Check this if you want to see entries for the active patient only."))
-		self._CHBOX_active_patient_only.Enable(False)
-		self._PRW_zone.SetToolTip(_("Enter the waiting zone you want to filter by here.\nIf you leave this empty all waiting patients will be shown regardless of which zone they are waiting in."))
-		self._LCTRL_patients.SetToolTip(_("These patients are waiting.\n\nDoubleclick to activate (entry will stay in list)."))
-		self._BTN_activate.SetToolTip(_("Activate patient but do not remove from waiting list."))
-		self._BTN_activate.Enable(False)
-		self._BTN_activate.SetDefault()
-		self._BTN_activateplus.SetToolTip(_("Activate patient and remove from waiting list."))
-		self._BTN_activateplus.Enable(False)
-		self._BTN_add_patient.SetToolTip(_("Add the active patient to the waiting list."))
-		self._BTN_remove.SetToolTip(_("Remove selected patient from the waiting list."))
-		self._BTN_remove.Enable(False)
-		self._BTN_edit.SetToolTip(_("Edit details of the waiting list entry."))
-		self._BTN_edit.Enable(False)
-		self._BTN_up.SetToolTip(_("Move patient up."))
-		self._BTN_up.Enable(False)
-		self._BTN_down.SetToolTip(_("Move patient down."))
-		self._BTN_down.Enable(False)
-		# end wxGlade
-
-	def __do_layout(self):
-		# begin wxGlade: wxgWaitingListPnl.__do_layout
-		__szr_main = wx.BoxSizer(wx.VERTICAL)
-		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_top = wx.BoxSizer(wx.HORIZONTAL)
-		__lbl_filter = wx.StaticText(self, wx.ID_ANY, _("Filters:"))
-		__szr_top.Add(__lbl_filter, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
-		__szr_top.Add(self._CHBOX_active_patient_only, 0, wx.ALIGN_CENTER_VERTICAL, 10)
-		__VLINE_patient_zone = wx.StaticLine(self, wx.ID_ANY, style=wx.LI_VERTICAL)
-		__szr_top.Add(__VLINE_patient_zone, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.LEFT | wx.RIGHT, 3)
-		__lbl_zone = wx.StaticText(self, wx.ID_ANY, _("Zone"))
-		__szr_top.Add(__lbl_zone, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
-		__szr_top.Add(self._PRW_zone, 1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
-		__szr_top.Add(self._LBL_no_of_patients, 0, wx.ALIGN_CENTER_VERTICAL, 5)
-		__szr_top.Add((20, 20), 3, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__szr_main.Add(__szr_top, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
-		__szr_main.Add(self._LCTRL_patients, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
-		__szr_buttons.Add((20, 20), 2, wx.EXPAND, 0)
-		__szr_buttons.Add(self._BTN_activate, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
-		__szr_buttons.Add(self._BTN_activateplus, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-		__szr_buttons.Add(self._BTN_add_patient, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
-		__szr_buttons.Add(self._BTN_remove, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
-		__szr_buttons.Add(self._BTN_edit, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-		__szr_buttons.Add(self._BTN_up, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
-		__szr_buttons.Add(self._BTN_down, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_buttons.Add((20, 20), 2, wx.EXPAND, 0)
-		__szr_main.Add(__szr_buttons, 0, wx.BOTTOM | wx.EXPAND | wx.TOP, 5)
-		self.SetSizer(__szr_main)
-		__szr_main.Fit(self)
-		self.Layout()
 		# end wxGlade
 
 	def _on_active_patient_only_checked(self, event):  # wxGlade: wxgWaitingListPnl.<event_handler>
