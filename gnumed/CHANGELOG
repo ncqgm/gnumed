@@ -9,6 +9,7 @@
 	1.8.16
 
 FIX: meds plugin: grid selection constant names
+FIX: gtk: do not abort on sizer flags inconsistencies in production code
 
 IMPROVED: plugin PACS: layout
 

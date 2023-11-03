@@ -3996,6 +3996,8 @@ def main():
 		gmDispatcher.connect(receiver = _signal_debugging_monitor)
 		_log.debug('gmDispatcher signal monitor activated')
 
+	wx.SizerFlags.DisableConsistencyChecks()
+
 	setup_safe_wxEndBusyCursor()
 
 	setup_callbacks()
