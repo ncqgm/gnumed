@@ -1401,7 +1401,7 @@ if __name__ == "__main__":
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	from Gnumed.pycommon import gmLog2
+	#from Gnumed.pycommon import gmLog2
 	# setup a real translation
 	del _
 	from Gnumed.pycommon import gmI18N
