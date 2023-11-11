@@ -12,20 +12,21 @@
 #WXGs=$(grep -L 'use_new_namespace="1"' *.wxg)
 # for wxp4-only:
 #WXGs=$(grep -L 'for_version="3\.0"' *.wxg)
-WXGs=$(grep 'wxSYS' *.wxg)
+#WXGs=$(grep 'wxSYS' *.wxg)
 
-echo $WXGs
-exit 0
+WXGs=$(grep -l '\|wxALIGN_CENTER_VERTICAL' *.wxg)
+
+for WXG in ${WXGs} ; do
+	echo $WXG
+done;
+#exit 0
 
 echo "#!/bin/bash"
 echo ""
-echo "export PYTHONPATH="/usr/lib/python2.7/dist-packages/wxp4/:${PYTHONPATH:+$PYTHONPATH}""
+#echo "export PYTHONPATH="/usr/lib/python2.7/dist-packages/wxp4/:${PYTHONPATH:+$PYTHONPATH}""
 echo ""
-
 for WXG in ${WXGs} ; do
-
 	echo ""
 	echo "read -p 'Convert ${WXG}'"
 	echo "wxglade ${WXG}"
-
 done;
