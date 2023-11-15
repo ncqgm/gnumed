@@ -4023,7 +4023,10 @@ def main():
 		gmDispatcher.connect(receiver = _signal_debugging_monitor)
 		_log.debug('gmDispatcher signal monitor activated')
 	else:
-		wx.SizerFlags.DisableConsistencyChecks()
+		try:
+			wx.SizerFlags.DisableConsistencyChecks()
+		except AttributeError:
+			pass
 	setup_safe_wxEndBusyCursor()
 	setup_callbacks()
 
