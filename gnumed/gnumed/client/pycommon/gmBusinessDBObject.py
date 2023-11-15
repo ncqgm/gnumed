@@ -363,7 +363,7 @@ class cBusinessDBObject(object):
 		# was given which in turn needs those instance variables
 		self.pk_obj:TypeIntOrDict = -1
 		self._idx:dict[str, int] = {}
-		self._payload:'gmPG2.dbapi.extras.DictRow' = []	# the cache for backend object values (mainly table fields)
+		self._payload:'gmPG2.dbapi.extras.DictRow' = {}	# the cache for backend object values (mainly table fields)
 		self._ext_cache:dict = {}	# the cache for extended method's results
 		self._is_modified:bool = False
 		self.original_payload:list = None

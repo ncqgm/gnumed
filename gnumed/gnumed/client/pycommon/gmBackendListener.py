@@ -36,6 +36,7 @@ class gmBackendListener(gmBorg.cBorg):
 	def __init__(self, conn=None, poll_interval:int=3):
 		try:
 			# pylint: disable=access-member-before-definition
+			# pylint: disable=has-type
 			self.already_inited
 			return
 

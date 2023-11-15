@@ -2453,7 +2453,7 @@ def run_insert(link_obj:_TLnkObj=None, schema=None, table=None, values=None, ret
 # =======================================================================
 # connection handling API
 # -----------------------------------------------------------------------
-def get_raw_connection(verbose:bool=False, readonly:bool=True, connection_name:str=None, autocommit:bool=False) -> dbapi._psycopg.connection:
+def get_raw_connection(verbose:bool=False, readonly:bool=True, connection_name:str=None, autocommit:bool=False) -> dbapi.extras.DictConnection:
 	"""Get a raw, unadorned connection.
 
 	* this will not set any parameters such as encoding, timezone, datestyle
@@ -2468,7 +2468,7 @@ def get_raw_connection(verbose:bool=False, readonly:bool=True, connection_name:s
 	)
 
 # =======================================================================
-def get_connection(readonly:bool=True, verbose:bool=False, pooled:bool=True, connection_name:str=None, autocommit:bool=False) -> dbapi._psycopg.connection:
+def get_connection(readonly:bool=True, verbose:bool=False, pooled:bool=True, connection_name:str=None, autocommit:bool=False) -> dbapi.extras.DictConnection:
 	return gmConnectionPool.gmConnectionPool().get_connection (
 		readonly = readonly,
 		verbose = verbose,
