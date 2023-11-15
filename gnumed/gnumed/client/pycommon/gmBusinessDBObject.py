@@ -324,7 +324,7 @@ class cBusinessDBObject(object):
 	_cmds_store_payload:list[str] = None
 	_updatable_fields:list[str] = None
 	#--------------------------------------------------------
-	def __init__(self, aPK_obj:TypeIntOrDict=None, row:gmPG2.dbapi.extras.DictRow=None, link_obj=None):
+	def __init__(self, aPK_obj:TypeIntOrDict=None, row:dict=None, link_obj=None):
 		"""Call __init__ from child classes like so:
 
 			super().__init__(aPK_obj = aPK_obj, row = row, link_obj = link_obj)
@@ -761,7 +761,7 @@ class cBusinessDBObject(object):
 			args[field] = self._payload[field]
 		self.payload_most_recently_attempted_to_store = args
 
-		conn_close = lambda *x: None
+		conn_close = lambda : None
 		if conn is None:
 			conn = gmPG2.get_connection(readonly=False)
 			conn_close = conn.close
