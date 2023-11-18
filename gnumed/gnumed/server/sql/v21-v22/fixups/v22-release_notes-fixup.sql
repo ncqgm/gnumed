@@ -17,30 +17,17 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.8.15 (database v22.25)',
-	'GNUmed 1.8.15 Release Notes:
+	'Release Notes for GNUmed 1.8.16 (database v22.26)',
+	'GNUmed 1.8.16 Release Notes:
 
-	1.8.15
+	1.8.16
 
-IMPROVED: person search: query speed
+FIX: SQL plugin: exception on faulty query
+FIX: meds plugin: grid selection constant names
+FIX: gtk: do not abort on sizer flags inconsistencies in production code
 
-	1.8.14
-
-FIX: plugins: exception on raising configured but unloaded plugin
-
-IMPROVED: SOAP: on patient change ask if unsaved SOAP [thanks Marc]
-IMPROVED: DB: setup connections for auto_explain in --debug mode
-
-	22.25
-
-IMPROVED: identity/names: indices
-
-	22.24
-
-IMPROVED: blobs: indices [thanks Marc]
-
-FIX: waiting list: failure in function moving entries
+IMPROVED: plugin PACS: layout
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.25@1.8.15');
+select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.26@1.8.16');
