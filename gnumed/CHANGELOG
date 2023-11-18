@@ -54,6 +54,7 @@ FIX: forward-port fix for grid selection constant names
 
 	1.8.16
 
+FIX: SQL plugin: exception on faulty query
 FIX: meds plugin: grid selection constant names
 
 IMPROVED: plugin PACS: layout
