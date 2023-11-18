@@ -105,7 +105,7 @@ def run_report_query(query=None, limit=None, pk_identity=None):
 			[''],
 			[str(t)]
 		]
-		for line in str(v).decode(gmI18N.get_encoding()).split('\n'):
+		for line in str(v).split('\n'):
 			rows.append([line])
 		rows.append([''])
 		for line in query.split('\n'):
