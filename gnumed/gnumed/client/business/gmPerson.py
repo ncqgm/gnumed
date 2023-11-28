@@ -622,6 +622,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_as_patient(self) -> 'cPatient':
+		self.is_patient = True
 		return cPatient(self._payload[self._idx['pk_identity']])
 
 	as_patient = property(_get_as_patient)

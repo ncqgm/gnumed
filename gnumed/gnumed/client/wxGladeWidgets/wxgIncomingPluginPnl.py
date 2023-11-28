@@ -41,19 +41,34 @@ class wxgIncomingPluginPnl(wx.Panel):
 		self._BTN_remove_item.SetToolTip(_("Remove highlighted document from incoming area."))
 		__szr_parts_buttons.Add(self._BTN_remove_item, 0, wx.EXPAND | wx.RIGHT, 2)
 
+		self._BTN_join_parts = wx.Button(self, wx.ID_ANY, _(" Join "), style=wx.BU_EXACTFIT)
+		self._BTN_join_parts.SetToolTip(_("Join [x] checked documents into one new PDF document, if possible.\n\nIf any of the checked document had been assigned to a patient, all documents to be joined must have been assigned to that same patient."))
+		self._BTN_join_parts.Enable(False)
+		__szr_parts_buttons.Add(self._BTN_join_parts, 0, wx.EXPAND | wx.RIGHT, 2)
+
 		self._BTN_unassign_patient = wx.Button(self, wx.ID_ANY, _(" Unassign "))
 		self._BTN_unassign_patient.SetToolTip(_("Unassign patient from highlighted document."))
 		__szr_parts_buttons.Add(self._BTN_unassign_patient, 0, wx.EXPAND | wx.RIGHT, 2)
 
-		self._BTN_join_parts = wx.Button(self, wx.ID_ANY, _(" Join "), style=wx.BU_EXACTFIT)
-		self._BTN_join_parts.SetToolTip(_("Join [x] checked documents into one new PDF document, if possible.\n\nIf any of the checked document had been assigned to a patient, all documents to be joined must have been assigned to that same patient."))
-		__szr_parts_buttons.Add(self._BTN_join_parts, 0, wx.EXPAND, 1)
+		self._BTN_goto_item_patient = wx.Button(self, wx.ID_ANY, _(" &Goto "), style=wx.BU_EXACTFIT)
+		self._BTN_goto_item_patient.SetToolTip(_("Activate patient from highlighted or first [x] checked document."))
+		__szr_parts_buttons.Add(self._BTN_goto_item_patient, 0, wx.EXPAND, 0)
 
 		__szr_parts_buttons.Add((20, 20), 1, wx.EXPAND, 0)
 
 		self._CHBOX_filter2active_patient = wx.CheckBox(self, wx.ID_ANY, _("Filter"), style=wx.CHK_2STATE)
 		self._CHBOX_filter2active_patient.SetToolTip(_("Filter incoming documents by currently active patient."))
 		__szr_parts_buttons.Add(self._CHBOX_filter2active_patient, 0, wx.EXPAND, 0)
+
+		self._BTN_save = wx.Button(self, wx.ID_ANY, _(" &Save "), style=wx.BU_EXACTFIT)
+		self._BTN_save.SetToolTip(_("Save [x] checked documents from incoming area as one patient document."))
+		self._BTN_save.Enable(False)
+		__szr_parts_buttons.Add(self._BTN_save, 0, wx.EXPAND | wx.RIGHT, 2)
+
+		self._BTN_clear = wx.Button(self, wx.ID_ANY, _(" &Clear "), style=wx.BU_EXACTFIT)
+		self._BTN_clear.SetToolTip(_("Clear patient document property fields."))
+		self._BTN_clear.Enable(False)
+		__szr_parts_buttons.Add(self._BTN_clear, 0, wx.EXPAND, 0)
 
 		from Gnumed.wxpython.gmIncomingDataWidgets import cIncomingDataListCtrl
 		self._LCTRL_items = cIncomingDataListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_HRULES | wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_VRULES)
@@ -64,19 +79,23 @@ class wxgIncomingPluginPnl(wx.Panel):
 
 		__szr_patient_search_assign = wx.BoxSizer(wx.HORIZONTAL)
 
-		label_1 = wx.StaticText(self._PNL_patient_search_assign, wx.ID_ANY, _("Patient:"))
-		__szr_patient_search_assign.Add(label_1, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
+		__LBL_patient = wx.StaticText(self._PNL_patient_search_assign, wx.ID_ANY, _("Patient:"))
+		__szr_patient_search_assign.Add(__LBL_patient, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
 
-		self._TCTRL_search_patient = cPersonSearchCtrl(self._PNL_patient_search_assign, wx.ID_ANY, "")
-		__szr_patient_search_assign.Add(self._TCTRL_search_patient, 1, wx.EXPAND, 0)
+		self._TCTRL_search_person = cPersonSearchCtrl(self._PNL_patient_search_assign, wx.ID_ANY, "")
+		__szr_patient_search_assign.Add(self._TCTRL_search_person, 1, wx.EXPAND, 0)
 
 		self._BTN_assign_selected_patient2items = wx.Button(self._PNL_patient_search_assign, wx.ID_ANY, _(u"⮥ &This "), style=wx.BU_EXACTFIT)
-		self._BTN_assign_selected_patient2items.SetToolTip(_(" Assign this patient to [x] checked documents."))
+		self._BTN_assign_selected_patient2items.SetToolTip(_(" Assign patient from search box to [x] checked documents or the highlighted document."))
 		__szr_patient_search_assign.Add(self._BTN_assign_selected_patient2items, 0, wx.EXPAND | wx.RIGHT, 2)
 
+		self._BTN_goto_searched_patient = wx.Button(self._PNL_patient_search_assign, wx.ID_ANY, _(u"→&Goto "), style=wx.BU_EXACTFIT)
+		self._BTN_goto_searched_patient.SetToolTip(_("Activate patient from search box."))
+		__szr_patient_search_assign.Add(self._BTN_goto_searched_patient, 0, wx.EXPAND | wx.RIGHT, 2)
+
 		self._BTN_assign_current_patient2items = wx.Button(self._PNL_patient_search_assign, wx.ID_ANY, _(u" A&ctive⮥ "), style=wx.BU_EXACTFIT)
-		self._BTN_assign_current_patient2items.SetToolTip(_("Assign ACTIVE patient to [x] checked documents."))
-		__szr_patient_search_assign.Add(self._BTN_assign_current_patient2items, 0, wx.EXPAND, 0)
+		self._BTN_assign_current_patient2items.SetToolTip(_("Assign ACTIVE patient to [x] checked documents or the hightlighted document."))
+		__szr_patient_search_assign.Add(self._BTN_assign_current_patient2items, 0, wx.EXPAND, 2)
 
 		self._PNL_document_properties = wx.Panel(self, wx.ID_ANY, style=wx.BORDER_NONE)
 		__szr_lists.Add(self._PNL_document_properties, 0, wx.EXPAND | wx.TOP, 1)
@@ -165,21 +184,6 @@ class wxgIncomingPluginPnl(wx.Panel):
 		self._ChBOX_relevant.Enable(False)
 		__szr_review_sign.Add(self._ChBOX_relevant, 0, wx.LEFT, 9)
 
-		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_doc_properties.Add(__szr_buttons, 0, wx.EXPAND, 5)
-
-		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-
-		self._BTN_save = wx.Button(self._PNL_document_properties, wx.ID_SAVE, "")
-		self._BTN_save.SetToolTip(_("Save [x] checked documents from incoming area as one patient document."))
-		__szr_buttons.Add(self._BTN_save, 0, wx.EXPAND | wx.RIGHT, 3)
-
-		self._BTN_clear = wx.Button(self._PNL_document_properties, wx.ID_CLEAR, "")
-		self._BTN_clear.SetToolTip(_("Clear patient document property fields."))
-		__szr_buttons.Add(self._BTN_clear, 0, wx.EXPAND, 0)
-
-		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-
 		self._PNL_previews = cFilePreviewPnl(self, wx.ID_ANY, style=wx.BORDER_NONE)
 		__szr_main.Add(self._PNL_previews, 2, wx.ALL | wx.EXPAND, 2)
 
@@ -194,14 +198,16 @@ class wxgIncomingPluginPnl(wx.Panel):
 
 		self.Bind(wx.EVT_BUTTON, self._on_add_parts_button_pressed, self._BTN_add_parts)
 		self.Bind(wx.EVT_BUTTON, self._on_remove_part_button_pressed, self._BTN_remove_item)
-		self.Bind(wx.EVT_BUTTON, self._on_unassign_patient_button_pressed, self._BTN_unassign_patient)
 		self.Bind(wx.EVT_BUTTON, self._on_join_parts_button_pressed, self._BTN_join_parts)
+		self.Bind(wx.EVT_BUTTON, self._on_unassign_patient_button_pressed, self._BTN_unassign_patient)
+		self.Bind(wx.EVT_BUTTON, self._on_goto_item_patient_button_pressed, self._BTN_goto_item_patient)
 		self.Bind(wx.EVT_CHECKBOX, self._on_filter2active_patient_checkbox_toggled, self._CHBOX_filter2active_patient)
-		self.Bind(wx.EVT_BUTTON, self._on_assign_selected_patient_button_pressed, self._BTN_assign_selected_patient2items)
-		self.Bind(wx.EVT_BUTTON, self._on_assign_active_patient_button_pressed, self._BTN_assign_current_patient2items)
-		self.Bind(wx.EVT_CHECKBOX, self._reviewed_box_checked, self._ChBOX_reviewed)
 		self.Bind(wx.EVT_BUTTON, self._on_save_button_pressed, self._BTN_save)
 		self.Bind(wx.EVT_BUTTON, self._on_clear_button_pressed, self._BTN_clear)
+		self.Bind(wx.EVT_BUTTON, self._on_assign_selected_patient_button_pressed, self._BTN_assign_selected_patient2items)
+		self.Bind(wx.EVT_BUTTON, self._on_goto_searched_patient_button_pressed, self._BTN_goto_searched_patient)
+		self.Bind(wx.EVT_BUTTON, self._on_assign_active_patient_button_pressed, self._BTN_assign_current_patient2items)
+		self.Bind(wx.EVT_CHECKBOX, self._reviewed_box_checked, self._ChBOX_reviewed)
 		# end wxGlade
 
 	def _on_add_parts_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
@@ -212,28 +218,20 @@ class wxgIncomingPluginPnl(wx.Panel):
 		print("Event handler '_on_remove_part_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_unassign_patient_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
-		print("Event handler '_on_unassign_patient_button_pressed' not implemented!")
-		event.Skip()
-
 	def _on_join_parts_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
 		print("Event handler '_on_join_parts_button_pressed' not implemented!")
 		event.Skip()
 
+	def _on_unassign_patient_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
+		print("Event handler '_on_unassign_patient_button_pressed' not implemented!")
+		event.Skip()
+
+	def _on_goto_item_patient_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
+		print("Event handler '_on_goto_item_patient_button_pressed' not implemented!")
+		event.Skip()
+
 	def _on_filter2active_patient_checkbox_toggled(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
 		print("Event handler '_on_filter2active_patient_checkbox_toggled' not implemented!")
-		event.Skip()
-
-	def _on_assign_selected_patient_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
-		print("Event handler '_on_assign_selected_patient_button_pressed' not implemented!")
-		event.Skip()
-
-	def _on_assign_active_patient_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
-		print("Event handler '_on_assign_active_patient_button_pressed' not implemented!")
-		event.Skip()
-
-	def _reviewed_box_checked(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
-		print("Event handler '_reviewed_box_checked' not implemented!")
 		event.Skip()
 
 	def _on_save_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
@@ -242,6 +240,22 @@ class wxgIncomingPluginPnl(wx.Panel):
 
 	def _on_clear_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
 		print("Event handler '_on_clear_button_pressed' not implemented!")
+		event.Skip()
+
+	def _on_assign_selected_patient_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
+		print("Event handler '_on_assign_selected_patient_button_pressed' not implemented!")
+		event.Skip()
+
+	def _on_goto_searched_patient_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
+		print("Event handler '_on_goto_searched_patient_button_pressed' not implemented!")
+		event.Skip()
+
+	def _on_assign_active_patient_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
+		print("Event handler '_on_assign_active_patient_button_pressed' not implemented!")
+		event.Skip()
+
+	def _reviewed_box_checked(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
+		print("Event handler '_reviewed_box_checked' not implemented!")
 		event.Skip()
 
 # end of class wxgIncomingPluginPnl

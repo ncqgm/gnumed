@@ -3183,6 +3183,10 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 		print('works:', refresh_collations_version_information(use_the_source_luke = [__MIND_MELD, __LLAP]))
 
 	#--------------------------------------------------------------------
+	def test_revalidate_constraints():
+		print(revalidate_constraints())
+
+	#--------------------------------------------------------------------
 	# run tests
 
 	# legacy:
@@ -3223,12 +3227,13 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	rows, idx = run_ro_queries(queries = [{'cmd': 'select 1 as one, 2 as two'}], get_col_idx = True)
 	#print(type(idx))
 	#print(type(rows))
-	r = rows[0]
-	for field in r.keys():
+	#r = rows[0]
+	#for field in r.keys():
 		#print(field)
-		print(field, r[field])
+		#print(field, r[field])
 	#print(type(rows[0]))
 
+	test_revalidate_constraints()
 	#test_sanity_check_collation_versions()
 	#test_sanity_check_database_settings()
 	#test_refresh_collations_version_information()

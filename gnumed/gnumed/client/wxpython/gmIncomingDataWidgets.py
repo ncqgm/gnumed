@@ -23,18 +23,25 @@ else:
 		gmI18N.activate_locale()
 		gmI18N.install_domain()
 
+from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmHooks
 from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmScanBackend
+
+from Gnumed.business import gmStaff
 from Gnumed.business import gmPerson
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmIncomingData
+from Gnumed.business import gmDocuments
+
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmListWidgets
+from Gnumed.wxpython.gmPatSearchWidgets import set_active_patient
 
 
 _log = logging.getLogger('gm.auto-in-ui')
@@ -48,7 +55,6 @@ class cIncomingDataListCtrl(gmListWidgets.cReportListCtrl):
 			_log.error('cannot enable list item checkboxes')
 		self.set_columns(columns = [_('Incoming document'), _('Patient')])
 		self.set_column_widths([wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
-		#self.set_resize_column()
 
 	#--------------------------------------------------------
 	def repopulate(self, pk_patient=None) -> bool:
@@ -62,12 +68,6 @@ class cIncomingDataListCtrl(gmListWidgets.cReportListCtrl):
 				comment = i['comment'].strip()
 			else:
 				comment = '?'
-#			parts = i['comment'].split('auto-import/', 1)
-#			if len(parts) > 1:
-#				if parts[1].strip():
-#					comment = parts[1].strip()
-#				else:
-#					comment = parts[0].strip()
 			pat = self._get_patient_column_value(i)
 			list_rows.append([comment, pat])
 			data.append(i)
@@ -84,33 +84,25 @@ class cIncomingDataListCtrl(gmListWidgets.cReportListCtrl):
 		# only one page, show that, regardless of whether selected or not
 		if self.ItemCount == 1:
 			page_fname = self.get_item_data(0).save_to_file()
-			(success, msg) = gmMimeLib.call_viewer_on_file(page_fname)
-			if success:
+		else:
+			item = self.selected_item_data
+			if not item:
+				gmDispatcher.send(signal = 'statustext', msg = _('Nothing selected for external display.'))
 				return
 
-			gmGuiHelpers.gm_show_warning (
-				aMessage = _('Cannot display item:\n%s') % msg,
-				aTitle = _('displaying incoming item')
-			)
+			page_fname = item.save_to_file()
+			if not page_fname:
+				gmDispatcher.send(signal = 'statustext', msg = _('Cannot display document externally.'))
+				return
+
+		(success, msg) = gmMimeLib.call_viewer_on_file(page_fname)
+		if success:
 			return
 
-		items = self.selected_item_data
-		if not items:
-			return
-
-		# did user select one of multiple pages ?
-		page_fnames = [ i.save_to_file() for i in items ]
-		if len(page_fnames) == 0:
-			gmDispatcher.send(signal = 'statustext', msg = _('Nothing selected for viewing.'), beep = True)
-			return
-
-		for page_fname in page_fnames:
-			(success, msg) = gmMimeLib.call_viewer_on_file(page_fname)
-			if not success:
-				gmGuiHelpers.gm_show_warning (
-					aMessage = _('Cannot display item:\n%s') % msg,
-					aTitle = _('displaying incoming item')
-				)
+		gmGuiHelpers.gm_show_warning (
+			aMessage = _('Cannot display document:\n%s') % msg,
+			aTitle = _('displaying incoming document')
+		)
 
 	#--------------------------------------------------------
 	def _get_patient_column_value(self, item) -> str:
@@ -118,25 +110,6 @@ class cIncomingDataListCtrl(gmListWidgets.cReportListCtrl):
 			return ''
 
 		return gmPerson.cPatient(item['pk_identity']).description_gender
-
-#============================================================
-class cCurrentPatientIncomingDataListCtrl(cIncomingDataListCtrl):
-
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
-		self.set_resize_column(0)
-
-	#--------------------------------------------------------
-	def repopulate(self, pk_patient=None) -> bool:
-		pat = gmPerson.gmCurrentPatient()
-		if pat.connected:
-			return super().repopulate(pk_patient = gmPerson.gmCurrentPatient().ID)
-
-		return self.remove_items_safely()
-
-	#--------------------------------------------------------
-	def _get_patient_column_value(self, item) -> str:
-		return _('current')
 
 #============================================================
 from Gnumed.wxGladeWidgets import wxgIncomingPluginPnl
@@ -189,8 +162,6 @@ class cIncomingPluginPnl(wxgIncomingPluginPnl.wxgIncomingPluginPnl, gmRegetMixin
 	# internal helpers
 	#--------------------------------------------------------
 	def __init_ui(self):
-		self._PhWheel_reviewer.matcher = gmPerson.cMatchProvider_Provider()
-		self._PhWheel_doc_type.add_callback_on_lose_focus(self._on_doc_type_loses_focus)
 		dt = gmGuiHelpers.cFileDropTarget(target = self)
 		self.SetDropTarget(dt)
 		self._LCTRL_items.select_callback = self.__on_item_selected
@@ -204,6 +175,11 @@ class cIncomingPluginPnl(wxgIncomingPluginPnl.wxgIncomingPluginPnl, gmRegetMixin
 		item = self.__add_from_button_popup_menu.Append(-1, _('from &clipboard'))
 		self.Bind(wx.EVT_MENU, self._on_add_from_clipboard, item)
 		self._PNL_patient_search_assign.Show()
+
+		self._PhWheel_reviewer.matcher = gmPerson.cMatchProvider_Provider()
+		self._PhWheel_reviewer.selection_only = True
+		self._PhWheel_doc_type.add_callback_on_lose_focus(self._on_doc_type_loses_focus)
+		self.__reset_property_fields()
 		self._PNL_document_properties.Hide()
 
 	#--------------------------------------------------------
@@ -218,6 +194,7 @@ class cIncomingPluginPnl(wxgIncomingPluginPnl.wxgIncomingPluginPnl, gmRegetMixin
 			if pat.connected:
 				pk_pat = pat.ID
 
+		self._PNL_previews.filename = None
 		return self._LCTRL_items.repopulate(pk_patient = pk_pat)
 
 	#--------------------------------------------------------
@@ -265,7 +242,7 @@ class cIncomingPluginPnl(wxgIncomingPluginPnl.wxgIncomingPluginPnl, gmRegetMixin
 		return device[0]
 
 	#--------------------------------------------------------
-	def __import_file_into_incoming(self, filename, source='', remove_file:bool=False):
+	def __import_file_into_incoming(self, filename, source='', remove_file:bool=False, comment:str=None):
 		_log.debug('importing [%s]', filename)
 		if gmIncomingData.data_exists(filename):
 			_log.debug('exists')
@@ -277,15 +254,16 @@ class cIncomingPluginPnl(wxgIncomingPluginPnl.wxgIncomingPluginPnl, gmRegetMixin
 			gmDispatcher.send(signal = 'statustext', msg = _('Error importing [%s].') % filename, beep = True)
 			return False
 
-		incoming['comment'] = '%s (%s) %s, %s' % (
-			gmTools.fname_from_path(filename),
-			gmDateTime.pydt_now_here().strftime('%c'),
-			source,
-			gmTools.fname_dir(filename)
-		)
+		if not comment:
+			comment = '%s (%s) %s, %s' % (
+				gmTools.fname_from_path(filename),
+				gmDateTime.pydt_now_here().strftime('%a %d %b %Y %H:%M'),
+				source,
+				gmTools.fname_dir(filename)
+			)
+		incoming['comment'] = comment
 		pat = gmPerson.gmCurrentPatient()
 		if pat.connected and self._CHBOX_filter2active_patient.IsChecked():
-			print('setting patient')
 			incoming.patient = pat
 		incoming.save()
 		if remove_file:
@@ -302,6 +280,111 @@ class cIncomingPluginPnl(wxgIncomingPluginPnl.wxgIncomingPluginPnl, gmRegetMixin
 				remove_file = remove_file
 			) and all_imported
 		return all_imported
+
+	#--------------------------------------------------------
+	def __assign_person_to_items(self, person=None):
+		items = self._LCTRL_items.checked_items_data
+		if not items:
+			item = self._LCTRL_items.selected_item_data
+			if item:
+				items = [item]
+		if not items:
+			gmDispatcher.send(signal = 'statustext', msg = _('No items [x] checked or highlighted.'), beep = False)
+			return
+
+		if isinstance(person, gmPerson.cPatient):
+			patient = person
+		else:
+			patient = person.as_patient
+		for incoming_item in items:
+			incoming_item.patient = patient
+			incoming_item.save()
+
+	#--------------------------------------------------------
+	def __reset_property_fields(self):
+		self._PhWheel_episode.SetText(value = _('other documents'), suppress_smarts = True)
+		self._PhWheel_doc_type.SetText('')
+		fts = gmDateTime.cFuzzyTimestamp()
+		self._PhWheel_doc_date.SetText(fts.strftime('%Y-%m-%d'), fts)
+		self._PRW_doc_comment.SetText('')
+		self._PhWheel_source.SetText('', None)
+		self._RBTN_org_is_source.SetValue(1)
+		# FIXME: should be set to patient's primary doc
+		me = gmStaff.gmCurrentProvider()
+		self._PhWheel_reviewer.SetText (
+			value = '%s (%s%s %s)' % (me['short_alias'], gmTools.coalesce(me['title'], ''), me['firstnames'], me['lastnames']),
+			data = me['pk_staff']
+		)
+		self._ChBOX_reviewed.SetValue(False)
+		self._ChBOX_abnormal.Disable()
+		self._ChBOX_abnormal.SetValue(False)
+		self._ChBOX_relevant.Disable()
+		self._ChBOX_relevant.SetValue(False)
+
+	#--------------------------------------------------------
+	def __items_valid_for_save(self):
+		checked_items = self._LCTRL_items.checked_items_data
+		if checked_items:
+			pat = gmPerson.gmCurrentPatient()
+			for item in checked_items:
+				if item['pk_identity'] != pat.ID:	# should not happen
+					gmDispatcher.send(signal = 'statustext', msg = _('Some [x] checked items not associated with active patient.'), beep = True)
+					return False
+
+			return True
+
+		selected_item = self._LCTRL_items.selected_item_data
+		if selected_item:
+			pat = gmPerson.gmCurrentPatient()
+			if selected_item['pk_identity'] == pat.ID:
+				return True
+
+			# should not happen
+			gmDispatcher.send(signal = 'statustext', msg = _('Highlighted item not associated with active patient.'), beep = True)
+			return False
+
+		allow_empty = gmCfgDB.get4user (
+			option =  'horstspace.scan_index.allow_partless_documents',
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
+			default = False
+		)
+		if not allow_empty:
+			gmDispatcher.send(signal = 'statustext', msg = _('Nothing [x] checked or highlighted for saving.'), beep = True)
+			return False
+
+		save_empty = gmGuiHelpers.gm_show_question (
+			aMessage = _('Nothing [x] checked or highlighted for saving.\n\nReally save an empty document as a reference ?'),
+			aTitle = _('saving document')
+		)
+		if not save_empty:
+			return False
+
+		return True
+
+	#--------------------------------------------------------
+	def __valid_for_save(self):
+		if not self.__items_valid_for_save():
+			return False
+
+		doc_type_pk = self._PhWheel_doc_type.GetData(can_create = True)
+		if doc_type_pk is None:
+			self._PhWheel_doc_type.SetFocus()
+			gmDispatcher.send(signal = 'statustext', msg = _('No document type selected.'), beep = True)
+			return False
+
+		if self._PhWheel_episode.GetValue().strip() == '':
+			gmDispatcher.send(signal = 'statustext', msg = _('No episode selected.'), beep = True)
+			return False
+
+		if self._PhWheel_reviewer.GetData() is None:
+			gmDispatcher.send(signal = 'statustext', msg = _('No reviewer selected.'), beep = True)
+			return False
+
+		if self._PhWheel_doc_date.is_valid_timestamp(empty_is_valid = True) is False:
+			gmDispatcher.send(signal = 'statustext', msg = _('Invalid date of generation.'), beep = True)
+			return False
+
+		return True
 
 	#--------------------------------------------------------
 	# event handlers
@@ -336,14 +419,13 @@ class cIncomingPluginPnl(wxgIncomingPluginPnl.wxgIncomingPluginPnl, gmRegetMixin
 			return
 
 		do_delete = gmGuiHelpers.gm_show_question (
-			question = _('Irrevocably delete the document from the incoming area ?'),
+			question = _('Irrevocably delete document from incoming area ?'),
 			title = _('Deleting incoming document')
 		)
 		if not do_delete:
 			return
 
 		gmIncomingData.delete_incoming_data(pk_incoming_data = part['pk_incoming_data'])
-		self._PNL_previews.filename = None
 
 	#--------------------------------------------------------
 	def _on_unassign_patient_button_pressed(self, event):
@@ -395,14 +477,31 @@ class cIncomingPluginPnl(wxgIncomingPluginPnl.wxgIncomingPluginPnl, gmRegetMixin
 		# hint about showing and ask whether to remove items from export area ?
 
 	#--------------------------------------------------------
+	def _on_goto_item_patient_button_pressed(self, event):
+		event.Skip()
+		item = self._LCTRL_items.selected_item_data
+		if not item:
+			items = self._LCTRL_items.checked_items_data
+			if items:
+				item = items[0]
+			else:
+				gmDispatcher.send(signal = 'statustext', msg = _('No items [x] checked or highlighted.'), beep = False)
+				return
+
+		set_active_patient(patient = gmPerson.cPatient(item.patient_pk))
+
+	#--------------------------------------------------------
 	def _on_filter2active_patient_checkbox_toggled(self, event):
 		event.Skip()
+		self._PNL_previews.filename = None
 		if self._CHBOX_filter2active_patient.IsChecked():
 			pat = gmPerson.gmCurrentPatient()
 			if pat.connected:
 				self._PNL_patient_search_assign.Hide()
 				self._PNL_document_properties.Show()
 				self._LCTRL_items.repopulate(pk_patient = pat.ID)
+				self._BTN_save.Enable()
+				self._BTN_clear.Enable()
 				self.Parent.Layout()
 				return
 
@@ -410,18 +509,19 @@ class cIncomingPluginPnl(wxgIncomingPluginPnl.wxgIncomingPluginPnl, gmRegetMixin
 		self._PNL_patient_search_assign.Show()
 		self._PNL_document_properties.Hide()
 		self._LCTRL_items.repopulate(pk_patient = None)
+		self._BTN_save.Disable()
+		self._BTN_clear.Disable()
 		self.Parent.Layout()
 
 	#--------------------------------------------------------
 	def _on_assign_selected_patient_button_pressed(self, event):
 		event.Skip()
-		pat = self._TCTRL_search_patient.patient
-		if pat is None:
+		person = self._TCTRL_search_person.person
+		if person is None:
+			gmDispatcher.send(signal = 'statustext', msg = _('No patient in search box.'), beep = False)
 			return
 
-		for incoming_item in self._LCTRL_items.checked_items_data:
-			incoming_item.patient = pat
-			incoming_item.save()
+		self.__assign_person_to_items(person = person)
 
 	#--------------------------------------------------------
 	def _on_assign_active_patient_button_pressed(self, event):
@@ -431,9 +531,17 @@ class cIncomingPluginPnl(wxgIncomingPluginPnl.wxgIncomingPluginPnl, gmRegetMixin
 			gmDispatcher.send(signal = 'statustext', msg = _('No active patient.'), beep = False)
 			return
 
-		for incoming_item in self._LCTRL_items.checked_items_data:
-			incoming_item.patient = pat
-			incoming_item.save()
+		self.__assign_person_to_items(person = pat)
+
+	#--------------------------------------------------------
+	def _on_goto_searched_patient_button_pressed(self, event):
+		event.Skip()
+		person = self._TCTRL_search_person.person
+		if person is None:
+			gmDispatcher.send(signal = 'statustext', msg = _('No patient in search box.'), beep = False)
+			return
+
+		set_active_patient(patient = person)
 
 	#--------------------------------------------------------
 	def _reviewed_box_checked(self, event):
@@ -442,20 +550,71 @@ class cIncomingPluginPnl(wxgIncomingPluginPnl.wxgIncomingPluginPnl, gmRegetMixin
 		self._ChBOX_relevant.Enable(enable = self._ChBOX_reviewed.GetValue())
 
 	#--------------------------------------------------------
-	def _on_save_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
-		print("Event handler '_on_save_button_pressed' not implemented!")
+	def _on_save_button_pressed(self, event):
 		event.Skip()
+		if not self.__valid_for_save():
+			return False
+
+		pk_document_type = self._PhWheel_doc_type.GetData()
+		if pk_document_type is None:
+			pk_document_type = gmDocuments.create_document_type(document_type = self._PhWheel_doc_type.GetValue().strip())['pk_doc_type']
+		curr_pat = gmPerson.gmCurrentPatient()
+		doc_folder = curr_pat.document_folder
+		conn = gmPG2.get_connection(readonly = False)
+		new_doc = doc_folder.add_document (
+			document_type = pk_document_type,
+			encounter = curr_pat.emr.active_encounter,
+			episode = self._PhWheel_episode.GetData(can_create = True, is_open = True, as_instance = False),
+			link_obj = conn
+		)
+		if new_doc is None:
+			return False
+
+		generate_uuid = gmCfgDB.get4user (
+			option = 'horstspace.scan_index.generate_doc_uuid',
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
+			default = False
+		)
+		if generate_uuid:
+			new_doc['ext_ref'] = gmDocuments.get_ext_ref()
+		new_doc['pk_org_unit'] = self._PhWheel_source.GetData()
+		date = self._PhWheel_doc_date.GetData()
+		if date is not None:
+			new_doc['clin_when'] = date.get_pydt()
+		comment = self._PRW_doc_comment.GetLineText(0).strip()
+		if comment:
+			new_doc['comment'] = comment
+		if self._RBTN_org_is_receiver.Value is True:
+			new_doc['unit_is_receiver'] = True
+		incoming_data = self._LCTRL_items.checked_items_data
+		if not incoming_data:
+			incoming_data = [self._LCTRL_items.selected_item_data]
+		success, parts = new_doc.add_parts_from_incoming (
+			incoming_data = incoming_data,
+			pk_reviewer = self._PhWheel_reviewer.GetData(),
+			conn = conn
+		)
+		if not success:
+			conn.rollback()
+			return False
+
+		new_doc.save(conn = conn)
+		conn.commit()
+		if self._ChBOX_reviewed.GetValue():
+			new_doc.set_reviewed (
+				technically_abnormal = self._ChBOX_abnormal.GetValue(),
+				clinically_relevant = self._ChBOX_relevant.GetValue()
+			)
+		self.__reset_property_fields()
+		for incoming in incoming_data:
+			gmIncomingData.delete_incoming_data(pk_incoming_data = incoming['pk_incoming_data'])
+		gmHooks.run_hook_script(hook = 'after_new_doc_created')
+		return True
 
 	#--------------------------------------------------------
 	def _on_clear_button_pressed(self, event):
 		event.Skip()
-		#self.__reset_ui_data()
 		self.__reset_property_fields()
-
-	#--------------------------------------------------------
-	#--------------------------------------------------------
-
-
 
 	#--------------------------------------------------------
 	def _on_add_from_scanner(self, evt):
@@ -504,7 +663,7 @@ class cIncomingPluginPnl(wxgIncomingPluginPnl.wxgIncomingPluginPnl, gmRegetMixin
 			dlg.DestroyLater()
 			return None
 
-		imported = self.__import_files_into_incoming(files, _('file'))
+		imported = self.__import_files_into_incoming(files)
 		if not imported:
 			return None
 
@@ -530,7 +689,14 @@ class cIncomingPluginPnl(wxgIncomingPluginPnl.wxgIncomingPluginPnl, gmRegetMixin
 		if not clip_file:
 			return None
 
-		self.__import_file_into_incoming(clip_file, _('clipboard'), remove_file = True)
+		self.__import_file_into_incoming (
+			filename = clip_file,
+			comment = '%s (%s)' % (
+				_('clipboard'),
+				gmDateTime.pydt_now_here().strftime('%a %d %b %Y %H:%M')
+			),
+			remove_file = True
+		)
 		return True
 
 	#--------------------------------------------------------
