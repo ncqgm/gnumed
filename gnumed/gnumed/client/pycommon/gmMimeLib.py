@@ -63,6 +63,29 @@ def is_probably_pdf(filename:str=None) -> bool:
 	return False
 
 #---------------------------------------------------------------------------------------
+def split_multipage_image(filename:str=None) -> list[str]:
+	sandbox = gmTools.mk_sandbox_dir()
+	cmd_line = [
+		'convert',
+		'-verbose',
+		filename,
+		os.path.join(sandbox, '%s.%%d' % gmTools.fname_from_path(filename))
+	]
+	success, returncode, stdout = gmShellAPI.run_process(cmd_line = cmd_line, verbose = True)
+	if not success:
+		return []
+
+	fname_stem = gmTools.fname_stem(filename)
+	items = os.listdir(sandbox)
+	image_pages = []
+	for item in items:
+		if not item.startswith(fname_stem):
+			continue
+		image_pages.append(os.path.join(sandbox, item))
+	return sorted(image_pages)
+
+#---------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------
 def __guess_mimetype__pylibextractor(filename:str=None) -> str:
 	# Python libextractor
 	try:
@@ -373,7 +396,7 @@ def join_files_as_pdf(files:List[str]=None, pdf_name:str=None) -> str:
 __LaTeX_version_checked = False
 __pdflatex_executable = None
 
-def convert_latex_to_pdf(filename:str=None, verbose:bool=False, is_sandboxed:bool=False) -> str:
+def convert_latex_to_pdf(filename:str=None, verbose:bool=False, is_sandboxed:bool=False, max_pages:int=25) -> str:
 	"""Compile LaTeX code to PDF using pdflatex.
 
 	Args:
@@ -438,7 +461,7 @@ def convert_latex_to_pdf(filename:str=None, verbose:bool=False, is_sandboxed:boo
 	return '%s.pdf' % os.path.splitext(filename)[0]
 
 #-----------------------------------------------------------------------------------
-def __convert_odt_to_pdf(filename:str=None, verbose:bool=False):
+def __convert_odt_to_pdf(filename:str=None, verbose:bool=False, max_pages:int=25):
 	cmd_line = [
 		'lowriter',
 		'--convert-to', 'pdf',
@@ -452,21 +475,43 @@ def __convert_odt_to_pdf(filename:str=None, verbose:bool=False):
 	return gmTools.fname_stem_with_path(filename) + '.pdf'
 
 #-----------------------------------------------------------------------------------
-def __convert_pdf_to_image(filename:str=None, verbose:bool=False) -> str:
+def __convert_pdf_to_image(filename:str=None, verbose:bool=False, max_pages:int=25) -> str:
 	cmd_line = ['convert']
 	if verbose:
 		cmd_line.append('-verbose')
-	cmd_line.append('%s[0]' % filename)
-	png_name = '%s.png' % filename
-	cmd_line.append(png_name)
+	cmd_line.append('-density')
+	cmd_line.append('150x150')
+	cmd_line.append('%s[0-%s]' % (filename, max_pages-1))
+	sandbox = gmTools.mk_sandbox_dir()
+	cmd_line.append(os.path.join(sandbox, '%s.%%d.tiff' % gmTools.fname_from_path(filename)))
 	success, returncode, stdout = gmShellAPI.run_process(cmd_line = cmd_line, verbose = True)
 	if not success:
 		return None
 
-	return png_name
+	pdf_stem = gmTools.fname_stem(filename)
+	items = os.listdir(sandbox)
+	image_pages = []
+	for item in items:
+		if not item.endswith('.tiff'):
+			continue
+		if not item.startswith(pdf_stem):
+			continue
+		image_pages.append(os.path.join(sandbox, item))
+	cmd_line = ['convert']
+	if verbose:
+		cmd_line.append('-verbose')
+	cmd_line.extend(sorted(image_pages))
+	cmd_line.append('-adjoin')
+	tiff_name = os.path.join(sandbox, '%s.tiff' % filename)
+	cmd_line.append(tiff_name)
+	success, returncode, stdout = gmShellAPI.run_process(cmd_line = cmd_line, verbose = True)
+	if not success:
+		return None
+
+	return tiff_name
 
 #-----------------------------------------------------------------------------------
-def __convert_pdf_to_text(filename:str=None, verbose:bool=False) -> str:
+def __convert_pdf_to_text(filename:str=None, verbose:bool=False, max_pages:int=25) -> str:
 	txt_fname = '%s.txt' % filename
 	cmd_line = [
 		'pdftotext',
@@ -510,15 +555,15 @@ __CONVERSION_DELEGATES['application/x-latex'] = __CONVERSION_DELEGATES['text/lat
 __CONVERSION_DELEGATES['application/x-tex'] = __CONVERSION_DELEGATES['text/latex']
 
 #-----------------------------------------------------------------------------------
-def convert_file_to_image(filename:str=None, verbose:bool=False) -> str:
-	return convert_file(filename = filename, target_mime = 'image/*', verbose = verbose)
+def convert_file_to_image(filename:str=None, verbose:bool=False, max_pages:int=10) -> list[str]:
+	return convert_file(filename = filename, target_mime = 'image/*', verbose = verbose, max_pages = max_pages)
 
 #-----------------------------------------------------------------------------------
 def convert_file_to_text(filename:str=None, verbose:bool=False) -> str:
 	return convert_file(filename = filename, target_mime = 'text/*', verbose = verbose)
 
 #-----------------------------------------------------------------------------------
-def convert_file(filename=None, target_mime=None, target_filename=None, target_extension=None, verbose=False):
+def convert_file(filename=None, target_mime=None, target_filename=None, target_extension=None, verbose=False, max_pages:int=25):
 	"""Convert file from one format into another.
 
 		target_mime: a mime type
@@ -580,7 +625,7 @@ def convert_file(filename=None, target_mime=None, target_filename=None, target_e
 	except KeyError:
 		conversion_func = None
 	if conversion_func is not None:
-		converted_fname = conversion_func(filename = filename, verbose = verbose)
+		converted_fname = conversion_func(filename = filename, verbose = verbose, max_pages = max_pages)
 		if converted_fname is not None:
 			if target_filename is None:
 				return converted_fname
@@ -895,6 +940,16 @@ if __name__ == "__main__":
 			print(' =>', is_probably_textfile(filename = fname))
 
 	#--------------------------------------------------------
+	def test__convert_pdf_to_img():
+		img_name = __convert_pdf_to_image(sys.argv[2], verbose = True, max_pages = 3)
+		print(img_name)
+		#print(split_multipage_image(img_name))
+
+	#--------------------------------------------------------
+	def test__split_multipage():
+		print(split_multipage_image(sys.argv[2]))
+
+	#--------------------------------------------------------
 #	print(_system_startfile_cmd)
 #	print(guess_mimetype(filename))
 #	print(get_viewer_cmd(guess_mimetype(filename), filename))
@@ -911,5 +966,7 @@ if __name__ == "__main__":
 	#test_describer()
 	#print(test_edit())
 	#test_convert_file()
+	test__convert_pdf_to_img()
 	#test_join_files_as_pdf()
-	test_check_is_textfile()
+	#test_check_is_textfile()
+	#test__split_multipage()

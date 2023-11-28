@@ -35,8 +35,7 @@ class gmBackendListener(gmBorg.cBorg):
 	"""The backend listener singleton class."""
 	def __init__(self, conn=None, poll_interval:int=3):
 		try:
-			# pylint: disable=access-member-before-definition
-			# pylint: disable=has-type
+			# pylint: disable=access-member-before-definition, disable=has-type
 			self.already_inited
 			return
 

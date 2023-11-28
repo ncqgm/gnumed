@@ -185,7 +185,7 @@ def stage_hl7_file(parent=None):
 	return True
 
 #================================================================
-def browse_incoming_unmatched(parent=None):
+def browse_incoming(parent=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -213,7 +213,7 @@ def browse_incoming_unmatched(parent=None):
 		if 'HL7' not in staged_item['data_type']:
 			return False
 		unset_identity_on_error = False
-		if staged_item['pk_identity_disambiguated'] is None:
+		if staged_item['pk_identity'] is None:
 			pat = gmPerson.gmCurrentPatient()
 			if pat.connected:
 				answer = gmGuiHelpers.gm_show_question (
@@ -240,14 +240,14 @@ def browse_incoming_unmatched(parent=None):
 					return False
 				if answer is True:
 					unset_identity_on_error = True
-					staged_item['pk_identity_disambiguated'] = pat.ID
+					staged_item['pk_identity'] = pat.ID
 
 		success, log_name = gmHL7.process_staged_single_PID_hl7_file(staged_item)
 		if success:
 			return True
 
 		if unset_identity_on_error:
-			staged_item['pk_identity_disambiguated'] = None
+			staged_item['pk_identity'] = None
 			staged_item.save()
 
 		gmGuiHelpers.gm_show_error (
@@ -270,7 +270,7 @@ def browse_incoming_unmatched(parent=None):
 		)
 		if not do_delete:
 			return False
-		return gmIncomingData.delete_incoming_data(pk_incoming_data = staged_item['pk_incoming_data_unmatched'])
+		return gmIncomingData.delete_incoming_data(pk_incoming_data = staged_item['pk_incoming_data'])
 	#------------------------------------------------------------
 	def refresh(lctrl):
 		incoming = gmIncomingData.get_incoming_data()
@@ -283,7 +283,7 @@ def browse_incoming_unmatched(parent=None):
 				gmTools.coalesce(i['gender'], '')
 			),
 			gmTools.coalesce(i['external_data_id'], ''),
-			i['pk_incoming_data_unmatched']
+			i['pk_incoming_data']
 		] for i in incoming ]
 		lctrl.set_string_items(items)
 		lctrl.set_data(incoming)

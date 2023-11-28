@@ -69,6 +69,7 @@ from Gnumed.pycommon import gmNetworkTools
 from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmConnectionPool
 from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmWorkerThread
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmClinicalRecord
@@ -76,6 +77,7 @@ from Gnumed.business import gmPraxis
 from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmArriba
 from Gnumed.business import gmStaff
+from Gnumed.business import gmAutoFileImport
 
 from Gnumed.exporters import gmPatientExporter
 
@@ -2299,7 +2301,7 @@ class gmTopLevelFrame(wx.Frame):
 		gmMeasurementWidgets.stage_hl7_file(parent = self)
 	#----------------------------------------------
 	def __on_incoming(self, evt):
-		gmMeasurementWidgets.browse_incoming_unmatched(parent = self)
+		gmMeasurementWidgets.browse_incoming(parent = self)
 	#----------------------------------------------
 	def __on_snellen(self, evt):
 		dlg = gmSnellen.cSnellenCfgDlg()
@@ -3445,6 +3447,7 @@ class gmApp(wx.App):
 		frame.Show(True)
 		self.__setup_debugging_output()
 		self.__setup_user_activity_timer()
+		self.__setup_autoimport_timer()
 		self.__register_events()
 		wx.CallAfter(self._do_after_init)
 		return True
@@ -3459,6 +3462,7 @@ class gmApp(wx.App):
 		_log.debug('gmApp.OnExit() start')
 
 		self.__shutdown_user_activity_timer()
+		self.__shutdown_autoimport_timer()
 
 		if _cfg.get(option = 'debug'):
 			self.RestoreStdio()
@@ -3516,9 +3520,9 @@ class gmApp(wx.App):
 	def _on_user_activity(self, evt):
 		self.user_activity_detected = True
 		evt.Skip()
+
 	#----------------------------------------------
 	def _on_user_activity_timer_expired(self, cookie=None):
-
 		if self.user_activity_detected:
 			self.elapsed_inactivity_slices = 0
 			self.user_activity_detected = False
@@ -3529,6 +3533,15 @@ class gmApp(wx.App):
 				pass
 
 		self.user_activity_timer.Start(oneShot = True)
+
+	#----------------------------------------------
+	def _on_autoimport_timer_expired(self, cookie=None):
+		gmWorkerThread.execute_in_worker_thread (
+			payload_function = gmAutoFileImport._worker__auto_import_files,
+			completion_callback = self._forwarder__restart_autoimport_timer,
+			worker_name = 'auto-file-importer'
+		)
+
 	#----------------------------------------------
 	# internal helpers
 	#----------------------------------------------
@@ -3537,8 +3550,30 @@ class gmApp(wx.App):
 		#gmClinicalRecord.set_func_ask_user(a_func = gmEncounterWidgets.ask_for_encounter_continuation)
 		self.__guibroker['horstspace.top_panel']._TCTRL_patient_selector.SetFocus()
 		self.user_activity_timer.Start(oneShot = True)
+		self.autoimport_timer.Start(oneShot = True)
 		gmHooks.run_hook_script(hook = 'startup-after-GUI-init')
 		#log_colors_known2wx()
+
+	#----------------------------------------------
+	def __setup_autoimport_timer(self):
+		self.autoimport_timer = gmTimer.cTimer (
+			callback = self._on_autoimport_timer_expired,
+			# FIXME: make configurable
+			delay = 3 * 60 * 1000		# every 3 minutes
+		)
+
+	#----------------------------------------------
+	def _forwarder__restart_autoimport_timer(self, import_result):
+		"""Called from worker thread as completion callback."""
+		wx.CallAfter(self.autoimport_timer.Start, oneShot = True)
+
+	#----------------------------------------------
+	def __shutdown_autoimport_timer(self):
+		try:
+			self.autoimport_timer.Stop()
+			del self.autoimport_timer
+		except Exception:
+			pass
 
 	#----------------------------------------------
 	def __setup_user_activity_timer(self):
@@ -4007,7 +4042,7 @@ def log_colors_known2wx():
 		wx.Yield()
 		col = col_db.Find(col_name)
 		log_lines.append(f'{col_name:<25} {col.red:<6} {col.green:<6} {col.blue:<6} {col.IsOk()}')
-	_log.log_multiline (
+	gmLog2.log_multiline (
 		level = logging.DEBUG,
 		message = 'RGB colors known by name on this system:',
 		text = '\n'.join(log_lines)

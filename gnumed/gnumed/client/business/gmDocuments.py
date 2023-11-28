@@ -325,6 +325,19 @@ ORDER BY
 	#--------------------------------------------------------
 	# store data
 	#--------------------------------------------------------
+	def update_data_from_incoming(self, conn=None, pk_incoming:int=None):
+		SQL = """
+			UPDATE blobs.doc_obj
+			SET data = (SELECT data FROM clin.incoming_data WHERE pk = %(pk_incoming)s)
+			WHERE pk = %(pk_part)s
+		"""
+		args = {'pk_part': self.pk_obj, 'pk_incoming': pk_incoming}
+		gmPG2.run_rw_queries(link_obj = conn, queries = [{'cmd': SQL, 'args': args}], return_data = False)
+		# must update XMIN now ...
+		self.refetch_payload(link_obj = conn)
+		return True
+
+	#--------------------------------------------------------
 	def update_data_from_file(self, fname=None, link_obj=None):
 		# sanity check
 		if not (os.access(fname, os.R_OK) and os.path.isfile(fname)):
@@ -815,6 +828,59 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		return fnames
 
 	#--------------------------------------------------------
+	def add_part_from_incoming(self, pk_incoming:int=None, pk_reviewer:int=None, conn=None):
+		SQL = """
+			INSERT INTO blobs.doc_obj (
+				fk_doc, data, seq_idx
+			) VALUES (
+				%(doc_id)s,
+				''::bytea,
+				(SELECT coalesce(max(seq_idx)+1, 1) FROM blobs.doc_obj WHERE fk_doc = %(doc_id)s)
+			) RETURNING pk
+		"""
+		args = {'doc_id': self.pk_obj}
+		rows, idx = gmPG2.run_rw_queries(link_obj = conn, queries = [{'cmd': SQL, 'args': args}], return_data = True)
+		new_part = cDocumentPart(aPK_obj = rows[0]['pk'], link_obj = conn)
+		if not new_part.update_data_from_incoming(conn = conn, pk_incoming = pk_incoming):
+			return None
+
+		if not pk_reviewer:
+			return new_part
+
+		new_part['pk_intended_reviewer'] = pk_reviewer
+		success, data = new_part.save(conn = conn)
+		if success:
+			return new_part
+
+		msg = 'cannot set reviewer to [%s] on [%s]' % (pk_reviewer, pk_incoming)
+		_log.error(msg)
+		_log.error(str(data))
+		return None
+
+	#--------------------------------------------------------
+	def add_parts_from_incoming(self, incoming_data:[]=None, pk_reviewer:int=None, conn=None):
+		"""Add parts to document from gmIncomingData.cIncomingData instances.
+
+		Returns:
+			A tuple (success state, data). On failure data is an error message. On success data is the list of new parts.
+		"""
+		new_parts = []
+		for incoming in incoming_data:
+			part = self.add_part_from_incoming (
+				pk_incoming = incoming['pk_incoming_data'],
+				pk_reviewer = pk_reviewer,
+				conn = conn
+			)
+			if part:
+				new_parts.append(part)
+				continue
+			msg = 'cannot instantiate document part from incoming [%s]' % incoming['pk_incoming_data']
+			_log.error(msg)
+			return False, msg
+
+		return True, new_parts
+
+	#--------------------------------------------------------
 	def _get_has_unreviewed_parts(self):
 		try:
 			return self.__has_unreviewed_parts			# pylint: disable=access-member-before-definition
@@ -979,10 +1045,10 @@ def create_document(document_type=None, encounter=None, episode=None, link_obj=N
 	"""Returns new document instance or raises an exception."""
 	try:
 		int(document_type)
-		cmd = """INSERT INTO blobs.doc_med (fk_type, fk_encounter, fk_episode) VALUES (%(type)s, %(enc)s, %(epi)s) RETURNING pk"""
+		SQL = "INSERT INTO blobs.doc_med (fk_type, fk_encounter, fk_episode) VALUES (%(type)s, %(pk_enc)s, %(pk_epi)s) RETURNING pk"
 	except ValueError:
 		create_document_type(document_type = document_type)
-		cmd = """
+		SQL = """
 			INSERT INTO blobs.doc_med (
 				fk_type,
 				fk_encounter,
@@ -992,11 +1058,15 @@ def create_document(document_type=None, encounter=None, episode=None, link_obj=N
 					(SELECT pk from blobs.doc_type bdt where bdt.name = %(type)s),
 					(SELECT pk from blobs.doc_type bdt where _(bdt.name) = %(type)s)
 				),
-				%(enc)s,
-				%(epi)s
+				%(pk_enc)s,
+				%(pk_epi)s
 			) RETURNING pk"""
-	args = {'type': document_type, 'enc': encounter, 'epi': episode}
-	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	args = {'type': document_type}
+	try: args['pk_enc'] = int(encounter)
+	except (TypeError, ValueError): args['pk_enc'] = encounter['pk_encounter']
+	try: args['pk_epi'] = int(episode)
+	except (TypeError, ValueError): args['pk_epi'] = episode['pk_episode']
+	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': SQL, 'args': args}], return_data = True)
 	doc = cDocument(aPK_obj = rows[0][0], link_obj = link_obj)
 	return doc
 

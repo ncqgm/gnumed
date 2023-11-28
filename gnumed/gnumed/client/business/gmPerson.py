@@ -622,6 +622,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_as_patient(self) -> 'cPatient':
+		self.is_patient = True
 		return cPatient(self._payload[self._idx['pk_identity']])
 
 	as_patient = property(_get_as_patient)
@@ -2224,7 +2225,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 		self.patient = patient
 		# for good measure ...
 		# however, actually we want to get rid of that
-		self.patient.emr
+#		self.patient.emr
 		self.__send_selection_notification()		# does not block
 		return None
 
@@ -2788,7 +2789,21 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_current_patient():
 		pat = gmCurrentPatient()
-		print("pat.emr", pat.emr)
+		print(pat)
+		input()
+		pat = gmCurrentPatient(cPatient(12))
+		print(pat.description)
+		input()
+		pat = gmCurrentPatient()
+		print(pat.description)
+		input()
+		pat_extra = gmCurrentPatient()
+		pat = gmCurrentPatient(cPatient(1))
+		print('pat:', pat.description)
+		print('pat extra:', pat.description)
+
+		#pat = gmCurrentPatient()
+		#print("pat.emr", pat.emr)
 
 	#--------------------------------------------------------
 	def test_ext_id2():
@@ -2854,10 +2869,10 @@ if __name__ == '__main__':
 	#test_vcf()
 
 	gmPG2.request_login_params(setup_pool = True)
-	test_set_active_pat()
+	#test_set_active_pat()
 	#test_mecard()
 	#test_ext_id()
-	#test_current_patient()
+	test_current_patient()
 	#test_assimilate_identity()
 	#test_get_person_duplicates()
 	#test_get_potential_person_dupes()

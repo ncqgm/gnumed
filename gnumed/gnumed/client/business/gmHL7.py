@@ -378,7 +378,7 @@ def stage_single_PID_hl7_file(filename, source=None, encoding='utf8'):
 
 	- input must be single-MSH / single-PID / normalized HL7
 
-	- imports into clin.incoming_data_unmatched
+	- imports into clin.incoming_data
 
 	- needs write permissions in dir_of(filename)
 	- moves PID files which were successfully staged into dir_of(filename)/done/PID/
@@ -462,7 +462,7 @@ def stage_single_PID_hl7_file(filename, source=None, encoding='utf8'):
 		#	u'postcode',
 		#	u'other_info',						# other identifying info in .data
 		#	u'requestor',						# Requestor of data (e.g. who ordered test results) if available in source data.
-		#	u'fk_identity_disambiguated',
+		#	u'fk_identity',
 		#	u'comment',							# a free text comment on this row, eg. why is it here, error logs etc
 		#	u'fk_provider_disambiguated'		# The provider the data is relevant to.
 	except Exception:
@@ -497,16 +497,16 @@ def process_staged_single_PID_hl7_file(staged_item):
 	filename = staged_item.save_to_file()
 	_log.debug('unstaged HL7 data into: %s', filename)
 
-	if staged_item['pk_identity_disambiguated'] is None:
+	if staged_item['pk_identity'] is None:
 		emr = None
 	else:
-		emr = gmPerson.cPatient(staged_item['pk_identity_disambiguated']).emr
+		emr = gmPerson.cPatient(staged_item['pk_identity']).emr
 
 	success = False
 	try:
 		success = __import_single_PID_hl7_file(filename, emr = emr)
 		if success:
-			gmIncomingData.delete_incoming_data(pk_incoming_data = staged_item['pk_incoming_data_unmatched'])
+			gmIncomingData.delete_incoming_data(pk_incoming_data = staged_item['pk_incoming_data'])
 			staged_item.unlock()
 			root_logger.removeHandler(import_logger)
 			return True, log_name
@@ -1251,7 +1251,7 @@ def __stage_MSH_as_incoming_data(filename, source=None, logfile=None):
 		#	u'postcode',
 		#	u'other_info',						# other identifying info in .data
 		#	u'requestor',						# Requestor of data (e.g. who ordered test results) if available in source data.
-		#	u'fk_identity_disambiguated',
+		#	u'fk_identity',
 		#	u'comment',							# a free text comment on this row, eg. why is it here, error logs etc
 		#	u'fk_provider_disambiguated'		# The provider the data is relevant to.
 	except KeyError:
