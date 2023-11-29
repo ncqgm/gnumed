@@ -11,9 +11,15 @@ import logging
 
 
 if __name__ == '__main__':
-	_ = lambda x:x
 	sys.path.insert(0, '../../')
-	from Gnumed.pycommon import gmI18N
+	_ = lambda x:x
+else:
+	try:
+		_
+	except NameError:
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
@@ -356,6 +362,8 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
+	del _
+	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain('gnumed')
 

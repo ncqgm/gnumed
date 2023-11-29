@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
-
 """GNUmed vaccination related definitions (only).
 
 Based on WHO ATC data.
@@ -17,13 +15,17 @@ __license__ = "GPL v2"
 import sys
 import logging
 
+
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmI18N
-if __name__ == '__main__':
 	_ = lambda x:x
-	gmI18N.activate_locale()
-	gmI18N.install_domain('gnumed')
+else:
+	try:
+		_
+	except NameError:
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
 
 
 _log = logging.getLogger('gm.vacc')
@@ -857,6 +859,10 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
+	del _
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
 
 	def print_substs():
 		for moniker in _VACCINE_SUBSTANCES:

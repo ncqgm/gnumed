@@ -45,9 +45,38 @@ copies).
 
 If none of this works it will fall back to making _() a noop.
 
-@copyright: authors
+Module template:
+
+# at top of file
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+	# we are the main script, setup a fake _() for now,
+	# such that it can be used in module level definitions
+	_ = lambda x:x
+else:
+	# we are being imported from elsewhere, say, mypy or some such
+	try:
+		# do we already have _() ?
+		_
+	except NameError:
+		# no, setup i18n handling
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
+
+...
+
+# in __main__, for testing code:
+if __name__ == "__main__":
+	...
+	# setup a real translation
+	del _
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
 """
 #===========================================================================
+# SPDX-License-Identifier: GPL-2.0-or-later
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later (details at https://www.gnu.org)"
 

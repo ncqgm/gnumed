@@ -100,7 +100,7 @@ if __name__ == "__main__":
 	del _
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
-	gmI18N.install_domain()
+	gmI18N.install_domain('gnumed')
 
 	#--------------------------------------------------------
 	def test1():
