@@ -6,6 +6,7 @@ __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL v2 or later"
 
 
+import os
 import sys
 import logging
 

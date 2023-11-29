@@ -3174,13 +3174,6 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 		print(get_db_fingerprint(with_dump = True, eol = '\n'))
 
 	#--------------------------------------------------------------------
-	def test_revalidate_constraints():
-		login, creds = request_login_params()
-		pool = gmConnectionPool.gmConnectionPool()
-		pool.credentials = creds
-		revalidate_constraints()
-
-	#--------------------------------------------------------------------
 	def test_reindex_database():
 		login, creds = request_login_params()
 		pool = gmConnectionPool.gmConnectionPool()
@@ -3201,6 +3194,9 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 
 	#--------------------------------------------------------------------
 	def test_revalidate_constraints():
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
 		print(revalidate_constraints())
 
 	#--------------------------------------------------------------------

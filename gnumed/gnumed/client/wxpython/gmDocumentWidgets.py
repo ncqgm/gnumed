@@ -50,12 +50,10 @@ from Gnumed.business import gmPraxis
 from Gnumed.business import gmDICOM
 from Gnumed.business import gmProviderInbox
 from Gnumed.business import gmOrganization
-from Gnumed.business import gmIncomingData
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmPhraseWheel
-from Gnumed.wxpython import gmPlugin
 from Gnumed.wxpython import gmEncounterWidgets
 from Gnumed.wxpython import gmListWidgets
 
@@ -4094,7 +4092,7 @@ if __name__ == '__main__':
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 
-	from Gnumed.wxpython import gmGuiTest
+	#from Gnumed.wxpython import gmGuiTest
 
 	#----------------------------------------------------------------
 	def test_document_prw():

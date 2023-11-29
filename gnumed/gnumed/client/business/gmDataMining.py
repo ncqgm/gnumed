@@ -8,12 +8,24 @@ import sys
 import logging
 
 
+# setup translation
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	# we are the main script, setup a fake _() for now,
+	# such that it can be used in module level definitions
 	_ = lambda x:x
+else:
+	# we are being imported from elsewhere, say, mypy or some such
+	try:
+		# do we already have _() ?
+		_
+	except NameError:
+		# no, setup i18n handling
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmDispatcher
-from Gnumed.pycommon import gmI18N
 
 _log = logging.getLogger('gm.reports')
 
@@ -125,6 +137,13 @@ def run_report_query(query=None, limit=None, pk_identity=None):
 if __name__ == '__main__':
 
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
+
+		# setup a real translation
+		del _
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
+
 		test_report = 'test suite report'
 		test_query = 'select 1 as test_suite_report_result'
 

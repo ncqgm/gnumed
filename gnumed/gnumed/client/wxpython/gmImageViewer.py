@@ -10,9 +10,6 @@ import sys
 import logging
 
 
-import wx
-
-
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x

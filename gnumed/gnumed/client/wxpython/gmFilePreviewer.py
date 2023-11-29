@@ -222,7 +222,6 @@ if __name__ == "__main__":
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 
-	from Gnumed.business import gmPerson
 	from Gnumed.wxpython import gmGuiTest
 
 	#--------------------------------------------------------

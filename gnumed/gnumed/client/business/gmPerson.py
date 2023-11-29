@@ -2800,7 +2800,7 @@ if __name__ == '__main__':
 		pat_extra = gmCurrentPatient()
 		pat = gmCurrentPatient(cPatient(1))
 		print('pat:', pat.description)
-		print('pat extra:', pat.description)
+		print('pat extra:', pat_extra.description)
 
 		#pat = gmCurrentPatient()
 		#print("pat.emr", pat.emr)
