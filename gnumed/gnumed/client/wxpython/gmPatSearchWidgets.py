@@ -912,11 +912,23 @@ class cPersonSearchCtrl(wx.TextCtrl):
 	#--------------------------------------------------------
 	def _display_name(self):
 		name = ''
-
-		if self.person is not None:
+		if self.person:
 			name = self.person.description
-
 		self.SetValue(name)
+		# adjust tooltip
+		if self.person is None:
+			self.SetToolTip(self._tt_search_hints)
+			return
+
+		tt = '%s%s\n%s%s%s\n%s' % (
+			self.person.description_gender,
+			gmTools.coalesce(self.person.get_formatted_dob(), '', ' (%s)'),
+			gmTools.coalesce(self.person['emergency_contact'], '', '%s\n %%s\n' % _('In case of emergency contact:')),
+			gmTools.coalesce(self.person['comment'], '', '\n%s\n'),
+			gmTools.u_box_horiz_single * 40,
+			self._tt_search_hints
+		)
+		self.SetToolTip(tt)
 
 	#--------------------------------------------------------
 	def _remember_ident(self, ident=None):
