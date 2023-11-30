@@ -6,6 +6,10 @@
 # rel-1-8-patches
 ------------------------------------------------
 
+	1.8.17
+
+FIX: patient search exception
+
 	1.8.16
 
 FIX: SQL plugin: exception on faulty query
