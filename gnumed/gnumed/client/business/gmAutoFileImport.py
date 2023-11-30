@@ -45,7 +45,7 @@ def setup_default_import_dirs() -> bool:
 	paths = [
 		# aka "~/gnumed/"
 		os.path.join(gmTools.gmPaths().user_work_dir, 'auto-import'),
-		# aka ".gnumed/"
+		# aka ".local/gnumed/"
 		os.path.join(gmTools.gmPaths().user_appdata_dir, 'auto-import')
 	]
 	README = """GNUmed Electronic Medical Record
@@ -56,8 +56,9 @@ def setup_default_import_dirs() -> bool:
 	for programmatic interaction:
 		%s/
 
-Files dropped into this directory and its subdirectories will
-be auto-imported into the GNUmed incoming area.
+Files dropped into these directories and their subdirectories
+will be auto-imported into the GNUmed incoming area. Sub-
+directories can also be links.
 
 Rules:
 
@@ -74,7 +75,7 @@ Rules:
 	- files already existing in the database (based on
 	  MD5 of the file content) will be removed
 
-	- only one level of subdirectories is scanned for files
+	- one level of subdirectories is scanned for files
 
 	- subdirectories will not be removed, even if empty
 
