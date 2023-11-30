@@ -2238,6 +2238,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v22
 ------------------------------------------------
 
+	22.27
+
+NEW: add systemd .timer/.service files for scheduling database backup
+
 	22.25
 
 IMPROVED: identity/names: indices

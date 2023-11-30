@@ -1,0 +1,20 @@
+#!/bin/sh
+
+# take care of daily backup of GNUmed database
+# to be run by cron/anacron/systemd.timer/...
+#
+# install into /usr/sbin/
+
+# backup data
+DOBACKUP=/usr/sbin/gm-backup
+
+# compress and sign backup(s)
+ZIPSIGN=/usr/sbin/gm-zip+sign_backups
+
+if [ -x "$DOBACKUP" ] ; then
+    $DOBACKUP
+fi
+
+if [ -x "$ZIPSIGN" ] ; then
+    $ZIPSIGN
+fi
