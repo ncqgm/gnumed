@@ -114,6 +114,17 @@ function run_shellcheck () {
 }
 
 
+function run_systemd_analyze_verify () {
+	systemd-analyze verify "$1"
+	RESULT="$?"
+	if test "${RESULT}" != "0" ; then
+		echo "systemd-analyze verify: <$1> invalid (${RESULT})"
+		exit ${RESULT}
+	fi
+	echo "$1: passed"
+}
+
+
 echo "cleaning up"
 rm -R ./gnumed-client.$CLIENTREV/
 rm -vf $CLIENTARCH
@@ -402,6 +413,9 @@ cp -vf ../../server/gm-zip+sign_backups.sh ./gnumed-client.$CLIENTREV/server/
 run_shellcheck ../../server/gm-move_backups_offsite.sh
 cp -vf ../../server/gm-move_backups_offsite.sh ./gnumed-client.$CLIENTREV/server/
 
+run_shellcheck ../../server/gm-backup_and_zip_database
+cp -R ../../server/gm-backup_and_zip_database ./gnumed-client.$CLIENTREV/server/
+
 run_shellcheck ../../external-tools/gm-remove_person.sh
 cp -vf ../../external-tools/gm-remove_person.sh ./gnumed-client.$CLIENTREV/server/
 
@@ -450,6 +464,12 @@ cp -R ./gnumed-client.$CLIENTREV/client/doc/schema/ ./gnumed-client.$CLIENTREV/s
 mkdir -p ./gnumed-client.$CLIENTREV/server/etc/gnumed/
 cp -vf ../../client/etc/gnumed/gnumed-backup.conf.example ./gnumed-client.$CLIENTREV/server/etc/gnumed/
 cp -vf ../../client/etc/gnumed/gnumed-restore.conf ./gnumed-client.$CLIENTREV/server/etc/gnumed/
+
+run_systemd_analyze_verify ../../server/gm-backup_and_zip_database.timer
+cp -R ../../server/gm-backup_and_zip_database.timer ./gnumed-client.$CLIENTREV/server/
+
+#run_systemd_analyze_verify ../../server/gm-backup_and_zip_database.service
+cp -R ../../server/gm-backup_and_zip_database.service ./gnumed-client.$CLIENTREV/server/
 
 
 # sql

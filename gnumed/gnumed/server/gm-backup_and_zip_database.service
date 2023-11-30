@@ -1,0 +1,7 @@
+[Unit]
+Description="GNUmed database backup service"
+Requires=gm-backup_and_zip_database.timer
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/gm-backup_and_zip_database

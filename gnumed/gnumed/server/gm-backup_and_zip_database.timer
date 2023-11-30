@@ -1,0 +1,12 @@
+[Unit]
+Description="GNUmed database backup timer"
+
+[Timer]
+Unit=gm-backup_and_zip_database.service
+# once daily
+OnCalendar=*-*-* 00:00:01
+# fire once immediately upon timer activation if would have fired during power down
+Persistent=yes
+
+[Install]
+WantedBy=timers.target
