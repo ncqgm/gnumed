@@ -525,14 +525,24 @@ def get_default_gnuplot_template(parent = None):
 	return default_template
 
 #----------------------------------------------------------------
-def plot_measurements(parent=None, tests=None, format=None, show_year = True, use_default_template=False):
+def plot_measurements(parent=None, tests:[]=None, format:str=None, show_year:bool=True, use_default_template:bool=False) -> bool:
+	"""Plot measurement results with GNUplot.
 
-	from Gnumed.wxpython import gmFormWidgets
+	Args:
+		parent: wxPython parent window
+		tests: measurements for which to export data
+		format: GNUplot output format, say, "wxt", "png", "latex", "x11"
+		show_year: whether to show year on x-axis
+		use_default_template: whether to use default template or ask user to select template
 
+	Returns:
+		True/False.
+	"""
 	# only valid for one-type plotting
 	if use_default_template:
 		template = get_default_gnuplot_template()
 	else:
+		from Gnumed.wxpython import gmFormWidgets
 		template = gmFormWidgets.manage_form_templates (
 			parent = parent,
 			active_only = True,
@@ -563,6 +573,7 @@ def plot_measurements(parent=None, tests=None, format=None, show_year = True, us
 				filename = fname_png,
 				hint = _('lab results plot')
 			)
+	return True
 
 #----------------------------------------------------------------
 def plot_adjacent_measurements(parent=None, test=None, format=None, show_year=True, plot_singular_result=True, use_default_template=False):

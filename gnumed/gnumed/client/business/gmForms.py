@@ -1616,6 +1616,11 @@ class cGnuplotForm(cFormEngine):
 	"""A forms engine wrapping Gnuplot."""
 
 	#--------------------------------------------------------
+	def __init__(self, template_file=None):
+		super().__init__(template_file = template_file)
+		self.__data_filename = None
+
+	#--------------------------------------------------------
 	def substitute_placeholders(self, data_source=None):
 		"""Parse the template into an instance and replace placeholders with values."""
 		pass
@@ -1632,7 +1637,7 @@ class cGnuplotForm(cFormEngine):
 
 		Expects .data_filename to be set.
 		"""
-		assert self.data_filename, '.data_filename must be set'
+		assert self.__data_filename, '.data_filename must be set'
 
 		# append some metadata for debugging, if available
 		if self.template:
@@ -1646,12 +1651,12 @@ class cGnuplotForm(cFormEngine):
 		wrapper_filename = gmTools.get_unique_filename (
 			prefix = 'gm2gpl-wrapper-',
 			suffix = '.gpl',
-			tmp_dir = gmTools.fname_dir(self.data_filename)
+			tmp_dir = gmTools.fname_dir(self.__data_filename)
 		)
 		wrapper_script = io.open(wrapper_filename, mode = 'wt', encoding = 'utf8')
 		wrapper_script.write(_GNUPLOT_WRAPPER_SCRIPT % (
 			gmTools.bool2subst(_cfg.get(option = 'debug'), '1', '0', '0'),
-			self.data_filename,
+			self.__data_filename,
 			self.template_filename
 		))
 		wrapper_script.close()
@@ -1671,11 +1676,25 @@ class cGnuplotForm(cFormEngine):
 			return False
 
 		self.final_output_filenames = [
-			self.data_filename,
+			self.__data_filename,
 			self.template_filename,
 			wrapper_filename
 		]
 		return True
+
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _set_data_filename(self, data_filename):
+		try:
+			open(data_filename, 'r').close()
+		except FileNotFoundError:
+			_log.error('cannot open [%s]', data_filename)
+			return
+
+		self.__data_filename = data_filename
+
+	data_filename = property(fset = _set_data_filename)
 
 #------------------------------------------------------------
 form_engines['G'] = cGnuplotForm

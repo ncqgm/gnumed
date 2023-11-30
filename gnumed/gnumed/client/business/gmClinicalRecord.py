@@ -722,7 +722,7 @@ class cClinicalRecord(object):
 			'Vaccinations: %(vaccinations)s'
 		) % self.get_statistics()
 	#--------------------------------------------------------
-	def format_summary(self):
+	def format_summary(self) -> str:
 
 		cmd = "SELECT dob FROM dem.v_all_persons WHERE pk_identity = %(pk)s"
 		args = {'pk': self.pk_patient}
@@ -853,7 +853,6 @@ class cClinicalRecord(object):
 					'%%s (%s@%s)' % (item['unit'], item['organization'])
 				)
 			)
-
 		return txt
 
 	#--------------------------------------------------------
