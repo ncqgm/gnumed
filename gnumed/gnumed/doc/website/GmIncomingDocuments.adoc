@@ -1,0 +1,43 @@
+link:index.html[Home] | link:GNUmedManual.html[Manual]
+
+:toc:
+
+== Managing incoming documents
+
+Documents arriving within a facility, typically related to
+the care for a particular patient, are presented within the
+"gmIncomingArea" plugin. Documents can be added to this area:
+
+	* from the clipboard
+	* from files on disk
+	* from an imaging device (scanner, webcam, ...)
+	* automatically
+
+The plugin will show a preview for each entry and allow to
+associate it with a patient.
+
+
+=== Automatic import
+
+The client will regularly import files from
+
+	$HOME/gnumed/auto-import/
+
+and
+
+	$HOME/.local/gnumed/auto-import/
+
+The directories contain a more detailed description of the mechanism.
+
+
+=== Saving documents into the patient chart
+
+	* associate incoming documents with their corresponding patients
+	* filter the incoming documents list
+	* you now see only those of the currently active patient
+	* checkmark items to be imported as one patient document
+	* enter patient document metadata
+	* save the lot
+	* repeat as necessary
+
+link:GNUmedManual.html[Manual] | link:index.html[Home]

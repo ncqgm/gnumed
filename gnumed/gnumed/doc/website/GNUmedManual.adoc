@@ -59,6 +59,7 @@ retiring forms) - Caveat: link:TalkbackClient[error reports]
 
 === Document Management
 
+* link:GmIncomingDocuments.html[Incoming documents]
 * link:GmManualDocumentManagementConcepts[Concepts]
 * link:GmManualLettersForms[Writing letters and using forms]
 * link:GmManualDocumentImporter[Adding documents] to the archive
