@@ -57,6 +57,8 @@ FIX: forward-port fix for grid selection constant names
 
 FIX: patient search exception
 
+IMPROVED: EMR browser: link document review dlg from document nodes
+
 	1.8.16
 
 FIX: SQL plugin: exception on faulty query

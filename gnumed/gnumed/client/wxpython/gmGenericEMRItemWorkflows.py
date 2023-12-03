@@ -26,6 +26,8 @@ from Gnumed.business.gmExternalCare import cExternalCareItem
 from Gnumed.business.gmClinNarrative import cNarrative
 from Gnumed.business.gmAllergy import cAllergy
 from Gnumed.business.gmAllergy import cAllergyState
+from Gnumed.business.gmDocuments import cDocument
+from Gnumed.business.gmDocuments import cDocumentPart
 
 from Gnumed.wxpython.gmEMRStructWidgets import edit_health_issue
 from Gnumed.wxpython.gmEMRStructWidgets import edit_episode
@@ -39,6 +41,7 @@ from Gnumed.wxpython.gmProcedureWidgets import edit_procedure
 from Gnumed.wxpython.gmExternalCareWidgets import edit_external_care_item
 from Gnumed.wxpython.gmNarrativeWorkflows import edit_narrative
 from Gnumed.wxpython.gmAllergyWidgets import edit_allergies
+from Gnumed.wxpython.gmDocumentWidgets import edit_document_or_part
 
 
 _log = logging.getLogger('gm.ui')
@@ -57,12 +60,10 @@ __map_class2edit_call = {
 	cExternalCareItem: {'edit_in_dlg': edit_external_care_item},
 	cNarrative: {'edit_in_dlg': edit_narrative},
 	cAllergy: {'edit_in_dlg': edit_allergies},
-	cAllergyState: {'edit_in_dlg': edit_allergies}
+	cAllergyState: {'edit_in_dlg': edit_allergies},
+	cDocument: {'edit_in_dlg': edit_document_or_part},
+	cDocumentPart: {'edit_in_dlg': edit_document_or_part}
 }
-#'clin.suppressed_hint': gmAutoHints.cSuppressedHint,
-#'blobs.doc_med': cDocument,
-#'dem.message_inbox': cInboxMessage
-
 
 #================================================================
 def edit_item_in_dlg(parent=None, item=None):
