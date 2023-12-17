@@ -28,16 +28,6 @@ either mailing list:
 	$> gnumed
 -------------------------------------
 
-=== Windows
-
-Currently no recent release has been pre-packaged for
-Windows. Follow the below procedure:
-
-	* download the latest client from the https://www.gnumed.de/downloads/client/[Download Area]
-	* unpack the tarball
-	* go to folder 'gnumed-client.1.8.0/client/'
-	* execute 'gm-from-vcs.bat'
-
 === Other systems
 
 	* download the latest client from the https://www.gnumed.de/downloads/client/[Download Area]
@@ -49,11 +39,12 @@ Windows. Follow the below procedure:
 	$> ./check-prerequisites.sh
 -------------------------------------
 
+	* install what is missing
 	* run GNUmed:
 
 -------------------------------------
 	$> cd gnumed-client.1.8.0/client/
-	$> ./gm-from-vcs.sh
+	$> ./gm-from-vcs.sh # or, on Windows: gm-from-vcs.bat
 -------------------------------------
 
 This approach can also be used if the latest released version

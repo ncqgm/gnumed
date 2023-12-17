@@ -1,0 +1,104 @@
+link:index.html[Home] | link:GNUmedManual.html[Manual]
+
+:toc:
+
+== Adding a new user
+
+. add a new person to the demographics database:
+* from the main menu select _GNUmed_ / _Users_ / _Add user_
+* the "add person" dialog will appear
+* save person data (name and gender required, date of birth recommended)
+* the new person will now be the active "patient"
+. enlist the activated patient as a staff member:
+* the "add user" dialog will appear
+* edit user data as needed
+* add password for user
+* enter password for database owner
+* save new user
+. check the new user has been created successfully:
+* open menu GNUmed / User / Manage Users
+* select the new user
+* adjust as needed, especially the access role
+
+Log out, log back in as the new user.
+
+== User management
+
+=== Removing a user
+
+A user can only be fully removed if no patient data
+whatsoever is associated with it (including the audit log).
+User accounts can be deactivated, however, following which
+they cannot be used for login until reactivation.
+
+If a user is displayed in red GNUmed detected a problem with
+the user setup. This can be remedied by deactivating and
+re-activating the user.
+
+=== Register as staff an existing person
+
+* search for that person and make it the active patient
+* go to _Person_ / _Enlist as user_ and complete the dialog
+
+To logon as the new staff member exit GNUmed and enter the database
+account associated with the new staff member into the login GUI.
+
+=== Resetting forgotten passwords
+
+As root, navigate to the directory containing `psql` and
+issue a command like follows, targeting the version of the
+database whose user account is to be modified:
+
+....
+$> psql -d gnumed_v16 -U gm-dbo
+gnumed_v16=> set default_transaction_read_only to off;
+gnumed_v16=> ALTER USER "any-doc" WITH ENCRYPTED PASSWORD 'new-password';
+gnumed_v16=> \q
+$>
+....
+
+Note the style of quoting above is important, otherwise PostgreSQL will
+try to subtract "password" from "new" which won't work.
+
+== Technical information
+
+*_A person is a person is a person_*
+
+Every person GNUmed is to work with is entered into the
+demographics database, be it staff, patient, or contact.
+
+*GNUmed User*
+
+A (GNUmed level) account needed to use the GNUmed user interface.
+Equivalent to a _"staff member"_ or _"provider"_.
+
+A GNUmed user consists of three distinct parts:
+
+* a GNUmed person (dem.identity entry)
+* a GNUmed staff member (dem.staff entry) linked to the GNUmed person
+* a PostgreSQL account associated with the GNUmed staff member
+
+*Database User*
+
+A (PostgreSQL level) account needed to access the tables in the GNUmed
+database. Database users belong to database groups which in turn define
+their access rights.
+
+*Database Group*
+
+A group of users in the database. Membership in database
+groups defines the access rights for a database user. There
+are some special purpose database groups for managing login
+permissions.
+
+*Accountability*
+
+Any change to the data is tracked in the database. It will record the
+database user that was used for the change along with the date and time
+of the change. To ensure proper identification of the staff member,
+database accounts (other than gm-dbo) are created on a purely one-to-one
+basis with an associated GNUmed user. Successful login to the GNUmed
+software is only possible for valid database username / password
+combinations which have already associated-with them a GNUmed staff.
+
+link:GNUmedManual.html[Manual] | link:index.html[Home]
