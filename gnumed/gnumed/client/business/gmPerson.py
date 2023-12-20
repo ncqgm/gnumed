@@ -2044,7 +2044,7 @@ class cPatient(cPerson):
 
 	#----------------------------------------------------------
 	def get_emr(self):
-		_log.debug('accessing EMR for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], threading.get_ident())
+		_log.debug('accessing EMR for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], threading.get_native_id())
 
 		# fast path: already set, just return it
 		if self.__emr is not None:
@@ -2070,11 +2070,11 @@ class cPatient(cPerson):
 				if got_lock:
 					break
 			if not got_lock:
-				_log.error('still failed to acquire EMR access lock, aborting (thread [%s])', threading.get_ident())
+				_log.error('still failed to acquire EMR access lock, aborting (thread [%s])', threading.get_native_id())
 				self.__emr_access_lock.release()
 				raise AttributeError('cannot lock access to EMR for identity [%s]' % self._payload[self._idx['pk_identity']])
 
-		_log.debug('pulling chart for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], threading.get_ident())
+		_log.debug('pulling chart for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], threading.get_native_id())
 		if not stack_logged:
 			# do some logging as we are pulling the chart for the first time
 			call_stack = inspect.stack()
@@ -2088,7 +2088,7 @@ class cPatient(cPerson):
 		self.is_patient = True
 		emr = cClinicalRecord(aPKey = self._payload[self._idx['pk_identity']])
 
-		_log.debug('returning EMR for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], threading.get_ident())
+		_log.debug('returning EMR for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], threading.get_native_id())
 		self.__emr = emr
 		self.__emr_access_lock.release()
 		return self.__emr
