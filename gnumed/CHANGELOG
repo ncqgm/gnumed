@@ -11,6 +11,7 @@
 FIX: patient search exception
 
 IMPROVED: EMR browser: link document review dlg from document nodes
+IMPROVED: configuration: logging of set-option failures
 
 	1.8.16
 

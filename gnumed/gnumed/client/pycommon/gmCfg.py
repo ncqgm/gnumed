@@ -314,6 +314,7 @@ limit 1""" % where_clause
 			_log.warning('option definition for [%s] not in config database' % alias)
 			return None
 		return rows[0][0]
+
 	#----------------------------
 	def set(self, workplace = None, cookie = None, option = None, value = None):
 		"""Set (insert or update) option value in database.
@@ -361,7 +362,7 @@ limit 1""" % where_clause
 			rows, idx = gmPG2.run_rw_queries(link_obj=rw_conn, queries=[{'cmd': cmd, 'args': args}], return_data=True)
 			result = rows[0][0]
 		except Exception:
-			_log.exception('cannot set option')
+			_log.exception('cannot set option: [%s] = <%s>::<%s>' % (option, opt_value, sql_type_cast))
 			result = False
 
 		rw_conn.commit()		# will rollback if transaction failed
