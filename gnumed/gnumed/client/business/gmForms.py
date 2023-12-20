@@ -2395,13 +2395,14 @@ if __name__ == '__main__':
 		pat = gmPersonSearch.ask_for_patient()
 		if pat is None:
 			return
+
+		print(pat)
 		gmPerson.set_active_patient(patient = pat)
-
 		gmStaff.gmCurrentProvider(provider = gmStaff.cStaff())
-
 		path = os.path.abspath(sys.argv[2])
+		print(path)
 		form = cTextForm(template_file = path)
-
+		print(form)
 		from Gnumed.wxpython import gmMacro
 		ph = gmMacro.gmPlaceholderHandler()
 		ph.debug = True
@@ -2409,6 +2410,7 @@ if __name__ == '__main__':
 		print(form.re_editable_filenames)
 		form.edit()
 		form.generate_output()
+
 	#--------------------------------------------------------
 	#--------------------------------------------------------
 	#--------------------------------------------------------
@@ -2430,9 +2432,9 @@ if __name__ == '__main__':
 	gmPG2.request_login_params(setup_pool = True)
 	if not gmPraxis.activate_first_praxis_branch():
 		print('no praxis')
-	test_latex_form()
+	#test_latex_form()
 	#test_pdf_form()
 	#test_abiword_form()
-	#test_text_form()
+	test_text_form()
 
 #============================================================
