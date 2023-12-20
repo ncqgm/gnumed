@@ -1281,11 +1281,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return self._get_variant_name(data = '%(lastnames)s')
 	#--------------------------------------------------------
 	def _get_variant_name(self, data=None):
-		if data is None:
-			return [_('template is missing')]
-
+		if not data:
+			data = '%(title)s %(firstnames)s %(lastnames)s'
 		name = self.pat.get_active_name()
-
 		parts = {
 			'title': self._escape(gmTools.coalesce(name['title'], '')),
 			'firstnames': self._escape(name['firstnames']),
@@ -1296,11 +1294,12 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				template4value = ' "%s" '
 			))
 		}
-
 		return data % parts
 
 	#--------------------------------------------------------
-	def _get_variant_date_of_birth(self, data='%Y %b %d'):
+	def _get_variant_date_of_birth(self, data=None):
+		if not data:
+			data = '%Y %b %d'
 		return self.pat.get_formatted_dob(format = data)
 
 	#--------------------------------------------------------
@@ -2469,7 +2468,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return '\n'.join(template % self._escape_dict_like(dx, none_string = '?', bool_strings = [_('yes'), _('no')]) for dx in selected)
 
 	#--------------------------------------------------------
-	def _get_variant_today(self, data='%Y %b %d'):
+	def _get_variant_today(self, data=None):
+		if not data:
+			data = '%Y %b %d'
 		return self._escape(gmDateTime.pydt_now_here().strftime(data))
 
 	#--------------------------------------------------------
