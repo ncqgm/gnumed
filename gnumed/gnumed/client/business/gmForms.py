@@ -2245,6 +2245,8 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
+	gmLog2.print_logfile_name()
+
 	gmDateTime.init()
 
 	#--------------------------------------------------------

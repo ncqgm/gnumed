@@ -342,7 +342,7 @@ def setup_logging():
 		print(import_error_sermon % '\n '.join(sys.path))
 		sys.exit(1)
 
-	print("Log file:", _gmLog2._logfile.name)
+	_gmLog2.print_logfile_name()
 	setup_fault_handler(target = _gmLog2._logfile)
 
 	global gmLog2
