@@ -159,11 +159,15 @@ def generate_form_from_template(parent=None, template_types=None, edit=None, tem
 		form = template.instantiate()
 	except KeyError:
 		_log.exception('cannot instantiate document template [%s]', template)
+		wx.EndBusyCursor()
 		gmGuiHelpers.gm_show_error (
-			aMessage = _('Invalid document template [%s - %s (%s)]') % (name, ver, template['engine']),
+			aMessage = _('Invalid document template [%s - %s (%s)]') % (
+				template['name_short'],
+				template['external_version'],
+				template['engine']
+			),
 			aTitle = _('Generating document from template')
 		)
-		wx.EndBusyCursor()
 		return None
 	ph = gmMacro.gmPlaceholderHandler()
 	#ph.debug = True

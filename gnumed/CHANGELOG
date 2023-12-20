@@ -11,6 +11,7 @@
 FIX: patient search exception
 FIX: OOo startup exception
 FIX: placeholders today/date_of_birth/name parsing if no format given
+FIX: logging of invalid form templates
 
 IMPROVED: EMR browser: link document review dlg from document nodes
 IMPROVED: configuration: logging of set-option failures
