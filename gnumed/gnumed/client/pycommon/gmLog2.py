@@ -63,6 +63,7 @@ import random
 
 _logfile_name = None
 _logfile = None
+_logfile_name_printed = False
 
 
 # table used for cooking non-printables
@@ -259,6 +260,15 @@ def log_step(level:int=logging.DEBUG, message:str=None, restart:bool=False):
 		logger.log(level, '%s', __current_log_step)
 	__current_log_step += 1
 
+#---------------------------------------------------------------
+def print_logfile_name():
+	global _logfile_name_printed
+	if _logfile_name_printed:
+		return
+
+	print('Log file:', _logfile_name)
+	_logfile_name_printed = True
+
 #===============================================================
 # internal API
 #===============================================================
@@ -383,7 +393,7 @@ if __name__ == '__main__':
 
 	#-----------------------------------------------------------
 	def test():
-		print(_logfile_name)
+		print_logfile_name()
 		log_step(message = 'testing')
 		logger = logging.getLogger('gmLog2.test')
 		log_step()
