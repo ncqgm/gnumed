@@ -293,7 +293,7 @@ class cCfgSQL:
 			rows, idx = gmPG2.run_rw_queries(link_obj=rw_conn, queries=[{'cmd': cmd, 'args': args}], return_data=True)
 			result = rows[0][0]
 		except Exception:
-			_log.exception('cannot set option')
+			_log.exception('cannot set option: [%s]=<%s>', option, value)
 			result = False
 		finally:
 			rw_conn.commit()

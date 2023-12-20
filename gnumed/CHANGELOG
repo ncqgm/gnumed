@@ -41,6 +41,7 @@ IMPROVED: DB: fingerprinter
 IMPROVED: DICOM: dicomization
 IMPROVED: DB: settings logging
 IMPROVED: login: DB sanity checking
+IMPROVED: cfg: logging of set-option errors, forward-ported
 
 FIX: CLI: --wxp= not needed anymore
 FIX: CLI: --ui= not needed anymore
