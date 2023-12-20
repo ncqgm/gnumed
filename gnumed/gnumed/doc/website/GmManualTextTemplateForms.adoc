@@ -1,0 +1,46 @@
+link:index.html[Home] | link:GNUmedManual.html[Manual]
+
+== Forms with text-based templates
+
+Documents can be generated from text-based form templates.
+
+The form template must contain UTF-encoded text in INI/.conf
+format and defines the document template, as well as the
+editor and post-processor.
+
+=== Group [form] key "editor"
+
+The external command to be be called for editing the template
+after placeholder substitution but before further processing.
+
+Called by GNUmed like this:
+
+	editor-binary form-instance-filename.txt
+
+Filename contains the full path.
+
+Optional.
+
+=== Group [form] key "post processor"
+
+The external command to be be called for post-processing the
+form instance file after having been substituted, and
+possibly edited by the user.
+
+Called by GNUmed like this:
+
+	post-processor-binary form-instance-filename.txt form-instance-filename.txt.output
+
+The latter file is to receive whatever the post-processor produces.
+
+Filenames contain the full path.
+
+=== Group [form] key "template"
+
+Defines the _actual_ template into which patient data is to be substituted before
+being edited and post-processed. Hence the format must be acceptable for input into
+the command defind by group [form] key "post processor".
+
+Multiline.
+
+link:GNUmedManual.html[Manual] | link:index.html[Home]
