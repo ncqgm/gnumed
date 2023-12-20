@@ -525,6 +525,7 @@ class gmOOoConnector(gmBorg.cBorg):
 
 		self.remote_context_uri = "uno:pipe,name=%s;urp;StarOffice.ComponentContext" % pipe_name
 		_log.debug('remote context URI: %s', self.remote_context_uri)
+
 	#--------------------------------------------------------
 	def __startup_ooo(self):
 		_log.info('trying to start OOo server')
@@ -532,7 +533,8 @@ class gmOOoConnector(gmBorg.cBorg):
 		os.system(self.ooo_start_cmd)
 		self.__get_startup_settle_time()
 		_log.debug('waiting %s seconds for OOo to start up', self.ooo_startup_settle_time)
-		time.sleep(self.ooo_startup_settle_time)
+		time.sleep(int(self.ooo_startup_settle_time))
+
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------

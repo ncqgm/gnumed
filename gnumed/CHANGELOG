@@ -9,6 +9,7 @@
 	1.8.17
 
 FIX: patient search exception
+FIX: OOo startup exception
 
 IMPROVED: EMR browser: link document review dlg from document nodes
 IMPROVED: configuration: logging of set-option failures
