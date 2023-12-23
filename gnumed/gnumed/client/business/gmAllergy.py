@@ -40,13 +40,15 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 				comment = gm.nullify_empty_string(%(comment)s)
 			where
 				pk = %(pk_allergy_state)s and
-				xmin = %(xmin_allergy_state)s""",
-		"""select xmin_allergy_state from clin.v_pat_allergy_state where pk_allergy_state = %(pk_allergy_state)s"""
+				xmin = %(xmin_allergy_state)s
+			RETURNING
+				xmin AS xmin_allergy_state"""
+		#,"""select xmin_allergy_state from clin.v_pat_allergy_state where pk_allergy_state = %(pk_allergy_state)s"""
 	]
 	_updatable_fields = [
-		'last_confirmed',		# special value u'now' will set to datetime.datetime.now() in the local time zone
+		'last_confirmed',		# special value 'now' will set to datetime.datetime.now() in the local time zone
 		'has_allergy',			# verified against allergy_states (see above)
-		'comment'				# u'' maps to None / NULL
+		'comment'				# '' maps to None / NULL
 	]
 
 	#--------------------------------------------------------

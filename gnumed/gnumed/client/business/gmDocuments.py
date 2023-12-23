@@ -858,7 +858,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		return None
 
 	#--------------------------------------------------------
-	def add_parts_from_incoming(self, incoming_data:[]=None, pk_reviewer:int=None, conn=None):
+	def add_parts_from_incoming(self, incoming_data:list=None, pk_reviewer:int=None, conn=None):
 		"""Add parts to document from gmIncomingData.cIncomingData instances.
 
 		Returns:

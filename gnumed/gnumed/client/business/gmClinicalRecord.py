@@ -986,13 +986,13 @@ class cClinicalRecord(object):
 		"""Cave: only use with one potential allergic agent
 		otherwise you won't know which of the agents the allergy is to."""
 
-		# we don't know the state
-		if self.allergy_state is None:
-			return None
-
-		# we know there's no allergies
-		if self.allergy_state == 0:
+		if self.allergy_state['has_allergy'] == 0:
+			# we know there's no allergies
 			return False
+
+		# we don't know the state
+		if self.allergy_state['has_allergy'] in [None, -1]:
+			return None
 
 		args = {
 			'atcs': atcs,
