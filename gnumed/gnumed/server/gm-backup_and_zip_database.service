@@ -1,3 +1,4 @@
+# put into /usr/lib/systemd/system/
 [Unit]
 Description="GNUmed database backup service"
 Requires=gm-backup_and_zip_database.timer
