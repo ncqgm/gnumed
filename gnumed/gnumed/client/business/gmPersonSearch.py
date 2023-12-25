@@ -2,6 +2,7 @@
 """GNUmed person searching code.
 
 	How-To search:
+
 		name:		Leonard Spock "Pointy-Ears" NIMOY-ZALDANA
 		DOB:		Oct 15 1975
 		ID:			12345678
@@ -9,6 +10,7 @@
 		ext ID:		#abcd-13d-4d
 
 	find patient by name (first, last, nick):
+
 		'leon'
 		'spo'
 		'nimo'
@@ -16,24 +18,29 @@
 		'pointy'
 
 	find patient by lastname:
+
 		'NIMO'
 		'ZALD'
 		'nIm,'
 		'Zal,'
 
 	find patient by firstname:
+
 		', spo'
 		',Leon'
 
 	find patient by nickname:
+
 		'!point'
 		'!ear'
 
 	find patient by firstname and lastname:
+
 		'Leonard NIMO'
 		'spock ZALDA'
 
 	find patient by fragment anywhere inside name:
+
 		'...ock'
 		'...ldan'
 		'...moY'
@@ -41,15 +48,18 @@
 		'...Ear'
 
 	find patient by several name parts:
+
 		'leon nim'
 		'spo zal'
 		'leon nim zald'
 
 	find patient by GNUmed ID:
+
 		'12345678' (also searches by DOB)
 		'#12345678' (also searches by external ID)
 
 	find patient by DOB:
+
 		'15101975' (also searches for GNUmed ID)
 		'*15101975'
 		'*15/10/1975'
@@ -58,6 +68,7 @@
 		'*15 10 1975'
 
 	find patient by external ID:
+
 		'##abcd-13d-4d'		(finds ID "abcd-13d-4d")
 		'## #abcd-13d-4d'	(finds ID "#abcd-13d-4d")
 """
