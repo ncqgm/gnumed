@@ -2630,6 +2630,10 @@ def get_persons_from_pks(pks=None):
 	return [ cPerson(aPK_obj = pk) for pk in pks ]
 
 #============================================================
+def get_persons_by_external_id(external_id:str=None, external_id_type:str=None, issuer:str=None) -> list:
+	raise NotImplementedError
+
+#============================================================
 def get_person_from_xdt(filename=None, encoding=None, dob_format=None):
 	from Gnumed.business import gmXdtObjects
 	return gmXdtObjects.read_person_from_xdt(filename=filename, encoding=encoding, dob_format=dob_format)
