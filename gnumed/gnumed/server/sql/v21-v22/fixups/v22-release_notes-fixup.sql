@@ -17,17 +17,24 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.8.16 (database v22.26)',
-	'GNUmed 1.8.16 Release Notes:
+	'Release Notes for GNUmed 1.8.17 (database v22.27)',
+	'GNUmed 1.8.17 Release Notes:
 
-	1.8.16
+	1.8.17
 
-FIX: SQL plugin: exception on faulty query
-FIX: meds plugin: grid selection constant names
-FIX: gtk: do not abort on sizer flags inconsistencies in production code
+FIX: patient search exception
+FIX: OOo startup exception
+FIX: placeholders today/date_of_birth/name parsing if no format given
+FIX: logging of invalid form templates
+FIX: logging of invalid address data
 
-IMPROVED: plugin PACS: layout
+IMPROVED: EMR browser: link document review dlg from document nodes
+IMPROVED: configuration: logging of set-option failures
+
+	22.27
+
+NEW: add systemd .timer/.service files for scheduling database backup
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.26@1.8.16');
+select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.27@1.8.17');
