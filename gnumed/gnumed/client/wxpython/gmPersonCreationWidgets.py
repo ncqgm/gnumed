@@ -537,8 +537,8 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 				_log.debug('street: >>%s<<', self._PRW_street.GetValue().strip())
 				_log.debug('postcode: >>%s<<', self._PRW_zip.GetValue().strip())
 				_log.debug('urb: >>%s<<', self._PRW_urb.GetValue().strip())
-				_log.debug('region: >>%s<<', self._PRW_region.GetData().strip())
-				_log.debug('country: >>%s<<', self._PRW_country.GetData().strip())
+				_log.debug('region: >>%s<<', self._PRW_region.GetData())
+				_log.debug('country: >>%s<<', self._PRW_country.GetData())
 				_log.exception('cannot link address')
 				gmGuiHelpers.gm_show_error (
 					aTitle = _('Saving address'),
