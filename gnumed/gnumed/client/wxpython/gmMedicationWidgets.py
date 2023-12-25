@@ -343,12 +343,15 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 
 		# allergies
 		state = emr.allergy_state
-		if state['last_confirmed'] is None:
-			confirmed = _('never')
+		if not state:
+			msg = _('Ask for allergies!') + '\n'
 		else:
-			confirmed = gmDateTime.pydt_strftime(state['last_confirmed'], '%Y %b %d')
-		msg = _('%s, last confirmed %s\n') % (state.state_string, confirmed)
-		msg += gmTools.coalesce(state['comment'], '', _('Comment (%s): %%s\n') % state['modified_by'])
+			if state['last_confirmed'] is None:
+				confirmed = _('never')
+			else:
+				confirmed = gmDateTime.pydt_strftime(state['last_confirmed'], '%Y %b %d')
+			msg = _('%s, last confirmed %s\n') % (state.state_string, confirmed)
+			msg += gmTools.coalesce(state['comment'], '', _('Comment (%s): %%s\n') % state['modified_by'])
 		tooltip = ''
 		allgs = emr.get_allergies()
 		if len(allgs) > 0:

@@ -24,6 +24,7 @@ from Gnumed.business import gmPerson
 from Gnumed.business import gmLOINC
 from Gnumed.business import gmPathLab
 from Gnumed.business import gmPraxis
+from Gnumed.business import gmAllergy
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmAllergyWidgets
@@ -375,21 +376,21 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 			self._TCTRL_allergies.SetToolTip('')
 			return
 
-		show_red = True
-
+		color = 'red'
 		emr = self.curr_pat.emr
 		state = emr.allergy_state
-
 		# state in tooltip
-		if state['last_confirmed'] is None:
-			confirmed = _('never')
+		if state:
+			if state['last_confirmed'] is None:
+				confirmed = _('never')
+			else:
+				confirmed = gmDateTime.pydt_strftime(state['last_confirmed'], '%Y %b %d')
+			tt = (state.state_string + (90 * ' '))[:90] + '\n'
+			tt += _('last confirmed %s\n') % confirmed
+			tt += gmTools.coalesce(state['comment'], '', _('Comment (%s): %%s') % state['modified_by'])
 		else:
-			confirmed = gmDateTime.pydt_strftime(state['last_confirmed'], '%Y %b %d')
-		tt = (state.state_string + (90 * ' '))[:90] + '\n'
-		tt += _('last confirmed %s\n') % confirmed
-		tt += gmTools.coalesce(state['comment'], '', _('Comment (%s): %%s') % state['modified_by'])
+			tt = _('allergy state not obtained')
 		tt += '\n'
-
 		# allergies
 		display = []
 		for allergy in emr.get_allergies():
@@ -410,24 +411,20 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 				certainty,
 				reaction
 			)
-
-		if len(display) == 0:
-			display = state.state_symbol
-			if display == gmTools.u_diameter:
-				show_red = False
-		else:
+		if display:
 			display = ','.join(display)
-
-		if state['last_confirmed'] is not None:
-			display += gmDateTime.pydt_strftime(state['last_confirmed'], ' (%Y %b)')
-
-		if show_red:
-			self._LBL_allergies.SetForegroundColour('red')
-			self._TCTRL_allergies.SetForegroundColour('red')
 		else:
-			self._LBL_allergies.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT))
-			self._TCTRL_allergies.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT))
-
+			if state:
+				if state['has_allergy'] == gmAllergy.ALLERGY_STATE_NONE:
+					color = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT)
+				display = state.state_symbol
+				if state['last_confirmed']:
+					display += gmDateTime.pydt_strftime(state['last_confirmed'], ' (%Y %b)')
+			else:
+				color = 'yellow'
+				display = _('obtain')
+		self._LBL_allergies.SetForegroundColour(color)
+		self._TCTRL_allergies.SetForegroundColour(color)
 		self._TCTRL_allergies.SetValue(display)
 		self._TCTRL_allergies.SetToolTip(tt)
 

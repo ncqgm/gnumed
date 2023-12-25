@@ -1978,21 +1978,14 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 	#--------------------------------------------------------
 	def _get_variant_allergy_state(self, data=None):
-		allg_state = self.pat.emr.allergy_state
+		state = self.pat.emr.allergy_state
+		if not state:
+			return self._escape(_('unobtained'))
 
-		if allg_state['last_confirmed'] is None:
-			date_confirmed = ''
-		else:
-			date_confirmed = ' (%s)' % gmDateTime.pydt_strftime (
-				allg_state['last_confirmed'],
-				format = '%Y %B %d'
-			)
-
-		tmp = '%s%s' % (
-			allg_state.state_string,
-			date_confirmed
-		)
-		return self._escape(tmp)
+		date_confirmed = ''
+		if state['last_confirmed']:
+			date_confirmed = ' (%s)' % gmDateTime.pydt_strftime(state['last_confirmed'], format = '%Y %B %d')
+		return self._escape('%s%s' % (state.state_string, date_confirmed))
 
 	#--------------------------------------------------------
 	def _get_variant_allergy_list(self, data=None):

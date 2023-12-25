@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""GNUmed allergy related business object."""
+"""GNUmed allergy related business objects."""
 #============================================================
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = "GPL v2 or later"
@@ -18,20 +18,35 @@ from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmTools
 
 
-_log = logging.getLogger('gm.domain')
-#============================================================
-# allergy state related code
-#============================================================
-allergy_states = [
-	None,		# unknown
-	0,			# no allergies
-	1			# some allergies
+_log = logging.getLogger('gm.allergy')
+
+# the allergy state *has* been obtained but remained unknown (this is forensically useful)
+ALLERGY_STATE_UNKNOWN = None
+# no known allergies
+ALLERGY_STATE_NONE = 0
+# does have allergies
+ALLERGY_STATE_SOME = 1
+
+ALLERGY_STATES = [
+	ALLERGY_STATE_UNKNOWN,
+	ALLERGY_STATE_NONE,
+	ALLERGY_STATE_SOME
 ]
 
+ALLERGY_STATE_SYMBOLS = {
+	ALLERGY_STATE_UNKNOWN: '?',
+	ALLERGY_STATE_NONE: gmTools.u_diameter,
+	ALLERGY_STATE_SOME: '!'
+}
+
+#============================================================
+# allergy state related code
 #------------------------------------------------------------
 class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
-	"""Represents the allergy state of one patient."""
+	"""Represents the allergy state of one patient.
 
+	See ALLERGY_STATES for the meaning of cAllergyState['has_allergy'].
+	"""
 	_cmd_fetch_payload = "select * from clin.v_pat_allergy_state where pk_allergy_state = %s"
 	_cmds_store_payload = [
 		"""update clin.allergy_state set
@@ -47,7 +62,7 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 	]
 	_updatable_fields = [
 		'last_confirmed',		# special value 'now' will set to datetime.datetime.now() in the local time zone
-		'has_allergy',			# verified against allergy_states (see above)
+		'has_allergy',			# verified against ALLERGY_STATES (see above)
 		'comment'				# '' maps to None / NULL
 	]
 
@@ -66,11 +81,11 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 	# properties
 	#--------------------------------------------------------
 	def _get_as_string(self):
-		if self._payload['has_allergy'] is None:
+		if self._payload['has_allergy'] is ALLERGY_STATE_UNKNOWN:
 			return _('unknown allergy state')
-		if self._payload['has_allergy'] == 0:
+		if self._payload['has_allergy'] == ALLERGY_STATE_NONE:
 			return _('no known allergies')
-		if self._payload['has_allergy'] == 1:
+		if self._payload['has_allergy'] == ALLERGY_STATE_SOME:
 			return _('*does* have allergies')
 		_log.error('unknown allergy state [%s]', self._payload['has_allergy'])
 		return _('ERROR: unknown allergy state [%s]') % self._payload['has_allergy']
@@ -79,23 +94,14 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_as_symbol(self):
-		if self._payload['has_allergy'] is None:
-			if self._payload['comment'] is None:
-				return '?'
-			else:
-				return '?!'
-
-		if self._payload['has_allergy'] == 0:
-			if self._payload['comment'] is None:
-				return '\u2300'
-			else:
-				return '\u2300!'
-
-		if self._payload['has_allergy'] == 1:
-			return '!'
-
-		_log.error('unknown allergy state [%s]', self._payload['has_allergy'])
-		return _('ERROR: unknown allergy state [%s]') % self._payload['has_allergy']
+		try:
+			symbol = ALLERGY_STATE_SYMBOLS[self._payload['has_allergy']]
+		except KeyError:
+			_log.error('unknown allergy state [%s]', self._payload['has_allergy'])
+			symbol = _('ERROR: unknown allergy state [%s]') % self._payload['has_allergy']
+		if self._payload['comment']:
+			symbol += gmTools.u_superscript_one
+		return symbol
 
 	state_symbol = property(_get_as_symbol)
 
@@ -164,20 +170,55 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
-		if attribute == 'comment':
-			if value is not None:
-				if value.strip() == '':
-					value = None
-
-		elif attribute == 'last_confirmed':
+		if attribute == 'last_confirmed':
 			if value == 'now':
 				value = pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone)
+			return
 
-		elif attribute == 'has_allergy':
-			if value not in allergy_states:
+		if attribute == 'has_allergy':
+			if value not in ALLERGY_STATES:
 				raise ValueError('invalid allergy state [%s]' % value)
+		super().__setitem__(attribute, value)
 
-		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
+#------------------------------------------------------------
+def get_allergy_state(pk_encounter:int=None, pk_patient:int=None) -> cAllergyState:
+	"""Get allergy state for patient by patient XOR encounter.
+
+	Args:
+		pk_encounter: any encounter (primary key) of the patient
+		pk_patient: the patient primary key
+
+	Returns:
+		cAllergyState or None. If None is returned, the allergy state
+		has yet to be obtained.
+
+	Return of None means the state has not yet been
+	(documented to have been) determined.
+
+	This is forensically vastly different from
+
+		cAllergyState['has_allergy'] == None
+
+	meaning that the allergy state has been asked
+	for but no data was available.
+	"""
+	assert not((pk_encounter is None) and (pk_patient is None)), 'one of <pk_encounter> or <pk_patient> must be given'
+
+	args = {'pk_enc': pk_encounter, 'pk_pat': pk_patient}
+	if pk_encounter:
+		SQL = """
+			SELECT pk_allergy_state FROM clin.v_pat_allergy_state
+			WHERE pk_patient = (
+				SELECT fk_patient FROM clin.encounter WHERE pk = %(pk_enc)s
+			)
+		"""
+	else:
+		SQL = 'SELECT pk_allergy_state FROM clin.v_pat_allergy_state WHERE pk_patient = %(pk_pat)s'
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}], return_data = True)
+	if not rows:
+		return None
+
+	return cAllergyState(aPK_obj = rows[0][0])
 
 #------------------------------------------------------------
 def ensure_has_allergy_state(encounter=None) -> cAllergyState:
@@ -398,23 +439,38 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	allg = cAllergy(aPK_obj=1)
-	print(allg)
-	fields = allg.get_fields()
-	for field in fields:
-		print(field, ':', allg[field])
-	print("updatable:", allg.get_updatable_fields())
-	enc_id = allg['pk_encounter']
-	epi_id = allg['pk_episode']
-	allg = create_allergy (
-		allergene = 'test substance',
-		allg_type = 1,
-		episode_id = epi_id,
-		encounter_id = enc_id
-	)
-	print(allg)
-	allg['reaction'] = 'hehehe'
-	status, data = allg.save_payload()
-	print('status:', status)
-	print('data:', data)
-	print(allg)
+	#--------------------------------------------------------
+	def test_state():
+		for idx in range(15):
+			print('pat:', idx, '->', get_allergy_state(pk_patient = idx))
+
+		for idx in range(15):
+			print('enc:', idx, '->', get_allergy_state(pk_encounter = idx))
+
+	#--------------------------------------------------------
+	def test():
+		allg = cAllergy(aPK_obj=1)
+		print(allg)
+		fields = allg.get_fields()
+		for field in fields:
+			print(field, ':', allg[field])
+		print("updatable:", allg.get_updatable_fields())
+		enc_id = allg['pk_encounter']
+		epi_id = allg['pk_episode']
+		allg = create_allergy (
+			allergene = 'test substance',
+			allg_type = 1,
+			episode_id = epi_id,
+			encounter_id = enc_id
+		)
+		print(allg)
+		allg['reaction'] = 'hehehe'
+		status, data = allg.save_payload()
+		print('status:', status)
+		print('data:', data)
+		print(allg)
+
+	#--------------------------------------------------------
+	gmPG2.request_login_params(setup_pool = True)
+
+	test_state()

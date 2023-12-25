@@ -168,39 +168,9 @@ class cClinicalRecord(object):
 		if not self._register_interests():
 			raise gmExceptions.ConstructorError("cannot register signal interests")
 
-		gmAllergy.ensure_has_allergy_state(encounter = self.current_encounter['pk_encounter'])
-		#_delayed_execute(gmAllergy.ensure_has_allergy_state, encounter = self.current_encounter['pk_encounter'])
-
 		self.__calculator = None
 
 		_log.debug('Instantiated clinical record for patient [%s].' % self.pk_patient)
-
-#	#--------------------------------------------------------
-#	def __old_style_init(self, allow_user_interaction=True):
-#
-#		_log.error('%s.__old_style_init() used', self.__class__.__name__)
-#		print u'*** GNUmed [%s]: __old_style_init() used ***' % self.__class__.__name__
-#
-#		# FIXME: delegate to worker thread
-#		# log access to patient record (HIPAA, for example)
-#		cmd = u'SELECT gm.log_access2emr(%(todo)s)'
-#		args = {'todo': u'patient [%s]' % self.pk_patient}
-#		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-#
-#		# load current or create new encounter
-#		if _func_ask_user is None:
-#			_log.error('[_func_ask_user] is None')
-#			print "*** GNUmed [%s]: _func_ask_user is not set ***" % self.__class__.__name__
-#
-##		# FIXME: delegate to worker thread ?
-#		self.remove_empty_encounters()
-#
-#		self.__encounter = None
-#		if not self.__initiate_active_encounter(allow_user_interaction = allow_user_interaction):
-#			raise gmExceptions.ConstructorError("cannot activate an encounter for patient [%s]" % self.pk_patient)
-#
-##		# FIXME: delegate to worker thread
-#		gmAllergy.ensure_has_allergy_state(encounter = self.current_encounter['pk_encounter'])
 
 	#--------------------------------------------------------
 	def cleanup(self):
@@ -772,11 +742,15 @@ class cClinicalRecord(object):
 
 		allg_state = self.allergy_state
 		txt += ' '
-		txt += allg_state.state_string
-		if allg_state['last_confirmed'] is not None:
-			txt += _(' (last confirmed %s)') % gmDateTime.pydt_strftime(allg_state['last_confirmed'], '%Y %b %d')
-		txt += '\n'
-		txt += gmTools.coalesce(allg_state['comment'], '', ' %s\n')
+		if allg_state:
+			txt += allg_state.state_string
+			if allg_state['last_confirmed']:
+				txt += _(' (last confirmed %s)') % gmDateTime.pydt_strftime(allg_state['last_confirmed'], '%Y %b %d')
+			txt += '\n'
+			txt += gmTools.coalesce(allg_state['comment'], '', ' %s\n')
+		else:
+			txt += _('allergy state not acquired')
+			txt += '\n'
 		for allg in self.get_allergies():
 			txt += ' %s: %s\n' % (
 				allg['descriptor'],
@@ -986,13 +960,17 @@ class cClinicalRecord(object):
 		"""Cave: only use with one potential allergic agent
 		otherwise you won't know which of the agents the allergy is to."""
 
-		if self.allergy_state['has_allergy'] == 0:
-			# we know there's no allergies
-			return False
+		# not state acquired
+		if not self.allergy_state:
+			return None
 
 		# we don't know the state
-		if self.allergy_state['has_allergy'] in [None, -1]:
+		if self.allergy_state['has_allergy'] is None:
 			return None
+
+		# we know there's no allergies
+		if self.allergy_state['has_allergy'] == 0:
+			return False
 
 		args = {
 			'atcs': atcs,
@@ -1029,20 +1007,25 @@ WHERE
 		return gmAllergy.cAllergy(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_allergy'})
 
 	#--------------------------------------------------------
+	def ensure_has_allergy_state(self) -> gmAllergy.cAllergyState:
+		return gmAllergy.ensure_has_allergy_state(encounter = self.current_encounter['pk_encounter'])
+
+	#--------------------------------------------------------
 	def _set_allergy_state(self, state):
 
-		if state not in gmAllergy.allergy_states:
-			raise ValueError('[%s].__set_allergy_state(): <state> must be one of %s' % (self.__class__.__name__, gmAllergy.allergy_states))
+		if state not in gmAllergy.ALLERGY_STATES:
+			raise ValueError('[%s].__set_allergy_state(): <state> must be one of %s' % (self.__class__.__name__, gmAllergy.ALLERGY_STATES))
 
 		allg_state = gmAllergy.ensure_has_allergy_state(encounter = self.current_encounter['pk_encounter'])
 		allg_state['has_allergy'] = state
 		allg_state.save_payload()
 		return True
 
-	def _get_allergy_state(self):
-		return gmAllergy.ensure_has_allergy_state(encounter = self.current_encounter['pk_encounter'])
+	def _get_allergy_state(self) -> gmAllergy.cAllergyState:
+		return gmAllergy.get_allergy_state(pk_encounter = self.current_encounter['pk_encounter'])
 
 	allergy_state = property(_get_allergy_state, _set_allergy_state)
+
 	#--------------------------------------------------------
 	# API: external care
 	#--------------------------------------------------------
@@ -2393,12 +2376,12 @@ if __name__ == "__main__":
 		print("allergy state is:", state)
 
 		print("setting state to 0")
-		emr.allergy_state = 0
+		emr.allergy_state = gmAllergy.ALLERGY_STATE_NONE
 
 		print("setting state to None")
-		emr.allergy_state = None
+		emr.allergy_state = gmAllergy.ALLERGY_STATE_UNKNOWN
 
-		print("setting state to 'abc'")
+		print("setting state to 'abc' (should fail)")
 		emr.allergy_state = 'abc'
 
 	#-----------------------------------------

@@ -2036,12 +2036,6 @@ class cPatient(cPerson):
 			self.__doc_folder.cleanup()
 		cPerson.cleanup(self)
 
-	#----------------------------------------------------------------
-	def ensure_has_allergy_state(self, pk_encounter=None):
-		from Gnumed.business.gmAllergy import ensure_has_allergy_state
-		ensure_has_allergy_state(encounter = pk_encounter)
-		return True
-
 	#----------------------------------------------------------
 	def get_emr(self):
 		_log.debug('accessing EMR for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], threading.get_native_id())

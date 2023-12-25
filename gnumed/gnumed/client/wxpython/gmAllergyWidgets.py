@@ -267,54 +267,41 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 		])
 	#--------------------------------------------------------
 	def __refresh_state_ui(self):
-
 		pat = gmPerson.gmCurrentPatient()
-		emr = pat.emr
-		state = emr.allergy_state
+		state = gmAllergy.get_allergy_state(pk_patient = pat.ID)
+		if state is None:
+			self._TXT_current_state.SetLabel(_('<allergy state unasked>'))
+			self._TXT_last_confirmed.SetLabel(_('<allergy state unasked>'))
+			self._RBTN_unknown.SetValue(True)
+			self._RBTN_none.SetValue(False)
+			self._RBTN_some.SetValue(False)
+			self._RBTN_unknown.Enable(True)
+			self._RBTN_none.Enable(True)
+			return
 
 		self._TXT_current_state.SetLabel(state.state_string)
-
-		if state['last_confirmed'] is None:
-			self._TXT_last_confirmed.SetLabel(_('<allergy state unasked>'))
-		else:
-			self._TXT_last_confirmed.SetLabel(state['last_confirmed'].strftime('%x %H:%M'))
-
-		if state['has_allergy'] is None:
+		self._TXT_last_confirmed.SetLabel(state['last_confirmed'].strftime('%x %H:%M'))
+		if state['has_allergy'] is gmAllergy.ALLERGY_STATE_UNKNOWN:
 			self._RBTN_unknown.SetValue(True)
-			self._RBTN_none.SetValue(False)
-			self._RBTN_some.SetValue(False)
-
 			self._RBTN_unknown.Enable(True)
+			self._RBTN_none.SetValue(False)
 			self._RBTN_none.Enable(True)
-
-		elif state['has_allergy'] == 0:
+			self._RBTN_some.SetValue(False)
+		elif state['has_allergy'] == gmAllergy.ALLERGY_STATE_NONE:
 			self._RBTN_unknown.SetValue(False)
+			self._RBTN_unknown.Enable(True)
 			self._RBTN_none.SetValue(True)
-			self._RBTN_some.SetValue(False)
-
-			self._RBTN_unknown.Enable(True)
 			self._RBTN_none.Enable(True)
-
-		elif state['has_allergy'] == 1:
+			self._RBTN_some.SetValue(False)
+		elif state['has_allergy'] == gmAllergy.ALLERGY_STATE_SOME:
 			self._RBTN_unknown.SetValue(False)
-			self._RBTN_none.SetValue(False)
-			self._RBTN_some.SetValue(True)
-
 			self._RBTN_unknown.Enable(True)
 			self._RBTN_none.Enable(False)
-
-		else:
-			self._RBTN_unknown.SetValue(True)
 			self._RBTN_none.SetValue(False)
-			self._RBTN_some.SetValue(False)
-
-			self._RBTN_unknown.Enable(True)
-			self._RBTN_none.Enable(True)
-
-			gmDispatcher.send(signal='statustext', msg=_('invalid allergy state [%s]') % state, beep=True)
-
-		if state['comment'] is not None:
+			self._RBTN_some.SetValue(True)
+		if state['comment']:
 			self._TCTRL_state_comment.SetValue(state['comment'])
+
 	#--------------------------------------------------------
 	def __refresh_details_ui(self):
 
@@ -326,7 +313,7 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 		# display allergies
 		self._LCTRL_allergies.DeleteAllItems()
 		if no_of_allergies > 0:
-			emr.allergy_state = 1
+			emr.allergy_state = gmAllergy.ALLERGY_STATE_SOME
 
 			for allergy in allergies:
 				row_idx = self._LCTRL_allergies.InsertItem(no_of_allergies, label = allergy['l10n_type'])
@@ -401,8 +388,8 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 	def _on_confirm_button_pressed(self, evt):
 		pat = gmPerson.gmCurrentPatient()
 		emr = pat.emr
+		state = emr.ensure_has_allergy_state()
 		allergies = emr.get_allergies()
-		state = emr.allergy_state
 
 		cmt = self._TCTRL_state_comment.GetValue().strip()
 
@@ -443,8 +430,7 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 			return False
 
 		pat = gmPerson.gmCurrentPatient()
-		emr = pat.emr
-		state = emr.allergy_state
+		state = pat.emr.ensure_has_allergy_state()
 		state['last_confirmed'] = 'now'
 		state.save_payload()
 

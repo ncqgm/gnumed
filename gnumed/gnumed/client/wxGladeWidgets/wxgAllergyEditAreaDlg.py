@@ -18,43 +18,40 @@ class wxgAllergyEditAreaDlg(wx.Dialog):
 		# begin wxGlade: wxgAllergyEditAreaDlg.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_DIALOG_STYLE | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX | wx.RESIZE_BORDER
 		wx.Dialog.__init__(self, *args, **kwds)
-		self.SetSize((400, 190))
+		self.SetSize((759, 453))
+		self.SetTitle(_("Edit Allergy/Intolerance"))
+
+		__szr_main = wx.BoxSizer(wx.VERTICAL)
+
 		from Gnumed.wxpython.gmAllergyWidgets import cAllergyEditAreaPnl
 		self._PNL_edit_area = cAllergyEditAreaPnl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.TAB_TRAVERSAL)
-		self._BTN_save = wx.Button(self, wx.ID_SAVE, "")
-		self._BTN_clear = wx.Button(self, wx.ID_CLEAR, "")
-		self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, "")
+		__szr_main.Add(self._PNL_edit_area, 1, wx.ALL | wx.EXPAND, 2)
 
-		self.__set_properties()
-		self.__do_layout()
+		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_main.Add(__szr_buttons, 0, wx.EXPAND | wx.TOP, 15)
+
+		self._BTN_save = wx.Button(self, wx.ID_SAVE, "")
+		self._BTN_save.SetToolTip(_("Save the allergy/intolerance in the database."))
+		__szr_buttons.Add(self._BTN_save, 0, wx.EXPAND, 0)
+
+		self._BTN_clear = wx.Button(self, wx.ID_CLEAR, "")
+		self._BTN_clear.SetToolTip(_("Clear all fields or reset to database values."))
+		__szr_buttons.Add(self._BTN_clear, 0, wx.EXPAND, 0)
+
+		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+
+		self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, "")
+		self._BTN_cancel.SetToolTip(_("Cancel editing the allergy/intolerance."))
+		self._BTN_cancel.SetDefault()
+		__szr_buttons.Add(self._BTN_cancel, 0, wx.EXPAND, 0)
+
+		self.SetSizer(__szr_main)
+
+		self.Layout()
+		self.Centre()
 
 		self.Bind(wx.EVT_BUTTON, self._on_save_button_pressed, self._BTN_save)
 		self.Bind(wx.EVT_BUTTON, self._on_clear_button_pressed, self._BTN_clear)
-		# end wxGlade
-
-	def __set_properties(self):
-		# begin wxGlade: wxgAllergyEditAreaDlg.__set_properties
-		self.SetTitle(_("Edit Allergy/Intolerance"))
-		self.SetSize((400, 190))
-		self._BTN_save.SetToolTip(_("Save the allergy/intolerance in the database."))
-		self._BTN_clear.SetToolTip(_("Clear all fields or reset to database values."))
-		self._BTN_cancel.SetToolTip(_("Cancel editing the allergy/intolerance."))
-		self._BTN_cancel.SetDefault()
-		# end wxGlade
-
-	def __do_layout(self):
-		# begin wxGlade: wxgAllergyEditAreaDlg.__do_layout
-		__szr_main = wx.BoxSizer(wx.VERTICAL)
-		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_main.Add(self._PNL_edit_area, 1, wx.ALL | wx.EXPAND, 2)
-		__szr_buttons.Add(self._BTN_save, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__szr_buttons.Add(self._BTN_clear, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__szr_buttons.Add((20, 20), 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__szr_buttons.Add(self._BTN_cancel, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__szr_main.Add(__szr_buttons, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.TOP, 15)
-		self.SetSizer(__szr_main)
-		self.Layout()
-		self.Centre()
 		# end wxGlade
 
 	def _on_save_button_pressed(self, event):  # wxGlade: wxgAllergyEditAreaDlg.<event_handler>
