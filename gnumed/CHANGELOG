@@ -2306,6 +2306,10 @@ FIX: revoke CREATE from PUBLIC on schema PUBLIC (thanks PG)
 # gnumed_v22
 ------------------------------------------------
 
+	22.28
+
+FIX: concatenation of the database schema structure
+
 	22.27
 
 NEW: add systemd .timer/.service files for scheduling database backup

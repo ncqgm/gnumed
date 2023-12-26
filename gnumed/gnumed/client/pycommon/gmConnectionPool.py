@@ -743,6 +743,7 @@ def log_pg_exception_details(exc: Exception) -> bool:
 	if not isinstance(exc, dbapi.Error):
 		return False
 
+	_log.error(type(exc))
 	try:
 		for arg in exc.args:
 			_log.debug('exc.arg: %s', arg)
