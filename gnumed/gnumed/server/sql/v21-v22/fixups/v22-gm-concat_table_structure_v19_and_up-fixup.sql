@@ -12,6 +12,31 @@
 set check_function_bodies to on;
 
 -- --------------------------------------------------------------
+-- a few missing grants on (mostly unused) tables prevented
+-- accounts other than the owner (gm-dbo) from seeing them
+-- inside information_schema.tables which then throws off
+-- getting the database schema structure
+--
+-- now, this won't matter as long as gm.concat_table_structure()
+-- is used since that is owned by gm-dob _and_ also "security definer"
+--
+-- however, when using an ad-hoc temporary version in pg_temp to
+-- overcome other problems (such as missing CASTs) that version is
+-- owned and run by other accounts, which in turn won't see some
+-- rows in information_schema, making the function return a different
+-- table structure than is expected (and in the database)
+grant select, insert, update, delete on
+	clin.incoming_data_unmatchable,
+	clin.lnk_substance2episode,
+	ref.atc_staging		-- no PK hence no PK sequence
+to group "gm-doctors";
+
+grant usage, select, update on
+	clin.incoming_data_unmatchable_pk_seq,
+	clin.lnk_substance2episode_pk_seq
+to group "gm-doctors";
+
+-- --------------------------------------------------------------
 create or replace function gm.concat_table_structure_v19_and_up()
 	returns text
 	language 'plpgsql'
@@ -122,6 +147,9 @@ begin
 end;
 ';
 
+ALTER function gm.concat_table_structure_v19_and_up()
+	owner to "gm-dbo";
+
 comment on function gm.concat_table_structure_v19_and_up() is
 	'new concat_table_structure() starting with gnumed_v19,
 	 works on dem, clin, blobs, cfg, ref, i18n, bill,
@@ -129,4 +157,4 @@ comment on function gm.concat_table_structure_v19_and_up() is
 	 sorts properly by bytea';
 
 -- ==============================================================
-select gm.log_script_insertion('v22-gm-concat_table_structure_v19_and_up-fixup.sql', '22.18');
+select gm.log_script_insertion('v22-gm-concat_table_structure_v19_and_up-fixup.sql', '22.28');

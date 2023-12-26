@@ -374,8 +374,8 @@ def request_login_params(setup_pool=False):
 # =======================================================================
 # netadata API
 # =======================================================================
-SQL__concat_table_structure_v19_and_up = """
-create or replace function gm.concat_table_structure_v19_and_up()
+SQL__pg_temp_concat_table_structure_v19_and_up = """
+create or replace function pg_temp.concat_table_structure_v19_and_up()
 	returns text
 	language 'plpgsql'
 	security definer
@@ -388,7 +388,6 @@ declare
 	_total text;
 begin
 	_total := '''';
-
 	-- find relevant tables
 	for _table_desc in
 		select * from information_schema.tables tabs where
@@ -397,12 +396,10 @@ begin
 			tabs.table_type = ''BASE TABLE''
 		order by
 			decode(md5(tabs.table_schema || tabs.table_name), ''hex'')
-
 	-- loop over tables
 	loop
 		-- where are we at ?
-		_total := _total || ''TABLE:'' || _table_desc.table_schema || ''.'' || _table_desc.table_name || E''\\n'';
-
+		_total := _total || ''TABLE:'' || _table_desc.table_schema || ''.'' || _table_desc.table_name || E''\n'';
 		-- find PKs of that table
 		for _pk_desc in
 			select * from (
@@ -426,7 +423,7 @@ begin
 				decode(md5(PKs.primary_key_column), ''hex'')
 		-- and loop over those PK columns
 		loop
-			_total := _total || ''PK:'' || _pk_desc.primary_key_column	|| E''\\n'';
+			_total := _total || ''PK:'' || _pk_desc.primary_key_column	|| E''\n'';
 		end loop;
 
 		-- find columns of that table
@@ -446,10 +443,9 @@ begin
 				|| _column_desc.table_schema || ''.''
 				|| _column_desc.table_name || ''.''
 				|| _column_desc.column_name || ''::''
-				|| _column_desc.udt_name || E''\\n'';
+				|| _column_desc.udt_name || E''\n'';
 
 		end loop;
-
 		-- find and loop over CONSTRAINTs of that table
 		for _constraint_def in
 			select * from
@@ -476,69 +472,158 @@ begin
 				CONSTRAINTs.contype,
 				decode(md5(CONSTRAINTs.condef), ''hex'')
 		loop
-			_total := _total || _constraint_def.condef || E''\\n'';
+			_total := _total || _constraint_def.condef || E''\n'';
 		end loop;
-
 	end loop;		-- over tables
-
 	return _total;
 end;';
-
-select md5(gm.concat_table_structure(%(ver)s::integer)) AS md5;
 """
+SQL__get_pg_temp_table_structure = "select pg_temp.concat_table_structure_v19_and_up();"
+SQL__md5_pg_temp_table_structure = "select md5(pg_temp.concat_table_structure_v19_and_up()) AS md5;"
 
+#------------------------------------------------------------------------
 def database_schema_compatible(link_obj=None, version=None, verbose=True):
 	expected_hash = known_schema_hashes[version]
-	if version == 0:
-		args = {'ver': 9999}
-	else:
-		args = {'ver': version}
-	SQL = 'select md5(gm.concat_table_structure(%(ver)s::integer)) as md5'
-	try:
-		rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': SQL, 'args': args}])
-	except dbapi.errors.AmbiguousFunction as exc:
-		gmConnectionPool.log_pg_exception_details(exc)
-		if not hasattr(exc, 'diag'):
-			raise
-		if 'gm.concat_table_structure_v19_and_up()' not in exc.diag.context:
-			raise
-		rows = None
-	if rows is None:
-		_log.error('gm.concat_table_structure_v19_and_up() failed, retrying with updated function')
-		rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': SQL__concat_table_structure_v19_and_up, 'args': args}])
-	if rows[0]['md5'] == expected_hash:
-		_log.info('detected schema version [%s], hash [%s]' % (map_schema_hash2version[rows[0]['md5']], rows[0]['md5']))
+	ver = 9999 if version == 0 else version
+	md5_db = get_schema_hash(link_obj = link_obj, version = ver)
+	if md5_db == expected_hash:
+		_log.info('detected schema version [%s], hash [%s]' % (map_schema_hash2version[md5_db], md5_db))
 		return True
 
 	_log.error('database schema version mismatch')
 	_log.error('expected: %s (%s)' % (version, expected_hash))
-	_log.error('detected: %s (%s)' % (get_schema_version(link_obj=link_obj), rows[0]['md5']))
+	try:
+		_log.error('detected: %s (%s)', map_schema_hash2version[md5_db], md5_db)
+	except KeyError:
+		_log.error('detected: <unknown> (%s)', md5_db)
 	if verbose:
-		_log.debug('schema dump follows:')
-		for line in get_schema_structure(link_obj = link_obj).split():
-			_log.debug(line)
-		_log.debug('schema revision history dump follows:')
-		for line in get_schema_revision_history(link_obj = link_obj):
-			_log.debug(' - '.join(line))
+		log_schema_structure(link_obj = link_obj)
+		log_schema_revision_history(link_obj = link_obj)
 	return False
 
 #------------------------------------------------------------------------
 def get_schema_version(link_obj=None):
-	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': 'select md5(gm.concat_table_structure()) as md5'}])
+	md5_db = get_schema_hash(link_obj = link_obj)
+	if not md5_db:
+		_log.error('cannot determine schema version')
+		return None
+
 	try:
-		return map_schema_hash2version[rows[0]['md5']]
+		return map_schema_hash2version[md5_db]
+
 	except KeyError:
-		return 'unknown database schema version, MD5 hash is [%s]' % rows[0]['md5']
+		return 'unknown database schema version, MD5 hash is [%s]' % md5_db
+
+#------------------------------------------------------------------------
+def __get_schema_structure_by_gm_func(link_obj=None) -> str:
+	SQL = 'select gm.concat_table_structure()'
+	try:
+		rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': SQL}])
+		return rows[0][0]
+
+	except dbapi.errors.AmbiguousFunction as exc:
+		if hasattr(exc, 'diag') and 'gm.concat_table_structure_v19_and_up()' in exc.diag.context:
+			_log.error('gm.concat_table_structure_v19_and_up() failed')
+			return None
+
+		gmConnectionPool.log_pg_exception_details(exc)
+		raise
+
+#------------------------------------------------------------------------
+def __get_schema_structure_by_pg_temp_func() -> str:
+	queries = [
+		{'cmd': SQL__pg_temp_concat_table_structure_v19_and_up},
+		{'cmd': SQL__get_pg_temp_table_structure}
+	]
+	conn = get_connection(readonly = False)
+	try:
+		rows, idx = run_rw_queries(link_obj = conn, queries = queries, return_data = True)
+		return rows[0][0]
+
+	except PG_ERROR_EXCEPTION:
+		_log.error('pg_temp.concat_table_structure_v19_and_up() failed')
+		gmConnectionPool.log_pg_exception_details(exc)
+		raise
+
+	finally:
+		conn.rollback()
+		conn.close()
+
+	# should never get here
+	return None
 
 #------------------------------------------------------------------------
 def get_schema_structure(link_obj=None):
-	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': 'select gm.concat_table_structure()'}])
-	return rows[0][0]
+	schema_struct = __get_schema_structure_by_gm_func(link_obj = link_obj)
+	if not schema_struct:
+		_log.debug('retrying with temporary function')
+		schema_struct = __get_schema_structure_by_pg_temp_func()
+	return schema_struct
 
 #------------------------------------------------------------------------
-def get_schema_hash(link_obj=None):
-	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': 'select md5(gm.concat_table_structure()) as md5'}])
-	return rows[0]['md5']
+def log_schema_structure(link_obj=None):
+	_log.debug('schema structure dump:')
+	schema_struct = get_schema_structure(link_obj = link_obj)
+	if not schema_struct:
+		_log.error('cannot determine schema structure')
+		return
+
+	for line in schema_struct.split():
+		_log.debug(line)
+
+#------------------------------------------------------------------------
+def __get_schema_hash_by_gm_func(link_obj=None, version=None) -> str:
+	args = {}
+	if version:
+		SQL = 'SELECT md5(gm.concat_table_structure(%(ver)s::INTEGER)) AS md5'
+		args['ver'] = version
+	else:
+		SQL = 'SELECT md5(gm.concat_table_structure()) AS md5'
+	_log.debug('version: %s', version)
+	try:
+		rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': SQL, 'args': args}])
+		_log.debug('hash: %s', rows[0]['md5'])
+		return rows[0]['md5']
+
+	except dbapi.errors.AmbiguousFunction as exc:
+		if hasattr(exc, 'diag') and 'gm.concat_table_structure_v19_and_up()' in exc.diag.context:
+			_log.error('gm.concat_table_structure_v19_and_up() failed')
+			return None
+
+		gmConnectionPool.log_pg_exception_details(exc)
+		raise
+
+#------------------------------------------------------------------------
+def __get_schema_hash_by_pg_temp_func() -> str:
+	conn = get_connection(readonly = False)
+	queries = [
+		{'cmd': SQL__pg_temp_concat_table_structure_v19_and_up},
+		{'cmd': SQL__md5_pg_temp_table_structure}
+	]
+	try:
+		rows, idx = run_rw_queries(link_obj = conn, queries = queries, return_data = True)
+		_log.debug('hash: %s', rows[0]['md5'])
+		return rows[0]['md5']
+
+	except PG_ERROR_EXCEPTION:
+		_log.error('pg_temp.concat_table_structure_v19_and_up() failed')
+		gmConnectionPool.log_pg_exception_details(exc)
+		raise
+
+	finally:
+		conn.rollback()
+		conn.close()
+
+	# should never get here
+	return None
+
+#------------------------------------------------------------------------
+def get_schema_hash(link_obj=None, version=None):
+	md5_db = __get_schema_hash_by_gm_func(link_obj = link_obj)
+	if not md5_db:
+		_log.debug('retrying with temporary function')
+		md5_db = __get_schema_hash_by_pg_temp_func()
+	return md5_db
 
 #------------------------------------------------------------------------
 def get_schema_revision_history(link_obj=None):
@@ -564,6 +649,12 @@ def get_schema_revision_history(link_obj=None):
 
 	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd}])
 	return rows
+
+#------------------------------------------------------------------------
+def log_schema_revision_history(link_obj=None):
+	_log.debug('schema revision history dump:')
+	for line in get_schema_revision_history(link_obj = link_obj):
+		_log.debug(' - '.join(line))
 
 #------------------------------------------------------------------------
 def get_db_fingerprint(conn=None, fname=None, with_dump=False, eol=None):
@@ -600,10 +691,7 @@ def get_db_fingerprint(conn=None, fname=None, with_dump=False, eol=None):
 	rows = curs.fetchall()
 	lines.append('%20s: %s' % ('Size (DB)', rows[0][0]))
 	# get hash
-	cmd = "SELECT md5(gm.concat_table_structure())"
-	curs.execute(cmd)
-	rows = curs.fetchall()
-	md5_sum = rows[0][0]
+	md5_sum = get_schema_hash(link_obj = curs)
 	try:
 		lines.append('%20s: %s (v%s)' % ('Schema hash', md5_sum, map_schema_hash2version[md5_sum]))
 	except KeyError:
@@ -613,10 +701,8 @@ def get_db_fingerprint(conn=None, fname=None, with_dump=False, eol=None):
 		rows = curs.fetchall()
 		lines.append('%20s: %s' % (label, rows[0][0]))
 	if with_dump:
-		curs.execute('SELECT gm.concat_table_structure()')
-		rows = curs.fetchall()
 		lines.append('')
-		lines.append(rows[0][0])
+		lines.append(str(get_schema_structure(link_obj = curs)))
 	curs.close()
 	if fname is None:
 		if eol is None:
@@ -1755,7 +1841,7 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 				_log.exception('cannot rollback transaction')
 				gmConnectionPool.log_pg_exception_details(pg_exc2)
 			if pg_exc.pgcode == sql_error_codes.INSUFFICIENT_PRIVILEGE:
-				details = 'Query: [%s]' % curs.query.strip().strip('\n').strip().strip('\n')
+				details = 'Query: [%s]' % curs.query.decode(errors = 'replace').strip().strip('\n').strip().strip('\n')
 				if curs.statusmessage != '':
 					details = 'Status: %s\n%s' % (
 						curs.statusmessage.strip().strip('\n').strip().strip('\n'),
@@ -1911,7 +1997,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 				gmConnectionPool.log_pg_exception_details(pg_exc2)
 			# privilege problem
 			if pg_exc.pgcode == sql_error_codes.INSUFFICIENT_PRIVILEGE:
-				details = 'Query: [%s]' % curs.query.strip().strip('\n').strip().strip('\n')
+				details = 'Query: [%s]' % curs.query.decode(errors = 'replace').strip().strip('\n').strip().strip('\n')
 				if curs.statusmessage != '':
 					details = 'Status: %s\n%s' % (
 						curs.statusmessage.strip().strip('\n').strip().strip('\n'),
@@ -2240,6 +2326,8 @@ if __name__ == "__main__":
 
 	if sys.argv[1] != 'test':
 		sys.exit()
+
+	gmLog2.print_logfile_name()
 
 	from Gnumed.pycommon.gmTools import file2md5
 
@@ -2732,6 +2820,37 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 		print(get_db_fingerprint(with_dump = True, eol = '\n'))
 
 	#--------------------------------------------------------------------
+	def test_schema_compatible():
+		request_login_params(setup_pool = True)
+		print(database_schema_compatible(version=22, verbose=True))
+
+	#--------------------------------------------------------------------
+	def test_get_schema_structure():
+		request_login_params(setup_pool = True)
+		print(get_schema_structure())
+
+	#--------------------------------------------------------------------
+	def test_pg_temp_concat():
+		request_login_params(setup_pool = True)
+		conn = get_connection(readonly = False)
+		queries = [
+			{'cmd': SQL__pg_temp_concat_table_structure_v19_and_up},
+			{'cmd': SQL__get_pg_temp_table_structure}
+		]
+		rows, idx = run_rw_queries(link_obj = conn, queries = queries, return_data = True)
+		conn.rollback()
+		conn.close()
+		print(rows[0][0])
+
+	#--------------------------------------------------------------------
+	def test___get_schema_structure():
+		request_login_params(setup_pool = True)
+		with open('x-gm_func.txt', 'w', encoding = 'utf8') as f:
+			f.write(__get_schema_structure_by_gm_func())
+		with open('x-pg_temp_func.txt', 'w', encoding = 'utf8') as f:
+			f.write(__get_schema_structure_by_pg_temp_func())
+
+	#--------------------------------------------------------------------
 	# run tests
 
 	# legacy:
@@ -2749,7 +2868,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_sanitize_pg_regex()
 	#test_is_pg_interval()
 	#test_sanity_check_time_skew()
-	test_sanity_check_database_settings()
+	#test_sanity_check_database_settings()
 	#test_get_foreign_key_details()
 	#test_get_index_name()
 	#test_set_user_language()
@@ -2761,5 +2880,9 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_faulty_SQL()
 	#test_log_settings()
 	#test_get_db_fingerprint()
+	#test_schema_compatible()
+	#test_get_schema_structure()
+	test___get_schema_structure()
+	#test_pg_temp_concat()
 
 # ======================================================================
