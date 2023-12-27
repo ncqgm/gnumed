@@ -3,13 +3,13 @@
 
 	How-To search:
 
-		name:		Leonard Spock "Pointy-Ears" NIMOY-ZALDANA
-		DOB:		Oct 15 1975
-		ID:			12345678
-		ext ID:		abcd-13d-4d
-		ext ID:		#abcd-13d-4d
+		name:     Leonard Spock "Pointy-Ears" NIMOY-ZALDANA
+		DOB:      Oct 15 1975
+		ID:       12345678
+		ext ID:   abcd-13d-4d
+		ext ID:   #abcd-13d-4d
 
-	find patient by name (first, last, nick):
+	find patient by name (first, last, or nick):
 
 		'leon'
 		'spo'
@@ -52,6 +52,7 @@
 		'leon nim'
 		'spo zal'
 		'leon nim zald'
+		'kirk, jam'
 
 	find patient by GNUmed ID:
 
@@ -86,7 +87,10 @@ import re as regex
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
-from Gnumed.pycommon import gmPG2, gmI18N, gmTools, gmDateTime
+from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmDateTime
 from Gnumed.business import gmPerson
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
