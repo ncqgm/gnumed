@@ -34,13 +34,9 @@ signals2listen4 = [
 class gmBackendListener(gmBorg.cBorg):
 	"""The backend listener singleton class."""
 	def __init__(self, conn=None, poll_interval:int=3):
-		try:
-			# pylint: disable=access-member-before-definition, disable=has-type
-			self.already_inited
-			return
 
-		except AttributeError:
-			pass
+		if hasattr(self, 'already_inited'):
+			return
 
 		#gmLog2.log_step(restart = True)
 		assert conn, '<conn> must be given'

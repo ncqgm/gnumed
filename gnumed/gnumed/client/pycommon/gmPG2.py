@@ -56,7 +56,7 @@ import psycopg2.errorcodes as PG_error_codes
 import psycopg2.sql as PG_SQL
 
 # =======================================================================
-PG_ERROR_EXCEPTION = dbapi.Error
+PG_ERROR_EXCEPTION = dbapi.DatabaseError
 
 default_database = 'gnumed_v23'
 
@@ -552,7 +552,7 @@ def __get_schema_structure_by_pg_temp_func() -> str:
 		rows, idx = run_rw_queries(link_obj = conn, queries = queries, return_data = True)
 		return rows[0][0]
 
-	except PG_ERROR_EXCEPTION:
+	except PG_ERROR_EXCEPTION as exc:
 		_log.error('pg_temp.concat_table_structure_v19_and_up() failed')
 		gmConnectionPool.log_pg_exception_details(exc)
 		raise
@@ -617,7 +617,7 @@ def __get_schema_hash_by_pg_temp_func() -> str:
 		_log.debug('hash: %s', rows[0]['md5'])
 		return rows[0]['md5']
 
-	except PG_ERROR_EXCEPTION:
+	except PG_ERROR_EXCEPTION as exc:
 		_log.error('pg_temp.concat_table_structure_v19_and_up() failed')
 		gmConnectionPool.log_pg_exception_details(exc)
 		raise
@@ -2764,11 +2764,10 @@ if __name__ == "__main__":
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	gmLog2.print_logfile_name()
-
-	from Gnumed.pycommon.gmTools import file2md5
+	#from Gnumed.pycommon.gmTools import file2md5
 
 	logging.basicConfig(level=logging.DEBUG)
+	gmLog2.print_logfile_name()
 
 	#--------------------------------------------------------------------
 	def test_file2bytea():
