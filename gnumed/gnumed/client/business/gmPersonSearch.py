@@ -83,19 +83,25 @@ import logging
 import re as regex
 
 
-# GNUmed
+# setup translation
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
+else:
+	try:
+		_
+	except NameError:
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
+
+
+# GNUmed
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 from Gnumed.business import gmPerson
-if __name__ == '__main__':
-	sys.path.insert(0, '../../')
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
 
 
 _log = logging.getLogger('gm.person')
@@ -1160,6 +1166,12 @@ if __name__ == '__main__':
 
 	if sys.argv[1] != 'test':
 		sys.exit()
+
+	# setup a real translation
+	del _
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain('gnumed')
 
 	import datetime
 	gmDateTime.init()
