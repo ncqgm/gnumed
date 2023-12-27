@@ -630,8 +630,8 @@ def __get_schema_hash_by_pg_temp_func() -> str:
 	return None
 
 #------------------------------------------------------------------------
-def get_schema_hash(link_obj:_TLnkObj=None) -> str:
-	md5_db = __get_schema_hash_by_gm_func(link_obj = link_obj)
+def get_schema_hash(link_obj:_TLnkObj=None, version=None) -> str:
+	md5_db = __get_schema_hash_by_gm_func(link_obj = link_obj, version = version)
 	if not md5_db:
 		_log.debug('retrying with temporary function')
 		md5_db = __get_schema_hash_by_pg_temp_func()
