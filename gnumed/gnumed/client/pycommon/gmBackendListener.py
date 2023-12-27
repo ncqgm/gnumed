@@ -35,12 +35,8 @@ class gmBackendListener(gmBorg.cBorg):
 
 	def __init__(self, conn=None, poll_interval:int=3):
 
-		try:
-			self.already_inited
+		if hasattr(self, 'already_inited'):
 			return
-
-		except AttributeError:
-			pass
 
 		#gmLog2.log_step(restart = True)
 		assert conn, '<conn> must be given'
@@ -429,6 +425,8 @@ if __name__ == "__main__":
 		print("shutting down backend notifications monitor")
 
 	#-------------------------------
+	gmPG2.request_login_params(setup_pool = True)
+
 	if sys.argv[1] == 'monitor':
 		run_monitor()
 	else:
