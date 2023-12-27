@@ -2310,6 +2310,8 @@ FIX: revoke CREATE from PUBLIC on schema PUBLIC (thanks PG)
 
 FIX: concatenation of the database schema structure
 
+IMPROVED: documentation for backup systemd .service file
+
 	22.27
 
 NEW: add systemd .timer/.service files for scheduling database backup
