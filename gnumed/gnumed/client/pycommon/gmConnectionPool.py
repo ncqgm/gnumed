@@ -261,7 +261,7 @@ class gmConnectionPool(gmBorg.cBorg):
 			self.__initialized:bool = True
 
 		_log.info('[%s]: first instantiation', self.__class__.__name__)
-		self.__ro_conn_pool:dict[str, dbapi.extras.DictConnection] = {}	# keyed by "credentials::thread ID"
+		self.__ro_conn_pool:dict[str, psycopg2.extras.DictConnection] = {}	# keyed by "credentials::thread ID"
 		self.__SQL_set_client_timezone:str = None
 		self.__client_timezone = None
 		self.__creds:cPGCredentials = None
@@ -270,7 +270,7 @@ class gmConnectionPool(gmBorg.cBorg):
 	#--------------------------------------------------
 	# connection API
 	#--------------------------------------------------
-	def get_connection(self, readonly:bool=True, verbose:bool=False, pooled:bool=True, connection_name:str=None, autocommit:bool=False, credentials:cPGCredentials=None) -> dbapi.extras.DictConnection:
+	def get_connection(self, readonly:bool=True, verbose:bool=False, pooled:bool=True, connection_name:str=None, autocommit:bool=False, credentials:cPGCredentials=None) -> psycopg2.extras.DictConnection:
 		"""Provide a database connection.
 
 		Readonly connections can be pooled. If there is no
@@ -320,7 +320,7 @@ class gmConnectionPool(gmBorg.cBorg):
 		# set connection properties
 		# - client encoding
 		encoding = 'UTF8'
-		_log.debug('desired client (wire) encoding: [%s]', encoding)
+		_log.debug('setting client (wire) encoding to %s', encoding)
 		conn.set_client_encoding(encoding)
 		# - transaction isolation level
 		if not readonly:
@@ -339,15 +339,15 @@ class gmConnectionPool(gmBorg.cBorg):
 		return conn
 
 	#--------------------------------------------------
-	def get_rw_conn(self, verbose:bool=False, connection_name:str=None, autocommit:bool=False) -> dbapi.extras.DictConnection:
+	def get_rw_conn(self, verbose:bool=False, connection_name:str=None, autocommit:bool=False) -> psycopg2.extras.DictConnection:
 		return self.get_connection(verbose = verbose, readonly = False, connection_name = connection_name, autocommit = autocommit)
 
 	#--------------------------------------------------
-	def get_ro_conn(self, verbose:bool=False, connection_name:str=None, autocommit:bool=False) -> dbapi.extras.DictConnection:
+	def get_ro_conn(self, verbose:bool=False, connection_name:str=None, autocommit:bool=False) -> psycopg2.extras.DictConnection:
 		return self.get_connection(verbose = verbose, readonly = False, connection_name = connection_name, autocommit = autocommit)
 
 	#--------------------------------------------------
-	def get_raw_connection(self, verbose:bool=False, readonly:bool=True, connection_name:str=None, autocommit:bool=False, credentials:cPGCredentials=None) -> dbapi.extras.DictConnection:
+	def get_raw_connection(self, verbose:bool=False, readonly:bool=True, connection_name:str=None, autocommit:bool=False, credentials:cPGCredentials=None) -> psycopg2.extras.DictConnection:
 		"""Get a raw, unadorned connection.
 
 		This will not set any parameters such as encoding,
@@ -425,7 +425,7 @@ class gmConnectionPool(gmBorg.cBorg):
 		return conn
 
 	#--------------------------------------------------
-	def get_dbowner_connection(self, readonly:bool=True, verbose:bool=False, connection_name:str=None, autocommit:bool=False, dbo_password:str=None, dbo_account:str='gm-dbo') -> dbapi.extras.DictConnection:
+	def get_dbowner_connection(self, readonly:bool=True, verbose:bool=False, connection_name:str=None, autocommit:bool=False, dbo_password:str=None, dbo_account:str='gm-dbo') -> psycopg2.extras.DictConnection:
 		"""Return a connection for the database owner.
 
 		Will not touch the pool.
@@ -477,7 +477,7 @@ class gmConnectionPool(gmBorg.cBorg):
 	#--------------------------------------------------
 	# utility functions
 	#--------------------------------------------------
-	def __log_on_first_contact(self, conn:dbapi.extras.DictConnection):
+	def __log_on_first_contact(self, conn:psycopg2.extras.DictConnection):
 		global postgresql_version
 		if postgresql_version is not None:
 			return
@@ -526,7 +526,7 @@ class gmConnectionPool(gmBorg.cBorg):
 				_log.debug('$PGPASSFILE=%s -> file not found')
 
 	#--------------------------------------------------
-	def __detect_client_timezone(self, conn:dbapi.extras.DictConnection):
+	def __detect_client_timezone(self, conn:psycopg2.extras.DictConnection):
 		"""This is run on the very first connection."""
 
 		if self.__client_timezone is not None:
@@ -564,7 +564,7 @@ class gmConnectionPool(gmBorg.cBorg):
 		# FIXME: value as what we eventually detect
 
 	#--------------------------------------------------
-	def __expand_timezone(self, conn:dbapi.extras.DictConnection, timezone:str):
+	def __expand_timezone(self, conn:psycopg2.extras.DictConnection, timezone:str):
 		"""Some timezone defs are abbreviations so try to expand
 		them because "set time zone" doesn't take abbreviations"""
 
@@ -587,7 +587,7 @@ class gmConnectionPool(gmBorg.cBorg):
 		return result
 
 	#---------------------------------------------------
-	def __validate_timezone(self, conn:dbapi.extras.DictConnection, timezone:str) -> bool:
+	def __validate_timezone(self, conn:psycopg2.extras.DictConnection, timezone:str) -> bool:
 		_log.debug('validating timezone [%s]', timezone)
 		cmd = 'SET timezone TO %(tz)s'
 		args = {'tz': timezone}
@@ -914,9 +914,9 @@ def log_conn_state(conn:dbapi._psycopg.connection) -> None:
 		conn_status = 'undefined (%s)' % conn_status
 		backend_pid = '<conn closed, cannot retrieve>'
 	else:
-		backend_pid = conn.get_backend_pid()
+		backend_pid = str(conn.get_backend_pid())
 	try:
-		conn_deferrable = conn.deferrable
+		conn_deferrable = str(conn.deferrable)
 	except AttributeError:
 		conn_deferrable = '<unavailable>'
 	d = {

@@ -25,7 +25,7 @@ import logging
 import datetime as pydt
 import hashlib
 import shutil
-from typing import Union, Any, Optional
+from typing import Any
 
 
 # GNUmed
@@ -286,7 +286,7 @@ __MIND_MELD = '_ı/'
 __LLAP = '_\\//'
 
 
-_TLnkObj = Optional[Union[dbapi.extras.DictConnection, dbapi.extras.DictCursor]]
+_TLnkObj = dbapi.extras.DictConnection | dbapi.extras.DictCursor | None
 
 # =======================================================================
 # login API
@@ -2171,11 +2171,11 @@ def sanitize_pg_regex(expression=None, escape_all=False):
 #------------------------------------------------------------------------
 def run_ro_queries (
 	link_obj:_TLnkObj=None,
-	queries:list[dict[str, Union[str, Union[list, dict[str, Any]]]]]=None,
+	queries:list[dict[str, str | list | dict[str, Any]]]=None,
 	verbose:bool=False,
 	return_data:bool=True,
 	get_col_idx:bool=False
-) -> tuple[list[dbapi.extras.DictRow], Optional[dict[str, int]]]:
+) -> tuple[list[dbapi.extras.DictRow], dict[str, int] | None]:
 	"""Run read-only queries.
 
 	Args:
@@ -2295,14 +2295,15 @@ def run_ro_queries (
 #------------------------------------------------------------------------
 def run_rw_queries (
 	link_obj:_TLnkObj=None,
-	queries:list[dict[str, Any]]=None,	#[str, Union[str, Union[list, dict[str, Any]]]]
-	#queries:list[dict[str, Union[str, Union[list[Any], dict[str, Any]]]]]=None,
+	queries:list[dict[str, str | list | dict[str, Any]]]=None,
 	end_tx:bool=False,
 	return_data:bool=None,
 	get_col_idx:bool=False,
 	verbose:bool=False
-) -> tuple[list[dbapi.extras.DictRow], Optional[dict[str, int]]]:
-	"""Convenience function for running a transaction that is supposed to get committed.
+) -> tuple[list[dbapi.extras.DictRow], dict[str, int] | None]:
+	"""Convenience function for running read-write queries
+
+	Typically (part of) a transaction.
 
 	Args:
 		link_obj: None, cursor, connection

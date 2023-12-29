@@ -69,7 +69,7 @@ def is_executable_by_wine(cmd:str=None) -> tuple:
 		return (False, None)
 
 	# [wine "drive:\a\windows\path\to\binary.exe"] ?
-	cmd_line = r'%s -u "%s"' % (
+	cmd_line = r'%r -u "%r"' % (
 		full_winepath_path.encode(sys.getfilesystemencoding()),
 		exe_path
 	)

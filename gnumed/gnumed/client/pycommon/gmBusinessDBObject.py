@@ -140,7 +140,7 @@ __license__ = "GPL v2 or later"
 import sys
 import logging
 import datetime
-from typing import Union, Any
+from typing import Any
 
 
 if __name__ == '__main__':
@@ -158,8 +158,6 @@ from Gnumed.pycommon.gmTools import u_left_arrow
 
 
 _log = logging.getLogger('gm.db')
-
-TypeIntOrDict = Union[int, dict]
 
 #============================================================
 # business object template
@@ -324,7 +322,7 @@ class cBusinessDBObject(object):
 	_cmds_store_payload:list[str] = None
 	_updatable_fields:list[str] = None
 	#--------------------------------------------------------
-	def __init__(self, aPK_obj:TypeIntOrDict=None, row:dict=None, link_obj=None):
+	def __init__(self, aPK_obj:int|dict=None, row:dict=None, link_obj=None):
 		"""Call __init__ from child classes like so:
 
 			super().__init__(aPK_obj = aPK_obj, row = row, link_obj = link_obj)
@@ -361,9 +359,9 @@ class cBusinessDBObject(object):
 		# initialize those "too early" because sanity checking descendants might
 		# fail which will then call __str__ in stack trace logging if --debug
 		# was given which in turn needs those instance variables
-		self.pk_obj:TypeIntOrDict = -1
+		self.pk_obj:int|dict = -1
 		self._idx:dict[str, int] = {}
-		self._payload:'gmPG2.dbapi.extras.DictRow' = {}	# the cache for backend object values (mainly table fields)
+		self._payload:dict|'gmPG2.dbapi.extras.DictRow' = {}	# the cache for backend object values (mainly table fields)
 		self._ext_cache:dict = {}	# the cache for extended method's results
 		self._is_modified:bool = False
 		self.original_payload:list = None
@@ -379,7 +377,7 @@ class cBusinessDBObject(object):
 		self._is_modified = False
 
 	#--------------------------------------------------------
-	def __init_from_pk(self, aPK_obj:TypeIntOrDict=None, link_obj=None):
+	def __init_from_pk(self, aPK_obj:int|dict=None, link_obj=None):
 		"""Creates a new clinical item instance by its PK.
 
 		Args:
@@ -392,8 +390,6 @@ class cBusinessDBObject(object):
 		self.pk_obj = aPK_obj
 		if self.refetch_payload(link_obj = link_obj):
 			self.payload_most_recently_fetched = {}
-			#for field in self._idx:
-			#	self.payload_most_recently_fetched[field] = self._payload[self._idx[field]]
 			for field in self._payload.keys():
 				self.payload_most_recently_fetched[field] = self._payload[field]
 			return
@@ -401,7 +397,7 @@ class cBusinessDBObject(object):
 		raise gmExceptions.ConstructorError("[%s:%s]: error loading instance" % (self.__class__.__name__, self.pk_obj))
 
 	#--------------------------------------------------------
-	def _init_from_row_data(self, row:gmPG2.dbapi.extras.DictRow=None):
+	def _init_from_row_data(self, row:dict|gmPG2.dbapi.extras.DictRow=None):
 		"""Creates a new clinical item instance given its fields.
 
 		Args:
@@ -435,22 +431,17 @@ class cBusinessDBObject(object):
 		assert not faulty_pk, "[%s:??]: either 'pk_field' or 'pk_obj' must exist in <row> argument: %s" % (self.__class__.__name__, row)
 
 		self._payload = row['data']
-		#self._idx = row['idx']
 		try:
-			#assert ('idx' in row), "[%s:??]: 'idx' missing from <row> argument: %s" % (self.__class__.__name__, row)
 			self._idx = row['idx']
 			assert len(row['idx']) == len(row['data']), "[%s:??]: 'idx'<->'data' field count mismatch: %s" % (self.__class__.__name__, row)
 
 		except KeyError:
 			self._idx = self._payload.keys()
 		if 'pk_field' in row:
-			#self.pk_obj = self._payload[self._idx[row['pk_field']]]
 			self.pk_obj = self._payload[row['pk_field']]
 		else:
 			self.pk_obj = row['pk_obj']
 		self.payload_most_recently_fetched = {}
-		#for field in self._idx:
-		#	self.payload_most_recently_fetched[field] = self._payload[self._idx[field]]
 		for field in self._payload.keys():
 			self.payload_most_recently_fetched[field] = self._payload[field]
 
@@ -467,17 +458,13 @@ class cBusinessDBObject(object):
 	def __str__(self):
 		lines = []
 		try:
-			#for attr in self._idx:
 			for attr in self._payload.keys():
-				#if self._payload[self._idx[attr]] is None:
 				if self._payload[attr] is None:
 					lines.append('%s: NULL' % attr)
 				else:
 					lines.append('%s [%s]: %s' % (
 						attr,
-						#type(self._payload[self._idx[attr]]),
 						type(self._payload[attr]),
-						#self._payload[self._idx[attr]]
 						self._payload[attr]
 					))
 			return '[%s:%s] %s:\n%s' % (
@@ -492,7 +479,6 @@ class cBusinessDBObject(object):
 
 	#--------------------------------------------------------
 	def __getitem__(self, attribute):
-		#return self._payload[self._idx[attribute]]
 		return self._payload[attribute]
 
 	#--------------------------------------------------------
@@ -500,7 +486,6 @@ class cBusinessDBObject(object):
 		assert attribute in self.__class__._updatable_fields, '[%s]: field <%s> not declared updatable' % (self.__class__.__name__, attribute)
 
 		try:
-			#if self._payload[self._idx[attribute]] == value:
 			if self._payload[attribute] == value:
 				return
 
@@ -509,7 +494,6 @@ class cBusinessDBObject(object):
 			_log.debug('[%s]: settable attributes: %s', self.__class__.__name__, str(self.__class__._updatable_fields))
 			raise KeyError('[%s]: cannot set [%s]' % (self.__class__.__name__, attribute))
 
-		#self._payload[self._idx[attribute]] = value
 		self._payload[attribute] = value
 		self._is_modified = True
 
@@ -529,7 +513,6 @@ class cBusinessDBObject(object):
 	def get_fields(self) -> list[str]:
 		"""Return list of accessible fields."""
 		try:
-			#return list(self._idx)
 			return self._payload.keys()
 
 		except AttributeError:
@@ -551,14 +534,12 @@ class cBusinessDBObject(object):
 		else:
 			bools = {True: bool_strings[0], False: bool_strings[1]}
 		data = {}
-		#for field in self._idx:
 		for field in self._payload.keys():
 			# FIXME: harden against BYTEA fields
 			#if type(self._payload[self._idx[field]]) == ...
 			#	data[field] = _('<%s bytes of binary data>') % len(self._payload[self._idx[field]])
 			#	continue
 			val = self._payload[field]
-			#val = self._payload[self._idx[field]]
 			if val is None:
 				data[field] = none_string
 				continue
@@ -600,12 +581,10 @@ class cBusinessDBObject(object):
 		"""Get primary key of associated patient if any."""
 		pk_patient = None
 		try:
-			#return self._payload[self._idx['pk_patient']]
 			pk_patient = self._payload['pk_patient']
 		except KeyError:
 			pass
 		try:
-			#return self._payload[self._idx['pk_identity']]
 			pk_patient = self._payload['pk_identity']
 		except KeyError:
 			pass
@@ -618,20 +597,17 @@ class cBusinessDBObject(object):
 	def _get_staff_id(self) -> int:
 		"""Get staff id of associated staff if any."""
 		try:
-			#return self._payload[self._idx['pk_staff']]
 			return self._payload['pk_staff']
 
 		except KeyError:
 			_log.debug('[%s]: .pk_staff should be added to the view', self.__class__.__name__)
 		try:
-			#return self._payload[self._idx['pk_provider']]
 			return self._payload['pk_provider']
 
 		except KeyError:
 			pass
 		mod_by = None
 		try:
-			#mod_by = self._payload[self._idx['modified_by_raw']]
 			mod_by = self._payload['modified_by_raw']
 		except KeyError:
 			_log.debug('[%s]: .modified_by_raw should be added to the view', self.__class__.__name__)
@@ -644,7 +620,6 @@ class cBusinessDBObject(object):
 				# logically, they are all the same provider, because they share the DB account
 				return rows[0]['pk']
 
-		#mod_by = self._payload[self._idx['modified_by']]
 		mod_by = self._payload['modified_by']
 		# is .modified_by a "<DB-account>" ?
 		if mod_by.startswith('<') and mod_by.endswith('>'):
@@ -755,9 +730,7 @@ class cBusinessDBObject(object):
 			return (True, None)
 
 		args:dict[str, Any] = {}
-		#for field in self._idx:
 		for field in self._payload.keys():
-			#args[field] = self._payload[self._idx[field]]
 			args[field] = self._payload[field]
 		self.payload_most_recently_attempted_to_store = args
 
@@ -791,18 +764,14 @@ class cBusinessDBObject(object):
 		# columns see their new values (given they are
 		# returned by the query)
 		row = rows[0]
-		#for key in idx:
 		for key in row.keys():
 			try:
-				#self._payload[self._idx[key]] = row[idx[key]]
 				self._payload[key] = row[key]
 			except KeyError:
 				conn.rollback()
 				conn_close()
 				_log.error('[%s:%s]: cannot update instance, XMIN-refetch key mismatch on [%s]' % (self.__class__.__name__, self.pk_obj, key))
-				#_log.error('payload keys: %s' % str(self._idx))
 				_log.error('payload keys: %s' % str(self._payload.keys()))
-				#_log.error('XMIN-refetch keys: %s' % str(idx))
 				_log.error('XMIN-refetch keys: %s' % str(row.keys()))
 				_log.error(args)
 				raise
@@ -817,9 +786,7 @@ class cBusinessDBObject(object):
 
 		# update to new "original" payload
 		self.payload_most_recently_fetched = {}
-		#for field in self._idx:
 		for field in self._payload.keys():
-			#self.payload_most_recently_fetched[field] = self._payload[self._idx[field]]
 			self.payload_most_recently_fetched[field] = self._payload[field]
 
 		return (True, None)
