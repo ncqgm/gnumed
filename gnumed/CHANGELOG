@@ -58,6 +58,7 @@ FIX: forward-port fix for grid selection constant names
 	1.8.18
 
 IMPROVED: new-patient: dialog layout
+IMPROVED: phrasewheels: in-focus signalling
 
 	1.8.17
 

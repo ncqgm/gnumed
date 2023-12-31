@@ -36,6 +36,7 @@ _log = logging.getLogger('macosx')
 color_prw_invalid = 'pink'
 color_prw_partially_invalid = 'yellow'
 color_prw_valid = None				# this is used by code outside this module
+COLOR_BG_PRW_WITH_FOCUS = 'light yellow'
 
 #default_phrase_separators = r'[;/|]+'
 default_phrase_separators = r';+'
@@ -185,7 +186,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 		super(cPhraseWheelBase, self).__init__(parent, id, **kwargs)
 
 		self.__my_startup_color = self.GetBackgroundColour()
-		self.__non_edit_font = self.GetFont()
+		self.__background_color_without_focus = self.GetBackgroundColour()
 		global color_prw_valid
 		if color_prw_valid is None:
 			color_prw_valid = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
@@ -643,11 +644,8 @@ class cPhraseWheelBase(wx.TextCtrl):
 		self._has_focus = True
 		event.Skip()
 
-		#self.__non_edit_font = self.GetFont()
-		#edit_font = self.GetFont()
-		edit_font = wx.Font(self.__non_edit_font.GetNativeFontInfo())
-		edit_font.SetPointSize(pointSize = edit_font.GetPointSize() + 1)
-		self.SetFont(edit_font)
+		self.__background_color_without_focus = self.GetBackgroundColour()
+		self.SetBackgroundColour(COLOR_BG_PRW_WITH_FOCUS)
 		self.Refresh()
 
 		# notify interested parties
@@ -667,16 +665,15 @@ class cPhraseWheelBase(wx.TextCtrl):
 		self._has_focus = False
 		self.__timer.Stop()
 		self._hide_picklist()
+		self.SetBackgroundColour(self.__background_color_without_focus)
+		self.Refresh()
 		wx.CallAfter(self.__on_lost_focus)
 		return True
+
 	#--------------------------------------------------------
 	def __on_lost_focus(self):
 		self.SetSelection(1,1)
-		self.SetFont(self.__non_edit_font)
-		#self.Refresh()		# already done in .display_as_valid() below
-
 		is_valid = True
-
 		# the user may have typed a phrase that is an exact match,
 		# however, just typing it won't associate data from the
 		# picklist, so try do that now
