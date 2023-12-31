@@ -902,7 +902,7 @@ Query
 	gmLog2.log_multiline(logging.DEBUG, message = 'Link state:', line_prefix = '', text = txt)
 
 #--------------------------------------------------
-def log_conn_state(conn:dbapi._psycopg.connection) -> None:
+def log_conn_state(conn:dbapi.extras.DictConnection) -> None:
 	"""Log details about a DB-API connection."""
 	tx_status = conn.get_transaction_status()
 	if tx_status in [ psycopg2.extensions.TRANSACTION_STATUS_INERROR, psycopg2.extensions.TRANSACTION_STATUS_UNKNOWN ]:

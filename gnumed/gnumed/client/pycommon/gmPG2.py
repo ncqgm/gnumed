@@ -25,7 +25,7 @@ import logging
 import datetime as pydt
 import hashlib
 import shutil
-from typing import Any
+from typing import Any, Mapping, Sequence
 
 
 # GNUmed
@@ -533,7 +533,7 @@ def __get_schema_structure_by_gm_func(link_obj=None) -> str:
 		rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': SQL}])
 		return rows[0][0]
 
-	except dbapi.errors.AmbiguousFunction as exc:
+	except dbapi.errors.AmbiguousFunction as exc:			# type: ignore [attr-defined] # pylint: disable=no-member
 		if hasattr(exc, 'diag') and 'gm.concat_table_structure_v19_and_up()' in exc.diag.context:
 			_log.error('gm.concat_table_structure_v19_and_up() failed')
 			return None
@@ -597,7 +597,7 @@ def __get_schema_hash_by_gm_func(link_obj=None, version=None) -> str:
 		_log.debug('hash: %s', rows[0]['md5'])
 		return rows[0]['md5']
 
-	except dbapi.errors.AmbiguousFunction as exc:
+	except dbapi.errors.AmbiguousFunction as exc:			# type: ignore [attr-defined] # pylint: disable=no-member
 		if hasattr(exc, 'diag') and 'gm.concat_table_structure_v19_and_up()' in exc.diag.context:
 			_log.error('gm.concat_table_structure_v19_and_up() failed')
 			return None
@@ -638,7 +638,7 @@ def get_schema_hash(link_obj:_TLnkObj=None, version=None) -> str:
 	return md5_db
 
 #------------------------------------------------------------------------
-def get_schema_revision_history(link_obj:_TLnkObj=None) -> list[str]:
+def get_schema_revision_history(link_obj:_TLnkObj=None) -> list[dbapi.extras.DictRow]:
 	if table_exists(link_obj = link_obj, schema = 'gm', table = 'schema_revision'):
 		cmd = """
 			SELECT
@@ -1031,7 +1031,7 @@ def sanity_check_database_default_collation_version(conn=None) -> bool:
 	SQL = 'SELECT *, pg_database_collation_actual_version(oid) FROM pg_database WHERE datname = current_database()'
 	try:
 		rows, idx = run_ro_queries(link_obj = conn, queries = [{'cmd': SQL}])
-	except dbapi.errors.UndefinedFunction as pg_exc:			# pylint: disable=no-member
+	except dbapi.errors.UndefinedFunction as pg_exc:			# type: ignore [attr-defined] # pylint: disable=no-member
 		_log.exception('cannot verify collation version, likely PG < 15')
 		gmConnectionPool.log_pg_exception_details(pg_exc)
 		return True
@@ -1110,7 +1110,7 @@ def sanity_check_collation_versions(conn=None) -> bool:
 	"""
 	try:
 		rows, idx = run_ro_queries(link_obj = conn, queries = [{'cmd': SQL}])
-	except dbapi.errors.UndefinedFunction as pg_exc:				# pylint: disable=no-member
+	except dbapi.errors.UndefinedFunction as pg_exc:				# type: ignore [attr-defined] # pylint: disable=no-member
 		_log.exception('cannot verify collation versions, likely PG < 15')
 		gmConnectionPool.log_pg_exception_details(pg_exc)
 		return True
@@ -2171,7 +2171,7 @@ def sanitize_pg_regex(expression=None, escape_all=False):
 #------------------------------------------------------------------------
 def run_ro_queries (
 	link_obj:_TLnkObj=None,
-	queries:list[dict[str, str | list | dict[str, Any]]]=None,
+	queries:Sequence[Mapping[str, str | list | dict]]=None,
 	verbose:bool=False,
 	return_data:bool=True,
 	get_col_idx:bool=False
@@ -2295,7 +2295,7 @@ def run_ro_queries (
 #------------------------------------------------------------------------
 def run_rw_queries (
 	link_obj:_TLnkObj=None,
-	queries:list[dict[str, str | list | dict[str, Any]]]=None,
+	queries:Sequence[Mapping[str, str | list | dict]]=None,
 	end_tx:bool=False,
 	return_data:bool=None,
 	get_col_idx:bool=False,

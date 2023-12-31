@@ -710,12 +710,12 @@ class cBusinessDBObject(object):
 		return True
 
 	#--------------------------------------------------------
-	def save(self, conn:gmPG2.dbapi._psycopg.connection=None) -> tuple[bool, tuple]:
+	def save(self, conn:gmPG2.dbapi.extras.DictConnection=None) -> tuple[bool, tuple]:
 		"""Just calls save_payload()."""
 		return self.save_payload(conn = conn)
 
 	#--------------------------------------------------------
-	def save_payload(self, conn:gmPG2.dbapi._psycopg.connection=None) -> tuple[bool, tuple]:
+	def save_payload(self, conn:gmPG2.dbapi.extras.DictConnection=None) -> tuple[bool, tuple]:
 		"""Store updated values (if any) into database.
 
 		Optionally accepts a pre-existing connection
