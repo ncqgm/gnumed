@@ -55,6 +55,10 @@ FIX: forward-port fix for grid selection constant names
 # rel-1-8-maint
 ------------------------------------------------
 
+	1.8.18
+
+IMPROVED: new-patient: dialog layout
+
 	1.8.17
 
 FIX: patient search exception
