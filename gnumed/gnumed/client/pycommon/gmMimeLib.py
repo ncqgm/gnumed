@@ -15,7 +15,7 @@ import mimetypes
 import subprocess
 import shutil
 import logging
-from typing import List
+from typing import Callable
 try:
 	import mailcap as _mailcap
 except ImportError:		# Python 3.11 deprecated mailcap, in 3.13 it will be gone ...
@@ -349,7 +349,7 @@ def _get_system_startfile_cmd(filename:str):
 	return False, None
 
 #-----------------------------------------------------------------------------------
-def join_files_as_pdf(files:List[str]=None, pdf_name:str=None) -> str:
+def join_files_as_pdf(files:list[str]=None, pdf_name:str=None) -> str:
 	"""Convert files to PDF and joins them into one final PDF.
 
 	Returns:
@@ -529,7 +529,7 @@ def __convert_pdf_to_text(filename:str=None, verbose:bool=False, max_pages:int=2
 
 #-----------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------
-__CONVERSION_DELEGATES = {
+__CONVERSION_DELEGATES:dict[str, dict[str, Callable]] = {
 	'application/vnd.oasis.opendocument.text': {
 		'application/pdf': __convert_odt_to_pdf
 	},
