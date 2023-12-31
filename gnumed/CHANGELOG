@@ -6,6 +6,10 @@
 # rel-1-8-patches
 ------------------------------------------------
 
+	1.8.18
+
+IMPROVED: new-patient: dialog layout
+
 	1.8.17
 
 FIX: patient search exception

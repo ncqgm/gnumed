@@ -18,210 +18,273 @@ class wxgNewPatientEAPnl(wx.Panel):
 		# begin wxGlade: wxgNewPatientEAPnl.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.BORDER_NONE | wx.TAB_TRAVERSAL
 		wx.Panel.__init__(self, *args, **kwds)
-		from Gnumed.wxpython.gmDemographicsWidgets import cLastnamePhraseWheel
-		self._PRW_lastname = cLastnamePhraseWheel(self, wx.ID_ANY, "")
-		from Gnumed.wxpython.gmDemographicsWidgets import cFirstnamePhraseWheel
-		self._PRW_firstnames = cFirstnamePhraseWheel(self, wx.ID_ANY, "")
-		from Gnumed.wxpython.gmDateTimeInput import cDateInputPhraseWheel
-		self._PRW_dob = cDateInputPhraseWheel(self, wx.ID_ANY, "")
-		self._CHBOX_estimated_dob = wx.CheckBox(self, wx.ID_ANY, _("Estimated"))
-		self._TCTRL_tob = wx.TextCtrl(self, wx.ID_ANY, "")
-		self._LBL_person_exists = wx.StaticText(self, wx.ID_ANY, "")
-		from Gnumed.wxpython.gmDemographicsWidgets import cGenderSelectionPhraseWheel
-		self._PRW_gender = cGenderSelectionPhraseWheel(self, wx.ID_ANY, "")
-		from Gnumed.wxpython.gmDemographicsWidgets import cNicknamePhraseWheel
-		self._PRW_nickname = cNicknamePhraseWheel(self, wx.ID_ANY, "")
-		from Gnumed.wxpython.gmDemographicsWidgets import cTitlePhraseWheel
-		self._PRW_title = cTitlePhraseWheel(self, wx.ID_ANY, "")
-		from Gnumed.wxpython.gmAddressWidgets import cAddressPhraseWheel
-		self._PRW_address_searcher = cAddressPhraseWheel(self, wx.ID_ANY, "")
-		from Gnumed.wxpython.gmAddressWidgets import cZipcodePhraseWheel
-		self._PRW_zip = cZipcodePhraseWheel(self, wx.ID_ANY, "")
-		from Gnumed.wxpython.gmAddressWidgets import cStreetPhraseWheel
-		self._PRW_street = cStreetPhraseWheel(self, wx.ID_ANY, "")
-		from Gnumed.wxpython.gmTextCtrl import cTextCtrl
-		self._TCTRL_number = cTextCtrl(self, wx.ID_ANY, "")
-		self._TCTRL_unit = wx.TextCtrl(self, wx.ID_ANY, "")
-		from Gnumed.wxpython.gmAddressWidgets import cUrbPhraseWheel
-		self._PRW_urb = cUrbPhraseWheel(self, wx.ID_ANY, "")
-		from Gnumed.wxpython.gmAddressWidgets import cStateSelectionPhraseWheel
-		self._PRW_region = cStateSelectionPhraseWheel(self, wx.ID_ANY, "")
-		from Gnumed.wxpython.gmAddressWidgets import cCountryPhraseWheel
-		self._PRW_country = cCountryPhraseWheel(self, wx.ID_ANY, "")
-		from Gnumed.wxpython.gmAddressWidgets import cAddressTypePhraseWheel
-		self._PRW_type = cAddressTypePhraseWheel(self, wx.ID_ANY, "")
-		from Gnumed.wxpython.gmContactWidgets import cCommChannelTypePhraseWheel
-		self._PRW_channel_type = cCommChannelTypePhraseWheel(self, wx.ID_ANY, "")
-		self._TCTRL_phone = wx.TextCtrl(self, wx.ID_ANY, "")
-		from Gnumed.wxpython.gmStaffWidgets import cProviderPhraseWheel
-		self._PRW_primary_provider = cProviderPhraseWheel(self, wx.ID_ANY, "")
-		from Gnumed.wxpython.gmDemographicsWidgets import cExternalIDTypePhraseWheel
-		self._PRW_external_id_type = cExternalIDTypePhraseWheel(self, wx.ID_ANY, "")
-		self._TCTRL_external_id_value = cTextCtrl(self, wx.ID_ANY, "")
-		self._LBL_id_exists = wx.StaticText(self, wx.ID_ANY, "")
-		from Gnumed.wxpython.gmDemographicsWidgets import cOccupationPhraseWheel
-		self._PRW_occupation = cOccupationPhraseWheel(self, wx.ID_ANY, "")
-		self._TCTRL_comment = wx.TextCtrl(self, wx.ID_ANY, "")
 
-		self.__set_properties()
-		self.__do_layout()
-		# end wxGlade
-
-	def __set_properties(self):
-		# begin wxGlade: wxgNewPatientEAPnl.__set_properties
-		self._PRW_lastname.SetToolTip(_("Required: lastname (family name)"))
-		self._PRW_lastname.SetFocus()
-		self._PRW_firstnames.SetToolTip(_("Required: first name/given name"))
-		self._PRW_dob.SetToolTip(_("Recommended: Date of birth. Your current time zone applies."))
-		self._CHBOX_estimated_dob.SetToolTip(_("Check if the DOB is estimated rather than known precisely."))
-		self._TCTRL_tob.SetToolTip(_("Optional: the time of birth if known"))
-		self._LBL_person_exists.SetForegroundColour(wx.Colour(255, 0, 0))
-		self._PRW_gender.SetToolTip(_("Required: gender"))
-		self._PRW_nickname.SetToolTip(_("Optional: nickname (alias, preferred name, call name, warrior name, artist name, pseudonym)"))
-		self._PRW_title.SetToolTip(_("Optional: title (academic or honorary). Note that a title applies to a person, not to a particular name of that person (it will be kept even if the name changes)."))
-		self._PRW_address_searcher.SetToolTip(_("Optional address search: enter a postal code or street name to select a pre-existing address to auto-fill the fields below.\n\nBy editing the fields you can create a new address as needed."))
-		self._PRW_zip.SetToolTip(_("Primary address: zip/postal code\n\nUse '?' if unknown."))
-		self._PRW_street.SetToolTip(_("Primary address: name of street"))
-		self._TCTRL_number.SetToolTip(_("Primary address: number"))
-		self._TCTRL_unit.SetToolTip(_("Primary address: unit within the number (appt. / room / etc)."))
-		self._PRW_urb.SetToolTip(_("Primary address: city/town/village/dwelling/..."))
-		self._PRW_region.SetToolTip(_("Primary address: region (state/province/county/territory/arrondissement/prefecture/department/kanton/...)"))
-		self._PRW_country.SetToolTip(_("Primary address: country of residence"))
-		self._PRW_type.SetToolTip(_("The category under which to store this address."))
-		self._PRW_channel_type.SetToolTip(_("The type of the primary communication channel."))
-		self._TCTRL_phone.SetToolTip(_("Primary communication channel."))
-		self._PRW_primary_provider.SetToolTip(_("Choose the provider the patient considers his or her primary provider in this praxis."))
-		self._PRW_external_id_type.SetToolTip(_("The type of the external ID (selection only)."))
-		self._TCTRL_external_id_value.SetToolTip(_("The value of the external ID."))
-		self._LBL_id_exists.SetForegroundColour(wx.Colour(255, 0, 0))
-		self._PRW_occupation.SetToolTip(_("The current occupation."))
-		self._TCTRL_comment.SetToolTip(_("A comment on this person."))
-		# end wxGlade
-
-	def __do_layout(self):
-		# begin wxGlade: wxgNewPatientEAPnl.__do_layout
 		__szr_main = wx.BoxSizer(wx.VERTICAL)
-		__fgsizer_details = wx.FlexGridSizer(23, 2, 3, 5)
-		__szr_external_id_details = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_other = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_primary_contact_details = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_number_details = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_address = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_dob = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_identity = wx.BoxSizer(wx.HORIZONTAL)
+
+		__fgsizer_details = wx.FlexGridSizer(23, 2, 3, 3)
+		__szr_main.Add(__fgsizer_details, 1, wx.EXPAND, 0)
+
 		__fgsizer_details.Add((20, 20), 0, wx.EXPAND, 0)
+
+		__szr_identity = wx.BoxSizer(wx.HORIZONTAL)
+		__fgsizer_details.Add(__szr_identity, 1, wx.EXPAND, 0)
+
 		__szr_identity.Add((20, 20), 1, wx.EXPAND, 0)
-		__lbl_identity = wx.StaticText(self, wx.ID_ANY, _("Identity"), style=wx.ALIGN_CENTER)
+
+		__lbl_identity = wx.StaticText(self, wx.ID_ANY, _("Identity"), style=wx.ALIGN_CENTER_HORIZONTAL)
 		__lbl_identity.SetForegroundColour(wx.Colour(95, 159, 159))
 		__szr_identity.Add(__lbl_identity, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
 		__szr_identity.Add((20, 20), 1, wx.EXPAND, 0)
-		__fgsizer_details.Add(__szr_identity, 1, wx.EXPAND, 0)
+
 		__lbl_lastname = wx.StaticText(self, wx.ID_ANY, _("Last name"))
 		__lbl_lastname.SetForegroundColour(wx.Colour(255, 0, 0))
 		__fgsizer_details.Add(__lbl_lastname, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		from Gnumed.wxpython.gmDemographicsWidgets import cLastnamePhraseWheel
+		self._PRW_lastname = cLastnamePhraseWheel(self, wx.ID_ANY, "")
+		self._PRW_lastname.SetToolTip(_("Required: lastname (family name)"))
+		self._PRW_lastname.SetFocus()
 		__fgsizer_details.Add(self._PRW_lastname, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
 		__lbl_firstnames = wx.StaticText(self, wx.ID_ANY, _("First name(s)"))
 		__lbl_firstnames.SetForegroundColour(wx.Colour(255, 0, 0))
 		__fgsizer_details.Add(__lbl_firstnames, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		from Gnumed.wxpython.gmDemographicsWidgets import cFirstnamePhraseWheel
+		self._PRW_firstnames = cFirstnamePhraseWheel(self, wx.ID_ANY, "")
+		self._PRW_firstnames.SetToolTip(_("Required: first name/given name"))
 		__fgsizer_details.Add(self._PRW_firstnames, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
 		__lbl_dob = wx.StaticText(self, wx.ID_ANY, _("Date of birth"))
 		__lbl_dob.SetForegroundColour(wx.Colour(255, 127, 0))
 		__fgsizer_details.Add(__lbl_dob, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_dob.Add(self._PRW_dob, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.RIGHT, 3)
+
+		__szr_dob = wx.BoxSizer(wx.HORIZONTAL)
+		__fgsizer_details.Add(__szr_dob, 1, wx.EXPAND, 0)
+
+		from Gnumed.wxpython.gmDateTimeInput import cDateInputPhraseWheel
+		self._PRW_dob = cDateInputPhraseWheel(self, wx.ID_ANY, "")
+		self._PRW_dob.SetToolTip(_("Recommended: Date of birth. Your current time zone applies."))
+		__szr_dob.Add(self._PRW_dob, 1, wx.EXPAND | wx.RIGHT, 3)
+
+		self._CHBOX_estimated_dob = wx.CheckBox(self, wx.ID_ANY, _("Estimated"))
+		self._CHBOX_estimated_dob.SetToolTip(_("Check if the DOB is estimated rather than known precisely."))
 		__szr_dob.Add(self._CHBOX_estimated_dob, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
+
 		__vline_dob_sizer = wx.StaticLine(self, wx.ID_ANY, style=wx.LI_VERTICAL)
 		__szr_dob.Add(__vline_dob_sizer, 0, wx.EXPAND | wx.RIGHT, 3)
+
 		__lbl_tob = wx.StaticText(self, wx.ID_ANY, _("Time:"))
 		__szr_dob.Add(__lbl_tob, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
-		__szr_dob.Add(self._TCTRL_tob, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__fgsizer_details.Add(__szr_dob, 1, wx.EXPAND, 0)
+
+		self._TCTRL_tob = wx.TextCtrl(self, wx.ID_ANY, "")
+		self._TCTRL_tob.SetToolTip(_("Optional: the time of birth if known"))
+		__szr_dob.Add(self._TCTRL_tob, 0, wx.EXPAND, 0)
+
 		__fgsizer_details.Add((20, 20), 0, wx.EXPAND, 0)
+
+		self._LBL_person_exists = wx.StaticText(self, wx.ID_ANY, "")
+		self._LBL_person_exists.SetForegroundColour(wx.Colour(255, 0, 0))
 		__fgsizer_details.Add(self._LBL_person_exists, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
 		__lbl_gender = wx.StaticText(self, wx.ID_ANY, _("Gender"))
 		__lbl_gender.SetForegroundColour(wx.Colour(255, 0, 0))
 		__fgsizer_details.Add(__lbl_gender, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		from Gnumed.wxpython.gmDemographicsWidgets import cGenderSelectionPhraseWheel
+		self._PRW_gender = cGenderSelectionPhraseWheel(self, wx.ID_ANY, "")
+		self._PRW_gender.SetToolTip(_("Required: gender"))
 		__fgsizer_details.Add(self._PRW_gender, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
 		__lbl_nick_name = wx.StaticText(self, wx.ID_ANY, _("Nick name"))
 		__fgsizer_details.Add(__lbl_nick_name, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		from Gnumed.wxpython.gmDemographicsWidgets import cNicknamePhraseWheel
+		self._PRW_nickname = cNicknamePhraseWheel(self, wx.ID_ANY, "")
+		self._PRW_nickname.SetToolTip(_("Optional: nickname (alias, preferred name, call name, warrior name, artist name, pseudonym)"))
 		__fgsizer_details.Add(self._PRW_nickname, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
 		__lbl_title = wx.StaticText(self, wx.ID_ANY, _("Title"))
 		__fgsizer_details.Add(__lbl_title, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		from Gnumed.wxpython.gmDemographicsWidgets import cTitlePhraseWheel
+		self._PRW_title = cTitlePhraseWheel(self, wx.ID_ANY, "")
+		self._PRW_title.SetToolTip(_("Optional: title (academic or honorary). Note that a title applies to a person, not to a particular name of that person (it will be kept even if the name changes)."))
 		__fgsizer_details.Add(self._PRW_title, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
+		__lbl_comment = wx.StaticText(self, wx.ID_ANY, _("Comment"))
+		__fgsizer_details.Add(__lbl_comment, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		self._TCTRL_comment = wx.TextCtrl(self, wx.ID_ANY, "")
+		self._TCTRL_comment.SetToolTip(_("A comment on this person."))
+		__fgsizer_details.Add(self._TCTRL_comment, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
 		__fgsizer_details.Add((20, 20), 0, wx.EXPAND, 0)
+
+		__szr_address = wx.BoxSizer(wx.HORIZONTAL)
+		__fgsizer_details.Add(__szr_address, 1, wx.EXPAND, 0)
+
 		__szr_address.Add((20, 20), 1, wx.EXPAND, 0)
-		__lbl_address_heading = wx.StaticText(self, wx.ID_ANY, _("Primary address and contact"), style=wx.ALIGN_CENTER)
+
+		__lbl_address_heading = wx.StaticText(self, wx.ID_ANY, _("Primary address and contact"), style=wx.ALIGN_CENTER_HORIZONTAL)
 		__lbl_address_heading.SetForegroundColour(wx.Colour(95, 159, 159))
 		__szr_address.Add(__lbl_address_heading, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
 		__szr_address.Add((20, 20), 1, wx.EXPAND, 0)
-		__fgsizer_details.Add(__szr_address, 1, wx.EXPAND, 0)
+
 		__lbl_address = wx.StaticText(self, wx.ID_ANY, _("Search existing"))
 		__fgsizer_details.Add(__lbl_address, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		from Gnumed.wxpython.gmAddressWidgets import cAddressPhraseWheel
+		self._PRW_address_searcher = cAddressPhraseWheel(self, wx.ID_ANY, "")
+		self._PRW_address_searcher.SetToolTip(_("Optional address search: enter a postal code or street name to select a pre-existing address to auto-fill the fields below.\n\nBy editing the fields you can create a new address as needed."))
 		__fgsizer_details.Add(self._PRW_address_searcher, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
 		__lbl_zip = wx.StaticText(self, wx.ID_ANY, _("Postal code"))
 		__lbl_zip.SetForegroundColour(wx.Colour(255, 127, 0))
 		__fgsizer_details.Add(__lbl_zip, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		from Gnumed.wxpython.gmAddressWidgets import cZipcodePhraseWheel
+		self._PRW_zip = cZipcodePhraseWheel(self, wx.ID_ANY, "")
+		self._PRW_zip.SetToolTip(_("Primary address: zip/postal code\n\nUse '?' if unknown."))
 		__fgsizer_details.Add(self._PRW_zip, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
 		__lbl_street = wx.StaticText(self, wx.ID_ANY, _("Street"))
 		__lbl_street.SetForegroundColour(wx.Colour(255, 127, 0))
 		__fgsizer_details.Add(__lbl_street, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		from Gnumed.wxpython.gmAddressWidgets import cStreetPhraseWheel
+		self._PRW_street = cStreetPhraseWheel(self, wx.ID_ANY, "")
+		self._PRW_street.SetToolTip(_("Primary address: name of street"))
 		__fgsizer_details.Add(self._PRW_street, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
 		__lbl_number = wx.StaticText(self, wx.ID_ANY, _("Number"))
 		__lbl_number.SetForegroundColour(wx.Colour(255, 127, 0))
 		__fgsizer_details.Add(__lbl_number, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_number_details.Add(self._TCTRL_number, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.RIGHT, 5)
+
+		__szr_number_details = wx.BoxSizer(wx.HORIZONTAL)
+		__fgsizer_details.Add(__szr_number_details, 1, wx.EXPAND, 0)
+
+		from Gnumed.wxpython.gmTextCtrl import cTextCtrl
+		self._TCTRL_number = cTextCtrl(self, wx.ID_ANY, "")
+		self._TCTRL_number.SetToolTip(_("Primary address: number"))
+		__szr_number_details.Add(self._TCTRL_number, 1, wx.EXPAND | wx.RIGHT, 5)
+
 		__lbl_unit = wx.StaticText(self, wx.ID_ANY, _("Unit:"))
 		__szr_number_details.Add(__lbl_unit, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
-		__szr_number_details.Add(self._TCTRL_unit, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__fgsizer_details.Add(__szr_number_details, 1, wx.EXPAND, 0)
+
+		self._TCTRL_unit = wx.TextCtrl(self, wx.ID_ANY, "")
+		self._TCTRL_unit.SetToolTip(_("Primary address: unit within the number (appt. / room / etc)."))
+		__szr_number_details.Add(self._TCTRL_unit, 1, wx.EXPAND, 0)
+
 		__lbl_urb = wx.StaticText(self, wx.ID_ANY, _("Community"))
 		__lbl_urb.SetForegroundColour(wx.Colour(255, 127, 0))
 		__fgsizer_details.Add(__lbl_urb, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		from Gnumed.wxpython.gmAddressWidgets import cUrbPhraseWheel
+		self._PRW_urb = cUrbPhraseWheel(self, wx.ID_ANY, "")
+		self._PRW_urb.SetToolTip(_("Primary address: city/town/village/dwelling/..."))
 		__fgsizer_details.Add(self._PRW_urb, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
 		__lbl_region = wx.StaticText(self, wx.ID_ANY, _("Region"))
 		__lbl_region.SetForegroundColour(wx.Colour(255, 127, 0))
 		__fgsizer_details.Add(__lbl_region, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		from Gnumed.wxpython.gmAddressWidgets import cStateSelectionPhraseWheel
+		self._PRW_region = cStateSelectionPhraseWheel(self, wx.ID_ANY, "")
+		self._PRW_region.SetToolTip(_("Primary address: region (state/province/county/territory/arrondissement/prefecture/department/kanton/...)"))
 		__fgsizer_details.Add(self._PRW_region, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
 		__lbl_country = wx.StaticText(self, wx.ID_ANY, _("Country"))
 		__lbl_country.SetForegroundColour(wx.Colour(255, 127, 0))
 		__fgsizer_details.Add(__lbl_country, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		from Gnumed.wxpython.gmAddressWidgets import cCountryPhraseWheel
+		self._PRW_country = cCountryPhraseWheel(self, wx.ID_ANY, "")
+		self._PRW_country.SetToolTip(_("Primary address: country of residence"))
 		__fgsizer_details.Add(self._PRW_country, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
 		__lbl_address_type = wx.StaticText(self, wx.ID_ANY, _("Type"))
 		__lbl_address_type.SetForegroundColour(wx.Colour(255, 127, 0))
 		__fgsizer_details.Add(__lbl_address_type, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		from Gnumed.wxpython.gmAddressWidgets import cAddressTypePhraseWheel
+		self._PRW_type = cAddressTypePhraseWheel(self, wx.ID_ANY, "")
+		self._PRW_type.SetToolTip(_("The category under which to store this address."))
 		__fgsizer_details.Add(self._PRW_type, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
 		__lbl_primary_contact = wx.StaticText(self, wx.ID_ANY, _("Contact"))
 		__fgsizer_details.Add(__lbl_primary_contact, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_primary_contact_details.Add(self._PRW_channel_type, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.RIGHT, 5)
-		__szr_primary_contact_details.Add(self._TCTRL_phone, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
+		__szr_primary_contact_details = wx.BoxSizer(wx.HORIZONTAL)
 		__fgsizer_details.Add(__szr_primary_contact_details, 1, wx.EXPAND, 0)
+
+		from Gnumed.wxpython.gmContactWidgets import cCommChannelTypePhraseWheel
+		self._PRW_channel_type = cCommChannelTypePhraseWheel(self, wx.ID_ANY, "")
+		self._PRW_channel_type.SetToolTip(_("The type of the primary communication channel."))
+		__szr_primary_contact_details.Add(self._PRW_channel_type, 1, wx.EXPAND | wx.RIGHT, 5)
+
+		self._TCTRL_phone = wx.TextCtrl(self, wx.ID_ANY, "")
+		self._TCTRL_phone.SetToolTip(_("Primary communication channel."))
+		__szr_primary_contact_details.Add(self._TCTRL_phone, 1, wx.EXPAND, 0)
+
 		__fgsizer_details.Add((20, 20), 0, wx.EXPAND, 0)
+
+		__szr_other = wx.BoxSizer(wx.HORIZONTAL)
+		__fgsizer_details.Add(__szr_other, 1, wx.EXPAND, 0)
+
 		__szr_other.Add((20, 20), 1, wx.EXPAND, 0)
-		__lbl_other = wx.StaticText(self, wx.ID_ANY, _("Other"), style=wx.ALIGN_CENTER)
+
+		__lbl_other = wx.StaticText(self, wx.ID_ANY, _("Other"), style=wx.ALIGN_CENTER_HORIZONTAL)
 		__lbl_other.SetForegroundColour(wx.Colour(95, 159, 159))
 		__szr_other.Add(__lbl_other, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
 		__szr_other.Add((20, 20), 1, wx.EXPAND, 0)
-		__fgsizer_details.Add(__szr_other, 1, wx.EXPAND, 0)
+
 		__lbl_primary_provider = wx.StaticText(self, wx.ID_ANY, _("In-praxis primary"))
 		__fgsizer_details.Add(__lbl_primary_provider, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		from Gnumed.wxpython.gmStaffWidgets import cProviderPhraseWheel
+		self._PRW_primary_provider = cProviderPhraseWheel(self, wx.ID_ANY, "")
+		self._PRW_primary_provider.SetToolTip(_("Choose the provider the patient considers his or her primary provider in this praxis."))
 		__fgsizer_details.Add(self._PRW_primary_provider, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
 		__lbl_ext_id = wx.StaticText(self, wx.ID_ANY, _("External ID"))
 		__fgsizer_details.Add(__lbl_ext_id, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_external_id_details.Add(self._PRW_external_id_type, 2, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.RIGHT, 5)
-		__szr_external_id_details.Add(self._TCTRL_external_id_value, 2, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.RIGHT, 5)
-		__szr_external_id_details.Add(self._LBL_id_exists, 1, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		__szr_external_id_details = wx.BoxSizer(wx.HORIZONTAL)
 		__fgsizer_details.Add(__szr_external_id_details, 1, wx.EXPAND, 0)
+
+		from Gnumed.wxpython.gmDemographicsWidgets import cExternalIDTypePhraseWheel
+		self._PRW_external_id_type = cExternalIDTypePhraseWheel(self, wx.ID_ANY, "")
+		self._PRW_external_id_type.SetToolTip(_("The type of the external ID (selection only)."))
+		__szr_external_id_details.Add(self._PRW_external_id_type, 2, wx.EXPAND | wx.RIGHT, 5)
+
+		self._TCTRL_external_id_value = cTextCtrl(self, wx.ID_ANY, "")
+		self._TCTRL_external_id_value.SetToolTip(_("The value of the external ID."))
+		__szr_external_id_details.Add(self._TCTRL_external_id_value, 2, wx.EXPAND | wx.RIGHT, 5)
+
+		self._LBL_id_exists = wx.StaticText(self, wx.ID_ANY, "")
+		self._LBL_id_exists.SetForegroundColour(wx.Colour(255, 0, 0))
+		__szr_external_id_details.Add(self._LBL_id_exists, 1, wx.ALIGN_CENTER_VERTICAL, 0)
+
 		__lbl_occupation = wx.StaticText(self, wx.ID_ANY, _("Occupation"))
 		__fgsizer_details.Add(__lbl_occupation, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		from Gnumed.wxpython.gmDemographicsWidgets import cOccupationPhraseWheel
+		self._PRW_occupation = cOccupationPhraseWheel(self, wx.ID_ANY, "")
+		self._PRW_occupation.SetToolTip(_("The current occupation."))
 		__fgsizer_details.Add(self._PRW_occupation, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__lbl_comment = wx.StaticText(self, wx.ID_ANY, _("Comment"))
-		__fgsizer_details.Add(__lbl_comment, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__fgsizer_details.Add(self._TCTRL_comment, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__fgsizer_details.AddGrowableCol(1)
-		__szr_main.Add(__fgsizer_details, 1, wx.EXPAND, 0)
+
 		__HLINE_bottom = wx.StaticLine(self, wx.ID_ANY)
 		__szr_main.Add(__HLINE_bottom, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
+
+		__fgsizer_details.AddGrowableCol(1)
+
 		self.SetSizer(__szr_main)
 		__szr_main.Fit(self)
+
 		self.Layout()
 		# end wxGlade
 
