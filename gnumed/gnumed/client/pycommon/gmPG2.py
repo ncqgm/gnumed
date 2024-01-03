@@ -25,7 +25,7 @@ import logging
 import datetime as pydt
 import hashlib
 import shutil
-from typing import Any, Mapping, Sequence
+from typing import Mapping, Sequence
 
 
 # GNUmed

@@ -18,7 +18,7 @@ if test "${PYFILE}" != "" ; then
 	echo "=== $(date): mypy ==========" > source-type_checking.log
 	echo "${MYPY_CMD}" &>> source-type_checking.log
 	echo "----- ${PYFILE} --------------------------------------" &>> source-type_checking.log
-	${MYPY_CMD} ${PYFILE} &>> source-type_checking.log
+	${MYPY_CMD} ${PYFILE} | grep --invert-match "Success: no issues found in 1 source file" &>> source-type_checking.log
 
 	exit
 fi ;
@@ -53,7 +53,7 @@ for DIR in ${DIRS} ; do
 	echo "=== ${DIR} ==========" &>> source-type_checking.log
 	for PYFILE in ${DIR}/*.py ; do
 		echo "----- ${PYFILE} --------------------------------------" &>> source-type_checking.log
-		${MYPY_CMD} ${PYFILE} &>> source-type_checking.log
+		${MYPY_CMD} ${PYFILE} | grep --invert-match "Success: no issues found in 1 source file" &>> source-type_checking.log
 	done
 done
 ##--warn-unreachable
