@@ -3413,6 +3413,11 @@ class gmApp(wx.App):
 			self.SetAssertMode(wx.APP_ASSERT_EXCEPTION | wx.APP_ASSERT_LOG)
 		else:
 			self.SetAssertMode(wx.APP_ASSERT_SUPPRESS)
+			if callable(getattr(self, 'GTKSuppressDiagnostics', None)):
+				# available from wxPython 4.2.0 only, removes all useless GTK errors on stdout
+				_log.info('self.GTKSuppressDiagnostics(): suppressing GTK stdout diagnostics stream')
+				self.GTKSuppressDiagnostics()
+
 		self.__starting_up = True
 		wx.ToolTip.SetAutoPop(3000)		# show tooltips for x msecs
 		gmExceptionHandlingWidgets.install_wx_exception_handler()

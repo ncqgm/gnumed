@@ -59,6 +59,7 @@ FIX: forward-port fix for grid selection constant names
 
 IMPROVED: new-patient: dialog layout
 IMPROVED: phrasewheels: in-focus signalling
+IMPROVED: less diagnostic GTK output on console
 
 	1.8.17
 
