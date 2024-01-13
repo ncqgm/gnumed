@@ -25,7 +25,7 @@ import logging
 import datetime as pydt
 import hashlib
 import shutil
-from typing import Mapping, Sequence
+from typing import Mapping, Sequence, Any, Union
 
 
 # GNUmed
@@ -288,6 +288,16 @@ __LLAP = '_\\//'
 
 _TLnkObj = dbapi.extras.DictConnection | dbapi.extras.DictCursor | None
 
+_TQuerySQL = Union[str, PG_SQL.Composed]
+_TQueryArgsList = Sequence[Any]
+_TQueryArgsDict = Mapping[str, Any]
+_TQueries = Sequence [
+	Mapping[
+		str,
+		Union[_TQuerySQL, _TQueryArgsList, _TQueryArgsDict]
+	]
+]
+
 # =======================================================================
 # login API
 # =======================================================================
@@ -514,7 +524,7 @@ def database_schema_compatible(link_obj:_TLnkObj=None, version:int=None, verbose
 	return False
 
 #------------------------------------------------------------------------
-def get_schema_version(link_obj:_TLnkObj=None) -> int:
+def get_schema_version(link_obj:_TLnkObj=None) -> int|str:
 	md5_db = get_schema_hash(link_obj = link_obj)
 	if not md5_db:
 		_log.error('cannot determine schema version')
@@ -980,7 +990,7 @@ def revalidate_constraints(link_obj:_TLnkObj=None) -> str:
 	return __LLAP
 
 #------------------------------------------------------------------------
-def reindex_database(conn=None) -> bool: # | str:
+def reindex_database(conn=None) -> bool | str:
 	"""Reindex the database "conn" is connected to.
 
 	Args:
@@ -2171,7 +2181,8 @@ def sanitize_pg_regex(expression=None, escape_all=False):
 #------------------------------------------------------------------------
 def run_ro_queries (
 	link_obj:_TLnkObj=None,
-	queries:Sequence[Mapping[str, str | list | dict]]=None,
+	#queries:Sequence[Mapping[str, str | list | dict]]=None,
+	queries:_TQueries=None,
 	verbose:bool=False,
 	return_data:bool=True,
 	get_col_idx:bool=False
@@ -2295,7 +2306,8 @@ def run_ro_queries (
 #------------------------------------------------------------------------
 def run_rw_queries (
 	link_obj:_TLnkObj=None,
-	queries:Sequence[Mapping[str, str | list | dict]]=None,
+#	queries:Sequence[Mapping[str, str | list | dict]]=None,
+	queries:_TQueries=None,
 	end_tx:bool=False,
 	return_data:bool=None,
 	get_col_idx:bool=False,
