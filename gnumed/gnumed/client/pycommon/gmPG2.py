@@ -1003,9 +1003,10 @@ def reindex_database(conn=None) -> bool | str:
 	"""
 	assert conn, '<conn> must be given'
 
-	_log.debug('rebuilding all indices in database')
+	dbname = conn.get_dsn_parameters()['dbname']
+	_log.debug('rebuilding all indices in database [%s]', dbname)
 	SQL = PG_SQL.SQL('REINDEX (VERBOSE) DATABASE {}').format (
-		PG_SQL.Identifier(conn.get_dsn_parameters()['dbname'])
+		PG_SQL.Identifier(dbname)
 	)
 	# REINDEX must be run outside transactions
 	conn.commit()
@@ -1013,14 +1014,17 @@ def reindex_database(conn=None) -> bool | str:
 	curs = conn.cursor()
 	try:
 		run_rw_queries(link_obj = curs, queries = [{'cmd': SQL}], end_tx = True)
-		status = __MIND_MELD
+		return __MIND_MELD
+
 	except Exception:
 		_log.exception('reindexing failed')
-		status = False
+		return False
+
 	finally:
 		curs.close()
 		conn.commit()
-	return status			# type: ignore [return-value]
+	# should never get here
+	return False
 
 #------------------------------------------------------------------------
 def sanity_check_database_default_collation_version(conn=None) -> bool:
