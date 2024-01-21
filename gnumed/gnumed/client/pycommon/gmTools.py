@@ -1201,6 +1201,40 @@ def bool2str(boolean=None, true_str='True', false_str='False'):
 	)
 
 #---------------------------------------------------------------------------
+def xor(val1, val2, undefined_values:[]=None) -> bool:
+	"""Test values for not both being in xors list.
+
+	In this context _undefined_ means for a value to be
+	contained in <undefined_values>.
+
+	_Defined_ is to mean the opposite.
+
+	This can be used to assert mutually exclusive function
+	inputs (say, a patient name and a patient PK for a search
+	function).
+
+	Args:
+		val1: value to check
+		val2: value to check
+		undefined_values: in which *either* one *or* the other value must not be contained
+
+	Returns:
+		True if only one of the values is defined.
+		False if both values are undefined or defined.
+	"""
+	if undefined_values is None:
+		undefined_values = [None]
+	if (val1 in undefined_values) and (val2 in undefined_values):
+		# none of the values is defined
+		return False
+
+	if (val1 not in undefined_values) and (val2 not in undefined_values):
+		# both values are defined
+		return False
+
+	return True
+
+#---------------------------------------------------------------------------
 def none_if(value=None, none_equivalent=None, strip_string=False):
 	"""Modelled after the SQL NULLIF function.
 
@@ -2148,18 +2182,20 @@ def get_icon(wx=None):
 	return icon
 
 #---------------------------------------------------------------------------
-def create_qrcode(text=None, filename=None, qr_filename=None, verbose:bool=False) -> str:
-	"""Create a QR code.
+def create_qrcode(text:str=None, filename:str=None, qr_filename:str=None, verbose:bool=False, ecc_level:str='H', create_svg:bool=False) -> str:
+	"""Create a QR code from text or file.
 
 	Args:
 		text: data to encode
 		filename: filename to read data from instead of processing _text_
 		qr_filename: target file for QR code PNG, if not specified: generated from _filename_ if that is given
+		ecc_level: level of error correction coding, L/M/Q/H
+		create_svg: whether to also create an SVG under _qr_filename_ + .svg
 
 	Returns:
 		Filename of QR code PNG or _None_.
 	"""
-	assert (not ((text is None) and (filename is None))), 'either <text> or <filename> must be specified'
+	assert xor(text, filename), 'either <text> OR <filename> must be specified'
 
 	try:
 		import pyqrcode
@@ -2179,13 +2215,15 @@ def create_qrcode(text=None, filename=None, qr_filename=None, verbose:bool=False
 				suffix = fname_extension(filename) + '.png'
 			)
 	_log.debug('[%s] -> [%s]', filename, qr_filename)
-	qr = pyqrcode.create(text, encoding = 'utf8')
+	qr = pyqrcode.create(text, encoding = 'utf8', error = ecc_level)
 	if verbose:
 		print('input file:', filename)
 		print('output file:', qr_filename)
 		print('text to encode:', text)
 		print(qr.terminal())
 	qr.png(qr_filename, quiet_zone = 1)
+	if create_svg:
+		qr.svg(qr_filename + '.svg', quiet_zone = 1)
 	return qr_filename
 
 #===========================================================================
@@ -2759,11 +2797,42 @@ second line\n
 		))
 
 	#-----------------------------------------------------------------------
+	def test_xor():
+		vals = [
+			[False, False, [None]],
+			[False, True, [None]],
+			[True, True, [None]],
+			[None, None, [None]],
+			[None, True, [None]],
+			[None, False, [None]],
+			[None, 0, [None]],
+			[None, 1, [None]],
+			[None, '', [None]],
+			[None, '   ', [None]],
+			[None, '<None>', [None]],
+			[0,0, [None]],
+			[0,1, [None]],
+			[1,1, [None]],
+			[1,2, [None]],
+			[1, '', [None]],
+			[1, '   ', [None]],
+			[1, '<1>', [None]],
+		]
+		for rec in vals:
+			print('%s xor %s: %s (exactly one in: %s)' % (
+				rec[0],
+				rec[1],
+				xor(rec[0], rec[1], rec[2]),
+				rec[2]
+			))
+
+	#-----------------------------------------------------------------------
+	test_xor()
 	#test_coalesce()
 	#test_capitalize()
 	#test_import_module()
 	#test_mkdir()
-	test_gmPaths()
+	#test_gmPaths()
 	#test_none_if()
 	#test_bool2str()
 	#test_bool2subst()

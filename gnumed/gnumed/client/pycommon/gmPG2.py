@@ -288,13 +288,14 @@ __LLAP = '_\\//'
 
 _TLnkObj = dbapi.extras.DictConnection | dbapi.extras.DictCursor | None
 
-_TQuerySQL = Union[str, PG_SQL.Composed]
-_TQueryArgsList = Sequence[Any]
-_TQueryArgsDict = Mapping[str, Any]
+_TQuerySQL = str | PG_SQL.Composed
+_TQueryArgsAsList = Sequence[Any]
+_TQueryArgsAsDict = Mapping[str, Any]
+_TQueryArgs = _TQueryArgsAsList | _TQueryArgsAsDict
 _TQueries = Sequence [
-	Mapping[
+	Mapping [
 		str,
-		Union[_TQuerySQL, _TQueryArgsList, _TQueryArgsDict]
+		Union[_TQuerySQL, _TQueryArgs]
 	]
 ]
 
