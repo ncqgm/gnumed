@@ -8,8 +8,9 @@ __author__ = "Nico Latzer <nl@mnet-online.de>, Karsten Hilbert <Karsten.Hilbert@
 __license__ = 'GPL v2 or later (details at https://www.gnu.org)'
 
 import sys
-import logging
 import zlib
+import decimal
+import logging
 
 
 if __name__ == '__main__':
@@ -692,7 +693,101 @@ def unlock_invoice_id(invoice_id):
 	return False
 
 #------------------------------------------------------------
+def generate_scan2pay_qrcode(data:str=None):
+	return gmTools.create_qrcode (
+		text = data,
+		verbose = False,
+		ecc_level = 'M'		# Wikipedia says must be M
+	)
+
+#------------------------------------------------------------
+def generate_scan2pay_string (
+	IBAN:str=None,
+	beneficiary:str=None,
+	BIC:str=None,
+	amount:str|int|decimal.Decimal='',
+	invoice_id:str=None,
+	comment:str=None
+) -> str:
+	"""Create scan2pay data for generating a QR code.
+
+	https://www.scan2pay.info
+	--------------------------------
+	BCD														# (3) fixed, barcode tag
+	002														# (3) fixed, version
+	1														# (1) charset, 1 = utf8
+	SCT														# (3) fixed
+	$<praxis_id::BIC//Bank//%(value)s::11>$					# (11) <BIC>
+	$2<range_of::$<current_provider_name::%(lastnames)s::>$,$<praxis::%(praxis)s::>$::70>2$			# (70) <Name of beneficiary> "Empfänger" - Praxis
+	$<praxis_id::IBAN//Bank//%(value)s::34>$				# (34) <IBAN>
+	EUR$<bill::%(total_amount_with_vat)s::12>$				# (12) <Amount in EURO> "EUR12.5"
+															# (4) <purpose of transfer> - leer
+															# (35) <remittance info - struct> - only this XOR the next field - GNUmed: leer
+	$2<range_of::InvID=$<bill::%(invoice_id)s::>$/Date=$<today::%d.%B %Y::>$::140$>2$	# (140) <remittance info - text> "Client:Marie Louise La Lune" - "Rg Nr, date"
+	<beneficiary-to-payor info>								# (70)	"pay soon :-)" - optional - GNUmed nur wenn bytes verfügbar
+	--------------------------------
+	total: 331 bytes (not chars ! - cave UTF8)
+	EOL: LF or CRLF
+	last *used* element not followed by anything, IOW can omit pending non-used elements
+	"""
+	assert IBAN, '<IBAN> must be given'
+	assert beneficiary, '<beneficiary> must be given'
+	assert amount, '<amount> must be given'
+	assert invoice_id, '<invoice_id> must be given'
+
+	data = {}
+	data['IBAN'] = IBAN[:34]
+	data['beneficiary'] = beneficiary[:70]
+	if not BIC:
+		BIC = ''
+	data['BIC'] = BIC[:11]
+	data['amount'] = amount[:9]
+	data['ref'] = invoice_id[:140]
+	if not comment:
+		comment = gmDateTime.pydt_now_here().strftime('%Y %b %d')
+	data['cmt'] = comment[:70]
+	data_str = 'BCD\n002\n1\nSCT\n%(BIC)s\n%(beneficiary)s\n%(IBAN)s\nEUR%(amount)s\n\n\n%(ref)s\n%(cmt)s' % data
+	data_str_bytes = bytes(data_str, 'utf8')[:331]
+	return str(data_str_bytes, 'utf8')
+
+#------------------------------------------------------------
 def get_scan2pay_data(branch, bill, provider=None, comment=None):
+	"""Format data from bill, branch, and provider for scan2pay QR code generation."""
+	assert (branch is not None), '<branch> must not be <None>'
+	assert (bill is not None), '<bill> must not be <None>'
+
+	IBANs = branch.get_external_ids(id_type = 'IBAN', issuer = 'Bank')
+	if len(IBANs) == 0:
+		_log.debug('no IBAN found, cannot create scan2pay data')
+		return None
+
+	IBAN = IBANs[0]['value']
+	beneficiary = gmTools.coalesce (
+		value2test = provider,
+		return_instead = branch['praxis'][:70],
+		template4value = '%%(lastnames)s, %s' % branch['praxis']
+	)
+	BICs = branch.get_external_ids(id_type = 'BIC', issuer = 'Bank')
+	if BICs:
+		BIC = BICs[0]['value']
+	else:
+		BIC = ''
+	amount = bill['total_amount_with_vat']
+	invoice_id = (_('Inv: %s, %s') % (
+		bill['invoice_id'],
+		gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), '%d.%B %Y')
+	))
+	return generate_scan2pay_string (
+		IBAN = IBAN,
+		beneficiary = beneficiary,
+		BIC = BIC,
+		amount = amount,
+		invoice_id = invoice_id,
+		comment = comment
+	)
+
+#------------------------------------------------------------
+def __get_scan2pay_data(branch, bill, provider=None, comment=None):
 	"""Create scan2pay data for generating a QR code.
 
 	https://www.scan2pay.info
@@ -763,8 +858,6 @@ if __name__ == "__main__":
 #	gmI18N.activate_locale()
 	gmDateTime.init()
 
-	gmPG2.request_login_params(setup_pool = True)
-
 	#--------------------------------------------------
 	def test_default_address():
 		bills = get_bills(pk_patient = 12)
@@ -828,8 +921,38 @@ if __name__ == "__main__":
 		#generate_invoice_id(template=None, pk_patient=None, person=None, date_format='%Y-%m-%d', time_format='%H%M%S')
 
 	#--------------------------------------------------
+	def test_generate_scan2pay_string():
+		print(generate_scan2pay_string (
+			IBAN = 'DE014032403423',
+			beneficiary = 'GNUmed developers',
+			BIC = 'NDOLSD99X',
+			amount = '1.99',
+			invoice_id = 'GM-01-1234-x034'
+			, comment = 'test'
+		))
+
+	#--------------------------------------------------
+	def test_generate_scan2pay_qrcode():
+		scan2pay = generate_scan2pay_string (
+			IBAN = 'DE014032403423',
+			beneficiary = 'GNUmed developers',
+			BIC = 'NDOLSD99X',
+			amount = '1.99',
+			invoice_id = 'GM-01-1234-x034'
+			#, comment = 'test'
+		)
+		print(scan2pay)
+		print(generate_scan2pay_qrcode(data = scan2pay))
+
+	#--------------------------------------------------
+
+	#test_generate_scan2pay_string()
+	test_generate_scan2pay_qrcode()
+	sys.exit()
+
+	gmPG2.request_login_params(setup_pool = True)
 
 	#test_me()
 	#test_default_address()
 	#test_get_scan2pay_data()
-	test_generate_invoice_id()
+	#test_generate_invoice_id()

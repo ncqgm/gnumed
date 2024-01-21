@@ -2724,11 +2724,13 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return self._escape(data_str)
 
 		if format == 'qr':
-			qr_filename = gmTools.create_qrcode(text = data_str)
+			qr_filename = gmBilling.generate_scan2pay_qrcode(data = data_str)
 			if qr_filename is not None:
 				return qr_filename
+
 			if self.debug:
 				return self._escape('bill_scan2pay-cannot_create_QR_code')
+
 			return ''
 
 		return None
