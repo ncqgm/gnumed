@@ -1201,7 +1201,7 @@ def bool2str(boolean=None, true_str='True', false_str='False'):
 	)
 
 #---------------------------------------------------------------------------
-def xor(val1, val2, undefined_values:[]=None) -> bool:
+def xor(val1, val2, undefined_values:list=None) -> bool:
 	"""Test values for not both being in xors list.
 
 	In this context _undefined_ means for a value to be

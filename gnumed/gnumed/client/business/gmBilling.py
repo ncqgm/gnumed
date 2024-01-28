@@ -741,7 +741,7 @@ def generate_scan2pay_string (
 	if not BIC:
 		BIC = ''
 	data['BIC'] = BIC[:11]
-	data['amount'] = amount[:9]
+	data['amount'] = str(amount)[:9]
 	data['ref'] = invoice_id[:140]
 	if not comment:
 		comment = gmDateTime.pydt_now_here().strftime('%Y %b %d')
