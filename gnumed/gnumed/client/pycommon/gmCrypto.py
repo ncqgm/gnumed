@@ -283,7 +283,6 @@ def gpg_decrypt_file(filename=None, verbose=False, target_ext=None):
 		'--enable-progress-filter',
 		'--decrypt',
 		'--output', filename_decrypted
-		##'--use-embedded-filename'				# not all encrypted files carry a filename
 	]
 	if verbose:
 		args.extend ([
