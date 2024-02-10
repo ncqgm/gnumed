@@ -538,25 +538,24 @@ insert into blobs.reviewed_doc_objs (
 	#--------------------------------------------------------
 	def get_useful_filename(self, patient=None, make_unique=False, directory=None, include_gnumed_tag=True, date_before_type=False, name_first=True):
 		patient_part = ''
-		if patient is not None:
+		if patient:
 			if name_first:
 				patient_part = '%s-' % patient.subdir_name
 			else:
 				patient_part = '-%s' % patient.subdir_name
 
 		# preserve original filename extension if available
-		suffix = '.dat'
+		suffix = ''
 		if self._payload[self._idx['filename']] is not None:
 			tmp, suffix = os.path.splitext (
 				gmTools.fname_sanitize(self._payload[self._idx['filename']]).lower()
 			)
-			if suffix == '':
-				suffix = '.dat'
+		if not suffix:
+			suffix = '.dat'
 
+		fname_template = '%%s-part_%s' % self._payload[self._idx['seq_idx']]
 		if include_gnumed_tag:
-			fname_template = 'gm_doc-part_%s-%%s' % self._payload[self._idx['seq_idx']]
-		else:
-			fname_template = '%%s-part_%s' % self._payload[self._idx['seq_idx']]
+			fname_template += '-gm_doc'
 
 		if date_before_type:
 			date_type_part = '%s-%s' % (
@@ -584,7 +583,6 @@ insert into blobs.reviewed_doc_objs (
 			)
 		else:
 			fname = gmTools.fname_sanitize(os.path.join(gmTools.coalesce(directory, gmTools.gmPaths().tmp_dir), fname + suffix))
-
 		return fname
 
 	useful_filename = property(get_useful_filename)
