@@ -18,19 +18,66 @@ class wxgGenericEditAreaDlg2(wx.Dialog):
 		# begin wxGlade: wxgGenericEditAreaDlg2.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_DIALOG_STYLE | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX | wx.RESIZE_BORDER
 		wx.Dialog.__init__(self, *args, **kwds)
-		self.SetSize(wx.DLG_UNIT(self, wx.Size(393, 201)))
-		self._PNL_ea = wx.ScrolledWindow(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.TAB_TRAVERSAL)
-		self._TCTRL_status = wx.TextCtrl(self, wx.ID_ANY, _("Info"), style=wx.TE_READONLY)
-		self._BTN_save = wx.Button(self, wx.ID_OK, "")
-		self._BTN_extra_left = wx.Button(self, wx.ID_ANY, _("left extra"), style=wx.BU_EXACTFIT)
-		self._BTN_forward = wx.Button(self, wx.ID_ANY, _("Add &another"))
-		self._BTN_revert = wx.Button(self, wx.ID_REVERT_TO_SAVED, "")
-		self._BTN_clear = wx.Button(self, wx.ID_CLEAR, "")
-		self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, "")
-		self._BTN_lucky = wx.Button(self, wx.ID_ANY, _("Lala !"), style=wx.BU_EXACTFIT)
+		self.SetSize(wx.DLG_UNIT(self, wx.Size(393, 203)))
+		self.SetTitle(_("GNUmed generic EditArea dialog"))
+		self.SetMinSize((450, 300))
 
-		self.__set_properties()
-		self.__do_layout()
+		_szr_main = wx.BoxSizer(wx.VERTICAL)
+
+		__szr_pnl_ea = wx.BoxSizer(wx.HORIZONTAL)
+		_szr_main.Add(__szr_pnl_ea, 1, wx.ALL | wx.EXPAND, 5)
+
+		self._PNL_ea = wx.ScrolledWindow(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.TAB_TRAVERSAL)
+		self._PNL_ea.SetScrollRate(10, 10)
+		__szr_pnl_ea.Add(self._PNL_ea, 1, wx.EXPAND, 0)
+
+		self._TCTRL_status = wx.TextCtrl(self, wx.ID_ANY, _("Info"), style=wx.TE_READONLY)
+		self._TCTRL_status.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
+		self._TCTRL_status.SetForegroundColour(wx.Colour(255, 127, 0))
+		_szr_main.Add(self._TCTRL_status, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 10)
+
+		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
+		_szr_main.Add(__szr_buttons, 0, wx.ALL | wx.EXPAND, 5)
+
+		self._BTN_save = wx.Button(self, wx.ID_OK, "")
+		self._BTN_save.SetToolTip(_("Save the entered data into the database and close the dialog."))
+		__szr_buttons.Add(self._BTN_save, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
+
+		self._BTN_extra_left = wx.Button(self, wx.ID_ANY, _("left extra"), style=wx.BU_EXACTFIT)
+		self._BTN_extra_left.SetToolTip(_("Programmer forgot tooltip for left extra button."))
+		self._BTN_extra_left.Hide()
+		__szr_buttons.Add(self._BTN_extra_left, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
+
+		self._BTN_forward = wx.Button(self, wx.ID_ANY, _("Add &another"))
+		self._BTN_forward.SetToolTip(_("Save data into database and clear fields for another value."))
+		__szr_buttons.Add(self._BTN_forward, 0, wx.ALIGN_CENTER_VERTICAL, 3)
+
+		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+
+		self._BTN_revert = wx.Button(self, wx.ID_REVERT_TO_SAVED, "")
+		self._BTN_revert.SetToolTip(_("Reset all fields to their previous values."))
+		self._BTN_revert.Enable(False)
+		self._BTN_revert.Hide()
+		__szr_buttons.Add(self._BTN_revert, 0, 0, 0)
+
+		self._BTN_clear = wx.Button(self, wx.ID_CLEAR, "")
+		self._BTN_clear.SetToolTip(_("Clear all fields."))
+		__szr_buttons.Add(self._BTN_clear, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+
+		self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, "")
+		self._BTN_cancel.SetToolTip(_("Cancel editing the data and discard changes."))
+		__szr_buttons.Add(self._BTN_cancel, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		self._BTN_lucky = wx.Button(self, wx.ID_ANY, _("Lala !"), style=wx.BU_EXACTFIT)
+		self._BTN_lucky.SetToolTip(_("Press me !\n\n(This will, of course, NOT modify any data.)"))
+		__szr_buttons.Add(self._BTN_lucky, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 5)
+
+		self.SetSizer(_szr_main)
+
+		self.Layout()
+		self.Centre()
 
 		self.Bind(wx.EVT_BUTTON, self._on_save_button_pressed, self._BTN_save)
 		self.Bind(wx.EVT_BUTTON, self._on_left_extra_button_pressed, self._BTN_extra_left)
@@ -38,49 +85,6 @@ class wxgGenericEditAreaDlg2(wx.Dialog):
 		self.Bind(wx.EVT_BUTTON, self._on_revert_button_pressed, self._BTN_revert)
 		self.Bind(wx.EVT_BUTTON, self._on_clear_button_pressed, self._BTN_clear)
 		self.Bind(wx.EVT_BUTTON, self._on_lucky_button_pressed, self._BTN_lucky)
-		# end wxGlade
-
-	def __set_properties(self):
-		# begin wxGlade: wxgGenericEditAreaDlg2.__set_properties
-		self.SetTitle(_("GNUmed generic EditArea dialog"))
-		self.SetSize(wx.DLG_UNIT(self, wx.Size(393, 201)))
-		self.SetMinSize((450, 300))
-		self._PNL_ea.SetScrollRate(10, 10)
-		self._TCTRL_status.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
-		self._TCTRL_status.SetForegroundColour(wx.Colour(255, 127, 0))
-		self._BTN_save.SetToolTip(_("Save the entered data into the database and close the dialog."))
-		self._BTN_extra_left.SetToolTip(_("Programmer forgot tooltip for left extra button."))
-		self._BTN_extra_left.Hide()
-		self._BTN_forward.SetToolTip(_("Save data into database and clear fields for another value."))
-		self._BTN_revert.SetToolTip(_("Reset all fields to their previous values."))
-		self._BTN_revert.Enable(False)
-		self._BTN_revert.Hide()
-		self._BTN_clear.SetToolTip(_("Clear all fields."))
-		self._BTN_cancel.SetToolTip(_("Cancel editing the data and discard changes."))
-		self._BTN_lucky.SetToolTip(_("Press me !\n\n(This will, of course, NOT modify any data.)"))
-		# end wxGlade
-
-	def __do_layout(self):
-		# begin wxGlade: wxgGenericEditAreaDlg2.__do_layout
-		_szr_main = wx.BoxSizer(wx.VERTICAL)
-		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_pnl_ea = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_pnl_ea.Add(self._PNL_ea, 1, wx.EXPAND, 0)
-		_szr_main.Add(__szr_pnl_ea, 1, wx.ALL | wx.EXPAND, 5)
-		_szr_main.Add(self._TCTRL_status, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.LEFT | wx.RIGHT, 10)
-		__szr_buttons.Add(self._BTN_save, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
-		__szr_buttons.Add(self._BTN_extra_left, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
-		__szr_buttons.Add(self._BTN_forward, 0, wx.ALIGN_CENTER_VERTICAL, 3)
-		__szr_buttons.Add((20, 20), 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__szr_buttons.Add(self._BTN_revert, 0, 0, 0)
-		__szr_buttons.Add(self._BTN_clear, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_buttons.Add((20, 20), 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__szr_buttons.Add(self._BTN_cancel, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_buttons.Add(self._BTN_lucky, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 5)
-		_szr_main.Add(__szr_buttons, 0, wx.ALL | wx.EXPAND, 5)
-		self.SetSizer(_szr_main)
-		self.Layout()
-		self.Centre()
 		# end wxGlade
 
 	def _on_save_button_pressed(self, event):  # wxGlade: wxgGenericEditAreaDlg2.<event_handler>
