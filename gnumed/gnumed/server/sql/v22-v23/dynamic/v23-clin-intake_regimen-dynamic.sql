@@ -79,6 +79,9 @@ alter table clin.intake_regimen
 		on delete restrict		-- set null
 		on update cascade;
 
+drop index if exists clin.idx_clin_intake_regimen_fk_intake cascade;
+create index idx_clin_intake_regimen_fk_intake on clin.intake_regimen(fk_intake);
+
 -- --------------------------------------------------------------
 -- .fk_dose
 comment on column clin.intake_regimen.fk_dose is
@@ -94,6 +97,9 @@ alter table clin.intake_regimen
 		references ref.dose(pk)
 		on delete restrict
 		on update cascade;
+
+drop index if exists clin.idx_clin_intake_regimen_fk_dose cascade;
+create index idx_clin_intake_regimen_fk_dose on clin.intake_regimen(fk_dose);
 
 -- --------------------------------------------------------------
 -- .fk_drug_product
@@ -114,6 +120,9 @@ alter table clin.intake_regimen
 			OR
 		((fk_drug_product is NOT NULL) AND (fk_dose IS NOT NULL))
 	);
+
+drop index if exists clin.idx_clin_intake_regimen_fk_drug_product cascade;
+create index idx_clin_intake_regimen_fk_drug_product on clin.intake_regimen(fk_drug_product);
 
 -- make unique(.fk_drug, patient)
 --drop index if exists clin.idx_uniq_drug_per_patient cascade;
