@@ -454,6 +454,14 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 
 	left_extra_button = property(lambda x:x, _set_left_extra_button)
 
+	#------------------------------------------------------------
+	def _get_ea_data(self):
+		return self._PNL_ea.data
+
+	data = property(_get_ea_data)
+
+	#------------------------------------------------------------
+
 #====================================================================
 #====================================================================
 #====================================================================
