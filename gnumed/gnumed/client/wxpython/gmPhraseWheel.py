@@ -1007,7 +1007,7 @@ class cPhraseWheel(cPhraseWheelBase):
 			return None
 
 		if as_instance:
-			return self._data2instance()
+			return self._data2instance(link_obj = link_obj)
 
 		return list(self._data.values())[0]['data']
 
@@ -1127,7 +1127,7 @@ class cMultiPhraseWheel(cPhraseWheelBase):
 		super().GetData(can_create = can_create, link_obj = link_obj)
 		if len(self._data) > 0:
 			if as_instance:
-				return self._data2instance()
+				return self._data2instance(link_obj = link_obj)
 
 		return list(self._data.values())
 

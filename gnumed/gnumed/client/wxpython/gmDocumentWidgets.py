@@ -318,7 +318,7 @@ LIMIT 25"""],
 		self.SetToolTip(_('Select a document.'))
 
 	#--------------------------------------------------------
-	def _data2instance(self):
+	def _data2instance(self, link_obj=None):
 		if len(self._data) == 0:
 			return None
 		return gmDocuments.cDocument(aPK_obj = self.GetData())

@@ -165,7 +165,7 @@ class cBillablePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp.setThresholds(1, 2, 4)
 		self.matcher = mp
 	#------------------------------------------------------------
-	def _data2instance(self):
+	def _data2instance(self, link_obj=None):
 		return gmBilling.cBillable(aPK_obj = list(self._data.values())[0]['data'])
 	#------------------------------------------------------------
 	def _get_data_tooltip(self):

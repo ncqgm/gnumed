@@ -1118,7 +1118,7 @@ class cAddressPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			return None
 		return '\n'.join(adr.format())
 	#--------------------------------------------------------
-	def _data2instance(self):
+	def _data2instance(self, link_obj=None):
 		return gmDemographicRecord.cAddress(aPK_obj = self.GetData())
 	#--------------------------------------------------------
 	# properties

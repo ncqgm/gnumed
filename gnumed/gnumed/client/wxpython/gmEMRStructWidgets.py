@@ -470,7 +470,7 @@ class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			self.SetText(value = epi_name, data = epi['pk_episode'])
 
 	#--------------------------------------------------------
-	def _data2instance(self):
+	def _data2instance(self, link_obj=None):
 		return gmEMRStructItems.cEpisode(aPK_obj = self.GetData())
 
 	#--------------------------------------------------------
@@ -869,7 +869,7 @@ class cIssueSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 				data = issue['pk_health_issue']
 			)
 	#--------------------------------------------------------
-	def _data2instance(self):
+	def _data2instance(self, link_obj=None):
 		return gmEMRStructItems.cHealthIssue(aPK_obj = self.GetData())
 	#--------------------------------------------------------
 	def _get_data_tooltip(self):

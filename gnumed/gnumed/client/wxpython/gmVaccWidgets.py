@@ -323,7 +323,7 @@ LIMIT 25
 
 		self.selection_only = True
 	#------------------------------------------------------------------
-	def _data2instance(self):
+	def _data2instance(self, link_obj=None):
 		return gmVaccination.cVaccine(aPK_obj = self.GetData())
 
 #----------------------------------------------------------------------
