@@ -3606,7 +3606,7 @@ LIMIT 50""" % {'in_house': _('generic / in house lab')}
 		self.selection_only = False
 
 	#------------------------------------------------------------
-	def _data2instance(self):
+	def _data2instance(self, link_obj=None):
 		if self.GetData() is None:
 			return None
 
@@ -4253,7 +4253,7 @@ LIMIT 50"""
 		self.SetText(value = lab['unit'], data = lab['pk_test_org'])
 		return
 	#------------------------------------------------------------
-	def _data2instance(self):
+	def _data2instance(self, link_obj=None):
 		return gmPathLab.cTestOrg(aPK_obj = self.GetData())
 
 #================================================================
@@ -4373,7 +4373,7 @@ LIMIT 50"""
 		self.SetToolTip(_('Select the meta test type.'))
 		self.selection_only = True
 	#------------------------------------------------------------
-	def _data2instance(self):
+	def _data2instance(self, link_obj=None):
 		if self.GetData() is None:
 			return None
 
@@ -4614,7 +4614,7 @@ LIMIT 30"""
 		self.SetToolTip(_('Select a test panel.'))
 		self.selection_only = True
 	#------------------------------------------------------------
-	def _data2instance(self):
+	def _data2instance(self, link_obj=None):
 		if self.GetData() is None:
 			return None
 		return gmPathLab.cTestPanel(aPK_obj = self.GetData())

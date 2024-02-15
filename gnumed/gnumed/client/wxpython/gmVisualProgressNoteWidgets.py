@@ -359,7 +359,7 @@ LIMIT 15
 		self.matcher = mp
 		self.selection_only = True
 	#--------------------------------------------------------
-	def _data2instance(self):
+	def _data2instance(self, link_obj=None):
 		if self.GetData() is None:
 			return None
 

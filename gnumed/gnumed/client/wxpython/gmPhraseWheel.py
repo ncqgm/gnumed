@@ -1127,7 +1127,7 @@ class cMultiPhraseWheel(cPhraseWheelBase):
 
 		if len(self._data) > 0:
 			if as_instance:
-				return self._data2instance()
+				return self._data2instance(link_obj = link_obj)
 
 		return list(self._data.values())
 

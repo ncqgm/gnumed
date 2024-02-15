@@ -439,7 +439,7 @@ class cSubstancePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.phrase_separators = None
 
 	#--------------------------------------------------------
-	def _data2instance(self):
+	def _data2instance(self, link_obj=None):
 		return gmMedication.cSubstance(aPK_obj = self.GetData(as_instance = False, can_create = False))
 
 #============================================================
@@ -874,7 +874,7 @@ class cDrugComponentPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.matcher = mp
 		self.selection_only = False
 	#--------------------------------------------------------
-	def _data2instance(self):
+	def _data2instance(self, link_obj=None):
 		return gmMedication.cDrugComponent(aPK_obj = self.GetData(as_instance = False, can_create = False))
 
 #============================================================

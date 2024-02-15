@@ -160,7 +160,7 @@ class cOrgUnitPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			return None
 		return '\n'.join(unit.format(with_address = True))
 	#--------------------------------------------------------
-	def _data2instance(self):
+	def _data2instance(self, link_obj=None):
 		if self.GetData() is None:
 			return None
 		return gmOrganization.cOrgUnit(aPK_obj = self.GetData())
