@@ -35,7 +35,7 @@ select
 		as pk_dose,
 	NULL::TEXT
 		as schedule,
-	c_i.clin_when
+	NULL::timestamp with time zone
 		as started,
 	NULL::TEXT
 		as comment_on_start,
