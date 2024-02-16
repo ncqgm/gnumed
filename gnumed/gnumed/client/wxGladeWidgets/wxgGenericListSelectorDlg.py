@@ -19,20 +19,70 @@ class wxgGenericListSelectorDlg(wx.Dialog):
 		kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_DIALOG_STYLE | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX | wx.RESIZE_BORDER
 		wx.Dialog.__init__(self, *args, **kwds)
 		self.SetSize((640, 500))
+
+		__szr_main = wx.BoxSizer(wx.VERTICAL)
+
 		self._LBL_message = wx.StaticText(self, wx.ID_ANY, "")
+		__szr_main.Add(self._LBL_message, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
+
 		from Gnumed.wxpython.gmListWidgets import cReportListCtrl
 		self._LCTRL_items = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
-		self._BTN_ok = wx.Button(self, wx.ID_OK, "")
-		self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, "")
-		self._BTN_new = wx.Button(self, wx.ID_ADD, "", style=wx.BU_EXACTFIT)
-		self._BTN_edit = wx.Button(self, wx.ID_ANY, _("&Edit"), style=wx.BU_EXACTFIT)
-		self._BTN_delete = wx.Button(self, wx.ID_DELETE, "", style=wx.BU_EXACTFIT)
-		self._BTN_extra_left = wx.Button(self, wx.ID_ANY, _("1"), style=wx.BU_EXACTFIT)
-		self._BTN_extra_middle = wx.Button(self, wx.ID_ANY, _("2"), style=wx.BU_EXACTFIT)
-		self._BTN_extra_right = wx.Button(self, wx.ID_ANY, _("3"), style=wx.BU_EXACTFIT)
+		self._LCTRL_items.SetToolTip(_("Select the items you want to work on.\n\nA discontinuous selection may depend on your holding down a platform-dependent modifier key (<ctrl>, <alt>, etc) or key combination (eg. <ctrl-shift> or <ctrl-alt>) while clicking."))
+		self._LCTRL_items.SetFocus()
+		__szr_main.Add(self._LCTRL_items, 1, wx.ALL | wx.EXPAND, 3)
 
-		self.__set_properties()
-		self.__do_layout()
+		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_main.Add(__szr_buttons, 0, wx.ALL | wx.EXPAND, 3)
+
+		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+
+		self._BTN_ok = wx.Button(self, wx.ID_OK, "")
+		self._BTN_ok.SetToolTip(_("Act on the items selected in the above list."))
+		self._BTN_ok.Enable(False)
+		__szr_buttons.Add(self._BTN_ok, 0, wx.EXPAND | wx.RIGHT, 5)
+
+		self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, "")
+		self._BTN_cancel.SetToolTip(_("Cancel this dialog."))
+		self._BTN_cancel.SetDefault()
+		__szr_buttons.Add(self._BTN_cancel, 0, wx.EXPAND, 0)
+
+		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+
+		self._BTN_new = wx.Button(self, wx.ID_ADD, "", style=wx.BU_EXACTFIT)
+		self._BTN_new.SetToolTip(_("Add a new item to the list above."))
+		self._BTN_new.Enable(False)
+		__szr_buttons.Add(self._BTN_new, 0, wx.EXPAND | wx.RIGHT, 5)
+
+		self._BTN_edit = wx.Button(self, wx.ID_ANY, _("&Edit"), style=wx.BU_EXACTFIT)
+		self._BTN_edit.SetToolTip(_("Edit the (first or only) item selected in the list above."))
+		self._BTN_edit.Enable(False)
+		__szr_buttons.Add(self._BTN_edit, 0, wx.EXPAND | wx.RIGHT, 5)
+
+		self._BTN_delete = wx.Button(self, wx.ID_DELETE, "", style=wx.BU_EXACTFIT)
+		self._BTN_delete.SetToolTip(_("Delete - if possible - the (first or only) item selected in the list above."))
+		self._BTN_delete.Enable(False)
+		__szr_buttons.Add(self._BTN_delete, 0, wx.EXPAND, 0)
+
+		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+
+		self._BTN_extra_left = wx.Button(self, wx.ID_ANY, _("1"), style=wx.BU_EXACTFIT)
+		self._BTN_extra_left.Enable(False)
+		__szr_buttons.Add(self._BTN_extra_left, 0, wx.EXPAND | wx.RIGHT, 5)
+
+		self._BTN_extra_middle = wx.Button(self, wx.ID_ANY, _("2"), style=wx.BU_EXACTFIT)
+		self._BTN_extra_middle.Enable(False)
+		__szr_buttons.Add(self._BTN_extra_middle, 0, wx.EXPAND | wx.RIGHT, 5)
+
+		self._BTN_extra_right = wx.Button(self, wx.ID_ANY, _("3"), style=wx.BU_EXACTFIT)
+		self._BTN_extra_right.Enable(False)
+		__szr_buttons.Add(self._BTN_extra_right, 0, wx.EXPAND, 5)
+
+		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+
+		self.SetSizer(__szr_main)
+
+		self.Layout()
+		self.Centre()
 
 		self.Bind(wx.EVT_LIST_ITEM_DESELECTED, self._on_list_item_deselected, self._LCTRL_items)
 		self.Bind(wx.EVT_BUTTON, self._on_new_button_pressed, self._BTN_new)
@@ -41,50 +91,6 @@ class wxgGenericListSelectorDlg(wx.Dialog):
 		self.Bind(wx.EVT_BUTTON, self._on_left_extra_button_pressed, self._BTN_extra_left)
 		self.Bind(wx.EVT_BUTTON, self._on_middle_extra_button_pressed, self._BTN_extra_middle)
 		self.Bind(wx.EVT_BUTTON, self._on_right_extra_button_pressed, self._BTN_extra_right)
-		# end wxGlade
-
-	def __set_properties(self):
-		# begin wxGlade: wxgGenericListSelectorDlg.__set_properties
-		self.SetSize((640, 500))
-		self._LCTRL_items.SetToolTip(_("Select the items you want to work on.\n\nA discontinuous selection may depend on your holding down a platform-dependent modifier key (<ctrl>, <alt>, etc) or key combination (eg. <ctrl-shift> or <ctrl-alt>) while clicking."))
-		self._LCTRL_items.SetFocus()
-		self._BTN_ok.SetToolTip(_("Act on the items selected in the above list."))
-		self._BTN_ok.Enable(False)
-		self._BTN_cancel.SetToolTip(_("Cancel this dialog."))
-		self._BTN_cancel.SetDefault()
-		self._BTN_new.SetToolTip(_("Add a new item to the list above."))
-		self._BTN_new.Enable(False)
-		self._BTN_edit.SetToolTip(_("Edit the (first or only) item selected in the list above."))
-		self._BTN_edit.Enable(False)
-		self._BTN_delete.SetToolTip(_("Delete - if possible - the (first or only) item selected in the list above."))
-		self._BTN_delete.Enable(False)
-		self._BTN_extra_left.Enable(False)
-		self._BTN_extra_middle.Enable(False)
-		self._BTN_extra_right.Enable(False)
-		# end wxGlade
-
-	def __do_layout(self):
-		# begin wxGlade: wxgGenericListSelectorDlg.__do_layout
-		__szr_main = wx.BoxSizer(wx.VERTICAL)
-		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_main.Add(self._LBL_message, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
-		__szr_main.Add(self._LCTRL_items, 1, wx.ALL | wx.EXPAND, 3)
-		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-		__szr_buttons.Add(self._BTN_ok, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.RIGHT, 5)
-		__szr_buttons.Add(self._BTN_cancel, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-		__szr_buttons.Add(self._BTN_new, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.RIGHT, 5)
-		__szr_buttons.Add(self._BTN_edit, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.RIGHT, 5)
-		__szr_buttons.Add(self._BTN_delete, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-		__szr_buttons.Add(self._BTN_extra_left, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.RIGHT, 5)
-		__szr_buttons.Add(self._BTN_extra_middle, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.RIGHT, 5)
-		__szr_buttons.Add(self._BTN_extra_right, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 5)
-		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-		__szr_main.Add(__szr_buttons, 0, wx.ALL | wx.EXPAND, 3)
-		self.SetSizer(__szr_main)
-		self.Layout()
-		self.Centre()
 		# end wxGlade
 
 	def _on_list_item_deselected(self, event):  # wxGlade: wxgGenericListSelectorDlg.<event_handler>
