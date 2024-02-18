@@ -700,7 +700,7 @@ class cPraxisBranchPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			return None
 		return branch.format()
 	#--------------------------------------------------------
-	def _data2instance(self), link_obj=None:
+	def _data2instance(self, link_obj=None):
 		if self.GetData() is None:
 			return None
 		return gmPraxis.cPraxisBranch(aPK_obj = self.GetData())
