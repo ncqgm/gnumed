@@ -1,4 +1,3 @@
--- ==============================================================
 -- GNUmed database schema change script
 --
 -- License: GPL v2 or later
@@ -31,8 +30,6 @@ select
 		as pk_substance,
 	c_i.notes4patient,
 	-- regimen
-	NULL::integer
-		as pk_dose,
 	NULL::TEXT
 		as schedule,
 	NULL::timestamp with time zone
@@ -63,25 +60,6 @@ select
 		as amount,
 	NULL::TEXT
 		as unit,
-	NULL::TEXT
-		as dose_unit,
-	-- product
-	NULL::TEXT
-		as drug_product,
-	NULL::TEXT
-		as preparation,
-	NULL::TEXT
-		as l10n_preparation,
-	NULL::BOOLEAN
-		as is_fake_product,
-	NULL::TEXT
-		as external_code,
-	NULL::TEXT
-		as external_code_type,
-	NULL::TEXT
-		as atc_drug_product,
-	NULL::INTEGER
-		as pk_drug_product,
 	-- episode
 	c_epi.description
 		as episode,
@@ -159,8 +137,6 @@ select
 		as pk_substance,
 	c_i.notes4patient,
 	-- regimen
-	c_ir.fk_dose
-		as pk_dose,
 	c_ir.narrative
 		as schedule,
 	case
@@ -186,23 +162,8 @@ select
 		as atc_substance,
 	r_s.intake_instructions,
 	-- dose
-	r_d.amount,
-	r_d.unit,
-	r_d.dose_unit,
-	-- product
-	r_dp.description
-		as drug_product,
-	r_dp.preparation,
-	_(r_dp.preparation)
-		as l10n_preparation,
-	r_dp.is_fake
-		as is_fake_product,
-	r_dp.external_code,
-	r_dp.external_code_type,
-	r_dp.atc_code
-		as atc_drug_product,
-	r_dp.pk
-		as pk_drug_product,
+	c_ir.amount,
+	c_ir.unit,
 	-- episode
 	coalesce(c_epi__r.description, c_epi__i.description)
 		as episode,
@@ -249,8 +210,6 @@ from
 		join clin.episode c_epi__i on (c_i.fk_episode = c_epi__i.pk)
 			left join clin.health_issue c_hi__i on (c_epi__i.fk_health_issue = c_hi__i.pk)
 		left join clin.intake_regimen c_ir on (c_ir.fk_intake = c_i.pk)
-			left join ref.dose r_d on (r_d.pk = c_ir.fk_dose)
-			left join ref.drug_product r_dp on (r_dp.pk = c_ir.fk_drug_product)
 			join clin.episode c_epi__r on (c_ir.fk_episode = c_epi__r.pk)
 				left join clin.health_issue c_hi__r on (c_epi__r.fk_health_issue = c_hi__r.pk)
 ;

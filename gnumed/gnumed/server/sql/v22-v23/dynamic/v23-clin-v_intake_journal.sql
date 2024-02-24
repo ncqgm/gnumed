@@ -113,10 +113,9 @@ select
 		|| E'\n',
 		''
 	)
-	-- line: "Metoprolol 100mg/tablet [ATC code] -- MetoHexal comp Tabletten [ATC code] [PZN 123412345]"
+	-- line: "Metoprolol 100mg/tablet [ATC code]"
 	|| r_s.description || ' '
-	|| coalesce (r_d.amount || r_d.unit, '')
-	|| coalesce('/' || r_d.dose_unit, '')
+	|| c_ir.amount || c_ir.unit
 	|| coalesce(' [' || r_s.atc || ']', '')
 	|| (case
 		when c_i.use_type = 0 then ' - ' || _('not (harmfully) used')
@@ -125,9 +124,6 @@ select
 		when c_i.use_type = 3 then ' - ' || _('previously addicted')
 		else ''
 	end)::text
-	|| coalesce(' -- ' || r_dp.description || ' ' || r_dp.preparation, '')
-		|| coalesce(' [' || r_dp.atc_code || ']', '')
-		|| coalesce(' [' || r_dp.external_code_type || ' ' || r_dp.external_code || ']', '')
 	|| E'\n'
 	-- line: "0-1-1 every other day"
 	|| ' ' || _('schedule') || ': ' || c_ir.narrative
@@ -179,8 +175,6 @@ from
 			inner join clin.encounter_type c_ety on (c_enc.fk_type = c_ety.pk)
 		inner join clin.episode c_epi on c_ir.fk_episode = c_epi.pk
 			left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
-		left join ref.dose r_d on (c_ir.fk_dose = r_d.pk)
-		left join ref.drug_product r_dp on (c_ir.fk_drug_product = r_dp.pk)
 where
 	c_ir.comment_on_start = '?'
 ;
@@ -215,10 +209,9 @@ select
 		|| E'\n',
 		''
 	)
-	-- line: "Metoprolol 100mg/tablet [ATC code] -- MetoHexal comp Tabletten [ATC code] [PZN 123412345]"
+	-- line: "Metoprolol 100mg/tablet [ATC code]"
 	|| r_s.description || ' '
-	|| coalesce (r_d.amount || r_d.unit, '')
-	|| coalesce('/' || r_d.dose_unit, '')
+	|| c_ir.amount || c_ir.unit
 	|| coalesce(' [' || r_s.atc || ']', '')
 	|| (case
 		when c_i.use_type = 0 then ' - ' || _('not (harmfully) used')
@@ -227,9 +220,6 @@ select
 		when c_i.use_type = 3 then ' - ' || _('previously addicted')
 		else ''
 	end)::text
-	|| coalesce(' -- ' || r_dp.description || ' ' || r_dp.preparation, '')
-		|| coalesce(' [' || r_dp.atc_code || ']', '')
-		|| coalesce(' [' || r_dp.external_code_type || ' ' || r_dp.external_code || ']', '')
 	|| E'\n'
 	-- line: "0-1-1 every other day"
 	|| ' ' || _('schedule') || ': ' || c_ir.narrative
@@ -281,8 +271,6 @@ from
 			inner join clin.encounter_type c_ety on (c_enc.fk_type = c_ety.pk)
 		inner join clin.episode c_epi on c_ir.fk_episode = c_epi.pk
 			left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
-		left join ref.dose r_d on (c_ir.fk_dose = r_d.pk)
-		left join ref.drug_product r_dp on (c_ir.fk_drug_product = r_dp.pk)
 where
 	c_ir.comment_on_start IS DISTINCT FROM '?'
 ;
@@ -318,10 +306,9 @@ select
 			when c_ir.comment_on_start = '?' then ''
 			else _('started') || ' ' || c_ir.clin_when || coalesce(' (' || c_ir.comment_on_start || ')', '') || E'\n'
 	end)::text
-	-- line: "Metoprolol 100mg/tablet [ATC code] -- MetoHexal comp Tabletten [ATC code] [PZN 123412345]"
+	-- line: "Metoprolol 100mg/tablet [ATC code]"
 	|| r_s.description || ' '
-	|| coalesce (r_d.amount || r_d.unit, '')
-	|| coalesce('/' || r_d.dose_unit, '')
+	|| c_ir.amount || c_ir.unit
 	|| coalesce(' [' || r_s.atc || ']', '')
 	|| (case
 		when c_i.use_type = 0 then ' - ' || _('not (harmfully) used')
@@ -330,9 +317,6 @@ select
 		when c_i.use_type = 3 then ' - ' || _('previously addicted')
 		else ''
 	end)::text
-	|| coalesce(' -- ' || r_dp.description || ' ' || r_dp.preparation, '')
-		|| coalesce(' [' || r_dp.atc_code || ']', '')
-		|| coalesce(' [' || r_dp.external_code_type || ' ' || r_dp.external_code || ']', '')
 	|| E'\n'
 	-- line: "0-1-1 every other day"
 	|| ' ' || _('schedule') || ': ' || c_ir.narrative
@@ -384,8 +368,6 @@ from
 			inner join clin.encounter_type c_ety on (c_enc.fk_type = c_ety.pk)
 		inner join clin.episode c_epi on c_ir.fk_episode = c_epi.pk
 			left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
-		left join ref.dose r_d on (c_ir.fk_dose = r_d.pk)
-		left join ref.drug_product r_dp on (c_ir.fk_drug_product = r_dp.pk)
 where
 	c_ir.discontinued IS NOT NULL
 ;

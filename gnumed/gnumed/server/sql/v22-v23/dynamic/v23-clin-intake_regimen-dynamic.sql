@@ -83,50 +83,26 @@ drop index if exists clin.idx_clin_intake_regimen_fk_intake cascade;
 create index idx_clin_intake_regimen_fk_intake on clin.intake_regimen(fk_intake);
 
 -- --------------------------------------------------------------
--- .fk_dose
-comment on column clin.intake_regimen.fk_dose is
-'The dose being taken.
+-- .amount
+comment on column clin.intake_regimen.amount is
+'The amount of substance (active ingredient) to be taken at each point in time in .schedule.
 .
-Must link to a dose with the same fk_substance as the fk_intake this row points to.
+Unrelated to form factor, concentration, or dose per form factor of any drug product.
 .
-(fk_dose, patient) is not unique because a dose (= substance + strength)
-can be linked to several drug products each of which the patient might be taking.';
+Also not related to route of administration.';
 
 alter table clin.intake_regimen
-	add foreign key (fk_dose)
-		references ref.dose(pk)
-		on delete restrict
-		on update cascade;
-
-drop index if exists clin.idx_clin_intake_regimen_fk_dose cascade;
-create index idx_clin_intake_regimen_fk_dose on clin.intake_regimen(fk_dose);
+	alter column amount
+		set not NULL;
 
 -- --------------------------------------------------------------
--- .fk_drug_product
-comment on column clin.intake_regimen.fk_drug_product is 'The drug being taken.';
+-- .unit
+comment on column clin.intake_regimen.unit is
+'The unit (mg/ml/mol/...) for .amount.';
 
 alter table clin.intake_regimen
-	add foreign key (fk_drug_product)
-		references ref.drug_product(pk)
-		on delete restrict
-		on update cascade;
-
-alter table clin.intake_regimen
-	drop constraint if exists clin_intake_regimen_fk_drug_product_requires_fk_dose;
-
-alter table clin.intake_regimen
-	add constraint clin_intake_regimen_fk_drug_product_requires_fk_dose check (
-		(fk_drug_product is NULL)
-			OR
-		((fk_drug_product is NOT NULL) AND (fk_dose IS NOT NULL))
-	);
-
-drop index if exists clin.idx_clin_intake_regimen_fk_drug_product cascade;
-create index idx_clin_intake_regimen_fk_drug_product on clin.intake_regimen(fk_drug_product);
-
--- make unique(.fk_drug, patient)
---drop index if exists clin.idx_uniq_drug_per_patient cascade;
---create unique index idx_uniq_drug_per_patient on clin.intake_regimen(fk_drug_product, xxxxxxxxxxx) where (fk_drug_product is not null);
+	alter column unit
+		set not NULL;
 
 -- --------------------------------------------------------------
 -- .narrative = schedule

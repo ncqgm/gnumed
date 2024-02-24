@@ -13,12 +13,10 @@ create table clin.intake_regimen (
 	pk integer generated always as identity primary key,
 	fk_intake
 		integer,
-	fk_dose
-		integer,
-	--fk_drug_component
-	--	integer,
-	fk_drug_product
-		integer,
+	amount
+		numeric,
+	unit
+		gm.nonempty_text,
 	--.narrative:
 	--schedule
 	--	gm.nonempty_text,
