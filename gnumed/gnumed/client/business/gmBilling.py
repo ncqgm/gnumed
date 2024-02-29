@@ -693,11 +693,12 @@ def unlock_invoice_id(invoice_id):
 	return False
 
 #------------------------------------------------------------
-def generate_scan2pay_qrcode(data:str=None):
+def generate_scan2pay_qrcode(data:str=None, create_svg:bool=False):
 	return gmTools.create_qrcode (
 		text = data,
 		verbose = False,
-		ecc_level = 'M'		# Wikipedia says must be M
+		ecc_level = 'M',		# Wikipedia says must be M
+		create_svg = create_svg
 	)
 
 #------------------------------------------------------------

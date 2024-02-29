@@ -2183,19 +2183,24 @@ def get_icon(wx=None):
 
 #---------------------------------------------------------------------------
 def create_qrcode(text:str=None, filename:str=None, qr_filename:str=None, verbose:bool=False, ecc_level:str='H', create_svg:bool=False) -> str:
-	"""Create a QR code from text or file.
+	"""Create a QR code from text or a file.
 
 	Args:
 		text: data to encode
 		filename: filename to read data from instead of processing _text_
-		qr_filename: target file for QR code PNG, if not specified: generated from _filename_ if that is given
+		qr_filename: target file for QR code PNG image, if not specified: generated from _filename_ if that is given
 		ecc_level: level of error correction coding, L/M/Q/H
-		create_svg: whether to also create an SVG under _qr_filename_ + .svg
+		create_svg: whether to also create an SVG image
 
 	Returns:
-		Filename of QR code PNG or _None_.
+		Filename of QR code or _None_.
+
+	The returned filename will be an SVG file if create_svg is 
+
+		 (.png if create_svg is False, .svg if create_svg is True)
 	"""
 	assert xor(text, filename), 'either <text> OR <filename> must be specified'
+	assert qr_filename if not filename else filename, '<qr_filename> must be specified if <filename> is unspecified'
 
 	try:
 		import pyqrcode
@@ -2223,7 +2228,8 @@ def create_qrcode(text:str=None, filename:str=None, qr_filename:str=None, verbos
 		print(qr.terminal())
 	qr.png(qr_filename, quiet_zone = 1)
 	if create_svg:
-		qr.svg(qr_filename + '.svg', quiet_zone = 1)
+		qr_filename += '.svg'
+		qr.svg(qr_filename, quiet_zone = 1)
 	return qr_filename
 
 #===========================================================================
