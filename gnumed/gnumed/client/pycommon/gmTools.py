@@ -2200,7 +2200,8 @@ def create_qrcode(text:str=None, filename:str=None, qr_filename:str=None, verbos
 		 (.png if create_svg is False, .svg if create_svg is True)
 	"""
 	assert xor(text, filename), 'either <text> OR <filename> must be specified'
-	assert qr_filename if not filename else filename, '<qr_filename> must be specified if <filename> is unspecified'
+	if not text:
+		assert qr_filename if not filename else filename, '<qr_filename> must be specified if <filename> is unspecified'
 
 	try:
 		import pyqrcode
