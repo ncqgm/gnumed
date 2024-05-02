@@ -29,6 +29,7 @@ select
 	c_i.fk_substance
 		as pk_substance,
 	c_i.notes4patient,
+	c_i.notes4us,
 	-- regimen
 	NULL::TEXT
 		as schedule,
@@ -136,6 +137,7 @@ select
 	c_i.fk_substance
 		as pk_substance,
 	c_i.notes4patient,
+	c_i.notes4us,
 	-- regimen
 	c_ir.narrative
 		as schedule,

@@ -38,6 +38,7 @@ select
 	c_i.use_type,
 	r_s.intake_instructions,
 	c_i.notes4patient,
+	c_i.notes4us,
 	c_i.narrative
 		as notes4provider,
 	c_ir.modified_when,

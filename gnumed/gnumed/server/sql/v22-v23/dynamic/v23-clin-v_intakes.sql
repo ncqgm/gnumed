@@ -29,6 +29,7 @@ select
 	c_i.fk_substance
 		as pk_substance,
 	c_i.notes4patient,
+	c_i.notes4us,
 	-- encounter
 	c_enc.fk_patient
 		as pk_patient,

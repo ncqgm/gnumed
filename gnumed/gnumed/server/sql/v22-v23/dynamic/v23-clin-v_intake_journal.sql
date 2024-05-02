@@ -34,6 +34,7 @@ select
 		|| coalesce(E'\n' || _('intake instructions') || ': ' || r_s.intake_instructions, '')
 		|| coalesce(E'\n' || _('patient notes') || ': ' || c_i.notes4patient, '')
 		|| coalesce(E'\n' || _('provider notes') || ': ' || c_i.narrative, '')
+		|| coalesce(E'\n' || _('internal notes') || ': ' || c_i.notes4us, '')
 	|| E'\n' || _('started: unknown')
 	|| E'\n' || _('discontinued: unknown')
 		as narrative,
@@ -133,6 +134,8 @@ select
 	|| coalesce(E'\n ' || _('patient notes') || ': ' || c_i.notes4patient, '')
 	-- line: "does not tolerate higher dose"
 	|| coalesce(E'\n ' || _('provider notes') || ': ' || c_i.narrative, '')
+	-- line: "is sceptical"
+	|| coalesce(E'\n ' || _('internal notes') || ': ' || c_i.notes4us, '')
 		as narrative,
 	-- --- narrative ---
 	c_ir.fk_encounter
@@ -229,6 +232,8 @@ select
 	|| coalesce(E'\n ' || _('patient notes') || ': ' || c_i.notes4patient, '')
 	-- line: "does not tolerate higher dose"
 	|| coalesce(E'\n ' || _('provider notes') || ': ' || c_i.narrative, '')
+	-- line: "is sceptical"
+	|| coalesce(E'\n ' || _('internal notes') || ': ' || c_i.notes4us, '')
 		as narrative,
 	-- --- narrative ---
 	c_ir.fk_encounter
@@ -326,6 +331,8 @@ select
 	|| coalesce(E'\n ' || _('patient notes') || ': ' || c_i.notes4patient, '')
 	-- line: "does not tolerate higher dose"
 	|| coalesce(E'\n ' || _('provider notes') || ': ' || c_i.narrative, '')
+	-- line: "is sceptical"
+	|| coalesce(E'\n ' || _('internal notes') || ': ' || c_i.notes4us, '')
 		as narrative,
 	-- --- narrative ---
 	c_ir.fk_encounter

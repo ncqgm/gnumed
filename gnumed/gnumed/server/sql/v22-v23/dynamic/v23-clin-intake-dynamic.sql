@@ -33,7 +33,7 @@ comment on column clin.intake.fk_encounter is
 -- --------------------------------------------------------------
 -- .fk_episode
 comment on column clin.intake.fk_episode is
-	'The episode under which this intake is currently active.';
+	'The episode pertinent to this intake as long as there is no intake regimen.';
 
 -- --------------------------------------------------------------
 -- .narrative
@@ -75,7 +75,12 @@ create unique index idx_uniq_substance_per_patient on clin.intake(fk_substance, 
 -- --------------------------------------------------------------
 -- .notes4patient
 comment on column clin.intake.notes4patient is
-	'Comments on this intake (instructions, caveats, treatment goal, etc) intended for the patient, say, via a medication plan.';
+	'Comments on this intake (instructions, caveats, treatment goal, target etc) intended for the patient, say, via a medication plan.';
+
+-- --------------------------------------------------------------
+-- .notes4us
+comment on column clin.intake.notes4us is
+	'Comments on this intake intended for ourselves.';
 
 -- --------------------------------------------------------------
 -- ._fk_s_i
