@@ -663,19 +663,19 @@ class gmConnectionPool(gmBorg.cBorg):
 		if 'fe_sendauth' in msg:
 			return True
 
-		if regex.search('user ".*" does not exist', msg) is not None:
+		if regex.search(r'user ".*" does not exist', msg) is not None:
 			return True
 
 		if 'uthenti' in msg:
 			return True
 
 		if ((
-				(regex.search('user ".*"', msg) is not None)
+				(regex.search(r'user ".*"', msg) is not None)
 					or
-				(regex.search('(R|r)ol{1,2}e', msg) is not None)
+				(regex.search(r'(R|r)ol{1,2}e', msg) is not None)
 			)
 			and ('exist' in msg)
-			and (regex.search('n(o|ich)t', msg) is not None)
+			and (regex.search(r'n(o|ich)t', msg) is not None)
 		):
 			return True
 

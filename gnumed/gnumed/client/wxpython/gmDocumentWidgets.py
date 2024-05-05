@@ -113,7 +113,7 @@ def manage_document_descriptions(parent=None, document=None):
 		descriptions = document.get_descriptions()
 
 		lctrl.set_string_items(items = [
-			'%s%s' % ( (' '.join(regex.split('\r\n+|\r+|\n+|\t+', desc[1])))[:30], gmTools.u_ellipsis )
+			'%s%s' % ( (' '.join(regex.split(r'\r\n+|\r+|\n+|\t+', desc[1])))[:30], gmTools.u_ellipsis )
 			for desc in descriptions
 		])
 		lctrl.set_data(data = descriptions)

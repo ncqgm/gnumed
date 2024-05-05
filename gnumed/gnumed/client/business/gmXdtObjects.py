@@ -122,7 +122,7 @@ def read_person_from_xdt(filename=None, encoding=None, dob_format=None):
 
 	dto.zip = None
 	try:
-		dto.zip = regex.match('\d{5}', data['zipurb']).group()
+		dto.zip = regex.match(r'\d{5}', data['zipurb']).group()
 	except KeyError: pass
 	try:
 		dto.zip = data['zip']
@@ -130,7 +130,7 @@ def read_person_from_xdt(filename=None, encoding=None, dob_format=None):
 
 	dto.urb = None
 	try:
-		dto.urb = regex.sub('\d{5} ', '', data['zipurb'])
+		dto.urb = regex.sub(r'\d{5} ', '', data['zipurb'])
 	except KeyError: pass
 	try:
 		dto.urb = data['urb']

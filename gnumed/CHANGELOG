@@ -58,6 +58,7 @@ FIX: forward-port fix for grid selection constant names
 	1.8.19
 
 IMPROVED: documents: part export filename
+IMPROVED: regular expression strings [thanks Wolfgang]
 
 	1.8.18
 

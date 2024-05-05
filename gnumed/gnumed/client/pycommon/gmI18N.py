@@ -134,9 +134,9 @@ def __split_locale_into_levels():
 	global system_locale_level
 	system_locale_level['full'] = system_locale
 	# trim '@<variant>' part
-	system_locale_level['country'] = regex.split('@|:|\.', system_locale, 1)[0]
+	system_locale_level['country'] = regex.split(r'@|:|\.', system_locale, 1)[0]
 	# trim '_<COUNTRY>@<variant>' part
-	system_locale_level['language'] = system_locale.split('_', 1)[0]
+	system_locale_level['language'] = system_locale.split(r'_', 1)[0]
 
 	_log.debug('system locale levels: %s', system_locale_level)
 

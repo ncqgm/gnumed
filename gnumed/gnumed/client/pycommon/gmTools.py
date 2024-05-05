@@ -966,14 +966,14 @@ def fname_sanitize(filename:str) -> str:
 	name_part = unicodedata.normalize('NFKD', name_part)
 	# remove everything not in group []
 	name_part = regex.sub (
-		'[^.\w\s[\]()%§#+-]',
+		r'[^.\w\s[\]()%§#+-]',
 		'',
 		name_part,
 		flags = regex.UNICODE
 	).strip()
 	# translate whitespace to underscore
 	name_part = regex.sub (
-		'\s+',
+		r'\s+',
 		'_',
 		name_part,
 		flags = regex.UNICODE
@@ -1578,7 +1578,7 @@ def shorten_words_in_line(text=None, max_length=None, min_word_length=None, igno
 	else:
 		if len(text) <= max_length:
 			return text
-	old_words = regex.split('\s+', text, flags = regex.UNICODE)
+	old_words = regex.split(r'\s+', text, flags = regex.UNICODE)
 	no_old_words = len(old_words)
 	max_word_length = max(min_word_length, (max_length // no_old_words))
 	words = []

@@ -319,7 +319,7 @@ def mail_log(parent=None, comment=None, helpdesk=None, sender=None, exception=No
 	receivers = []
 	if helpdesk is not None:
 		receivers = regex.findall (
-			'[\S]+@[\S]+',
+			r'[\S]+@[\S]+',
 			helpdesk.strip(),
 			flags = regex.UNICODE
 		)
@@ -343,7 +343,7 @@ def mail_log(parent=None, comment=None, helpdesk=None, sender=None, exception=No
 		return
 
 	receivers = regex.findall (
-		'[\S]+@[\S]+',
+		r'[\S]+@[\S]+',
 		receiver_string,
 		flags = regex.UNICODE
 	)

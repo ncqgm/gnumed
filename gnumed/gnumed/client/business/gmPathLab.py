@@ -1732,18 +1732,18 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		"""
 		ref_range = ref_range.strip().replace(' ', '')
 
-		is_range = regex.match('-{0,1}\d+[.,]{0,1}\d*--{0,1}\d+[.,]{0,1}\d*$', ref_range, regex.UNICODE)
+		is_range = regex.match(r'-{0,1}\d+[.,]{0,1}\d*--{0,1}\d+[.,]{0,1}\d*$', ref_range, regex.UNICODE)
 		if is_range is not None:
-			min_val = regex.match('-{0,1}\d+[.,]{0,1}\d*-', ref_range, regex.UNICODE).group(0).rstrip('-')
+			min_val = regex.match(r'-{0,1}\d+[.,]{0,1}\d*-', ref_range, regex.UNICODE).group(0).rstrip('-')
 			success, min_val = gmTools.input2decimal(min_val)
-			max_val = (regex.search('--{0,1}\d+[.,]{0,1}\d*$', ref_range, regex.UNICODE).group(0))[1:]
+			max_val = (regex.search(r'--{0,1}\d+[.,]{0,1}\d*$', ref_range, regex.UNICODE).group(0))[1:]
 			success, max_val = gmTools.input2decimal(max_val)
 			self['val_normal_min'] = min_val
 			self['val_normal_max'] = max_val
 			return
 
 		if ref_range.startswith('<'):
-			is_range = regex.match('<\d+[.,]{0,1}\d*$', ref_range, regex.UNICODE)
+			is_range = regex.match(r'<\d+[.,]{0,1}\d*$', ref_range, regex.UNICODE)
 			if is_range is not None:
 				max_val = ref_range[1:]
 				success, max_val = gmTools.input2decimal(max_val)
@@ -1752,7 +1752,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 				return
 
 		if ref_range.startswith('<-'):
-			is_range = regex.match('<-\d+[.,]{0,1}\d*$', ref_range, regex.UNICODE)
+			is_range = regex.match(r'<-\d+[.,]{0,1}\d*$', ref_range, regex.UNICODE)
 			if is_range is not None:
 				max_val = ref_range[1:]
 				success, max_val = gmTools.input2decimal(max_val)
@@ -1761,7 +1761,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 				return
 
 		if ref_range.startswith('>'):
-			is_range = regex.match('>\d+[.,]{0,1}\d*$', ref_range, regex.UNICODE)
+			is_range = regex.match(r'>\d+[.,]{0,1}\d*$', ref_range, regex.UNICODE)
 			if is_range is not None:
 				min_val = ref_range[1:]
 				success, min_val = gmTools.input2decimal(min_val)
@@ -1770,7 +1770,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 				return
 
 		if ref_range.startswith('>-'):
-			is_range = regex.match('>-\d+[.,]{0,1}\d*$', ref_range, regex.UNICODE)
+			is_range = regex.match(r'>-\d+[.,]{0,1}\d*$', ref_range, regex.UNICODE)
 			if is_range is not None:
 				min_val = ref_range[1:]
 				success, min_val = gmTools.input2decimal(min_val)

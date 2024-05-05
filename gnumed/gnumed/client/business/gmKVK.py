@@ -412,7 +412,7 @@ select pk_identity from dem.v_external_ids4identity where
 		)
 		# address
 		street = self.street
-		number = regex.findall(' \d+.*', street)
+		number = regex.findall(r' \d+.*', street)
 		if len(number) == 0:
 			number = None
 		else:
@@ -547,7 +547,7 @@ select pk_identity from dem.v_external_ids4identity where
 		)
 		# address
 		street = self.street
-		number = regex.findall(' \d+.*', street)
+		number = regex.findall(r' \d+.*', street)
 		if len(number) == 0:
 			number = None
 		else:
