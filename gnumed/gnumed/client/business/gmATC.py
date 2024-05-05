@@ -211,17 +211,17 @@ def atc_import(cfg_fname=None, conn=None):
 		adro = ''
 
 		# "1,1 mg O,P,R,..."
-		if regex.match('\d{,3},\d{,3}\s.{1,2}\s.(,.)*$', atc_line[4]):
-			tmp, unit, adro = regex.split('\s', atc_line[4])
+		if regex.match(r'\d{,3},\d{,3}\s.{1,2}\s.(,.)*$', atc_line[4]):
+			tmp, unit, adro = regex.split(r'\s', atc_line[4])
 		# "1,1 mg O,P,R bezogen auf ..."
-		elif regex.match('\d{,3},\d{,3}\s.{1,2}\s.(,.)*\s.+$', atc_line[4]):
-			tmp, unit, adro, comment = regex.split('\s', atc_line[4], 3)
+		elif regex.match(r'\d{,3},\d{,3}\s.{1,2}\s.(,.)*\s.+$', atc_line[4]):
+			tmp, unit, adro, comment = regex.split(r'\s', atc_line[4], 3)
 		# "20 mg O"
-		elif regex.match('\d{,3}\s.{1,2}\s.(,.)*$', atc_line[4]):
-			tmp, unit, adro = regex.split('\s', atc_line[4])
+		elif regex.match(r'\d{,3}\s.{1,2}\s.(,.)*$', atc_line[4]):
+			tmp, unit, adro = regex.split(r'\s', atc_line[4])
 		# "20 mg O bezogen auf ..."
-		elif regex.match('\d{,3}\s.{1,2}\s.(,.)*\s.+$', atc_line[4]):
-			tmp, unit, adro, comment = regex.split('\s', atc_line[4], 3)
+		elif regex.match(r'\d{,3}\s.{1,2}\s.(,.)*\s.+$', atc_line[4]):
+			tmp, unit, adro, comment = regex.split(r'\s', atc_line[4], 3)
 		# "Standarddosis: 1 Tablette oder 30 ml Mixtur"
 		else:
 			comment = atc_line[4]

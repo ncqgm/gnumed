@@ -512,7 +512,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			universal_newlines = True
 		)
 		data, errors = freediams.communicate()
-		version = regex.search('FreeDiams\s\d.\d.\d', data).group().split()[1]
+		version = regex.search(r'FreeDiams\s\d.\d.\d', data).group().split()[1]
 		_log.debug('FreeDiams %s', version)
 
 		return version
@@ -1170,7 +1170,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 					amount = amount.group()
 				data['amount'] = amount
 
-				unit = regex.sub(r'\d+[.,]{0,1}\d*', '', fd_xml_comp.attrib['strenght'].strip()).strip()	# sic, typo
+				unit = regex.sub(r'\d+[.,]{0,1}\d*', '', fd_xml_comp.attrib['strenght'].strip()).strip()	# sic, typo!
 				if unit == '':
 					unit = '*?*'
 				data['unit'] = unit

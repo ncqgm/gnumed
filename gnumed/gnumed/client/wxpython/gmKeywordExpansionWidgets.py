@@ -37,7 +37,8 @@ class cKeywordExpansion_TextCtrlMixin():
 
 	#--------------------------------------------------------
 	def enable_keyword_expansions(self):
-		self.__keyword_separators = regex.compile("[!?'\".,:;)}\]\r\n\s\t]+")
+		pattern = r"[!?'.,:;)}\]\r\n\s\t" + r'"]+'
+		self.__keyword_separators = regex.compile(pattern)
 		self.Bind(wx.EVT_CHAR, self.__on_char_in_keyword_expansion_mixin)
 
 	#--------------------------------------------------------

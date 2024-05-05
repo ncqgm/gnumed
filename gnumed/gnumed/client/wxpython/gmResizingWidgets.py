@@ -392,7 +392,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 
 		self.__data = data			# this is just a placeholder for data to be attached to this STC, will be returned from GetData()
 
-		self.__keyword_separators = regex.compile("[!?'\".,:;)}\]\r\n\s\t]+")
+		self.__keyword_separators = regex.compile(r"[!?'.,:;)}\]\r\n\s\t" + r'"]+')
 	#------------------------------------------------
 	# public API
 	#------------------------------------------------

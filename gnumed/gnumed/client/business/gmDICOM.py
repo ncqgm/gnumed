@@ -1096,13 +1096,13 @@ class cOrthancServer:
 						series_dict['performed_procedure_step_description'] = None
 					if series_dict['performed_procedure_step_description'] is not None:
 						# weed out "numeric" only
-						if regex.match ('[.,/\|\-\s\d]+', series_dict['performed_procedure_step_description'], flags = regex.UNICODE):
+						if regex.match (r'[.,/\|\-\s\d]+', series_dict['performed_procedure_step_description'], flags = regex.UNICODE):
 							series_dict['performed_procedure_step_description'] = None
 					if series_dict['acquisition_device_processing_description'] in [series_dict['description'], series_dict['protocol']]:
 						series_dict['acquisition_device_processing_description'] = None
 					if series_dict['acquisition_device_processing_description'] is not None:
 						# weed out "numeric" only
-						if regex.match ('[.,/\|\-\s\d]+', series_dict['acquisition_device_processing_description'], flags = regex.UNICODE):
+						if regex.match (r'[.,/\|\-\s\d]+', series_dict['acquisition_device_processing_description'], flags = regex.UNICODE):
 							series_dict['acquisition_device_processing_description'] = None
 					if series_dict['date'] == study_dict['date']:
 						_log.debug('<series date> matches <study date>, ignoring date')
@@ -1343,7 +1343,7 @@ class cOrthancServer:
 def cleanup_dicom_string(dicom_str):
 	if not isinstance(dicom_str, str):
 		return dicom_str
-	dicom_str = regex.sub('\^+', ' ', dicom_str.strip('^'))
+	dicom_str = regex.sub(r'\^+', ' ', dicom_str.strip('^'))
 	#dicom_str = dicom_str.replace('\r\n', ' [CR] ')
 	return dicom_str
 

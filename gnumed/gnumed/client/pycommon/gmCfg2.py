@@ -37,13 +37,13 @@ def __set_opt_in_INI_file(src=None, sink=None, group=None, option=None, value=No
 			continue
 
 		# start of list ?
-		if regex.match('(?P<list_name>.+)(\s|\t)*=(\s|\t)*\$(?P=list_name)\$', line) is not None:
+		if regex.match(r'(?P<list_name>.+)(\s|\t)*=(\s|\t)*\$(?P=list_name)\$', line) is not None:
 			in_list = True
 			sink.write(line)
 			continue
 
 		# end of list ?
-		if regex.match('\$.+\$.*', line) is not None:
+		if regex.match(r'\$.+\$.*', line) is not None:
 			in_list = False
 			sink.write(line)
 			continue
@@ -55,7 +55,7 @@ def __set_opt_in_INI_file(src=None, sink=None, group=None, option=None, value=No
 			continue
 
 		# another group ?
-		if regex.match('\[.+\].*', line) is not None:
+		if regex.match(r'\[.+\].*', line) is not None:
 			# next group but option not seen yet ?
 			if group_seen and not option_seen:
 				sink.write('%s = %s\n\n\n' % (option, value))
@@ -64,7 +64,7 @@ def __set_opt_in_INI_file(src=None, sink=None, group=None, option=None, value=No
 			continue
 
 		# our option ?
-		if regex.match('%s(\s|\t)*=' % option, line) is not None:
+		if regex.match(r'%s(\s|\t)*=' % option, line) is not None:
 			if group_seen:
 				sink.write('%s = %s\n' % (option, value))
 				option_seen = True
@@ -103,7 +103,7 @@ def __set_list_in_INI_file(src=None, sink=None, group=None, option=None, value=N
 		if inside_our_list:			# can only be true if already inside our group
 			# new list has been written already
 			# so now at end of our (old) list ?
-			if regex.match('\$%s\$' % option, line.strip()) is not None:
+			if regex.match(r'\$%s\$' % option, line.strip()) is not None:
 				inside_our_list = False
 				continue
 			# skip old list entries
@@ -111,7 +111,7 @@ def __set_list_in_INI_file(src=None, sink=None, group=None, option=None, value=N
 
 		if inside_our_group:
 			# our option ?
-			if regex.match('%s(\s|\t)*=(\s|\t)*\$%s\$' % (option, option), line.strip()) is not None:
+			if regex.match(r'%s(\s|\t)*=(\s|\t)*\$%s\$' % (option, option), line.strip()) is not None:
 				sink.write(line)										# list header
 				sink.write('\n'.join(value))
 				sink.write('\n')
@@ -121,7 +121,7 @@ def __set_list_in_INI_file(src=None, sink=None, group=None, option=None, value=N
 				continue
 
 			# next group (= end of our group) ?
-			if regex.match('\[.+\]', line.strip()) is not None:
+			if regex.match(r'\[.+\]', line.strip()) is not None:
 				# our list already handled ?  (if so must already be finished)
 				if not our_list_seen:
 					# no, so need to add our list to the group before ...
@@ -175,7 +175,7 @@ def __set_list_in_INI_file_old(src=None, sink=None, group=None, option=None, val
 		# found option but still in (old) list ?
 		if option_seen and in_list:
 			# end of (old) list ?
-			if regex.match('\$.+\$.*', line) is not None:
+			if regex.match(r'\$.+\$.*', line) is not None:
 				in_list = False
 				sink.write(line)
 				continue
@@ -187,7 +187,7 @@ def __set_list_in_INI_file_old(src=None, sink=None, group=None, option=None, val
 			continue
 
 		# at start of a list ?
-		match = regex.match('(?P<list_name>.+)(\s|\t)*=(\s|\t)*\$(?P=list_name)\$', line)
+		match = regex.match(r'(?P<list_name>.+)(\s|\t)*=(\s|\t)*\$(?P=list_name)\$', line)
 		if match is not None:
 			in_list = True
 			# our list ?
@@ -201,7 +201,7 @@ def __set_list_in_INI_file_old(src=None, sink=None, group=None, option=None, val
 			continue
 
 		# at end of a list ?
-		if regex.match('\$.+\$.*', line) is not None:
+		if regex.match(r'\$.+\$.*', line) is not None:
 			in_list = False
 			sink.write(line)
 			continue
@@ -213,7 +213,7 @@ def __set_list_in_INI_file_old(src=None, sink=None, group=None, option=None, val
 			continue
 
 		# another group ?
-		if regex.match('\[%s\].*' % group, line) is not None:
+		if regex.match(r'\[%s\].*' % group, line) is not None:
 			# next group but option not seen yet ?
 			if our_group_seen and not option_seen:
 				option_seen = True
@@ -322,7 +322,7 @@ def parse_INI_stream(stream=None, encoding=None):
 			_log.error(line)
 			continue
 
-		name, remainder = regex.split('\s*[=:]\s*', line, maxsplit = 1)
+		name, remainder = regex.split(r'\s*[=:]\s*', line, maxsplit = 1)
 		if name == '':
 			_log.error('option name empty, aborting')
 			_log.error(line)

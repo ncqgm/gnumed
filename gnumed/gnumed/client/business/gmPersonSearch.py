@@ -414,7 +414,7 @@ class cPatientSearcher_SQL:
 
 	#--------------------------------------------------------
 	def __queries_for_several_name_parts(self, raw):
-		parts = regex.split('[,\.\-\s]+', raw)
+		parts = regex.split(r'[,\.\-\s]+', raw)
 		print(parts)
 		for p in parts:
 			if not p.isalpha():
@@ -635,13 +635,13 @@ class cPatientSearcher_SQL:
 			return queries
 
 		# "<d igi ts>" - DOB
-		if regex.match("^(\d|\s|\t)+$", raw):
+		if regex.match(r"^(\d|\s|\t)+$", raw):
 			queries = self.__queries_for_DOB(raw)
 			if queries:
 				return queries
 
 		# digits interspersed with "./-" or blank space - DOB
-		if regex.match("^\d+(\s|\t|\.|\-|/)*\d+(\s|\t|\.|\-|/)*\d+\.*$", raw):
+		if regex.match(r"^\d+(\s|\t|\.|\-|/)*\d+(\s|\t|\.|\-|/)*\d+\.*$", raw):
 			queries = self.__queries_for_DOB(raw)
 			if queries:
 				return queries
@@ -734,7 +734,7 @@ class cPatientSearcher_SQL:
 	def __generate_queries_from_single_major_part(self, part=None):
 
 		# split on whitespace
-		parts_list = regex.split("\s+|\t+", part)
+		parts_list = regex.split(r"\s+|\t+", part)
 		# ignore empty parts
 		parts_list = [ p.strip() for p in parts_list if p.strip() != '' ]
 
@@ -743,7 +743,7 @@ class cPatientSearcher_SQL:
 		name_parts = []
 		for part in parts_list:
 			# any digit signifies a date,		 FIXME: what about "<40" ?
-			if regex.search("\d", part):
+			if regex.search(r"\d", part):
 				date_count = date_count + 1
 				date_part = part
 			else:
@@ -876,7 +876,7 @@ class cPatientSearcher_SQL:
 
 		# "<CHARS>" - single name part
 		# yes, I know, this is culture specific (did you read the docs ?)
-		if regex.match("^(\s|\t)*[a-zäöüßéáúóçøA-ZÄÖÜÇØ]+(\s|\t)*$", search_term):
+		if regex.match(r"^(\s|\t)*[a-zäöüßéáúóçøA-ZÄÖÜÇØ]+(\s|\t)*$", search_term):
 			_log.debug("[%s]: a single name part", search_term)
 			# there's no intermediate whitespace due to the regex
 			cmd = """
@@ -926,7 +926,7 @@ class cPatientSearcher_SQL:
 			return queries
 
 		# try to split on (major) part separators
-		major_parts = regex.split(',|;', normalized)
+		major_parts = regex.split(r',|;', normalized)
 
 		# ignore empty parts
 		major_parts = [ p.strip() for p in major_parts if p.strip() != '' ]
@@ -951,12 +951,12 @@ class cPatientSearcher_SQL:
 				if part.strip() == '':
 					continue
 				# any digits ?
-				if regex.search("\d+", part):
+				if regex.search(r"\d+", part):
 					# FIXME: parse out whitespace *not* adjacent to a *word*
 					date_parts.append(part)
 				else:
 					tmp = part.strip()
-					tmp = regex.split("\s+|\t+", tmp)
+					tmp = regex.split(r"\s+|\t+", tmp)
 					name_count = name_count + len(tmp)
 					name_parts.append(tmp)
 
