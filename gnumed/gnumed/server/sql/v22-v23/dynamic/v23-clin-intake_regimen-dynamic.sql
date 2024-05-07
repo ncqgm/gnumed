@@ -55,11 +55,16 @@ alter table clin.intake_regimen
 comment on column clin.intake_regimen.fk_episode is '
 The episode this intake regimen was registered under.
 .
-The episodes of active regimens (.discontinued=NULL) must
-correspond to the episode of the intake they link to.
+The episodes of regimens need not point to the the same
+episode as the intake itself because a) historical
+(discontinued) regimen are not unlikely to relate episodes
+other than the current one and b) active regimen may well be
+*intended* for different episodes, say:
 .
-Historical regimens may well link to different episodes
-(of the same patient that is).';
+Amitriptylin 50-0-0 for depression plus
+.
+Amitriptylin 0-0-5 for insomnia
+';
 
 -- --------------------------------------------------------------
 -- .fk_intake
