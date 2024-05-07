@@ -746,9 +746,11 @@ class cBusinessDBObject(object):
 		self.payload_most_recently_attempted_to_store = args
 
 		close_conn = self.__noop
+		commit_conn = self.__noop
 		if conn is None:
 			conn = gmPG2.get_connection(readonly=False)
 			close_conn = conn.close
+			commit_conn = conn.commit
 
 		queries = []
 		for query in self.__class__._cmds_store_payload:
@@ -787,12 +789,13 @@ class cBusinessDBObject(object):
 				_log.error(args)
 				raise
 
-		# only at conn.commit() time will data actually
+		# only at commit time will data actually
 		# get committed (and thusly trigger based notifications
 		# be sent out), so reset the local modification flag
 		# right before that
 		self._is_modified = False
-		conn.commit()
+		#conn.commit()
+		commit_conn()
 		close_conn()
 
 		# update to new "original" payload
