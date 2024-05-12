@@ -28,7 +28,8 @@ from Gnumed.business.gmExternalCare import cExternalCareItem
 from Gnumed.business.gmVaccination import cVaccination
 from Gnumed.business.gmClinNarrative import cNarrative
 from Gnumed.business.gmMedication import cIntakeRegimen
-#from Gnumed.business.gmMedication import cSubstanceIntakeEntry
+from Gnumed.business.gmMedication import cSubstanceIntakeEntry
+from Gnumed.business.gmMedication import cIntakeWithRegimen
 from Gnumed.business.gmAllergy import cAllergy
 from Gnumed.business.gmAllergy import cAllergyState
 from Gnumed.business.gmFamilyHistory import cFamilyHistory
@@ -49,7 +50,7 @@ _MAP_generic_emr_item_table2type_str = {
 	'clin.vaccination': _('Vaccination'),
 	'clin.clin_narrative': _('Progress note'),
 	'clin.test_result': _('Test result'),
-	#'clin.substance_intake': _('Substance intake'),
+	'clin.substance_intake': _('Substance intake'),
 	'clin.intake_regimen': _('Substance intake regimen'),
 	'clin.hospital_stay': _('Hospital stay'),
 	'clin.procedure': _('Performed procedure'),
@@ -70,7 +71,9 @@ _MAP_generic_emr_item_table2class = {
 	'clin.clin_narrative': cNarrative,
 	'clin.test_result': cTestResult,
 	#'clin.substance_intake': cSubstanceIntakeEntry,
-	'clin.intake_regimen': cIntakeRegimen,
+	#'clin.intake_regimen': cIntakeRegimen,
+	'clin.substance_intake': cIntakeWithRegimen,
+	'clin.intake_regimen': cIntakeWithRegimen,
 	'clin.hospital_stay': cHospitalStay,
 	'clin.procedure': cPerformedProcedure,
 	'clin.allergy': cAllergy,

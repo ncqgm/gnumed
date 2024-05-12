@@ -1523,12 +1523,12 @@ WHERE
 		)
 
 	#--------------------------------------------------------
-	def substance_intake_exists(self, pk_component=None, pk_substance=None, pk_drug_product=None):
+	def substance_intake_exists(self, pk_substance:int=None, substance:str=None) -> bool:
+		"""Either pk_substance OR substance."""
 		return gmMedication.substance_intake_exists (
-			pk_component = pk_component,
 			pk_substance = pk_substance,
 			pk_identity = self.pk_patient,
-			pk_drug_product = pk_drug_product
+			substance = substance
 		)
 
 	#--------------------------------------------------------
