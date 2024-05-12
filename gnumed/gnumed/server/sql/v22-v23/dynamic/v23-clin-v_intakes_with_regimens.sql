@@ -35,6 +35,8 @@ select
 		as schedule,
 	NULL::timestamp with time zone
 		as started,
+	TRUE::boolean
+		as start_is_unknown,
 	NULL::TEXT
 		as comment_on_start,
 	NULL::timestamp with time zone
@@ -146,6 +148,7 @@ select
 		else coalesce(c_ir.clin_when, c_i.clin_when)
 	end::timestamp with time zone
 		as started,
+	c_ir.start_is_unknown,
 	c_ir.comment_on_start,
 	c_ir.discontinued,
 	c_ir.discontinue_reason,

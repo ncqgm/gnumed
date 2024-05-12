@@ -127,11 +127,23 @@ alter table clin.intake_regimen
 
 -- --------------------------------------------------------------
 -- .clin_when = started
-comment on column clin.intake_regimen.clin_when is 'When this regimen is started. Can be in the future.';
+comment on column clin.intake_regimen.clin_when is 'When this regimen had been/has been/will be started.';
 
 alter table clin.intake_regimen
 	alter column clin_when
 		set default NULL;
+
+-- --------------------------------------------------------------
+-- .start_is_unknown
+comment on column clin.intake_regimen.start_is_unknown is 'The start date is entirely unknown';
+
+alter table clin.intake_regimen
+	alter column start_is_unknown
+		set NOT NULL;
+
+alter table clin.intake_regimen
+	alter column start_is_unknown
+		set default false;
 
 -- --------------------------------------------------------------
 -- .comment_on_start

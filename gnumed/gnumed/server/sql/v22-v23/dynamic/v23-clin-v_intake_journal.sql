@@ -98,13 +98,13 @@ select
 	c_enc.fk_patient
 		as pk_patient,
 	c_ir.modified_when,
-	least(c_ir.modified_when, c_ir.discontinued)
+	least(c_ir.modified_when, c_ir.discontinued, c_i.modified_when, c_i.clin_when)
 		as clin_when,
 	c_ir.modified_by,
 	c_ir.soap_cat,
 	-- --- narrative ---
 	-- line: "start of intake (patient memory)"
-	_('intake with uncertain start') || E'\n'
+	_('intake with uncertain start') || coalesce(' (' || c_ir.comment_on_start || ')', '') || E'\n'
 	-- line: " planned for 6 months"
 	|| coalesce(' ' || _('planned for') || ' ' || c_ir.planned_duration || E'\n', '')
 	-- line: " discontinued 1999-03-03 (developed a rash)"
@@ -179,7 +179,7 @@ from
 		inner join clin.episode c_epi on c_ir.fk_episode = c_epi.pk
 			left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
 where
-	c_ir.comment_on_start = '?'
+	c_ir.start_is_unknown IS TRUE
 ;
 
 comment on view clin.v_regimens_w_o_start__journal is
@@ -277,7 +277,7 @@ from
 		inner join clin.episode c_epi on c_ir.fk_episode = c_epi.pk
 			left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
 where
-	c_ir.comment_on_start IS DISTINCT FROM '?'
+	c_ir.start_is_unknown IS TRUE
 ;
 
 comment on view clin.v_regimens_w_start__journal is

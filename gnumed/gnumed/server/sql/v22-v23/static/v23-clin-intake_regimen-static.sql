@@ -23,6 +23,8 @@ create table clin.intake_regimen (
 	--.clin_when:
 	--started
 	--	timestamp with time zone,
+	start_is_unknown
+		boolean,
 	comment_on_start
 		gm.nonempty_text,
 	discontinued

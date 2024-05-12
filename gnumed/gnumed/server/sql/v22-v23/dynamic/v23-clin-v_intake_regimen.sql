@@ -19,10 +19,11 @@ select
 		as pk_patient,
 	c_ir.soap_cat,
 	case
-		when c_ir.comment_on_start = '?' then null
+		when c_ir.start_is_unknown then null
 		else c_ir.clin_when
 	end::timestamp with time zone
 		as started,
+	c_ir.start_is_unknown,
 	c_ir.comment_on_start,
 	c_ir.planned_duration,
 	c_ir.discontinued,
