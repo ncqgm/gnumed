@@ -8,13 +8,13 @@ __license__ = "GPL v2 or later (details at https://www.gnu.org)"
 
 # std libs
 import sys
+import time
 import os.path
 import logging
 import urllib.request
 import urllib.error
 import zipfile
 import webbrowser
-import io
 
 
 # GNUmed libs
@@ -33,21 +33,41 @@ _log = logging.getLogger('gm.net')
 #===========================================================================
 # browser access
 #---------------------------------------------------------------------------
-def open_url_in_browser(url:str, new:int=2, autoraise:bool=True, *args, **kwargs) -> bool:
+def open_urls_in_browser(urls:list[str]=None, new:int=2, autoraise:bool=True, initial_delay:int=200, *args, **kwargs) -> bool:
+	"""Open URLs in a browser.
+
+	Args:
+		urls: URLs to open
+		new: whether to open a new browser, a new tab in a running browser, or a tab OR a browser (see Python docs)
+		initial_delay: milliseconds to sleep after opening first URL (so that the browser may start up)
+	"""
+	if not urls:
+		return True
+
+	if initial_delay < 0:
+		initial_delay = 0	# can't timewarp just yet
+	for url in urls:
+		# new=2: open new tab if possible
+		try:
+			webbrowser.open(url, new = new, autoraise = autoraise, **kwargs)
+			time.sleep(initial_delay / 1000)
+			initial_delay = 1
+		except (webbrowser.Error, OSError, UnicodeEncodeError):
+			_log.exception('error calling browser with url=[%s]', url)
+	return True
+
+#---------------------------------------------------------------------------
+def open_url_in_browser(url:str=None, new:int=2, autoraise:bool=True, *args, **kwargs) -> bool:
 	"""Open an URL in a browser.
 
 	Args:
 		url: URL to open
 		new: whether to open a new browser, a new tab in a running browser, or a tab OR a browser
 	"""
-	# new=2: open new tab if possible
-	try:
-		webbrowser.open(url, new = new, autoraise = autoraise)
-	except (webbrowser.Error, OSError, UnicodeEncodeError):
-		_log.exception('error calling browser with url=%s', url)
-		return False
+	if not url:
+		return True
 
-	return True
+	return open_urls_in_browser(urls = [url], new = new, autoraise = autoraise, *args, **kwargs)
 
 #---------------------------------------------------------------------------
 def download_file(url, filename=None, suffix=None):
@@ -406,24 +426,24 @@ def compose_email(sender=None, receiver=None, message=None, subject=None, files2
 			mimetype = gmMimeLib.guess_mimetype(filename = filename)
 		# text/*
 		if mimetype.startswith('text/'):
-			txt = io.open(filename, mode = 'rt', encoding = 'utf8')
+			txt = open(filename, mode = 'rt', encoding = 'utf8')
 			attachment = MIMEText(txt.read(), 'plain', 'utf8')
 			txt.close()
 		# image/*
 		elif mimetype.startswith('image/'):
-			img = io.open(filename, mode = 'rb')
+			img = open(filename, mode = 'rb')
 			attachment = MIMEImage(img.read())
 			img.close()
 		# audio/*
 		elif mimetype.startswith('audio/'):
-			song = io.open(filename, mode = 'rb')
+			song = open(filename, mode = 'rb')
 			attachment = MIMEAudio(song.read())
 			song.close()
 		# catch-all application/*
 		else:
 			_log.debug('attaching [%s] with type [%s]', filename, mimetype)
 			mime_subtype = mimetype.split('/', 1)[1]
-			data = io.open(filename, mode = 'rb')
+			data = open(filename, mode = 'rb')
 			attachment = MIMEApplication(data.read(), mime_subtype)
 			data.close()
 
