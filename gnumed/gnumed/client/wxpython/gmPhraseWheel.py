@@ -59,6 +59,7 @@ def shutdown():
 		_log.debug('timer [%s]', timer)
 		timer.Stop()
 	_timers = []
+
 #------------------------------------------------------------
 class _cPRWTimer(wx.Timer):
 
@@ -170,8 +171,9 @@ class cPhraseWheelBase(wx.TextCtrl):
 
 		self.__static_tt = None
 		self.__static_tt_extra = None
-		# don't do this or the tooltip code will fail: self.data = {}
-		# do this instead:
+		#  list_label - what's been selected from the dropdown list
+		#  field_label - what's being shown in the widget after selection for the selected dropdown list item
+		#  data - the underlying data corresponding to the selected item
 		self._data = {}
 
 		self._on_selection_callbacks = []
@@ -194,23 +196,41 @@ class cPhraseWheelBase(wx.TextCtrl):
 		self.__init_dropdown(parent = parent)
 		self.__register_events()
 		self.__init_timer()
+
 	#--------------------------------------------------------
 	# external API
-	#---------------------------------------------------------
-	def GetData(self, can_create=False, link_obj=None):
+	#--------------------------------------------------------
+	def GetData(self, can_create:bool=False, as_instance:bool=False, link_obj=None):
 		"""Retrieve the data associated with the displayed string(s).
 
-		- self._create_data() must set self.data if possible (/successful)
+		Returns:
+			None, if no data available, and unable to create data.
+
+			Or a data instance, if requested and data is available or create-able.
+
+			Or the data itself.
 		"""
-		if len(self._data) == 0:
+		if not self._data:
 			if can_create:
 				self._create_data(link_obj = link_obj)
 
-		return self._data
+		if not self._data:
+			return None
+
+		if as_instance:
+			return self._data2instance(link_obj = link_obj)
+
+		return self._data['data']
 
 	#---------------------------------------------------------
-	def SetText(self, value='', data=None, suppress_smarts=False):
+	def SetText(self, value:str='', data=None, suppress_smarts:bool=False):
+		"""Set both value and data of phrasewheel.
 
+		Args:
+			value: some text to display in the control
+			data: the data value represented by the displayed text
+			suppress_smarts: whether to generate data based on value, always True if data is passed in
+		"""
 		if value is None:
 			value = ''
 
@@ -223,7 +243,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 
 		if data is not None:
 			self.suppress_text_update_smarts = True
-			self.data = self._dictify_data(data = data, value = value)
+			self._data = self._dictify_data(data = data, value = value)
 		super(cPhraseWheelBase, self).SetValue(value)
 		self.display_as_valid(valid = True)
 
@@ -244,6 +264,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 				return False
 
 		return True
+
 	#--------------------------------------------------------
 	def set_from_instance(self, instance):
 		raise NotImplementedError('[%s]: set_from_instance()' % self.__class__.__name__)
@@ -387,6 +408,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 			szr_dropdown.Add(self._picklist, 1, wx.EXPAND)
 
 		self._picklist_dropdown.Hide()
+
 	#--------------------------------------------------------
 	def _show_picklist(self, input2match):
 		"""Display the pick list if useful."""
@@ -471,10 +493,12 @@ class cPhraseWheelBase(wx.TextCtrl):
 #			dropdown_top_left[1],
 #			dropdown_bottom_right[1])
 #		)
+
 	#--------------------------------------------------------
 	def _hide_picklist(self):
 		"""Hide the pick list."""
 		self._picklist_dropdown.Hide()
+
 	#--------------------------------------------------------
 	def _select_picklist_row(self, new_row_idx=None, old_row_idx=None):
 		"""Mark the given picklist row as selected."""
@@ -500,6 +524,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 		except KeyError:
 			return '<no field_*/list_*/label in item>'
 			#return self._picklist.GetItemText(self._picklist.GetFirstSelected())
+
 	#--------------------------------------------------------
 	def _update_display_from_picked_item(self, item):
 		"""Update the display to show item strings."""
@@ -510,6 +535,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 		# in single-phrase phrasewheels always set cursor to end of string
 		self.SetInsertionPoint(self.GetLastPosition())
 		return
+
 	#--------------------------------------------------------
 	# match generation
 	#--------------------------------------------------------
@@ -899,12 +925,27 @@ class cPhraseWheelBase(wx.TextCtrl):
 	#--------------------------------------------------------
 	def _set_data_to_first_match(self):
 		return False
+
 	#--------------------------------------------------------
 	def _update_data_from_picked_item(self, item):
-		self.data = {item['field_label']: item}
-	#--------------------------------------------------------
-	def _dictify_data(self, data=None, value=None):
-		raise NotImplementedError('[%s]: _dictify_data()' % self.__class__.__name__)
+		self._data = self._dictify_data(data = item)
+
+	#---------------------------------------------------------
+	def _dictify_data(self, data=None, value=None) -> dict:
+		if isinstance(data, dict):
+			# test for dict being well-formed
+			data['data']
+			data['list_label']
+			data['field_label']
+			return data
+
+		if not value:
+			value = '%s' % data
+		return {'data': data, 'list_label': value, 'field_label': value}
+
+#	#--------------------------------------------------------
+#	def _dictify_data(self, data=None, value=None):
+#		raise NotImplementedError('[%s]: _dictify_data()' % self.__class__.__name__)
 	#---------------------------------------------------------
 	def _adjust_data_after_text_update(self):
 		raise NotImplementedError('[%s]: cannot adjust data after text update' % self.__class__.__name__)
@@ -913,18 +954,35 @@ class cPhraseWheelBase(wx.TextCtrl):
 		if self.matcher is None:
 			return None
 		return self.matcher.get_match_by_data(data = data)
+
 	#--------------------------------------------------------
 	def _create_data(self, link_obj=None):
+		"""Must set self._data if possible/successful."""
 		raise NotImplementedError('[%s]: cannot create data object' % self.__class__.__name__)
+
 	#--------------------------------------------------------
-	def _get_data(self):
+	def _data2instance(self, link_obj=None):
+		"""Turn selected data into class instance.
+
+		Returns:
+			A class instance, typically a subclass of gmBusinessDBObject.cBusinessDBObject, or None.
+		"""
+		raise NotImplementedError('[%s]: cannot turn data object' % self.__class__.__name__)
+
+	#--------------------------------------------------------
+	def _get_raw_data(self):
 		return self._data
 
-	def _set_data(self, data):
+	def _set_raw_data(self, raw_data:dict):
+		"""Explicitly set raw data of phrasewheel.
+
+		Args:
+			raw_data: a dict with the keys 'data' (the actual value), 'list_label' (shown in the picklist when selecting an item), and 'field_label' (shown in the phrasewheel after this idem had been selected)
+		"""
 		self._data = data
 		self.__recalculate_tooltip()
 
-	data = property(_get_data, _set_data)
+	raw_data = property(_get_raw_data, _set_raw_data)
 
 #============================================================
 # FIXME: cols in pick list
@@ -992,19 +1050,9 @@ class cPhraseWheelBase(wx.TextCtrl):
 
 # FIXME: support selection-only-or-empty
 
-
 #============================================================
 class cPhraseWheel(cPhraseWheelBase):
-
-	def GetData(self, can_create=False, as_instance=False, link_obj=None):
-		super().GetData(can_create = can_create, link_obj = link_obj)
-		if not self._data:
-			return None
-
-		if as_instance:
-			return self._data2instance(link_obj = link_obj)
-
-		return list(self._data.values())[0]['data']
+	"""Standard single-value Phrasewheel."""
 
 	#---------------------------------------------------------
 	def SetData(self, data=None):
@@ -1013,8 +1061,10 @@ class cPhraseWheel(cPhraseWheelBase):
 		If you call SetData() you better be prepared
 		doing a scan of the entire potential match space.
 
-		The whole thing will only work if data is found
-		in the match space anyways.
+		The data value must be found in the match space.
+
+		Args:
+			data: None -> unset data, otherwise a valid (as per match provider) value from the search space
 		"""
 		if data is None:
 			self._data = {}
@@ -1027,6 +1077,7 @@ class cPhraseWheel(cPhraseWheelBase):
 		if self.selection_only:
 			# yes, but we don't have any candidates
 			if len(self._current_match_candidates) == 0:
+				self.display_as_valid(valid = False)
 				return False
 
 		# among candidates look for a match with <data>
@@ -1044,7 +1095,8 @@ class cPhraseWheel(cPhraseWheelBase):
 			self.display_as_valid(valid = False)
 			return False
 
-		self.data = self._dictify_data(data = data)
+		# match providers simply return values, so turn them into the dict internally
+		self._data = self._dictify_data(data = data)
 		self.display_as_valid(valid = True)
 		return True
 
@@ -1093,18 +1145,18 @@ class cPhraseWheel(cPhraseWheelBase):
 
 	#---------------------------------------------------------
 	def _adjust_data_after_text_update(self):
-		self.data = {}
+		self._data = {}
 
 	#---------------------------------------------------------
 	def _extract_fragment_to_match_on(self):
 		return self.GetValue().strip()
 
-	#---------------------------------------------------------
-	def _dictify_data(self, data=None, value=None):
-		# assume data to always be old style
-		if value is None:
-			value = '%s' % data
-		return {value: {'data': data, 'list_label': value, 'field_label': value}}
+#	#---------------------------------------------------------
+#	def _dictify_data(self, data=None, value=None):
+#		# assume data to always be old style
+#		if value is None:
+#			value = '%s' % data
+#		return {'data': data, 'list_label': value, 'field_label': value}
 
 #============================================================
 class cMultiPhraseWheel(cPhraseWheelBase):
