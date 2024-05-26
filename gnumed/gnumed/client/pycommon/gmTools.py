@@ -139,6 +139,8 @@ u_kanji_yen = '\u5186'							# Yen kanji
 u_replacement_character = '\ufffd'
 u_link_symbol = '\u1f517'
 
+u_kidneys = '\u1fad8'							# beans :-)
+
 
 _kB = 1024
 _MB = 1024 * _kB
