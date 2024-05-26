@@ -386,15 +386,30 @@ def pydt_replace(dt, strict=True, year=None, month=None, day=None, hour=None, mi
 	return dt.replace(year = year, month = month, day = day, hour = hour, minute = minute, second = second, microsecond = microsecond, tzinfo = tzinfo)
 
 #---------------------------------------------------------------------------
-def pydt_is_today(dt):
-	now = pyDT.datetime.now(gmCurrentLocalTimezone)
-	if dt.day != now.day:
+def pydt_is_same_day(dt1, dt2):
+	if dt1.day != dt2.day:
 		return False
-	if dt.month != now.month:
+	if dt1.month != dt2.month:
 		return False
-	if dt.year != now.year:
+	if dt1.year != dt2.year:
 		return False
 	return True
+
+#---------------------------------------------------------------------------
+def pydt_is_today(dt):
+	if not dt:
+		return None
+
+	now = pyDT.datetime.now(gmCurrentLocalTimezone)
+	return pydt_is_same_day(dt, now)
+
+#---------------------------------------------------------------------------
+def pydt_is_yesterday(dt):
+	if not dt:
+		return None
+
+	yesterday = pyDT.datetime.now(gmCurrentLocalTimezone) - pyDT.timedelta(days = 1)
+	return pydt_is_same_day(dt, yesterday)
 
 #---------------------------------------------------------------------------
 def pydt_now_here():
@@ -540,56 +555,88 @@ def format_interval(interval=None, accuracy_wanted=None, none_string=None, verbo
 	return formatted_intv.strip()
 
 #---------------------------------------------------------------------------
-def format_interval_medically(interval=None):
+def format_interval_medically(interval:pyDT.timedelta=None, terse:bool=False, approximation_prefix:str=None):
 	"""Formats an interval.
 
-	This isn't mathematically correct but close enough for display.
+		This isn't mathematically correct but close enough for display.
+
+	Args:
+		interval: the interval to format
+		terse: output terse formatting or not
+		approximation_mark: an approxiation mark to apply in the formatting, if any
 	"""
+	assert interval, '<interval> must be given'
+
+	spacer = '' if terse else ' '
+	prefix = approximation_prefix if approximation_prefix else ''
 	# more than 1 year ?
 	if interval.days > 364:
 		years, days = divmod(interval.days, avg_days_per_gregorian_year)
 		months, day = divmod(days, 30.33)
 		if int(months) == 0:
-			return "%s%s" % (int(years), _('interval_format_tag::years::y')[-1:])
+			return '%s%s%s%s' % (
+				prefix,
+				spacer,
+				int(years),
+				_('interval_format_tag::years::y')[-1:]
+			)
 
-		return "%s%s %s%s" % (int(years), _('interval_format_tag::years::y')[-1:], int(months), _('interval_format_tag::months::m')[-1:])
+		return '%s%s%s%s%s%s%s' % (
+			prefix,
+			spacer,
+			int(years),
+			_('interval_format_tag::years::y')[-1:],
+			spacer,
+			int(months),
+			_('interval_format_tag::months::m')[-1:]
+		)
 
 	# more than 30 days / 1 month ?
 	if interval.days > 30:
 		months, days = divmod(interval.days, 30.33)
 		weeks, days = divmod(days, 7)
-		if int(weeks + days) == 0:
-			result = '%smo' % int(months)
-		else:
-			result = '%s%s' % (int(months), _('interval_format_tag::months::m')[-1:])
+		result = '%s%s%s%s' % (
+			prefix,
+			spacer,
+			int(months),
+			_('interval_format_tag::months::m')[-1:]
+		)
 		if int(weeks) != 0:
-			result += ' %s%s' % (int(weeks), _('interval_format_tag::weeks::w')[-1:])
+			result += '%s%s%s' % (spacer, int(weeks), _('interval_format_tag::weeks::w')[-1:])
 		if int(days) != 0:
-			result += ' %s%s' % (int(days), _('interval_format_tag::days::d')[-1:])
+			result += '%s%s%s' % (spacer, int(days), _('interval_format_tag::days::d')[-1:])
 		return result
 
 	# between 7 and 30 days ?
 	if interval.days > 7:
-		return "%s%s" % (interval.days, _('interval_format_tag::days::d')[-1:])
+		return '%s%s%s%s' % (prefix, spacer, interval.days, _('interval_format_tag::days::d')[-1:])
 
 	# between 1 and 7 days ?
 	if interval.days > 0:
 		hours, seconds = divmod(interval.seconds, 3600)
 		if hours == 0:
-			return '%s%s' % (interval.days, _('interval_format_tag::days::d')[-1:])
-		return "%s%s (%sh)" % (interval.days, _('interval_format_tag::days::d')[-1:], int(hours))
+			return '%s%s%s%s' % (prefix, spacer, interval.days, _('interval_format_tag::days::d')[-1:])
+
+		return "%s%s%s%s%s%sh" % (
+			prefix,
+			spacer,
+			interval.days,
+			_('interval_format_tag::days::d')[-1:],
+			spacer,
+			int(hours)
+		)
 
 	# between 5 hours and 1 day
 	if interval.seconds > (5*3600):
-		return "%sh" % int(interval.seconds // 3600)
+		return '%s%s%sh' % (prefix, spacer, int(interval.seconds // 3600))
 
 	# between 1 and 5 hours
 	if interval.seconds > 3600:
 		hours, seconds = divmod(interval.seconds, 3600)
 		minutes = seconds // 60
 		if minutes == 0:
-			return '%sh' % int(hours)
-		return "%s:%02d" % (int(hours), int(minutes))
+			return '%s%s%sh' % (prefix, spacer, int(hours))
+		return '%s:%02d' % (int(hours), int(minutes))
 
 	# minutes only
 	if interval.seconds > (5*60):
@@ -601,7 +648,7 @@ def format_interval_medically(interval=None):
 		return '%ss' % int(seconds)
 	if seconds == 0:
 		return '0:%02d' % int(minutes)
-	return "%s.%ss" % (int(minutes), int(seconds))
+	return '%s.%ss' % (int(minutes), int(seconds))
 
 #---------------------------------------------------------------------------
 def format_pregnancy_weeks(age):
@@ -660,7 +707,7 @@ def calculate_apparent_age(start=None, end=None) -> ():
 	"""Calculate age in a way humans naively expect it.
 
 	This does *not* take into account time zones which may
-	shift the result by one day.
+	shift the result by up to one day.
 
 	Args:
 		start: the beginning of the period-to-be-aged, the 'birth' if you will
@@ -670,14 +717,19 @@ def calculate_apparent_age(start=None, end=None) -> ():
 		A tuple (years, ..., seconds) as simple differences
 		between the fields:
 
-		(years, months, days, hours, minutes, seconds)
+			(years, months, days, hours, minutes, seconds)
 	"""
-	if end is None:
-		end = pyDT.datetime.now(gmCurrentLocalTimezone)
+	assert not((end is None) and (start is None)), 'one of <start> or <end> must be given'
 
+	now = pyDT.datetime.now(gmCurrentLocalTimezone)
+	if end is None:
+		if start <= now:
+			end = now
+		else:
+			end = start
+			start = now
 	if end < start:
 		raise ValueError('calculate_apparent_age(): <end> (%s) before <start> (%s)' % (end, start))
-
 	if end == start:
 		return (0, 0, 0, 0, 0, 0)
 
@@ -2152,8 +2204,16 @@ if __name__ == '__main__':
 		]
 		idx = 1
 		for intv in intervals:
-			print ('%s) %s -> %s' % (idx, intv, format_interval_medically(intv)))
+			print('%s) %s:' % (idx, intv))
+			print(' -> %s // %s // %s // %s' % (
+				format_interval_medically(intv, terse = False),
+				format_interval_medically(intv, terse = False, approximation_prefix = '\u2248'),
+				format_interval_medically(intv, terse = True),
+				format_interval_medically(intv, terse = True, approximation_prefix = '\u2248')
+			))
 			idx += 1
+			if idx / 20 in [1.0, 2.0, 3.0]:
+				input('next')
 		#intv = pyDT.timedelta(days = 3650)
 		#print ('%s -> %s' % (intv, format_interval_medically(intv)))
 
@@ -2334,9 +2394,7 @@ if __name__ == '__main__':
 	# GNUmed libs
 	gmI18N.activate_locale()
 	gmI18N.install_domain('gnumed')
-
 	init()
-
 	#test_date_time()
 	#test_str2fuzzy_timestamp_matches()
 	#test_str2pydt_matches()
