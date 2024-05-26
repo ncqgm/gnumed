@@ -42,6 +42,8 @@ select
 	c_i.notes4us,
 	c_i.narrative
 		as notes4provider,
+	c_epi.description
+		as episode,
 	c_ir.modified_when,
 	c_ir.modified_by,
 	c_i.fk_substance

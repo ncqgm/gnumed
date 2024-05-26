@@ -277,7 +277,7 @@ from
 		inner join clin.episode c_epi on c_ir.fk_episode = c_epi.pk
 			left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
 where
-	c_ir.start_is_unknown IS TRUE
+	c_ir.start_is_unknown IS FALSE
 ;
 
 comment on view clin.v_regimens_w_start__journal is

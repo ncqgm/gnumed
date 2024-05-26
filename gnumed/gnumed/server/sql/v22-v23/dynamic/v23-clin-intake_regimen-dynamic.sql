@@ -145,9 +145,31 @@ alter table clin.intake_regimen
 	alter column start_is_unknown
 		set default false;
 
+
+drop function if exists clin.trf_start_is_unknown_minimizes_started() cascade;
+
+create or replace function clin.trf_start_is_unknown_minimizes_started()
+	returns trigger
+	language plpgsql
+	as '
+BEGIN
+	NEW.clin_when := ''-infinity''::timestamp with time zone;
+	RETURN NEW;
+END;';
+
+create trigger tr_start_is_unknown_minimizes_started
+	before insert or update on clin.intake_regimen
+	for each row
+	when (NEW.start_is_unknown is not distinct from TRUE)
+	execute procedure clin.trf_start_is_unknown_minimizes_started()
+;
+
+comment on function clin.trf_start_is_unknown_minimizes_started() is
+	'When .start_is_unknown is true then .clin_when (used as .started) is set to -infinity.';
+
 -- --------------------------------------------------------------
 -- .comment_on_start
-comment on column clin.intake_regimen.comment_on_start is 'Comment (uncertainty level) on .clin_when. "?" = "entirely unknown".';
+comment on column clin.intake_regimen.comment_on_start is 'Comment (say, uncertainty level) on .clin_when.';
 
 alter table clin.intake_regimen
 	alter column comment_on_start
