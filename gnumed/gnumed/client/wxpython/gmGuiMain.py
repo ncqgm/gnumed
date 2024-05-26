@@ -2553,7 +2553,7 @@ class gmTopLevelFrame(wx.Frame):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add medication. No active patient.'))
 			return False
 
-		gmSubstanceIntakeWidgets.edit_intake_of_substance(parent = self)
+		gmSubstanceIntakeWidgets.edit_intake_with_regimen(parent = self)
 
 		evt.Skip()
 	#----------------------------------------------

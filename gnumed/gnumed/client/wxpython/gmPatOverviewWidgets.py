@@ -876,14 +876,10 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		atcs = []
 		if data['atc_substance'] is not None:
 			atcs.append(data['atc_substance'])
-#		if data['atc_drug'] is not None:
-#			atcs.append(data['atc_drug'])
-#		allg = emr.is_allergic_to(atcs = atcs, inns = (data['substance'],), drug = data['drug_product'])
 		allg = emr.is_allergic_to(atcs = atcs, inns = [data['substance']])
 		if allg is False:
 			allg = None
-		#return data.format(single_line = False, allergy = allg, show_all_product_components = True)
-		return '\n'.join(data.format())
+		return data.format(allergy = allg, eol = '\n')
 
 	#-----------------------------------------------------
 	def _on_meds_item_activated(self, event):
@@ -898,7 +894,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		# <ctrl> down ? -> edit
 		if wx.GetKeyState(wx.WXK_CONTROL):
-			wx.CallAfter(gmSubstanceIntakeWidgets.edit_intake_of_substance, parent = self, intake = data)
+			wx.CallAfter(gmSubstanceIntakeWidgets.edit_intake_with_regimen, parent = self, intake_with_regimen = data)
 			return
 
 		gmDispatcher.send(signal = 'display_widget', name = 'gmCurrentSubstancesPlugin')

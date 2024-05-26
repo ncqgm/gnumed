@@ -106,7 +106,6 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 
 		self.__grouping_choice_labels = [
 			{'label': _('Health issue'), 'data': 'issue'} ,
-			#{'label': _('Drug product'), 'data': 'drug_product'},
 			{'label': _('Episode'), 'data': 'episode'},
 			{'label': _('Started'), 'data': 'start'}
 		]
@@ -121,18 +120,6 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		for option in self.__grouping_choice_labels:
 			self._CHCE_grouping.Append(option['label'], option['data'])
 		self._CHCE_grouping.SetSelection(0)
-
-		tt = self._BTN_heart.GetToolTipText()
-		try:
-			self._BTN_heart.SetToolTip(tt % gmMedication.URL_long_qt)
-		except TypeError:
-			_log.exception('translation error: %s', tt)
-
-		tt = self._BTN_kidneys.GetToolTipText()
-		try:
-			self._BTN_kidneys.SetToolTip(tt % gmMedication.URL_renal_insufficiency)
-		except TypeError:
-			_log.exception('translation error: %s', tt)
 
 	#-----------------------------------------------------
 	# reget-on-paint mixin API
@@ -448,8 +435,22 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 	def __register_interests(self):
 		gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = 'clin.substance_intake_mod_db', receiver = self._schedule_data_reget)
-		gmDispatcher.connect(signal = 'clin.test_result_mod_db', receiver = self._on_test_result_mod)
+		gmDispatcher.connect(signal = 'gm_table_mod', receiver = self._on_database_signal)
+
+	#--------------------------------------------------------
+	def _on_database_signal(self, **kwds):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			return True
+
+		if kwds['pk_identity'] != pat.ID:
+			return True
+
+		if kwds['table'] == 'clin.intake':
+			self._schedule_data_reget()
+		elif kwds['table'] == 'clin.test_result':
+			self._on_test_result_mod()
+		return True
 
 	#--------------------------------------------------------
 	def _on_test_result_mod(self):
@@ -506,12 +507,19 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		self._grid_substances.create_allergy_from_substance()
 
 	#--------------------------------------------------------
-	def _on_button_kidneys_pressed(self, event):
-		self._grid_substances.show_renal_insufficiency_info()
+	def _on_kidneys_button_pressed(self, event):
+		self._grid_substances.show_nephrological_info()
 
 	#--------------------------------------------------------
-	def _on_button_heart_pressed(self, event):
-		self._grid_substances.show_cardiac_info()
+	def _on_heart_button_pressed(self, event):
+		self._grid_substances.show_cardiological_info()
+	#----------------------------------------------------------------
+	def _on_pregnancy_button_pressed(self, event):
+		self._grid_substances.show_pregnancy_info()
+
+	#----------------------------------------------------------------
+	def _on_lungs_button_pressed(self, event):
+		self._grid_substances.show_pulmological_info()
 
 	#--------------------------------------------------------
 	def _on_adr_button_pressed(self, event):

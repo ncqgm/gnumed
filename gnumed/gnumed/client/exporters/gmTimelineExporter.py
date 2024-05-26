@@ -432,8 +432,7 @@ def __format_intake_as_timeline_xml(intake):
 		gmTools.xml_escape_string(intake['substance']),
 		_('Substances'),
 		gmTools.xml_escape_string(intake.format (
-			single_line = False,
-			show_all_product_components = False
+			single_line = False
 		).strip().strip('\n').strip())
 	)
 

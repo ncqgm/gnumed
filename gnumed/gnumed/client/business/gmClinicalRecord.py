@@ -941,7 +941,7 @@ class cClinicalRecord(object):
 			txt += _('Medications and Substances')
 			txt += '\n'
 		for m in meds:
-			txt += '%s\n' % m.format_as_single_line(left_margin = 1)
+			txt += '%s\n' % m.format(left_margin = 1, single_line = True)
 
 		fhx = self.get_family_history()
 		if len(fhx) > 0:

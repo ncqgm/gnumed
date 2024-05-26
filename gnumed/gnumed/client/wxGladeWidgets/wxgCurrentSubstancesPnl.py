@@ -77,58 +77,74 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
 		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
 
 		self._BTN_add = wx.Button(self, wx.ID_ADD, "", style=wx.BU_EXACTFIT)
-		self._BTN_add.SetToolTip(_("Add a substance."))
-		__szr_buttons.Add(self._BTN_add, 0, wx.EXPAND | wx.RIGHT, 5)
+		self._BTN_add.SetToolTip(_("Add intake."))
+		__szr_buttons.Add(self._BTN_add, 0, wx.EXPAND, 5)
 
 		self._BTN_edit = wx.Button(self, wx.ID_ANY, _("&Edit"), style=wx.BU_EXACTFIT)
-		self._BTN_edit.SetToolTip(_("Edit the selected substance intake entry."))
-		__szr_buttons.Add(self._BTN_edit, 0, wx.EXPAND | wx.RIGHT, 5)
+		self._BTN_edit.SetToolTip(_("Edit selected intake."))
+		__szr_buttons.Add(self._BTN_edit, 0, wx.EXPAND | wx.LEFT, 5)
 
 		self._BTN_delete = wx.Button(self, wx.ID_DELETE, "", style=wx.BU_EXACTFIT)
-		self._BTN_delete.SetToolTip(_("Remove a substance from the list."))
-		__szr_buttons.Add(self._BTN_delete, 0, wx.EXPAND, 5)
+		self._BTN_delete.SetToolTip(_("Delete selected intake."))
+		__szr_buttons.Add(self._BTN_delete, 0, wx.EXPAND | wx.LEFT, 5)
 
 		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-
-		self._BTN_rx = wx.Button(self, wx.ID_ANY, _(u"℞"), style=wx.BU_EXACTFIT)
-		self._BTN_rx.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
-		self._BTN_rx.SetToolTip(_("Write a prescription based on either of\n\n- the selected lines\n- a copy of the most recent prescription"))
-		__szr_buttons.Add(self._BTN_rx, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 
 		self._BTN_print = wx.Button(self, wx.ID_PRINT, "", style=wx.BU_EXACTFIT)
-		self._BTN_print.SetToolTip(_("Print the medication list."))
-		__szr_buttons.Add(self._BTN_print, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		self._BTN_print.SetToolTip(_("Print medication list."))
+		__szr_buttons.Add(self._BTN_print, 0, wx.EXPAND, 5)
+
+		self._BTN_rx = wx.Button(self, wx.ID_ANY, _(u"℞"), style=wx.BU_EXACTFIT)
+		self._BTN_rx.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+		self._BTN_rx.SetToolTip(_("Prescribe:\n\n- selected substances or\n- via copy of the most recent prescription"))
+		__szr_buttons.Add(self._BTN_rx, 0, wx.EXPAND | wx.LEFT, 5)
 
 		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
 
-		__szr_buttons.Add((0, 0), 0, 0, 0)
-
-		self._BTN_kidneys = wx.Button(self, wx.ID_ANY, _("Kidney"), style=wx.BU_EXACTFIT)
-		self._BTN_kidneys.SetToolTip(_("Information on handling of drugs / the selected drug in the presence of renal insufficiency (%s)."))
-		__szr_buttons.Add(self._BTN_kidneys, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
-
-		self._BTN_heart = wx.Button(self, wx.ID_ANY, _(u"♥"), style=wx.BU_EXACTFIT)
-		self._BTN_heart.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
-		self._BTN_heart.SetToolTip(_("Information on handling drugs in the presence of long Qt syndrome (%s)."))
-		__szr_buttons.Add(self._BTN_heart, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
-
-		self._BTN_interactions = wx.Button(self, wx.ID_ANY, _("&Interactions?"), style=wx.BU_EXACTFIT)
-		self._BTN_interactions.SetToolTip(_("Check for interactions between selected drugs.\n\nIncludes all drugs if none selected."))
-		__szr_buttons.Add(self._BTN_interactions, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
-
-		self._BTN_info = wx.Button(self, wx.ID_ANY, _("Info"), style=wx.BU_EXACTFIT)
+		self._BTN_info = wx.Button(self, wx.ID_ANY, _(u"🛈"), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
+		self._BTN_info.SetForegroundColour(wx.Colour(0, 0, 255))
+		self._BTN_info.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
 		self._BTN_info.SetToolTip(_("Show in-depth information on the selected substance if available."))
 		__szr_buttons.Add(self._BTN_info, 0, wx.EXPAND, 5)
 
+		self._BTN_heart = wx.Button(self, wx.ID_ANY, _(u"🫀"), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
+		self._BTN_heart.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+		self._BTN_heart.SetToolTip(_("Cardiological data."))
+		__szr_buttons.Add(self._BTN_heart, 0, wx.EXPAND, 5)
+
+		self._BTN_kidneys = wx.Button(self, wx.ID_ANY, _(u"🫘"), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
+		self._BTN_kidneys.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+		self._BTN_kidneys.SetToolTip(_("Handling of drugs / the selected drug in the presence of renal insufficiency."))
+		__szr_buttons.Add(self._BTN_kidneys, 0, wx.EXPAND, 3)
+
+		self._BTN_lungs = wx.Button(self, wx.ID_ANY, _(u"🫁"), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
+		self._BTN_lungs.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+		self._BTN_lungs.SetToolTip(_("Pulmonary toxicity information."))
+		__szr_buttons.Add(self._BTN_lungs, 0, wx.EXPAND, 3)
+
+		self._BTN_pregnancy = wx.Button(self, wx.ID_ANY, _(u"🤰"), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
+		self._BTN_pregnancy.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+		self._BTN_pregnancy.SetToolTip(_("Embryo toxicity information."))
+		__szr_buttons.Add(self._BTN_pregnancy, 0, wx.EXPAND, 3)
+
 		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
 
-		self._BTN_allergy = wx.Button(self, wx.ID_ANY, _("Allergy"), style=wx.BU_EXACTFIT)
-		self._BTN_allergy.SetToolTip(_("Discontinue selected entry due to an allergy or intolerance."))
-		__szr_buttons.Add(self._BTN_allergy, 0, wx.EXPAND | wx.RIGHT, 5)
+		self._BTN_interactions = wx.Button(self, wx.ID_ANY, _(u"🗘?"), style=wx.BU_EXACTFIT)
+		self._BTN_interactions.SetForegroundColour(wx.Colour(255, 127, 0))
+		self._BTN_interactions.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+		self._BTN_interactions.SetToolTip(_("Check for interactions between selected drugs.\n\nIncludes all drugs if none selected."))
+		__szr_buttons.Add(self._BTN_interactions, 0, wx.EXPAND, 5)
 
-		self._BTN_adr = wx.Button(self, wx.ID_ANY, _("ADR"), style=wx.BU_EXACTFIT)
+		self._BTN_allergy = wx.Button(self, wx.ID_ANY, _(u"⚠!"), style=wx.BU_EXACTFIT)
+		self._BTN_allergy.SetForegroundColour(wx.Colour(255, 0, 0))
+		self._BTN_allergy.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+		self._BTN_allergy.SetToolTip(_("Discontinue selected intake due to an allergy or intolerance."))
+		__szr_buttons.Add(self._BTN_allergy, 0, wx.EXPAND | wx.LEFT, 3)
+
+		self._BTN_adr = wx.Button(self, wx.ID_ANY, _(u"🖄"), style=wx.BU_EXACTFIT)
+		self._BTN_adr.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
 		self._BTN_adr.SetToolTip(_("Report an Adverse Drug Reaction."))
-		__szr_buttons.Add(self._BTN_adr, 0, wx.ALIGN_CENTER_VERTICAL, 5)
+		__szr_buttons.Add(self._BTN_adr, 0, wx.EXPAND | wx.LEFT, 3)
 
 		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
 
@@ -142,12 +158,14 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
 		self.Bind(wx.EVT_BUTTON, self._on_add_button_pressed, self._BTN_add)
 		self.Bind(wx.EVT_BUTTON, self._on_edit_button_pressed, self._BTN_edit)
 		self.Bind(wx.EVT_BUTTON, self._on_delete_button_pressed, self._BTN_delete)
-		self.Bind(wx.EVT_BUTTON, self._on_rx_button_pressed, self._BTN_rx)
 		self.Bind(wx.EVT_BUTTON, self._on_print_button_pressed, self._BTN_print)
-		self.Bind(wx.EVT_BUTTON, self._on_button_kidneys_pressed, self._BTN_kidneys)
-		self.Bind(wx.EVT_BUTTON, self._on_button_heart_pressed, self._BTN_heart)
-		self.Bind(wx.EVT_BUTTON, self._on_interactions_button_pressed, self._BTN_interactions)
+		self.Bind(wx.EVT_BUTTON, self._on_rx_button_pressed, self._BTN_rx)
 		self.Bind(wx.EVT_BUTTON, self._on_info_button_pressed, self._BTN_info)
+		self.Bind(wx.EVT_BUTTON, self._on_heart_button_pressed, self._BTN_heart)
+		self.Bind(wx.EVT_BUTTON, self._on_kidneys_button_pressed, self._BTN_kidneys)
+		self.Bind(wx.EVT_BUTTON, self._on_lungs_button_pressed, self._BTN_lungs)
+		self.Bind(wx.EVT_BUTTON, self._on_pregnancy_button_pressed, self._BTN_pregnancy)
+		self.Bind(wx.EVT_BUTTON, self._on_interactions_button_pressed, self._BTN_interactions)
 		self.Bind(wx.EVT_BUTTON, self._on_allergy_button_pressed, self._BTN_allergy)
 		self.Bind(wx.EVT_BUTTON, self._on_adr_button_pressed, self._BTN_adr)
 		# end wxGlade
@@ -172,28 +190,36 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
 		print("Event handler '_on_delete_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_rx_button_pressed(self, event):  # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
-		print("Event handler '_on_rx_button_pressed' not implemented!")
-		event.Skip()
-
 	def _on_print_button_pressed(self, event):  # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
 		print("Event handler '_on_print_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_button_kidneys_pressed(self, event):  # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
-		print("Event handler '_on_button_kidneys_pressed' not implemented!")
-		event.Skip()
-
-	def _on_button_heart_pressed(self, event):  # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
-		print("Event handler '_on_button_heart_pressed' not implemented!")
-		event.Skip()
-
-	def _on_interactions_button_pressed(self, event):  # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
-		print("Event handler '_on_interactions_button_pressed' not implemented!")
+	def _on_rx_button_pressed(self, event):  # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
+		print("Event handler '_on_rx_button_pressed' not implemented!")
 		event.Skip()
 
 	def _on_info_button_pressed(self, event):  # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
 		print("Event handler '_on_info_button_pressed' not implemented!")
+		event.Skip()
+
+	def _on_heart_button_pressed(self, event):  # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
+		print("Event handler '_on_heart_button_pressed' not implemented!")
+		event.Skip()
+
+	def _on_kidneys_button_pressed(self, event):  # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
+		print("Event handler '_on_kidneys_button_pressed' not implemented!")
+		event.Skip()
+
+	def _on_lungs_button_pressed(self, event):  # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
+		print("Event handler '_on_lungs_button_pressed' not implemented!")
+		event.Skip()
+
+	def _on_pregnancy_button_pressed(self, event):  # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
+		print("Event handler '_on_pregnancy_button_pressed' not implemented!")
+		event.Skip()
+
+	def _on_interactions_button_pressed(self, event):  # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
+		print("Event handler '_on_interactions_button_pressed' not implemented!")
 		event.Skip()
 
 	def _on_allergy_button_pressed(self, event):  # wxGlade: wxgCurrentSubstancesPnl.<event_handler>

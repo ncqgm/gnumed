@@ -14,10 +14,11 @@ from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
 from Gnumed.wxpython.gmDateTimeInput import cDateInputPhraseWheel
 from Gnumed.wxpython.gmDateTimeInput import cIntervalPhraseWheel
 from Gnumed.wxpython.gmListWidgets import cReportListCtrl
-from Gnumed.wxpython.gmMedicationPRWs import cSubstanceSchedulePhraseWheel
-from Gnumed.wxpython.gmTextCtrl import cTextCtrl
-from Gnumed.wxpython.gmMedicationPRWs import cSubstancePatientNotesPhraseWheel
 from Gnumed.wxpython.gmEMRStructWidgets import cEpisodeSelectionPhraseWheel
+from Gnumed.wxpython.gmDateTimeInput import cDateInputPhraseWheel
+#from Gnumed.wxpython.gmTextCtrl import cTextCtrl
+from Gnumed.wxpython.gmMeasurementWidgets import cUnitPhraseWheel
+from Gnumed.wxpython.gmTextCtrl import cTextCtrl
 from Gnumed.wxpython.gmMedicationPRWs import cSubstanceOrDosePhraseWheel
 # end wxGlade
 
@@ -37,196 +38,190 @@ class wxgSubstanceIntakeEAPnl(wx.ScrolledWindow):
 		__sline_top = wx.StaticLine(self, wx.ID_ANY)
 		__szr_main.Add(__sline_top, 0, wx.BOTTOM | wx.EXPAND, 3)
 
-		__gszr_main = wx.FlexGridSizer(13, 2, 1, 3)
+		__gszr_main = wx.FlexGridSizer(11, 2, 2, 3)
 		__szr_main.Add(__gszr_main, 0, wx.EXPAND, 0)
 
 		_LBL_substance = wx.StaticText(self, wx.ID_ANY, _("Substance"))
 		_LBL_substance.SetForegroundColour(wx.Colour(255, 0, 0))
 		__gszr_main.Add(_LBL_substance, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
-		self._PRW_substance = cSubstanceOrDosePhraseWheel(self, wx.ID_ANY, "")
-		__gszr_main.Add(self._PRW_substance, 2, wx.EXPAND, 0)
+		self._PRW_substance = cSubstanceOrDosePhraseWheel(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
+		__gszr_main.Add(self._PRW_substance, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 
-		__gszr_main.Add((20, 20), 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+		__lbl_dosage = wx.StaticText(self, wx.ID_ANY, _("Amount"))
+		__lbl_dosage.SetForegroundColour(wx.Colour(255, 127, 0))
+		__gszr_main.Add(__lbl_dosage, 0, wx.ALIGN_CENTER_VERTICAL, 3)
 
-		self._LBL_substance_details = wx.StaticText(self, wx.ID_ANY, "")
-		__gszr_main.Add(self._LBL_substance_details, 1, wx.EXPAND, 0)
+		__szr_dosage = wx.BoxSizer(wx.HORIZONTAL)
+		__gszr_main.Add(__szr_dosage, 1, wx.EXPAND, 0)
 
-		__gszr_main.Add((20, 20), 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+		self._TCTRL_amount = cTextCtrl(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
+		self._TCTRL_amount.SetToolTip(_("Amount of active ingredient."))
+		__szr_dosage.Add(self._TCTRL_amount, 1, wx.EXPAND, 3)
 
-		__szr_mgmt_buttons = wx.BoxSizer(wx.HORIZONTAL)
-		__gszr_main.Add(__szr_mgmt_buttons, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+		__lbl_unit = wx.StaticText(self, wx.ID_ANY, _("Unit"))
+		__lbl_unit.SetForegroundColour(wx.Colour(255, 127, 0))
+		__szr_dosage.Add(__lbl_unit, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 3)
 
-		__lbl_research = wx.StaticText(self, wx.ID_ANY, _("Research:"))
-		__szr_mgmt_buttons.Add(__lbl_research, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
-
-		self._BTN_heart = wx.Button(self, wx.ID_ANY, _(u"♥"), style=wx.BU_EXACTFIT)
-		self._BTN_heart.SetToolTip(_("Show cardiac information relevant to substance selection."))
-		__szr_mgmt_buttons.Add(self._BTN_heart, 0, wx.EXPAND | wx.RIGHT, 3)
-
-		self._BTN_kidneys = wx.Button(self, wx.ID_ANY, _("Kidneys"), style=wx.BU_EXACTFIT)
-		self._BTN_kidneys.SetToolTip(_("Show renal insufficiency information related to substance selection."))
-		__szr_mgmt_buttons.Add(self._BTN_kidneys, 0, wx.EXPAND, 0)
-
-		__szr_mgmt_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-
-		__lbl_manage = wx.StaticText(self, wx.ID_ANY, _("Manage:"))
-		__szr_mgmt_buttons.Add(__lbl_manage, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
-
-		self._BTN_manage_products = wx.Button(self, wx.ID_ANY, _("Drugs"), style=wx.BU_EXACTFIT)
-		self._BTN_manage_products.SetToolTip(_("Manage drug products.\n\nNote that this will not select a component for you. What it does is to let you manage (add/edit/delete) the drug products known to GNUmed from which you can select a component."))
-		__szr_mgmt_buttons.Add(self._BTN_manage_products, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
-
-		self._BTN_manage_component = wx.Button(self, wx.ID_ANY, _("Components"), style=wx.BU_EXACTFIT)
-		self._BTN_manage_component.SetToolTip(_("Manage drug components."))
-		__szr_mgmt_buttons.Add(self._BTN_manage_component, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
-
-		self._BTN_manage_doses = wx.Button(self, wx.ID_ANY, _("Doses"), style=wx.BU_EXACTFIT)
-		self._BTN_manage_doses.SetToolTip(_("Manage substance doses."))
-		__szr_mgmt_buttons.Add(self._BTN_manage_doses, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
-
-		self._BTN_manage_substance = wx.Button(self, wx.ID_ANY, _("Substances"), style=wx.BU_EXACTFIT)
-		self._BTN_manage_substance.SetToolTip(_("Manage substances."))
-		__szr_mgmt_buttons.Add(self._BTN_manage_substance, 0, wx.ALIGN_CENTER_VERTICAL, 3)
-
-		__lbl_episode = wx.StaticText(self, wx.ID_ANY, _("Episode"))
-		__lbl_episode.SetForegroundColour(wx.Colour(255, 0, 0))
-		__gszr_main.Add(__lbl_episode, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-
-		self._PRW_episode = cEpisodeSelectionPhraseWheel(self, wx.ID_ANY, "")
-		self._PRW_episode.SetToolTip(_("Select, or enter for creation, the episode to which this substance will relate."))
-		__gszr_main.Add(self._PRW_episode, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-
-		__lbl_patient_notes = wx.StaticText(self, wx.ID_ANY, _("Patient notes"))
-		__gszr_main.Add(__lbl_patient_notes, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-
-		self._PRW_patient_notes = cSubstancePatientNotesPhraseWheel(self, wx.ID_ANY, "")
-		self._PRW_patient_notes.SetToolTip(_("Notes for the patient, say precautions, intake instructions, or aim of intake."))
-		__gszr_main.Add(self._PRW_patient_notes, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-
-		__lbl_provider_notes = wx.StaticText(self, wx.ID_ANY, _("Provider notes"))
-		__gszr_main.Add(__lbl_provider_notes, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-
-		self._PRW_provider_notes = cPhraseWheel(self, wx.ID_ANY, "")
-		self._PRW_provider_notes.SetToolTip(_("Any clinical notes, comments, or instructions on this substance intake, relevant for other healthcare providers."))
-		__gszr_main.Add(self._PRW_provider_notes, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-
-		__gszr_main.Add((20, 20), 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-
-		__szr_regimen_label = wx.BoxSizer(wx.HORIZONTAL)
-		__gszr_main.Add(__szr_regimen_label, 1, wx.EXPAND, 0)
-
-		__lbl_regimen = wx.StaticText(self, wx.ID_ANY, _("Regimen"), style=wx.ALIGN_CENTER_HORIZONTAL)
-		__lbl_regimen.SetForegroundColour(wx.Colour(50, 153, 204))
-		__szr_regimen_label.Add(__lbl_regimen, 3, wx.ALIGN_CENTER_VERTICAL, 0)
-
-		self._BTN_edit_regimen = wx.Button(self, wx.ID_ANY, _("Edit"), style=wx.BU_EXACTFIT)
-		self._BTN_edit_regimen.Enable(False)
-		__szr_regimen_label.Add(self._BTN_edit_regimen, 0, wx.EXPAND | wx.RIGHT, 3)
-
-		self._BTN_delete_regimen = wx.Button(self, wx.ID_ANY, _("Delete"), style=wx.BU_EXACTFIT)
-		self._BTN_delete_regimen.Enable(False)
-		__szr_regimen_label.Add(self._BTN_delete_regimen, 0, wx.EXPAND, 0)
-
-		__szr_regimen_label.Add((20, 20), 1, wx.EXPAND, 0)
-
-		self._BTN_add_regimen = wx.Button(self, wx.ID_ANY, _("Add new"), style=wx.BU_EXACTFIT)
-		self._BTN_add_regimen.Enable(False)
-		__szr_regimen_label.Add(self._BTN_add_regimen, 0, wx.EXPAND, 3)
-
-		__lbl_amount = wx.StaticText(self, wx.ID_ANY, _("Amount"))
-		__gszr_main.Add(__lbl_amount, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-
-		__szr_dose = wx.BoxSizer(wx.HORIZONTAL)
-		__gszr_main.Add(__szr_dose, 1, wx.EXPAND, 0)
-
-		self._TCTRL_amount = cTextCtrl(self, wx.ID_ANY, "")
-		self._TCTRL_amount.SetToolTip(_("Enter the amount of substance to be taken each time."))
-		self._TCTRL_amount.Enable(False)
-		__szr_dose.Add(self._TCTRL_amount, 1, wx.ALIGN_CENTER_VERTICAL, 3)
-
-		_lbl_units = wx.StaticText(self, wx.ID_ANY, _("Units:"))
-		__szr_dose.Add(_lbl_units, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 3)
-
-		self._TCTRL_unit = cTextCtrl(self, wx.ID_ANY, "")
-		self._TCTRL_unit.SetToolTip(_("Enter the unit for the amount."))
-		self._TCTRL_unit.Enable(False)
-		__szr_dose.Add(self._TCTRL_unit, 1, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 3)
+		self._PRW_unit = cUnitPhraseWheel(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
+		self._PRW_unit.SetToolTip(_("Units for the amount of active ingredient."))
+		__szr_dosage.Add(self._PRW_unit, 1, wx.EXPAND | wx.LEFT, 3)
 
 		__lbl_schedule = wx.StaticText(self, wx.ID_ANY, _("Schedule"))
 		__lbl_schedule.SetForegroundColour(wx.Colour(255, 127, 0))
-		__gszr_main.Add(__lbl_schedule, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		__gszr_main.Add(__lbl_schedule, 0, 0, 3)
 
-		self._PRW_schedule = cSubstanceSchedulePhraseWheel(self, wx.ID_ANY, "")
-		self._PRW_schedule.SetToolTip(_("The schedule for taking this substance."))
-		self._PRW_schedule.Enable(False)
-		__gszr_main.Add(self._PRW_schedule, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+		self._TCTRL_schedule = cTextCtrl(self, wx.ID_ANY, "", style=wx.BORDER_NONE | wx.TE_MULTILINE | wx.TE_WORDWRAP)
+		self._TCTRL_schedule.SetToolTip(_("The intake schedule describing how to use the dosage."))
+		__gszr_main.Add(self._TCTRL_schedule, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 
 		__lbl_started = wx.StaticText(self, wx.ID_ANY, _("Started"))
+		__lbl_started.SetForegroundColour(wx.Colour(255, 127, 0))
 		__gszr_main.Add(__lbl_started, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
 		__szr_started = wx.BoxSizer(wx.HORIZONTAL)
 		__gszr_main.Add(__szr_started, 1, wx.EXPAND, 0)
 
-		self._CHBOX_start_unknown = wx.CheckBox(self, wx.ID_ANY, _("&Unknown - or Date:"), style=wx.CHK_2STATE)
-		self._CHBOX_start_unknown.SetToolTip(_("Check here if the start date simply isn't known."))
-		self._CHBOX_start_unknown.Enable(False)
-		self._CHBOX_start_unknown.SetValue(1)
-		__szr_started.Add(self._CHBOX_start_unknown, 0, wx.EXPAND | wx.RIGHT, 3)
+		self._BTN_started_today = wx.Button(self, wx.ID_ANY, _(u"&Today →"), style=wx.BU_EXACTFIT)
+		__szr_started.Add(self._BTN_started_today, 0, wx.ALIGN_CENTER_VERTICAL, 3)
 
-		self._DP_started = cDateInputPhraseWheel(self, wx.ID_ANY, "")
-		self._DP_started.SetToolTip(_("When was this substance started to be consumed or - if not known - the earliest it is known to have been be consumed."))
-		self._DP_started.Enable(False)
-		__szr_started.Add(self._DP_started, 1, wx.EXPAND | wx.RIGHT, 5)
+		self._DPRW_started = cDateInputPhraseWheel(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
+		self._DPRW_started.SetToolTip(_("The start of substance intake."))
+		__szr_started.Add(self._DPRW_started, 1, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 3)
 
-		__LBL_start_certainty = wx.StaticText(self, wx.ID_ANY, _("Certainty:"))
-		__szr_started.Add(__LBL_start_certainty, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
+		self._CHBOX_start_unknown = wx.CheckBox(self, wx.ID_ANY, _("&Unknown"), style=wx.CHK_2STATE)
+		__szr_started.Add(self._CHBOX_start_unknown, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 3)
 
-		self._PRW_start_certainty = cPhraseWheel(self, wx.ID_ANY, "")
-		self._PRW_start_certainty.SetToolTip(_("A comment on the certainty of the start date, such as \"+/- 3 weeks\", \"spring of 2002\", \"shortly after Easter 1996\", ...."))
-		self._PRW_start_certainty.Enable(False)
-		__szr_started.Add(self._PRW_start_certainty, 1, wx.EXPAND, 5)
+		__vline_unknown_comment = wx.StaticLine(self, wx.ID_ANY, style=wx.LI_VERTICAL)
+		__szr_started.Add(__vline_unknown_comment, 0, wx.EXPAND | wx.LEFT, 5)
 
-		__lbl_duration = wx.StaticText(self, wx.ID_ANY, _("Duration"))
-		__gszr_main.Add(__lbl_duration, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		__lbl_comment_on_start = wx.StaticText(self, wx.ID_ANY, _("Comment"))
+		__szr_started.Add(__lbl_comment_on_start, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 5)
 
-		self._PRW_duration = cIntervalPhraseWheel(self, wx.ID_ANY, "")
-		self._PRW_duration.SetToolTip(_("How long is this substance supposed to be taken."))
-		self._PRW_duration.Enable(False)
-		__gszr_main.Add(self._PRW_duration, 1, wx.EXPAND, 10)
+		self._TCTRL_comment_on_start = cTextCtrl(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
+		self._TCTRL_comment_on_start.SetToolTip(_("Notes on start date.\n\n('?' is interpreted as 'unknown')"))
+		__szr_started.Add(self._TCTRL_comment_on_start, 3, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 3)
 
-		__lbl_discontinued = wx.StaticText(self, wx.ID_ANY, _("Discontinued"))
-		__gszr_main.Add(__lbl_discontinued, 0, wx.ALIGN_CENTER_VERTICAL, 5)
+		__lbl_discontinued = wx.StaticText(self, wx.ID_ANY, _("Stopped"))
+		__gszr_main.Add(__lbl_discontinued, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
-		__szr_discontinued_date = wx.BoxSizer(wx.HORIZONTAL)
-		__gszr_main.Add(__szr_discontinued_date, 1, wx.EXPAND, 0)
+		__szr_discontinued = wx.BoxSizer(wx.HORIZONTAL)
+		__gszr_main.Add(__szr_discontinued, 1, wx.EXPAND, 0)
 
-		self._DP_discontinued = cDateInputPhraseWheel(self, wx.ID_ANY, "")
-		self._DP_discontinued.SetToolTip(_("When was intake of this substance discontinued ?"))
-		self._DP_discontinued.Enable(False)
-		__szr_discontinued_date.Add(self._DP_discontinued, 4, wx.EXPAND | wx.RIGHT, 3)
+		self._BTN_discontinued_today = wx.Button(self, wx.ID_ANY, _(u"To&day →"), style=wx.BU_EXACTFIT)
+		__szr_discontinued.Add(self._BTN_discontinued_today, 0, wx.ALIGN_CENTER_VERTICAL, 3)
 
-		self._BTN_discontinued_as_planned = wx.Button(self, wx.ID_ANY, _("Per plan"), style=wx.BU_EXACTFIT)
-		self._BTN_discontinued_as_planned.SetToolTip(_("Discontinued as planned (start + duration)."))
-		self._BTN_discontinued_as_planned.Enable(False)
-		__szr_discontinued_date.Add(self._BTN_discontinued_as_planned, 1, wx.ALIGN_CENTER_VERTICAL, 3)
+		self._DPRW_discontinued = cDateInputPhraseWheel(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
+		self._DPRW_discontinued.SetToolTip(_("The end of substance intake."))
+		__szr_discontinued.Add(self._DPRW_discontinued, 1, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 3)
 
-		__szr_discontinued_date.Add((20, 20), 1, wx.EXPAND, 0)
+		__lbl_comment_on_stop = wx.StaticText(self, wx.ID_ANY, _("Reason"))
+		__szr_discontinued.Add(__lbl_comment_on_stop, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 5)
 
-		__LBL_reason = wx.StaticText(self, wx.ID_ANY, _("... Reason"), style=wx.ALIGN_RIGHT)
-		__gszr_main.Add(__LBL_reason, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALIGN_RIGHT, 5)
+		self._TCTRL_discontinue_reason = cTextCtrl(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
+		self._TCTRL_discontinue_reason.SetToolTip(_("Reason for discontinuation."))
+		__szr_discontinued.Add(self._TCTRL_discontinue_reason, 3, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 3)
 
-		self._PRW_discontinue_reason = cPhraseWheel(self, wx.ID_ANY, "")
-		self._PRW_discontinue_reason.SetToolTip(_("Reason for discontinuation."))
-		self._PRW_discontinue_reason.Enable(False)
-		__gszr_main.Add(self._PRW_discontinue_reason, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 5)
+		__lbl_episode = wx.StaticText(self, wx.ID_ANY, _("Episode"))
+		__lbl_episode.SetForegroundColour(wx.Colour(255, 127, 0))
+		__gszr_main.Add(__lbl_episode, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		self._PRW_episode = cEpisodeSelectionPhraseWheel(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
+		self._PRW_episode.SetToolTip(_("Select, or enter for creation, the episode to which this substance will relate."))
+		__gszr_main.Add(self._PRW_episode, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
+		__lbl_notes_spacer = wx.StaticText(self, wx.ID_ANY, "")
+		__gszr_main.Add(__lbl_notes_spacer, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		sizer_1 = wx.BoxSizer(wx.HORIZONTAL)
+		__gszr_main.Add(sizer_1, 1, wx.EXPAND, 0)
+
+		sizer_1.Add((20, 20), 1, 0, 0)
+
+		__lbl_notes = wx.StaticText(self, wx.ID_ANY, _("Notes for:"))
+		sizer_1.Add(__lbl_notes, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		sizer_1.Add((20, 20), 2, 0, 0)
+
+		__lbl_patient_notes = wx.StaticText(self, wx.ID_ANY, _("Patient"))
+		__gszr_main.Add(__lbl_patient_notes, 0, 0, 0)
+
+		self._TCTRL_patient_notes = cTextCtrl(self, wx.ID_ANY, "", style=wx.BORDER_NONE | wx.TE_MULTILINE | wx.TE_WORDWRAP)
+		self._TCTRL_patient_notes.SetToolTip(_("Notes intended for the patient, such as:\n\n- aim of intake\n- intake instructions\n- conditions to observe/report"))
+		__gszr_main.Add(self._TCTRL_patient_notes, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
+		__lbl_provider_notes = wx.StaticText(self, wx.ID_ANY, _("Providers"))
+		__gszr_main.Add(__lbl_provider_notes, 0, 0, 0)
+
+		self._TCTRL_provider_notes = cTextCtrl(self, wx.ID_ANY, "", style=wx.BORDER_NONE | wx.TE_MULTILINE | wx.TE_WORDWRAP)
+		self._TCTRL_provider_notes.SetToolTip(_("Notes intended for other providers relevant to this intake, such as:\n\n- unusual dosage/indication\n- contraindications/interactions assessment\n- monitoring considerations"))
+		__gszr_main.Add(self._TCTRL_provider_notes, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
+		__lbl_our_notes = wx.StaticText(self, wx.ID_ANY, _("Ourselves"))
+		__gszr_main.Add(__lbl_our_notes, 0, 0, 0)
+
+		self._TCTRL_our_notes = cTextCtrl(self, wx.ID_ANY, "", style=wx.BORDER_NONE | wx.TE_MULTILINE | wx.TE_WORDWRAP)
+		self._TCTRL_our_notes.SetToolTip(_("Notes for ourselves such as patient-particular observations, notabenes, etc.\n\nNot intended for outside documents."))
+		__gszr_main.Add(self._TCTRL_our_notes, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
+		__lbl_research = wx.StaticText(self, wx.ID_ANY, _("Research"))
+		__gszr_main.Add(__lbl_research, 0, wx.ALIGN_CENTER_VERTICAL, 3)
+
+		__szr_mgmt_buttons = wx.BoxSizer(wx.HORIZONTAL)
+		__gszr_main.Add(__szr_mgmt_buttons, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
+		self._BTN_heart = wx.Button(self, wx.ID_ANY, _(u"🫀"), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
+		self._BTN_heart.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+		self._BTN_heart.SetToolTip(_("Cardiac information relevant to this substance."))
+		__szr_mgmt_buttons.Add(self._BTN_heart, 0, wx.EXPAND, 3)
+
+		self._BTN_kidneys = wx.Button(self, wx.ID_ANY, _(u"🫘"), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
+		self._BTN_kidneys.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+		self._BTN_kidneys.SetToolTip(_("Renal insufficiency information related to this substance."))
+		__szr_mgmt_buttons.Add(self._BTN_kidneys, 0, wx.EXPAND | wx.LEFT, 3)
+
+		self._BTN_lungs = wx.Button(self, wx.ID_ANY, _(u"🫁"), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
+		self._BTN_lungs.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+		self._BTN_lungs.SetToolTip(_("Pulmonary toxicity information."))
+		__szr_mgmt_buttons.Add(self._BTN_lungs, 0, wx.EXPAND | wx.LEFT, 3)
+
+		self._BTN_pregnancy = wx.Button(self, wx.ID_ANY, _(u"🤰"), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
+		self._BTN_pregnancy.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+		self._BTN_pregnancy.SetToolTip(_("Embryo toxicity information."))
+		__szr_mgmt_buttons.Add(self._BTN_pregnancy, 0, wx.EXPAND | wx.LEFT, 3)
+
+		__szr_mgmt_buttons.Add((20, 20), 3, wx.EXPAND, 0)
+
+		self._BTN_manage_substance = wx.Button(self, wx.ID_ANY, _("Substances"))
+		self._BTN_manage_substance.SetToolTip(_("Manage substances."))
+		__szr_mgmt_buttons.Add(self._BTN_manage_substance, 0, wx.ALIGN_CENTER_VERTICAL, 3)
+
+		self._BTN_manage_doses = wx.Button(self, wx.ID_ANY, _("Doses"))
+		self._BTN_manage_doses.SetToolTip(_("Manage substance doses."))
+		__szr_mgmt_buttons.Add(self._BTN_manage_doses, 0, wx.EXPAND | wx.LEFT, 3)
+
+		self._BTN_manage_component = wx.Button(self, wx.ID_ANY, _("Components"))
+		self._BTN_manage_component.SetToolTip(_("Manage drug components."))
+		self._BTN_manage_component.Enable(False)
+		__szr_mgmt_buttons.Add(self._BTN_manage_component, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 3)
+
+		self._BTN_manage_products = wx.Button(self, wx.ID_ANY, _("Drugs"))
+		self._BTN_manage_products.SetToolTip(_("Manage drug products.\n\nNote that this will not select a component for you. What it does is to let you manage (add/edit/delete) the drug products known to GNUmed from which you can select a component."))
+		self._BTN_manage_products.Enable(False)
+		__szr_mgmt_buttons.Add(self._BTN_manage_products, 0, wx.EXPAND | wx.LEFT, 3)
 
 		__sline_regimen__regimen_list = wx.StaticLine(self, wx.ID_ANY)
 		__szr_main.Add(__sline_regimen__regimen_list, 0, wx.EXPAND, 0)
 
 		self._LCTRL_regimen = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_HRULES | wx.LC_REPORT | wx.LC_VRULES)
+		self._LCTRL_regimen.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
+		self._LCTRL_regimen.Enable(False)
 		__szr_main.Add(self._LCTRL_regimen, 0, wx.EXPAND, 0)
 
+		__gszr_main.AddGrowableRow(2)
+		__gszr_main.AddGrowableRow(7)
+		__gszr_main.AddGrowableRow(8)
+		__gszr_main.AddGrowableRow(9)
 		__gszr_main.AddGrowableCol(1)
 
 		self.SetSizer(__szr_main)
@@ -234,18 +229,30 @@ class wxgSubstanceIntakeEAPnl(wx.ScrolledWindow):
 
 		self.Layout()
 
+		self.Bind(wx.EVT_BUTTON, self._on_started_today_button_pressed, self._BTN_started_today)
+		self.Bind(wx.EVT_CHECKBOX, self._on_start_unknown_checkbox_toggled, self._CHBOX_start_unknown)
+		self.Bind(wx.EVT_BUTTON, self._on_discontinued_today_button_pressed, self._BTN_discontinued_today)
 		self.Bind(wx.EVT_BUTTON, self._on_heart_button_pressed, self._BTN_heart)
 		self.Bind(wx.EVT_BUTTON, self._on_kidneys_button_pressed, self._BTN_kidneys)
-		self.Bind(wx.EVT_BUTTON, self._on_manage_drug_products_button_pressed, self._BTN_manage_products)
-		self.Bind(wx.EVT_BUTTON, self._on_manage_components_button_pressed, self._BTN_manage_component)
-		self.Bind(wx.EVT_BUTTON, self._on_manage_doses_button_pressed, self._BTN_manage_doses)
+		self.Bind(wx.EVT_BUTTON, self._on_lungs_button_pressed, self._BTN_lungs)
+		self.Bind(wx.EVT_BUTTON, self._on_pregnancy_button_pressed, self._BTN_pregnancy)
 		self.Bind(wx.EVT_BUTTON, self._on_manage_substances_button_pressed, self._BTN_manage_substance)
-		self.Bind(wx.EVT_BUTTON, self._on_edit_regimen_button_pressed, self._BTN_edit_regimen)
-		self.Bind(wx.EVT_BUTTON, self._on_delete_regimen_button_pressed, self._BTN_delete_regimen)
-		self.Bind(wx.EVT_BUTTON, self._on_new_regimen_button_pressed, self._BTN_add_regimen)
-		self.Bind(wx.EVT_CHECKBOX, self._on_start_unknown_checked, self._CHBOX_start_unknown)
-		self.Bind(wx.EVT_BUTTON, self._on_discontinued_as_planned_button_pressed, self._BTN_discontinued_as_planned)
+		self.Bind(wx.EVT_BUTTON, self._on_manage_doses_button_pressed, self._BTN_manage_doses)
+		self.Bind(wx.EVT_BUTTON, self._on_manage_components_button_pressed, self._BTN_manage_component)
+		self.Bind(wx.EVT_BUTTON, self._on_manage_drug_products_button_pressed, self._BTN_manage_products)
 		# end wxGlade
+
+	def _on_started_today_button_pressed(self, event):  # wxGlade: wxgSubstanceIntakeEAPnl.<event_handler>
+		print("Event handler '_on_started_today_button_pressed' not implemented!")
+		event.Skip()
+
+	def _on_start_unknown_checkbox_toggled(self, event):  # wxGlade: wxgSubstanceIntakeEAPnl.<event_handler>
+		print("Event handler '_on_start_unknown_checkbox_toggled' not implemented!")
+		event.Skip()
+
+	def _on_discontinued_today_button_pressed(self, event):  # wxGlade: wxgSubstanceIntakeEAPnl.<event_handler>
+		print("Event handler '_on_discontinued_today_button_pressed' not implemented!")
+		event.Skip()
 
 	def _on_heart_button_pressed(self, event):  # wxGlade: wxgSubstanceIntakeEAPnl.<event_handler>
 		print("Event handler '_on_heart_button_pressed' not implemented!")
@@ -255,40 +262,28 @@ class wxgSubstanceIntakeEAPnl(wx.ScrolledWindow):
 		print("Event handler '_on_kidneys_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_manage_drug_products_button_pressed(self, event):  # wxGlade: wxgSubstanceIntakeEAPnl.<event_handler>
-		print("Event handler '_on_manage_drug_products_button_pressed' not implemented!")
+	def _on_lungs_button_pressed(self, event):  # wxGlade: wxgSubstanceIntakeEAPnl.<event_handler>
+		print("Event handler '_on_lungs_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_manage_components_button_pressed(self, event):  # wxGlade: wxgSubstanceIntakeEAPnl.<event_handler>
-		print("Event handler '_on_manage_components_button_pressed' not implemented!")
-		event.Skip()
-
-	def _on_manage_doses_button_pressed(self, event):  # wxGlade: wxgSubstanceIntakeEAPnl.<event_handler>
-		print("Event handler '_on_manage_doses_button_pressed' not implemented!")
+	def _on_pregnancy_button_pressed(self, event):  # wxGlade: wxgSubstanceIntakeEAPnl.<event_handler>
+		print("Event handler '_on_pregnancy_button_pressed' not implemented!")
 		event.Skip()
 
 	def _on_manage_substances_button_pressed(self, event):  # wxGlade: wxgSubstanceIntakeEAPnl.<event_handler>
 		print("Event handler '_on_manage_substances_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_edit_regimen_button_pressed(self, event):  # wxGlade: wxgSubstanceIntakeEAPnl.<event_handler>
-		print("Event handler '_on_edit_regimen_button_pressed' not implemented!")
+	def _on_manage_doses_button_pressed(self, event):  # wxGlade: wxgSubstanceIntakeEAPnl.<event_handler>
+		print("Event handler '_on_manage_doses_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_delete_regimen_button_pressed(self, event):  # wxGlade: wxgSubstanceIntakeEAPnl.<event_handler>
-		print("Event handler '_on_delete_regimen_button_pressed' not implemented!")
+	def _on_manage_components_button_pressed(self, event):  # wxGlade: wxgSubstanceIntakeEAPnl.<event_handler>
+		print("Event handler '_on_manage_components_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_new_regimen_button_pressed(self, event):  # wxGlade: wxgSubstanceIntakeEAPnl.<event_handler>
-		print("Event handler '_on_new_regimen_button_pressed' not implemented!")
-		event.Skip()
-
-	def _on_start_unknown_checked(self, event):  # wxGlade: wxgSubstanceIntakeEAPnl.<event_handler>
-		print("Event handler '_on_start_unknown_checked' not implemented!")
-		event.Skip()
-
-	def _on_discontinued_as_planned_button_pressed(self, event):  # wxGlade: wxgSubstanceIntakeEAPnl.<event_handler>
-		print("Event handler '_on_discontinued_as_planned_button_pressed' not implemented!")
+	def _on_manage_drug_products_button_pressed(self, event):  # wxGlade: wxgSubstanceIntakeEAPnl.<event_handler>
+		print("Event handler '_on_manage_drug_products_button_pressed' not implemented!")
 		event.Skip()
 
 # end of class wxgSubstanceIntakeEAPnl

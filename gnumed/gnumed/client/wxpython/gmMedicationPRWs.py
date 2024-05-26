@@ -41,8 +41,57 @@ LIMIT 30"""
 		self.selection_only = False
 
 #============================================================
+class cSubstancePRW(gmPhraseWheel.cPhraseWheel):
+	"""Matches a substance by name."""
+	def __init__(self, *args, **kwargs):
+		SQL = """-- substance match provider
+			SELECT DISTINCT ON (substance)
+				r_vs.substance AS field_label,
+				r_vs.substance AS list_label,
+				r_vs.pk_substance AS data
+			FROM ref.v_substances r_vs
+			WHERE r_vs.substance %(fragment_condition)s
+			ORDER BY r_vs.substance
+			LIMIT 30
+		"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries = SQL)
+		mp.setThresholds(1, 2, 4)
+		mp.word_separators = '[ \t=+&:@]+'
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+		self.SetToolTip(_('The substance the patient is taking.'))
+		self.matcher = mp
+		#self.matcher.print_queries = True
+		self.selection_only = False
+		self.phrase_separators = None
+
+	#--------------------------------------------------------
+	def _data2instance(self, link_obj=None):
+		pk = self.GetData(as_instance = False, can_create = False, link_obj = link_obj)
+		if pk is None:
+			return None
+
+		return gmMedication.cSubstance(aPK_obj = pk, link_obj = link_obj)
+
+	#--------------------------------------------------------
+	def _create_data(self, link_obj=None):
+		val = self.Value.strip()
+		if not val:
+			return
+
+		subst = gmMedication.create_substance (
+			substance = val,
+			link_obj = link_obj
+		)
+		if not subst:
+			self.data = {}
+			return
+
+		self.SetText(value = subst['substance'], data = subst['pk_substance'])
+
+#============================================================
 class cSubstanceOrDosePhraseWheel(gmPhraseWheel.cPhraseWheel):
-	"""Matches a substance, by name, possibly with strength (then a dose)."""
+	"""Matches a substance, by name, possibly with strength (then a dose).
+	"""
 	def __init__(self, *args, **kwargs):
 		mp = gmMedication.cSubstanceDoseMatchProvider()
 		mp.setThresholds(2, 3, 5)
@@ -51,35 +100,48 @@ class cSubstanceOrDosePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.matcher = mp
 		self.selection_only = False
 		self.phrase_separators = None
-		#self.matcher.print_queries = True
 
 	#--------------------------------------------------------
-	def _data2instance(self):
-		pk_subst, pk_dose = self.GetData(as_instance = False, can_create = False)
+	def _data2instance(self, link_obj=None):
+		if not self._data:
+			return None
+
+		pk_subst, pk_dose = self.GetData(as_instance = False, can_create = False, link_obj = link_obj)
+		if not pk_subst:
+			return None, None
+
+		subst = gmMedication.cSubstance(aPK_obj = pk_subst)
 		if pk_dose:
-			return gmMedication.cSubstanceDose(aPK_obj = pk_dose)
-
-		return gmMedication.cSubstance(aPK_obj = pk_subst)
-
-	#--------------------------------------------------------
-	def _get_has_dose(self):
-		if not self.GetData(as_instance = False, can_create = False):
-			return False
-
-		pk_subst, pk_dose = self.GetData(as_instance = False, can_create = False)
-		return pk_dose is not None
-
-	has_dose = property(_get_has_dose)
+			dose = gmMedication.cSubstanceDose(aPK_obj = pk_dose)
+		else:
+			dose = None
+		return subst, dose
 
 	#--------------------------------------------------------
-	def _get_has_substance(self):
-		if not self.GetData(as_instance = False, can_create = False):
-			return False
+	def _create_data(self, link_obj=None):
+		val = self.Value.strip()
+		if not val:
+			return
 
-		pk_subst, pk_dose = self.GetData(as_instance = False, can_create = False)
-		return pk_substance and not pk_dose
+		subst = gmMedication.create_substance(substance = val, link_obj = link_obj)
+		if not subst:
+			self.data = {}
+			return
 
-	has_substance = property(_get_has_substance)
+		self.SetText(value = subst['substance'], data = [subst['pk_substance'], None])
+
+	#--------------------------------------------------------
+	def _get_as_dose(self):
+		if not self._data:
+			return None
+
+		pk_dose = self.data[1]
+		if not pk_dose:
+			return None
+
+		return gmMedication.cSubstanceDose(aPK_obj = pk_dose)
+
+	as_dose = property(_get_as_dose)
 
 #============================================================
 # current substance intake widgets
@@ -96,7 +158,7 @@ class cSubstanceIntakeObjectPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.phrase_separators = None
 
 	#--------------------------------------------------------
-	def _data2instance(self):
+	def _data2instance(self, link_obj=None):
 		pk = self.GetData(as_instance = False, can_create = False)
 		if pk is None:
 			return None
@@ -119,7 +181,7 @@ class cProductOrSubstancePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.IS_COMPONENT = 3
 
 	#--------------------------------------------------------
-	def _data2instance(self):
+	def _data2instance(self, link_obj=None):
 		entry_type, pk = self.GetData(as_instance = False, can_create = False)
 		if entry_type == 1:
 			return gmMedication.cDrugProduct(aPK_obj = pk)

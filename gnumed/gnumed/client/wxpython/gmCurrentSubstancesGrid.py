@@ -323,16 +323,6 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				_('Strength'),
 				_('Schedule'),
 				_('Timeframe'),
-				_('Product'),
-				_('Notes')
-			],
-			'drug_product': [
-				_('Product'),
-				_('Schedule'),
-				_('Substance'),
-				_('Strength'),
-				_('Timeframe'),
-				_('Health issue'),
 				_('Notes')
 			],
 			'episode': [
@@ -341,7 +331,6 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				_('Strength'),
 				_('Schedule'),
 				_('Timeframe'),
-				_('Product'),
 				_('Notes')
 			],
 			'start': [
@@ -350,7 +339,6 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				_('Strength'),
 				_('Schedule'),
 				_('Timeframe'),
-				_('Product'),
 				_('Notes')
 			],
 		}
@@ -358,8 +346,13 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		self.__grouping2order_by_clauses = {
 			'issue': 'pk_health_issue NULLS FIRST, substance, started',
 			'episode': 'pk_health_issue NULLS FIRST, episode, substance, started',
-			'drug_product': 'product NULLS LAST, substance, started',
 			'start': 'started DESC, substance, episode'
+		}
+
+		self.__grouping2cell_fillers = {
+			'issue': self.__fill_cells_by_issue,
+			'episode': self.__fill_cells_by_episode,
+			'start': self.__fill_cells_by_episode
 		}
 
 		self.__init_ui()
@@ -420,6 +413,121 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		return self.__row_data.values()
 
 	#------------------------------------------------------------
+	def __fill_cells_by_episode(self, meds, emr):
+		if self.__grouping_mode not in ['episode', 'start']:
+			return False
+
+		for row_idx in range(len(meds)):
+			med = meds[row_idx]
+			self.__row_data[row_idx] = med
+			if med['discontinued']:
+				attr = self.GetOrCreateCellAttr(row_idx, 0)
+				attr.SetTextColour('grey')
+				self.SetRowAttr(row_idx, attr)
+			else:
+				atcs = []
+				if med['atc_substance'] is not None:
+					atcs.append(med['atc_substance'])
+				allg = emr.is_allergic_to(atcs = atcs, inns = [med['substance']])
+				if allg not in [None, False]:
+					attr = self.GetOrCreateCellAttr(row_idx, 0)
+					if allg['type'] == 'allergy':
+						attr.SetTextColour('red')
+					else:
+						#attr.SetTextColour('yellow')		# too light
+						#attr.SetTextColour('pink')			# too light
+						#attr.SetTextColour('dark orange')	# slightly better
+						attr.SetTextColour('magenta')
+					self.SetRowAttr(row_idx, attr)
+			if med['pk_episode']:
+				if self.__prev_cell_0 == med['episode']:
+					epi = ''
+				else:
+					self.__prev_cell_0 = med['episode']
+					epi = gmTools.coalesce(med['episode'], '')
+			else:
+				self.__prev_cell_0 = None
+				epi = gmTools.u_diameter
+			self.SetCellValue(row_idx, 0, gmTools.wrap(text = epi, width = 40))
+			self.SetCellValue(row_idx, 1, med['substance'])
+			if med['amount']:
+				amount_unit = '%s %s' % (med['amount'], med['unit'])
+			else:
+				amount_unit = ''
+			self.SetCellValue(row_idx, 2, amount_unit)
+			self.SetCellValue(row_idx, 3, gmTools.coalesce(med['schedule'], ''))
+			self.SetCellValue(row_idx, 4, med.medically_formatted_timerange)
+			notes_lines = []
+			if med['notes4patient']:
+				notes_lines.append(_('Patient: %s') % med['notes4patient'])
+			if med['notes4provider']:
+				notes_lines.append(_('Provider: %s') % med['notes4provider'])
+			if med['notes4us']:
+				notes_lines.append(_('Internal: %s') % med['notes4us'])
+			if notes_lines:
+				self.SetCellValue(row_idx, 5, gmTools.wrap(text = '\n'.join(notes_lines), width = 50))
+		return True
+
+	#------------------------------------------------------------
+	def __fill_cells_by_issue(self, meds, emr):
+		if self.__grouping_mode != 'issue':
+			return False
+
+		for row_idx in range(len(meds)):
+			med = meds[row_idx]
+			self.__row_data[row_idx] = med
+			if med['discontinued']:
+				attr = self.GetOrCreateCellAttr(row_idx, 0)
+				attr.SetTextColour('grey')
+				self.SetRowAttr(row_idx, attr)
+			else:
+				atcs = []
+				if med['atc_substance'] is not None:
+					atcs.append(med['atc_substance'])
+				allg = emr.is_allergic_to(atcs = atcs, inns = [med['substance']])
+				if allg not in [None, False]:
+					attr = self.GetOrCreateCellAttr(row_idx, 0)
+					if allg['type'] == 'allergy':
+						attr.SetTextColour('red')
+					else:
+						#attr.SetTextColour('yellow')		# too light
+						#attr.SetTextColour('pink')			# too light
+						#attr.SetTextColour('dark orange')	# slightly better
+						attr.SetTextColour('magenta')
+					self.SetRowAttr(row_idx, attr)
+			if med['pk_health_issue']:
+				if self.__prev_cell_0 == med['health_issue']:
+					issue = ''
+				else:
+					self.__prev_cell_0 = med['health_issue']
+					issue = med['health_issue']
+			else:
+				self.__prev_cell_0 = None
+				issue = '%s%s' % (
+					gmTools.u_diameter,
+					gmTools.coalesce(med['episode'], '', ' (%s)')
+				)
+			self.SetCellValue(row_idx, 0, gmTools.wrap(text = issue, width = 40))
+			self.SetCellValue(row_idx, 1, med['substance'])
+			if med['amount']:
+				amount = '%s %s' % (med['amount'], med['unit'])
+			else:
+				amount = ''
+			self.SetCellValue(row_idx, 2, amount)
+			self.SetCellValue(row_idx, 3, gmTools.coalesce(med['schedule'], ''))
+			self.SetCellValue(row_idx, 4, med.medically_formatted_timerange)
+			notes_lines = []
+			if med['notes4patient']:
+				notes_lines.append(_('Patient: %s') % med['notes4patient'])
+			if med['notes4provider']:
+				notes_lines.append(_('Provider: %s') % med['notes4provider'])
+			if med['notes4us']:
+				notes_lines.append(_('Internal: %s') % med['notes4us'])
+			if notes_lines:
+				self.SetCellValue(row_idx, 5, gmTools.wrap(text = '\n'.join(notes_lines), width = 50))
+		return True
+
+	#------------------------------------------------------------
 	def repopulate_grid(self):
 		self.empty_grid()
 		if self.__patient is None:
@@ -436,157 +544,13 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			return
 
 		self.BeginBatch()
-
-		# columns
 		labels = self.__grouping2col_labels[self.__grouping_mode]
 		self.AppendCols(numCols = len(labels))
 		for col_idx in range(len(labels)):
 			self.SetColLabelValue(col_idx, labels[col_idx])
-
 		self.AppendRows(numRows = len(meds))
-
-		# loop over data
-		for row_idx in range(len(meds)):
-			med = meds[row_idx]
-			self.__row_data[row_idx] = med
-
-			if not med['discontinued']:
-				atcs = []
-				if med['atc_substance'] is not None:
-					atcs.append(med['atc_substance'])
-				allg = emr.is_allergic_to(atcs = atcs, inns = [med['substance']])
-				if allg not in [None, False]:
-					attr = self.GetOrCreateCellAttr(row_idx, 0)
-					if allg['type'] == 'allergy':
-						attr.SetTextColour('red')
-					else:
-						#attr.SetTextColour('yellow')		# too light
-						#attr.SetTextColour('pink')			# too light
-						#attr.SetTextColour('dark orange')	# slightly better
-						attr.SetTextColour('magenta')
-					self.SetRowAttr(row_idx, attr)
-			else:
-				attr = self.GetOrCreateCellAttr(row_idx, 0)
-				attr.SetTextColour('grey')
-				self.SetRowAttr(row_idx, attr)
-
-			if self.__grouping_mode in ['episode', 'start']:
-				if med['pk_episode'] is None:
-					self.__prev_cell_0 = None
-					epi = gmTools.u_diameter
-				else:
-					if self.__prev_cell_0 == med['episode']:
-						epi = ''
-					else:
-						self.__prev_cell_0 = med['episode']
-						epi = gmTools.coalesce(med['episode'], '')
-				self.SetCellValue(row_idx, 0, gmTools.wrap(text = epi, width = 40))
-
-				self.SetCellValue(row_idx, 1, med['substance'])
-				self.SetCellValue(row_idx, 2, '%s %s' % (med['amount'], med['unit']))
-				self.SetCellValue(row_idx, 3, gmTools.coalesce(med['schedule'], ''))
-				self.SetCellValue(row_idx, 4, med.medically_formatted_start_end)
-
-				if med['pk_drug_product'] is None:
-					product = '%s (%s)' % (gmTools.u_diameter, med['l10n_preparation'])
-				else:
-					if med['is_fake_product']:
-						product = '%s (%s)' % (
-							gmTools.coalesce(med['drug_product'], '', _('%s <fake>')),
-							med['l10n_preparation']
-						)
-					else:
-						product = '%s (%s)' % (
-							gmTools.coalesce(med['drug_product'], ''),
-							med['l10n_preparation']
-						)
-				self.SetCellValue(row_idx, 5, gmTools.wrap(text = product, width = 35))
-
-			elif self.__grouping_mode == 'issue':
-				if med['pk_health_issue'] is None:
-					self.__prev_cell_0 = None
-					issue = '%s%s' % (
-						gmTools.u_diameter,
-						gmTools.coalesce(med['episode'], '', ' (%s)')
-					)
-				else:
-					if self.__prev_cell_0 == med['health_issue']:
-						issue = ''
-					else:
-						self.__prev_cell_0 = med['health_issue']
-						issue = med['health_issue']
-				self.SetCellValue(row_idx, 0, gmTools.wrap(text = issue, width = 40))
-
-				self.SetCellValue(row_idx, 1, med['substance'])
-				self.SetCellValue(row_idx, 2, '%s %s' % (med['amount'], med['unit']))
-				self.SetCellValue(row_idx, 3, gmTools.coalesce(med['schedule'], ''))
-				self.SetCellValue(row_idx, 4, med.medically_formatted_start_end)
-
-				if med['pk_drug_product'] is None:
-					product = '%s (%s)' % (gmTools.u_diameter, med['l10n_preparation'])
-				else:
-					if med['is_fake_product']:
-						product = '%s (%s)' % (
-							gmTools.coalesce(med['drug_product'], '', _('%s <fake>')),
-							med['l10n_preparation']
-						)
-					else:
-						product = '%s (%s)' % (
-							gmTools.coalesce(med['drug_product'], ''),
-							med['l10n_preparation']
-						)
-				self.SetCellValue(row_idx, 5, gmTools.wrap(text = product, width = 35))
-
-			elif self.__grouping_mode == 'drug_product':
-
-				if med['pk_drug_product'] is None:
-					self.__prev_cell_0 = None
-					product =  '%s (%s)' % (
-						gmTools.u_diameter,
-						med['l10n_preparation']
-					)
-				else:
-					if self.__prev_cell_0 == med['drug_product']:
-						product = ''
-					else:
-						self.__prev_cell_0 = med['drug_product']
-						if med['is_fake_product']:
-							product = '%s (%s)' % (
-								gmTools.coalesce(med['drug_product'], '', _('%s <fake>')),
-								med['l10n_preparation']
-							)
-						else:
-							product = '%s (%s)' % (
-								gmTools.coalesce(med['drug_product'], ''),
-								med['l10n_preparation']
-							)
-				self.SetCellValue(row_idx, 0, gmTools.wrap(text = product, width = 35))
-
-				self.SetCellValue(row_idx, 1, gmTools.coalesce(med['schedule'], ''))
-				self.SetCellValue(row_idx, 2, med['substance'])
-				self.SetCellValue(row_idx, 3, '%s %s' % (med['amount'], med['unit']))
-				self.SetCellValue(row_idx, 4, med.medically_formatted_start_end)
-
-				if med['pk_health_issue'] is None:
-					issue = '%s%s' % (
-						gmTools.u_diameter,
-						gmTools.coalesce(med['episode'], '', ' (%s)')
-					)
-				else:
-					issue = gmTools.coalesce(med['health_issue'], '')
-				self.SetCellValue(row_idx, 5, gmTools.wrap(text = issue, width = 40))
-
-			else:
-				raise ValueError('unknown grouping mode [%s]' % self.__grouping_mode)
-
-			notes_lines = []
-			if med['notes4patient']:
-				notes_lines.append(_('Patient: %s') % med['notes4patient'])
-			if med['notes4provider']:
-				notes_lines.append(_('Provider: %s') % med['notes4provider'])
-			if notes_lines:
-				self.SetCellValue(row_idx, 6, gmTools.wrap(text = '\n'.join(notes_lines), width = 50))
-
+		self.__row_data = {}
+		self.__grouping2cell_fillers[self.__grouping_mode](meds, emr)
 		self.AutoSize()
 		self.EndBatch()
 
@@ -619,23 +583,40 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			return
 
 		intake = self.get_selected_data()[0]		# just in case
-		if intake['drug_product'] is None:
-			drug_db.show_info_on_substance(substance_intake = intake)
-		else:
-			drug_db.show_info_on_drug(substance_intake = intake)
+		drug_db.show_info_on_substance(substance_intake = intake)
 
-	#------------------------------------------------------------
-	def show_renal_insufficiency_info(self):
+	#----------------------------------------------------------------
+	def show_pregnancy_info(self):
 		search_term = None
-		if len(self.__row_data) > 0:
+		if self.__row_data:
 			sel_rows = self.get_selected_rows()
 			if len(sel_rows) == 1:
 				search_term = self.get_selected_data()[0]
-		gmNetworkTools.open_url_in_browser(url = gmMedication.drug2renal_insufficiency_url(search_term = search_term))
+		urls = gmMedication.generate_pregnancy_information_urls(search_term = search_term)
+		gmNetworkTools.open_urls_in_browser(urls = urls)
 
-	#------------------------------------------------------------
-	def show_cardiac_info(self):
+	#----------------------------------------------------------------
+	def show_pulmological_info(self):
+		search_term = None
+		if self.__row_data:
+			sel_rows = self.get_selected_rows()
+			if len(sel_rows) == 1:
+				search_term = self.get_selected_data()[0]
+		urls = gmMedication.generate_pulmonary_information_urls(search_term = search_term)
+		gmNetworkTools.open_urls_in_browser(urls = urls)
+
+	#----------------------------------------------------------------
+	def show_cardiological_info(self):
 		gmNetworkTools.open_url_in_browser(url = gmMedication.URL_long_qt)
+
+	#----------------------------------------------------------------
+	def show_nephrological_info(self):
+		search_term = None
+		if self.__row_data:
+			sel_rows = self.get_selected_rows()
+			if len(sel_rows) == 1:
+				search_term = self.get_selected_data()[0]
+		gmNetworkTools.open_urls_in_browser(urls = gmMedication.generate_renal_insufficiency_urls(search_term = search_term))
 
 	#------------------------------------------------------------
 	def report_ADR(self):
@@ -662,13 +643,14 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		if drug_db is None:
 			return
 
-		if len(self.get_selected_rows()) > 1:
-			drug_db.check_interactions(substance_intakes = self.get_selected_data())
-		else:
-			drug_db.check_interactions(substance_intakes = self.__row_data.values())
+		return
+#		if len(self.get_selected_rows()) > 1:
+#			drug_db.check_interactions(substance_intakes = self.get_selected_data())
+#		else:
+#			drug_db.check_interactions(substance_intakes = self.__row_data.values())
 	#------------------------------------------------------------
 	def add_substance(self):
-		gmSubstanceIntakeWidgets.edit_intake_of_substance(parent = self, intake = None)
+		gmSubstanceIntakeWidgets.edit_intake_with_regimen(parent = self, intake_with_regimen = None)
 
 	#------------------------------------------------------------
 	def edit_substance(self):
@@ -681,7 +663,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			return
 
 		subst = self.get_selected_data()[0]
-		gmSubstanceIntakeWidgets.edit_intake_of_substance(parent = self, intake = subst)
+		gmSubstanceIntakeWidgets.edit_intake_with_regimen(parent = self, intake_with_regimen = subst)
 
 	#------------------------------------------------------------
 	def delete_intake(self):
@@ -694,7 +676,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			return
 
 		intake = self.get_selected_data()[0]
-		gmSubstanceIntakeWidgets.delete_substance_intake(parent = self, intake = intake)
+		gmSubstanceIntakeWidgets.delete_intake_with_regimen(parent = self, intake = intake)
 
 	#------------------------------------------------------------
 	def create_allergy_from_substance(self):
@@ -724,77 +706,11 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			return '?'
 
 		emr = self.__patient.emr
-		tt = []
-		try:
-			tt.append(_('Substance intake (%s)   [#%s]                     \n') % (
-				gmTools.bool2subst (
-					boolean = intake_w_regimen.is_ongoing,
-					true_return = _('active'),
-					false_return = _('inactive')
-				),
-				intake_w_regimen['pk_intake']
-			))
-			atcs = []
-			if intake_w_regimen['atc_substance'] is not None:
-				atcs.append(intake_w_regimen['atc_substance'])
-			if intake_w_regimen['atc_drug_product']:
-				atcs.append(intake_w_regimen['atc_drug_product'])
-			allg = emr.is_allergic_to(atcs = atcs, inns = [intake_w_regimen['substance']])
-			if allg:
-				certainty = gmTools.bool2subst(allg['definite'], _('definite'), _('suspected'))
-				tt.append('')
-				tt.append(' !! ---- Cave ---- !!')
-				tt.append(' %s (%s): %s (%s)' % (
-					allg['l10n_type'],
-					certainty,
-					allg['descriptor'],
-					gmTools.coalesce(allg['reaction'], '')[:40]
-				))
-				tt.append('')
-			tt.append(' ' + _('Substance: %s   [#%s]') % (intake_w_regimen['substance'], intake_w_regimen['pk_substance']))
-			tt.append(' ' + _('Preparation: %s') % intake_w_regimen['l10n_preparation'])
-			tt.append(' ' + _('Amount per dose: %s %s') % (intake_w_regimen['amount'], intake_w_regimen['unit']))
-			if intake_w_regimen['atc_substance']:
-				tt.append(' ' + _('ATC (substance): %s') % intake_w_regimen['atc_substance'])
-			tt.append('')
-			if intake_w_regimen['drug_product']:
-				tt.append(' ' + _('Product name: %s   [#%s]') % (intake_w_regimen['drug_product'], intake_w_regimen['pk_drug_product']))
-			if intake_w_regimen['atc_drug_product']:
-				tt.append(' ' + _('ATC (drug): %s') % intake_w_regimen['atc_drug'])
-			tt.append('')
-			if intake_w_regimen['schedule']:
-				tt.append(' ' + _('Regimen: %s') % intake_w_regimen['schedule'])
-			if intake_w_regimen['planned_duration']:
-				duration = ' %s %s' % (gmTools.u_arrow2right, gmDateTime.format_interval(intake_w_regimen['planned_duration'], gmDateTime.acc_days))
-			else:
-				duration = ''
-			tt.append(' ' + _('Started %s%s') % (
-				intake_w_regimen.medically_formatted_start,
-				duration
-			))
-			if intake_w_regimen['discontinued']:
-				tt.append(' ' + _('Discontinued %s') % gmDateTime.pydt_strftime(intake_w_regimen['discontinued'], '%Y %b %d'))
-			if intake_w_regimen['discontinue_reason']:
-				tt.append(' ' + _('Reason: %s') % intake_w_regimen['discontinue_reason'])
-			tt.append('')
-			if intake_w_regimen['notes4patient']:
-				tt.append(' ' + _('Patient: %s') % intake_w_regimen['notes4patient'])
-			if intake_w_regimen['notes4provider']:
-				tt.append(' ' + _('Provider: %s') % intake_w_regimen['notes4provider'])
-			tt.append(' ' + _('Episode: %s') % intake_w_regimen['episode'])
-			tt.append(' ' + _('Health issue: %s') % intake_w_regimen['health_issue'])
-			tt.append('')
-			tt.append(_('Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s.') % ({
-				'row_ver': intake_w_regimen['row_version__regimen'],
-				'mod_when': gmDateTime.pydt_strftime (
-					gmTools.coalesce(intake_w_regimen['modified_when__regimen'], intake_w_regimen['modified_when__intake']),
-					'%Y %b %d  %H:%M:%S'
-				),
-				'mod_by': gmTools.coalesce(intake_w_regimen['modified_by__regimen'], intake_w_regimen['modified_by__intake'])
-			}))
-		except Exception:
-			_log.exception('tooltip error')
-			tt.append('tooltip error')
+		atcs = []
+		if intake_w_regimen['atc_substance']:
+			atcs.append(intake_w_regimen['atc_substance'])
+		allg = emr.is_allergic_to(atcs = atcs, inns = [intake_w_regimen['substance']])
+		tt = intake_w_regimen.format_maximum_information(allergy = allg)
 		return '\n'.join(tt)
 
 	#------------------------------------------------------------
@@ -804,7 +720,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		self.CreateGrid(0, 1)
 		self.EnableEditing(0)
 		self.EnableDragGridSize(1)
-		self.SetSelectionMode(wx.grid.Grid.wxGridSelectRows)
+		self.SetSelectionMode(wx.grid.Grid.GridSelectRows)
 
 		self.SetColLabelAlignment(wx.ALIGN_LEFT, wx.ALIGN_CENTRE)
 
@@ -890,7 +806,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 	def __on_cell_left_dclicked(self, evt):
 		row = evt.GetRow()
 		data = self.__row_data[row]
-		gmSubstanceIntakeWidgets.edit_intake_of_substance(parent = self, intake = data)
+		gmSubstanceIntakeWidgets.edit_intake_with_regimen(parent = self, intake_with_regimen = data)
 
 #============================================================
 # main

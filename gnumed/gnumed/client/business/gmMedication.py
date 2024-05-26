@@ -57,17 +57,7 @@ _log = logging.getLogger('gm.meds')
 #============================================================
 DEFAULT_MEDICATION_HISTORY_EPISODE = _('Medication history')
 
-URL_renal_insufficiency = 'https://www.dosing.de/nierebck.php'
-#URL_renal_insufficiency_search_template = 'https://www.google.com/search?q=site:dosing.de+%s'
-URL_renal_insufficiency__search_template = 'https://duckduckgo.com?q=site:dosing.de+%s'
-
 URL_long_qt = 'https://www.crediblemeds.org'
-
-URL_lungs = 'https://www.pneumotox.com'
-URL_lungs__search_template = 'https://duckduckgo.com?q=site:pneumotox.com+%s'
-
-URL_pregnancy = 'https:://embryotox.de'
-URL_pregnancy__search_template = 'https://duckduckgo.com?q=site:embryotox.de+%s'
 
 # http://www.akdae.de/Arzneimittelsicherheit/UAW-Meldung/UAW-Meldung-online.html
 # https://dcgma.org/uaw/meldung.php
@@ -106,10 +96,109 @@ def _on_substance_intake_modified():
 gmDispatcher.connect(_on_substance_intake_modified, 'clin.intake_mod_db')
 
 #============================================================
-def drug2renal_insufficiency_urls(search_term:str=None) -> list:
+URL_lungs = 'https://www.pneumotox.com'
+URL_lungs__search_template = 'https://duckduckgo.com?q=site:pneumotox.com+%s'
+
+def generate_pulmonary_information_urls(search_term:str=None) -> list:
+	if search_term is None:
+		return [URL_lungs]
+
+	if isinstance(search_term, str):
+		if search_term.strip() == '':
+			return [URL_lungs]
+
+	atcs = []
+	names = []
+
+	if isinstance(search_term, cSubstance):
+		names.append(search_term['substance'])
+		if search_term['atc']:
+			atcs.append(search_term['atc'])
+	elif isinstance(search_term, cSubstanceDose):
+		names.append(search_term['substance'])
+		if search_term['atc_substance']:
+			atcs.append(search_term['atc_substance'])
+	elif isinstance(search_term, cSubstanceIntakeEntry):
+		names.append(search_term['substance'])
+		if search_term['atc_substance']:
+			atcs.append(search_term['atc_substance'])
+	elif isinstance(search_term, cIntakeWithRegimen):
+		names.append(search_term['substance'])
+		if search_term['atc_substance']:
+			atcs.append(search_term['atc_substance'])
+	elif isinstance(search_term, cIntakeRegimen):
+		names.append(search_term['substance'])
+		if search_term['atc_substance']:
+			atcs.append(search_term['atc_substance'])
+	else:
+		names.append('%s' % search_term)
+		atcs.extend(gmATC.text2atc(text = '%s' % search_term, fuzzy = True))
+	terms = []
+	for name in names:
+		terms.append(name)
+		if name.endswith('e'):
+			terms.append(name[:-1])
+	terms.extend(atcs)
+	urls = [ URL_lungs__search_template % t for t in terms ]
+	_log.debug('pulmonary information URLs: %s', urls)
+	return urls
+
+#------------------------------------------------------------
+URL_pregnancy = 'https:://embryotox.de'
+URL_pregnancy__search_template = 'https://duckduckgo.com?q=site:embryotox.de+%s'
+
+def generate_pregnancy_information_urls(search_term:str=None) -> list:
+	if search_term is None:
+		return [URL_pregnancy]
+
+	if isinstance(search_term, str):
+		if search_term.strip() == '':
+			return [URL_pregnancy]
+
+	atcs = []
+	names = []
+	if isinstance(search_term, cSubstance):
+		names.append(search_term['substance'])
+		if search_term['atc']:
+			atcs.append(search_term['atc'])
+	elif isinstance(search_term, cSubstanceDose):
+		names.append(search_term['substance'])
+		if search_term['atc_substance']:
+			atcs.append(search_term['atc_substance'])
+	elif isinstance(search_term, cSubstanceIntakeEntry):
+		names.append(search_term['substance'])
+		if search_term['atc_substance']:
+			atcs.append(search_term['atc_substance'])
+	elif isinstance(search_term, cIntakeWithRegimen):
+		names.append(search_term['substance'])
+		if search_term['atc_substance']:
+			atcs.append(search_term['atc_substance'])
+	elif isinstance(search_term, cIntakeRegimen):
+		names.append(search_term['substance'])
+		if search_term['atc_substance']:
+			atcs.append(search_term['atc_substance'])
+	else:
+		names.append('%s' % search_term)
+		atcs.extend(gmATC.text2atc(text = '%s' % search_term, fuzzy = True))
+	terms = []
+	for name in names:
+		terms.append(name)
+		if name.endswith('e'):
+			terms.append(name[:-1])
+	terms.extend(atcs)
+	urls = [ URL_pregnancy__search_template % t for t in terms ]
+	_log.debug('pregnancy information URLs: %s', urls)
+	return urls
+
+#------------------------------------------------------------
+URL_renal_insufficiency = 'https://www.dosing.de/nierebck.php'
+#URL_renal_insufficiency_search_template = 'https://www.google.com/search?q=site:dosing.de+%s'
+URL_renal_insufficiency__search_template = 'https://duckduckgo.com?q=site:dosing.de+%s'
+
+def generate_renal_insufficiency_urls(search_term:str=None) -> list:
 
 	if search_term is None:
-		return URL_renal_insufficiency
+		return [URL_renal_insufficiency]
 
 	if isinstance(search_term, str):
 		if search_term.strip() == '':
@@ -117,39 +206,29 @@ def drug2renal_insufficiency_urls(search_term:str=None) -> list:
 
 	atcs = []
 	names = []
-
-	if isinstance(search_term, cDrugProduct):
-		if search_term['atc'] is not None:
+	if isinstance(search_term, cSubstance):
+		names.append(search_term['substance'])
+		if search_term['atc']:
 			atcs.append(search_term['atc'])
-
-	elif isinstance(search_term, cSubstanceIntakeEntry):
-		names.append(search_term['substance'])
-		if search_term['atc_drug'] is not None:
-			atcs.append(search_term['atc_drug'])
-		if search_term['atc_substance'] is not None:
-			atcs.append(search_term['atc_substance'])
-
-	elif isinstance(search_term, cDrugComponent):
-		names.append(search_term['substance'])
-		if search_term['atc_drug'] is not None:
-			atcs.append(search_term['atc_drug'])
-		if search_term['atc_substance'] is not None:
-			atcs.append(search_term['atc_substance'])
-
-	elif isinstance(search_term, cSubstance):
-		names.append(search_term['substance'])
-		if search_term['atc'] is not None:
-			atcs.append(search_term['atc'])
-
 	elif isinstance(search_term, cSubstanceDose):
 		names.append(search_term['substance'])
-		if search_term['atc_substance'] is not None:
+		if search_term['atc_substance']:
 			atcs.append(search_term['atc_substance'])
-
-	elif search_term is not None:
+	elif isinstance(search_term, cSubstanceIntakeEntry):
+		names.append(search_term['substance'])
+		if search_term['atc_substance']:
+			atcs.append(search_term['atc_substance'])
+	elif isinstance(search_term, cIntakeWithRegimen):
+		names.append(search_term['substance'])
+		if search_term['atc_substance']:
+			atcs.append(search_term['atc_substance'])
+	elif isinstance(search_term, cIntakeRegimen):
+		names.append(search_term['substance'])
+		if search_term['atc_substance']:
+			atcs.append(search_term['atc_substance'])
+	else:
 		names.append('%s' % search_term)
 		atcs.extend(gmATC.text2atc(text = '%s' % search_term, fuzzy = True))
-
 	terms = []
 	for name in names:
 		terms.append(name)
@@ -2003,13 +2082,26 @@ class cIntakeWithRegimen(gmBusinessDBObject.cBusinessDBObject):
 		'pk_episode'
 	]
 	#--------------------------------------------------------
-	def format(self, left_margin=0, date_format='%Y %b %d', single_line=True, allergy=None, include_instructions=False, include_loincs=False, include_metadata:bool=False, eol='\n'):
+	def format_maximum_information(self, allergy=None, left_margin=0, date_format='%Y %b %d'):
+		return self.format (
+			single_line = False,
+			left_margin = left_margin,
+			date_format = date_format,
+			allergy = allergy,
+			include_metadata = True,
+			include_instructions = True,
+			include_loincs = True,
+			eol = None
+		)
+
+	#--------------------------------------------------------
+	def format(self, left_margin=0, date_format='%Y %b %d', single_line=False, allergy=None, include_instructions=False, include_loincs=False, include_metadata:bool=False, terse:bool=False, eol=None):
 		# medication
 		if self._payload[self._idx['use_type']] is None:
 			if single_line:
 				return '%s%s' % (
 					' ' * left_margin,
-					self.format_as_single_line(date_format = date_format)
+					format_regimen_like_as_single_line(self, date_format = date_format, terse = terse)
 				)
 
 			return self.format_as_multiple_lines (
@@ -2031,10 +2123,6 @@ class cIntakeWithRegimen(gmBusinessDBObject.cBusinessDBObject):
 				include_metadata = include_metadata,
 				eol = eol
 			)
-
-	#--------------------------------------------------------
-	def format_as_single_line(self, date_format:str='%Y %b %d', terse:bool=False) -> str:
-		return format_regimen_as_single_line(self, date_format = date_format, terse = terse)
 
 	#--------------------------------------------------------
 	def format_as_multiple_lines(self, left_margin:int=0, date_format:str='%Y %b %d', allergy=None, include_loincs:bool=False, include_metadata:bool=False, eol:str=None):
@@ -2106,10 +2194,7 @@ class cIntakeWithRegimen(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_containing_drug(self):
-		if self._payload['pk_drug_product'] is None:
-			return None
-
-		return cDrugProduct(aPK_obj = self._payload['pk_drug_product'])
+		return None
 
 	containing_drug = property(_get_containing_drug)
 
@@ -2120,10 +2205,10 @@ class cIntakeWithRegimen(gmBusinessDBObject.cBusinessDBObject):
 	medically_formatted_start = property(_get_medically_formatted_start)
 
 	#--------------------------------------------------------
-	def _get_medically_formatted_start_end(self):
-		return format_regimen_start_end_medically(self)
+	def _get_medically_formatted_timerange(self, terse:bool=False):
+		return format_regimen_timerange_medically(self, terse = terse)
 
-	medically_formatted_start_end = property(_get_medically_formatted_start_end)
+	medically_formatted_timerange = property(_get_medically_formatted_timerange)
 
 	#--------------------------------------------------------
 	def _get_is_ongoing(self):
@@ -2143,6 +2228,13 @@ class cIntakeWithRegimen(gmBusinessDBObject.cBusinessDBObject):
 		return format_units(self._payload['unit'], short = short, none_str = '')
 
 	formatted_units = property(_get_formatted_units)
+
+	#--------------------------------------------------------
+	def turn_into_allergy(self, encounter_id=None, allergy_type='allergy'):
+		return self.intake.turn_into_allergy (
+			encounter_id = encounter_id,
+			allergy_type = allergy_type
+		)
 
 #------------------------------------------------------------
 def delete_intake_with_regimen(pk_intake_regimen:int, pk_intake:int=None, link_obj=None) -> bool:
@@ -2292,7 +2384,7 @@ class cIntakeRegimen(gmBusinessDBObject.cBusinessDBObject):
 		if single_line:
 			return '%s%s' % (
 				' ' * left_margin,
-				self.format_as_single_line(date_format = date_format, terse = terse)
+				format_regimen_like_as_single_line(self, date_format = date_format, terse = terse)
 			)
 
 		return self.format_as_multiple_lines (
@@ -2302,10 +2394,6 @@ class cIntakeRegimen(gmBusinessDBObject.cBusinessDBObject):
 			show_all_product_components = show_all_product_components,
 			eol = eol
 		)
-
-	#--------------------------------------------------------
-	def format_as_single_line(self, date_format:str='%Y %b %d', terse:bool=True) -> str:
-		return format_regimen_as_single_line(self, date_format = date_format, terse = terse)
 
 	#--------------------------------------------------------
 	def format_as_single_line_abuse(self, left_margin=0, date_format='%Y %b %d'):
@@ -2365,10 +2453,10 @@ class cIntakeRegimen(gmBusinessDBObject.cBusinessDBObject):
 	medically_formatted_start = property(_get_medically_formatted_start)
 
 	#--------------------------------------------------------
-	def _get_medically_formatted_start_end(self):
-		return format_regimen_start_end_medically(self)
+	def _get_medically_formatted_timerange(self, terse:bool=False):
+		return format_regimen_timerange_medically(self, terse = terse)
 
-	medically_formatted_start_end = property(_get_medically_formatted_start_end)
+	medically_formatted_timerange = property(_get_medically_formatted_timerange)
 
 	#--------------------------------------------------------
 	def _get_parsed_schedule(self):
@@ -2646,31 +2734,31 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		])
 		lines.append('')
 		lines.append('')
-		# drug product
-		product = self.containing_drug
-		if product:
-			lines.append(_(' Product name: %s   [#%s]') % (self._payload[self._idx['drug_product']], self._payload[self._idx['pk_drug_product']]))
-			if self._payload[self._idx['atc_drug']]:
-				lines.append(_(' ATC (drug): %s') % self._payload[self._idx['atc_drug']])
-			if show_all_product_components and (len(product['components']) > 1):
-				for comp in product['components']:
-					if comp['pk_substance'] == self._payload[self._idx['substance']]:
-						continue
-					lines.append('  ' + _('Other component: %s %s %s') % (
-						comp['substance'],
-						comp['amount'],
-						format_units(comp['unit'], comp['dose_unit'])
-					))
-					if comp['intake_instructions']:
-						lines.append('   ' + _('Intake: %s') % comp['intake_instructions'])
-					if include_loincs and comp['loincs']:
-						lines.append('   ' + _('LOINCs to monitor:'))
-						lines.extend(['    %s%s%s' % (
-							l['loinc'],
-							gmTools.coalesce(l['max_age_str'], '', ': %s'),
-							gmTools.coalesce(l['comment'], '', ' (%s)')
-						) for l in comp['loincs'] ])
-			lines.append('')
+#		# drug product
+#		product = self.containing_drug
+#		if product:
+#			lines.append(_(' Product name: %s   [#%s]') % (self._payload[self._idx['drug_product']], self._payload[self._idx['pk_drug_product']]))
+#			if self._payload[self._idx['atc_drug']]:
+#				lines.append(_(' ATC (drug): %s') % self._payload[self._idx['atc_drug']])
+#			if show_all_product_components and (len(product['components']) > 1):
+#				for comp in product['components']:
+#					if comp['pk_substance'] == self._payload[self._idx['substance']]:
+#						continue
+#					lines.append('  ' + _('Other component: %s %s %s') % (
+#						comp['substance'],
+#						comp['amount'],
+#						format_units(comp['unit'], comp['dose_unit'])
+#					))
+#					if comp['intake_instructions']:
+#						lines.append('   ' + _('Intake: %s') % comp['intake_instructions'])
+#					if include_loincs and comp['loincs']:
+#						lines.append('   ' + _('LOINCs to monitor:'))
+#						lines.extend(['    %s%s%s' % (
+#							l['loinc'],
+#							gmTools.coalesce(l['max_age_str'], '', ': %s'),
+#							gmTools.coalesce(l['comment'], '', ' (%s)')
+#						) for l in comp['loincs'] ])
+#			lines.append('')
 		# regimen
 #		if self._payload[self._idx['schedule']]:
 #			lines.append(_(' Regimen: %s') % self._payload[self._idx['schedule']])
@@ -2724,24 +2812,10 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 			episode_id = self._payload[self._idx['pk_episode']],
 			encounter_id = encounter_id
 		)
-		allg['substance'] = gmTools.coalesce (
-			self._payload[self._idx['drug_product']],
-			self._payload[self._idx['substance']]
-		)
+		allg['substance'] = self._payload[self._idx['substance']]
 		allg['reaction'] = self._payload[self._idx['discontinue_reason']]
-		allg['atc_code'] = gmTools.coalesce(self._payload[self._idx['atc_substance']], self._payload[self._idx['atc_drug']])
-		if self._payload[self._idx['external_code_product']] is not None:
-			allg['substance_code'] = '%s::::%s' % (self._payload[self._idx['external_code_type_product']], self._payload[self._idx['external_code_product']])
-
-		if self._payload[self._idx['pk_drug_product']] is None:
-			allg['generics'] = self._payload[self._idx['substance']]
-		else:
-			comps = [ c['substance'] for c in self.containing_drug.components ]
-			if len(comps) == 0:
-				allg['generics'] = self._payload[self._idx['substance']]
-			else:
-				allg['generics'] = '; '.join(comps)
-
+		allg['atc_code'] = gmTools.coalesce(self._payload['atc_substance'])
+		allg['generics'] = self._payload[self._idx['substance']]
 		allg.save()
 		return allg
 
@@ -2812,226 +2886,8 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_containing_drug(self):
 		return None
-#		if self._payload[self._idx['pk_drug_product']] is None:
-#			return None
-#
-#		return cDrugProduct(aPK_obj = self._payload[self._idx['pk_drug_product']])
 
 	containing_drug = property(_get_containing_drug)
-
-	#--------------------------------------------------------
-#	def _get_formatted_units(self, short=True):
-#		return format_units (
-#			self._payload[self._idx['unit']],
-#			gmTools.coalesce(self._payload[self._idx['dose_unit']], _('delivery unit')),
-#			self._payload[self._idx['l10n_preparation']],
-#			short = short,
-#			none_str = ''
-#		)
-#
-#	formatted_units = property(_get_formatted_units)
-
-	#--------------------------------------------------------
-	def __old_get_medically_formatted_start_end_of_stopped(self, now):
-
-		# format intro
-		if gmDateTime.pydt_is_today(self._payload[self._idx['discontinued']]):
-			intro = _('until today')
-		else:
-			ended_ago = now - self._payload[self._idx['discontinued']]
-			intro = _('until %s%s ago') % (
-				gmTools.u_almost_equal_to,
-				gmDateTime.format_interval_medically(ended_ago),
-			)
-
-		# format start
-		if self._payload[self._idx['started']] is None:
-			start = gmTools.coalesce(self._payload[self._idx['comment_on_start']], '?')
-		else:
-			start = '%s%s%s' % (
-				gmTools.bool2subst((self._payload[self._idx['comment_on_start']] is None), '', gmTools.u_almost_equal_to),
-				gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%Y %b %d', accuracy = gmDateTime.acc_days),
-				gmTools.coalesce(self._payload[self._idx['comment_on_start']], '', ' [%s]')
-			)
-
-		# format duration taken
-		if self._payload[self._idx['started']] is None:
-			duration_taken_str = '?'
-		else:
-			duration_taken = self._payload[self._idx['discontinued']] - self._payload[self._idx['started']] + pydt.timedelta(days = 1)
-			duration_taken_str = gmDateTime.format_interval (duration_taken, gmDateTime.acc_days)
-
-		# format duration planned
-		if self._payload[self._idx['planned_duration']] is None:
-			duration_planned_str = ''
-		else:
-			duration_planned_str = _(' [planned: %s]') % gmDateTime.format_interval(self._payload[self._idx['planned_duration']], gmDateTime.acc_days)
-
-		# format end
-		end = gmDateTime.pydt_strftime(self._payload[self._idx['discontinued']], '%Y %b %d', 'utf8', gmDateTime.acc_days)
-
-		# assemble
-		txt = '%s (%s %s %s%s %s %s)' % (
-			intro,
-			start,
-			gmTools.u_arrow2right_thick,
-			duration_taken_str,
-			duration_planned_str,
-			gmTools.u_arrow2right_thick,
-			end
-		)
-		return txt
-
-	#--------------------------------------------------------
-	def _get_medically_formatted_start_end(self):
-
-		now = gmDateTime.pydt_now_here()
-
-		# medications stopped today or before today
-		if self._payload[self._idx['discontinued']] is not None:
-			if (self._payload[self._idx['discontinued']] < now) or (gmDateTime.pydt_is_today(self._payload[self._idx['discontinued']])):
-				return self._get_medically_formatted_start_end_of_stopped(now)
-
-		# ongoing medications
-		arrow_parts = []
-
-		# format start
-		if self._payload[self._idx['started']] is None:
-			start_str = gmTools.coalesce(self._payload[self._idx['comment_on_start']], '?')
-		else:
-			start_prefix = gmTools.bool2subst((self._payload[self._idx['comment_on_start']] is None), '', gmTools.u_almost_equal_to)
-			# starts today
-			if gmDateTime.pydt_is_today(self._payload[self._idx['started']]):
-				start_str = _('today (%s)') % gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%Y %b %d', accuracy = gmDateTime.acc_days)
-			# started in the past
-			elif self._payload[self._idx['started']] < now:
-				started_ago = now - self._payload[self._idx['started']]
-				three_months = pydt.timedelta(weeks = 13, days = 3)
-				five_years = pydt.timedelta(weeks = 265)
-				if started_ago < three_months:
-					start_str = _('%s%s%s (%s%s ago, in %s)') % (
-						start_prefix,
-						gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%b %d', accuracy = gmDateTime.acc_days),
-						gmTools.coalesce(self._payload[self._idx['comment_on_start']], '', ' [%s]'),
-						gmTools.u_almost_equal_to,
-						gmDateTime.format_interval_medically(started_ago),
-						gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%Y', accuracy = gmDateTime.acc_days)
-					)
-				elif started_ago < five_years:
-					start_str = _('%s%s%s (%s%s ago, %s)') % (
-						start_prefix,
-						gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y %b', 'utf8', gmDateTime.acc_months),
-						gmTools.coalesce(self._payload[self._idx['comment_on_start']], '', ' [%s]'),
-						gmTools.u_almost_equal_to,
-						gmDateTime.format_interval_medically(started_ago),
-						gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%b %d', 'utf8', gmDateTime.acc_days)
-					)
-				else:
-					start_str = _('%s%s%s (%s%s ago, %s)') % (
-						start_prefix,
-						gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y', 'utf8', gmDateTime.acc_years),
-						gmTools.coalesce(self._payload[self._idx['comment_on_start']], '', ' [%s]'),
-						gmTools.u_almost_equal_to,
-						gmDateTime.format_interval_medically(started_ago),
-						gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%b %d', 'utf8', gmDateTime.acc_days),
-					)
-			# starts in the future
-			else:
-				starts_in = self._payload[self._idx['started']] - now
-				start_str = _('%s%s%s (in %s%s)') % (
-					start_prefix,
-					gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y %b %d', 'utf8', gmDateTime.acc_days),
-					gmTools.coalesce(self._payload[self._idx['comment_on_start']], '', ' [%s]'),
-					gmTools.u_almost_equal_to,
-					gmDateTime.format_interval_medically(starts_in)
-				)
-
-		arrow_parts.append(start_str)
-
-		# format durations
-		durations = []
-		if self._payload[self._idx['discontinued']] is not None:
-			if self._payload[self._idx['started']] is not None:
-				duration_documented = self._payload[self._idx['discontinued']] - self._payload[self._idx['started']]
-				durations.append(_('%s (documented)') % gmDateTime.format_interval(duration_documented, gmDateTime.acc_days))
-		if self._payload[self._idx['planned_duration']] is not None:
-			durations.append(_('%s (plan)') % gmDateTime.format_interval(self._payload[self._idx['planned_duration']], gmDateTime.acc_days))
-		if len(durations) == 0:
-			duration_str = '?'
-		else:
-			duration_str = ', '.join(durations)
-
-		arrow_parts.append(duration_str)
-
-		# format end
-		if self._payload[self._idx['discontinued']] is None:
-			if self._payload[self._idx['planned_duration']] is None:
-				end_str = '?'
-			else:
-				if self._payload[self._idx['started']] is None:
-					end_str = '?'
-				else:
-					planned_end = self._payload[self._idx['started']] + self._payload[self._idx['planned_duration']] - pydt.timedelta(days = 1)
-					if planned_end.year == now.year:
-						end_template = '%b %d'
-						if planned_end < now:
-							planned_end_from_now_str = _('%s ago, in %s') % (gmDateTime.format_interval(now - planned_end, gmDateTime.acc_days), planned_end.year)
-						else:
-							planned_end_from_now_str = _('in %s, %s') % (gmDateTime.format_interval(planned_end - now, gmDateTime.acc_days), planned_end.year)
-					else:
-						end_template = '%Y'
-						if planned_end < now:
-							planned_end_from_now_str = _('%s ago = %s') % (
-								gmDateTime.format_interval(now - planned_end, gmDateTime.acc_days),
-								gmDateTime.pydt_strftime(planned_end, '%b %d', 'utf8', gmDateTime.acc_days)
-							)
-						else:
-							planned_end_from_now_str = _('in %s = %s') % (
-								gmDateTime.format_interval(planned_end - now, gmDateTime.acc_days),
-								gmDateTime.pydt_strftime(planned_end, '%b %d', 'utf8', gmDateTime.acc_days)
-							)
-					end_str = '%s (%s)' % (
-						gmDateTime.pydt_strftime(planned_end, end_template, 'utf8', gmDateTime.acc_days),
-						planned_end_from_now_str
-					)
-		else:
-			if gmDateTime.is_today(self._payload[self._idx['discontinued']]):
-				end_str = _('today')
-			elif self._payload[self._idx['discontinued']].year == now.year:
-				end_date_template = '%b %d'
-				if self._payload[self._idx['discontinued']] < now:
-					planned_end_from_now_str = _('%s ago, in %s') % (
-						gmDateTime.format_interval(now - self._payload[self._idx['discontinued']], gmDateTime.acc_days),
-						self._payload[self._idx['discontinued']].year
-					)
-				else:
-					planned_end_from_now_str = _('in %s, %s') % (
-						gmDateTime.format_interval(self._payload[self._idx['discontinued']] - now, gmDateTime.acc_days),
-						self._payload[self._idx['discontinued']].year
-					)
-			else:
-				end_date_template = '%Y'
-				if self._payload[self._idx['discontinued']] < now:
-					planned_end_from_now_str = _('%s ago = %s') % (
-						gmDateTime.format_interval(now - self._payload[self._idx['discontinued']], gmDateTime.acc_days),
-						gmDateTime.pydt_strftime(self._payload[self._idx['discontinued']], '%b %d', 'utf8', gmDateTime.acc_days)
-					)
-				else:
-					planned_end_from_now_str = _('in %s = %s') % (
-						gmDateTime.format_interval(self._payload[self._idx['discontinued']] - now, gmDateTime.acc_days),
-						gmDateTime.pydt_strftime(self._payload[self._idx['discontinued']], '%b %d', 'utf8', gmDateTime.acc_days)
-					)
-			end_str = '%s (%s)' % (
-				gmDateTime.pydt_strftime(self._payload[self._idx['discontinued']], end_date_template, 'utf8', gmDateTime.acc_days),
-				planned_end_from_now_str
-			)
-
-		arrow_parts.append(end_str)
-
-		# assemble
-		return (' %s ' % gmTools.u_arrow2right_thick).join(arrow_parts)
-
-	medically_formatted_start_end = property(_get_medically_formatted_start_end, lambda x:x)
 
 	#--------------------------------------------------------
 	def _get_as_amts_latex(self, strict=True):
@@ -3744,8 +3600,8 @@ def use_type2str(use_type:int) -> str:
 		return _('unknown use type [%s]' % use_type)
 
 #------------------------------------------------------------
-def format_regimen_as_single_line(regimen, date_format:str='%Y %b %d', terse:bool=True) -> str:
-	"""Format the intake regimen into a single line.
+def format_regimen_like_as_single_line(regimen_like:cIntakeRegimen|cIntakeWithRegimen=None, date_format:str='%Y %b %d', terse:bool=True, include_substance_name:bool=False) -> str:
+	"""Format intake regimen into a single line.
 
 	start	duration	end		output
 	x		x			x		"planned 14 days, starting 1.3.2020 (cmt), stopped 16.3.2020 (x ago)"
@@ -3768,43 +3624,75 @@ def format_regimen_as_single_line(regimen, date_format:str='%Y %b %d', terse:boo
 	Args:
 		regimen: cIntakeRegimen or cIntakeWithRegimen
 	"""
-	assert isinstance(regimen, (cIntakeRegimen, cIntakeWithRegimen)), '<regimen> must be cIntakeRegimen or cIntakeWithRegimen'
+	assert isinstance(regimen_like, (cIntakeRegimen, cIntakeWithRegimen)), '<regimen> must be cIntakeRegimen or cIntakeWithRegimen'
 
-	start_approx = gmTools.u_almost_equal_to if regimen['comment_on_start'] else ''
-	comment_mark = gmTools.u_ellipsis if regimen['comment_on_start'] else ''
-	started = None if regimen['comment_on_start'] == '?' else regimen['started']
-	parts = {'terse': [], 'verbose': []}
+	start_approx = gmTools.u_almost_equal_to if regimen_like['comment_on_start'] else ''
+	comment_mark = '¹' if regimen_like['comment_on_start'] else ''
+	started = None if regimen_like['start_is_unknown'] else regimen_like['started']
+	parts_terse = []
+	parts_verbose = []
 	if started:
-		parts['terse'].append('[%s%s]%s' % (comment_mark, started.strftime(date_format), gmTools.u_left_double_angle_quote))
-		parts['verbose'].append(_('started %s') % started.strftime(date_format))
-		if regimen['comment_on_start']:
-			parts['verbose'].append('(%s)' % regimen['comment_on_start'])
-	if regimen['planned_duration']:
-		parts['terse'].append('-%s-' % (gmDateTime.format_interval_medically(regimen['planned_duration'])))
-		parts['verbose'].append(_('planned for %s') % gmDateTime.format_interval_medically(regimen['planned_duration']))
-	if regimen['discontinued']:
-		parts['terse'].append('%s[%s] (-%s)' % (
-			gmTools.u_left_double_angle_quote,
-			regimen['discontinued'].strftime(date_format),
-			gmDateTime.format_apparent_age_medically(gmDateTime.calculate_apparent_age(start = regimen['discontinued']))
-		))
-		parts['verbose'].append(_('discontinued %s') % regimen['discontinued'].strftime(date_format))
-		parts['verbose'].append(_('(%s ago)') % gmDateTime.format_apparent_age_medically(gmDateTime.calculate_apparent_age(start = regimen['discontinued'])))
-		if started:
-			parts['verbose'].append(_('after %s') % gmDateTime.format_apparent_age_medically(gmDateTime.calculate_apparent_age(start = started, end = regimen['discontinued'])))
-		if regimen['discontinue_reason']:
-			parts['verbose'].append('"%s"' % regimen['discontinue_reason'])
+		if gmDateTime.pydt_is_today(started):
+			parts_terse.append('[%s%s]' % (_('today'), comment_mark))
+			parts_verbose.append(_('started today'))
+		elif gmDateTime.pydt_is_yesterday(started):
+			parts_terse.append('[%s%s]' % (_('yesterday'), comment_mark))
+			parts_verbose.append(_('started yesterday'))
+		else:
+			parts_terse.append('[%s%s]' % (started.strftime(date_format), comment_mark))
+			parts_verbose.append(_('started %s') % started.strftime(date_format))
+		if regimen_like['comment_on_start']:
+			parts_verbose.append('(%s)' % regimen_like['comment_on_start'])
 	else:
-		parts['terse'].append(gmTools.u_ellipsis)
+		parts_terse.append('?%s' % comment_mark)
+		if regimen_like['comment_on_start']:
+			parts_verbose.append(_('started "%s"') % regimen_like['comment_on_start'])
+	if regimen_like['planned_duration']:
+		parts_terse.append('-%s-' % (gmDateTime.format_interval_medically(regimen_like['planned_duration'])))
+		parts_verbose.append(_('planned for %s') % gmDateTime.format_interval_medically(regimen_like['planned_duration']))
+	if regimen_like['discontinued']:
+		if gmDateTime.pydt_is_today(regimen_like['discontinued']):
+			parts_terse.append('[%s]' % _('today'))
+			parts_verbose.append(_('discontinued today'))
+		elif gmDateTime.pydt_is_yesterday(regimen_like['discontinued']):
+			parts_terse.append('[%s]' % _('yesterday'))
+			parts_verbose.append(_('discontinued yesterday'))
+		else:
+			now = gmDateTime.pydt_now_here()
+			if regimen_like['discontinued'] < now:
+				terse_prefix = '-'
+				verbose_template = '(%s ago)'
+			else:
+				terse_prefix = '+'
+				verbose_template = '(in %s)'
+			parts_terse.append('[%s] (%s%s)' % (
+				regimen_like['discontinued'].strftime(date_format),
+				terse_prefix,
+				gmDateTime.format_apparent_age_medically(gmDateTime.calculate_apparent_age(start = regimen_like['discontinued']))
+			))
+			parts_verbose.append(_('discontinued %s %s') % (
+				regimen_like['discontinued'].strftime(date_format),
+				verbose_template % gmDateTime.format_apparent_age_medically(gmDateTime.calculate_apparent_age(start = regimen_like['discontinued']))
+			))
+		if started:
+			parts_verbose.append(_('after %s') % gmDateTime.format_apparent_age_medically(gmDateTime.calculate_apparent_age (
+				start = started,
+				end = regimen_like['discontinued']
+			)))
+		if regimen_like['discontinue_reason']:
+			parts_verbose.append('"%s"' % regimen_like['discontinue_reason'])
+	else:
+		parts_terse.append('?')
+
 	if terse:
-		return ''.join(parts['terse'])
+		return gmTools.u_arrow2right.join(parts_terse)
 
 	subst_prefix = '%s%s%s: ' % (
-		regimen['substance'],
-		gmTools.coalesce(regimen['amount'], '', ' %s'),
-		format_units(unit = regimen['unit'], short = True, none_str = '')
+		regimen_like['substance'],
+		gmTools.coalesce(regimen_like['amount'], '', ' %s'),
+		format_units(unit = regimen_like['unit'], short = True, none_str = '')
 	)
-	return subst_prefix + ', '.join(parts['verbose'])
+	return subst_prefix + ', '.join(parts_verbose)
 
 #--------------------------------------------------------
 def format_regimen_like_as_multiple_lines_abuse(regimen_like:cIntakeRegimen | cIntakeWithRegimen=None, left_margin=0, date_format='%Y %b %d', include_metadata=False, eol='\n'):
@@ -4001,13 +3889,6 @@ def format_units(unit:str=None, dose_unit:str=None, preparation:str=None, short:
 	)
 
 #------------------------------------------------------------
-def format_intake_start_medically(intake:cSubstanceIntakeEntry, terse:bool=False) -> str:
-	now = gmDateTime.pydt_now_here()
-	# starts today
-	if gmDateTime.pydt_is_today(intake['started']):
-		return _('today (%s)') % gmDateTime.pydt_strftime(regimen_like['started'], format = '%Y %b %d', accuracy = gmDateTime.acc_days)
-
-#------------------------------------------------------------
 def format_regimen_start_medically(regimen_like:cIntakeWithRegimen|cIntakeRegimen, terse:bool=False) -> str:
 	"""Format start of intake regimen suitable for display.
 
@@ -4025,66 +3906,170 @@ def format_regimen_start_medically(regimen_like:cIntakeWithRegimen|cIntakeRegime
 
 		return regimen_like['comment_on_start']
 
-	start_prefix = ''
-	if regimen_like['comment_on_start']:
-		start_prefix = gmTools.u_almost_equal_to
-	now = gmDateTime.pydt_now_here()
+	comment_mark = '¹' if regimen_like['comment_on_start'] else ''
 	# starts today
 	if gmDateTime.pydt_is_today(regimen_like['started']):
-		return _('today (%s)') % gmDateTime.pydt_strftime(regimen_like['started'], format = '%Y %b %d', accuracy = gmDateTime.acc_days)
+		if terse:
+			return _('today') + comment_mark
 
+		return _('today%s (%s)') % (
+			comment_mark,
+			gmDateTime.pydt_strftime(regimen_like['started'], format = '%Y %b %d', accuracy = gmDateTime.acc_days)
+		)
+
+	start_prefix = gmTools.u_almost_equal_to if regimen_like['comment_on_start'] else ''
+	now = gmDateTime.pydt_now_here()
 	# start in the future
 	if regimen_like['started'] > now:
 		starts_in = regimen_like['started'] - now
+		if terse:
+			return _('%s%s (%s+%s)') % (
+				gmDateTime.pydt_strftime(regimen_like['started'], '%Y %b %d', 'utf8', gmDateTime.acc_days),
+				comment_mark,
+				gmTools.u_almost_equal_to,
+				gmDateTime.format_interval_medically(starts_in, terse = terse)
+			)
+
 		return _('%s%s%s (in %s%s)') % (
 			start_prefix,
 			gmDateTime.pydt_strftime(regimen_like['started'], '%Y %b %d', 'utf8', gmDateTime.acc_days),
 			gmTools.coalesce(regimen_like['comment_on_start'], '', ' [%s]'),
 			gmTools.u_almost_equal_to,
-			gmDateTime.format_interval_medically(starts_in)
+			gmDateTime.format_interval_medically(starts_in, terse = terse)
 		)
 
 	# started in the past
 	started_ago = now - regimen_like['started']
 	three_months = pydt.timedelta(weeks = 13, days = 3)
 	if started_ago < three_months:
+		if terse:
+			return _('%s%s (%s-%s,%s)') % (
+				gmDateTime.pydt_strftime(regimen_like['started'], format = '%b %d', accuracy = gmDateTime.acc_days),
+				comment_mark,
+				gmTools.u_almost_equal_to,
+				gmDateTime.format_interval_medically(started_ago, terse = terse),
+				gmDateTime.pydt_strftime(regimen_like['started'], format = '%Y', accuracy = gmDateTime.acc_days)
+			)
+
 		return _('%s%s%s (%s%s ago, in %s)') % (
 			start_prefix,
 			gmDateTime.pydt_strftime(regimen_like['started'], format = '%b %d', accuracy = gmDateTime.acc_days),
 			gmTools.coalesce(regimen_like['comment_on_start'], '', ' [%s]'),
 			gmTools.u_almost_equal_to,
-			gmDateTime.format_interval_medically(started_ago),
+			gmDateTime.format_interval_medically(started_ago, terse = terse),
 			gmDateTime.pydt_strftime(regimen_like['started'], format = '%Y', accuracy = gmDateTime.acc_days)
 		)
 
 	five_years = pydt.timedelta(weeks = 265)
 	if started_ago < five_years:
-		return _('%s%s%s (%s%s ago, %s)') % (
+		if terse:
+			return _('%s%s (%s-%s,%s)') % (
+				gmDateTime.pydt_strftime(regimen_like['started'], format = '%Y %b', accuracy = gmDateTime.acc_months),
+				comment_mark,
+				gmTools.u_almost_equal_to,
+				gmDateTime.format_interval_medically(started_ago, terse = terse),
+				gmDateTime.pydt_strftime(regimen_like['started'], format = '%b %d', accuracy = gmDateTime.acc_days)
+			)
+
+		return _('%s%s%s (%s%s ago: %s)') % (
 			start_prefix,
 			gmDateTime.pydt_strftime(regimen_like['started'], '%Y %b', 'utf8', gmDateTime.acc_months),
 			gmTools.coalesce(regimen_like['comment_on_start'], '', ' [%s]'),
 			gmTools.u_almost_equal_to,
-			gmDateTime.format_interval_medically(started_ago),
+			gmDateTime.format_interval_medically(started_ago, terse = terse),
 			gmDateTime.pydt_strftime(regimen_like['started'], '%b %d', 'utf8', gmDateTime.acc_days)
 		)
 
-	return _('%s%s%s (%s%s ago, %s)') % (
+	if terse:
+		return _('%s%s (%s-%s,%s)') % (
+			gmDateTime.pydt_strftime(regimen_like['started'], '%Y', 'utf8', gmDateTime.acc_years),
+			comment_mark,
+			gmTools.u_almost_equal_to,
+			gmDateTime.format_interval_medically(started_ago, terse = terse),
+			gmDateTime.pydt_strftime(regimen_like['started'], '%b %d', 'utf8', gmDateTime.acc_days),
+		)
+
+	return _('%s%s%s (%s%s ago: %s)') % (
 		start_prefix,
 		gmDateTime.pydt_strftime(regimen_like['started'], '%Y', 'utf8', gmDateTime.acc_years),
 		gmTools.coalesce(regimen_like['comment_on_start'], '', ' [%s]'),
 		gmTools.u_almost_equal_to,
-		gmDateTime.format_interval_medically(started_ago),
+		gmDateTime.format_interval_medically(started_ago, terse = terse),
 		gmDateTime.pydt_strftime(regimen_like['started'], '%b %d', 'utf8', gmDateTime.acc_days),
 	)
 
 #------------------------------------------------------------
-def format_regimen_start_end_of_stopped_medically(regimen_like:cIntakeWithRegimen|cIntakeRegimen, terse:bool=False) -> str:
+def format_regimen_end_medically(regimen_like:cIntakeWithRegimen|cIntakeRegimen, terse:bool=False) -> str:
+	"""Format end of intake regimen suitable for display.
+
+	Args:
+		regimen_like: cIntakeWithRegimen or cIntakeRegimen
+	"""
+	assert regimen_like, '<regimen_like> must be given'
+
+	if gmDateTime.pydt_is_today(regimen_like['discontinued']):
+		return _('today')
+
+	if gmDateTime.pydt_is_yesterday(regimen_like['discontinued']):
+		return '-1/365' if terse else _('yesterday')
+
+	if not regimen_like['discontinued'] and not regimen_like['planned_duration']:
+		return gmTools.u_ellipsis
+
+	if not regimen_like['discontinued'] and not regimen_like['started']:
+		return gmTools.u_ellipsis
+
+	now = gmDateTime.pydt_now_here()
+	if not regimen_like['discontinued']:
+		planned_end = regimen_like['started'] + regimen_like['planned_duration'] - pydt.timedelta(days = 1)
+		intv = max(now, planned_end) - min(now, planned_end)
+		if planned_end.year == now.year:
+			end_template = '%b %d'
+			if planned_end < now:
+				planned_end_from_now_template = ('-%s,%s' % planned_end.year) if terse else _('%s ago, this year')
+			else:
+				planned_end_from_now_template = ('+%s,%s' % planned_end.year) if terse else _('in %s, this year')
+			planned_end_from_now_str = planned_end_from_now_template % gmDateTime.format_interval_medically(intv, terse = terse)
+		else:
+			end_template = '%Y'
+			if planned_end < now:
+				planned_end_from_now_template = '-%s,%s' if terse else _('%s ago: %s')
+			else:
+				planned_end_from_now_template = '+%s,%s' if terse else _('in %s: %s')
+			planned_end_from_now_str = planned_end_from_now_template % (
+				gmDateTime.format_interval_medically(intv, terse = terse),
+				planned_end.strftime('%b %d')
+			)
+		return '%s (%s)' % (planned_end.strftime(end_template), planned_end_from_now_str)
+
+	intv = max(now, regimen_like['discontinued']) - min(now, regimen_like['discontinued'])
+	if regimen_like['discontinued'].year == now.year:
+		end_date_template = '%b %d'
+		if regimen_like['discontinued'] < now:
+			planned_end_from_now_template = ('-%s,%s' % regimen_like['discontinued'].year) if terse else _('%s ago, this year')
+		else:
+			planned_end_from_now_template = ('+%s,%s' % regimen_like['discontinued'].year) if terse else _('in %s, this year')
+		planned_end_from_now_str = planned_end_from_now_template % gmDateTime.format_interval_medically(intv, terse = terse)
+	else:
+		end_date_template = '%Y'
+		if regimen_like['discontinued'] < now:
+			planned_end_from_now_template = '-%s,%s' if terse else _('%s ago: %s')
+		else:
+			planned_end_from_now_template = '+%s,%s' if terse else _('in %s: %s')
+		planned_end_from_now_str = planned_end_from_now_template % (
+			gmDateTime.format_interval_medically(intv, terse = terse),
+			regimen_like['discontinued'].strftime('%b %d')
+		)
+	return '%s (%s)' % (regimen_like['discontinued'].strftime(end_date_template), planned_end_from_now_str)
+
+#------------------------------------------------------------
+def format_regimen_timerange_of_stopped_medically(regimen_like:cIntakeWithRegimen|cIntakeRegimen, terse:bool=False) -> str:
 	"""Format start/end of discontinued regiment suitable for display.
 
 	Args:
 		regimen_like: cIntakeWithRegimen or cIntakeRegimen
 	"""
-	assert regimen_like['discontinued'], '<regimen_like> does not have contain discontinued regimen'
+	assert regimen_like['discontinued'], '<regimen_like> does not contain discontinued regimen'
 
 	now = gmDateTime.pydt_now_here()
 	# format intro
@@ -4094,7 +4079,7 @@ def format_regimen_start_end_of_stopped_medically(regimen_like:cIntakeWithRegime
 		ended_ago = now - regimen_like['discontinued']
 		intro = _('until %s%s ago') % (
 			gmTools.u_almost_equal_to,
-			gmDateTime.format_interval_medically(ended_ago),
+			gmDateTime.format_interval_medically(ended_ago, terse = terse)
 		)
 	# format start
 	if regimen_like['started']:
@@ -4120,7 +4105,7 @@ def format_regimen_start_end_of_stopped_medically(regimen_like:cIntakeWithRegime
 	# format end
 	end = gmDateTime.pydt_strftime(regimen_like['discontinued'], '%Y %b %d', 'utf8', gmDateTime.acc_days)
 	# assemble
-	return '%s (%s %s %s%s %s %s)' % (
+	return '%s: %s %s %s%s %s %s' % (
 		intro,
 		start,
 		gmTools.u_arrow2right_thick,
@@ -4131,7 +4116,7 @@ def format_regimen_start_end_of_stopped_medically(regimen_like:cIntakeWithRegime
 	)
 
 #------------------------------------------------------------
-def format_regimen_start_end_medically(regimen_like:cIntakeWithRegimen|cIntakeRegimen, terse:bool=False) -> str:
+def format_regimen_timerange_medically(regimen_like:cIntakeWithRegimen|cIntakeRegimen, terse:bool=False) -> str:
 	"""Format start/end of intake regimen suitable for display.
 
 	Args:
@@ -4141,12 +4126,11 @@ def format_regimen_start_end_medically(regimen_like:cIntakeWithRegimen|cIntakeRe
 	# medications stopped today or before today
 	if regimen_like['discontinued']:
 		if (regimen_like['discontinued'] < now) or (gmDateTime.pydt_is_today(regimen_like['discontinued'])):
-			return format_regimen_start_end_of_stopped_medically()
+			return format_regimen_timerange_of_stopped_medically(regimen_like, terse = terse)
 
 	arrow_parts = []
 	# format start
 	arrow_parts.append(format_regimen_start_medically(regimen_like, terse = terse))
-
 	# format durations
 	durations = []
 	if regimen_like['discontinued']:
@@ -4155,78 +4139,16 @@ def format_regimen_start_end_medically(regimen_like:cIntakeWithRegimen|cIntakeRe
 			durations.append(_('%s (documented)') % gmDateTime.format_interval(duration_documented, gmDateTime.acc_days))
 	if regimen_like['planned_duration'] is not None:
 		durations.append(_('%s (plan)') % gmDateTime.format_interval(regimen_like['planned_duration'], gmDateTime.acc_days))
+	spacer = '' if terse else ' '
 	if len(durations) == 0:
-		duration_str = '?'
+		duration_str = '' if terse else '?'
 	else:
-		duration_str = ', '.join(durations)
-
+		duration_str = (',%s' % spacer).join(durations)
 	arrow_parts.append(duration_str)
-
 	# format end
-	if regimen_like['discontinued'] is None:
-		if regimen_like['planned_duration'] is None:
-			end_str = '?'
-		else:
-			if regimen_like['started'] is None:
-				end_str = '?'
-			else:
-				planned_end = regimen_like['started'] + regimen_like['planned_duration'] - pydt.timedelta(days = 1)
-				if planned_end.year == now.year:
-					end_template = '%b %d'
-					if planned_end < now:
-						planned_end_from_now_str = _('%s ago, in %s') % (gmDateTime.format_interval(now - planned_end, gmDateTime.acc_days), planned_end.year)
-					else:
-						planned_end_from_now_str = _('in %s, %s') % (gmDateTime.format_interval(planned_end - now, gmDateTime.acc_days), planned_end.year)
-				else:
-					end_template = '%Y'
-					if planned_end < now:
-						planned_end_from_now_str = _('%s ago = %s') % (
-							gmDateTime.format_interval(now - planned_end, gmDateTime.acc_days),
-							gmDateTime.pydt_strftime(planned_end, '%b %d', 'utf8', gmDateTime.acc_days)
-						)
-					else:
-						planned_end_from_now_str = _('in %s = %s') % (
-							gmDateTime.format_interval(planned_end - now, gmDateTime.acc_days),
-							gmDateTime.pydt_strftime(planned_end, '%b %d', 'utf8', gmDateTime.acc_days)
-						)
-				end_str = '%s (%s)' % (
-					gmDateTime.pydt_strftime(planned_end, end_template, 'utf8', gmDateTime.acc_days),
-					planned_end_from_now_str
-				)
-	else:
-		if gmDateTime.is_today(regimen_like['discontinued']):
-			end_str = _('today')
-		elif regimen_like['discontinued'].year == now.year:
-			end_date_template = '%b %d'
-			if regimen_like['discontinued'] < now:
-				planned_end_from_now_str = _('%s ago, in %s') % (
-					gmDateTime.format_interval(now - regimen_like['discontinued'], gmDateTime.acc_days),
-					regimen_like['discontinued'].year
-				)
-			else:
-				planned_end_from_now_str = _('in %s, %s') % (
-					gmDateTime.format_interval(regimen_like['discontinued'] - now, gmDateTime.acc_days),
-					regimen_like['discontinued'].year
-				)
-		else:
-			end_date_template = '%Y'
-			if regimen_like['discontinued'] < now:
-				planned_end_from_now_str = _('%s ago = %s') % (
-					gmDateTime.format_interval(now - regimen_like['discontinued'], gmDateTime.acc_days),
-					gmDateTime.pydt_strftime(regimen_like['discontinued'], '%b %d', 'utf8', gmDateTime.acc_days)
-				)
-			else:
-				planned_end_from_now_str = _('in %s = %s') % (
-					gmDateTime.format_interval(regimen_like['discontinued'] - now, gmDateTime.acc_days),
-					gmDateTime.pydt_strftime(regimen_like['discontinued'], '%b %d', 'utf8', gmDateTime.acc_days)
-				)
-		end_str = '%s (%s)' % (
-			gmDateTime.pydt_strftime(regimen_like['discontinued'], end_date_template, 'utf8', gmDateTime.acc_days),
-			planned_end_from_now_str
-		)
-	arrow_parts.append(end_str)
+	arrow_parts.append(format_regimen_end_medically(regimen_like, terse = terse))
 	# assemble
-	return (' %s ' % gmTools.u_arrow2right_thick).join(arrow_parts)
+	return ('%s%s%s' % (spacer, gmTools.u_arrow2right_thick, spacer)).join(arrow_parts)
 
 #============================================================
 # main
@@ -4397,9 +4319,10 @@ if __name__ == "__main__":
 		for i_w_r in get_intakes_with_regimens():
 			print('------------------------------------------------')
 			print('-- intake with regimen:')
-			print(i_w_r.format())
+			#print(i_w_r.format())
 			input()
-			#print(i_w_r.medically_formatted_start_end)
+			print(format_regimen_timerange_medically(i_w_r, terse = True))
+			print(format_regimen_timerange_medically(i_w_r, terse = False))
 			#print('-- intake:')
 			#print(i_w_r.intake)
 			#input()
@@ -4414,20 +4337,8 @@ if __name__ == "__main__":
 		print(get_other_drug(name = 'LSD').format())
 
 	#--------------------------------------------------------
-	def test_drug2renal_insufficiency_urls():
-		drug2renal_insufficiency_urls(search_term = 'Metoprolol')
-
-	#--------------------------------------------------------
-	def test_medically_formatted_start_end():
-		cmd = "SELECT pk_intake FROM clin.v_intakes"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
-		for row in rows:
-			entry = cSubstanceIntakeEntry(row['pk_intake'])
-			print('===============================================================')
-			print(entry.format(left_margin = 1, single_line = False))
-			print('--------------------------------')
-			print(entry.medically_formatted_start_end)
-			gmTools.prompted_input()
+	def test_generate_renal_insufficiency_urls():
+		generate_renal_insufficiency_urls(search_term = 'Metoprolol')
 
 	#--------------------------------------------------------
 	def test_generate_amts_data_template_definition_file(work_dir=None, strict=True):
@@ -4531,6 +4442,75 @@ if __name__ == "__main__":
 			iwr.format_as_multiple_lines()
 
 	#--------------------------------------------------------
+	def test_format_regimen_like_as_single_line():
+		iwr = None
+		for _iwr in get_intakes_with_regimens():
+			if _iwr['pk_intake_regimen']:
+				iwr = _iwr
+				break
+		if not iwr:
+			print('no intake with regimen')
+			return
+
+		print('found intake with regimen')
+		print(iwr)
+		input()
+		now = gmDateTime.pydt_now_here()
+		starts = [
+			None,
+			now,
+			now - pydt.timedelta(weeks = 2),
+			now - pydt.timedelta(weeks = 3)
+			, now + pydt.timedelta(weeks = 1)
+		]
+		ends = [
+			None,
+			now,
+			now - pydt.timedelta(days = 1),
+			now - pydt.timedelta(weeks = 1),
+			now + pydt.timedelta(weeks = 1)
+		]
+		comments = [None, 'about summer']
+		for start in starts:
+			for end in ends:
+				if end and start:
+					if end < start:
+						continue
+				if start and not end:
+					if start > now:
+						continue
+				print('')
+				iwr['started'] = start
+				iwr['discontinued'] = end
+				input('next start/end: %s -> %s' % (iwr['started'], iwr['discontinued']))
+
+				iwr['start_is_unknown'] = True
+				iwr['comment_on_start'] = None
+				print(' start unknown:', iwr['start_is_unknown'])
+				print(' start comment:', iwr['comment_on_start'])
+				print('  =>', format_regimen_like_as_single_line(iwr, terse = True))
+				print('  =>', format_regimen_like_as_single_line(iwr, terse = False))
+				iwr['start_is_unknown'] = True
+				iwr['comment_on_start'] = 'about summer'
+				print(' start unknown:', iwr['start_is_unknown'])
+				print(' start comment:', iwr['comment_on_start'])
+				print('  =>', format_regimen_like_as_single_line(iwr, terse = True))
+				print('  =>', format_regimen_like_as_single_line(iwr, terse = False))
+
+				iwr['start_is_unknown'] = False
+				iwr['comment_on_start'] = None
+				print(' start unknown:', iwr['start_is_unknown'])
+				print(' start comment:', iwr['comment_on_start'])
+				print('  =>', format_regimen_like_as_single_line(iwr, terse = True))
+				print('  =>', format_regimen_like_as_single_line(iwr, terse = False))
+				iwr['start_is_unknown'] = False
+				iwr['comment_on_start'] = 'about summer'
+				print(' start unknown:', iwr['start_is_unknown'])
+				print(' start comment:', iwr['comment_on_start'])
+				print('  =>', format_regimen_like_as_single_line(iwr, terse = True))
+				print('  =>', format_regimen_like_as_single_line(iwr, terse = False))
+
+	#--------------------------------------------------------
 	def test_format_regimen_like_as_multiple_lines():
 		for iwr in get_intakes_with_regimens():
 			print(iwr)
@@ -4557,13 +4537,13 @@ if __name__ == "__main__":
 	#--------------------------------------------------------
 	# generic
 	#test_URLs()
-	#test_drug2renal_insufficiency_urls()
+	#test_generate_renal_insufficiency_urls()
 	#test_interaction_check()
-	#test_medically_formatted_start_end()
 	#test_format_units()
 
 	gmPG2.request_login_params(setup_pool = True)
 	#test_format_regimen_like_as_multiple_lines()
+	test_format_regimen_like_as_single_line()
 	#test_get_substances()
 	#test_get_doses()
 	#test_get_components()
@@ -4576,7 +4556,7 @@ if __name__ == "__main__":
 	#test_create_substance_intake()
 	#test_delete_intake()
 	#test_get_habit_drugs()
-	test_can_format()
+	#test_can_format()
 
 	# AMTS
 	#test_generate_amts_data_template_definition_file()
