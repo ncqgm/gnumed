@@ -55,6 +55,8 @@ except ImportError:
 import psycopg2.errorcodes as PG_error_codes
 import psycopg2.sql as PG_SQL
 
+PG_BEGINNING_OF_TIME = None
+
 # =======================================================================
 PG_ERROR_EXCEPTION = dbapi.DatabaseError
 
@@ -503,6 +505,21 @@ end;';
 """
 SQL__get_pg_temp_table_structure = "select pg_temp.concat_table_structure_v19_and_up();"
 SQL__md5_pg_temp_table_structure = "select md5(pg_temp.concat_table_structure_v19_and_up()) AS md5;"
+
+#------------------------------------------------------------------------
+def is_beginning_of_time(dt:pydt.datetime) -> bool:
+	global PG_BEGINNING_OF_TIME
+	if not PG_BEGINNING_OF_TIME:
+		SQL = "SELECT '-infinity'::TIMESTAMP WITH TIME ZONE AT TIME ZONE 'UTC' AS big_bang"
+		rows, idx = run_ro_queries(queries = [{'cmd': SQL}])
+		PG_BEGINNING_OF_TIME = rows[0]['big_bang']
+		_log.debug("psycopg2 puts PG's Big Bang at: %s ('-infinity' at UTC)", PG_BEGINNING_OF_TIME)
+		pydt_bing_bang = pydt.datetime(1,1,1)
+		if pydt_bing_bang == PG_BEGINNING_OF_TIME:
+			_log.debug('Python and PostgreSQL (via psycopg2) agree on the beginning of time')
+		else:
+			_log.error('Python3 does not agree, it thinks: %s (datetime(1,1,1))', pydt_bing_bang.isoformat())
+	return dt == PG_BEGINNING_OF_TIME
 
 #------------------------------------------------------------------------
 def database_schema_compatible(link_obj:_TLnkObj=None, version:int=None, verbose:bool=True) -> bool:
@@ -2973,6 +2990,32 @@ if __name__ == "__main__":
 				_log.error('lost connection')
 
 	#--------------------------------------------------------------------
+	def test_rw_query():
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
+		conn = get_connection(readonly = False)
+		queries = [
+			{'cmd': 'create table staging.test (ts timestamp with time zone)'},
+			{'cmd': "INSERT INTO staging.test (ts) values (%(inf)s::TIMESTAMP WITH TIME ZONE AT TIME ZONE 'UTC')", 'args': {'inf': '-infinity'}},
+			{'cmd': 'SELECT FROM staging.test'}
+		]
+		print(run_rw_queries(queries = queries, link_obj = conn))
+		conn.rollback()
+
+	#--------------------------------------------------------------------
+	def test_run_queries():
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
+		conn = get_connection(readonly = True)
+		while True:
+			SQL = input('Enter SQL:')
+			data, idx = run_ro_queries(link_obj = conn, queries = [{'cmd': SQL}], return_data = True, get_col_idx = True, verbose = True)
+			print(data)
+			print(idx)
+
+	#--------------------------------------------------------------------
 	def test_ro_queries():
 		login, creds = request_login_params()
 		pool = gmConnectionPool.gmConnectionPool()
@@ -3336,6 +3379,13 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 			f.write(__get_schema_structure_by_pg_temp_func())
 
 	#--------------------------------------------------------------------
+	def test_big_bang():
+		login, creds = request_login_params()
+		pool = gmConnectionPool.gmConnectionPool()
+		pool.credentials = creds
+		print(is_beginning_of_time(pydt.datetime(1, 1, 1)))
+
+	#--------------------------------------------------------------------
 	# run tests
 
 	# legacy:
@@ -3367,6 +3417,9 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_get_db_fingerprint()
 	#test_revalidate_constraints()
 	#test_reindex_database()
+	#test_run_queries()
+	#test_big_bang()
+	test_rw_query()
 
 	#print(dbapi.extras.DictRow)
 	#print(dbapi._psycopg.connection)
