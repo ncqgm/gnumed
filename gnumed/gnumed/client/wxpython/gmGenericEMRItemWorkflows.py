@@ -20,6 +20,7 @@ from Gnumed.business.gmEMRStructItems import cHospitalStay
 from Gnumed.business.gmEMRStructItems import cPerformedProcedure
 from Gnumed.business.gmPathLab import cTestResult
 from Gnumed.business.gmMedication import cSubstanceIntakeEntry
+from Gnumed.business.gmMedication import cIntakeWithRegimen
 from Gnumed.business.gmFamilyHistory import cFamilyHistory
 from Gnumed.business.gmVaccination import cVaccination
 from Gnumed.business.gmExternalCare import cExternalCareItem
@@ -34,7 +35,7 @@ from Gnumed.wxpython.gmEMRStructWidgets import edit_episode
 from Gnumed.wxpython.gmEncounterWidgets import edit_encounter
 from Gnumed.wxpython.gmHospitalStayWidgets import edit_hospital_stay
 from Gnumed.wxpython.gmMeasurementWidgets import edit_measurement
-from Gnumed.wxpython.gmMedicationWidgets import edit_intake_of_substance
+from Gnumed.wxpython.gmSubstanceIntakeWidgets import edit_intake_with_regimen
 from Gnumed.wxpython.gmFamilyHistoryWidgets import edit_family_history
 from Gnumed.wxpython.gmVaccWidgets import edit_vaccination
 from Gnumed.wxpython.gmProcedureWidgets import edit_procedure
@@ -53,7 +54,8 @@ __map_class2edit_call = {
 	cHospitalStay: {'edit_in_dlg': edit_hospital_stay},
 	cTestResult: {'edit_in_dlg': edit_measurement},
 	cEncounter: {'edit_in_dlg': edit_encounter},
-	cSubstanceIntakeEntry: {'edit_in_dlg': edit_intake_of_substance},
+	cSubstanceIntakeEntry: {'edit_in_dlg': edit_intake_with_regimen},
+	cIntakeWithRegimen: {'edit_in_dlg': edit_intake_with_regimen},
 	cFamilyHistory: {'edit_in_dlg': edit_family_history},
 	cVaccination: {'edit_in_dlg': edit_vaccination},
 	cPerformedProcedure: {'edit_in_dlg': edit_procedure},

@@ -1,6 +1,9 @@
 #!/bin/bash
 
 
+#export WXSUPPRESS_SIZER_FLAGS_CHECK="true"
+
+
 # useful for reproducing problems with certain LOCALE settings
 # (set values from a --debug log file)
 #export LANGUAGE=

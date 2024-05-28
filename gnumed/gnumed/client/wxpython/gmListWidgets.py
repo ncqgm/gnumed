@@ -1956,15 +1956,15 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 
 		This means there is no way to *revert* to the default policy :-(
 		"""
-		# explicit policy ?
-		if widths is not None:
+		if widths:
+			# explicit policy ?
 			self.__widths = widths
 			for idx in range(len(self.__widths)):
 				self.SetColumnWidth(idx, self.__widths[idx])
 			return
 
 		# previous policy ?
-		if self.__widths is not None:
+		if self.__widths:
 			for idx in range(len(self.__widths)):
 				self.SetColumnWidth(idx, self.__widths[idx])
 			return
@@ -2788,6 +2788,8 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 		dyna_tt = None
 		if self.__item_tooltip_callback is not None:
 			dyna_tt = self.__item_tooltip_callback(self.__data[self.map_item_idx2data_idx(item_idx)])
+			if isinstance(dyna_tt, list):
+				dyna_tt = '\n'.join(dyna_tt)
 
 		if dyna_tt is None:
 			self.SetToolTip(self.__tt_static_part)

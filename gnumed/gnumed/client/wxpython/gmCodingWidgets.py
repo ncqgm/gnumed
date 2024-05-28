@@ -202,7 +202,7 @@ class cGenericCodesPhraseWheel(gmPhraseWheel.cMultiPhraseWheel):
 			return
 
 		if len(self.data) != len(self.displayed_strings):
-			self.display_as_valid(valid = False, partially_invalid = True)
+			self.display_as_valid(valid = None)
 			return
 
 		self.display_as_valid(valid = True)

@@ -2013,8 +2013,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		# select intakes
 		emr = self.pat.emr
-		from Gnumed.wxpython import gmMedicationWidgets
-		intakes2export = gmMedicationWidgets.manage_substance_intakes(emr = emr)
+		from Gnumed.wxpython import gmSubstanceIntakeWidgets
+		intakes2export = gmSubstanceIntakeWidgets.manage_substance_intakes(emr = emr)
 		if intakes2export is None:
 			return ''
 		if len(intakes2export) == 0:
@@ -2192,8 +2192,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return self._escape(_('current_meds_for_rx: template is missing'))
 
 		emr = self.pat.emr
-		from Gnumed.wxpython import gmMedicationWidgets
-		current_meds = gmMedicationWidgets.manage_substance_intakes(emr = emr)
+		from Gnumed.wxpython import gmSubstanceIntakeWidgets
+		current_meds = gmSubstanceIntakeWidgets.manage_substance_intakes(emr = emr)
 		if current_meds is None:
 			return ''
 
@@ -2251,8 +2251,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		emr = self.pat.emr
 		if ask_user:
-			from Gnumed.wxpython import gmMedicationWidgets
-			current_meds = gmMedicationWidgets.manage_substance_intakes(emr = emr)
+			from Gnumed.wxpython import gmSubstanceIntakeWidgets
+			current_meds = gmSubstanceIntakeWidgets.manage_substance_intakes(emr = emr)
 			if current_meds is None:
 				return ''
 		else:
@@ -3776,8 +3776,8 @@ if __name__ == '__main__':
 		if pat is None:
 			sys.exit()
 		gmPerson.set_active_patient(patient = pat)
-		from Gnumed.wxpython import gmMedicationWidgets
-		gmMedicationWidgets.manage_substance_intakes()
+		from Gnumed.wxpython import gmSubstanceIntakeWidgets
+		gmSubstanceIntakeWidgets.manage_substance_intakes()
 
 	#--------------------------------------------------------
 	def test_show_phs():

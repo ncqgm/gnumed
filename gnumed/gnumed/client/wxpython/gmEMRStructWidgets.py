@@ -463,14 +463,11 @@ class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			pat = gmPerson.cPatient(aPK_obj = self.__patient_id)
 
 		emr = pat.emr
-		epi = emr.add_episode(episode_name = epi_name, is_open = self.__is_open_for_create_data)
+		epi = emr.add_episode(episode_name = epi_name, is_open = self.__is_open_for_create_data, link_obj = link_obj)
 		if epi is None:
 			self.data = {}
 		else:
-			self.SetText (
-				value = epi_name,
-				data = epi['pk_episode']
-			)
+			self.SetText(value = epi_name, data = epi['pk_episode'])
 
 	#--------------------------------------------------------
 	def _data2instance(self, link_obj=None):
@@ -862,7 +859,7 @@ class cIssueSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			pat = gmPerson.cPatient(aPK_obj = self.__patient_id)
 
 		emr = pat.emr
-		issue = emr.add_health_issue(issue_name = issue_name)
+		issue = emr.add_health_issue(issue_name = issue_name, link_obj = link_obj)
 
 		if issue is None:
 			self.data = {}

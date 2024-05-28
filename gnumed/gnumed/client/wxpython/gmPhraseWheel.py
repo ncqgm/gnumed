@@ -89,7 +89,7 @@ class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 		self.__data = items
 		pos = len(items) + 1
 		for item in items:
-			self.InsertItem(pos, label=item['list_label'])
+			self.InsertItem(pos, label = item['list_label'])
 	#--------------------------------------------------------
 	def GetSelectedItemData(self):
 		sel_idx = self.GetFirstSelected()
@@ -241,7 +241,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 
 		self.suppress_text_update_smarts = suppress_smarts
 
-		if data is not None:
+		if data:
 			self.suppress_text_update_smarts = True
 			self._data = self._dictify_data(data = data, value = value)
 		super(cPhraseWheelBase, self).SetValue(value)
@@ -272,24 +272,25 @@ class cPhraseWheelBase(wx.TextCtrl):
 	def set_from_pk(self, pk):
 		raise NotImplementedError('[%s]: set_from_pk()' % self.__class__.__name__)
 	#--------------------------------------------------------
-	def display_as_valid(self, valid=None, partially_invalid=False):
+	def display_as_valid(self, valid:bool=True):
+		"""Color input field based on content validity.
 
+			valid: whether the content ist valid (True) or invalid (False), False = partially invalid
+		"""
+		assert valid in [True, False, None], '<valid> must be True or False or None'
 		if valid is True:
 			color2show = self.__my_startup_color
 		elif valid is False:
-			if partially_invalid:
-				color2show = color_prw_partially_invalid
-			else:
-				color2show = color_prw_invalid
+			color2show = color_prw_invalid
 		else:
-			raise ValueError('<valid> must be True or False')
-
+			color2show = color_prw_partially_invalid
 		if self.IsEnabled():
 			self.SetBackgroundColour(color2show)
 			self.Refresh()
 			return
 
 		self.__previous_enabled_bg_color = color2show
+
 	#--------------------------------------------------------
 	def Disable(self):
 		self.Enable(enable = False)
@@ -329,6 +330,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 			raise ValueError('[add_callback_on_selection]: ignoring callback [%s], it is not callable' % callback)
 
 		self._on_selection_callbacks.append(callback)
+
 	#---------------------------------------------------------
 	def add_callback_on_set_focus(self, callback=None):
 		"""Add a callback for invocation when getting focus."""
@@ -336,6 +338,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 			raise ValueError('[add_callback_on_set_focus]: ignoring callback [%s] - not callable' % callback)
 
 		self._on_set_focus_callbacks.append(callback)
+
 	#---------------------------------------------------------
 	def add_callback_on_lose_focus(self, callback=None):
 		"""Add a callback for invocation when losing focus."""

@@ -261,7 +261,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def format_as_journal(self, left_margin=0, date_format='%Y %b %d, %a'):
 		rows = gmClinNarrative.get_as_journal (
-			issues = (self.pk_obj,),
+			issues = [self.pk_obj],
 			order_by = 'pk_episode, pk_encounter, clin_when, scr, src_table'
 		)
 
@@ -1020,7 +1020,7 @@ FROM (
 	generic_codes = property(_get_generic_codes, _set_generic_codes)
 
 #============================================================
-def create_health_issue(description=None, encounter=None, patient=None):
+def create_health_issue(description=None, encounter=None, patient=None, link_obj=None):
 	"""Creates a new health issue for a given patient.
 
 	description - health issue name
@@ -1028,19 +1028,17 @@ def create_health_issue(description=None, encounter=None, patient=None):
 	try:
 		h_issue = cHealthIssue(name = description, encounter = encounter, patient = patient)
 		return h_issue
+
 	except gmExceptions.NoSuchBusinessObjectError:
 		pass
 
 	queries = []
 	cmd = "insert into clin.health_issue (description, fk_encounter) values (%(desc)s, %(enc)s)"
 	queries.append({'cmd': cmd, 'args': {'desc': description, 'enc': encounter}})
-
 	cmd = "select currval('clin.health_issue_pk_seq')"
 	queries.append({'cmd': cmd})
-
-	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True)
+	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True, link_obj = link_obj)
 	h_issue = cHealthIssue(aPK_obj = rows[0][0])
-
 	return h_issue
 
 #-----------------------------------------------------------
@@ -1243,7 +1241,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def format_as_journal(self, left_margin=0, date_format='%Y %b %d, %a'):
 		rows = gmClinNarrative.get_as_journal (
-			episodes = (self.pk_obj,),
+			episodes = [self.pk_obj],
 			order_by = 'pk_encounter, clin_when, scr, src_table'
 			#order_by = u'pk_encounter, scr, clin_when, src_table'
 		)

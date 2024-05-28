@@ -763,7 +763,7 @@ class cClinicalRecord(object):
 			txt += _('Medications and Substances')
 			txt += '\n'
 		for m in meds:
-			txt += '%s\n' % m.format_as_single_line(left_margin = 1)
+			txt += '%s\n' % m.format(left_margin = 1, single_line = True)
 
 		fhx = self.get_family_history()
 		if len(fhx) > 0:
@@ -1278,12 +1278,13 @@ WHERE
 	health_issues = property(get_health_issues)
 
 	#------------------------------------------------------------------
-	def add_health_issue(self, issue_name=None):
+	def add_health_issue(self, issue_name=None, link_obj=None):
 		"""Adds patient health issue."""
 		return gmEMRStructItems.create_health_issue (
 			description = issue_name,
 			encounter = self.current_encounter['pk_encounter'],
-			patient = self.pk_patient
+			patient = self.pk_patient,
+			link_obj = link_obj
 		)
 	#--------------------------------------------------------
 	def health_issue2problem(self, issue=None):
@@ -1292,8 +1293,8 @@ WHERE
 	#--------------------------------------------------------
 	# API: substance intake
 	#--------------------------------------------------------
-	def get_current_medications(self, include_inactive=True, order_by=None, episodes=None, issues=None):
-		return self._get_current_substance_intakes (
+	def get_current_medications(self, include_inactive=False, order_by=None, episodes=None, issues=None):
+		return self.get_intakes (
 			include_inactive = include_inactive,
 			order_by = order_by,
 			episodes = episodes,
@@ -1304,7 +1305,7 @@ WHERE
 
 	#--------------------------------------------------------
 	def _get_abused_substances(self, order_by=None):
-		return self._get_current_substance_intakes (
+		return self.get_intakes (
 			include_inactive = True,
 			order_by = order_by,
 			episodes = None,
@@ -1316,42 +1317,18 @@ WHERE
 	abused_substances = property(_get_abused_substances)
 
 	#--------------------------------------------------------
-	def _get_current_substance_intakes(self, include_inactive=True, order_by=None, episodes=None, issues=None, exclude_potential_abuses=False, exclude_medications=False):
-
-		where_parts = ['pk_patient = %(pat)s']
-		args = {'pat': self.pk_patient}
-
-		if include_inactive:
-			table = 'clin.v_intakes'
-		else:
-			table = 'clin.v_intakes__active'
-
-		if exclude_potential_abuses:
-			where_parts.append('use_type IS NULL')
-
-		if exclude_medications:
-			where_parts.append('use_type IS NOT NULL')
-
-		if order_by is None:
-			order_by = ''
-		else:
-			order_by = 'ORDER BY %s' % order_by
-
-		cmd = "SELECT * FROM %s WHERE %s %s" % (
-			table,
-			'\nAND '.join(where_parts),
-			order_by
+	def get_intakes(self, include_inactive=False, order_by=None, episodes=None, issues=None, exclude_potential_abuses=False, exclude_medications=False):
+		return gmMedication.get_intakes_with_regimens (
+			pk_patient = self.pk_patient,
+			include_inactive = include_inactive,
+			order_by = order_by,
+			episodes = episodes,
+			issues = issues,
+			exclude_potential_abuses = exclude_potential_abuses,
+			exclude_medications = exclude_medications
 		)
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		intakes = [ gmMedication.cSubstanceIntakeEntry(row = {'idx': idx, 'data': r, 'pk_field': 'pk_intake'})  for r in rows ]
 
-		if episodes is not None:
-			intakes = [ i for i in intakes if i['pk_episode'] in episodes  ]
-
-		if issues is not None:
-			intakes = [ i for i in intakes if i ['pk_health_issue'] in issues ]
-
-		return intakes
+	intakes = property(get_intakes)
 
 	#--------------------------------------------------------
 	def add_substance_intake(self, pk_component=None, pk_episode=None, pk_drug_product=None, pk_health_issue=None):
@@ -1369,12 +1346,12 @@ WHERE
 		)
 
 	#--------------------------------------------------------
-	def substance_intake_exists(self, pk_component=None, pk_substance=None, pk_drug_product=None):
+	def substance_intake_exists(self, pk_substance:int=None, substance:str=None) -> bool:
+		"""Either pk_substance OR substance."""
 		return gmMedication.substance_intake_exists (
-			pk_component = pk_component,
 			pk_substance = pk_substance,
 			pk_identity = self.pk_patient,
-			pk_drug_product = pk_drug_product
+			substance = substance
 		)
 
 	#--------------------------------------------------------
@@ -2502,6 +2479,13 @@ if __name__ == "__main__":
 			print(med.format(single_line = True))
 
 	#-----------------------------------------
+	def test_get_intakes():
+		emr = cClinicalRecord(aPKey = 12)
+		for med in emr.intakes:
+			print(med.format(single_line = True))
+			input()
+
+	#-----------------------------------------
 	def test_is_allergic_to():
 		emr = cClinicalRecord(aPKey = 12)
 		print(emr.is_allergic_to(atcs = sys.argv[2:], inns = sys.argv[2:], product_name = sys.argv[2]))
@@ -2555,7 +2539,8 @@ if __name__ == "__main__":
 	#test_get_most_recent()
 	#test_episodes()
 	#test_format_as_journal()
-	test_get_abuses()
+	#test_get_abuses()
+	test_get_intakes()
 	#test_get_encounters()
 	#test_get_issues()
 	#test_get_dx()

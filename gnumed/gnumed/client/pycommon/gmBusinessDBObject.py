@@ -694,9 +694,10 @@ class cBusinessDBObject(object):
 			args:dict = self.pk_obj
 		else:
 			args:list = [self.pk_obj]		# type: ignore [no-redef]
+		queries = [{'cmd': self.__class__._cmd_fetch_payload, 'args': args}]
 		rows, self._idx = gmPG2.run_ro_queries (
 			link_obj = link_obj,
-			queries = [{'cmd': self.__class__._cmd_fetch_payload, 'args': args}],
+			queries = queries,
 			get_col_idx = True
 		)
 		if len(rows) == 0:
@@ -733,12 +734,12 @@ class cBusinessDBObject(object):
 		for field in self._payload.keys():
 			args[field] = self._payload[field]
 		self.payload_most_recently_attempted_to_store = args
-
-		conn_close = lambda : None
+		close_conn = lambda : None
+		commit_conn = lambda : None
 		if conn is None:
 			conn = gmPG2.get_connection(readonly=False)
-			conn_close = conn.close
-
+			close_conn = conn.close
+			commit_conn = conn.commit
 		queries = []
 		for query in self.__class__._cmds_store_payload:
 			queries.append({'cmd': query, 'args': args})
@@ -769,20 +770,20 @@ class cBusinessDBObject(object):
 				self._payload[key] = row[key]
 			except KeyError:
 				conn.rollback()
-				conn_close()
+				close_conn()
 				_log.error('[%s:%s]: cannot update instance, XMIN-refetch key mismatch on [%s]' % (self.__class__.__name__, self.pk_obj, key))
 				_log.error('payload keys: %s' % str(self._payload.keys()))
 				_log.error('XMIN-refetch keys: %s' % str(row.keys()))
 				_log.error(args)
 				raise
 
-		# only at conn.commit() time will data actually
+		# only at commit time will data actually
 		# get committed (and thusly trigger based notifications
 		# be sent out), so reset the local modification flag
 		# right before that
 		self._is_modified = False
-		conn.commit()
-		conn_close()
+		commit_conn()
+		close_conn()
 
 		# update to new "original" payload
 		self.payload_most_recently_fetched = {}

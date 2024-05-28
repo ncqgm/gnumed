@@ -54,11 +54,19 @@ union all
 
 union all
 
-	select * from clin.v_intakes_w_o_regimen_journal
+	select * from clin.v_intakes_w_o_regimen__journal
 
 union all
 
-	select * from clin.v_intake_regimen_journal
+	select * from clin.v_regimens_w_o_start__journal
+
+union all
+
+	select * from clin.v_regimens_w_start__journal
+
+union all
+
+	select * from clin.v_regimens_end__journal
 
 union all
 

@@ -842,15 +842,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		multi_products_already_seen = []
 		for intake in intakes:
 			drug = intake.containing_drug
-			if len(drug['components']) == 1:
-				list_items.append(_('%s %s%s%s') % (
-					intake['substance'],
-					intake['amount'],
-					intake.formatted_units,
-					gmTools.coalesce(intake['schedule'], '', ': %s')
-				))
-				data_items.append(intake)
-			else:
+			if drug and len(drug['components']) > 1:
 				if intake['drug_product'] in multi_products_already_seen:
 					continue
 				multi_products_already_seen.append(intake['drug_product'])
@@ -860,6 +852,14 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 					gmTools.coalesce(intake['schedule'], '', ': %s')
 				))
 				data_items.append(intake)
+				continue
+			list_items.append(_('%s %s%s%s') % (
+				intake['substance'],
+				gmTools.coalesce(intake['amount'], ''),
+				intake.formatted_units,
+				gmTools.coalesce(intake['schedule'], '', ': %s')
+			))
+			data_items.append(intake)
 
 		self._LCTRL_meds.set_string_items(items = list_items)
 		self._LCTRL_meds.set_data(data = data_items)
@@ -871,17 +871,15 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	def _calc_meds_list_item_tooltip(self, data):
 		if isinstance(data, str):
 			return data
+
 		emr = gmPerson.gmCurrentPatient().emr
 		atcs = []
 		if data['atc_substance'] is not None:
 			atcs.append(data['atc_substance'])
-#		if data['atc_drug'] is not None:
-#			atcs.append(data['atc_drug'])
-#		allg = emr.is_allergic_to(atcs = atcs, inns = (data['substance'],), drug = data['drug_product'])
 		allg = emr.is_allergic_to(atcs = atcs, inns = [data['substance']])
 		if allg is False:
 			allg = None
-		return data.format(single_line = False, allergy = allg, show_all_product_components = True)
+		return data.format(allergy = allg, eol = '\n')
 
 	#-----------------------------------------------------
 	def _on_meds_item_activated(self, event):
@@ -896,7 +894,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		# <ctrl> down ? -> edit
 		if wx.GetKeyState(wx.WXK_CONTROL):
-			wx.CallAfter(gmMedicationWidgets.edit_intake_of_substance, parent = self, substance = data)
+			wx.CallAfter(gmSubstanceIntakeWidgets.edit_intake_with_regimen, parent = self, intake_with_regimen = data)
 			return
 
 		gmDispatcher.send(signal = 'display_widget', name = 'gmCurrentSubstancesPlugin')

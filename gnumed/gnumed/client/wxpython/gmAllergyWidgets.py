@@ -39,6 +39,47 @@ def edit_allergies(parent=None, allergy=None, single_entry=False):
 
 	return True
 
+#------------------------------------------------------------
+def turn_substance_intake_into_allergy(parent=None, intake=None, emr=None):
+
+	if not intake['discontinued']:
+		intake['discontinued'] = gmDateTime.pydt_now_here()
+	if intake['discontinue_reason'] is None:
+		intake['discontinue_reason'] = '%s %s' % (_('not tolerated:'), _('discontinued due to allergy or intolerance'))
+	else:
+		if not intake['discontinue_reason'].endswith(_('; not tolerated')):
+			intake['discontinue_reason'] += _('; not tolerated')
+	if not intake.save():
+		return False
+
+	intake.turn_into_allergy(encounter_id = emr.active_encounter['pk_encounter'])
+#	drug = intake.containing_drug
+#	comps = [ c['substance'] for c in drug.components ]
+#	if len(comps) > 1:
+#		gmGuiHelpers.gm_show_info (
+#			aTitle = _('Documented an allergy'),
+#			aMessage = _(
+#				'An allergy was documented against the substance:\n'
+#				'\n'
+#				'  [%s]\n'
+#				'\n'
+#				'This substance was taken with the multi-component drug product:\n'
+#				'\n'
+#				'  [%s (%s)]\n'
+#				'\n'
+#				'Note that ALL components of this product were discontinued.'
+#			) % (
+#				intake['substance'],
+#				intake['drug_product'],
+#				' & '.join(comps)
+#			)
+#		)
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	dlg = cAllergyManagerDlg(parent, -1)
+	dlg.ShowModal()
+	return True
+
 #======================================================================
 from Gnumed.wxGladeWidgets import wxgAllergyEditAreaPnl
 

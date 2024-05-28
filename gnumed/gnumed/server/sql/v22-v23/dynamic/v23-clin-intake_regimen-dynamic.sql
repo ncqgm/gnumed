@@ -11,6 +11,36 @@
 set check_function_bodies to on;
 
 -- --------------------------------------------------------------
+-- table level
+-- --------------------------------------------------------------
+comment on table clin.intake_regimen is
+'Holds ongoing and historical regimens by which substances are consumed.
+.
+There can be any number of discontinued (historic)
+and ongoing regimen per intake.
+.
+Say, a patient takes paracetamol (PCM):
+.
+	1000mg PCM in the morning
+	500mg PCM at noon
+	500mg PCM combined with codeine at night (say, as drug "ParaComp")
+.
+There will be one clin.intake row for PCM and two (or
+three) active regimen rows:
+.
+- regimen "500mg PCM, 0-0-1 pk_drug=ParaComp"
+.
+	plus either
+.
+- regimen "PCM, schedule 1000-500-0, pk_dose=NULL"
+	or
+- regimen "1000mg PCM, schedule 1-0-0, pk_dose=pcm_1000"
+- regimen "500mg PCM, schedule 0-1-0, pk_dose=pcm_500"
+.
+Each way is medically correct. Which one is used
+is up to the clinician.';
+
+-- --------------------------------------------------------------
 -- .soap_cat
 alter table clin.intake_regimen
 	alter column soap_cat
@@ -21,8 +51,28 @@ alter table clin.intake_regimen
 		set default 'p'::text;
 
 -- --------------------------------------------------------------
+-- .fk_episode
+comment on column clin.intake_regimen.fk_episode is '
+The episode this intake regimen was registered under.
+.
+The episodes of regimens need not point to the the same
+episode as the intake itself because a) historical
+(discontinued) regimen are not unlikely to relate episodes
+other than the current one and b) active regimen may well be
+*intended* for different episodes, say:
+.
+Amitriptylin 50-0-0 for depression plus
+.
+Amitriptylin 0-0-5 for insomnia
+';
+
+-- --------------------------------------------------------------
 -- .fk_intake
-comment on column clin.intake_regimen.fk_intake is 'The intake this regimen applies to. Only one regimen per patient must be ongoing at any one time.';
+comment on column clin.intake_regimen.fk_intake is
+'The intake this regimen applies to.
+.
+(fk_intake, discontinued=NULL) is not unique. For
+the reasoning refer to the table level comment.';
 
 alter table clin.intake_regimen
 	alter column fk_intake
@@ -31,52 +81,41 @@ alter table clin.intake_regimen
 alter table clin.intake_regimen
 	add foreign key (fk_intake)
 		references clin.intake(pk)
-		on delete restrict
+		on delete restrict		-- set null
 		on update cascade;
 
-drop index if exists clin.idx_uniq_open_regimen_per_intake cascade;
-create unique index idx_uniq_open_regimen_per_intake on clin.intake_regimen(fk_intake, discontinued) where (discontinued is null);
+drop index if exists clin.idx_clin_intake_regimen_fk_intake cascade;
+create index idx_clin_intake_regimen_fk_intake on clin.intake_regimen(fk_intake);
 
 -- --------------------------------------------------------------
--- .fk_dose
-comment on column clin.intake_regimen.fk_dose is 'The dose being taken. Must link to a dose with the same fk_substance as the fk_intake this row points to.';
+-- .amount
+comment on column clin.intake_regimen.amount is
+'The amount of substance (active ingredient) to be taken at each point in time in .schedule.
+.
+Unrelated to form factor, concentration, or dose per form factor of any drug product.
+.
+Also not related to route of administration.';
 
 alter table clin.intake_regimen
-	add foreign key (fk_dose)
-		references ref.dose(pk)
-		on delete restrict
-		on update cascade;
-
--- make unique(.fk_dose, patient):
--- no, because one given dose may be used in different drugs ...
+	alter column amount
+		set not NULL;
 
 -- --------------------------------------------------------------
--- .fk_drug_product
-comment on column clin.intake_regimen.fk_drug_product is 'The drug being taken.';
+-- .unit
+comment on column clin.intake_regimen.unit is
+'The unit (mg/ml/mol/...) for .amount.';
 
 alter table clin.intake_regimen
-	add foreign key (fk_drug_product)
-		references ref.drug_product(pk)
-		on delete restrict
-		on update cascade;
-
-alter table clin.intake_regimen
-	drop constraint if exists clin_intake_regimen_fk_drug_product_requires_fk_dose;
-
-alter table clin.intake_regimen
-	add constraint clin_intake_regimen_fk_drug_product_requires_fk_dose check (
-		(fk_drug_product is NULL)
-			OR
-		((fk_drug_product is NOT NULL) AND (fk_dose IS NOT NULL))
-	);
-
--- make unique(.fk_drug, patient)
---drop index if exists clin.idx_uniq_drug_per_patient cascade;
---create unique index idx_uniq_drug_per_patient on clin.intake_regimen(fk_drug_product, xxxxxxxxxxx) where (fk_drug_product is not null);
+	alter column unit
+		set not NULL;
 
 -- --------------------------------------------------------------
 -- .narrative = schedule
-comment on column clin.intake_regimen.narrative is 'The schedule, if any, the substance is to be taken by. Can be a snippet from a controlled vocabulary to be interpreted by the middleware.';
+comment on column clin.intake_regimen.narrative is 
+'The schedule, if any, the substance is to be taken by.
+.
+Can be a snippet from a controlled vocabulary to be
+interpreted by the middleware.';
 
 alter table clin.intake_regimen
 	alter column narrative
@@ -88,15 +127,49 @@ alter table clin.intake_regimen
 
 -- --------------------------------------------------------------
 -- .clin_when = started
-comment on column clin.intake_regimen.clin_when is 'When this regimen is started. Can be in the future.';
+comment on column clin.intake_regimen.clin_when is 'When this regimen had been/has been/will be started.';
 
 alter table clin.intake_regimen
 	alter column clin_when
 		set default NULL;
 
 -- --------------------------------------------------------------
+-- .start_is_unknown
+comment on column clin.intake_regimen.start_is_unknown is 'The start date is entirely unknown';
+
+alter table clin.intake_regimen
+	alter column start_is_unknown
+		set NOT NULL;
+
+alter table clin.intake_regimen
+	alter column start_is_unknown
+		set default false;
+
+
+drop function if exists clin.trf_start_is_unknown_minimizes_started() cascade;
+
+create or replace function clin.trf_start_is_unknown_minimizes_started()
+	returns trigger
+	language plpgsql
+	as '
+BEGIN
+	NEW.clin_when := ''-infinity''::timestamp with time zone;
+	RETURN NEW;
+END;';
+
+create trigger tr_start_is_unknown_minimizes_started
+	before insert or update on clin.intake_regimen
+	for each row
+	when (NEW.start_is_unknown is not distinct from TRUE)
+	execute procedure clin.trf_start_is_unknown_minimizes_started()
+;
+
+comment on function clin.trf_start_is_unknown_minimizes_started() is
+	'When .start_is_unknown is true then .clin_when (used as .started) is set to -infinity.';
+
+-- --------------------------------------------------------------
 -- .comment_on_start
-comment on column clin.intake_regimen.comment_on_start is 'Comment (uncertainty level) on .clin_when. "?" = "entirely unknown".';
+comment on column clin.intake_regimen.comment_on_start is 'Comment (say, uncertainty level) on .clin_when.';
 
 alter table clin.intake_regimen
 	alter column comment_on_start
@@ -126,23 +199,25 @@ comment on column clin.intake_regimen.planned_duration is 'How long is this subs
 
 -- --------------------------------------------------------------
 -- table level
-comment on table clin.intake_regimen is 'Holds the regimen which substances are consumed by.';
-
-
+-- --------------------------------------------------------------
 select audit.register_table_for_auditing('clin', 'intake_regimen');
 select gm.register_notifying_table('clin', 'intake_regimen');
 
+grant select, insert, update, delete on clin.intake_regimen to "gm-doctors";
 
-alter table clin.intake_regimen
-	drop constraint if exists clin_intake_regimen_distinct_period cascade;
+-- --------------------------------------------------------------
+-- there *can* be overlapping ongoing regimen: see the table
+-- comment on clin.intake_regimen
+--alter table clin.intake_regimen
+--	drop constraint if exists clin_intake_regimen_distinct_period cascade;
+--
+--alter table clin.intake_regimen
+--	add constraint clin_intake_regimen_distinct_period exclude using GIST (
+--		fk_intake with =,
+--		(tstzrange(clin_when, discontinued, '()')) with &&
+--	);
 
-alter table clin.intake_regimen
-	add constraint clin_intake_regimen_distinct_period exclude using GIST (
-		fk_intake with =,
-		(tstzrange(clin_when, discontinued, '()')) with &&
-	);
-
-
+-- --------------------------------------------------------------
 drop function if exists clin.trf_undiscontinue_unsets_reason() cascade;
 
 create or replace function clin.trf_undiscontinue_unsets_reason()
@@ -153,7 +228,6 @@ begin
 	if NEW.discontinued is NULL then
 		NEW.discontinue_reason := NULL;
 	end if;
-
 	return NEW;
 end;';
 
@@ -161,9 +235,6 @@ create trigger tr_undiscontinue_unsets_reason
 	before insert or update on clin.intake_regimen
 	for each row
 		execute procedure clin.trf_undiscontinue_unsets_reason();
-
-
-grant select, insert, update, delete on clin.intake_regimen to "gm-doctors";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v23-clin-intake_regimen-dynamic.sql', '23.0');
