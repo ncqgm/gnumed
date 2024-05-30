@@ -982,7 +982,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 		Args:
 			raw_data: a dict with the keys 'data' (the actual value), 'list_label' (shown in the picklist when selecting an item), and 'field_label' (shown in the phrasewheel after this idem had been selected)
 		"""
-		self._data = data
+		self._data = raw_data
 		self.__recalculate_tooltip()
 
 	raw_data = property(_get_raw_data, _set_raw_data)

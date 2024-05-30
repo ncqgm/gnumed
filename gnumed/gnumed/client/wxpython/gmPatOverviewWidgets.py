@@ -35,7 +35,7 @@ from Gnumed.business import gmMedication
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmDemographicsWidgets
 from Gnumed.wxpython import gmContactWidgets
-from Gnumed.wxpython import gmMedicationWidgets
+from Gnumed.wxpython import gmSubstanceIntakeWidgets
 from Gnumed.wxpython import gmEditArea
 from Gnumed.wxpython import gmEMRStructWidgets
 from Gnumed.wxpython import gmEncounterWidgets

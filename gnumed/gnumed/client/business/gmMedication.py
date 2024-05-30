@@ -545,7 +545,7 @@ class cSubstanceDose(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def exists_as_intake(self, pk_patient=None):
 		return substance_intake_exists (
-			pk_dose = self.pk_obj,
+			pk_substance = -1,				# FIXME
 			pk_identity = pk_patient
 		)
 
@@ -1381,14 +1381,14 @@ class cDrugComponent(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def exists_as_intake(self, pk_patient=None):
 		return substance_intake_exists (
-			pk_component = self._payload[self._idx['pk_component']],
+			pk_substance = -1,				# FIXME
 			pk_identity = pk_patient
 		)
 
 	#--------------------------------------------------------
 	def turn_into_intake(self, emr=None, encounter=None, episode=None):
 		return create_substance_intake (
-			pk_component = self._payload[self._idx['pk_component']],
+			pk_substance = -1,				# FIXME
 			pk_encounter = encounter,
 			pk_episode = episode
 		)
@@ -1769,14 +1769,14 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def exists_as_intake(self, pk_patient=None):
 		return substance_intake_exists (
-			pk_drug_product = self._payload[self._idx['pk_drug_product']],
+			pk_substance = -1,			# FIXME
 			pk_identity = pk_patient
 		)
 
 	#--------------------------------------------------------
 	def turn_into_intake(self, emr=None, encounter=None, episode=None):
 		return create_substance_intake (
-			pk_drug_product = self._payload[self._idx['pk_drug_product']],
+			pk_substance = -1,			# FIXME
 			pk_encounter = encounter,
 			pk_episode = episode
 		)
@@ -2292,8 +2292,8 @@ def get_intakes_with_regimens (
 	pk_patient:int=None,
 	include_inactive:bool=False,
 	order_by:str=None,
-	episodes:list=None,
-	issues:list=None,
+	episodes:list[int]=None,
+	issues:list[int]=None,
 	exclude_potential_abuses:bool=False,
 	exclude_medications:bool=False,
 	pk_substance:int=None
@@ -2382,7 +2382,7 @@ class cIntakeRegimen(gmBusinessDBObject.cBusinessDBObject):
 		'schedule'
 	]
 	#--------------------------------------------------------
-	def format(self, left_margin=0, date_format:str='%Y %b %d', single_line:bool=True, terse:bool=True, eol:str=None):
+	def format(self, left_margin=0, date_format:str='%Y %b %d', single_line:bool=True, terse:bool=True, eol:str=None, allergy=None):
 		if single_line:
 			return '%s%s' % (
 				' ' * left_margin,
@@ -2393,7 +2393,6 @@ class cIntakeRegimen(gmBusinessDBObject.cBusinessDBObject):
 			left_margin = left_margin,
 			date_format = date_format,
 			allergy = allergy,
-			show_all_product_components = show_all_product_components,
 			eol = eol
 		)
 
@@ -3628,7 +3627,6 @@ def format_regimen_like_as_single_line(regimen_like:cIntakeRegimen|cIntakeWithRe
 	"""
 	assert isinstance(regimen_like, (cIntakeRegimen, cIntakeWithRegimen)), '<regimen> must be cIntakeRegimen or cIntakeWithRegimen'
 
-	start_approx = gmTools.u_almost_equal_to if regimen_like['comment_on_start'] else ''
 	comment_mark = '¹' if regimen_like['comment_on_start'] else ''
 	started = None if regimen_like['start_is_unknown'] else regimen_like['started']
 	parts_terse = []
@@ -4354,7 +4352,6 @@ if __name__ == "__main__":
 		import time
 		urls = [
 			URL_renal_insufficiency,
-			URL_renal_insufficiency_search_template % 'Metoprolol',
 			URL_long_qt,
 			URL_drug_adr_german_default
 		]
@@ -4369,37 +4366,6 @@ if __name__ == "__main__":
 		units = ['mg', '', None]
 		dose_units = ['ml', '', None]
 		preparations = ['liq', '', None]
-
-		unit_defs = [
-			{'unit': 'mg', 'dose_unit': '', 'preparation': '', 'none_str': None},
-			{'unit': 'mg', 'dose_unit': '', 'preparation': '', 'none_str': 'error'},
-
-			{'unit': 'mg', 'dose_unit': 'g', 'preparation': '', 'none_str': None},
-			{'unit': 'mg', 'dose_unit': 'g', 'preparation': '', 'none_str': 'error'},
-
-			{'unit': 'mg', 'dose_unit': '', 'preparation': 'powder', 'none_str': None},
-			{'unit': 'mg', 'dose_unit': '', 'preparation': 'powder', 'none_str': 'error'},
-
-			{'unit': 'mg', 'dose_unit': 'g', 'preparation': 'powder', 'none_str': None},
-			{'unit': 'mg', 'dose_unit': 'g', 'preparation': 'powder', 'none_str': 'error'},
-
-			{'unit': None, 'dose_unit': '', 'preparation': '', 'none_str': None},
-			{'unit': None, 'dose_unit': '', 'preparation': '', 'none_str': 'dummy'},
-
-			{'unit': None, 'dose_unit': 'g', 'preparation': '', 'none_str': None},
-			{'unit': None, 'dose_unit': 'g', 'preparation': '', 'none_str': 'dummy'},
-
-			{'unit': None, 'dose_unit': '', 'preparation': 'powder', 'none_str': None},
-			{'unit': None, 'dose_unit': '', 'preparation': 'powder', 'none_str': 'dummy'},
-
-			{'unit': None, 'dose_unit': 'g', 'preparation': 'powder', 'none_str': None},
-			{'unit': None, 'dose_unit': 'g', 'preparation': 'powder', 'none_str': 'dummy'},
-
-#			{'unit': '', 'dose_unit': '', 'preparation': '', 'none_str': ''},
-#			{'unit': '', 'dose_unit': '', 'preparation': '', 'none_str': ''},
-#			{'unit': '', 'dose_unit': '', 'preparation': '', 'none_str': ''},
-#			{'unit': '', 'dose_unit': '', 'preparation': '', 'none_str': ''},
-		]
 		for u in units:
 			for du in dose_units:
 				for prep in preparations:
@@ -4474,7 +4440,6 @@ if __name__ == "__main__":
 			now - pydt.timedelta(weeks = 1),
 			now + pydt.timedelta(weeks = 1)
 		]
-		comments = [None, 'about summer']
 		for start in starts:
 			for end in ends:
 				if end and start:

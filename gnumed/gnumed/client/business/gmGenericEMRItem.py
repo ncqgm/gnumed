@@ -34,8 +34,8 @@ from Gnumed.business.gmEMRStructItems import cPerformedProcedure
 from Gnumed.business.gmExternalCare import cExternalCareItem
 from Gnumed.business.gmVaccination import cVaccination
 from Gnumed.business.gmClinNarrative import cNarrative
-from Gnumed.business.gmMedication import cIntakeRegimen
-from Gnumed.business.gmMedication import cSubstanceIntakeEntry
+#from Gnumed.business.gmMedication import cIntakeRegimen
+#from Gnumed.business.gmMedication import cSubstanceIntakeEntry
 from Gnumed.business.gmMedication import cIntakeWithRegimen
 from Gnumed.business.gmAllergy import cAllergy
 from Gnumed.business.gmAllergy import cAllergyState

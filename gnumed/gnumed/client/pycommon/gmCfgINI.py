@@ -36,13 +36,11 @@ def __set_opt_in_INI_file(src=None, sink=None, group=None, option=None, value=No
 
 		# start of list ?
 		if regex.match(r'(?P<list_name>.+)(\s|\t)*=(\s|\t)*\$(?P=list_name)\$', line) is not None:
-			in_list = True
 			sink.write(line)
 			continue
 
 		# end of list ?
 		if regex.match(r'\$.+\$.*', line) is not None:
-			in_list = False
 			sink.write(line)
 			continue
 
@@ -539,7 +537,7 @@ if __name__ == "__main__":
 	#-----------------------------------------
 	#test_gmCfgData()
 	#test_set_list_opt()
-	#test_set_opt()
-	test_parse_ini_stream()
+	test_set_opt()
+	#test_parse_ini_stream()
 
 #==================================================================

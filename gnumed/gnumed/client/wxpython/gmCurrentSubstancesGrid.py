@@ -19,7 +19,6 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmNetworkTools
 
 from Gnumed.business import gmPraxis

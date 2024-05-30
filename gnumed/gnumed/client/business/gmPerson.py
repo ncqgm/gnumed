@@ -25,7 +25,6 @@ from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmI18N
 if __name__ == '__main__':
 	_ = lambda x:x
-	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 from Gnumed.pycommon import gmDispatcher
