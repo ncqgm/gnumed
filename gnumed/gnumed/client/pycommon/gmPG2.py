@@ -981,29 +981,13 @@ def get_col_names(link_obj:_TLnkObj=None, schema='public', table=None):
 def revalidate_constraints(link_obj:_TLnkObj=None) -> str:
 	"""Revalidate all database constraints.
 
-	This needs quite extensive permissions, say, <postgres> at the PG level.
+	This needs a gm-dbo connection.
 
 	Returns:
 		Magic cookie on success.
 	"""
 	_log.debug('revalidating all constraints in database')
-	SQL = """DO $$
-		DECLARE
-			_rec record;
-		BEGIN
-			FOR _rec IN (
-				select con.connamespace, nsp.nspname, con.conname, con.conrelid, rel.relname
-				from pg_constraint con
-					join pg_namespace nsp on nsp.oid = con.connamespace
-					join pg_class rel on rel.oid = con.conrelid
-				where contype in ('c','f')
-			) LOOP
-				RAISE NOTICE 'validating [%] on [%.%]', _rec.conname, _rec.nspname, _rec.relname;
-				EXECUTE 'UPDATE pg_constraint SET convalidated=false WHERE conname=$1 AND connamespace=$2 AND conrelid=$3' USING _rec.conname, _rec.connamespace, _rec.conrelid;
-				EXECUTE 'ALTER TABLE ' || _rec.nspname || '.' || _rec.relname || ' VALIDATE CONSTRAINT "' || _rec.conname || '"';
-			END LOOP;
-		END
-	$$;"""
+	SQL = 'SELECT gm.revalidate_all_constraints();'
 	run_rw_queries(link_obj = link_obj, queries = [{'cmd': SQL}])
 	return __LLAP
 
@@ -3323,10 +3307,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 
 	#--------------------------------------------------------------------
 	def test_reindex_database():
-		login, creds = request_login_params()
-		pool = gmConnectionPool.gmConnectionPool()
-		pool.credentials = creds
-		print(reindex_database())
+		print(reindex_database(conn = get_connection(readonly = False)))
 
 	#--------------------------------------------------------------------
 	def test_sanity_check_collation_versions():
@@ -3342,10 +3323,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 
 	#--------------------------------------------------------------------
 	def test_revalidate_constraints():
-		login, creds = request_login_params()
-		pool = gmConnectionPool.gmConnectionPool()
-		pool.credentials = creds
-		print(revalidate_constraints())
+		print(revalidate_constraints(link_obj = get_connection(readonly = False)))
 
 	#--------------------------------------------------------------------
 	def test_schema_compatible():
@@ -3419,7 +3397,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_reindex_database()
 	#test_run_queries()
 	#test_big_bang()
-	test_rw_query()
+	#test_rw_query()
 
 	#print(dbapi.extras.DictRow)
 	#print(dbapi._psycopg.connection)
@@ -3428,9 +3406,9 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	request_login_params(setup_pool = True, force_tui = True)
 	gmConnectionPool._VERBOSE_PG_LOG = True
 
-	SQL = 'select 1 as one, 2 as two'
-	SQL = 'SELECT pg_sleep(4)'
-	rows, idx = run_ro_queries(queries = [{'cmd': SQL}], get_col_idx = True)
+	#SQL = 'select 1 as one, 2 as two'
+	#SQL = 'SELECT pg_sleep(4)'
+	#rows, idx = run_ro_queries(queries = [{'cmd': SQL}], get_col_idx = True)
 	#print(type(idx))
 	#print(type(rows))
 	#r = rows[0]
@@ -3439,10 +3417,11 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 		#print(field, r[field])
 	#print(type(rows[0]))
 
-	test_revalidate_constraints()
-	#test_sanity_check_collation_versions()
 	#test_sanity_check_database_settings()
-	#test_refresh_collations_version_information()
+	#test_sanity_check_collation_versions()
+	#test_reindex_database()
+	#test_revalidate_constraints()
+	test_refresh_collations_version_information()
 
 #	try:
 #		run_ro_queries(queries = [{'cmd': 'select no_function(1)'}])
