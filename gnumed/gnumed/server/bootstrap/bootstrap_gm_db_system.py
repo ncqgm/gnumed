@@ -1230,6 +1230,11 @@ class database:
 		_log.info(u'you may want to monitor the PostgreSQL log for signs of progress')
 		try:
 			revalidated = gmPG2.revalidate_constraints(link_obj = self.conn)
+		# remove in v23.1/v24
+		except gmPG2.dbapi.errors.UndefinedFunction:
+			_log.exception('constraint validation function failed')
+			return '_\\//'
+
 		except Exception:
 			_log.exception('>>>[VALIDATE CONSTRAINT]<<< failed')
 			return False
