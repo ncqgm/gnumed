@@ -582,6 +582,7 @@ def setup_logging():
 	setup_fault_handler(target = _gmLog2._logfile)
 	global gmLog2
 	gmLog2 = _gmLog2
+	gmLog2.print_logfile_name()
 	global _log
 	_log = logging.getLogger('gm.launcher')
 

@@ -1414,6 +1414,7 @@ if __name__ == "__main__":
 		sys.exit()
 
 	from Gnumed.pycommon import gmLog2
+	gmLog2.print_logfile_name()
 	# setup a real translation
 	del _
 	from Gnumed.pycommon import gmI18N
