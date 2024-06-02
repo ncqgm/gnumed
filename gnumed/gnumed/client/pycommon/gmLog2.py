@@ -315,7 +315,6 @@ def __setup_logging():
 	if not __get_logfile_name():
 		return False
 
-	print("Log file:", _logfile_name)
 	_logfile = open(_logfile_name, mode = 'wt', encoding = 'utf8', errors = 'replace')
 	global __original_logger_write_func
 	__original_logger_write_func = _logfile.write
@@ -391,6 +390,7 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
+	print_logfile_name()
 	#-----------------------------------------------------------
 	def test():
 		print_logfile_name()

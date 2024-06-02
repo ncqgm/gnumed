@@ -535,7 +535,7 @@ if __name__ == "__main__":
 
 	sys.path.insert(0, '../../')
 	from Gnumed.pycommon import gmLog2
-	print(gmLog2._logfile_name)
+	gmLog2.print_logfile_name()
 	#----------------------------------------------------------------------
 	def test_strcoll():
 		candidates = [

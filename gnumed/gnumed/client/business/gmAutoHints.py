@@ -15,6 +15,13 @@ import logging
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
+else:
+	try:
+		_
+	except NameError:
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmTools
@@ -24,6 +31,11 @@ from Gnumed.business import gmStaff
 
 _log = logging.getLogger('gm.hints')
 
+(
+	HINT_POPUP_NONE,			# this hint is not to be popped up
+	HINT_POPUP_BY_ITSELF,		# this hint is intended to be poppep up by itself
+	HINT_POPUP_IN_LIST			# this hint is intended to be popped up amongst a list of hints
+) = (0, 1, 2)
 #============================================================
 # dynamic hints API
 #------------------------------------------------------------
@@ -123,6 +135,12 @@ class cDynamicHint(gmBusinessDBObject.cBusinessDBObject):
 			pk_hint = self._payload[self._idx['pk_auto_hint']],
 			pk_encounter = pk_encounter
 		)
+
+	#--------------------------------------------------------
+	def _get_failed(self):
+		return self._payload['title'].startswith('ERROR checking for [')
+
+	failed = property(_get_failed)
 
 #------------------------------------------------------------
 def get_dynamic_hints(order_by=None, link_obj=None, return_pks=False):
@@ -341,10 +359,11 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
+	del _
 	from Gnumed.pycommon import gmI18N
-
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
+	gmDateTime.init()
 
 	#---------------------------------------
 	def test_auto_hints():
@@ -353,4 +372,6 @@ if __name__ == '__main__':
 		for row in get_hints_for_patient(pk_identity = 12):
 			print(row)
 	#---------------------------------------
+	gmPG2.request_login_params(setup_pool = True)
+
 	test_auto_hints()

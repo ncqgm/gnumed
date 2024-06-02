@@ -75,9 +75,13 @@ def _display_clinical_reminders():
 	hint_dlg = cDynamicHintDlg(wx.GetApp().GetTopWindow(), -1)
 	# single-hint popups
 	for hint in emr.dynamic_hints:
-		if hint['popup_type'] == 0:
+		# might be abused:
+		if hint.failed:
+			# do not popup hints that failed to check (but do list them)
 			continue
-		if hint['popup_type'] == 2:
+		if hint['popup_type'] == gmAutoHints.HINT_POPUP_NONE:
+			continue
+		if hint['popup_type'] == gmAutoHints.HINT_POPUP_IN_LIST:
 			hints2aggregate.append(hint)
 			continue
 		hint_dlg.hint = hint
@@ -195,6 +199,7 @@ def manage_dynamic_hints(parent=None):
 from Gnumed.wxGladeWidgets import wxgDynamicHintDlg
 
 class cDynamicHintDlg(wxgDynamicHintDlg.wxgDynamicHintDlg):
+	"""Shows one dynamic hint and allows for user interaction."""
 
 	def __init__(self, *args, **kwargs):
 
@@ -306,6 +311,7 @@ class cDynamicHintDlg(wxgDynamicHintDlg.wxgDynamicHintDlg):
 from Gnumed.wxGladeWidgets import wxgDynamicHintListDlg
 
 class cDynamicHintListDlg(wxgDynamicHintListDlg.wxgDynamicHintListDlg):
+	"""Shows a list of dynamic hints and allows for user interaction."""
 
 	def __init__(self, *args, **kwargs):
 

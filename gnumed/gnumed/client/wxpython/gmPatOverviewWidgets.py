@@ -286,6 +286,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		list_items = []
 		list_data = []
 		highlight_list = []
+		failed_list = []
 		line_idx = -1
 
 		overdue_messages = patient.overdue_messages
@@ -325,6 +326,9 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			line_idx += 1
 			list_items.append(hint['title'])
 			list_data.append(hint)
+			if hint.failed:
+				failed_list.append(line_idx)
+				continue
 			if hint['highlight_as_priority']:
 				highlight_list.append(line_idx)
 
@@ -338,6 +342,9 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		for idx in highlight_list:
 			self._LCTRL_inbox.SetItemTextColour(idx, wx.Colour('RED'))
+
+		for idx in failed_list:
+			self._LCTRL_inbox.SetItemTextColour(idx, wx.Colour('ORANGE'))
 
 	#-----------------------------------------------------
 	def _calc_inbox_item_tooltip(self, data):
