@@ -6,7 +6,7 @@
 --
 -- ==============================================================
 \set ON_ERROR_STOP 1
-set default_transaction_read_only to off;
+--set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
 drop function if exists gm.revalidate_all_constraints() cascade;

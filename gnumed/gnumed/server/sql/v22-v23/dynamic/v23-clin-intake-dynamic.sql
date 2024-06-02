@@ -88,31 +88,4 @@ comment on column clin.intake._fk_s_i is
 	'temporary column pointing to the clin.substance_intake.pk this clin.intake row came from during conversion, used for associating a clin.intake_regimen';
 
 -- --------------------------------------------------------------
--- data transfer
--- --------------------------------------------------------------
--- fill in from clin.substance_intake
-INSERT INTO clin.intake (
-	fk_encounter,
-	fk_episode,
-	clin_when,
-	narrative,
-	notes4patient,
-	use_type,
-	fk_substance,
-	_fk_s_i
-)
-	SELECT
-		c_vsi.pk_encounter,
-		c_vsi.pk_episode,
-		coalesce(c_vsi.started, now()),
-		c_vsi.notes,
-		c_vsi.aim,
-		c_vsi.harmful_use_type,
-		c_vsi.pk_substance,
-		c_vsi.pk_substance_intake
-	FROM
-		clin.v_substance_intakes c_vsi
-;
-
--- --------------------------------------------------------------
 select gm.log_script_insertion('v23-clin-intake-dynamic.sql', '23.0');
