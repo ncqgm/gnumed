@@ -18,7 +18,6 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmBorg
-#from Gnumed.pycommon import gmLog2
 
 
 _log = logging.getLogger('gm.db')
@@ -38,7 +37,6 @@ class gmBackendListener(gmBorg.cBorg):
 		if hasattr(self, 'already_inited'):
 			return
 
-		#gmLog2.log_step(restart = True)
 		assert conn, '<conn> must be given'
 
 		_log.info('setting up backend notifications listener')
@@ -50,15 +48,12 @@ class gmBackendListener(gmBorg.cBorg):
 		self._quit_lock = threading.Lock()
 		# take the lock now so it cannot be taken by the worker
 		# thread until it is released in shutdown()
-		#gmLog2.log_step(message = 'getting quit-lock')
 		if not self._quit_lock.acquire(blocking = False):
 			_log.error('cannot acquire thread-quit lock, aborting')
 			raise EnvironmentError("cannot acquire thread-quit lock")
 
-		#gmLog2.log_step(message = 'got quit-lock')
 		self._conn = conn
 		_log.debug('DB listener connection: %s', self._conn)
-		#gmLog2.log_step(message = 'getting backend PID')
 		self.backend_pid = self._conn.get_backend_pid()
 		_log.debug('notification listener connection has backend PID [%s]', self.backend_pid)
 		self._conn.set_isolation_level(0)		# autocommit mode = psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT
@@ -76,7 +71,6 @@ class gmBackendListener(gmBorg.cBorg):
 		self.__start_thread()
 
 		self.already_inited = True
-		#gmLog2.log_step(message = 'done with backend listener setup')
 
 	#-------------------------------
 	# public API
@@ -120,7 +114,6 @@ class gmBackendListener(gmBorg.cBorg):
 	# internal helpers
 	#-------------------------------
 	def __register_interests(self):
-		#gmLog2.log_step(message = 'registering interests')
 		# determine unspecific notifications
 		self.unspecific_notifications = signals2listen4
 		_log.info('configured unspecific notifications:')
@@ -128,11 +121,9 @@ class gmBackendListener(gmBorg.cBorg):
 		gmDispatcher.known_signals.extend(self.unspecific_notifications)
 		# listen to unspecific notifications
 		self.__register_unspecific_notifications()
-		#gmLog2.log_step(message = 'done registering interests')
 
 	#-------------------------------
 	def __register_unspecific_notifications(self):
-		#gmLog2.log_step(message = 'before')
 		for sig in self.unspecific_notifications:
 			_log.info('starting to listen for [%s]' % sig)
 			cmd = 'LISTEN "%s"' % sig
@@ -141,7 +132,6 @@ class gmBackendListener(gmBorg.cBorg):
 				self._cursor.execute(cmd)
 			finally:
 				self._conn_lock.release()
-		#gmLog2.log_step(message = 'after')
 
 	#-------------------------------
 	def __unregister_unspecific_notifications(self):
@@ -170,7 +160,6 @@ class gmBackendListener(gmBorg.cBorg):
 		if self._conn is None:
 			raise ValueError("no connection to backend available, useless to start thread")
 
-		#gmLog2.log_step(message = 'setting up thread')
 		self._listener_thread = threading.Thread (
 			target = self._process_notifications,
 			name = self.__class__.__name__,
@@ -178,7 +167,6 @@ class gmBackendListener(gmBorg.cBorg):
 		)
 		_log.info('starting listener thread')
 		self._listener_thread.start()
-		#gmLog2.log_step(message = 'started thread')
 
 	#-------------------------------
 	def __parse_notification(self, notification) -> dict:
@@ -205,12 +193,14 @@ class gmBackendListener(gmBorg.cBorg):
 			if item.startswith('row PK='):
 				data['pk_of_row'] = int(item.split('=')[1])
 			if item.startswith('person PK='):
-				try:
-					data['pk_identity'] = int(item.split('=')[1])
-				except ValueError:
-					_log.error(payload)
-					_log.exception('error in change notification trigger')
-					data['pk_identity'] = -1
+				data['pk_identity'] = -1
+				tmp = item.split('=')[1]
+				if tmp != 'NULL':
+					try:
+						data['pk_identity'] = int(tmp)
+					except ValueError:
+						_log.error(payload)
+						_log.exception('error in change notification trigger')
 		return data
 
 	#-------------------------------
