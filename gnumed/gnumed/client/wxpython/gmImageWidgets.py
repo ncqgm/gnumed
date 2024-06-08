@@ -153,17 +153,26 @@ class cImageDisplay(wx.lib.statbmp.GenStaticBitmap):
 			_log.exception('cannot load image from [%s]', self.__filename)
 			return False
 
-		zoom_step = orig_width // 10
-		target_width = orig_width + (zoom_step * self.__zoom_count)
-		target_width = max(target_width, self.__min_width)
+		if self.__zoom_count != 0:
+			zoom_step = orig_width // 10
+			target_width = orig_width + (zoom_step * self.__zoom_count)
+			target_width = max(target_width, self.__min_width)
+			try:
+				orig_height = img_data.GetHeight()
+				target_height = max(1, round(orig_height / orig_width)) * target_width
+				if target_height and target_width:
+					img_data.Rescale(target_width, target_height, quality = wx.IMAGE_QUALITY_HIGH)
+				else:
+					_log.debug('cannot resize image from [%s] to %sx%s', self.__filename, target_width, target_height)
+			except Exception:
+				_log.exception('cannot resize image from [%s]', self.__filename)
+				return False
+
 		try:
-			orig_height = img_data.GetHeight()
-			target_height = round(orig_height / orig_width) * target_width
-			img_data.Rescale(target_width, target_height, quality = wx.IMAGE_QUALITY_HIGH)
 			for cnt in range(abs(self.__current_rotation) // 90):
 				img_data = img_data.Rotate90(clockwise = self.__current_rotation > 0)
 		except Exception:
-			_log.exception('cannot resize/rotate image from [%s]', self.__filename)
+			_log.exception('cannot rotate image from [%s]', self.__filename)
 			return False
 
 		try:
