@@ -29,7 +29,7 @@ _log = logging.getLogger('gm.auto-in-ui')
 #======================================================================
 class gmIncomingAreaPlugin(gmPlugin.cNotebookPlugin):
 
-	tab_name = _('Docs Inbox')
+	tab_name = _('Incoming')
 	required_minimum_role = 'full clinical access'
 
 	@gmAccessPermissionWidgets.verify_minimum_required_role (

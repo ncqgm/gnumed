@@ -183,14 +183,22 @@ class cIncomingPluginPnl(wxgIncomingPluginPnl.wxgIncomingPluginPnl, gmRegetMixin
 		self.__reset_property_fields()
 		self._PNL_document_properties.Hide()
 
+		self.__vetoing_prepare_import_button = False
+
 	#--------------------------------------------------------
 	def __register_interests(self):
 		gmDispatcher.connect(signal = 'gm_table_mod', receiver = self._on_table_mod)
+		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._post_patient_selection)
+
+	#--------------------------------------------------------
+	def _post_patient_selection(self):
+		self.__repopulate_incoming_list()
+		return True
 
 	#--------------------------------------------------------
 	def __repopulate_incoming_list(self):
 		pk_pat = None
-		if self._CHBOX_filter2active_patient.IsChecked():
+		if self._BTN_prepare_import.Value:
 			pat = gmPerson.gmCurrentPatient()
 			if pat.connected:
 				pk_pat = pat.ID
@@ -264,7 +272,7 @@ class cIncomingPluginPnl(wxgIncomingPluginPnl.wxgIncomingPluginPnl, gmRegetMixin
 			)
 		incoming['comment'] = comment
 		pat = gmPerson.gmCurrentPatient()
-		if pat.connected and self._CHBOX_filter2active_patient.IsChecked():
+		if pat.connected and self._BTN_prepare_import.Value:
 			incoming.patient = pat
 		incoming.save()
 		if remove_file:
@@ -431,51 +439,12 @@ class cIncomingPluginPnl(wxgIncomingPluginPnl.wxgIncomingPluginPnl, gmRegetMixin
 	#--------------------------------------------------------
 	def _on_unassign_patient_button_pressed(self, event):
 		event.Skip()
-		part = self._LCTRL_items.selected_item_data
-		if not part:
+		item = self._LCTRL_items.selected_item_data
+		if not item:
 			return
 
-		part.patient = None
-		part.save()
-
-	#--------------------------------------------------------
-	def _on_join_parts_button_pressed(self, event):
-		pass
-#		items = self.__get_items_to_work_on(_('Select items for PDF.'))
-#		if items is None:
-#			return
-#
-#		export_dir = self.__export_as_files (
-#			_('Creating PDF from selected items'),
-#			base_dir = None,
-#			encrypt = False,
-#			with_metadata = False,
-#			items = items,
-#			convert2pdf = False
-#		)
-#		if export_dir is None:
-#			gmDispatcher.send(signal = 'statustext', msg = _('Cannot turn into PDF: aborted or error.'))
-#			return
-#
-#		# unite files in export_dir
-#		pdf_pages = gmTools.dir_list_files(directory = export_dir, exclude_subdirs = True)
-#		if pdf_pages is None:
-#			gmDispatcher.send(signal = 'statustext', msg = _('Cannot turn into PDF: aborted or error.'))
-#			return
-#
-#		pdf_pages.sort()
-#		# ask for PDF name ?
-#		pdf_name = gmMimeLib.join_files_as_pdf(files = pdf_pages)
-#		if pdf_name is None:
-#			gmDispatcher.send(signal = 'statustext', msg = _('Cannot turn into PDF: aborted or error.'))
-#			return
-
-#		item = gmPerson.gmCurrentPatient().export_area.add_file (
-#			filename = pdf_name,
-#			hint = _('Document generated from selected items (%s)') % gmDateTime.pydt_now_here().strftime('%Y %b %d  %H:%M')
-#		)
-#		item.display_via_mime(block = False)
-		# hint about showing and ask whether to remove items from export area ?
+		item.patient = None
+		item.save()
 
 	#--------------------------------------------------------
 	def _on_goto_item_patient_button_pressed(self, event):
@@ -489,29 +458,43 @@ class cIncomingPluginPnl(wxgIncomingPluginPnl.wxgIncomingPluginPnl, gmRegetMixin
 				gmDispatcher.send(signal = 'statustext', msg = _('No items [x] checked or highlighted.'), beep = False)
 				return
 
+		if not item.patient_pk:
+			gmDispatcher.send(signal = 'statustext', msg = _('No patient linked to item.'), beep = False)
+			return
+
 		set_active_patient(patient = gmPerson.cPatient(item.patient_pk))
 
 	#--------------------------------------------------------
-	def _on_filter2active_patient_checkbox_toggled(self, event):
+	def _on_prepare_import_button_toggled(self, event):
 		event.Skip()
-		self._PNL_previews.filename = None
-		if self._CHBOX_filter2active_patient.IsChecked():
+		if self._BTN_prepare_import.Value:
 			pat = gmPerson.gmCurrentPatient()
 			if pat.connected:
+				self.__vetoing_prepare_import_button = False
+				self._PNL_previews.filename = None
 				self._PNL_patient_search_assign.Hide()
 				self._PNL_document_properties.Show()
 				self._LCTRL_items.repopulate(pk_patient = pat.ID)
-				self._BTN_save.Enable()
-				self._BTN_clear.Enable()
+				self._main_splitter.Layout()
+				self.Layout()
 				self.Parent.Layout()
-				return
+			else:
+				gmDispatcher.send(signal = 'statustext', msg = _('No active patient.'))
+				self.__vetoing_prepare_import_button = True
+				self._BTN_prepare_import.Value = False
+			return
 
-			gmDispatcher.send(signal = 'statustext', msg = _('No active patient.'))
+		if self.__vetoing_prepare_import_button:
+			self.__vetoing_prepare_import_button = False
+			return
+
+		self.__vetoing_prepare_import_button = False
+		self._PNL_previews.filename = None
 		self._PNL_patient_search_assign.Show()
 		self._PNL_document_properties.Hide()
 		self._LCTRL_items.repopulate(pk_patient = None)
-		self._BTN_save.Disable()
-		self._BTN_clear.Disable()
+		self._main_splitter.Layout()
+		self.Layout()
 		self.Parent.Layout()
 
 	#--------------------------------------------------------

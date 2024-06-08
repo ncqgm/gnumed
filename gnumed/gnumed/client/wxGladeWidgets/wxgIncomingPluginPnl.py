@@ -11,7 +11,7 @@ import gettext
 
 # begin wxGlade: extracode
 from Gnumed.wxpython.gmFilePreviewer import cFilePreviewPnl
-from Gnumed.wxpython.gmDateTimeInput import cFuzzyTimestampInput
+from Gnumed.wxpython.gmDateTimeInput import cDateInputPhraseWheel
 from Gnumed.wxpython.gmPatSearchWidgets import cPersonSearchCtrl
 # end wxGlade
 
@@ -24,58 +24,48 @@ class wxgIncomingPluginPnl(wx.Panel):
 
 		__szr_main = wx.BoxSizer(wx.HORIZONTAL)
 
-		__szr_lists = wx.BoxSizer(wx.VERTICAL)
-		__szr_main.Add(__szr_lists, 1, wx.BOTTOM | wx.EXPAND | wx.LEFT | wx.TOP, 2)
+		self._main_splitter = wx.SplitterWindow(self, wx.ID_ANY, style=wx.SP_3D | wx.SP_NOBORDER)
+		self._main_splitter.SetMinimumPaneSize(20)
+		self._main_splitter.SetSashGravity(0.5)
+		__szr_main.Add(self._main_splitter, 1, wx.EXPAND, 0)
+
+		self.__pnl_splitter_left = wx.Panel(self._main_splitter, wx.ID_ANY, style=wx.BORDER_NONE | wx.TAB_TRAVERSAL)
+
+		__szr_left = wx.BoxSizer(wx.VERTICAL)
 
 		__szr_parts_buttons = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_lists.Add(__szr_parts_buttons, 0, wx.EXPAND, 0)
+		__szr_left.Add(__szr_parts_buttons, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 2)
 
-		_LBL_parts = wx.StaticText(self, wx.ID_ANY, _("Parts:"))
-		__szr_parts_buttons.Add(_LBL_parts, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 2)
-
-		self._BTN_add_parts = wx.Button(self, wx.ID_ANY, _(u" Add… "), style=wx.BU_EXACTFIT)
+		self._BTN_add_parts = wx.Button(self.__pnl_splitter_left, wx.ID_ANY, _(u" &+Add… "), style=wx.BU_EXACTFIT)
 		self._BTN_add_parts.SetToolTip(_("Add documents from scanner/disc/clipboard to incoming area."))
 		__szr_parts_buttons.Add(self._BTN_add_parts, 0, wx.EXPAND | wx.RIGHT, 2)
 
-		self._BTN_remove_item = wx.Button(self, wx.ID_ANY, _(" Remove "), style=wx.BU_EXACTFIT)
+		self._BTN_remove_item = wx.Button(self.__pnl_splitter_left, wx.ID_ANY, _(" &Remove "), style=wx.BU_EXACTFIT)
 		self._BTN_remove_item.SetToolTip(_("Remove highlighted document from incoming area."))
 		__szr_parts_buttons.Add(self._BTN_remove_item, 0, wx.EXPAND | wx.RIGHT, 2)
 
-		self._BTN_join_parts = wx.Button(self, wx.ID_ANY, _(" Join "), style=wx.BU_EXACTFIT)
-		self._BTN_join_parts.SetToolTip(_("Join [x] checked documents into one new PDF document, if possible.\n\nIf any of the checked document had been assigned to a patient, all documents to be joined must have been assigned to that same patient."))
-		self._BTN_join_parts.Enable(False)
-		__szr_parts_buttons.Add(self._BTN_join_parts, 0, wx.EXPAND | wx.RIGHT, 2)
+		__szr_parts_buttons.Add((20, 20), 1, wx.EXPAND, 0)
 
-		self._BTN_unassign_patient = wx.Button(self, wx.ID_ANY, _(" Unassign "))
+		self._BTN_unassign_patient = wx.Button(self.__pnl_splitter_left, wx.ID_ANY, _("&Unassign"))
 		self._BTN_unassign_patient.SetToolTip(_("Unassign patient from highlighted document."))
 		__szr_parts_buttons.Add(self._BTN_unassign_patient, 0, wx.EXPAND | wx.RIGHT, 2)
 
-		self._BTN_goto_item_patient = wx.Button(self, wx.ID_ANY, _(" &Goto "), style=wx.BU_EXACTFIT)
+		self._BTN_goto_item_patient = wx.Button(self.__pnl_splitter_left, wx.ID_ANY, _("&Activate"))
 		self._BTN_goto_item_patient.SetToolTip(_("Activate patient from highlighted or first [x] checked document."))
 		__szr_parts_buttons.Add(self._BTN_goto_item_patient, 0, wx.EXPAND, 0)
 
-		__szr_parts_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+		__szr_parts_buttons.Add((20, 20), 2, wx.EXPAND, 0)
 
-		self._CHBOX_filter2active_patient = wx.CheckBox(self, wx.ID_ANY, _("Filter"), style=wx.CHK_2STATE)
-		self._CHBOX_filter2active_patient.SetToolTip(_("Filter incoming documents by currently active patient."))
-		__szr_parts_buttons.Add(self._CHBOX_filter2active_patient, 0, wx.EXPAND, 0)
-
-		self._BTN_save = wx.Button(self, wx.ID_ANY, _(" &Save "), style=wx.BU_EXACTFIT)
-		self._BTN_save.SetToolTip(_("Save [x] checked documents from incoming area as one patient document."))
-		self._BTN_save.Enable(False)
-		__szr_parts_buttons.Add(self._BTN_save, 0, wx.EXPAND | wx.RIGHT, 2)
-
-		self._BTN_clear = wx.Button(self, wx.ID_ANY, _(" &Clear "), style=wx.BU_EXACTFIT)
-		self._BTN_clear.SetToolTip(_("Clear patient document property fields."))
-		self._BTN_clear.Enable(False)
-		__szr_parts_buttons.Add(self._BTN_clear, 0, wx.EXPAND, 0)
+		self._BTN_prepare_import = wx.ToggleButton(self.__pnl_splitter_left, wx.ID_ANY, _(" Chart &import "), style=wx.BU_EXACTFIT)
+		self._BTN_prepare_import.SetToolTip(_("Prepare document import:\n\n1) filter by active patient\n2) show document property fields"))
+		__szr_parts_buttons.Add(self._BTN_prepare_import, 0, wx.EXPAND, 0)
 
 		from Gnumed.wxpython.gmIncomingDataWidgets import cIncomingDataListCtrl
-		self._LCTRL_items = cIncomingDataListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_HRULES | wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_VRULES)
-		__szr_lists.Add(self._LCTRL_items, 2, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 2)
+		self._LCTRL_items = cIncomingDataListCtrl(self.__pnl_splitter_left, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_HRULES | wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_VRULES)
+		__szr_left.Add(self._LCTRL_items, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 2)
 
-		self._PNL_patient_search_assign = wx.Panel(self, wx.ID_ANY, style=wx.BORDER_NONE)
-		__szr_lists.Add(self._PNL_patient_search_assign, 0, wx.EXPAND | wx.TOP, 1)
+		self._PNL_patient_search_assign = wx.Panel(self.__pnl_splitter_left, wx.ID_ANY, style=wx.BORDER_NONE)
+		__szr_left.Add(self._PNL_patient_search_assign, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 2)
 
 		__szr_patient_search_assign = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -85,7 +75,7 @@ class wxgIncomingPluginPnl(wx.Panel):
 		self._TCTRL_search_person = cPersonSearchCtrl(self._PNL_patient_search_assign, wx.ID_ANY, "")
 		__szr_patient_search_assign.Add(self._TCTRL_search_person, 1, wx.EXPAND, 0)
 
-		self._BTN_assign_selected_patient2items = wx.Button(self._PNL_patient_search_assign, wx.ID_ANY, _(u"⮥ &This "), style=wx.BU_EXACTFIT)
+		self._BTN_assign_selected_patient2items = wx.Button(self._PNL_patient_search_assign, wx.ID_ANY, _(u"⮥ A&ssign "), style=wx.BU_EXACTFIT)
 		self._BTN_assign_selected_patient2items.SetToolTip(_(" Assign patient from search box to [x] checked documents or the highlighted document."))
 		__szr_patient_search_assign.Add(self._BTN_assign_selected_patient2items, 0, wx.EXPAND | wx.RIGHT, 2)
 
@@ -97,117 +87,148 @@ class wxgIncomingPluginPnl(wx.Panel):
 		self._BTN_assign_current_patient2items.SetToolTip(_("Assign ACTIVE patient to [x] checked documents or the hightlighted document."))
 		__szr_patient_search_assign.Add(self._BTN_assign_current_patient2items, 0, wx.EXPAND, 2)
 
-		self._PNL_document_properties = wx.Panel(self, wx.ID_ANY, style=wx.BORDER_NONE)
-		__szr_lists.Add(self._PNL_document_properties, 0, wx.EXPAND | wx.TOP, 1)
+		self._PNL_document_properties = wx.Panel(self.__pnl_splitter_left, wx.ID_ANY, style=wx.BORDER_NONE)
+		__szr_left.Add(self._PNL_document_properties, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 2)
 
 		__szr_doc_properties = wx.StaticBoxSizer(wx.StaticBox(self._PNL_document_properties, wx.ID_ANY, _("Patient document")), wx.VERTICAL)
 
+		__gridsizer_properties = wx.FlexGridSizer(10, 2, 2, 2)
+		__szr_doc_properties.Add(__gridsizer_properties, 1, wx.EXPAND, 0)
+
 		__lbl_doc_type = wx.StaticText(self._PNL_document_properties, wx.ID_ANY, _("Type:"))
 		__lbl_doc_type.SetForegroundColour(wx.Colour(255, 0, 0))
-		__szr_doc_properties.Add(__lbl_doc_type, 0, wx.LEFT | wx.TOP, 3)
+		__gridsizer_properties.Add(__lbl_doc_type, 0, wx.ALIGN_CENTER_VERTICAL, 3)
 
 		from Gnumed.wxpython.gmDocumentWidgets import cDocumentTypeSelectionPhraseWheel
 		self._PhWheel_doc_type = cDocumentTypeSelectionPhraseWheel(self._PNL_document_properties, wx.ID_ANY, "", style=wx.BORDER_NONE | wx.TE_DONTWRAP)
 		self._PhWheel_doc_type.SetToolTip(_("Required: The type of this document."))
-		__szr_doc_properties.Add(self._PhWheel_doc_type, 0, wx.EXPAND | wx.LEFT, 3)
+		__gridsizer_properties.Add(self._PhWheel_doc_type, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 3)
 
-		__szr_date_created = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_doc_properties.Add(__szr_date_created, 1, wx.EXPAND | wx.TOP, 2)
+		__lbl_doc_date = wx.StaticText(self._PNL_document_properties, wx.ID_ANY, _("Date:"))
+		__gridsizer_properties.Add(__lbl_doc_date, 0, wx.ALIGN_CENTER_VERTICAL, 3)
 
-		__lbl_doc_date = wx.StaticText(self._PNL_document_properties, wx.ID_ANY, _("Date created:"))
-		__szr_date_created.Add(__lbl_doc_date, 0, wx.LEFT | wx.TOP, 3)
-
-		self._PhWheel_doc_date = cFuzzyTimestampInput(self._PNL_document_properties, wx.ID_ANY, "", style=wx.BORDER_NONE | wx.TE_DONTWRAP)
+		self._PhWheel_doc_date = cDateInputPhraseWheel(self._PNL_document_properties, wx.ID_ANY, "", style=wx.BORDER_NONE | wx.TE_DONTWRAP)
 		self._PhWheel_doc_date.SetToolTip(_("The date when the medical information described in the document was produced."))
-		__szr_date_created.Add(self._PhWheel_doc_date, 1, wx.EXPAND | wx.LEFT, 3)
+		__gridsizer_properties.Add(self._PhWheel_doc_date, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 3)
 
 		__lbl_doc_episode = wx.StaticText(self._PNL_document_properties, wx.ID_ANY, _("Episode:"))
 		__lbl_doc_episode.SetForegroundColour(wx.Colour(255, 0, 0))
-		__szr_doc_properties.Add(__lbl_doc_episode, 0, wx.LEFT | wx.TOP, 3)
+		__gridsizer_properties.Add(__lbl_doc_episode, 0, wx.ALIGN_CENTER_VERTICAL, 3)
 
 		from Gnumed.wxpython.gmEMRStructWidgets import cEpisodeSelectionPhraseWheel
 		self._PhWheel_episode = cEpisodeSelectionPhraseWheel(self._PNL_document_properties, wx.ID_ANY, "", style=wx.BORDER_NONE | wx.TE_DONTWRAP)
 		self._PhWheel_episode.SetToolTip(_("Required: The primary episode this document is to be listed under."))
-		__szr_doc_properties.Add(self._PhWheel_episode, 0, wx.EXPAND | wx.LEFT | wx.TOP, 3)
+		__gridsizer_properties.Add(self._PhWheel_episode, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 3)
+
+		__lbl_doc_source = wx.StaticText(self._PNL_document_properties, wx.ID_ANY, _("Organization"))
+		__gridsizer_properties.Add(__lbl_doc_source, 0, wx.ALIGN_CENTER_VERTICAL, 3)
 
 		__szr_org_label = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_doc_properties.Add(__szr_org_label, 1, wx.EXPAND, 0)
+		__gridsizer_properties.Add(__szr_org_label, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 
-		__lbl_doc_source = wx.StaticText(self._PNL_document_properties, wx.ID_ANY, _("Organization is:"))
-		__szr_org_label.Add(__lbl_doc_source, 0, wx.LEFT | wx.TOP, 3)
+		__szr_org_label.Add((20, 20), 1, wx.EXPAND, 0)
 
 		self._RBTN_org_is_source = wx.RadioButton(self._PNL_document_properties, wx.ID_ANY, _("Source"))
 		self._RBTN_org_is_source.SetToolTip(_("Select if the organization is the source of the document (the default)."))
 		self._RBTN_org_is_source.SetValue(1)
-		__szr_org_label.Add(self._RBTN_org_is_source, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
+		__szr_org_label.Add(self._RBTN_org_is_source, 0, wx.ALIGN_CENTER_VERTICAL, 3)
 
 		self._RBTN_org_is_receiver = wx.RadioButton(self._PNL_document_properties, wx.ID_ANY, _("Receiver"))
 		self._RBTN_org_is_receiver.SetToolTip(_("Select if the organization is the receiver of the document.\n\nIn most cases this means that the document was created in this praxis and sent to the organization."))
 		__szr_org_label.Add(self._RBTN_org_is_receiver, 0, wx.ALIGN_CENTER_VERTICAL, 3)
 
+		__gridsizer_properties.Add((20, 20), 1, wx.ALIGN_CENTER_VERTICAL, 0)
+
 		from Gnumed.wxpython.gmOrganizationWidgets import cOrgUnitPhraseWheel
 		self._PhWheel_source = cOrgUnitPhraseWheel(self._PNL_document_properties, wx.ID_ANY, "", style=wx.BORDER_NONE | wx.TE_DONTWRAP)
 		self._PhWheel_source.SetToolTip(_("Optional: The organization (unit) this document originates from (sender) or is intended for (receiver)."))
-		__szr_doc_properties.Add(self._PhWheel_source, 0, wx.EXPAND | wx.LEFT, 3)
+		__gridsizer_properties.Add(self._PhWheel_source, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 3)
 
-		__lbl_doc_comment = wx.StaticText(self._PNL_document_properties, wx.ID_ANY, _("Comment / Identification:"))
-		__szr_doc_properties.Add(__lbl_doc_comment, 0, wx.LEFT | wx.TOP, 3)
+		__lbl_doc_comment = wx.StaticText(self._PNL_document_properties, wx.ID_ANY, _("Comment:"))
+		__gridsizer_properties.Add(__lbl_doc_comment, 0, wx.ALIGN_CENTER_VERTICAL, 3)
 
 		from Gnumed.wxpython.gmDocumentWidgets import cDocumentCommentPhraseWheel
-		self._PRW_doc_comment = cDocumentCommentPhraseWheel(self._PNL_document_properties, wx.ID_ANY, "")
+		self._PRW_doc_comment = cDocumentCommentPhraseWheel(self._PNL_document_properties, wx.ID_ANY, "", style=wx.BORDER_NONE)
 		self._PRW_doc_comment.SetToolTip(_("Optional: A short comment identifying the document. Good comments give an idea of the content and source of the document."))
-		__szr_doc_properties.Add(self._PRW_doc_comment, 0, wx.EXPAND | wx.LEFT, 3)
+		__gridsizer_properties.Add(self._PRW_doc_comment, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 3)
 
-		self.__lbl_reviewer = wx.StaticText(self._PNL_document_properties, wx.ID_ANY, _("Intended reviewer:"))
+		self.__lbl_reviewer = wx.StaticText(self._PNL_document_properties, wx.ID_ANY, _("Reviewer:"))
 		self.__lbl_reviewer.SetForegroundColour(wx.Colour(255, 0, 0))
-		__szr_doc_properties.Add(self.__lbl_reviewer, 0, wx.LEFT | wx.TOP, 3)
+		__gridsizer_properties.Add(self.__lbl_reviewer, 0, wx.ALIGN_CENTER_VERTICAL, 3)
 
 		from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
 		self._PhWheel_reviewer = cPhraseWheel(self._PNL_document_properties, wx.ID_ANY, "", style=wx.BORDER_NONE | wx.TE_DONTWRAP)
 		self._PhWheel_reviewer.SetToolTip(_("Required: Enter the provider who will be notified about the new document so it can be reviewed. In most cases this is the primary doctor of the patient."))
-		__szr_doc_properties.Add(self._PhWheel_reviewer, 0, wx.EXPAND | wx.LEFT, 2)
+		__gridsizer_properties.Add(self._PhWheel_reviewer, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 2)
+
+		__gridsizer_properties.Add((20, 20), 1, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		self._ChBOX_reviewed = wx.CheckBox(self._PNL_document_properties, wx.ID_ANY, _("&review and sign:"), style=wx.CHK_2STATE)
+		self._ChBOX_reviewed.SetToolTip(_("Check this to mark the document as reviewed upon import. If checked you can (and must) decide on \"technically abnormal\" and \"clinically relevant\", too. The default can be set by an option."))
+		__gridsizer_properties.Add(self._ChBOX_reviewed, 0, wx.ALIGN_CENTER_VERTICAL, 3)
+
+		__gridsizer_properties.Add((20, 20), 1, wx.ALIGN_CENTER_VERTICAL, 0)
 
 		__szr_review_sign = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_doc_properties.Add(__szr_review_sign, 1, wx.EXPAND, 0)
+		__gridsizer_properties.Add(__szr_review_sign, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 
-		self._ChBOX_reviewed = wx.CheckBox(self._PNL_document_properties, wx.ID_ANY, _("&review and sign:"))
-		self._ChBOX_reviewed.SetToolTip(_("Check this to mark the document as reviewed upon import. If checked you can (and must) decide on \"technically abnormal\" and \"clinically relevant\", too. The default can be set by an option."))
-		__szr_review_sign.Add(self._ChBOX_reviewed, 0, wx.LEFT, 3)
-
-		self._ChBOX_abnormal = wx.CheckBox(self._PNL_document_properties, wx.ID_ANY, _("&technically abnormal"))
+		self._ChBOX_abnormal = wx.CheckBox(self._PNL_document_properties, wx.ID_ANY, _("&technically abnormal"), style=wx.CHK_2STATE)
 		self._ChBOX_abnormal.SetToolTip(_("Whether this document report technically abormal results."))
 		self._ChBOX_abnormal.Enable(False)
-		__szr_review_sign.Add(self._ChBOX_abnormal, 0, wx.LEFT, 9)
+		__szr_review_sign.Add(self._ChBOX_abnormal, 0, wx.ALIGN_CENTER_VERTICAL, 9)
 
-		self._ChBOX_relevant = wx.CheckBox(self._PNL_document_properties, wx.ID_ANY, _("&clinically relevant"))
+		self._ChBOX_relevant = wx.CheckBox(self._PNL_document_properties, wx.ID_ANY, _("&clinically relevant"), style=wx.CHK_2STATE)
 		self._ChBOX_relevant.SetToolTip(_("Whether this document reports clinically relevant results. Note that both normal and abnormal resuslts can be relevant."))
 		self._ChBOX_relevant.Enable(False)
-		__szr_review_sign.Add(self._ChBOX_relevant, 0, wx.LEFT, 9)
+		__szr_review_sign.Add(self._ChBOX_relevant, 0, wx.ALIGN_CENTER_VERTICAL, 9)
 
-		self._PNL_previews = cFilePreviewPnl(self, wx.ID_ANY, style=wx.BORDER_NONE)
-		__szr_main.Add(self._PNL_previews, 2, wx.ALL | wx.EXPAND, 2)
+		__gridsizer_properties.Add((20, 20), 1, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		__szr_import_buttons = wx.BoxSizer(wx.HORIZONTAL)
+		__gridsizer_properties.Add(__szr_import_buttons, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
+		__szr_import_buttons.Add((20, 20), 0, wx.EXPAND, 0)
+
+		self._BTN_save = wx.Button(self._PNL_document_properties, wx.ID_ANY, _("&Import"))
+		self._BTN_save.SetToolTip(_("Import [x] checked documents from incoming area into patient chart as one document."))
+		__szr_import_buttons.Add(self._BTN_save, 0, wx.EXPAND, 2)
+
+		__szr_import_buttons.Add((20, 20), 0, wx.EXPAND, 0)
+
+		self._BTN_clear = wx.Button(self._PNL_document_properties, wx.ID_ANY, _("&Clear"))
+		self._BTN_clear.SetToolTip(_("Clear patient document property fields."))
+		__szr_import_buttons.Add(self._BTN_clear, 0, wx.EXPAND, 0)
+
+		__szr_import_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+
+		self._PNL_previews = cFilePreviewPnl(self._main_splitter, wx.ID_ANY, style=wx.BORDER_NONE)
+
+		__gridsizer_properties.AddGrowableCol(1)
 
 		self._PNL_document_properties.SetSizer(__szr_doc_properties)
 
 		self._PNL_patient_search_assign.SetSizer(__szr_patient_search_assign)
+
+		self.__pnl_splitter_left.SetSizer(__szr_left)
+
+		self._main_splitter.SplitVertically(self.__pnl_splitter_left, self._PNL_previews)
 
 		self.SetSizer(__szr_main)
 		__szr_main.Fit(self)
 
 		self.Layout()
 
-		self.Bind(wx.EVT_BUTTON, self._on_add_parts_button_pressed, self._BTN_add_parts)
-		self.Bind(wx.EVT_BUTTON, self._on_remove_part_button_pressed, self._BTN_remove_item)
-		self.Bind(wx.EVT_BUTTON, self._on_join_parts_button_pressed, self._BTN_join_parts)
-		self.Bind(wx.EVT_BUTTON, self._on_unassign_patient_button_pressed, self._BTN_unassign_patient)
-		self.Bind(wx.EVT_BUTTON, self._on_goto_item_patient_button_pressed, self._BTN_goto_item_patient)
-		self.Bind(wx.EVT_CHECKBOX, self._on_filter2active_patient_checkbox_toggled, self._CHBOX_filter2active_patient)
-		self.Bind(wx.EVT_BUTTON, self._on_save_button_pressed, self._BTN_save)
-		self.Bind(wx.EVT_BUTTON, self._on_clear_button_pressed, self._BTN_clear)
-		self.Bind(wx.EVT_BUTTON, self._on_assign_selected_patient_button_pressed, self._BTN_assign_selected_patient2items)
-		self.Bind(wx.EVT_BUTTON, self._on_goto_searched_patient_button_pressed, self._BTN_goto_searched_patient)
-		self.Bind(wx.EVT_BUTTON, self._on_assign_active_patient_button_pressed, self._BTN_assign_current_patient2items)
-		self.Bind(wx.EVT_CHECKBOX, self._reviewed_box_checked, self._ChBOX_reviewed)
+		self._BTN_add_parts.Bind(wx.EVT_BUTTON, self._on_add_parts_button_pressed)
+		self._BTN_remove_item.Bind(wx.EVT_BUTTON, self._on_remove_part_button_pressed)
+		self._BTN_unassign_patient.Bind(wx.EVT_BUTTON, self._on_unassign_patient_button_pressed)
+		self._BTN_goto_item_patient.Bind(wx.EVT_BUTTON, self._on_goto_item_patient_button_pressed)
+		self._BTN_prepare_import.Bind(wx.EVT_TOGGLEBUTTON, self._on_prepare_import_button_toggled)
+		self._BTN_assign_selected_patient2items.Bind(wx.EVT_BUTTON, self._on_assign_selected_patient_button_pressed)
+		self._BTN_goto_searched_patient.Bind(wx.EVT_BUTTON, self._on_goto_searched_patient_button_pressed)
+		self._BTN_assign_current_patient2items.Bind(wx.EVT_BUTTON, self._on_assign_active_patient_button_pressed)
+		self._ChBOX_reviewed.Bind(wx.EVT_CHECKBOX, self._reviewed_box_checked)
+		self._BTN_save.Bind(wx.EVT_BUTTON, self._on_save_button_pressed)
+		self._BTN_clear.Bind(wx.EVT_BUTTON, self._on_clear_button_pressed)
 		# end wxGlade
 
 	def _on_add_parts_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
@@ -218,10 +239,6 @@ class wxgIncomingPluginPnl(wx.Panel):
 		print("Event handler '_on_remove_part_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_join_parts_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
-		print("Event handler '_on_join_parts_button_pressed' not implemented!")
-		event.Skip()
-
 	def _on_unassign_patient_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
 		print("Event handler '_on_unassign_patient_button_pressed' not implemented!")
 		event.Skip()
@@ -230,16 +247,8 @@ class wxgIncomingPluginPnl(wx.Panel):
 		print("Event handler '_on_goto_item_patient_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_filter2active_patient_checkbox_toggled(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
-		print("Event handler '_on_filter2active_patient_checkbox_toggled' not implemented!")
-		event.Skip()
-
-	def _on_save_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
-		print("Event handler '_on_save_button_pressed' not implemented!")
-		event.Skip()
-
-	def _on_clear_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
-		print("Event handler '_on_clear_button_pressed' not implemented!")
+	def _on_prepare_import_button_toggled(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
+		print("Event handler '_on_prepare_import_button_toggled' not implemented!")
 		event.Skip()
 
 	def _on_assign_selected_patient_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
@@ -256,6 +265,14 @@ class wxgIncomingPluginPnl(wx.Panel):
 
 	def _reviewed_box_checked(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
 		print("Event handler '_reviewed_box_checked' not implemented!")
+		event.Skip()
+
+	def _on_save_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
+		print("Event handler '_on_save_button_pressed' not implemented!")
+		event.Skip()
+
+	def _on_clear_button_pressed(self, event):  # wxGlade: wxgIncomingPluginPnl.<event_handler>
+		print("Event handler '_on_clear_button_pressed' not implemented!")
 		event.Skip()
 
 # end of class wxgIncomingPluginPnl
