@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-12 19:41+0200\n"
+"POT-Creation-Date: 2024-06-08 22:58+0200\n"
 "PO-Revision-Date: 2012-06-01 01:22+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: GNUmed\n"
@@ -30,8 +30,8 @@ msgstr ""
 
 #, python-format
 msgid ""
-"Topical therapy:\\n%s\\n\\nSystemic therapy:\\n%s\\n\\nSubsequent checks:\\n"
-"%s"
+"Topical therapy:\\n%s\\n\\nSystemic therapy:\\n%s\\n\\nSubsequent checks:"
+"\\n%s"
 msgstr ""
 
 #, fuzzy
@@ -2582,7 +2582,7 @@ msgstr ""
 "potrebbe non essere ancora disponibile per il tuo sistema."
 
 #, fuzzy
-msgid "Details are found on <http://www.gnumed.de>.\n"
+msgid "Details are found on <https://www.gnumed.de>.\n"
 msgstr "Puoi trovare i dettagli su <http://wiki.gnumed.de>.\n"
 
 #, python-format
@@ -2823,38 +2823,92 @@ msgstr " opzione [%s]: %s"
 msgid "  risk: %s"
 msgstr "  rischio: %s"
 
-msgid "Estimated"
+msgid " collation version mismatch between database and operating system"
 msgstr ""
+
+msgid "  risk: data corruption (duplicate entries, faulty sorting)"
+msgstr ""
+
+msgid " collations with version mismatch"
+msgstr ""
+
+#, python-format
+msgid " database encoding not UTF8 but rather: %s"
+msgstr ""
+
+msgid "  risk: multilingual data storage problems"
+msgstr ""
+
+msgid "Identity"
+msgstr "Identità"
+
+msgid "Last name"
+msgstr "Cognome"
 
 msgid "Required: lastname (family name)"
 msgstr "Obbligatorio: cognome"
+
+msgid "First name(s)"
+msgstr "Nome/i"
 
 #, fuzzy
 msgid "Required: first name/given name"
 msgstr "Obbligatorio: soprannome/nome dato"
 
+msgid "Date of birth"
+msgstr "Data di nascita"
+
 msgid "Recommended: Date of birth. Your current time zone applies."
+msgstr ""
+
+msgid "Estimated"
 msgstr ""
 
 msgid "Check if the DOB is estimated rather than known precisely."
 msgstr ""
 
+msgid "Time:"
+msgstr "Ora:"
+
 msgid "Optional: the time of birth if known"
 msgstr ""
 
+msgid "Gender"
+msgstr "Sesso"
+
 msgid "Required: gender"
 msgstr ""
+
+msgid "Nick name"
+msgstr "Soprannome"
 
 msgid ""
 "Optional: nickname (alias, preferred name, call name, warrior name, artist "
 "name, pseudonym)"
 msgstr ""
 
+msgid "Title"
+msgstr "Titolo"
+
 msgid ""
 "Optional: title (academic or honorary). Note that a title applies to a "
 "person, not to a particular name of that person (it will be kept even if the "
 "name changes)."
 msgstr ""
+
+msgid "Comment"
+msgstr "Commento"
+
+msgid "A comment on this person."
+msgstr "Un commento su questa persona."
+
+#, fuzzy
+msgid "Primary address and contact"
+msgstr "Indirizzo principale (casa) (opzionale)"
+
+#, fuzzy
+msgid "Search existing"
+msgstr "Risultati cercati"
 
 msgid ""
 "Optional address search: enter a postal code or street name to select a pre-"
@@ -2863,6 +2917,9 @@ msgid ""
 "By editing the fields you can create a new address as needed."
 msgstr ""
 
+msgid "Postal code"
+msgstr "Codice postale"
+
 #, fuzzy
 msgid ""
 "Primary address: zip/postal code\n"
@@ -2870,17 +2927,33 @@ msgid ""
 "Use '?' if unknown."
 msgstr "Indirizzo principale: CAP"
 
+msgid "Street"
+msgstr "Via"
+
 msgid "Primary address: name of street"
 msgstr "Indirizzo principale: via"
+
+msgid "Number"
+msgstr "Numero"
 
 msgid "Primary address: number"
 msgstr "Indirizzo principale: numero"
 
+msgid "Unit:"
+msgstr "Unità:"
+
 msgid "Primary address: unit within the number (appt. / room / etc)."
 msgstr ""
 
+#, fuzzy
+msgid "Community"
+msgstr "Commento"
+
 msgid "Primary address: city/town/village/dwelling/..."
 msgstr "Indirizzo principale: città/comune"
+
+msgid "Region"
+msgstr "Regione"
 
 #, fuzzy
 msgid ""
@@ -2888,8 +2961,14 @@ msgid ""
 "prefecture/department/kanton/...)"
 msgstr "Indirizzo principale: città/provincia/stato"
 
+msgid "Country"
+msgstr "Nazione"
+
 msgid "Primary address: country of residence"
 msgstr "Indirizzo principale: stato"
+
+msgid "Type"
+msgstr "Tipo"
 
 msgid "The category under which to store this address."
 msgstr ""
@@ -2902,10 +2981,16 @@ msgstr "Seleziona il tipo di canale di comunicazione"
 msgid "Primary communication channel."
 msgstr "Rimuovo il canale di comunicazione"
 
+msgid "In-praxis primary"
+msgstr ""
+
 msgid ""
 "Choose the provider the patient considers his or her primary provider in "
 "this praxis."
 msgstr ""
+
+msgid "External ID"
+msgstr "ID esterno"
 
 msgid "The type of the external ID (selection only)."
 msgstr ""
@@ -2913,94 +2998,26 @@ msgstr ""
 msgid "The value of the external ID."
 msgstr ""
 
-msgid "The current occupation."
-msgstr "L'occupazione attuale."
-
-msgid "A comment on this person."
-msgstr "Un commento su questa persona."
-
-msgid "Identity"
-msgstr "Identità"
-
-msgid "Last name"
-msgstr "Cognome"
-
-msgid "First name(s)"
-msgstr "Nome/i"
-
-msgid "Date of birth"
-msgstr "Data di nascita"
-
-msgid "Time:"
-msgstr "Ora:"
-
-msgid "Gender"
-msgstr "Sesso"
-
-msgid "Nick name"
-msgstr "Soprannome"
-
-msgid "Title"
-msgstr "Titolo"
-
-#, fuzzy
-msgid "Primary address and contact"
-msgstr "Indirizzo principale (casa) (opzionale)"
-
-#, fuzzy
-msgid "Search existing"
-msgstr "Risultati cercati"
-
-msgid "Postal code"
-msgstr "Codice postale"
-
-msgid "Street"
-msgstr "Via"
-
-msgid "Number"
-msgstr "Numero"
-
-msgid "Unit:"
-msgstr "Unità:"
-
-#, fuzzy
-msgid "Community"
-msgstr "Commento"
-
-msgid "Region"
-msgstr "Regione"
-
-msgid "Country"
-msgstr "Nazione"
-
-msgid "Type"
-msgstr "Tipo"
-
-msgid "In-praxis primary"
-msgstr ""
-
-msgid "External ID"
-msgstr "ID esterno"
-
 msgid "Occupation"
 msgstr "Occupazione"
 
-msgid "Comment"
-msgstr "Commento"
+msgid "The current occupation."
+msgstr "L'occupazione attuale."
+
+#, fuzzy
+msgid "Filters:"
+msgstr "Filtra per:"
 
 #, fuzzy
 msgid "Active &patient"
 msgstr "Paziente attivo"
 
-msgid "&Activate"
-msgstr "&Attiva"
-
-msgid "Activate²"
-msgstr "Acttiva²"
-
 #, fuzzy
 msgid "Check this if you want to see entries for the active patient only."
 msgstr "Seleziona se questo è un problema attivo, in corso."
+
+msgid "Zone"
+msgstr "Zona"
 
 msgid ""
 "Enter the waiting zone you want to filter by here.\n"
@@ -3014,8 +3031,14 @@ msgid ""
 "Doubleclick to activate (entry will stay in list)."
 msgstr ""
 
+msgid "&Activate"
+msgstr "&Attiva"
+
 msgid "Activate patient but do not remove from waiting list."
 msgstr "Attiva paziente, ma non toglierlo dalla lista di attesa."
+
+msgid "Activate²"
+msgstr "Acttiva²"
 
 msgid "Activate patient and remove from waiting list."
 msgstr "Attiva paziente e toglilo dalla lista d'attesa."
@@ -3035,13 +3058,6 @@ msgstr "Muovi il paziente su."
 msgid "Move patient down."
 msgstr "Muovi il paziente giù."
 
-#, fuzzy
-msgid "Filters:"
-msgstr "Filtra per:"
-
-msgid "Zone"
-msgstr "Zona"
-
 msgid "<age>"
 msgstr ""
 
@@ -3058,74 +3074,92 @@ msgstr "Organi vitali"
 msgid "Edit Document Types"
 msgstr "Modifica Tipi Documento"
 
-msgid "einlangerstring einlangerstring"
-msgstr ""
-
-msgid "Inactive"
-msgstr "Inattivo"
-
-msgid "Unapproved"
-msgstr "Non Approvato"
-
-msgid "Allergy"
-msgstr "Allergia"
-
-msgid "Info"
-msgstr "Informazioni"
-
-msgid "♥"
-msgstr ""
-
-msgid "Kidney"
-msgstr ""
-
 msgid "GFR: ?"
 msgstr ""
 
-msgid "&Interactions?"
-msgstr "&Interazioni?"
+msgid "Sort by:"
+msgstr "Ordina per:"
+
+msgid "einlangerstring einlangerstring"
+msgstr ""
+
+msgid "Include:"
+msgstr "Includi:"
+
+msgid "Discontinued"
+msgstr "Discontinuo"
+
+msgid ""
+"Show discontinued substance intakes ?\n"
+"\n"
+"If checked,  discontinued substance intakes will be shown, too.\n"
+"\n"
+"Note that this does not apply to discontinued (historic) regimen of ongoing "
+"substance intakes."
+msgstr ""
+
+#, fuzzy
+msgid "Add intake."
+msgstr "Aggiunta nuovo nome"
+
+#, fuzzy
+msgid "Edit selected intake."
+msgstr "Modifica la seguente voce."
+
+#, fuzzy
+msgid "Delete selected intake."
+msgstr "Elimino l'ID esterno"
+
+#, fuzzy
+msgid "Print medication list."
+msgstr "Stampa la lista di farmaci."
 
 msgid "℞"
 msgstr ""
 
-msgid "ADR"
-msgstr ""
-
 msgid ""
-"Whether to show inactive substances, too, or only those which are assumed to "
-"currently be active."
+"Prescribe:\n"
+"\n"
+"- selected substances or\n"
+"- via copy of the most recent prescription"
 msgstr ""
 
-msgid ""
-"Whether to show all substances or only those the intake of which is approved "
-"of."
+msgid "🛈"
 msgstr ""
-
-msgid "Add a substance."
-msgstr "Aggiungi una sostanza."
-
-msgid "Edit the selected substance intake entry."
-msgstr ""
-
-msgid "Remove a substance from the list."
-msgstr "Rimuovere una sostanza dalla lista."
-
-msgid "Discontinue selected entry due to an allergy or intolerance."
-msgstr ""
-"Interrompere l'ingresso selezionato a causa di un'allergia o intolleranza."
 
 msgid "Show in-depth information on the selected substance if available."
 msgstr ""
 "Mostra informazioni approfondite sulla sostanza selezionata, se disponibile."
 
-#, python-format
-msgid "Information on handling drugs in the presence of long Qt syndrome (%s)."
+msgid "🫀"
 msgstr ""
 
-#, python-format
+#, fuzzy
+msgid "Cardiological data."
+msgstr "Dettagli Clinici"
+
+msgid "🫘"
+msgstr ""
+
 msgid ""
-"Information on handling of drugs / the selected drug in the presence of "
-"renal insufficiency (%s)."
+"Handling of drugs / the selected drug in the presence of renal insufficiency."
+msgstr ""
+
+msgid "🫁"
+msgstr ""
+
+#, fuzzy
+msgid "Pulmonary toxicity information."
+msgstr "Informazioni complete sul prodotto"
+
+msgid "🤰"
+msgstr ""
+
+#, fuzzy
+msgid "Embryo toxicity information."
+msgstr "Informazioni brevi sul prodotto"
+
+msgid "🗘?"
 msgstr ""
 
 msgid ""
@@ -3134,24 +3168,19 @@ msgid ""
 "Includes all drugs if none selected."
 msgstr ""
 
-msgid ""
-"Write a prescription based on either of\n"
-"\n"
-"- the selected lines\n"
-"- a copy of the most recent prescription"
+msgid "⚠!"
+msgstr ""
+
+#, fuzzy
+msgid "Discontinue selected intake due to an allergy or intolerance."
+msgstr ""
+"Interrompere l'ingresso selezionato a causa di un'allergia o intolleranza."
+
+msgid "🖄"
 msgstr ""
 
 msgid "Report an Adverse Drug Reaction."
 msgstr "Riporta un effetto collaterale del farmaco."
-
-msgid "Print the medication list."
-msgstr "Stampa la lista di farmaci."
-
-msgid "Sort by:"
-msgstr "Ordina per:"
-
-msgid "Include:"
-msgstr "Includi:"
 
 #, fuzzy
 msgid "&Search"
@@ -3546,82 +3575,53 @@ msgstr "Editor:"
 msgid "Host:"
 msgstr ""
 
+#, fuzzy
+msgid "Enter the PACS host address."
+msgstr "Inserisci il numero civico per questo indirizzo."
+
 msgid "Port:"
+msgstr ""
+
+msgid "Enter the PACS port."
 msgstr ""
 
 #, fuzzy
 msgid "User:"
 msgstr "Utente"
 
-msgid "Password"
-msgstr "Password"
-
-#, fuzzy
-msgid "&Connect"
-msgstr "&Appuntamenti"
-
-#, fuzzy
-msgid "<not connected>"
-msgstr "Edita l'occupazione primaria"
-
-msgid "◄"
-msgstr ""
-
-msgid "►"
-msgstr ""
-
-#, fuzzy
-msgid "&Show"
-msgstr "Mostra i messaggi:"
-
-#, fuzzy
-msgid "E&xport area"
-msgstr "Rapporto"
-
-msgid "Browse"
-msgstr ""
-
-#, fuzzy
-msgid "Show"
-msgstr "Mostra i messaggi:"
-
-#, fuzzy
-msgid "Export area"
-msgstr "Rapporto"
-
-msgid "Verify"
-msgstr ""
-
-#, fuzzy
-msgid "&Upload"
-msgstr "Aggiorna"
-
-#, fuzzy
-msgid "Enter the PACS host address."
-msgstr "Inserisci il numero civico per questo indirizzo."
-
-msgid "Enter the PACS port."
-msgstr ""
-
 #, fuzzy
 msgid "Enter the PACS user."
 msgstr "Inserire la quantità della sostanza."
+
+msgid "Password"
+msgstr "Password"
 
 #, fuzzy
 msgid "Enter the PACS password. It will not be shown."
 msgstr "Non posso connettermi al proprietario del database GNUmed <gm-dbo>."
 
 #, fuzzy
+msgid "&Connect"
+msgstr "&Appuntamenti"
+
+#, fuzzy
 msgid "Connect to PACS."
 msgstr "Connetti a GNUmed"
 
-msgid ""
-"Double-click: Display in external viewer.\n"
-"\n"
-"Right-click: Show context menu."
+#, fuzzy
+msgid "<not connected>"
+msgstr "Edita l'occupazione primaria"
+
+msgid "Image"
+msgstr ""
+
+msgid "◄"
 msgstr ""
 
 msgid "Review previous image."
+msgstr ""
+
+msgid "►"
 msgstr ""
 
 #, fuzzy
@@ -3629,12 +3629,33 @@ msgid "Preview next image."
 msgstr "&esame e firma"
 
 #, fuzzy
+msgid "&Show"
+msgstr "Mostra i messaggi:"
+
+#, fuzzy
 msgid "Show image in external viewer."
 msgstr "DICOM viewer"
 
 #, fuzzy
+msgid "E&xport area"
+msgstr "Rapporto"
+
+#, fuzzy
 msgid "Put image into export area."
 msgstr "Aggiungi una nuova persona"
+
+msgid ""
+"Double-click: Display in external viewer.\n"
+"\n"
+"Right-click: Show context menu."
+msgstr ""
+
+#, fuzzy
+msgid "Study"
+msgstr "Essudato"
+
+msgid "Browse"
+msgstr ""
 
 msgid ""
 "Browse selected studies in web browser.\n"
@@ -3643,21 +3664,42 @@ msgid ""
 msgstr ""
 
 #, fuzzy
+msgid "Show"
+msgstr "Mostra i messaggi:"
+
+#, fuzzy
 msgid "Show selected studies in external viewer."
 msgstr "un indirizzo deve essere selezionato"
+
+#, fuzzy
+msgid "Export area"
+msgstr "Rapporto"
 
 #, fuzzy
 msgid "Put selected studies into export area."
 msgstr "Aggiungi una nuova persona"
 
+msgid "Patient"
+msgstr "Paziente"
+
 msgid "Browse patient studies in web browser."
+msgstr ""
+
+msgid "Verify"
 msgstr ""
 
 msgid "Verify DICOM data of patient in PACS."
 msgstr ""
 
+msgid "PACS"
+msgstr ""
+
 msgid "Browse PACS."
 msgstr ""
+
+#, fuzzy
+msgid "&Upload"
+msgstr "Aggiorna"
 
 msgid ""
 "Upload DICOM files from a directory, recursively, into the Orthanc PACS\n"
@@ -3668,19 +3710,6 @@ msgid ""
 msgstr ""
 
 msgid "Modify some of Orthanc's content (such as patient IDs)."
-msgstr ""
-
-msgid "PACS"
-msgstr ""
-
-msgid "Patient"
-msgstr "Paziente"
-
-#, fuzzy
-msgid "Study"
-msgstr "Essudato"
-
-msgid "Image"
 msgstr ""
 
 msgid "A descriptive name for this test type."
@@ -4076,146 +4105,6 @@ msgstr "Trattato da:"
 
 msgid "Template"
 msgstr "Modello"
-
-msgid "&Scan page(s)"
-msgstr "&Scansione pagina/e"
-
-msgid "Pick &file(s)"
-msgstr "Prendi &file(s)"
-
-msgid "&Clipboard"
-msgstr ""
-
-msgid "Intended reviewer:"
-msgstr "Esaminatore previsto:"
-
-msgid "&review and sign"
-msgstr "&esame e firma"
-
-msgid "&technically abnormal"
-msgstr "&tecnicamente abnorme"
-
-msgid "&clinically relevant"
-msgstr "&clinicamente rilevante"
-
-msgid "Remove part"
-msgstr ""
-
-msgid "Discard"
-msgstr "Rifuita"
-
-msgid ""
-"Acquire a page from an image source (scanner, camera). This may bring up an "
-"intermediate dialog. It uses Sane (Linux) or TWAIN (Windows)."
-msgstr ""
-
-msgid ""
-"Add a file from the filesystem as a new part. Shows a file selector dialog."
-msgstr ""
-
-#, fuzzy
-msgid "Load the topmost item from the clipboard."
-msgstr "Rimuovi la/le voce/i selezionata/e dalla lista."
-
-msgid "Required: The type of this document."
-msgstr "Richiesto: il tipo di questo documento."
-
-msgid ""
-"The date when the medical information described in the document was "
-"produced. This is free text so you can add approximate dates, too, such as "
-"3/2004 where appropriate."
-msgstr ""
-
-msgid "Required: The primary episode this document is to be listed under."
-msgstr ""
-
-#, fuzzy
-msgid ""
-"Optional: The organization (unit) this document originates from (sender) or "
-"is intended for (receiver)."
-msgstr "Selezionare l'episodio del quale si desidera spostare la narrazione."
-
-#, fuzzy
-msgid "Select if the organization is the source of the document (the default)."
-msgstr "Selezionare l'episodio del quale si desidera spostare la narrazione."
-
-msgid ""
-"Select if the organization is the receiver of the document.\n"
-"\n"
-"In most cases this means that the document was created in this praxis and "
-"sent to the organization."
-msgstr ""
-
-msgid ""
-"Optional: A short comment identifying the document. Good comments give an "
-"idea of the content and source of the document."
-msgstr ""
-
-msgid ""
-"Required: Enter the provider who will be notified about the new document so "
-"it can be reviewed. In most cases this is the primary doctor of the patient."
-msgstr ""
-
-msgid ""
-"Check this to mark the document as reviewed upon import. If checked you can "
-"(and must) decide on \"technically abnormal\" and \"clinically relevant\", "
-"too. The default can be set by an option."
-msgstr ""
-
-msgid "Whether this document report technically abormal results."
-msgstr "Se questo documento riporta risultati tecnicamente abnormi"
-
-msgid ""
-"Whether this document reports clinically relevant results. Note that both "
-"normal and abnormal resuslts can be relevant."
-msgstr ""
-"Se questo documento riporta risultati clinicamente rilevanti. Nota che "
-"entrambi i risultati, normali e abnormi, possono essere rilevanti."
-
-msgid "Optional: A free-text document description."
-msgstr "Opzionale: Una descrizione del documento a testo libero."
-
-msgid "This field lists the parts belonging to the current document."
-msgstr ""
-
-msgid "View the part selected in the above list."
-msgstr "Visualizza la parte selezionata nella lista soprastante."
-
-msgid ""
-"Remove the part selected in the above list. Will ask before physical "
-"deletion from disk."
-msgstr ""
-
-msgid "Save finished document."
-msgstr "Salva il documento terminato."
-
-msgid "Start over (discards current data)."
-msgstr ""
-
-msgid "Document Properties"
-msgstr "Proprietà Documento"
-
-msgid "Part Sources"
-msgstr ""
-
-#, fuzzy
-msgid "Document type:"
-msgstr "Tipo di documento"
-
-#, fuzzy
-msgid "Date document created:"
-msgstr "Data di creazione:"
-
-msgid "Associate to episode:"
-msgstr "Associato all'episodio:"
-
-#, fuzzy
-msgid "Organization:"
-msgstr "Organizzazione"
-
-#, fuzzy
-msgid "Comment / Identification:"
-msgstr "Medicazione attuale"
 
 msgid "&Manage"
 msgstr ""
@@ -4626,7 +4515,7 @@ msgid ""
 msgstr ""
 
 #, fuzzy
-msgid "Find help on http://www.gnumed.de, too."
+msgid "Find help on https://www.gnumed.de, too."
 msgstr "Trova anche aiuto su http://wiki.gnumed.de."
 
 msgid ""
@@ -4682,7 +4571,7 @@ msgid ""
 "\n"
 "It should then be safe to restart GNUmed.\n"
 "\n"
-"Documentation can be found at <http://www.gnumed.de>."
+"Documentation can be found at <https://www.gnumed.de>."
 msgstr ""
 
 msgid ""
@@ -4790,6 +4679,9 @@ msgid "Anamnestic"
 msgstr ""
 
 msgid " + "
+msgstr ""
+
+msgid "ADR"
 msgstr ""
 
 msgid "Mandatory: When was the vaccination given to the patient ?"
@@ -5084,6 +4976,9 @@ msgstr "Tipo ID"
 
 msgid "Issuer"
 msgstr "Emittente"
+
+msgid "Info"
+msgstr "Informazioni"
 
 #, fuzzy
 msgid "&Sign"
@@ -5554,39 +5449,37 @@ msgstr ""
 "Comando\n"
 "(SQL)"
 
-msgid "<current allergy state>"
-msgstr "<stato allergico attuale>"
-
-msgid "<last confirmed>"
-msgstr "<ultimo confermato>"
-
-msgid "Unknown"
-msgstr "Sconosciuta"
-
-msgid "No known allergies"
-msgstr "Nessuna allergia nota"
-
-msgid "Has allergies"
-msgstr "Allergie presenti"
-
-#, fuzzy
-msgid "&Update / Confirm"
-msgstr "Con&fermare"
-
-msgid ""
-"Input new allergy, or select from among existing allergy items to edit them:"
-msgstr ""
-
 msgid "Allergy Manager"
 msgstr "Gestore Allergie"
+
+msgid "Allergy state"
+msgstr "Stato allergico"
+
+msgid "Currently:"
+msgstr "Attualmente:"
+
+msgid "<current allergy state>"
+msgstr "<stato allergico attuale>"
 
 msgid "This displays the current allergy state as saved in the database."
 msgstr ""
 "Qui viene visualizzato lo stato allergico attuale così com'è registrato nel "
 "database."
 
+msgid "Last confirmed:"
+msgstr "Ultima confermata:"
+
+msgid "<last confirmed>"
+msgstr "<ultimo confermato>"
+
 msgid "When was the allergy state last confirmed."
 msgstr "Quando è stata confermata l'ultima analisi allergica."
+
+msgid "Set to:"
+msgstr "Imposta a:"
+
+msgid "Unknown"
+msgstr "Sconosciuta"
 
 msgid ""
 "Select this if there is no information available on whether the patient has "
@@ -5595,20 +5488,40 @@ msgstr ""
 "Seleziona questo se non ci sono informazioni disponibili sullo stato "
 "allergico del paziente."
 
+msgid "No known allergies"
+msgstr "Nessuna allergia nota"
+
 msgid "Select this if the patient has no known allergies."
 msgstr "Seleziona questo se il paziente non ha allergie note."
+
+msgid "Has allergies"
+msgstr "Allergie presenti"
 
 msgid "Select this if the patient has known allergies."
 msgstr "Seleziona questo se il paziente ha allergie note."
 
+msgid "Comment:"
+msgstr "Commento:"
+
 msgid "A comment on the allergy state."
 msgstr "Un commento sulle analisi allergiche."
+
+#, fuzzy
+msgid "&Update / Confirm"
+msgstr "Con&fermare"
 
 msgid "Save and confirm the allergy state."
 msgstr "Salva e conferma le analisi allergiche."
 
+msgid "Allergy details"
+msgstr "Dettagli dell'allergia"
+
 msgid "Lists the allergies known for this patient if any."
 msgstr "Elenca le allergie note per questo paziente, se presenti."
+
+msgid ""
+"Input new allergy, or select from among existing allergy items to edit them:"
+msgstr ""
 
 msgid ""
 "Save the allergy details in the edit area as either a new allergy or as an "
@@ -5626,24 +5539,6 @@ msgstr "Cancella l'allergia selezionata dalla lista del database"
 
 msgid "Close the dialag. Will discard unsaved data."
 msgstr "Chiudi la finestra. Dati non salvati verranno scartati."
-
-msgid "Allergy details"
-msgstr "Dettagli dell'allergia"
-
-msgid "Allergy state"
-msgstr "Stato allergico"
-
-msgid "Currently:"
-msgstr "Attualmente:"
-
-msgid "Last confirmed:"
-msgstr "Ultima confermata:"
-
-msgid "Set to:"
-msgstr "Imposta a:"
-
-msgid "Comment:"
-msgstr "Commento:"
 
 msgid "Waiting list details for this patient."
 msgstr "Aspettando una lista dettagliata per questo paziente."
@@ -5936,15 +5831,6 @@ msgstr ""
 msgid "Cancel picking items."
 msgstr ""
 
-msgid "1"
-msgstr ""
-
-msgid "2"
-msgstr ""
-
-msgid "3"
-msgstr ""
-
 msgid ""
 "Select the items you want to work on.\n"
 "\n"
@@ -5967,6 +5853,15 @@ msgstr "Modifica la (prima o sola) voce selezionata nella lista soprastante."
 
 msgid ""
 "Delete - if possible - the (first or only) item selected in the list above."
+msgstr ""
+
+msgid "1"
+msgstr ""
+
+msgid "2"
+msgstr ""
+
+msgid "3"
 msgstr ""
 
 msgid "Panel:"
@@ -6427,24 +6322,163 @@ msgstr "g o kg"
 msgid "Waist"
 msgstr "Vita"
 
-#, fuzzy
-msgid "Load from &file"
-msgstr "Importa da un file"
+msgid " &+Add… "
+msgstr ""
 
-#, fuzzy
-msgid "Load from &clipboard"
-msgstr "Muovi il paziente su."
-
-msgid "Drag anything into this field."
+msgid "Add documents from scanner/disc/clipboard to incoming area."
 msgstr ""
 
 #, fuzzy
-msgid "Load a &file"
-msgstr "apri file"
+msgid " &Remove "
+msgstr "Rimuovi l'indirizzo"
 
 #, fuzzy
-msgid "Load from clipboard"
-msgstr "Muovi il paziente su."
+msgid "Remove highlighted document from incoming area."
+msgstr "Cancella documento"
+
+#, fuzzy
+msgid "&Unassign"
+msgstr "&Riassegna"
+
+msgid "Unassign patient from highlighted document."
+msgstr ""
+
+msgid "Activate patient from highlighted or first [x] checked document."
+msgstr ""
+
+msgid " Chart &import "
+msgstr ""
+
+msgid ""
+"Prepare document import:\n"
+"\n"
+"1) filter by active patient\n"
+"2) show document property fields"
+msgstr ""
+
+msgid "Patient:"
+msgstr "Paziente:"
+
+msgid "⮥ A&ssign "
+msgstr ""
+
+msgid ""
+" Assign patient from search box to [x] checked documents or the highlighted "
+"document."
+msgstr ""
+
+msgid "→&Goto "
+msgstr ""
+
+#, fuzzy
+msgid "Activate patient from search box."
+msgstr "Attiva il paziente dalla lista"
+
+#, fuzzy
+msgid " A&ctive⮥ "
+msgstr "Attivo"
+
+msgid ""
+"Assign ACTIVE patient to [x] checked documents or the hightlighted document."
+msgstr ""
+
+#, fuzzy
+msgid "Patient document"
+msgstr "carica la lista del documento"
+
+msgid "Type:"
+msgstr "Tipo:"
+
+msgid "Required: The type of this document."
+msgstr "Richiesto: il tipo di questo documento."
+
+#, fuzzy
+msgid "Date:"
+msgstr "Data"
+
+msgid ""
+"The date when the medical information described in the document was produced."
+msgstr ""
+
+#, fuzzy
+msgid "Episode:"
+msgstr "Episodio"
+
+msgid "Required: The primary episode this document is to be listed under."
+msgstr ""
+
+msgid "Organization"
+msgstr ""
+
+#, fuzzy
+msgid "Select if the organization is the source of the document (the default)."
+msgstr "Selezionare l'episodio del quale si desidera spostare la narrazione."
+
+msgid ""
+"Select if the organization is the receiver of the document.\n"
+"\n"
+"In most cases this means that the document was created in this praxis and "
+"sent to the organization."
+msgstr ""
+
+#, fuzzy
+msgid ""
+"Optional: The organization (unit) this document originates from (sender) or "
+"is intended for (receiver)."
+msgstr "Selezionare l'episodio del quale si desidera spostare la narrazione."
+
+msgid ""
+"Optional: A short comment identifying the document. Good comments give an "
+"idea of the content and source of the document."
+msgstr ""
+
+#, fuzzy
+msgid "Reviewer:"
+msgstr "rivisto"
+
+msgid ""
+"Required: Enter the provider who will be notified about the new document so "
+"it can be reviewed. In most cases this is the primary doctor of the patient."
+msgstr ""
+
+#, fuzzy
+msgid "&review and sign:"
+msgstr "&esame e firma"
+
+msgid ""
+"Check this to mark the document as reviewed upon import. If checked you can "
+"(and must) decide on \"technically abnormal\" and \"clinically relevant\", "
+"too. The default can be set by an option."
+msgstr ""
+
+msgid "&technically abnormal"
+msgstr "&tecnicamente abnorme"
+
+msgid "Whether this document report technically abormal results."
+msgstr "Se questo documento riporta risultati tecnicamente abnormi"
+
+msgid "&clinically relevant"
+msgstr "&clinicamente rilevante"
+
+msgid ""
+"Whether this document reports clinically relevant results. Note that both "
+"normal and abnormal resuslts can be relevant."
+msgstr ""
+"Se questo documento riporta risultati clinicamente rilevanti. Nota che "
+"entrambi i risultati, normali e abnormi, possono essere rilevanti."
+
+#, fuzzy
+msgid "&Import"
+msgstr "Esporta come..."
+
+msgid ""
+"Import [x] checked documents from incoming area into patient chart as one "
+"document."
+msgstr ""
+
+#, fuzzy
+msgid "Clear patient document property fields."
+msgstr "Modifica proprietà documento"
 
 msgid "≈"
 msgstr ""
@@ -6490,9 +6524,6 @@ msgstr "stato revisione"
 
 msgid "Health issue"
 msgstr "Problema di salute"
-
-msgid "Organization"
-msgstr ""
 
 msgid "Sort newest documents to top of tree."
 msgstr "Ordina i tre documenti più recenti."
@@ -6604,6 +6635,9 @@ msgstr "Mostra il &giornale di laboratorio"
 msgid ""
 "Press this button to switch back and forth between browsing and entering "
 "SOAP notes."
+msgstr ""
+
+msgid "♥"
 msgstr ""
 
 msgid "Kidneys"
@@ -6756,9 +6790,6 @@ msgstr "Scopo"
 
 msgid "Advice"
 msgstr "Consiglio"
-
-msgid "Discontinued"
-msgstr "Discontinuo"
 
 #, fuzzy
 msgid "Select an existing or type in a new substance."
@@ -7210,12 +7241,6 @@ msgstr ""
 msgid "Product"
 msgstr ""
 
-msgid "Add &another"
-msgstr ""
-
-msgid "Lala !"
-msgstr "Lala !"
-
 msgid "GNUmed generic EditArea dialog"
 msgstr ""
 
@@ -7223,6 +7248,9 @@ msgid "Save the entered data into the database and close the dialog."
 msgstr ""
 
 msgid "Programmer forgot tooltip for left extra button."
+msgstr ""
+
+msgid "Add &another"
 msgstr ""
 
 msgid "Save data into database and clear fields for another value."
@@ -7233,6 +7261,9 @@ msgstr ""
 
 msgid "Cancel editing the data and discard changes."
 msgstr "Cancella la modifica dei dati e scarta i cambiamenti."
+
+msgid "Lala !"
+msgstr "Lala !"
 
 msgid ""
 "Press me !\n"
@@ -7292,27 +7323,24 @@ msgstr "problema"
 msgid "Preparation"
 msgstr "Preparazione"
 
-msgid "Select"
-msgstr "Seleziona"
-
 msgid "Select person from list"
 msgstr "Seleziona una persona dalla lista"
 
-msgid "Displays the list of persons to select from."
-msgstr ""
+msgid "Please select a person from the list below."
+msgstr "Seleziona una persona dalla lista qui sotto."
 
 #, fuzzy
 msgid "Create a new patient."
 msgstr "Crea nuovo paziente"
+
+msgid "Select"
+msgstr "Seleziona"
 
 msgid "Select the person highlighted in the list above."
 msgstr "Seleziona la persona evidenziata nella lista soprastante."
 
 msgid "Cancel person selection."
 msgstr "Elimina la persona selezionata."
-
-msgid "Please select a person from the list below."
-msgstr "Seleziona una persona dalla lista qui sotto."
 
 msgid "Closed"
 msgstr "Chiusa"
@@ -7433,14 +7461,14 @@ msgstr "Note"
 msgid "Suburb:"
 msgstr "Sobborgo:"
 
+msgid "Put caption here."
+msgstr "Metti il titolo qui"
+
 msgid "Put question here."
 msgstr "Metti la domanda qui."
 
 msgid "Remember and don't ask again."
 msgstr "Ricorda e non chiedere più."
-
-msgid "Put caption here."
-msgstr "Metti il titolo qui"
 
 msgid ""
 "Check this if you want GNUmed to remember your decision and not ask you "
@@ -7448,23 +7476,17 @@ msgid ""
 msgstr ""
 "Segna se vuoi che GNUmed ricordi la tua decisione e non lo chieda di nuovo."
 
-msgid "&Tolerates others in class"
-msgstr "&Tollera gli altri in classe"
-
-msgid "&Allergy"
-msgstr "&Allergia"
-
-msgid "&Sensitivity"
-msgstr "&Sensibilità"
-
-msgid "&Definite"
-msgstr "&Definita"
+msgid "Onset"
+msgstr ""
 
 msgid ""
 "When did the patient notice onset of the reaction.\n"
 "\n"
 "If unknown use the date when it was reported to you."
 msgstr ""
+
+msgid "Trigger"
+msgstr "Trigger"
 
 #, fuzzy
 msgid ""
@@ -7487,8 +7509,18 @@ msgstr ""
 "- ..."
 
 #, fuzzy
+msgid "Product Name"
+msgstr "Nome commerciale"
+
+#, fuzzy
 msgid "Product name if a drug is entered as the trigger."
 msgstr "Marca, se è stato inserito un farmaco come causa scatenante"
+
+msgid "Generics"
+msgstr "Generici"
+
+msgid "&Tolerates others in class"
+msgstr "&Tollera gli altri in classe"
 
 msgid ""
 "Check if this reaction applies to this drug/generic only, not the entire "
@@ -7496,6 +7528,9 @@ msgid ""
 msgstr ""
 "Spuntare se questa reazione si riferisce solo a questo medicinale e non a "
 "tutta la classe."
+
+msgid "Drug Classes"
+msgstr "Classi Farmacologiche"
 
 msgid "Displays drug classe(s) along with their ATC code."
 msgstr "Mostra la classe dei farmaci con il loro codice ATC"
@@ -7508,11 +7543,23 @@ msgstr ""
 "anche il tempo trascorso dall'assunzione del farmaco e l'esordio della "
 "reazione. (<24h, 24-72h, >72h)"
 
+msgid "Reaction Type"
+msgstr "Tipo Reazione"
+
+msgid "&Allergy"
+msgstr "&Allergia"
+
 msgid "Select this if the reaction is an allergy."
 msgstr "Seleziona se la reazione è un'allergia."
 
+msgid "&Sensitivity"
+msgstr "&Sensibilità"
+
 msgid "Select this if the reaction is a sensitivity."
 msgstr "Seleziona se la reazione è una sensibilità."
+
+msgid "&Definite"
+msgstr "&Definita"
 
 msgid ""
 "Check this if this allergy/intolerance is known to exist for sure as opposed "
@@ -7520,25 +7567,6 @@ msgid ""
 msgstr ""
 "Spuntare se questa allergia/intolleranza è siuramente esistente e non solo "
 "supposta"
-
-msgid "Onset"
-msgstr ""
-
-msgid "Trigger"
-msgstr "Trigger"
-
-#, fuzzy
-msgid "Product Name"
-msgstr "Nome commerciale"
-
-msgid "Generics"
-msgstr "Generici"
-
-msgid "Drug Classes"
-msgstr "Classi Farmacologiche"
-
-msgid "Reaction Type"
-msgstr "Tipo Reazione"
 
 msgid "Yes"
 msgstr "Sì"
@@ -7669,6 +7697,9 @@ msgstr "Misurazioni"
 msgid "Documents:"
 msgstr "Documenti:"
 
+msgid "Displays the list of persons to select from."
+msgstr ""
+
 #, fuzzy
 msgid "&L"
 msgstr "S"
@@ -7771,6 +7802,93 @@ msgid ""
 "you need to narrow or widen the selection of results."
 msgstr ""
 
+#, fuzzy
+msgid "Amount of active ingredient."
+msgstr "Nessun paziente attivo"
+
+#, fuzzy
+msgid "Units for the amount of active ingredient."
+msgstr "Descrizione"
+
+msgid "The intake schedule describing how to use the dosage."
+msgstr ""
+
+#, fuzzy
+msgid "&Today →"
+msgstr "oggi (%s)"
+
+#, fuzzy
+msgid "The start of substance intake."
+msgstr "Sostanza"
+
+#, fuzzy
+msgid "&Unknown"
+msgstr "Sconosciuta"
+
+msgid ""
+"Notes on start date.\n"
+"\n"
+"('?' is interpreted as 'unknown')"
+msgstr ""
+
+msgid "Stopped"
+msgstr ""
+
+msgid "To&day →"
+msgstr ""
+
+#, fuzzy
+msgid "The end of substance intake."
+msgstr "Sostanza"
+
+#, fuzzy
+msgid "Notes for:"
+msgstr "&Solo me"
+
+msgid ""
+"Notes intended for the patient, such as:\n"
+"\n"
+"- aim of intake\n"
+"- intake instructions\n"
+"- conditions to observe/report"
+msgstr ""
+
+#, fuzzy
+msgid "Providers"
+msgstr "Chiusa"
+
+msgid ""
+"Notes intended for other providers relevant to this intake, such as:\n"
+"\n"
+"- unusual dosage/indication\n"
+"- contraindications/interactions assessment\n"
+"- monitoring considerations"
+msgstr ""
+
+msgid "Ourselves"
+msgstr ""
+
+msgid ""
+"Notes for ourselves such as patient-particular observations, notabenes, "
+"etc.\n"
+"\n"
+"Not intended for outside documents."
+msgstr ""
+
+#, fuzzy
+msgid "Research"
+msgstr "Cerca"
+
+#, fuzzy
+msgid "Cardiac information relevant to this substance."
+msgstr ""
+"Mostra informazioni approfondite sulla sostanza selezionata, se disponibile."
+
+#, fuzzy
+msgid "Renal insufficiency information related to this substance."
+msgstr ""
+"Mostra informazioni approfondite sulla sostanza selezionata, se disponibile."
+
 msgid "Edit staff details"
 msgstr "Modifica dettagli staff"
 
@@ -7851,9 +7969,6 @@ msgstr "nome"
 
 msgid "External code"
 msgstr "Codice esterno"
-
-msgid "Type:"
-msgstr "Tipo:"
 
 #, fuzzy
 msgid "EUR"
@@ -7962,6 +8077,34 @@ msgid ""
 "suppression\n"
 "in this patient"
 msgstr "Aspettando una lista dettagliata per questo paziente."
+
+#, fuzzy
+msgid "View e&xternally"
+msgstr "Aggiungi un nuovo ID esterno"
+
+#, fuzzy
+msgid "Show in external viewer."
+msgstr "DICOM viewer"
+
+msgid " ◀ &prev "
+msgstr ""
+
+msgid "&1 "
+msgstr ""
+
+msgid "&next ▶ "
+msgstr ""
+
+#, fuzzy
+msgid " S&witch preview "
+msgstr "Il tuo esame"
+
+msgid "Switch preview type among Image and Text."
+msgstr ""
+
+#, fuzzy
+msgid " Preview"
+msgstr "Il tuo esame"
 
 #, fuzzy
 msgid "Save &under"
@@ -8093,1976 +8236,6 @@ msgstr ""
 #, fuzzy
 msgid "Show search dialog."
 msgstr "Chiudi questa finestra"
-
-#, python-format
-msgid "You are logged in as %s%s.%s (%s). DB account <%s>."
-msgstr "Sei loggato come %s%s.%s (%s). DB account <%s>."
-
-msgid "&Go to plugin ..."
-msgstr ""
-
-msgid "Check for updates"
-msgstr "Verifica la disponibilità di nuovi aggiornamenti"
-
-msgid "Check for new releases of the GNUmed client."
-msgstr "Controlla se ci sono nuove versioni del client GNUmed"
-
-msgid "Announce downtime"
-msgstr ""
-
-msgid "Announce database maintenance downtime to all connected clients."
-msgstr ""
-
-#, fuzzy
-msgid "All options"
-msgstr "Opzioni"
-
-#, fuzzy
-msgid "List all options as configured in the database."
-msgstr ""
-"Questa lista mostra tutte le impostazioni di configurazione del database."
-
-msgid "Configure the database language"
-msgstr "Configura la lingua del database"
-
-msgid "Welcome message"
-msgstr "Messaggio di benvenuto"
-
-msgid "Configure the database welcome message (all users)."
-msgstr "Configura il messaggio di benvenuto del database (tutti gli utenti)."
-
-msgid "Database ..."
-msgstr "Database..."
-
-msgid "Export chunk size"
-msgstr ""
-
-msgid "Configure the chunk size used when exporting BLOBs from the database."
-msgstr ""
-
-msgid "Email address"
-msgstr "Indirizzo email"
-
-msgid "The email address of the user for sending bug reports, etc."
-msgstr "L'indirizzo email dello user per segnalare bug, ecc."
-
-msgid "Client parameters ..."
-msgstr "Parametri del client..."
-
-#, fuzzy
-msgid "Medication measurements"
-msgstr "modifica misurazione"
-
-msgid "Select the measurements panel to show in the medications plugin."
-msgstr ""
-
-#, fuzzy
-msgid "General measurements"
-msgstr "modifica misurazione"
-
-#, fuzzy
-msgid "Select the measurements panel to show in the top pane."
-msgstr "Un commento su questo paziente."
-
-msgid "Review dialog"
-msgstr ""
-
-msgid "Configure review dialog after document display."
-msgstr ""
-
-msgid "UUID display"
-msgstr ""
-
-msgid "Configure unique ID dialog on document import."
-msgstr ""
-
-msgid "Empty documents"
-msgstr "Documenti vuoti"
-
-msgid "Whether to allow saving documents without parts."
-msgstr ""
-
-msgid "Generate UUID"
-msgstr ""
-
-msgid "Whether to generate UUIDs for new documents."
-msgstr ""
-
-msgid "Document handling ..."
-msgstr ""
-
-msgid "Auto-check"
-msgstr "Auto-check"
-
-msgid "Whether to auto-check for updates at startup."
-msgstr ""
-
-msgid "Check scope"
-msgstr ""
-
-msgid "When checking for updates, consider latest branch, too ?"
-msgstr ""
-
-msgid "The URL to retrieve version information from."
-msgstr ""
-
-msgid "Update handling ..."
-msgstr ""
-
-msgid "Birthday reminder"
-msgstr "Ricordo del compleanno"
-
-msgid "Configure birthday reminder proximity interval."
-msgstr ""
-
-msgid "Immediate source activation"
-msgstr ""
-
-msgid "Configure immediate activation of single external person."
-msgstr ""
-
-msgid "Initial plugin"
-msgstr "Plugin iniziali"
-
-msgid "Configure which plugin to show right after person activation."
-msgstr ""
-
-msgid "Default region"
-msgstr ""
-
-msgid "Configure the default region for person creation."
-msgstr ""
-
-msgid "Default country"
-msgstr ""
-
-msgid "Configure the default country for person creation."
-msgstr ""
-
-msgid "Person ..."
-msgstr ""
-
-msgid "Multiple new episodes"
-msgstr ""
-
-msgid "Configure opening multiple new episodes on a patient at once."
-msgstr ""
-
-msgid "Auto-open editors"
-msgstr ""
-
-msgid "Configure auto-opening editors for recent problems."
-msgstr ""
-
-#, fuzzy
-msgid "SOAP fields"
-msgstr "campo XDT"
-
-msgid "Configure SOAP editor - individual SOAP fields vs text editor like"
-msgstr ""
-
-msgid "Progress notes handling ..."
-msgstr ""
-
-msgid "MI/stroke risk calc cmd"
-msgstr ""
-
-msgid "Set the command to start the CV risk calculator."
-msgstr ""
-
-msgid "OOo startup time"
-msgstr "Tempo di avvio OOo"
-
-msgid "Set the time to wait for OpenOffice to settle after startup."
-msgstr ""
-
-msgid "Measurements URL"
-msgstr ""
-
-msgid "URL for measurements encyclopedia."
-msgstr ""
-
-msgid "Drug data source"
-msgstr ""
-
-msgid "Select the drug data source."
-msgstr ""
-
-msgid "ADR URL"
-msgstr ""
-
-msgid "URL for reporting Adverse Drug Reactions."
-msgstr ""
-
-msgid "vaccADR URL"
-msgstr ""
-
-msgid "URL for reporting Adverse Drug Reactions to *vaccines*."
-msgstr ""
-
-msgid "Vacc plans URL"
-msgstr ""
-
-msgid "URL for vaccination plans."
-msgstr ""
-
-msgid "Visual SOAP editor"
-msgstr ""
-
-msgid "Set the command for calling the visual progress note editor."
-msgstr ""
-
-msgid "External tools ..."
-msgstr "Strumenti esterni..."
-
-#, fuzzy
-msgid "Invoice ID template"
-msgstr "Controllo se ci sono aggiornamenti per il client"
-
-#, fuzzy
-msgid "Set the template for generating invoice IDs."
-msgstr "Seleziona il tipo d'appuntamento"
-
-#, fuzzy
-msgid "Invoice template (no VAT)"
-msgstr "Controllo se ci sono aggiornamenti per il client"
-
-msgid "Select the template for printing an invoice without VAT."
-msgstr ""
-
-#, fuzzy
-msgid "Invoice template (with VAT)"
-msgstr "Selezione del dispositivo"
-
-msgid "Select the template for printing an invoice with VAT."
-msgstr ""
-
-#, fuzzy
-msgid "Catalogs URL"
-msgstr "fatale"
-
-msgid "URL for billing catalogs (schedules of fees)."
-msgstr ""
-
-msgid "Medication list template"
-msgstr ""
-
-msgid "Select the template for printing a medication list."
-msgstr ""
-
-#, fuzzy
-msgid "Prescription mode"
-msgstr "Prescrizioni"
-
-#, fuzzy
-msgid "Select the default mode for creating a prescription."
-msgstr "Seleziona il tipo di default per le nuove consultazioni.\n"
-
-#, fuzzy
-msgid "Prescription template"
-msgstr "Prescrizioni"
-
-#, fuzzy
-msgid "Select the template for printing a prescription."
-msgstr "Salvare la definizione del report."
-
-#, fuzzy
-msgid "Default Gnuplot template"
-msgstr "Elimino dal modello."
-
-#, fuzzy
-msgid "Select the default template for plotting test results."
-msgstr "Seleziona il tipo di default per le nuove consultazioni.\n"
-
-msgid "Fallback provider"
-msgstr ""
-
-msgid ""
-"Select the doctor to fall back to for patients without a primary provider."
-msgstr ""
-
-#, fuzzy
-msgid "Edit before patient change"
-msgstr "Modifica i cambiamenti del paziente"
-
-#, fuzzy
-msgid "Edit encounter details before change of patient."
-msgstr "Cambiando paziente modifica i dettagli della consultazione"
-
-msgid "Minimum duration"
-msgstr "Durata minima"
-
-msgid "Minimum duration of an encounter."
-msgstr ""
-
-msgid "Maximum duration"
-msgstr "Durata massima"
-
-msgid "Maximum duration of an encounter."
-msgstr "Massima durata di una consultazione"
-
-msgid "Minimum empty age"
-msgstr ""
-
-msgid "Minimum age of an empty encounter before considering for deletion."
-msgstr ""
-
-msgid "Default type"
-msgstr "Tipo predefinito"
-
-msgid "Default type for new encounters."
-msgstr "Tipo predefinito per nuove consultazioni"
-
-msgid "Encounter ..."
-msgstr "Consultazione..."
-
-msgid "Dormancy"
-msgstr ""
-
-msgid ""
-"Maximum length of dormancy after which an episode will be considered closed."
-msgstr ""
-
-msgid "Episode ..."
-msgstr "Episodio..."
-
-msgid "User interface ..."
-msgstr "Interfaccia utente..."
-
-msgid "EMR ..."
-msgstr ""
-
-msgid "Billing ..."
-msgstr ""
-
-msgid "Preferences ..."
-msgstr ""
-
-msgid "Manage lists"
-msgstr ""
-
-msgid "Manage various lists of master data."
-msgstr ""
-
-#, fuzzy
-msgid "Manage praxis"
-msgstr "Gestisci le descrizioni"
-
-msgid "Manage your praxis branches."
-msgstr ""
-
-msgid "Install data packs"
-msgstr ""
-
-msgid "Install reference data from data packs."
-msgstr ""
-
-msgid "Update ATC"
-msgstr ""
-
-msgid "Install ATC reference data."
-msgstr ""
-
-#, fuzzy
-msgid "Update LOINC"
-msgstr "Aggiorna"
-
-msgid "Download and install LOINC reference data."
-msgstr ""
-
-msgid "Create fake vaccines"
-msgstr ""
-
-msgid "Re-create fake generic vaccines."
-msgstr ""
-
-msgid "&Master data ..."
-msgstr ""
-
-msgid "&Add user"
-msgstr ""
-
-msgid "Add a new GNUmed user"
-msgstr ""
-
-msgid "&Edit users"
-msgstr ""
-
-msgid "Edit the list of GNUmed users"
-msgstr ""
-
-msgid "&Change DB owner PWD"
-msgstr ""
-
-#, fuzzy
-msgid "Change the password of the GNUmed database owner"
-msgstr "Non posso connettermi al proprietario del database GNUmed <gm-dbo>."
-
-msgid "&Users ..."
-msgstr ""
-
-msgid "E&xit\tAlt-X"
-msgstr "&Esci\tAlt-X"
-
-msgid "Close this GNUmed client."
-msgstr "Chiudi questo client GNUmed"
-
-#, fuzzy
-msgid "Search for a person."
-msgstr "La data di nascita per questa persona."
-
-msgid "&Register person"
-msgstr ""
-
-msgid "Register a new person with GNUmed"
-msgstr ""
-
-#, fuzzy
-msgid "From &External sources"
-msgstr "Codice esterno"
-
-msgid "Load and possibly create person from available external sources."
-msgstr ""
-
-msgid "&vCard file \\u2192 patient"
-msgstr ""
-
-msgid "Import demographics from .vcf vCard file as patient"
-msgstr ""
-
-msgid "Clipboard (&XML) \\u2192 patient"
-msgstr ""
-
-msgid "Import demographics from clipboard (LinuxMedNews XML) as patient"
-msgstr ""
-
-msgid "Clipboard (&vCard) \\u2192 patient"
-msgstr ""
-
-msgid "Import demographics from clipboard (vCard) as patient"
-msgstr ""
-
-msgid "Export demographics of currently active person as GDT into clipboard."
-msgstr ""
-
-msgid ""
-"Export demographics of currently active person as XML (LinuxMedNews) into "
-"clipboard"
-msgstr ""
-
-msgid "Export demographics of currently active person as vCard into clipboard"
-msgstr ""
-
-msgid "\\u2192 &Clipboard as\\u2026"
-msgstr ""
-
-msgid "Export demographics of currently active person into GDT file."
-msgstr ""
-
-msgid "Export demographics of currently active person into vCard file."
-msgstr ""
-
-msgid "\\u2192 &File as\\u2026"
-msgstr ""
-
-msgid "&Merge persons"
-msgstr ""
-
-msgid "Merge two persons into one."
-msgstr ""
-
-msgid "Deactivate record"
-msgstr "Disattiva record"
-
-msgid "Deactivate (exclude from search) person record in database."
-msgstr ""
-
-msgid "Add &tag"
-msgstr ""
-
-msgid "Add a text/image tag to this person."
-msgstr ""
-
-msgid "Enlist as user"
-msgstr ""
-
-msgid "Enlist current person as GNUmed user"
-msgstr ""
-
-msgid "&Past history (health issue / PMH)"
-msgstr ""
-
-msgid ""
-"Add a past/previous medical history item (health issue) to the EMR of the "
-"active patient"
-msgstr ""
-
-#, fuzzy
-msgid "&Episode"
-msgstr "Episodio"
-
-#, fuzzy
-msgid "Add an episode of illness to the EMR of the active patient"
-msgstr "Incomincia una nuova consultazione per il paziente attivo."
-
-msgid "&Medication"
-msgstr ""
-
-msgid "Add medication / substance use entry."
-msgstr ""
-
-msgid "&Allergies"
-msgstr "&Allergie"
-
-msgid "Manage documentation of allergies for the current patient."
-msgstr "Gestisci la documentazione delle allergie per il paziente corrente."
-
-msgid "&Occupation"
-msgstr "&Occupazione"
-
-msgid "Edit occupation details for the current patient."
-msgstr "Modifica i dettagli lavorativi per il paziente corrente."
-
-msgid "&Hospitalizations"
-msgstr ""
-
-#, fuzzy
-msgid "Manage hospitalizations."
-msgstr "Gestisci le descrizioni"
-
-#, fuzzy
-msgid "&External care"
-msgstr "Codice esterno"
-
-#, fuzzy
-msgid "Manage external care."
-msgstr "Gestisci le descrizioni"
-
-msgid "&Procedures"
-msgstr ""
-
-msgid "Manage procedures performed on the patient."
-msgstr ""
-
-#, fuzzy
-msgid "&Measurements"
-msgstr "Misurazioni"
-
-#, fuzzy
-msgid "Manage measurement results for the current patient."
-msgstr "Gestisci la documentazione delle allergie per il paziente corrente."
-
-#, fuzzy
-msgid "&Vaccinations: by shot"
-msgstr "Vaccinazioni:"
-
-#, fuzzy
-msgid "Manage vaccinations for the current patient (by shots given)."
-msgstr "Gestisci la documentazione delle allergie per il paziente corrente."
-
-#, fuzzy
-msgid "&Vaccinations: by indication"
-msgstr "&Vaccinazioni"
-
-#, fuzzy
-msgid "Manage vaccinations for the current patient (by indication)."
-msgstr "Gestisci la documentazione delle allergie per il paziente corrente."
-
-#, fuzzy
-msgid "&Vaccinations: latest"
-msgstr "&Vaccinazioni"
-
-#, fuzzy
-msgid "List latest vaccinations for the current patient."
-msgstr "Modifica i dettagli lavorativi per il paziente corrente."
-
-msgid "&Family history (FHx)"
-msgstr ""
-
-#, fuzzy
-msgid "Manage family history."
-msgstr "storia medica passata"
-
-#, fuzzy
-msgid "&Encounters"
-msgstr "&Appuntamento"
-
-msgid "List all encounters including empty ones."
-msgstr ""
-
-msgid "&Pregnancy"
-msgstr ""
-
-msgid "Calculate EDC."
-msgstr ""
-
-#, fuzzy
-msgid "Suppressed hints"
-msgstr "progressi, note"
-
-msgid "Manage dynamic hints suppressed in this patient."
-msgstr ""
-
-#, fuzzy
-msgid "Substance abuse"
-msgstr "Sostanza"
-
-#, fuzzy
-msgid "Manage substance abuse documentation of this patient."
-msgstr "Un commento su questo paziente."
-
-#, fuzzy
-msgid "&Manage ..."
-msgstr "&Azioni ... "
-
-msgid "Search this EMR"
-msgstr ""
-
-msgid "Search for data in the EMR of the active patient"
-msgstr ""
-
-msgid "Start new encounter"
-msgstr "Incomincia una nuova consultazione"
-
-msgid "Start a new encounter for the active patient right now."
-msgstr "Incomincia adesso una nuova consultazione per il paziente attivo"
-
-#, fuzzy
-msgid "Statistics"
-msgstr ""
-"Statistiche EMR\n"
-"\n"
-
-msgid "Show a high-level statistic summary of the EMR."
-msgstr ""
-
-#, fuzzy
-msgid "Journal (encounters)"
-msgstr "Aggiungi una nuova persona"
-
-msgid ""
-"Copy EMR of the active patient as a chronological journal into export area"
-msgstr ""
-
-#, fuzzy
-msgid "Journal (mod time)"
-msgstr "Aggiungi una nuova persona"
-
-#, fuzzy
-msgid ""
-"Copy EMR of active patient as journal (by last modification time) into "
-"export area"
-msgstr "Non posso aggiungere la medicazione. Nesun paziente attivo."
-
-msgid "Text document"
-msgstr "Documento di testo"
-
-#, fuzzy
-msgid "Copy EMR of active patient as text document into export area"
-msgstr "Aggiungi una nuova persona"
-
-#, fuzzy
-msgid "Timeline file"
-msgstr "tutti i file"
-
-msgid "Copy EMR of active patient as timeline file (XML) into export area"
-msgstr ""
-
-#, fuzzy
-msgid "Care structure"
-msgstr "Problema di salute"
-
-msgid "Copy EMR of active patient as care structure text file into export area"
-msgstr ""
-
-#, fuzzy
-msgid "MEDISTAR import format (as file)"
-msgstr "Formato importazione MEDISTAR"
-
-msgid ""
-"GNUmed -> MEDISTAR. Save progress notes of active patient's active encounter "
-"into a text file."
-msgstr ""
-
-#, fuzzy
-msgid "Put into export area as ..."
-msgstr "Aggiungi una nuova persona"
-
-msgid "&EMR"
-msgstr ""
-
-msgid "&Write letter"
-msgstr "&Scrivi lettera"
-
-msgid "Write a letter for the current patient."
-msgstr "Scrivi una lettere per il paziente corrente."
-
-msgid "Screenshot -> export area"
-msgstr ""
-
-msgid "Put a screenshot into the patient export area."
-msgstr ""
-
-#, fuzzy
-msgid "List Placeholders"
-msgstr "erro com o placeholder [%s]"
-
-msgid "Show a list of all placeholders."
-msgstr ""
-
-msgid "&Correspondence"
-msgstr "&Corrispondenza"
-
-msgid "Search all EMRs"
-msgstr ""
-
-msgid "Search for data across the EMRs of all patients"
-msgstr ""
-
-msgid "no viewer installed"
-msgstr "nessun viewer installato"
-
-msgid "DICOM viewer"
-msgstr "DICOM viewer"
-
-#, python-format
-msgid ""
-"Start DICOM viewer (%s) for CD-ROM (X-Ray, CT, MR, etc). On Windows just "
-"insert CD."
-msgstr ""
-
-msgid "Snellen chart"
-msgstr "Grafico Snellen"
-
-msgid "Display fullscreen snellen chart."
-msgstr ""
-
-msgid "MI/stroke risk"
-msgstr ""
-
-msgid "Acute coronary syndrome/stroke risk assessment."
-msgstr ""
-
-#, python-format
-msgid "arriba: cardiovascular risk assessment (%s)."
-msgstr ""
-
-#, fuzzy
-msgid "Show HL7"
-msgstr "Mostra i messaggi:"
-
-#, fuzzy
-msgid "Show formatted data from HL7 file"
-msgstr "Carica i dati del modello da un file."
-
-msgid "Unwrap XML"
-msgstr ""
-
-msgid "Unwrap HL7 data from XML file (Excelleris, ...)"
-msgstr ""
-
-msgid "Stage HL7"
-msgstr ""
-
-#, fuzzy
-msgid "Stage HL7 data from file"
-msgstr "Carica i dati del modello da un file."
-
-#, fuzzy
-msgid "Browse pending"
-msgstr "Unire i pazienti"
-
-msgid "Browse pending (staged) incoming data"
-msgstr ""
-
-#, fuzzy
-msgid "Lab results ..."
-msgstr "Risultato di laboratorio"
-
-msgid "&Tools"
-msgstr "&Strumenti"
-
-msgid "&Database"
-msgstr ""
-
-msgid "Jump to the drug database configured as the default."
-msgstr ""
-
-msgid "Show \"kompendium.ch\" drug database (online, Switzerland)"
-msgstr "Mostra \"kompendium.ch\" database medicamenti (online, Svizzera)"
-
-msgid "&Drug Resources"
-msgstr ""
-
-msgid "Medical links (www)"
-msgstr "Links di medicina (www)"
-
-msgid "Show a page of links to useful medical content."
-msgstr ""
-
-msgid "&Knowledge"
-msgstr ""
-
-#, fuzzy
-msgid "&Audit trail"
-msgstr "Modifica dettagli"
-
-msgid "Display database audit trail."
-msgstr ""
-
-msgid "&Bills"
-msgstr ""
-
-msgid "List all bills across all patients."
-msgstr ""
-
-#, fuzzy
-msgid "&Organizations"
-msgstr "Organizzazione"
-
-#, fuzzy
-msgid "Manage organizations."
-msgstr "Gestisci le descrizioni"
-
-msgid "&Office"
-msgstr "&Office"
-
-msgid "GNUmed wiki"
-msgstr "Wiki GNUmed"
-
-msgid "Go to the GNUmed wiki on the web."
-msgstr "Vai al wiki GNUmed sul web."
-
-msgid "User manual (www)"
-msgstr "Manuale utente (www)"
-
-msgid "Go to the User Manual on the web."
-msgstr "Vai al manuale utente sul web."
-
-msgid "Menu reference (www)"
-msgstr ""
-
-msgid "View the reference for menu items on the web."
-msgstr ""
-
-#, fuzzy
-msgid "Browse work dir"
-msgstr "Unire i pazienti"
-
-#, python-format
-msgid "Browse user working directory [%s]."
-msgstr ""
-
-msgid "Status line: &Clear"
-msgstr ""
-
-#, fuzzy
-msgid "Clear the status line."
-msgstr "&Cancella query"
-
-msgid "Status line: History"
-msgstr ""
-
-msgid "Show status line history."
-msgstr ""
-
-msgid "Tooltips on"
-msgstr ""
-
-msgid "Globally enable tooltips."
-msgstr ""
-
-msgid "Tooltips off"
-msgstr ""
-
-msgid "Globally (attempt to) disable tooltips."
-msgstr ""
-
-msgid "Screenshot"
-msgstr "Screenshot"
-
-msgid "Save a screenshot of this GNUmed client."
-msgstr "Salva uno screenshot di questo client GNUmed."
-
-msgid "Show log file"
-msgstr ""
-
-msgid "Show log file in text viewer."
-msgstr ""
-
-msgid "Backup log file"
-msgstr ""
-
-msgid "Backup content of the log to another file."
-msgstr ""
-
-msgid "Email log file"
-msgstr ""
-
-msgid "Send log file to the authors for help."
-msgstr ""
-
-#, fuzzy
-msgid "Browse tmp dir"
-msgstr "Unire i pazienti"
-
-#, python-format
-msgid "Browse temporary directory [%s]."
-msgstr ""
-
-msgid "Browse internal work dir"
-msgstr ""
-
-#, python-format
-msgid "Browse internal working directory [%s]."
-msgstr ""
-
-msgid "Bug tracker"
-msgstr ""
-
-msgid "Go to the GNUmed bug tracker on the web."
-msgstr ""
-
-msgid "Unlock mouse"
-msgstr "Sblocca mouse"
-
-msgid "Unlock mouse pointer in case it got stuck in hourglass mode."
-msgstr ""
-
-msgid "pgAdmin III"
-msgstr "pgAdmin III"
-
-msgid "pgAdmin III: Browse GNUmed database(s) in PostgreSQL server."
-msgstr "pgAdmin III: Mostra il/i database GNUmed nel server PostgreSQL."
-
-#, fuzzy
-msgid "Lock/unlock patient search"
-msgstr "Blocca/sblocca paziente"
-
-#, fuzzy
-msgid "Lock/unlock patient search - USE ONLY IF YOU KNOW WHAT YOU ARE DOING !"
-msgstr ""
-"Blocca/sblocca paziente - UTILIZZA SOLO SE SAI QUELLO CHE STAI FACENDO!"
-
-msgid "Test error handling"
-msgstr ""
-
-msgid "Throw an exception to test error handling."
-msgstr ""
-
-msgid "Test access violation exception"
-msgstr ""
-
-msgid "Simulate an access violation exception."
-msgstr ""
-
-msgid "Test access checking"
-msgstr ""
-
-msgid "Simulate a failing access check."
-msgstr ""
-
-msgid "Invoke inspector"
-msgstr ""
-
-msgid "Invoke the widget hierarchy inspector (needs wxPython 2.8)."
-msgstr ""
-
-msgid "Test fault handler"
-msgstr ""
-
-msgid "Simulate a catastrophic fault (SIGSEGV)."
-msgstr ""
-
-#, fuzzy
-msgid "Test placeholder"
-msgstr "erro com o placeholder [%s]"
-
-#, fuzzy
-msgid "Manually test placeholders"
-msgstr "Gestisci le descrizioni"
-
-msgid "Debugging ..."
-msgstr "Debugging ..."
-
-msgid "About GNUmed"
-msgstr "Informazioni su GNUmed"
-
-msgid "About database"
-msgstr "Riguardo al database"
-
-msgid "Show information about the current database."
-msgstr "Mostra le informazioni riguardo al database attuale"
-
-#, fuzzy
-msgid "About contributors"
-msgstr "contributori GNUmed"
-
-#, fuzzy
-msgid "Show GNUmed contributors"
-msgstr "mostra chi ha contribuito a GNUmed"
-
-#, python-format
-msgid "Raise plugin [%s]."
-msgstr ""
-
-msgid "programmer forgot to specify status message"
-msgstr "Il programmatore ha dimenticato di specificare lo status del messaggio"
-
-msgid "The database will be shut down for maintenance in a few minutes."
-msgstr "Il database sarà arrestato per manutenzione nei prossimi minuti."
-
-msgid "Database shutdown warning"
-msgstr ""
-
-msgid ""
-"The database will be shut down for maintenance\n"
-"in a few minutes.\n"
-"\n"
-"In order to not suffer any loss of data you\n"
-"will need to save your current work and log\n"
-"out of this GNUmed client.\n"
-msgstr ""
-"Il database sarà arrestato per manutenzione\n"
-"in pochi minuti:\n"
-"\n"
-"In modo da non perdere nessun dato\n"
-"dovrai salvare il tuo lavoro corrente e\n"
-"eseguire il logout da questo client GNUmed.\n"
-
-msgid "Close now"
-msgstr "Chiudi adesso"
-
-msgid "Close this GNUmed client immediately."
-msgstr "Chiudi questo client GNUmed immediatamente."
-
-msgid "Finish work"
-msgstr "Lavoro terminato"
-
-msgid ""
-"Finish and save current work first, then manually close this GNUmed client."
-msgstr ""
-"Termina e salva dapprima il lavoro coorente, poi chiudi manualmente questo "
-"client GNUmed."
-
-msgid "Cannot run script after patient activation."
-msgstr "Non posso attivare lo script dopo l'attivazione del paziente."
-
-msgid ""
-"Before activation of another patient review the\n"
-"encounter details of the patient you just worked on:\n"
-msgstr ""
-
-msgid "Cannot write letter. No active patient."
-msgstr "Non posso scrivere la lettera. Nessun paziente attivo."
-
-#, fuzzy
-msgid "Cannot put screenshot into export area. No active patient."
-msgstr "Non posso iniziare una nuova consultazione. Nessun paziente attivo."
-
-#, fuzzy
-msgid "Cannot put screenshot into export area. No screenshot found."
-msgstr "Non posso iniziare una nuova consultazione. Nessun paziente attivo."
-
-#, fuzzy
-msgid "GMd screenshot"
-msgstr "Screenshot"
-
-#, python-format
-msgid ""
-"\n"
-"\n"
-" praxis:       %s\n"
-" branch:       %s\n"
-" workplace:    %s\n"
-" account:      %s\n"
-" locale:       %s\n"
-" access:       %s\n"
-" database:     %s\n"
-" server:       %s\n"
-" PostgreSQL:   %s\n"
-msgstr ""
-
-msgid "About database and server"
-msgstr ""
-
-msgid "GNUmed contributors"
-msgstr "contributori GNUmed"
-
-msgid ""
-"This will send a notification about database downtime\n"
-"to all GNUmed clients connected to your database.\n"
-"\n"
-"Do you want to send the notification ?\n"
-msgstr ""
-
-msgid "Announcing database maintenance downtime"
-msgstr ""
-
-msgid ""
-"Some network installations cannot cope with loading\n"
-"documents of arbitrary size in one piece from the\n"
-"database (mainly observed on older Windows versions)\n"
-".\n"
-"Under such circumstances documents need to be retrieved\n"
-"in chunks and reassembled on the client.\n"
-"\n"
-"Here you can set the size (in Bytes) above which\n"
-"GNUmed will retrieve documents in chunks. Setting this\n"
-"value to 0 will disable the chunking protocol."
-msgstr ""
-
-#, python-format
-msgid ""
-"Please select your database language from the list below.\n"
-"\n"
-"Your current setting is [%s].\n"
-"\n"
-"This setting will not affect the language the user interface\n"
-"is displayed in but rather that of the metadata returned\n"
-"from the database such as encounter types, document types,\n"
-"and EMR formatting.\n"
-"\n"
-"To switch back to the default English language unselect all\n"
-"pre-selected languages from the list below."
-msgstr ""
-
-msgid "not configured"
-msgstr ""
-
-msgid "Configuring database language"
-msgstr "Configura la lingua del database"
-
-#, python-format
-msgid ""
-"The database currently holds no translations for\n"
-"language [%s]. However, you can add translations\n"
-"for things like document or encounter types yourself.\n"
-"\n"
-"Do you want to force the language setting to [%s] ?"
-msgstr ""
-
-msgid ""
-"When GNUmed cannot find an OpenOffice server it\n"
-"will try to start one. OpenOffice, however, needs\n"
-"some time to fully start up.\n"
-"\n"
-"Here you can set the time for GNUmed to wait for OOo.\n"
-msgstr ""
-
-msgid ""
-"GNUmed will use this URL to access an encyclopedia of\n"
-"measurement/lab methods from within the measurments grid.\n"
-"\n"
-"You can leave this empty but to set it to a specific\n"
-"address the URL must be accessible now."
-msgstr ""
-
-#, python-format
-msgid "The command [%s] is not found. This may or may not be a problem."
-msgstr ""
-"Il comando [%s]non è stato trovato. Questo potrebbe, così come non potrebbe "
-"essere un problema."
-
-msgid ""
-"Enter the shell command with which to start the\n"
-"the ACS risk assessment calculator.\n"
-"\n"
-"GNUmed will try to verify the path which may,\n"
-"however, fail if you are using an emulator such\n"
-"as Wine. Nevertheless, starting the calculator\n"
-"will work as long as the shell command is correct\n"
-"despite the failing test."
-msgstr ""
-
-#, python-format
-msgid "The command [%s] is not found."
-msgstr ""
-
-msgid ""
-"Enter the shell command with which to start\n"
-"the FreeDiams drug database frontend.\n"
-"\n"
-"GNUmed will try to verify that path."
-msgstr ""
-
-msgid ""
-"Enter the shell command with which to start the\n"
-"the IFAP drug database.\n"
-"\n"
-"GNUmed will try to verify the path which may,\n"
-"however, fail if you are using an emulator such\n"
-"as Wine. Nevertheless, starting IFAP will work\n"
-"as long as the shell command is correct despite\n"
-"the failing test."
-msgstr ""
-
-msgid ""
-"Here you can choose which plugin you want\n"
-"GNUmed to display after initial startup.\n"
-"\n"
-"Note that the plugin must not require any\n"
-"patient to be activated.\n"
-"\n"
-"Select the desired plugin below:"
-msgstr ""
-
-msgid "Configuration"
-msgstr "Configurazione"
-
-msgid "GNUmed Plugin"
-msgstr "Plugin GNUmed"
-
-msgid ""
-"If there is only one external patient\n"
-"source available do you want GNUmed\n"
-"to immediately go ahead and search for\n"
-"matching patient records ?\n"
-"\n"
-"If not GNUmed will let you confirm the source."
-msgstr ""
-
-msgid "Yes, search for matches immediately."
-msgstr ""
-
-msgid "No, let me confirm the external patient first."
-msgstr ""
-
-#, python-format
-msgid ""
-"When a patient is activated GNUmed checks the\n"
-"proximity of the patient's birthday.\n"
-"\n"
-"If the birthday falls within the range of\n"
-" \"today %s <the interval you set here>\"\n"
-"GNUmed will remind you of the recent or\n"
-"imminent anniversary."
-msgstr ""
-
-msgid ""
-"When adding progress notes do you want to\n"
-"allow opening several unassociated, new\n"
-"episodes for a patient at once ?\n"
-"\n"
-"This can be particularly helpful when entering\n"
-"progress notes on entirely new patients presenting\n"
-"with a multitude of problems on their first visit."
-msgstr ""
-
-msgid "Yes, allow for multiple new episodes concurrently."
-msgstr "Sì, autorizza nuovi episodi multipli contemporaneamente."
-
-msgid "No, only allow editing one new episode at a time."
-msgstr "No, autorizza solo la modifica di un nuovo episodio per volta."
-
-msgid ""
-"When activating a patient, do you want GNUmed to\n"
-"auto-open editors for all active problems that were\n"
-"touched upon during the current and the most recent\n"
-"encounter ?"
-msgstr ""
-
-msgid "Yes, auto-open editors for all problems of the most recent encounter."
-msgstr ""
-
-msgid "No, only auto-open one editor for a new, unassociated problem."
-msgstr ""
-
-msgid ""
-"When editing progress notes, do you want GNUmed to\n"
-"show individual fields for each of the SOAP categories\n"
-"or do you want to use a text-editor like field for\n"
-"all SOAP categories which can then be set per line\n"
-"of input ?"
-msgstr ""
-
-msgid "Yes, show a dedicated field per SOAP category."
-msgstr ""
-
-msgid "No, use one field for all SOAP categories."
-msgstr ""
-
-msgid ""
-"When a patient is activated GNUmed can\n"
-"be told to switch to a specific plugin.\n"
-"\n"
-"Select the desired plugin below:"
-msgstr ""
-
-msgid ""
-"GNUmed will use this URL to let you browse\n"
-"billing catalogs (schedules of fees).\n"
-"\n"
-"You can leave this empty but to set it to a specific\n"
-"address the URL must be accessible now."
-msgstr ""
-
-#, python-format
-msgid ""
-"GNUmed will use this template to generate invoice IDs.\n"
-"\n"
-"If unset GNUmed will use the builtin format\n"
-" >>>%s<<<\n"
-"\n"
-"The template is processed according to Python\n"
-"String Formatting rules with dictionary data.\n"
-"\n"
-"The following placeholders can be used:\n"
-" %%(pk_pat)s - primary key of the patient\n"
-" %%(date)s - current date\n"
-" %%(time)s - current time\n"
-" %%(firstname)s - first names of patient\n"
-" %%(lastname)s - last names of patient\n"
-" %%(dob)s - date of birth of patient\n"
-" #counter# - replaced by a counter\n"
-"  - counting up from 1 to 999999 until the invoice ID is unique\n"
-"  - optional if %%(time)s is included\n"
-"\n"
-"Length modifiers are respected so that\n"
-"%%(lastname)4.4s will work as expected.\n"
-msgstr ""
-
-#, fuzzy
-msgid "Select the default prescription mode.\n"
-msgstr "Seleziona il tipo di default per le nuove consultazioni.\n"
-
-#, fuzzy
-msgid "Formular"
-msgstr "Da"
-
-#, fuzzy
-msgid "Datenbank"
-msgstr "Data"
-
-msgid ""
-"Select the default type for new encounters.\n"
-"\n"
-"Leaving this unset will make GNUmed apply the most commonly used type.\n"
-msgstr ""
-
-msgid ""
-"Do you want GNUmed to show the encounter\n"
-"details editor when changing the active patient ?"
-msgstr ""
-
-msgid "Yes, show the encounter editor if it seems appropriate."
-msgstr ""
-
-msgid "No, never show the encounter editor even if it would seem useful."
-msgstr ""
-
-msgid ""
-"When a patient is activated GNUmed checks the\n"
-"chart for encounters lacking any entries.\n"
-"\n"
-"Any such encounters older than what you set\n"
-"here will be removed from the medical record.\n"
-"\n"
-"To effectively disable removal of such encounters\n"
-"set this option to an improbable value.\n"
-msgstr ""
-
-msgid ""
-"When a patient is activated GNUmed checks the\n"
-"age of the most recent encounter.\n"
-"\n"
-"If that encounter is younger than this age\n"
-"the existing encounter will be continued.\n"
-"\n"
-"(If it is really old a new encounter is\n"
-" started, or else GNUmed will ask you.)\n"
-msgstr ""
-
-msgid ""
-"When a patient is activated GNUmed checks the\n"
-"age of the most recent encounter.\n"
-"\n"
-"If that encounter is older than this age\n"
-"GNUmed will always start a new encounter.\n"
-"\n"
-"(If it is very recent the existing encounter\n"
-" is continued, or else GNUmed will ask you.)\n"
-msgstr ""
-
-msgid ""
-"At any time there can only be one open (ongoing)\n"
-"episode for each health issue.\n"
-"\n"
-"When you try to open (add data to) an episode on a health\n"
-"issue GNUmed will check for an existing open episode on\n"
-"that issue. If there is any it will check the age of that\n"
-"episode. The episode is closed if it has been dormant (no\n"
-"data added, that is) for the period of time (in days) you\n"
-"set here.\n"
-"\n"
-"If the existing episode hasn't been dormant long enough\n"
-"GNUmed will consult you what to do.\n"
-"\n"
-"Enter maximum episode dormancy in DAYS:"
-msgstr ""
-
-msgid ""
-"If you want the GNUmed developers to be able to\n"
-"contact you directly - rather than via the public\n"
-"mailing list only - you can enter your preferred\n"
-"email address here.\n"
-"\n"
-"This address will then be included with bug reports\n"
-"or contributions to the GNUmed community you may\n"
-"choose to send from within the GNUmed client.\n"
-"\n"
-"Leave this blank if you wish to stay anonymous.\n"
-msgstr ""
-
-msgid "Please enter your email address."
-msgstr "Inserisci il tuo indirizzo email."
-
-msgid ""
-"Do you want GNUmed to check for updates at startup ?\n"
-"\n"
-"You will still need your system administrator to\n"
-"actually install any updates for you.\n"
-msgstr ""
-"Vuoi che il client GNUmed controlli se ci sono aggiornamenti all'avvio?\n"
-"\n"
-"Dovrai avere ancora il tuo amministratore di sistema per\n"
-"installare qualsiasi aggiornamento per te.\n"
-
-msgid "Yes, check for updates at startup."
-msgstr "Sì, controlla se ci sono aggiornamenti all'avvio."
-
-msgid "No, do not check for updates at startup."
-msgstr "No, non controllare se ci sono aggiornamenti all'avvio."
-
-msgid ""
-"When checking for updates do you want GNUmed to\n"
-"look for bug fix updates only or do you want to\n"
-"know about features updates, too ?\n"
-"\n"
-"Minor updates (x.y.z.a -> x.y.z.b) contain bug fixes\n"
-"only. They can usually be installed without much\n"
-"preparation. They never require a database upgrade.\n"
-"\n"
-"Major updates (x.y.a -> x..y.b or y.a -> x.b) come\n"
-"with new features. They need more preparation and\n"
-"often require a database upgrade.\n"
-"\n"
-"You will still need your system administrator to\n"
-"actually install any updates for you.\n"
-msgstr ""
-
-msgid "Yes, check for feature updates, too."
-msgstr ""
-
-msgid "No, check for bug-fix updates only."
-msgstr "No, controlla solo se ci sono degli aggiornamenti per dei bug-fix."
-
-msgid ""
-"GNUmed can check for new releases being available. To do\n"
-"so it needs to load version information from an URL.\n"
-"\n"
-"The default URL is:\n"
-"\n"
-" http://www.gnumed.de/downloads/gnumed-versions.txt\n"
-"\n"
-"but you can configure any other URL locally. Note\n"
-"that you must enter the location as a valid URL.\n"
-"Depending on the URL the client will need online\n"
-"access when checking for updates."
-msgstr ""
-
-msgid ""
-"Do you want to allow saving of new documents without\n"
-"any parts or do you want GNUmed to enforce that they\n"
-"contain at least one part before they can be saved ?\n"
-"\n"
-"Part-less documents can be useful if you want to build\n"
-"up an index of, say, archived documents but do not\n"
-"want to scan in all the pages contained therein."
-msgstr ""
-
-msgid "Yes, allow saving documents without any parts."
-msgstr ""
-
-msgid "No, require documents to have at least one part."
-msgstr ""
-
-msgid ""
-"After importing a new document do you\n"
-"want GNUmed to display the unique ID\n"
-"it auto-generated for that document ?\n"
-"\n"
-"This can be useful if you want to label the\n"
-"originals with that ID for later identification."
-msgstr ""
-
-msgid "Yes, display the ID generated for the new document after importing."
-msgstr ""
-"Sì, visualizza l'ID generato per il nuovo documento dopo l'importazione."
-
-msgid ""
-"No, do not display the ID generated for the new document after importing."
-msgstr ""
-"No, non visualizzare l'ID generato per il nuovo documento dopo "
-"l'importazione."
-
-msgid ""
-"After importing a new document do you\n"
-"want GNUmed to generate a unique ID\n"
-"(UUID) for that document ?\n"
-"\n"
-"This can be useful if you want to label the\n"
-"originals with that ID for later identification."
-msgstr ""
-
-#, fuzzy
-msgid "Yes, generate a UUID for the new document after importing."
-msgstr ""
-"Sì, visualizza l'ID generato per il nuovo documento dopo l'importazione."
-
-#, fuzzy
-msgid "No, do not generate a UUID for the new document after importing."
-msgstr ""
-"No, non visualizzare l'ID generato per il nuovo documento dopo "
-"l'importazione."
-
-msgid ""
-"GNUmed can show the document review dialog after\n"
-"calling the appropriate viewer for that document.\n"
-"\n"
-"Select the conditions under which you want\n"
-"GNUmed to do so:\n"
-"\n"
-" 0: never display the review dialog\n"
-" 1: always display the dialog\n"
-" 2: only if there is no previous review by me\n"
-" 3: only if there is no previous review at all\n"
-" 4: only if there is no review by the responsible reviewer\n"
-"\n"
-"Note that if a viewer is configured to not block\n"
-"GNUmed during document display the review dialog\n"
-"will actually appear in parallel to the viewer."
-msgstr ""
-
-msgid "Addresses (likely slow)"
-msgstr ""
-
-msgid "Dynamic automatic hints"
-msgstr ""
-
-msgid "Codes and their respective terms"
-msgstr ""
-
-#, fuzzy
-msgid "Communication channel types"
-msgstr "Rimuovo il canale di comunicazione"
-
-msgid "Organizations with their units, addresses, and comm channels"
-msgstr ""
-
-msgid "Measurements: diagnostic organizations (path labs, ...)"
-msgstr ""
-
-#, fuzzy
-msgid "Measurements: test types"
-msgstr "Misurazioni"
-
-msgid "Measurements: test panels/profiles/batteries"
-msgstr ""
-
-msgid "Document templates (forms, letters, plots, ...)"
-msgstr ""
-
-msgid "Document types"
-msgstr ""
-
-msgid "Encounter types"
-msgstr ""
-
-msgid "Keyword based text expansion macros"
-msgstr ""
-
-#, fuzzy
-msgid "Measurements: aggregate test types"
-msgstr "Gestisci le descrizioni"
-
-msgid "Patient tags"
-msgstr ""
-
-msgid "Provinces (counties, territories, states, regions, ...)"
-msgstr ""
-
-msgid "String translations in the database"
-msgstr ""
-
-#, fuzzy
-msgid "Medications: vaccines"
-msgstr "Lista farmaci"
-
-#, fuzzy
-msgid "Medications: base substances"
-msgstr "Lista farmaci"
-
-#, fuzzy
-msgid "Medications: substance dosage"
-msgstr "Lista farmaci"
-
-#, fuzzy
-msgid "Medications: drug components"
-msgstr "modifica misurazione"
-
-msgid "Medications: drug products and generic drugs"
-msgstr ""
-
-msgid "Workplace profiles (which plugins to load)"
-msgstr ""
-
-msgid "Billable items"
-msgstr ""
-
-#, fuzzy
-msgid "Reference data sources"
-msgstr "Informazioni di riferenza"
-
-msgid "Master data management"
-msgstr ""
-
-msgid "Select the list you want to manage:"
-msgstr ""
-
-msgid "No DICOM viewer found."
-msgstr "Nessun DICOM viewer trovato."
-
-msgid "risk assessment"
-msgstr ""
-
-msgid "cardiovascular risk assessment"
-msgstr ""
-
-#, python-format
-msgid "[arriba] XML result not found in [%s]"
-msgstr ""
-
-msgid "ACS risk assessment calculator not configured."
-msgstr ""
-
-#, python-format
-msgid "Cannot run [%s] !"
-msgstr ""
-
-#, python-format
-msgid "There was a problem accessing the [arriba] result in [%s] !"
-msgstr ""
-
-msgid "[-9999]: <access violation test error>"
-msgstr ""
-
-msgid ""
-"This is a deliberate AccessDenied exception thrown to test the handling of "
-"access violations by means of a decorator."
-msgstr ""
-
-msgid "testing access check for non-existant <admin> role"
-msgstr ""
-
-msgid ""
-"This is a deliberate AccessDenied exception. You should not see this message "
-"because the role is checked in a decorator."
-msgstr ""
-
-msgid "pgAdmin III not found."
-msgstr "pgAdmin III non trovato."
-
-msgid "Error reloading hook script."
-msgstr ""
-
-msgid "Save current log as..."
-msgstr "Salva il log corrente come..."
-
-msgid "log files"
-msgstr "log files"
-
-#, python-format
-msgid "Log file backed up as [%s]."
-msgstr ""
-
-msgid "Cannot start new encounter. No active patient."
-msgstr "Non posso iniziare una nuova consultazione. Nessun paziente attivo."
-
-msgid "Cannot list encounters. No active patient."
-msgstr ""
-
-msgid "Cannot add health issue. No active patient."
-msgstr ""
-
-#, fuzzy
-msgid "Cannot add episode. No active patient."
-msgstr "Non posso aggiungere la medicazione. Nesun paziente attivo."
-
-msgid "Cannot add medication. No active patient."
-msgstr "Non posso aggiungere la medicazione. Nesun paziente attivo."
-
-msgid "Cannot add allergy. No active patient."
-msgstr "Non posso aggiungere allergia. Nessun paziente attivo."
-
-msgid "Cannot manage performed procedures. No active patient."
-msgstr ""
-
-#, fuzzy
-msgid "Cannot manage hospitalizations. No active patient."
-msgstr "Non posso aggiungere allergia. Nessun paziente attivo."
-
-#, fuzzy
-msgid "Cannot manage external care. No active patient."
-msgstr "Non posso caricare i documenti. Nessun paziente attivo."
-
-msgid "Cannot edit occupation. No active patient."
-msgstr "Non posso modificare l'occupazione. Nessun paziente attivo."
-
-#, fuzzy
-msgid "manage vaccinations"
-msgstr "Ultime vaccinazioni"
-
-msgid "Cannot add vaccinations. No active patient."
-msgstr ""
-
-#, fuzzy
-msgid "Cannot manage vaccinations. No active patient."
-msgstr "Non posso aggiungere allergia. Nessun paziente attivo."
-
-#, fuzzy
-msgid "manage family history"
-msgstr "storia medica passata"
-
-#, fuzzy
-msgid "Cannot manage family history. No active patient."
-msgstr "Non posso aggiungere allergia. Nessun paziente attivo."
-
-#, fuzzy
-msgid "Cannot manage measurements. No active patient."
-msgstr "Non posso caricare i documenti. Nessun paziente attivo."
-
-msgid "calculate EDC"
-msgstr ""
-
-#, fuzzy
-msgid "manage suppressed hints"
-msgstr "Salva indirizzo"
-
-#, fuzzy
-msgid "Cannot manage suppressed hints. No active patient."
-msgstr "Non posso caricare i documenti. Nessun paziente attivo."
-
-#, fuzzy
-msgid "Cannot manage smoking status. No active patient."
-msgstr "Non posso caricare i documenti. Nessun paziente attivo."
-
-msgid "Cannot show EMR summary. No active patient."
-msgstr ""
-
-msgid "EMR Summary"
-msgstr ""
-
-msgid "Cannot export EMR. No active patient."
-msgstr ""
-
-#, fuzzy
-msgid "EMR as text document"
-msgstr "Documento di testo"
-
-#, fuzzy
-msgid "EMR as timeline file (XML)"
-msgstr "tutti i file"
-
-msgid "EMR as care structure file"
-msgstr ""
-
-#, fuzzy
-msgid "Cannot export EMR."
-msgstr "non posso attivare il paziente [%s] (%s/%s)"
-
-#, fuzzy
-msgid "Cannot export EMR journal by last modification time. No active patient."
-msgstr "Non posso aggiungere la medicazione. Nesun paziente attivo."
-
-msgid "Error exporting patient EMR as journal by last modification time."
-msgstr ""
-
-msgid "EMR journal export"
-msgstr ""
-
-msgid "EMR journal by last modification time"
-msgstr ""
-
-msgid "Cannot export EMR journal. No active patient."
-msgstr ""
-
-msgid "Error exporting patient EMR as chronological journal."
-msgstr ""
-
-#, fuzzy
-msgid "EMR journal by encounter"
-msgstr "giornale medico"
-
-msgid "Cannot add tag to person. No active patient."
-msgstr ""
-
-#, python-format
-msgid "Edit the comment on tag [%s]"
-msgstr ""
-
-msgid "Editing tag comment"
-msgstr ""
-
-msgid "Cannot export patient as GDT. No active patient."
-msgstr ""
-
-msgid "Exported demographics as GDT to clipboard."
-msgstr ""
-
-#, fuzzy
-msgid "Cannot export patient as VCARD. No active patient."
-msgstr "Non posso modificare l'occupazione. Nessun paziente attivo."
-
-msgid "Exported demographics as VCARD to clipboard."
-msgstr ""
-
-#, fuzzy
-msgid "Cannot export patient as XML (LinuxMedNews). No active patient."
-msgstr "Non posso modificare l'occupazione. Nessun paziente attivo."
-
-#, python-format
-msgid "Exported demographics to XML file [%s]."
-msgstr ""
-
-#, python-format
-msgid "Exported demographics to GDT file [%s]."
-msgstr ""
-
-#, python-format
-msgid "Exported demographics to VCARD file [%s]."
-msgstr ""
-
-msgid "Cannot add staff member. No active patient."
-msgstr "Non posso aggiungere un membro allo staff. Nessun paziente attivo."
-
-msgid "Cannot delete patient. No patient active."
-msgstr "Non posso cancellare il paziente. Nessun paziente attivo."
-
-msgid ""
-"You have to manually close this window to finalize shutting down GNUmed."
-msgstr ""
-
-msgid "This is so that you can inspect the console output at your leisure."
-msgstr ""
-
-msgid "no patient"
-msgstr "Nessun paziente"
-
-msgid "Statusbar history"
-msgstr ""
-
-#, python-format
-msgid ""
-"%s - now\n"
-"\n"
-"%s"
-msgstr ""
-
-msgid "GNUmed client"
-msgstr "client GNUmed"
-
-msgid "GNUmed stdout/stderr window"
-msgstr ""
-
-msgid "redirecting STDOUT/STDERR to this log window"
-msgstr ""
-
-#, python-format
-msgid ""
-"The database account [%s] cannot be used as a\n"
-"staff member login for GNUmed. There was an\n"
-"error retrieving staff details for it.\n"
-"\n"
-"Please ask your administrator for help.\n"
-msgstr ""
-
-msgid "Checking access permissions"
-msgstr "Controllo i permessi d'accesso"
-
-#, python-format
-msgid "Database <%s> on <%s>"
-msgstr ""
-
-#, python-format
-msgid "Branch \"%s\" of praxis \"%s\"\n"
-msgstr ""
-
-msgid "Verifying database"
-msgstr "Verifico database"
-
-msgid "Connect"
-msgstr ""
-
-msgid "Yes, connect to this database."
-msgstr ""
-
-msgid "Disconnect"
-msgstr ""
-
-msgid "No, do not connect to this database."
-msgstr ""
-
-#, python-format
-msgid ""
-"Cannot find configuration file in any of:\n"
-"\n"
-" %s\n"
-"You may need to use the comand line option\n"
-"\n"
-"\t--conf-file=<FILE>"
-msgstr ""
-
-msgid "Checking configuration files"
-msgstr "Controllo i files di configurazione"
-
-msgid "GNUmed startup"
-msgstr "Avvio GNUmed"
-
-#, python-format
-msgid ""
-"The currently selected database language ('%s') does\n"
-"not match the current system language ('%s').\n"
-"\n"
-"Do you want to set the database language to '%s' ?\n"
-msgstr ""
-
-msgid "Checking database language settings"
-msgstr "Controllo le impostazioni della lingua del database"
-
-#, python-format
-msgid "Set your database language to [%s]."
-msgstr "Imposta la lingua del tuo database a [%s]"
-
-msgid "Don't set"
-msgstr "Non impostare"
-
-msgid "Do not set your database language now."
-msgstr "Non impostare la lingua del database adesso."
-
-msgid "Remember to ignore language mismatch"
-msgstr ""
-
-#, python-format
-msgid ""
-"Checking this will make GNUmed remember your decision\n"
-"until the system language is changed.\n"
-"\n"
-"You can also reactivate this inquiry by removing the\n"
-"corresponding \"ignore\" option from the configuration file\n"
-"\n"
-" [%s]"
-msgstr ""
 
 msgid "THIS IS NOT A VERIFIED MEASUREMENT. DO NOT USE FOR ACTUAL CARE."
 msgstr ""
@@ -10408,6 +8581,22 @@ msgstr "Generici"
 msgid "Medication history"
 msgstr "Storico dei medicamenti"
 
+#, fuzzy
+msgid "medication, not abuse"
+msgstr "Lista farmaci"
+
+msgid "non-use or non-harmful use"
+msgstr ""
+
+msgid "presently harmful use"
+msgstr ""
+
+msgid "presently addicted"
+msgstr ""
+
+msgid "previously addicted"
+msgstr ""
+
 msgid "LOINCs to monitor:"
 msgstr ""
 
@@ -10496,11 +8685,8 @@ msgstr "Paziente"
 msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
 msgstr ""
 
-msgid "inactive"
-msgstr "non attivo"
-
 #, python-format
-msgid "Substance intake entry (%s)   [#%s]                     "
+msgid "Substance intake [#%s]                     "
 msgstr ""
 
 msgid "suspected"
@@ -10511,46 +8697,12 @@ msgid "Substance: %s   [#%s]"
 msgstr "Sostanza"
 
 #, fuzzy, python-format
-msgid "Preparation: %s"
-msgstr "Preparazione"
-
-#, python-format
-msgid "Amount per dose: %s %s"
-msgstr ""
-
-#, fuzzy, python-format
 msgid " ATC (substance): %s"
 msgstr "Aggiungi una sostanza."
 
 #, fuzzy, python-format
-msgid " Product name: %s   [#%s]"
-msgstr "Sostanza"
-
-#, fuzzy, python-format
-msgid " ATC (drug): %s"
-msgstr "Aggiungi una sostanza."
-
-#, fuzzy, python-format
-msgid "Other component: %s %s %s"
-msgstr "Componenti"
-
-#, fuzzy, python-format
-msgid "Intake: %s"
-msgstr ""
-"\n"
-" Prendi: %s"
-
-#, fuzzy, python-format
-msgid " Regimen: %s"
-msgstr "progressi, note"
-
-#, fuzzy, python-format
-msgid " Started %s%s"
-msgstr "Iniziata"
-
-#, fuzzy, python-format
-msgid " Reason: %s"
-msgstr "Versione:"
+msgid " Last checked %s"
+msgstr "Ultima modifica il: %s\n"
 
 #, fuzzy, python-format
 msgid " Episode: %s"
@@ -10568,81 +8720,11 @@ msgstr "Chiusa"
 msgid " Patient advice: %s"
 msgstr "Paziente"
 
-#, fuzzy
-msgid "medication, not abuse"
-msgstr "Lista farmaci"
-
-msgid "no or non-harmful use"
+#, fuzzy, python-format
+msgid "Intake: %s"
 msgstr ""
-
-msgid "presently harmful use"
-msgstr ""
-
-msgid "presently addicted"
-msgstr ""
-
-msgid "previously addicted"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "%s%s: %s ago%s"
-msgstr "&Zona:"
-
-#, fuzzy, python-format
-msgid "%s%s: %s ago (%s)"
-msgstr "%s%7s %s: %s (%s parte(i), %s)"
-
-#, fuzzy
-msgid "until today"
-msgstr "oggi (%s)"
-
-#, fuzzy, python-format
-msgid "until %s%s ago"
-msgstr "&Zona:"
-
-#, fuzzy, python-format
-msgid " [planned: %s]"
-msgstr "nessun paziente trovato per [%s]/%s"
-
-#, fuzzy, python-format
-msgid "%s%s%s (%s%s ago, in %s)"
-msgstr "%s%7s %s: %s (%s parte(i), %s)"
-
-#, fuzzy, python-format
-msgid "%s%s%s (%s%s ago, %s)"
-msgstr "%s%7s %s: %s (%s parte(i), %s)"
-
-#, fuzzy, python-format
-msgid "%s%s%s (in %s%s)"
-msgstr "%s%7s %s: %s (%s parte(i), %s)"
-
-#, fuzzy, python-format
-msgid "%s (documented)"
-msgstr " %s documenti\n"
-
-#, python-format
-msgid "%s (plan)"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "%s ago, in %s"
-msgstr "%d giorno/i fa - %s"
-
-#, fuzzy, python-format
-msgid "in %s, %s"
-msgstr "Chiusa"
-
-#, fuzzy, python-format
-msgid "%s ago = %s"
-msgstr "%d giorno/i fa - %s"
-
-#, fuzzy, python-format
-msgid "in %s = %s"
-msgstr "Chiusa"
-
-#, fuzzy
-msgid "today"
-msgstr "oggi (%s)"
+"\n"
+" Prendi: %s"
 
 msgid "Additional notes for healthcare professionals"
 msgstr ""
@@ -10683,8 +8765,162 @@ msgstr ""
 msgid "unit"
 msgstr "unità"
 
+#, fuzzy, python-format
+msgid "unknown use type [%s]"
+msgstr "stato test sconosciuto [%s]"
+
+#, fuzzy
+msgid "today"
+msgstr "oggi (%s)"
+
+#, fuzzy
+msgid "started today"
+msgstr "oggi (%s)"
+
+#, fuzzy
+msgid "yesterday"
+msgstr "ieri (%s)"
+
+msgid "started yesterday"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "started %s"
+msgstr "Iniziata"
+
+#, fuzzy, python-format
+msgid "started \"%s\""
+msgstr "Iniziata"
+
+#, fuzzy, python-format
+msgid "planned for %s"
+msgstr "nessun paziente trovato per [%s]/%s"
+
+#, fuzzy
+msgid "discontinued today"
+msgstr "Discontinuo"
+
+#, fuzzy
+msgid "discontinued yesterday"
+msgstr "Discontinuo"
+
+#, fuzzy, python-format
+msgid "discontinued %s %s"
+msgstr "Discontinuo"
+
+#, python-format
+msgid "after %s"
+msgstr ""
+
+#, python-format
+msgid "Intake revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
+msgstr ""
+
+#, python-format
+msgid "Regimen revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
+msgstr ""
+
+msgid "Inactive"
+msgstr "Inattivo"
+
+#, fuzzy, python-format
+msgid "%s intake of \"%s\""
+msgstr " %s documenti\n"
+
+#, fuzzy, python-format
+msgid "Amount: %s %s"
+msgstr "Appuntamenti: %s (%s - %s):"
+
+#, fuzzy, python-format
+msgid " Regimen: %s"
+msgstr "progressi, note"
+
+#, fuzzy, python-format
+msgid "Started: %s%s"
+msgstr "Iniziata"
+
+#, fuzzy, python-format
+msgid "Discontinued %s"
+msgstr "Discontinuo"
+
+#, fuzzy, python-format
+msgid " Reason: %s"
+msgstr "Versione:"
+
+#, fuzzy, python-format
+msgid " Own notes: %s"
+msgstr "Paziente"
+
+#, python-format
+msgid "Intake: #%(pk)s, rev %(row_ver)s, %(mod_when)s by %(mod_by)s."
+msgstr ""
+
+#, python-format
+msgid "Regimen: #%(pk)s, rev %(row_ver)s, %(mod_when)s by %(mod_by)s."
+msgstr ""
+
 #, python-format
 msgid "delivery unit%s"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "today%s (%s)"
+msgstr "oggi (%s)"
+
+#, fuzzy, python-format
+msgid "%s%s (%s+%s)"
+msgstr "%s%7s %s:%s (%s part(s)%s)"
+
+#, fuzzy, python-format
+msgid "%s%s%s (in %s%s)"
+msgstr "%s%7s %s: %s (%s parte(i), %s)"
+
+#, fuzzy, python-format
+msgid "%s%s (%s-%s,%s)"
+msgstr "%s%7s %s: %s (%s parte(i), %s)"
+
+#, fuzzy, python-format
+msgid "%s%s%s (%s%s ago, in %s)"
+msgstr "%s%7s %s: %s (%s parte(i), %s)"
+
+#, fuzzy, python-format
+msgid "%s%s%s (%s%s ago: %s)"
+msgstr "%s%7s %s: %s (%s parte(i), %s)"
+
+#, fuzzy, python-format
+msgid "%s ago, this year"
+msgstr "%s (%s quest'anno)"
+
+#, fuzzy, python-format
+msgid "in %s, this year"
+msgstr "%s (%s quest'anno)"
+
+#, fuzzy, python-format
+msgid "%s ago: %s"
+msgstr "%d giorno/i fa - %s"
+
+#, fuzzy, python-format
+msgid "in %s: %s"
+msgstr "Chiusa"
+
+#, fuzzy
+msgid "until today"
+msgstr "oggi (%s)"
+
+#, fuzzy, python-format
+msgid "until %s%s ago"
+msgstr "&Zona:"
+
+#, fuzzy, python-format
+msgid " [planned: %s]"
+msgstr "nessun paziente trovato per [%s]/%s"
+
+#, fuzzy, python-format
+msgid "%s (documented)"
+msgstr " %s documenti\n"
+
+#, python-format
+msgid "%s (plan)"
 msgstr ""
 
 #, fuzzy
@@ -10736,9 +8972,6 @@ msgstr "Chiusa"
 #, fuzzy
 msgid "Creator:"
 msgstr "Crea nuovo"
-
-msgid "Patient:"
-msgstr "Paziente:"
 
 #, fuzzy
 msgid "Clinical data:"
@@ -11007,45 +9240,6 @@ msgstr "Parola chiave"
 msgid " Owner: %s\n"
 msgstr "&Zona:"
 
-msgid "unknown gender"
-msgstr "sesso sconosciuto"
-
-msgid "male"
-msgstr "maschio"
-
-msgid "female"
-msgstr "femmina"
-
-msgid "child"
-msgstr "bambino"
-
-msgid "boy"
-msgstr "ragazzo"
-
-msgid "girl"
-msgstr "ragazza"
-
-msgid "animal"
-msgstr "animale"
-
-msgid "final"
-msgstr "finale"
-
-msgid "partial"
-msgstr "parziale"
-
-msgid "preliminary"
-msgstr "preliminare"
-
-msgid "already reported"
-msgstr "già riportato"
-
-msgid "corrected result"
-msgstr "risultato corretto"
-
-msgid "missing, reported later"
-msgstr "mancante, riportato in seguito"
-
 #, fuzzy, python-format
 msgid "cannot instantiate clinical root item <%s(%s)>"
 msgstr "non posso attivare il paziente [%s] (%s/%s)"
@@ -11055,24 +9249,6 @@ msgstr ""
 
 msgid "False"
 msgstr ""
-
-msgid "original entry"
-msgstr "voce originale"
-
-msgid "modified entry"
-msgstr "voce modificata"
-
-#, python-format
-msgid "%s: encounter (%s)"
-msgstr "%s: appuntamento (%s)"
-
-#, python-format
-msgid "health issue: %s"
-msgstr "problema di salute: %s"
-
-#, python-format
-msgid "episode     : %s"
-msgstr "episodio: %s"
 
 #, fuzzy, python-format
 msgid ""
@@ -11102,6 +9278,9 @@ msgstr " %s problemi noti. Di rilievo tra questi:\n"
 #, python-format
 msgid " %s known problems\n"
 msgstr " %s problemi noti\n"
+
+msgid "inactive"
+msgstr "non attivo"
 
 #, python-format
 msgid " %s encounters from %s to %s\n"
@@ -11144,6 +9323,10 @@ msgstr ""
 #, python-format
 msgid " (last confirmed %s)"
 msgstr " (ultimo %s confermato)"
+
+#, fuzzy
+msgid "allergy state not acquired"
+msgstr "Quando è stata confermata l'ultima analisi allergica."
 
 msgid "unknown reaction"
 msgstr "reazione sconosciuta"
@@ -11257,6 +9440,10 @@ msgstr ""
 msgid "SOAP_string_Administrative=Administrative"
 msgstr ""
 
+#, python-format
+msgid "%s (auto-import %s)"
+msgstr ""
+
 #, fuzzy
 msgid "Active clinical hint"
 msgstr "Problemi attuali"
@@ -11353,6 +9540,10 @@ msgid "Test result"
 msgstr "Risultati del test"
 
 #, fuzzy
+msgid "Substance intake"
+msgstr "Sostanza"
+
+#, fuzzy
 msgid "Substance intake regimen"
 msgstr "Sostanza"
 
@@ -11365,6 +9556,9 @@ msgid "Performed procedure"
 msgstr ""
 " %s interventi effettuati\n"
 "\n"
+
+msgid "Allergy"
+msgstr "Allergia"
 
 #, fuzzy
 msgid "Family history"
@@ -11512,6 +9706,15 @@ msgstr ""
 #, fuzzy, python-format
 msgid "invalid age: DOB [%s] after reference date [%s] (%s)"
 msgstr "data di morte non valida."
+
+msgid "male"
+msgstr "maschio"
+
+msgid "female"
+msgstr "femmina"
+
+msgid "unknown gender"
+msgstr "sesso sconosciuto"
 
 msgid "Mr"
 msgstr "Sig."
@@ -11834,28 +10037,6 @@ msgid ""
 "values:"
 msgstr ""
 
-msgid "The lab request already exists but belongs to a different patient."
-msgstr ""
-"La richiesta di laboratorio esiste già, ma appartiene ad un paziente "
-"differente."
-
-msgid "Verify which patient this lab request really belongs to."
-msgstr "Verificare a quale paziente appartiene questa richesta di laboratorio"
-
-#, python-format
-msgid ""
-"lab [%s], request ID [%s], expected link with patient [%s], currently linked "
-"to patient [%s]"
-msgstr ""
-"lab [%s], richiesta ID [%s], nesso atteso con paziente [%s], attualmente "
-"connesso al paziente [%s]"
-
-msgid "need lab request when inserting lab result"
-msgstr "necessaria richesta di laboratorio per inserire i risultati"
-
-msgid "error retrieving unreviewed lab results"
-msgstr "errore nel recupero risultati di laboratorio non riesaminati"
-
 #, fuzzy, python-format
 msgid "part %s, %s%s%s of document %s from %s%s"
 msgstr "Importato nuovo documento da [% s]."
@@ -11938,17 +10119,29 @@ msgstr "nome"
 msgid "last name"
 msgstr "Cognome"
 
+#, fuzzy
+msgid "name part"
+msgstr "qualunque parte del nome"
+
+#, fuzzy
+msgid "nickname"
+msgstr "Pseudonimo"
+
+#, fuzzy
+msgid "name parts"
+msgstr "qualunque parte del nome"
+
 msgid "LASTNAME and firstname"
 msgstr ""
+
+msgid "external patient ID"
+msgstr "ID esterno paziente"
 
 msgid "internal patient ID"
 msgstr "ID interno paziente"
 
 msgid "date of birth"
 msgstr "data di nascita"
-
-msgid "external patient ID"
-msgstr "ID esterno paziente"
 
 msgid "name, gender, date of birth"
 msgstr "nome, sesso, data di nascita"
@@ -11985,10 +10178,6 @@ msgstr "Cognome"
 #, fuzzy
 msgid "firstname"
 msgstr "nome"
-
-#, fuzzy
-msgid "nickname"
-msgstr "Pseudonimo"
 
 msgid "any name part"
 msgstr "qualunque parte del nome"
@@ -13326,6 +11515,9 @@ msgstr "&Salva"
 msgid "Save new note"
 msgstr "Incomincia una nuova consultazione"
 
+msgid "Discard"
+msgstr "Rifuita"
+
 #, fuzzy
 msgid "Change notification"
 msgstr "Indicazione"
@@ -13717,9 +11909,6 @@ msgstr ""
 msgid "Underweight"
 msgstr "Sottopeso"
 
-msgid "63< Normal >79"
-msgstr "63< Normale >79"
-
 msgid "63 - Normal - 79"
 msgstr "63 - Normale - 79"
 
@@ -14042,6 +12231,170 @@ msgid ""
 msgstr ""
 
 #, fuzzy
+msgid "Incoming document"
+msgstr "Mostro il documento"
+
+#, fuzzy
+msgid "Nothing selected for external display."
+msgstr "Nessun risultato selezionato per la rimozione."
+
+#, fuzzy
+msgid "Cannot display document externally."
+msgstr "Non posso aggiungere la descrizione al documento."
+
+#, fuzzy, python-format
+msgid ""
+"Cannot display document:\n"
+"%s"
+msgstr "Crea nuovo paziente"
+
+#, fuzzy
+msgid "displaying incoming document"
+msgstr "salvo il documento"
+
+#, fuzzy
+msgid "directory drop"
+msgstr "paziente"
+
+#, python-format
+msgid "Extracting files from folder [%s] ..."
+msgstr "Estraggo i files dalla cartella [%s] ..."
+
+#, fuzzy
+msgid "file drop"
+msgstr "File registro"
+
+#, fuzzy
+msgid "Add documents to incoming area:"
+msgstr "Modifica proprietà documento"
+
+msgid "from &scanner/camera"
+msgstr ""
+
+#, fuzzy
+msgid "from &disk"
+msgstr "&Zona:"
+
+#, fuzzy
+msgid "from &clipboard"
+msgstr "Muovi il paziente su."
+
+msgid "There is no scanner support installed on this machine."
+msgstr "Non c'è nessun supporto per lo scanner installato in questa macchina."
+
+msgid "Cannot find an active scanner."
+msgstr "Non posso trovare uno scanner attivo."
+
+msgid "Select an image capture device"
+msgstr "Seleziona un dispositivo per acquisire un'immagine"
+
+msgid "device selection"
+msgstr "Selezione del dispositivo"
+
+msgid "Device"
+msgstr "Dispositivo"
+
+#, python-format
+msgid "Data from [%s] already exists in incoming."
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Error importing [%s]."
+msgstr "Ultime vaccinazioni"
+
+msgid "No items [x] checked or highlighted."
+msgstr ""
+
+#, fuzzy
+msgid "other documents"
+msgstr "Allega documenti"
+
+#, fuzzy
+msgid "Some [x] checked items not associated with active patient."
+msgstr "Seleziona se questo è un problema attivo, in corso."
+
+#, fuzzy
+msgid "Highlighted item not associated with active patient."
+msgstr "Incomincia una nuova consultazione per il paziente attivo."
+
+msgid "Nothing [x] checked or highlighted for saving."
+msgstr ""
+
+msgid ""
+"Nothing [x] checked or highlighted for saving.\n"
+"\n"
+"Really save an empty document as a reference ?"
+msgstr ""
+
+msgid "saving document"
+msgstr "salvo il documento"
+
+#, fuzzy
+msgid "No document type selected."
+msgstr "Nessuna vaccinazione da cancellare."
+
+#, fuzzy
+msgid "No episode selected."
+msgstr "Modifica la seguente voce."
+
+#, fuzzy
+msgid "No reviewer selected."
+msgstr "Selezione del dispositivo"
+
+#, fuzzy
+msgid "Invalid date of generation."
+msgstr "data di morte non valida."
+
+#, fuzzy
+msgid "Irrevocably delete document from incoming area ?"
+msgstr "Cancella documento"
+
+#, fuzzy
+msgid "Deleting incoming document"
+msgstr "Cancella documento"
+
+#, fuzzy
+msgid "No patient linked to item."
+msgstr "Nessun risultato selezionato per la rimozione."
+
+msgid "No active patient."
+msgstr "Nessun paziente attivo"
+
+#, fuzzy
+msgid "No patient in search box."
+msgstr "Muovi il paziente su."
+
+msgid ""
+"No pages could be acquired from the source.\n"
+"\n"
+"This may mean the scanner driver is not properly installed.\n"
+"\n"
+"On Windows you must install the TWAIN Python module\n"
+"while on Linux and MacOSX it is recommended to install\n"
+"the XSane package."
+msgstr ""
+
+msgid "acquiring page"
+msgstr ""
+
+#, fuzzy
+msgid "imaging device"
+msgstr "Acquisisci dall'apparecchio d'immagini"
+
+msgid "Choose a file"
+msgstr "Scegli un file"
+
+msgid "all files (Win)"
+msgstr "tutti i file (Win)"
+
+#, fuzzy
+msgid "Imported files."
+msgstr "Importa da un file"
+
+msgid "clipboard"
+msgstr ""
+
+#, fuzzy
 msgid "Adding substance abuse"
 msgstr "Aggiungi una sostanza."
 
@@ -14145,11 +12498,11 @@ msgid "active substance abuse"
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s %s%s%s"
+msgid "%s %s%s"
 msgstr " Stato: %s, %s%s"
 
 #, fuzzy, python-format
-msgid "%s %s%s"
+msgid "%s %s%s%s"
 msgstr " Stato: %s, %s%s"
 
 #, python-format
@@ -14338,6 +12691,10 @@ msgid "You need to actually set an editor."
 msgstr ""
 
 #, python-format
+msgid "The command [%s] is not found."
+msgstr ""
+
+#, python-format
 msgid ""
 "Enter the shell command with which to start\n"
 "the image editor for visual progress notes.\n"
@@ -14367,9 +12724,6 @@ msgstr "Salva il dato inserito nel database."
 
 msgid "Files in the filesystem."
 msgstr ""
-
-msgid "Device"
-msgstr "Dispositivo"
 
 msgid "Image capture devices (scanners, cameras, etc)"
 msgstr ""
@@ -14513,9 +12867,6 @@ msgstr ""
 msgid "Select the patient documents to reference from the new document."
 msgstr ""
 
-msgid "template is missing"
-msgstr ""
-
 #, python-format
 msgid "invalid gender mapping layout: [%s]"
 msgstr ""
@@ -14568,12 +12919,19 @@ msgstr ""
 msgid "no external ID [%s] by [%s]"
 msgstr ""
 
+msgid "template is missing"
+msgstr ""
+
 #, fuzzy
 msgid "template is empty"
 msgstr "Tipo di modello"
 
 msgid "no primary in-praxis provider"
 msgstr ""
+
+#, fuzzy
+msgid "unobtained"
+msgstr "Continua"
 
 msgid "current_meds_for_rx: template is missing"
 msgstr ""
@@ -14747,22 +13105,34 @@ msgstr ""
 msgid "forced detach attempt"
 msgstr ""
 
-msgid "Requests generated this consultation"
-msgstr "Richieste generate da questa consultazione"
+#, fuzzy
+msgid "The preparation (form) of the substance or product."
+msgstr "L'obiettivo di consumo di questa sostanza."
 
-msgid "Request summary"
-msgstr "Sommario Richieste"
+#, fuzzy
+msgid "The substance the patient is taking."
+msgstr "Sostanza"
 
-msgid "icon_blood_sample"
+msgid ""
+"The substance the patient is taking\n"
+"\n"
+".You can enter/select a substance with or without a strength."
 msgstr ""
+
+#, fuzzy
+msgid "A drug product."
+msgstr "Modifica provincia"
+
+msgid "A substance with optional strength or a drug product."
+msgstr ""
+
+#, fuzzy
+msgid "Notes for the patient on this substance intake."
+msgstr ""
+"Eventuali note cliniche, commenti o istruzioni sull'assunzione di questa "
+"sostanza."
 
 msgid "icon_syringe"
-msgstr ""
-
-msgid "Preferred Name"
-msgstr "Nome preferito"
-
-msgid "icon-future_mom"
 msgstr ""
 
 msgid "Active Problems"
@@ -14783,118 +13153,94 @@ msgstr "&Riassunto"
 msgid "icon_clinical_summary"
 msgstr ""
 
-msgid "Prescriptions"
+msgid "No medication list template configured."
+msgstr ""
+
+msgid "There is no medication list template configured."
+msgstr ""
+
+msgid "Printing medication list"
+msgstr ""
+
+msgid "Problem loading medication list template."
+msgstr ""
+
+#, python-format
+msgid "Cannot load medication list template [%s - %s]"
+msgstr ""
+
+#, fuzzy
+msgid "generated medication list document"
+msgstr "Inserisci un commento sul documento."
+
+#, fuzzy
+msgid "Select the default prescription template:"
+msgstr "Seleziona il tipo di default per le nuove consultazioni.\n"
+
+msgid "No prescription template configured."
+msgstr ""
+
+msgid "There is no prescription template configured."
+msgstr ""
+
+#, fuzzy
+msgid "Printing prescription"
 msgstr "Prescrizioni"
 
-msgid "Requests"
-msgstr "Richieste"
+#, fuzzy
+msgid "Problem loading prescription template."
+msgstr "Elimino dal modello."
 
-msgid "Measurements"
-msgstr "Misurazioni"
+#, fuzzy, python-format
+msgid "Cannot load prescription template [%s - %s]"
+msgstr ""
+"Non posso creare il nuovo paziente:\n"
+"\n"
+" [%s %s (%s), %s]"
 
-msgid "Referrals"
-msgstr "Referenti"
+#, fuzzy
+msgid "generated prescription"
+msgstr "Prescrizioni"
 
-msgid "Recalls and Reviews"
-msgstr "Richiama e Recensiona"
-
-msgid "icon_Rx_symbol"
+msgid ""
+"These products have been prescribed but are not listed\n"
+"in the current medication list of this patient.\n"
+"\n"
+"Please select those you want added to the medication list."
 msgstr ""
 
-msgid "icon_Set_Square"
-msgstr ""
-
-msgid "icon_writing_pen"
-msgstr ""
-
-msgid "icon_talking_head"
-msgstr ""
-
-msgid "icon_inbox"
-msgstr "icona_inbox"
-
-msgid "Dose"
-msgstr "Dose"
-
-msgid "Last Date"
-msgstr "Ultima Data"
-
-msgid "Prescribed For"
+#, fuzzy
+msgid "Newly prescribed drugs"
 msgstr "Prescritto per"
 
-msgid "Quantity"
-msgstr "Quantità"
+#, fuzzy
+msgid "Add to medication list"
+msgstr "Stampa la lista di farmaci."
 
-msgid "First Date"
-msgstr "Prima Data"
+#, fuzzy
+msgid "Timeframe"
+msgstr "Ora:"
 
-msgid "icon_letter_A"
+msgid "Notes"
+msgstr "Note"
+
+#, fuzzy, python-format
+msgid "Patient: %s"
+msgstr "Paziente"
+
+#, fuzzy, python-format
+msgid "Internal: %s"
+msgstr ""
+"\n"
+" Prendi: %s"
+
+msgid "Cannot edit more than one substance at once."
 msgstr ""
 
-msgid "Drug Interactions"
-msgstr "Interazioni Farmacologiche"
-
-msgid "Items prescribed this consultation"
-msgstr "Elementi prescritti in questa consultazione"
-
-msgid "Directions"
-msgstr "Direzioni"
-
-msgid "For"
-msgstr "Per"
-
-msgid "Authority Indications"
-msgstr "Indicazioni Ministeriali"
-
-msgid "Interactions"
-msgstr "Interazioni"
-
-msgid "Pregnancy Information"
-msgstr "Informazioni Gravidanza"
-
-msgid "Restricted Use Information"
-msgstr "Utilizzo delle informazioni limitate"
-
-msgid "Edit Item"
-msgstr "Modifica Elemento"
-
-msgid "Delete Item"
-msgstr "Elimina Elemento"
-
-msgid "Delete all Items"
-msgstr "Elimina tutti gli Elementi"
-
-msgid "Make Item Reg 24"
+msgid "Cannot delete more than one substance at once."
 msgstr ""
 
-msgid "Brief Product Information"
-msgstr "Informazioni brevi sul prodotto"
-
-msgid "Full Product Information"
-msgstr "Informazioni complete sul prodotto"
-
-msgid "Print Single Item"
-msgstr "Stampa articolo singolo"
-
-msgid "Print All Items"
-msgstr "Stampa tutti gli articoli"
-
-msgid "Reprint Item"
-msgstr "Ristampa articolo"
-
-msgid "Reprint All Items"
-msgstr "Ristampa gli articoli"
-
-msgid "Save Item no print"
-msgstr "Salva l'articolo e non stampa"
-
-msgid "Save All Items no print"
-msgstr "Salva tutti gli articoli e non stampa"
-
-msgid "Change Font"
-msgstr "Cambia Carattere"
-
-msgid "Save list layout"
+msgid "Cannot create allergy from more than one substance at once."
 msgstr ""
 
 #, python-format
@@ -14939,6 +13285,9 @@ msgstr "Posto di lavoro"
 
 msgid "Option"
 msgstr "Opzioni"
+
+msgid "Configuration"
+msgstr "Configurazione"
 
 #, python-format
 msgid "Value [%s] not valid for option <%s>."
@@ -15247,9 +13596,6 @@ msgstr "Inizializza i campi dell'input per la nuova voce"
 msgid "Laterality"
 msgstr "Lateralità (destro o mancino)"
 
-msgid "Notes"
-msgstr "Note"
-
 msgid "Progress Note"
 msgstr ""
 
@@ -15286,18 +13632,6 @@ msgstr "deve avere un destinatario"
 
 msgid "must select address"
 msgstr "un indirizzo deve essere selezionato"
-
-msgid " (L) "
-msgstr " (S) "
-
-msgid "(R)"
-msgstr "(D)"
-
-msgid "Operation"
-msgstr "Operazione"
-
-msgid "Significant"
-msgstr "Significativo"
 
 msgid "Ok"
 msgstr "Ok"
@@ -15868,7 +14202,7 @@ msgstr "Crea nuovo"
 
 #, python-format
 msgid ""
-"Cannot find an existing invoice PDF for this bill.\n"
+"Patient on bill is not the active patient.\n"
 "\n"
 "Active patient: %s\n"
 "Patient on bill: #%s\n"
@@ -15916,6 +14250,10 @@ msgstr ""
 #, fuzzy
 msgid "Error generating invoice PDF."
 msgstr "Seleziona il tipo d'appuntamento"
+
+#, fuzzy
+msgid "Saving invoice"
+msgstr "Crea nuovo"
 
 msgid "Error printing the invoice."
 msgstr ""
@@ -16044,6 +14382,9 @@ msgid "Unbill"
 msgstr ""
 
 msgid "Select and remove items from a bill."
+msgstr ""
+
+msgid "Must select address (perhaps first add to patient) if closing bill."
 msgstr ""
 
 #, python-format
@@ -16588,6 +14929,21 @@ msgstr ""
 msgid "Removing communication channel"
 msgstr "Rimuovo il canale di comunicazione"
 
+#, fuzzy
+msgid "Image Preview"
+msgstr "tutti i file"
+
+msgid "File description/metadata appended"
+msgstr ""
+
+#, fuzzy
+msgid "No text content found."
+msgstr "Nessun paziente corrispondente trovato."
+
+#, fuzzy
+msgid "Text preview"
+msgstr "Il tuo esame"
+
 #, python-format
 msgid ""
 "There is no [%s] address registered with this patient.\n"
@@ -16637,6 +14993,24 @@ msgstr ""
 msgid "Removing address"
 msgstr "Rimuovi l'indirizzo"
 
+#, fuzzy, python-format
+msgid "GNUmed widget test: %s"
+msgstr "GNUmed report: %s"
+
+#, fuzzy
+msgid "GNUmed widget test"
+msgstr "GNUmed report results"
+
+msgid "not tolerated:"
+msgstr ""
+
+msgid "discontinued due to allergy or intolerance"
+msgstr ""
+
+#, fuzzy
+msgid "; not tolerated"
+msgstr "Edita l'occupazione primaria"
+
 msgid "Creating new allergy not allowed."
 msgstr "Non è permesso creare una nuova allergia"
 
@@ -16644,10 +15018,6 @@ msgid "&Restore"
 msgstr "&Ripristina"
 
 msgid "<allergy state unasked>"
-msgstr ""
-
-#, python-format
-msgid "invalid allergy state [%s]"
 msgstr ""
 
 #, fuzzy
@@ -16974,6 +15344,10 @@ msgid "Selected data saved to [%s]."
 msgstr "Imposta la lingua del tuo database a [%s]"
 
 #, fuzzy
+msgid "GMd screenshot"
+msgstr "Screenshot"
+
+#, fuzzy
 msgid "list"
 msgstr "Accetta"
 
@@ -16990,7 +15364,8 @@ msgstr "Versione %s riportata da"
 msgid "debug"
 msgstr ""
 
-msgid "Please visit http://www.gnumed.org"
+#, fuzzy
+msgid "Please visit https://www.gnumed.org"
 msgstr "Per favore visita http://www.gnumed.org"
 
 #, python-format
@@ -17072,6 +15447,9 @@ msgstr ""
 #, fuzzy
 msgid "Edit the encounter details of the active patient before moving on:"
 msgstr "Incomincia adesso una nuova consultazione per il paziente attivo"
+
+msgid "Cannot list encounters. No active patient."
+msgstr ""
 
 #, python-format
 msgid ""
@@ -17441,6 +15819,9 @@ msgid ""
 "  - list 10 most recently found persons\n"
 msgstr ""
 
+msgid "In case of emergency contact:"
+msgstr ""
+
 #, python-format
 msgid ""
 "Error searching for matching persons.\n"
@@ -17534,295 +15915,6 @@ msgstr "Ricerca pazienti..."
 msgid "<type here to search patient>"
 msgstr ""
 
-msgid "In case of emergency contact:"
-msgstr ""
-
-#, fuzzy
-msgid "The preparation (form) of the substance or product."
-msgstr "L'obiettivo di consumo di questa sostanza."
-
-#, fuzzy
-msgid "A drug product."
-msgstr "Modifica provincia"
-
-msgid "A substance with optional strength or a drug product."
-msgstr ""
-
-#, fuzzy
-msgid "The medical aim for consuming this substance."
-msgstr "L'obiettivo di consumo di questa sostanza."
-
-msgid "not tolerated:"
-msgstr ""
-
-msgid "discontinued due to allergy or intolerance"
-msgstr ""
-
-msgid "Documented an allergy"
-msgstr ""
-
-#, python-format
-msgid ""
-"An allergy was documented against the substance:\n"
-"\n"
-"  [%s]\n"
-"\n"
-"This substance was taken with the multi-component drug product:\n"
-"\n"
-"  [%s (%s)]\n"
-"\n"
-"Note that ALL components of this product were discontinued."
-msgstr ""
-
-msgid "Substances consumed by the patient"
-msgstr ""
-
-#, fuzzy
-msgid "Application"
-msgstr "Medicazione"
-
-msgid "never"
-msgstr ""
-
-#, python-format
-msgid "%s, last confirmed %s\n"
-msgstr ""
-
-#, python-format
-msgid "Comment (%s): %%s\n"
-msgstr ""
-
-msgid "reaction not recorded"
-msgstr ""
-
-#, fuzzy
-msgid "GFR: unknown"
-msgstr "Sconosciuta"
-
-msgid "GFR reported by path lab"
-msgstr ""
-
-#, fuzzy
-msgid "<no components>"
-msgstr "Componenti"
-
-#, fuzzy, python-format
-msgid "%s w/ %s%s%s of %s"
-msgstr " Stato: %s, %s%s"
-
-msgid "Adding substance intake entry"
-msgstr ""
-
-#, python-format
-msgid ""
-"The patient is already taking\n"
-"\n"
-" %s\n"
-"\n"
-"You will want to adjust the schedule\n"
-"rather than document the intake twice."
-msgstr ""
-
-msgid "Input incomplete/invalid for saving as substance intake."
-msgstr ""
-
-#, python-format
-msgid "Discontinued (%s) in the future (now: %s)!"
-msgstr ""
-
-#, python-format
-msgid "Discontinued (%s) before started (%s) !"
-msgstr ""
-
-#, fuzzy
-msgid "Cannot add duplicate of (maybe inactive) substance intake."
-msgstr "Non posso aggiungere la medicazione. Nesun paziente attivo."
-
-#, python-format
-msgid ""
-"This intake is part of a multi-component drug product:\n"
-"\n"
-" %s\n"
-"\n"
-"Really delete all intakes related to this drug product ?"
-msgstr ""
-
-msgid "Deleting medication / substance intake"
-msgstr ""
-
-#, python-format
-msgid ""
-"\n"
-"[%s]\n"
-"\n"
-"It may be prudent to edit (before deletion) the details\n"
-"of this substance intake entry so as to leave behind\n"
-"some indication of why it was deleted.\n"
-msgstr ""
-
-msgid "Allow editing of substance intake entry before deletion."
-msgstr ""
-
-msgid "Delete immediately without editing first."
-msgstr ""
-
-msgid "&Cancel"
-msgstr "&Annulla"
-
-msgid "Abort. Do not delete or edit substance intake entry."
-msgstr ""
-
-msgid "Now delete substance intake entry ?"
-msgstr ""
-
-msgid "Adding medication/non-medication substance intake"
-msgstr ""
-
-msgid "Editing medication/non-medication substance intake"
-msgstr ""
-
-msgid "Document an allergy against this substance."
-msgstr ""
-
-msgid "No medication list template configured."
-msgstr ""
-
-msgid "There is no medication list template configured."
-msgstr ""
-
-msgid "Printing medication list"
-msgstr ""
-
-msgid "Problem loading medication list template."
-msgstr ""
-
-#, python-format
-msgid "Cannot load medication list template [%s - %s]"
-msgstr ""
-
-#, fuzzy
-msgid "generated medication list document"
-msgstr "Inserisci un commento sul documento."
-
-#, fuzzy
-msgid "Select the default prescription template:"
-msgstr "Seleziona il tipo di default per le nuove consultazioni.\n"
-
-msgid "No prescription template configured."
-msgstr ""
-
-msgid "There is no prescription template configured."
-msgstr ""
-
-#, fuzzy
-msgid "Printing prescription"
-msgstr "Prescrizioni"
-
-#, fuzzy
-msgid "Problem loading prescription template."
-msgstr "Elimino dal modello."
-
-#, fuzzy, python-format
-msgid "Cannot load prescription template [%s - %s]"
-msgstr ""
-"Non posso creare il nuovo paziente:\n"
-"\n"
-" [%s %s (%s), %s]"
-
-#, fuzzy
-msgid "generated prescription"
-msgstr "Prescrizioni"
-
-msgid ""
-"These products have been prescribed but are not listed\n"
-"in the current medication list of this patient.\n"
-"\n"
-"Please select those you want added to the medication list."
-msgstr ""
-
-#, fuzzy
-msgid "Newly prescribed drugs"
-msgstr "Prescritto per"
-
-#, fuzzy
-msgid "Add to medication list"
-msgstr "Stampa la lista di farmaci."
-
-#, fuzzy
-msgid "Timeframe"
-msgstr "Ora:"
-
-#, python-format
-msgid "%s <fake>"
-msgstr ""
-
-msgid "Cannot edit more than one substance at once."
-msgstr ""
-
-msgid "Cannot delete more than one substance at once."
-msgstr ""
-
-msgid "Cannot create allergy from more than one substance at once."
-msgstr ""
-
-#, python-format
-msgid "Substance intake entry (%s)   [#%s]                     \n"
-msgstr ""
-
-msgid "active, needs check"
-msgstr ""
-
-msgid "assumed active"
-msgstr ""
-
-#, python-format
-msgid "Substance: %s   [#%s]\n"
-msgstr ""
-
-#, python-format
-msgid "Preparation: %s\n"
-msgstr ""
-
-#, python-format
-msgid " ATC (substance): %s\n"
-msgstr ""
-
-#, fuzzy, python-format
-msgid " Product name: %%s   [#%s]\n"
-msgstr "Episodio %s%s%s [#%s]"
-
-#, fuzzy, python-format
-msgid " ATC (drug): %s\n"
-msgstr "Aggiungi una sostanza."
-
-#, python-format
-msgid " Regimen: %s\n"
-msgstr ""
-
-#, fuzzy, python-format
-msgid " Started %s%s\n"
-msgstr "Iniziata"
-
-#, python-format
-msgid " Discontinued %s\n"
-msgstr ""
-
-#, python-format
-msgid " Reason: %s\n"
-msgstr ""
-
-#, python-format
-msgid " Aim: %s\n"
-msgstr ""
-
-#, python-format
-msgid " Episode: %s\n"
-msgstr ""
-
-#, python-format
-msgid " Advice: %s\n"
-msgstr ""
-
 msgid ""
 "\n"
 "Select the measurements panel to show in the medications plugin.\n"
@@ -17841,9 +15933,6 @@ msgid ""
 "\n"
 "If you leave this empty it will fall back\n"
 "to an URL for reporting ADRs in Germany."
-msgstr ""
-
-msgid "Drug product"
 msgstr ""
 
 msgid "EDC (!?!):"
@@ -17890,6 +15979,9 @@ msgstr "Nessun risultato d'esame da formattare."
 
 #, python-format
 msgid "eGFR: %.1f (%s)"
+msgstr ""
+
+msgid "GFR reported by path lab"
 msgstr ""
 
 msgid "Enter vaccination given"
@@ -18062,10 +16154,6 @@ msgstr "Selezionare l'episodio del quale si desidera spostare la narrazione."
 msgid "Number of entries to save: %s"
 msgstr ""
 
-#, fuzzy, python-format
-msgid "Patient: %s"
-msgstr "Paziente"
-
 msgid "Not sorted by list position, cannot move item."
 msgstr ""
 
@@ -18099,9 +16187,6 @@ msgstr "non posso attivare il paziente [%s] (%s/%s)"
 #, fuzzy
 msgid "Select the documents to be put into the export area:"
 msgstr "Selezionare l'episodio del quale si desidera spostare la narrazione."
-
-msgid "clipboard"
-msgstr ""
 
 msgid "Loading clipboard item (saved to file) into export area"
 msgstr ""
@@ -18376,10 +16461,6 @@ msgstr ""
 msgid "Cannot accept new documents. No active patient."
 msgstr "Non posso accettare nuovi documenti. Nessun paziente attivo."
 
-#, python-format
-msgid "Extracting files from folder [%s] ..."
-msgstr "Estraggo i files dalla cartella [%s] ..."
-
 msgid "Drag&Drop"
 msgstr ""
 
@@ -18458,6 +16539,9 @@ msgid ""
 "\n"
 " <%s>"
 msgstr ""
+
+msgid "OOo startup time"
+msgstr "Tempo di avvio OOo"
 
 msgid "No document template selected."
 msgstr ""
@@ -18592,9 +16676,6 @@ msgstr ""
 
 msgid "Cannot create new document."
 msgstr "Non posso creare un nuovo documento."
-
-msgid "saving document"
-msgstr "salvo il documento"
 
 #, fuzzy, python-format
 msgid "Imported new document from %s."
@@ -18759,131 +16840,17 @@ msgstr ""
 msgid "Acquiring images"
 msgstr ""
 
-msgid "directory dropped on client"
+msgid "Document part does not seem to exist in database !"
 msgstr ""
 
-msgid "file dropped on client"
-msgstr ""
-
-#, fuzzy
-msgid "other documents"
-msgstr "Allega documenti"
-
-msgid "path"
-msgstr ""
-
-msgid "No parts to save. Really save an empty document as a reference ?"
-msgstr ""
-
-msgid "No parts to save. Acquire some parts first."
-msgstr ""
-
-#, fuzzy, python-format
-msgid ""
-"Cannot access document part file:\n"
-"\n"
-" %s"
-msgstr ""
-"Non posso accedere al file xDT\n"
-"\n"
-" [%s]"
-
-msgid "No document type applied. Choose a document type"
-msgstr "Nessun tipo di documento applicato. Scegli un tipo di documento."
-
-msgid "You must select an episode to save this document under."
-msgstr "Devi selezionare un episodio per salvare questo documento in."
-
-msgid ""
-"You need to select from the list of staff members the doctor who is intended "
-"to sign the document."
-msgstr ""
-
-#, fuzzy
-msgid "Invalid date of generation."
-msgstr "data di morte non valida."
-
-msgid "There is no scanner support installed on this machine."
-msgstr "Non c'è nessun supporto per lo scanner installato in questa macchina."
-
-msgid "Cannot find an active scanner."
-msgstr "Non posso trovare uno scanner attivo."
-
-msgid "Select an image capture device"
-msgstr "Seleziona un dispositivo per acquisire un'immagine"
-
-msgid "device selection"
-msgstr "Selezione del dispositivo"
-
-msgid ""
-"No pages could be acquired from the source.\n"
-"\n"
-"This may mean the scanner driver is not properly installed.\n"
-"\n"
-"On Windows you must install the TWAIN Python module\n"
-"while on Linux and MacOSX it is recommended to install\n"
-"the XSane package."
-msgstr ""
-
-msgid "acquiring page"
-msgstr ""
-
-#, fuzzy
-msgid "captured by imaging device"
-msgstr "Acquisisci dall'apparecchio d'immagini"
-
-msgid "Choose a file"
-msgstr "Scegli un file"
-
-msgid "all files (Win)"
-msgstr "tutti i file (Win)"
-
-msgid "picked from storage media"
-msgstr ""
-
-#, fuzzy
-msgid "pasted from clipboard"
-msgstr "Muovi il paziente su."
-
-#, fuzzy
-msgid "No part selected for viewing."
-msgstr "Nessun risultato selezionato per la rimozione."
+msgid "showing document"
+msgstr "Mostro il documento"
 
 #, python-format
 msgid ""
 "Cannot display document part:\n"
 "%s"
 msgstr ""
-
-msgid "displaying part"
-msgstr ""
-
-#, fuzzy
-msgid "No part selected for removal."
-msgstr "Nessun risultato selezionato per la rimozione."
-
-msgid "Cannot add document description."
-msgstr "Non posso aggiungere la descrizione al documento."
-
-#, fuzzy
-msgid ""
-"Error setting \"reviewed\" status of new document. The document itself has "
-"been imported properly, however."
-msgstr "Errore assegnando \"rivisto\" al nuovo documento"
-
-#, python-format
-msgid ""
-"Source: %s\n"
-"File: %s\n"
-"\n"
-"%s"
-msgstr ""
-
-msgid "Document part does not seem to exist in database !"
-msgstr ""
-
-msgid "showing document"
-msgstr "Mostro il documento"
 
 #, fuzzy
 msgid "Patient document list"
@@ -19035,11 +17002,9 @@ msgstr "Seleziona il tipo d'appuntamento"
 msgid "Manage descriptions"
 msgstr "Gestisci le descrizioni"
 
-msgid "Error searching documents."
-msgstr ""
-
-msgid "loading document list"
-msgstr "carica la lista del documento"
+#, python-format
+msgid "part %2s"
+msgstr "parte %2s"
 
 #, fuzzy, python-format
 msgid "%s%7s %s:%s (%s)"
@@ -19048,6 +17013,12 @@ msgstr "%s%7s %s:%s (%s part(s)%s)"
 #, fuzzy, python-format
 msgid "%s%7s (%s):%s"
 msgstr "%s%7s %s:%s (%s part(s)%s)"
+
+msgid "Error searching documents."
+msgstr ""
+
+msgid "loading document list"
+msgstr "carica la lista del documento"
 
 #, fuzzy, python-format
 msgid "%s (unattributed episode)"
@@ -19068,10 +17039,6 @@ msgstr "&Zona:"
 #, fuzzy
 msgid "this praxis"
 msgstr "Il tuo esame"
-
-#, python-format
-msgid "part %2s"
-msgstr "parte %2s"
 
 msgid "Activate as current photo"
 msgstr "Attiva come foto attuale"
@@ -19457,28 +17424,29 @@ msgstr "Selezionare l'episodio del quale si desidera spostare la narrazione."
 msgid "Unable to save DICOM studies as ZIP."
 msgstr "un indirizzo deve essere selezionato"
 
-msgid "Adding PDF to DICOM study"
+#, fuzzy
+msgid "Adding file to DICOM study"
+msgstr "un indirizzo deve essere selezionato"
+
+msgid "For adding a file there must be exactly one (1) DICOM study selected."
 msgstr ""
 
-msgid ""
-"For adding a PDF file there must be exactly one (1) DICOM study selected."
-msgstr ""
-
-msgid "Select PDF to add to DICOM study"
-msgstr ""
+#, fuzzy
+msgid "Select file (image or PDF) to add to DICOM study"
+msgstr "Selezionare l'episodio del quale si desidera spostare la narrazione."
 
 #, fuzzy
 msgid "PDF files"
 msgstr "tutti i file"
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"Cannot turn PDF file\n"
+"Cannot turn file\n"
 "\n"
 " %s\n"
 "\n"
 " into DICOM file."
-msgstr ""
+msgstr "Non posso salvare la richiesta di laboratorio."
 
 #, python-format
 msgid "Successfully uploaded [%s] to Orthanc DICOM server."
@@ -19492,26 +17460,6 @@ msgid ""
 "\n"
 " into Orthanc PACS."
 msgstr ""
-
-#, fuzzy
-msgid "Adding file to DICOM study"
-msgstr "un indirizzo deve essere selezionato"
-
-msgid "For adding a file there must be exactly one (1) DICOM study selected."
-msgstr ""
-
-#, fuzzy
-msgid "Select file (image or PDF) to add to DICOM study"
-msgstr "Selezionare l'episodio del quale si desidera spostare la narrazione."
-
-#, fuzzy, python-format
-msgid ""
-"Cannot turn file\n"
-"\n"
-" %s\n"
-"\n"
-" into DICOM file."
-msgstr "Non posso salvare la richiesta di laboratorio."
 
 #, fuzzy, python-format
 msgid "%s image(s)%s"
@@ -19611,6 +17559,561 @@ msgid ""
 "Please refer to the log file."
 msgstr ""
 
+#, python-format
+msgid "You are logged in as %s%s.%s (%s). DB account <%s>."
+msgstr "Sei loggato come %s%s.%s (%s). DB account <%s>."
+
+msgid "&Go to plugin ..."
+msgstr ""
+
+msgid "Check for updates"
+msgstr "Verifica la disponibilità di nuovi aggiornamenti"
+
+msgid "Check for new releases of the GNUmed client."
+msgstr "Controlla se ci sono nuove versioni del client GNUmed"
+
+msgid "Announce downtime"
+msgstr ""
+
+msgid "Announce database maintenance downtime to all connected clients."
+msgstr ""
+
+#, fuzzy
+msgid "All options"
+msgstr "Opzioni"
+
+#, fuzzy
+msgid "List all options as configured in the database."
+msgstr ""
+"Questa lista mostra tutte le impostazioni di configurazione del database."
+
+msgid "Configure the database language"
+msgstr "Configura la lingua del database"
+
+msgid "Welcome message"
+msgstr "Messaggio di benvenuto"
+
+msgid "Configure the database welcome message (all users)."
+msgstr "Configura il messaggio di benvenuto del database (tutti gli utenti)."
+
+msgid "Database ..."
+msgstr "Database..."
+
+msgid "Export chunk size"
+msgstr ""
+
+msgid "Configure the chunk size used when exporting BLOBs from the database."
+msgstr ""
+
+msgid "Email address"
+msgstr "Indirizzo email"
+
+msgid "The email address of the user for sending bug reports, etc."
+msgstr "L'indirizzo email dello user per segnalare bug, ecc."
+
+msgid "Client parameters ..."
+msgstr "Parametri del client..."
+
+#, fuzzy
+msgid "Medication measurements"
+msgstr "modifica misurazione"
+
+msgid "Select the measurements panel to show in the medications plugin."
+msgstr ""
+
+#, fuzzy
+msgid "General measurements"
+msgstr "modifica misurazione"
+
+#, fuzzy
+msgid "Select the measurements panel to show in the top pane."
+msgstr "Un commento su questo paziente."
+
+msgid "Review dialog"
+msgstr ""
+
+msgid "Configure review dialog after document display."
+msgstr ""
+
+msgid "UUID display"
+msgstr ""
+
+msgid "Configure unique ID dialog on document import."
+msgstr ""
+
+msgid "Empty documents"
+msgstr "Documenti vuoti"
+
+msgid "Whether to allow saving documents without parts."
+msgstr ""
+
+msgid "Generate UUID"
+msgstr ""
+
+msgid "Whether to generate UUIDs for new documents."
+msgstr ""
+
+msgid "Document handling ..."
+msgstr ""
+
+msgid "Auto-check"
+msgstr "Auto-check"
+
+msgid "Whether to auto-check for updates at startup."
+msgstr ""
+
+msgid "Check scope"
+msgstr ""
+
+msgid "When checking for updates, consider latest branch, too ?"
+msgstr ""
+
+msgid "The URL to retrieve version information from."
+msgstr ""
+
+msgid "Update handling ..."
+msgstr ""
+
+msgid "Birthday reminder"
+msgstr "Ricordo del compleanno"
+
+msgid "Configure birthday reminder proximity interval."
+msgstr ""
+
+msgid "Immediate source activation"
+msgstr ""
+
+msgid "Configure immediate activation of single external person."
+msgstr ""
+
+msgid "Initial plugin"
+msgstr "Plugin iniziali"
+
+msgid "Configure which plugin to show right after person activation."
+msgstr ""
+
+msgid "Default region"
+msgstr ""
+
+msgid "Configure the default region for person creation."
+msgstr ""
+
+msgid "Default country"
+msgstr ""
+
+msgid "Configure the default country for person creation."
+msgstr ""
+
+msgid "Person ..."
+msgstr ""
+
+msgid "Multiple new episodes"
+msgstr ""
+
+msgid "Configure opening multiple new episodes on a patient at once."
+msgstr ""
+
+msgid "Auto-open editors"
+msgstr ""
+
+msgid "Configure auto-opening editors for recent problems."
+msgstr ""
+
+#, fuzzy
+msgid "SOAP fields"
+msgstr "campo XDT"
+
+msgid "Configure SOAP editor - individual SOAP fields vs text editor like"
+msgstr ""
+
+msgid "Progress notes handling ..."
+msgstr ""
+
+msgid "MI/stroke risk calc cmd"
+msgstr ""
+
+msgid "Set the command to start the CV risk calculator."
+msgstr ""
+
+msgid "Set the time to wait for OpenOffice to settle after startup."
+msgstr ""
+
+msgid "Measurements URL"
+msgstr ""
+
+msgid "URL for measurements encyclopedia."
+msgstr ""
+
+msgid "Drug data source"
+msgstr ""
+
+msgid "Select the drug data source."
+msgstr ""
+
+msgid "ADR URL"
+msgstr ""
+
+msgid "URL for reporting Adverse Drug Reactions."
+msgstr ""
+
+msgid "vaccADR URL"
+msgstr ""
+
+msgid "URL for reporting Adverse Drug Reactions to *vaccines*."
+msgstr ""
+
+msgid "Vacc plans URL"
+msgstr ""
+
+msgid "URL for vaccination plans."
+msgstr ""
+
+msgid "Visual SOAP editor"
+msgstr ""
+
+msgid "Set the command for calling the visual progress note editor."
+msgstr ""
+
+msgid "External tools ..."
+msgstr "Strumenti esterni..."
+
+#, fuzzy
+msgid "Invoice ID template"
+msgstr "Controllo se ci sono aggiornamenti per il client"
+
+#, fuzzy
+msgid "Set the template for generating invoice IDs."
+msgstr "Seleziona il tipo d'appuntamento"
+
+#, fuzzy
+msgid "Invoice template (no VAT)"
+msgstr "Controllo se ci sono aggiornamenti per il client"
+
+msgid "Select the template for printing an invoice without VAT."
+msgstr ""
+
+#, fuzzy
+msgid "Invoice template (with VAT)"
+msgstr "Selezione del dispositivo"
+
+msgid "Select the template for printing an invoice with VAT."
+msgstr ""
+
+#, fuzzy
+msgid "Catalogs URL"
+msgstr "fatale"
+
+msgid "URL for billing catalogs (schedules of fees)."
+msgstr ""
+
+msgid "Medication list template"
+msgstr ""
+
+msgid "Select the template for printing a medication list."
+msgstr ""
+
+#, fuzzy
+msgid "Prescription mode"
+msgstr "Prescrizioni"
+
+#, fuzzy
+msgid "Select the default mode for creating a prescription."
+msgstr "Seleziona il tipo di default per le nuove consultazioni.\n"
+
+#, fuzzy
+msgid "Prescription template"
+msgstr "Prescrizioni"
+
+#, fuzzy
+msgid "Select the template for printing a prescription."
+msgstr "Salvare la definizione del report."
+
+#, fuzzy
+msgid "Default Gnuplot template"
+msgstr "Elimino dal modello."
+
+#, fuzzy
+msgid "Select the default template for plotting test results."
+msgstr "Seleziona il tipo di default per le nuove consultazioni.\n"
+
+msgid "Fallback provider"
+msgstr ""
+
+msgid ""
+"Select the doctor to fall back to for patients without a primary provider."
+msgstr ""
+
+#, fuzzy
+msgid "Edit before patient change"
+msgstr "Modifica i cambiamenti del paziente"
+
+#, fuzzy
+msgid "Edit encounter details before change of patient."
+msgstr "Cambiando paziente modifica i dettagli della consultazione"
+
+msgid "Minimum duration"
+msgstr "Durata minima"
+
+msgid "Minimum duration of an encounter."
+msgstr ""
+
+msgid "Maximum duration"
+msgstr "Durata massima"
+
+msgid "Maximum duration of an encounter."
+msgstr "Massima durata di una consultazione"
+
+msgid "Minimum empty age"
+msgstr ""
+
+msgid "Minimum age of an empty encounter before considering for deletion."
+msgstr ""
+
+msgid "Default type"
+msgstr "Tipo predefinito"
+
+msgid "Default type for new encounters."
+msgstr "Tipo predefinito per nuove consultazioni"
+
+msgid "Encounter ..."
+msgstr "Consultazione..."
+
+msgid "Dormancy"
+msgstr ""
+
+msgid ""
+"Maximum length of dormancy after which an episode will be considered closed."
+msgstr ""
+
+msgid "Episode ..."
+msgstr "Episodio..."
+
+msgid "User interface ..."
+msgstr "Interfaccia utente..."
+
+msgid "EMR ..."
+msgstr ""
+
+msgid "Billing ..."
+msgstr ""
+
+msgid "Preferences ..."
+msgstr ""
+
+msgid "Manage lists"
+msgstr ""
+
+msgid "Manage various lists of master data."
+msgstr ""
+
+#, fuzzy
+msgid "Manage praxis"
+msgstr "Gestisci le descrizioni"
+
+msgid "Manage your praxis branches."
+msgstr ""
+
+msgid "Install data packs"
+msgstr ""
+
+msgid "Install reference data from data packs."
+msgstr ""
+
+msgid "Update ATC"
+msgstr ""
+
+msgid "Install ATC reference data."
+msgstr ""
+
+#, fuzzy
+msgid "Update LOINC"
+msgstr "Aggiorna"
+
+msgid "Download and install LOINC reference data."
+msgstr ""
+
+msgid "Create fake vaccines"
+msgstr ""
+
+msgid "Re-create fake generic vaccines."
+msgstr ""
+
+msgid "&Master data ..."
+msgstr ""
+
+msgid "&Add user"
+msgstr ""
+
+msgid "Add a new GNUmed user"
+msgstr ""
+
+msgid "&Edit users"
+msgstr ""
+
+msgid "Edit the list of GNUmed users"
+msgstr ""
+
+msgid "&Change DB owner PWD"
+msgstr ""
+
+#, fuzzy
+msgid "Change the password of the GNUmed database owner"
+msgstr "Non posso connettermi al proprietario del database GNUmed <gm-dbo>."
+
+msgid "&Users ..."
+msgstr ""
+
+msgid "E&xit\tAlt-X"
+msgstr "&Esci\tAlt-X"
+
+msgid "Close this GNUmed client."
+msgstr "Chiudi questo client GNUmed"
+
+#, fuzzy
+msgid "Search for a person."
+msgstr "La data di nascita per questa persona."
+
+msgid "&Register person"
+msgstr ""
+
+msgid "Register a new person with GNUmed"
+msgstr ""
+
+#, fuzzy
+msgid "From &External sources"
+msgstr "Codice esterno"
+
+msgid "Load and possibly create person from available external sources."
+msgstr ""
+
+msgid "&vCard file \\u2192 patient"
+msgstr ""
+
+msgid "Import demographics from .vcf vCard file as patient"
+msgstr ""
+
+msgid "Clipboard (&XML) \\u2192 patient"
+msgstr ""
+
+msgid "Import demographics from clipboard (LinuxMedNews XML) as patient"
+msgstr ""
+
+msgid "Clipboard (&vCard) \\u2192 patient"
+msgstr ""
+
+msgid "Import demographics from clipboard (vCard) as patient"
+msgstr ""
+
+msgid "Export demographics of currently active person as GDT into clipboard."
+msgstr ""
+
+msgid ""
+"Export demographics of currently active person as XML (LinuxMedNews) into "
+"clipboard"
+msgstr ""
+
+msgid "Export demographics of currently active person as vCard into clipboard"
+msgstr ""
+
+msgid "\\u2192 &Clipboard as\\u2026"
+msgstr ""
+
+msgid "Export demographics of currently active person into GDT file."
+msgstr ""
+
+msgid "Export demographics of currently active person into vCard file."
+msgstr ""
+
+msgid "\\u2192 &File as\\u2026"
+msgstr ""
+
+msgid "&Merge persons"
+msgstr ""
+
+msgid "Merge two persons into one."
+msgstr ""
+
+msgid "Deactivate record"
+msgstr "Disattiva record"
+
+msgid "Deactivate (exclude from search) person record in database."
+msgstr ""
+
+msgid "Add &tag"
+msgstr ""
+
+msgid "Add a text/image tag to this person."
+msgstr ""
+
+msgid "Enlist as user"
+msgstr ""
+
+msgid "Enlist current person as GNUmed user"
+msgstr ""
+
+msgid "&Past history (health issue / PMH)"
+msgstr ""
+
+msgid ""
+"Add a past/previous medical history item (health issue) to the EMR of the "
+"active patient"
+msgstr ""
+
+#, fuzzy
+msgid "&Episode"
+msgstr "Episodio"
+
+#, fuzzy
+msgid "Add an episode of illness to the EMR of the active patient"
+msgstr "Incomincia una nuova consultazione per il paziente attivo."
+
+msgid "&Medication"
+msgstr ""
+
+msgid "Add medication / substance use entry."
+msgstr ""
+
+msgid "&Allergies"
+msgstr "&Allergie"
+
+msgid "Manage documentation of allergies for the current patient."
+msgstr "Gestisci la documentazione delle allergie per il paziente corrente."
+
+msgid "&Occupation"
+msgstr "&Occupazione"
+
+msgid "Edit occupation details for the current patient."
+msgstr "Modifica i dettagli lavorativi per il paziente corrente."
+
+msgid "&Hospitalizations"
+msgstr ""
+
+#, fuzzy
+msgid "Manage hospitalizations."
+msgstr "Gestisci le descrizioni"
+
+#, fuzzy
+msgid "&External care"
+msgstr "Codice esterno"
+
+#, fuzzy
+msgid "Manage external care."
+msgstr "Gestisci le descrizioni"
+
+msgid "&Procedures"
+msgstr ""
+
+msgid "Manage procedures performed on the patient."
+msgstr ""
+
+#, fuzzy
+msgid "&Measurements"
+msgstr "Misurazioni"
+
+#, fuzzy
+msgid "Manage measurement results for the current patient."
+msgstr "Gestisci la documentazione delle allergie per il paziente corrente."
+
 #, fuzzy
 msgid "&Vaccinations: by date"
 msgstr "Vaccinazioni:"
@@ -19618,6 +18121,10 @@ msgstr "Vaccinazioni:"
 #, fuzzy
 msgid "Vaccinations ordered by date."
 msgstr "Nessuna vaccinazione da cancellare."
+
+#, fuzzy
+msgid "&Vaccinations: by indication"
+msgstr "&Vaccinazioni"
 
 #, fuzzy
 msgid "Vaccinations ordered by indication, showing all shots."
@@ -19628,6 +18135,121 @@ msgid "&Vaccinations: latest per indication"
 msgstr "&Vaccinazioni"
 
 msgid "Vaccinations ordered by indication, showing latest shot for each."
+msgstr ""
+
+msgid "&Family history (FHx)"
+msgstr ""
+
+#, fuzzy
+msgid "Manage family history."
+msgstr "storia medica passata"
+
+#, fuzzy
+msgid "&Encounters"
+msgstr "&Appuntamento"
+
+msgid "List all encounters including empty ones."
+msgstr ""
+
+msgid "&Pregnancy"
+msgstr ""
+
+msgid "Calculate EDC."
+msgstr ""
+
+#, fuzzy
+msgid "Suppressed hints"
+msgstr "progressi, note"
+
+msgid "Manage dynamic hints suppressed in this patient."
+msgstr ""
+
+#, fuzzy
+msgid "Substance abuse"
+msgstr "Sostanza"
+
+#, fuzzy
+msgid "Manage substance abuse documentation of this patient."
+msgstr "Un commento su questo paziente."
+
+#, fuzzy
+msgid "&Manage ..."
+msgstr "&Azioni ... "
+
+msgid "Search this EMR"
+msgstr ""
+
+msgid "Search for data in the EMR of the active patient"
+msgstr ""
+
+msgid "Start new encounter"
+msgstr "Incomincia una nuova consultazione"
+
+msgid "Start a new encounter for the active patient right now."
+msgstr "Incomincia adesso una nuova consultazione per il paziente attivo"
+
+#, fuzzy
+msgid "Statistics"
+msgstr ""
+"Statistiche EMR\n"
+"\n"
+
+msgid "Show a high-level statistic summary of the EMR."
+msgstr ""
+
+#, fuzzy
+msgid "Journal (encounters)"
+msgstr "Aggiungi una nuova persona"
+
+msgid ""
+"Copy EMR of the active patient as a chronological journal into export area"
+msgstr ""
+
+#, fuzzy
+msgid "Journal (mod time)"
+msgstr "Aggiungi una nuova persona"
+
+#, fuzzy
+msgid ""
+"Copy EMR of active patient as journal (by last modification time) into "
+"export area"
+msgstr "Non posso aggiungere la medicazione. Nesun paziente attivo."
+
+msgid "Text document"
+msgstr "Documento di testo"
+
+#, fuzzy
+msgid "Copy EMR of active patient as text document into export area"
+msgstr "Aggiungi una nuova persona"
+
+#, fuzzy
+msgid "Timeline file"
+msgstr "tutti i file"
+
+msgid "Copy EMR of active patient as timeline file (XML) into export area"
+msgstr ""
+
+#, fuzzy
+msgid "Care structure"
+msgstr "Problema di salute"
+
+msgid "Copy EMR of active patient as care structure text file into export area"
+msgstr ""
+
+#, fuzzy
+msgid "MEDISTAR import format (as file)"
+msgstr "Formato importazione MEDISTAR"
+
+msgid ""
+"GNUmed -> MEDISTAR. Save progress notes of active patient's active encounter "
+"into a text file."
+msgstr ""
+
+#, fuzzy
+msgid "Put into export area as ..."
+msgstr "Aggiungi una nuova persona"
+
+msgid "&EMR"
 msgstr ""
 
 #, fuzzy
@@ -19646,6 +18268,136 @@ msgstr "&Scrivi lettera"
 msgid "Write a generic letter for the current patient."
 msgstr "Scrivi una lettere per il paziente corrente."
 
+msgid "Screenshot -> export area"
+msgstr ""
+
+msgid "Put a screenshot into the patient export area."
+msgstr ""
+
+#, fuzzy
+msgid "List Placeholders"
+msgstr "erro com o placeholder [%s]"
+
+msgid "Show a list of all placeholders."
+msgstr ""
+
+msgid "&Correspondence"
+msgstr "&Corrispondenza"
+
+msgid "Search all EMRs"
+msgstr ""
+
+msgid "Search for data across the EMRs of all patients"
+msgstr ""
+
+msgid "no viewer installed"
+msgstr "nessun viewer installato"
+
+msgid "DICOM viewer"
+msgstr "DICOM viewer"
+
+#, python-format
+msgid ""
+"Start DICOM viewer (%s) for CD-ROM (X-Ray, CT, MR, etc). On Windows just "
+"insert CD."
+msgstr ""
+
+msgid "Snellen chart"
+msgstr "Grafico Snellen"
+
+msgid "Display fullscreen snellen chart."
+msgstr ""
+
+msgid "MI/stroke risk"
+msgstr ""
+
+msgid "Acute coronary syndrome/stroke risk assessment."
+msgstr ""
+
+#, python-format
+msgid "arriba: cardiovascular risk assessment (%s)."
+msgstr ""
+
+#, fuzzy
+msgid "Show HL7"
+msgstr "Mostra i messaggi:"
+
+#, fuzzy
+msgid "Show formatted data from HL7 file"
+msgstr "Carica i dati del modello da un file."
+
+msgid "Unwrap XML"
+msgstr ""
+
+msgid "Unwrap HL7 data from XML file (Excelleris, ...)"
+msgstr ""
+
+msgid "Stage HL7"
+msgstr ""
+
+#, fuzzy
+msgid "Stage HL7 data from file"
+msgstr "Carica i dati del modello da un file."
+
+#, fuzzy
+msgid "Browse pending"
+msgstr "Unire i pazienti"
+
+msgid "Browse pending (staged) incoming data"
+msgstr ""
+
+#, fuzzy
+msgid "Lab results ..."
+msgstr "Risultato di laboratorio"
+
+msgid "&Tools"
+msgstr "&Strumenti"
+
+msgid "&Database"
+msgstr ""
+
+msgid "Jump to the drug database configured as the default."
+msgstr ""
+
+msgid "Show \"kompendium.ch\" drug database (online, Switzerland)"
+msgstr "Mostra \"kompendium.ch\" database medicamenti (online, Svizzera)"
+
+msgid "&Drug Resources"
+msgstr ""
+
+msgid "Medical links (www)"
+msgstr "Links di medicina (www)"
+
+msgid "Show a page of links to useful medical content."
+msgstr ""
+
+msgid "&Knowledge"
+msgstr ""
+
+#, fuzzy
+msgid "&Audit trail"
+msgstr "Modifica dettagli"
+
+msgid "Display database audit trail."
+msgstr ""
+
+msgid "&Bills"
+msgstr ""
+
+msgid "List all bills across all patients."
+msgstr ""
+
+#, fuzzy
+msgid "&Organizations"
+msgstr "Organizzazione"
+
+#, fuzzy
+msgid "Manage organizations."
+msgstr "Gestisci le descrizioni"
+
+msgid "&Office"
+msgstr "&Office"
+
 #, fuzzy
 msgid "Documentation"
 msgstr "Documenti:"
@@ -19654,11 +18406,318 @@ msgstr "Documenti:"
 msgid "GNUmed documentation (online)"
 msgstr "Gestore eccezioni GNUmed"
 
+msgid "User manual (www)"
+msgstr "Manuale utente (www)"
+
+msgid "Go to the User Manual on the web."
+msgstr "Vai al manuale utente sul web."
+
+#, fuzzy
+msgid "Browse work dir"
+msgstr "Unire i pazienti"
+
+#, python-format
+msgid "Browse user working directory [%s]."
+msgstr ""
+
+msgid "Status line: &Clear"
+msgstr ""
+
+#, fuzzy
+msgid "Clear the status line."
+msgstr "&Cancella query"
+
+msgid "Status line: History"
+msgstr ""
+
+msgid "Show status line history."
+msgstr ""
+
+msgid "Tooltips on"
+msgstr ""
+
+msgid "Globally enable tooltips."
+msgstr ""
+
+msgid "Tooltips off"
+msgstr ""
+
+msgid "Globally (attempt to) disable tooltips."
+msgstr ""
+
+msgid "Screenshot"
+msgstr "Screenshot"
+
+msgid "Save a screenshot of this GNUmed client."
+msgstr "Salva uno screenshot di questo client GNUmed."
+
+msgid "Show log file"
+msgstr ""
+
+msgid "Show log file in text viewer."
+msgstr ""
+
+msgid "Backup log file"
+msgstr ""
+
+msgid "Backup content of the log to another file."
+msgstr ""
+
+msgid "Email log file"
+msgstr ""
+
+msgid "Send log file to the authors for help."
+msgstr ""
+
+#, fuzzy
+msgid "Browse tmp dir"
+msgstr "Unire i pazienti"
+
+#, python-format
+msgid "Browse temporary directory [%s]."
+msgstr ""
+
+msgid "Browse internal work dir"
+msgstr ""
+
+#, python-format
+msgid "Browse internal working directory [%s]."
+msgstr ""
+
+msgid "Bug tracker"
+msgstr ""
+
+msgid "Go to the GNUmed bug tracker on the web."
+msgstr ""
+
+msgid "Unlock mouse"
+msgstr "Sblocca mouse"
+
+msgid "Unlock mouse pointer in case it got stuck in hourglass mode."
+msgstr ""
+
+msgid "pgAdmin III"
+msgstr "pgAdmin III"
+
+msgid "pgAdmin III: Browse GNUmed database(s) in PostgreSQL server."
+msgstr "pgAdmin III: Mostra il/i database GNUmed nel server PostgreSQL."
+
 #, fuzzy
 msgid "Admin connection"
 msgstr "Aggiungi la descrizione del documento"
 
 msgid "Test connecting to the database as admin."
+msgstr ""
+
+#, fuzzy
+msgid "Lock/unlock patient search"
+msgstr "Blocca/sblocca paziente"
+
+#, fuzzy
+msgid "Lock/unlock patient search - USE ONLY IF YOU KNOW WHAT YOU ARE DOING !"
+msgstr ""
+"Blocca/sblocca paziente - UTILIZZA SOLO SE SAI QUELLO CHE STAI FACENDO!"
+
+msgid "Test error handling"
+msgstr ""
+
+msgid "Throw an exception to test error handling."
+msgstr ""
+
+msgid "Test access violation exception"
+msgstr ""
+
+msgid "Simulate an access violation exception."
+msgstr ""
+
+msgid "Test access checking"
+msgstr ""
+
+msgid "Simulate a failing access check."
+msgstr ""
+
+msgid "Invoke inspector"
+msgstr ""
+
+msgid "Invoke the widget hierarchy inspector (needs wxPython 2.8)."
+msgstr ""
+
+msgid "Test fault handler"
+msgstr ""
+
+msgid "Simulate a catastrophic fault (SIGSEGV)."
+msgstr ""
+
+#, fuzzy
+msgid "Test placeholder"
+msgstr "erro com o placeholder [%s]"
+
+#, fuzzy
+msgid "Manually test placeholders"
+msgstr "Gestisci le descrizioni"
+
+msgid "Debugging ..."
+msgstr "Debugging ..."
+
+msgid "About GNUmed"
+msgstr "Informazioni su GNUmed"
+
+msgid "About database"
+msgstr "Riguardo al database"
+
+msgid "Show information about the current database."
+msgstr "Mostra le informazioni riguardo al database attuale"
+
+#, fuzzy
+msgid "About contributors"
+msgstr "contributori GNUmed"
+
+#, fuzzy
+msgid "Show GNUmed contributors"
+msgstr "mostra chi ha contribuito a GNUmed"
+
+#, python-format
+msgid "Raise plugin [%s]."
+msgstr ""
+
+msgid "programmer forgot to specify status message"
+msgstr "Il programmatore ha dimenticato di specificare lo status del messaggio"
+
+msgid "The database will be shut down for maintenance in a few minutes."
+msgstr "Il database sarà arrestato per manutenzione nei prossimi minuti."
+
+msgid "Database shutdown warning"
+msgstr ""
+
+msgid ""
+"The database will be shut down for maintenance\n"
+"in a few minutes.\n"
+"\n"
+"In order to not suffer any loss of data you\n"
+"will need to save your current work and log\n"
+"out of this GNUmed client.\n"
+msgstr ""
+"Il database sarà arrestato per manutenzione\n"
+"in pochi minuti:\n"
+"\n"
+"In modo da non perdere nessun dato\n"
+"dovrai salvare il tuo lavoro corrente e\n"
+"eseguire il logout da questo client GNUmed.\n"
+
+msgid "Close now"
+msgstr "Chiudi adesso"
+
+msgid "Close this GNUmed client immediately."
+msgstr "Chiudi questo client GNUmed immediatamente."
+
+msgid "Finish work"
+msgstr "Lavoro terminato"
+
+msgid ""
+"Finish and save current work first, then manually close this GNUmed client."
+msgstr ""
+"Termina e salva dapprima il lavoro coorente, poi chiudi manualmente questo "
+"client GNUmed."
+
+msgid "Cannot run script after patient activation."
+msgstr "Non posso attivare lo script dopo l'attivazione del paziente."
+
+msgid ""
+"Before activation of another patient review the\n"
+"encounter details of the patient you just worked on:\n"
+msgstr ""
+
+msgid "Cannot write letter. No active patient."
+msgstr "Non posso scrivere la lettera. Nessun paziente attivo."
+
+#, fuzzy
+msgid "Cannot put screenshot into export area. No active patient."
+msgstr "Non posso iniziare una nuova consultazione. Nessun paziente attivo."
+
+#, fuzzy
+msgid "Cannot put screenshot into export area. No screenshot found."
+msgstr "Non posso iniziare una nuova consultazione. Nessun paziente attivo."
+
+#, python-format
+msgid ""
+"\n"
+"\n"
+" praxis:       %s\n"
+" branch:       %s\n"
+" workplace:    %s\n"
+" account:      %s\n"
+" locale:       %s\n"
+" access:       %s\n"
+" database:     %s\n"
+" server:       %s\n"
+" PostgreSQL:   %s\n"
+msgstr ""
+
+msgid "About database and server"
+msgstr ""
+
+msgid "GNUmed contributors"
+msgstr "contributori GNUmed"
+
+msgid ""
+"This will send a notification about database downtime\n"
+"to all GNUmed clients connected to your database.\n"
+"\n"
+"Do you want to send the notification ?\n"
+msgstr ""
+
+msgid "Announcing database maintenance downtime"
+msgstr ""
+
+msgid ""
+"Some network installations cannot cope with loading\n"
+"documents of arbitrary size in one piece from the\n"
+"database (mainly observed on older Windows versions)\n"
+".\n"
+"Under such circumstances documents need to be retrieved\n"
+"in chunks and reassembled on the client.\n"
+"\n"
+"Here you can set the size (in Bytes) above which\n"
+"GNUmed will retrieve documents in chunks. Setting this\n"
+"value to 0 will disable the chunking protocol."
+msgstr ""
+
+#, python-format
+msgid ""
+"Please select your database language from the list below.\n"
+"\n"
+"Your current setting is [%s].\n"
+"\n"
+"This setting will not affect the language the user interface\n"
+"is displayed in but rather that of the metadata returned\n"
+"from the database such as encounter types, document types,\n"
+"and EMR formatting.\n"
+"\n"
+"To switch back to the default English language unselect all\n"
+"pre-selected languages from the list below."
+msgstr ""
+
+msgid "not configured"
+msgstr ""
+
+msgid "Configuring database language"
+msgstr "Configura la lingua del database"
+
+#, python-format
+msgid ""
+"The database currently holds no translations for\n"
+"language [%s]. However, you can add translations\n"
+"for things like document or encounter types yourself.\n"
+"\n"
+"Do you want to force the language setting to [%s] ?"
+msgstr ""
+
+msgid ""
+"When GNUmed cannot find an OpenOffice server it\n"
+"will try to start one. OpenOffice, however, needs\n"
+"some time to fully start up.\n"
+"\n"
+"Here you can set the time for GNUmed to wait for OOo.\n"
 msgstr ""
 
 msgid ""
@@ -19669,8 +18728,513 @@ msgid ""
 "address the URL must be accessible now."
 msgstr ""
 
+#, python-format
+msgid "The command [%s] is not found. This may or may not be a problem."
+msgstr ""
+"Il comando [%s]non è stato trovato. Questo potrebbe, così come non potrebbe "
+"essere un problema."
+
+msgid ""
+"Enter the shell command with which to start the\n"
+"the ACS risk assessment calculator.\n"
+"\n"
+"GNUmed will try to verify the path which may,\n"
+"however, fail if you are using an emulator such\n"
+"as Wine. Nevertheless, starting the calculator\n"
+"will work as long as the shell command is correct\n"
+"despite the failing test."
+msgstr ""
+
+msgid ""
+"Enter the shell command with which to start\n"
+"the FreeDiams drug database frontend.\n"
+"\n"
+"GNUmed will try to verify that path."
+msgstr ""
+
+msgid ""
+"Enter the shell command with which to start the\n"
+"the IFAP drug database.\n"
+"\n"
+"GNUmed will try to verify the path which may,\n"
+"however, fail if you are using an emulator such\n"
+"as Wine. Nevertheless, starting IFAP will work\n"
+"as long as the shell command is correct despite\n"
+"the failing test."
+msgstr ""
+
+msgid ""
+"Here you can choose which plugin you want\n"
+"GNUmed to display after initial startup.\n"
+"\n"
+"Note that the plugin must not require any\n"
+"patient to be activated.\n"
+"\n"
+"Select the desired plugin below:"
+msgstr ""
+
+msgid "GNUmed Plugin"
+msgstr "Plugin GNUmed"
+
+msgid ""
+"If there is only one external patient\n"
+"source available do you want GNUmed\n"
+"to immediately go ahead and search for\n"
+"matching patient records ?\n"
+"\n"
+"If not GNUmed will let you confirm the source."
+msgstr ""
+
+msgid "Yes, search for matches immediately."
+msgstr ""
+
+msgid "No, let me confirm the external patient first."
+msgstr ""
+
+#, python-format
+msgid ""
+"When a patient is activated GNUmed checks the\n"
+"proximity of the patient's birthday.\n"
+"\n"
+"If the birthday falls within the range of\n"
+" \"today %s <the interval you set here>\"\n"
+"GNUmed will remind you of the recent or\n"
+"imminent anniversary."
+msgstr ""
+
+msgid ""
+"When adding progress notes do you want to\n"
+"allow opening several unassociated, new\n"
+"episodes for a patient at once ?\n"
+"\n"
+"This can be particularly helpful when entering\n"
+"progress notes on entirely new patients presenting\n"
+"with a multitude of problems on their first visit."
+msgstr ""
+
+msgid "Yes, allow for multiple new episodes concurrently."
+msgstr "Sì, autorizza nuovi episodi multipli contemporaneamente."
+
+msgid "No, only allow editing one new episode at a time."
+msgstr "No, autorizza solo la modifica di un nuovo episodio per volta."
+
+msgid ""
+"When activating a patient, do you want GNUmed to\n"
+"auto-open editors for all active problems that were\n"
+"touched upon during the current and the most recent\n"
+"encounter ?"
+msgstr ""
+
+msgid "Yes, auto-open editors for all problems of the most recent encounter."
+msgstr ""
+
+msgid "No, only auto-open one editor for a new, unassociated problem."
+msgstr ""
+
+msgid ""
+"When editing progress notes, do you want GNUmed to\n"
+"show individual fields for each of the SOAP categories\n"
+"or do you want to use a text-editor like field for\n"
+"all SOAP categories which can then be set per line\n"
+"of input ?"
+msgstr ""
+
+msgid "Yes, show a dedicated field per SOAP category."
+msgstr ""
+
+msgid "No, use one field for all SOAP categories."
+msgstr ""
+
+msgid ""
+"When a patient is activated GNUmed can\n"
+"be told to switch to a specific plugin.\n"
+"\n"
+"Select the desired plugin below:"
+msgstr ""
+
+msgid ""
+"GNUmed will use this URL to let you browse\n"
+"billing catalogs (schedules of fees).\n"
+"\n"
+"You can leave this empty but to set it to a specific\n"
+"address the URL must be accessible now."
+msgstr ""
+
+#, python-format
+msgid ""
+"GNUmed will use this template to generate invoice IDs.\n"
+"\n"
+"If unset GNUmed will use the builtin format\n"
+" >>>%s<<<\n"
+"\n"
+"The template is processed according to Python\n"
+"String Formatting rules with dictionary data.\n"
+"\n"
+"The following placeholders can be used:\n"
+" %%(pk_pat)s - primary key of the patient\n"
+" %%(date)s - current date\n"
+" %%(time)s - current time\n"
+" %%(firstname)s - first names of patient\n"
+" %%(lastname)s - last names of patient\n"
+" %%(dob)s - date of birth of patient\n"
+" #counter# - replaced by a counter\n"
+"  - counting up from 1 to 999999 until the invoice ID is unique\n"
+"  - optional if %%(time)s is included\n"
+"\n"
+"Length modifiers are respected so that\n"
+"%%(lastname)4.4s will work as expected.\n"
+msgstr ""
+
+#, fuzzy
+msgid "Select the default prescription mode.\n"
+msgstr "Seleziona il tipo di default per le nuove consultazioni.\n"
+
+#, fuzzy
+msgid "Formular"
+msgstr "Da"
+
+#, fuzzy
+msgid "Datenbank"
+msgstr "Data"
+
+msgid ""
+"Select the default type for new encounters.\n"
+"\n"
+"Leaving this unset will make GNUmed apply the most commonly used type.\n"
+msgstr ""
+
+msgid ""
+"Do you want GNUmed to show the encounter\n"
+"details editor when changing the active patient ?"
+msgstr ""
+
+msgid "Yes, show the encounter editor if it seems appropriate."
+msgstr ""
+
+msgid "No, never show the encounter editor even if it would seem useful."
+msgstr ""
+
+msgid ""
+"When a patient is activated GNUmed checks the\n"
+"chart for encounters lacking any entries.\n"
+"\n"
+"Any such encounters older than what you set\n"
+"here will be removed from the medical record.\n"
+"\n"
+"To effectively disable removal of such encounters\n"
+"set this option to an improbable value.\n"
+msgstr ""
+
+msgid ""
+"When a patient is activated GNUmed checks the\n"
+"age of the most recent encounter.\n"
+"\n"
+"If that encounter is younger than this age\n"
+"the existing encounter will be continued.\n"
+"\n"
+"(If it is really old a new encounter is\n"
+" started, or else GNUmed will ask you.)\n"
+msgstr ""
+
+msgid ""
+"When a patient is activated GNUmed checks the\n"
+"age of the most recent encounter.\n"
+"\n"
+"If that encounter is older than this age\n"
+"GNUmed will always start a new encounter.\n"
+"\n"
+"(If it is very recent the existing encounter\n"
+" is continued, or else GNUmed will ask you.)\n"
+msgstr ""
+
+msgid ""
+"At any time there can only be one open (ongoing)\n"
+"episode for each health issue.\n"
+"\n"
+"When you try to open (add data to) an episode on a health\n"
+"issue GNUmed will check for an existing open episode on\n"
+"that issue. If there is any it will check the age of that\n"
+"episode. The episode is closed if it has been dormant (no\n"
+"data added, that is) for the period of time (in days) you\n"
+"set here.\n"
+"\n"
+"If the existing episode hasn't been dormant long enough\n"
+"GNUmed will consult you what to do.\n"
+"\n"
+"Enter maximum episode dormancy in DAYS:"
+msgstr ""
+
+msgid ""
+"If you want the GNUmed developers to be able to\n"
+"contact you directly - rather than via the public\n"
+"mailing list only - you can enter your preferred\n"
+"email address here.\n"
+"\n"
+"This address will then be included with bug reports\n"
+"or contributions to the GNUmed community you may\n"
+"choose to send from within the GNUmed client.\n"
+"\n"
+"Leave this blank if you wish to stay anonymous.\n"
+msgstr ""
+
+msgid "Please enter your email address."
+msgstr "Inserisci il tuo indirizzo email."
+
+msgid ""
+"Do you want GNUmed to check for updates at startup ?\n"
+"\n"
+"You will still need your system administrator to\n"
+"actually install any updates for you.\n"
+msgstr ""
+"Vuoi che il client GNUmed controlli se ci sono aggiornamenti all'avvio?\n"
+"\n"
+"Dovrai avere ancora il tuo amministratore di sistema per\n"
+"installare qualsiasi aggiornamento per te.\n"
+
+msgid "Yes, check for updates at startup."
+msgstr "Sì, controlla se ci sono aggiornamenti all'avvio."
+
+msgid "No, do not check for updates at startup."
+msgstr "No, non controllare se ci sono aggiornamenti all'avvio."
+
+msgid ""
+"When checking for updates do you want GNUmed to\n"
+"look for bug fix updates only or do you want to\n"
+"know about features updates, too ?\n"
+"\n"
+"Minor updates (x.y.z.a -> x.y.z.b) contain bug fixes\n"
+"only. They can usually be installed without much\n"
+"preparation. They never require a database upgrade.\n"
+"\n"
+"Major updates (x.y.a -> x..y.b or y.a -> x.b) come\n"
+"with new features. They need more preparation and\n"
+"often require a database upgrade.\n"
+"\n"
+"You will still need your system administrator to\n"
+"actually install any updates for you.\n"
+msgstr ""
+
+msgid "Yes, check for feature updates, too."
+msgstr ""
+
+msgid "No, check for bug-fix updates only."
+msgstr "No, controlla solo se ci sono degli aggiornamenti per dei bug-fix."
+
+msgid ""
+"GNUmed can check for new releases being available. To do\n"
+"so it needs to load version information from an URL.\n"
+"\n"
+"The default URL is:\n"
+"\n"
+" https://www.gnumed.de/downloads/gnumed-versions.txt\n"
+"\n"
+"but you can configure any other URL locally. Note\n"
+"that you must enter the location as a valid URL.\n"
+"Depending on the URL the client will need online\n"
+"access when checking for updates."
+msgstr ""
+
+msgid ""
+"Do you want to allow saving of new documents without\n"
+"any parts or do you want GNUmed to enforce that they\n"
+"contain at least one part before they can be saved ?\n"
+"\n"
+"Part-less documents can be useful if you want to build\n"
+"up an index of, say, archived documents but do not\n"
+"want to scan in all the pages contained therein."
+msgstr ""
+
+msgid "Yes, allow saving documents without any parts."
+msgstr ""
+
+msgid "No, require documents to have at least one part."
+msgstr ""
+
+msgid ""
+"After importing a new document do you\n"
+"want GNUmed to display the unique ID\n"
+"it auto-generated for that document ?\n"
+"\n"
+"This can be useful if you want to label the\n"
+"originals with that ID for later identification."
+msgstr ""
+
+msgid "Yes, display the ID generated for the new document after importing."
+msgstr ""
+"Sì, visualizza l'ID generato per il nuovo documento dopo l'importazione."
+
+msgid ""
+"No, do not display the ID generated for the new document after importing."
+msgstr ""
+"No, non visualizzare l'ID generato per il nuovo documento dopo "
+"l'importazione."
+
+msgid ""
+"After importing a new document do you\n"
+"want GNUmed to generate a unique ID\n"
+"(UUID) for that document ?\n"
+"\n"
+"This can be useful if you want to label the\n"
+"originals with that ID for later identification."
+msgstr ""
+
+#, fuzzy
+msgid "Yes, generate a UUID for the new document after importing."
+msgstr ""
+"Sì, visualizza l'ID generato per il nuovo documento dopo l'importazione."
+
+#, fuzzy
+msgid "No, do not generate a UUID for the new document after importing."
+msgstr ""
+"No, non visualizzare l'ID generato per il nuovo documento dopo "
+"l'importazione."
+
+msgid ""
+"GNUmed can show the document review dialog after\n"
+"calling the appropriate viewer for that document.\n"
+"\n"
+"Select the conditions under which you want\n"
+"GNUmed to do so:\n"
+"\n"
+" 0: never display the review dialog\n"
+" 1: always display the dialog\n"
+" 2: only if there is no previous review by me\n"
+" 3: only if there is no previous review at all\n"
+" 4: only if there is no review by the responsible reviewer\n"
+"\n"
+"Note that if a viewer is configured to not block\n"
+"GNUmed during document display the review dialog\n"
+"will actually appear in parallel to the viewer."
+msgstr ""
+
+msgid "Addresses (likely slow)"
+msgstr ""
+
+msgid "Dynamic automatic hints"
+msgstr ""
+
+msgid "Codes and their respective terms"
+msgstr ""
+
+#, fuzzy
+msgid "Communication channel types"
+msgstr "Rimuovo il canale di comunicazione"
+
+msgid "Organizations with their units, addresses, and comm channels"
+msgstr ""
+
+msgid "Measurements: diagnostic organizations (path labs, ...)"
+msgstr ""
+
+#, fuzzy
+msgid "Measurements: test types"
+msgstr "Misurazioni"
+
+msgid "Measurements: test panels/profiles/batteries"
+msgstr ""
+
+msgid "Document templates (forms, letters, plots, ...)"
+msgstr ""
+
+msgid "Document types"
+msgstr ""
+
+msgid "Encounter types"
+msgstr ""
+
+msgid "Keyword based text expansion macros"
+msgstr ""
+
+#, fuzzy
+msgid "Measurements: aggregate test types"
+msgstr "Gestisci le descrizioni"
+
+msgid "Patient tags"
+msgstr ""
+
+msgid "Provinces (counties, territories, states, regions, ...)"
+msgstr ""
+
+msgid "String translations in the database"
+msgstr ""
+
+#, fuzzy
+msgid "Medications: vaccines"
+msgstr "Lista farmaci"
+
+#, fuzzy
+msgid "Medications: base substances"
+msgstr "Lista farmaci"
+
+#, fuzzy
+msgid "Medications: substance dosage"
+msgstr "Lista farmaci"
+
+#, fuzzy
+msgid "Medications: drug components"
+msgstr "modifica misurazione"
+
+msgid "Medications: drug products and generic drugs"
+msgstr ""
+
+msgid "Workplace profiles (which plugins to load)"
+msgstr ""
+
+msgid "Billable items"
+msgstr ""
+
+#, fuzzy
+msgid "Reference data sources"
+msgstr "Informazioni di riferenza"
+
+msgid "Master data management"
+msgstr ""
+
+msgid "Select the list you want to manage:"
+msgstr ""
+
+msgid "No DICOM viewer found."
+msgstr "Nessun DICOM viewer trovato."
+
+msgid "risk assessment"
+msgstr ""
+
+msgid "cardiovascular risk assessment"
+msgstr ""
+
+#, python-format
+msgid "[arriba] XML result not found in [%s]"
+msgstr ""
+
+msgid "ACS risk assessment calculator not configured."
+msgstr ""
+
+#, python-format
+msgid "Cannot run [%s] !"
+msgstr ""
+
+#, python-format
+msgid "There was a problem accessing the [arriba] result in [%s] !"
+msgstr ""
+
+msgid "[-9999]: <access violation test error>"
+msgstr ""
+
+msgid ""
+"This is a deliberate AccessDenied exception thrown to test the handling of "
+"access violations by means of a decorator."
+msgstr ""
+
 msgid "testing access check for non-existent <admin> role"
 msgstr ""
+
+msgid ""
+"This is a deliberate AccessDenied exception. You should not see this message "
+"because the role is checked in a decorator."
+msgstr ""
+
+msgid "pgAdmin III not found."
+msgstr "pgAdmin III non trovato."
 
 msgid "Test for connecting as database admin (owner)."
 msgstr ""
@@ -19678,6 +19242,243 @@ msgstr ""
 #, fuzzy
 msgid "Successfully connected as database owner."
 msgstr "Nuovo documento salvato con successo."
+
+msgid "Error reloading hook script."
+msgstr ""
+
+msgid "Save current log as..."
+msgstr "Salva il log corrente come..."
+
+msgid "log files"
+msgstr "log files"
+
+#, python-format
+msgid "Log file backed up as [%s]."
+msgstr ""
+
+msgid "Cannot start new encounter. No active patient."
+msgstr "Non posso iniziare una nuova consultazione. Nessun paziente attivo."
+
+msgid "Cannot add health issue. No active patient."
+msgstr ""
+
+#, fuzzy
+msgid "Cannot add episode. No active patient."
+msgstr "Non posso aggiungere la medicazione. Nesun paziente attivo."
+
+msgid "Cannot add medication. No active patient."
+msgstr "Non posso aggiungere la medicazione. Nesun paziente attivo."
+
+msgid "Cannot add allergy. No active patient."
+msgstr "Non posso aggiungere allergia. Nessun paziente attivo."
+
+msgid "Cannot manage performed procedures. No active patient."
+msgstr ""
+
+#, fuzzy
+msgid "Cannot manage hospitalizations. No active patient."
+msgstr "Non posso aggiungere allergia. Nessun paziente attivo."
+
+#, fuzzy
+msgid "Cannot manage external care. No active patient."
+msgstr "Non posso caricare i documenti. Nessun paziente attivo."
+
+msgid "Cannot edit occupation. No active patient."
+msgstr "Non posso modificare l'occupazione. Nessun paziente attivo."
+
+#, fuzzy
+msgid "manage vaccinations"
+msgstr "Ultime vaccinazioni"
+
+msgid "Cannot add vaccinations. No active patient."
+msgstr ""
+
+#, fuzzy
+msgid "Cannot manage vaccinations. No active patient."
+msgstr "Non posso aggiungere allergia. Nessun paziente attivo."
+
+#, fuzzy
+msgid "manage family history"
+msgstr "storia medica passata"
+
+#, fuzzy
+msgid "Cannot manage family history. No active patient."
+msgstr "Non posso aggiungere allergia. Nessun paziente attivo."
+
+#, fuzzy
+msgid "Cannot manage measurements. No active patient."
+msgstr "Non posso caricare i documenti. Nessun paziente attivo."
+
+msgid "calculate EDC"
+msgstr ""
+
+#, fuzzy
+msgid "manage suppressed hints"
+msgstr "Salva indirizzo"
+
+#, fuzzy
+msgid "Cannot manage suppressed hints. No active patient."
+msgstr "Non posso caricare i documenti. Nessun paziente attivo."
+
+#, fuzzy
+msgid "Cannot manage smoking status. No active patient."
+msgstr "Non posso caricare i documenti. Nessun paziente attivo."
+
+msgid "Cannot show EMR summary. No active patient."
+msgstr ""
+
+msgid "EMR Summary"
+msgstr ""
+
+msgid "Cannot export EMR. No active patient."
+msgstr ""
+
+#, fuzzy
+msgid "EMR as text document"
+msgstr "Documento di testo"
+
+#, fuzzy
+msgid "EMR as timeline file (XML)"
+msgstr "tutti i file"
+
+msgid "EMR as care structure file"
+msgstr ""
+
+#, fuzzy
+msgid "Cannot export EMR."
+msgstr "non posso attivare il paziente [%s] (%s/%s)"
+
+#, fuzzy
+msgid "Cannot export EMR journal by last modification time. No active patient."
+msgstr "Non posso aggiungere la medicazione. Nesun paziente attivo."
+
+msgid "Error exporting patient EMR as journal by last modification time."
+msgstr ""
+
+msgid "EMR journal export"
+msgstr ""
+
+msgid "EMR journal by last modification time"
+msgstr ""
+
+msgid "Cannot export EMR journal. No active patient."
+msgstr ""
+
+msgid "Error exporting patient EMR as chronological journal."
+msgstr ""
+
+#, fuzzy
+msgid "EMR journal by encounter"
+msgstr "giornale medico"
+
+msgid "Cannot add tag to person. No active patient."
+msgstr ""
+
+#, python-format
+msgid "Edit the comment on tag [%s]"
+msgstr ""
+
+msgid "Editing tag comment"
+msgstr ""
+
+msgid "Cannot export patient as GDT. No active patient."
+msgstr ""
+
+msgid "Exported demographics as GDT to clipboard."
+msgstr ""
+
+#, fuzzy
+msgid "Cannot export patient as VCARD. No active patient."
+msgstr "Non posso modificare l'occupazione. Nessun paziente attivo."
+
+msgid "Exported demographics as VCARD to clipboard."
+msgstr ""
+
+#, fuzzy
+msgid "Cannot export patient as XML (LinuxMedNews). No active patient."
+msgstr "Non posso modificare l'occupazione. Nessun paziente attivo."
+
+#, python-format
+msgid "Exported demographics to XML file [%s]."
+msgstr ""
+
+#, python-format
+msgid "Exported demographics to GDT file [%s]."
+msgstr ""
+
+#, python-format
+msgid "Exported demographics to VCARD file [%s]."
+msgstr ""
+
+msgid "Cannot add staff member. No active patient."
+msgstr "Non posso aggiungere un membro allo staff. Nessun paziente attivo."
+
+msgid "Cannot delete patient. No patient active."
+msgstr "Non posso cancellare il paziente. Nessun paziente attivo."
+
+msgid ""
+"You have to manually close this window to finalize shutting down GNUmed."
+msgstr ""
+
+msgid "This is so that you can inspect the console output at your leisure."
+msgstr ""
+
+msgid "no patient"
+msgstr "Nessun paziente"
+
+msgid "Statusbar history"
+msgstr ""
+
+#, python-format
+msgid ""
+"%s - now\n"
+"\n"
+"%s"
+msgstr ""
+
+msgid "GNUmed client"
+msgstr "client GNUmed"
+
+msgid "GNUmed STDOUT/STDERR window"
+msgstr ""
+
+msgid "redirecting STDOUT/STDERR to this log window"
+msgstr ""
+
+#, python-format
+msgid ""
+"The database account [%s] cannot be used as a\n"
+"staff member login for GNUmed. There was an\n"
+"error retrieving staff details for it.\n"
+"\n"
+"Please ask your administrator for help.\n"
+msgstr ""
+
+msgid "Checking access permissions"
+msgstr "Controllo i permessi d'accesso"
+
+#, python-format
+msgid "Database <%s> on <%s>"
+msgstr ""
+
+#, python-format
+msgid "Branch \"%s\" of praxis \"%s\"\n"
+msgstr ""
+
+msgid "Verifying database"
+msgstr "Verifico database"
+
+msgid "Connect"
+msgstr ""
+
+msgid "Yes, connect to this database."
+msgstr ""
+
+msgid "Disconnect"
+msgstr ""
+
+msgid "No, do not connect to this database."
+msgstr ""
 
 #, python-format
 msgid ""
@@ -19687,6 +19488,180 @@ msgid ""
 "You may need to use the command line option\n"
 "\n"
 "\t--conf-file=<FILE>"
+msgstr ""
+
+msgid "Checking configuration files"
+msgstr "Controllo i files di configurazione"
+
+msgid "GNUmed startup"
+msgstr "Avvio GNUmed"
+
+#, python-format
+msgid ""
+"The currently selected database language ('%s') does\n"
+"not match the current system language ('%s').\n"
+"\n"
+"Do you want to set the database language to '%s' ?\n"
+msgstr ""
+
+msgid "Checking database language settings"
+msgstr "Controllo le impostazioni della lingua del database"
+
+#, python-format
+msgid "Set your database language to [%s]."
+msgstr "Imposta la lingua del tuo database a [%s]"
+
+msgid "Don't set"
+msgstr "Non impostare"
+
+msgid "Do not set your database language now."
+msgstr "Non impostare la lingua del database adesso."
+
+msgid "Remember to ignore language mismatch"
+msgstr ""
+
+#, python-format
+msgid ""
+"Checking this will make GNUmed remember your decision\n"
+"until the system language is changed.\n"
+"\n"
+"You can also reactivate this inquiry by removing the\n"
+"corresponding \"ignore\" option from the configuration file\n"
+"\n"
+" [%s]"
+msgstr ""
+
+#, fuzzy
+msgid "Deleting substance intake"
+msgstr "Edita l'indirizzo"
+
+#, fuzzy, python-format
+msgid ""
+"Really delete substance intake ?\n"
+"\n"
+"%s"
+msgstr "Elimino i risultati del test"
+
+msgid "old"
+msgstr ""
+
+msgid "Substances consumed by the patient"
+msgstr ""
+
+#, fuzzy
+msgid "Time range"
+msgstr "Ora:"
+
+#, fuzzy
+msgid "Adding substance intake"
+msgstr "Aggiungi una sostanza."
+
+#, fuzzy
+msgid "Editing substance intake"
+msgstr "Edita l'indirizzo"
+
+msgid "Document an allergy against this substance."
+msgstr ""
+
+#, python-format
+msgid ""
+"\n"
+"[%s]\n"
+"\n"
+"It may be prudent to edit (before deletion) the details\n"
+"of this substance intake entry so as to leave behind\n"
+"some indication of why it was deleted.\n"
+msgstr ""
+
+msgid "Deleting medication"
+msgstr ""
+
+msgid "Allow editing of intake before deletion."
+msgstr ""
+
+msgid "Delete immediately without editing first."
+msgstr ""
+
+msgid "&Cancel"
+msgstr "&Annulla"
+
+msgid "Abort. Do not delete or edit intake."
+msgstr ""
+
+msgid "Now delete substance intake entry ?"
+msgstr ""
+
+msgid "Deleting medication / substance intake"
+msgstr ""
+
+msgid "never"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%s, last confirmed %s"
+msgstr " (ultimo %s confermato)"
+
+#, python-format
+msgid "Comment (%s): %%s"
+msgstr ""
+
+msgid "reaction not recorded"
+msgstr ""
+
+#, fuzzy
+msgid "GFR: unknown"
+msgstr "Sconosciuta"
+
+#, python-format
+msgid "Existing treatment regimens for %s"
+msgstr ""
+
+#, fuzzy
+msgid "Required: unit."
+msgstr "Campi obbligatori"
+
+msgid "Required: amount."
+msgstr ""
+
+msgid "Amount: must be a number."
+msgstr ""
+
+msgid "Amount: must be larger than zero."
+msgstr ""
+
+#, fuzzy
+msgid "Required: schedule"
+msgstr "Campi obbligatori"
+
+msgid "Required: start of intake (you may select [Unknown]"
+msgstr ""
+
+#, python-format
+msgid "Discontinued (%s) in the future (now: %s)"
+msgstr ""
+
+#, python-format
+msgid "Discontinued (%s) before started (%s)"
+msgstr ""
+
+#, fuzzy
+msgid "Required: episode"
+msgstr "Fonte episodio"
+
+#, fuzzy
+msgid "Required: substance"
+msgstr "Aggiungi una sostanza."
+
+#, python-format
+msgid "Patient already takes/took \"%s\". You may add a new regimen though."
+msgstr ""
+
+#, fuzzy
+msgid "Substance required."
+msgstr "Sostanza"
+
+#, python-format
+msgid "Intake of %s already documented. You may add a new regimen though"
 msgstr ""
 
 #, fuzzy
@@ -19920,9 +19895,13 @@ msgstr "%s (%s lo scorso anno)"
 msgid "last confirmed %s\n"
 msgstr ""
 
-#, python-format
-msgid "Comment (%s): %%s"
-msgstr ""
+#, fuzzy
+msgid "allergy state not obtained"
+msgstr "Stato allergico"
+
+#, fuzzy
+msgid "obtain"
+msgstr "Continua"
 
 #, python-format
 msgid " - expires %s"
@@ -20375,9 +20354,6 @@ msgid ""
 "from the vaccine management section !\n"
 msgstr ""
 
-msgid "Deleting medication"
-msgstr ""
-
 #, python-format
 msgid ""
 "Cannot delete the medication\n"
@@ -20403,15 +20379,6 @@ msgstr "Descrizione"
 #, fuzzy
 msgid "Substance is missing."
 msgstr "Descrizione"
-
-msgid "No EMR data loaded."
-msgstr ""
-
-msgid "EMR text dump"
-msgstr ""
-
-msgid "Currently there is no active patient. Cannot retrieve EMR text."
-msgstr ""
 
 #, fuzzy
 msgid "SOAP Editor Actions:"
@@ -21484,6 +21451,9 @@ msgstr ""
 msgid "Firstname(s)"
 msgstr "Nome/i"
 
+msgid "Preferred Name"
+msgstr "Nome preferito"
+
 msgid "Adding new name"
 msgstr "Aggiunta nuovo nome"
 
@@ -21832,9 +21802,6 @@ msgstr ""
 "Hai provato a loggarti come [%s] con la password [%s].\n"
 "Host:%s, DB: %s, Port: %s"
 
-msgid "No active patient."
-msgstr "Nessun paziente attivo"
-
 msgid ""
 "No image could be acquired from the source.\n"
 "\n"
@@ -21877,60 +21844,6 @@ msgstr ""
 msgid "Cannot set patient picture from [%s]."
 msgstr "Non posso selezionare la foto del paziente da [%s]."
 
-msgid "Head Office"
-msgstr ""
-
-msgid "Organisation"
-msgstr "Organizzazione"
-
-msgid "Office"
-msgstr "Ufficio"
-
-msgid "Zip"
-msgstr ""
-
-msgid "User1"
-msgstr "Utente1"
-
-msgid "User2"
-msgstr "Utente2"
-
-msgid "User3"
-msgstr "Utente3"
-
-msgid "Phone"
-msgstr "Telefono"
-
-msgid "Fax"
-msgstr "Fax"
-
-msgid "Email"
-msgstr ""
-
-msgid "Internet"
-msgstr "Internet"
-
-msgid "Mobile"
-msgstr ""
-
-msgid "Memo"
-msgstr ""
-
-msgid " Postal Address "
-msgstr " Indirizzo Postale "
-
-msgid "occupation"
-msgstr ""
-
-msgid "subdivision"
-msgstr ""
-
-msgid "&Contacts"
-msgstr ""
-
-msgid "Global Search Of Contacts Database"
-msgstr ""
-
 #, fuzzy
 msgid "Export Area"
 msgstr "Rapporto"
@@ -21955,11 +21868,8 @@ msgstr "Recensione"
 msgid "&Overview"
 msgstr "Recensione"
 
-msgid "Attach documents"
-msgstr "Allega documenti"
-
-msgid "&Attach documents"
-msgstr "&Allega documenti"
+msgid "Measurements"
+msgstr "Misurazioni"
 
 msgid "AU Vacc"
 msgstr ""
@@ -22023,59 +21933,17 @@ msgstr ""
 msgid "Show &cardiac devices"
 msgstr ""
 
+msgid "Incoming"
+msgstr ""
+
+msgid "&Attach documents"
+msgstr "&Allega documenti"
+
 msgid "Reports"
 msgstr "Rapporti"
 
 msgid "&Report Generator"
 msgstr "&Genera Report"
-
-msgid "No matching drug found."
-msgstr "Nessun farmaco corrispondente."
-
-msgid "Please enter at least three digits of the drug name."
-msgstr "Si prega di inserire almeno tre cifre del nome del farmaco"
-
-msgid "Starting drug data browser"
-msgstr "Avvio browser dati dei farmaci"
-
-msgid ""
-"Cannot start the drug data browser.\n"
-"\n"
-"There is no drug database specified in the configuration."
-msgstr ""
-"Impossibile avviare il browser dati dei farmaci.\n"
-"\n"
-"Manca una banca dati farmaci specificata nella configurazione."
-
-msgid "   Find   "
-msgstr "   Cerca   "
-
-msgid "Enter the name of the drug you are interested in"
-msgstr "Inserisci il nome del farmaco cui sei interessato"
-
-msgid "&Bookmark"
-msgstr "&Segnalibro"
-
-msgid "Search by"
-msgstr "Cerca per"
-
-msgid "Any"
-msgstr "Qualunque"
-
-msgid "Generic name"
-msgstr "Nome generico"
-
-msgid "&Prescribe"
-msgstr "&Prescrivi"
-
-msgid "&Display"
-msgstr "&Mostra"
-
-msgid "DrugBrowser"
-msgstr ""
-
-msgid "&DrugBrowser"
-msgstr ""
 
 msgid "Progress notes"
 msgstr "Progressi, note"
@@ -22105,49 +21973,13 @@ msgstr "&Lista d'attesa"
 msgid "Medication"
 msgstr "Medicazione"
 
-msgid "Type of entered value is not compatible with type expected."
-msgstr ""
-
-msgid "saving configuration"
-msgstr ""
-
-msgid ""
-"There is no config definition for this parameter.\n"
-"Thus it can't be checked for validity.\n"
-"\n"
-"Save anyway ?"
-msgstr ""
-
-msgid "Entered value is not valid."
-msgstr ""
-
-msgid "(Branch)"
-msgstr ""
-
-msgid "(Subtree root)"
-msgstr ""
-
-msgid "<Options for current/default user and workplace>"
-msgstr ""
-
-msgid "Parameters"
-msgstr ""
-
-msgid "Parameter Description"
-msgstr ""
-
-msgid "Config Options"
-msgstr ""
-
-msgid "Setup"
-msgstr ""
-
-msgid "&ConfigRegistry"
-msgstr ""
-
 #, fuzzy
 msgid "&Documents"
 msgstr "Documenti"
+
+#, fuzzy
+msgid "Messages"
+msgstr "Mostra i messaggi:"
 
 msgid "Provider &inbox"
 msgstr "Provider &inbox"
@@ -22189,12 +22021,6 @@ msgstr "Codifica mancante nel file xDT. Presumo [%s]."
 
 msgid "name of xDT file"
 msgstr "nome del file xDT"
-
-msgid "XDT field"
-msgstr "campo XDT"
-
-msgid "XDT field content"
-msgstr "Xdt campo dei contenuti"
 
 msgid "xDT viewer"
 msgstr "Visualizzatore xDT"
@@ -22238,21 +22064,6 @@ msgstr "&Note"
 msgid "Billing"
 msgstr ""
 
-msgid "Clinical"
-msgstr "Clinico"
-
-msgid "Error processing form"
-msgstr "Errore processando il modulo"
-
-msgid "You must select a form and type"
-msgstr "È necessario selezionare un modulo e il tipo"
-
-msgid "Missing field"
-msgstr "Campo mancante"
-
-msgid "&Request"
-msgstr "&Richieste"
-
 msgid "Template Plugin"
 msgstr ""
 
@@ -22262,6 +22073,10 @@ msgstr ""
 #, fuzzy
 msgid "Find text"
 msgstr "non attivo"
+
+#, fuzzy
+msgid "translated string"
+msgstr "Traduzione"
 
 msgid "gm_ctl_client: starting slave GNUmed client"
 msgstr "gm_ctl_client: il client GNUmed sta partendo"
@@ -22296,6 +22111,473 @@ msgstr "Annulla"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Annulla e NON connetti a GNUmed"
+
+#~ msgid "Unapproved"
+#~ msgstr "Non Approvato"
+
+#~ msgid "&Interactions?"
+#~ msgstr "&Interazioni?"
+
+#~ msgid "Remove a substance from the list."
+#~ msgstr "Rimuovere una sostanza dalla lista."
+
+#~ msgid "&Scan page(s)"
+#~ msgstr "&Scansione pagina/e"
+
+#~ msgid "Pick &file(s)"
+#~ msgstr "Prendi &file(s)"
+
+#~ msgid "Intended reviewer:"
+#~ msgstr "Esaminatore previsto:"
+
+#, fuzzy
+#~ msgid "Load the topmost item from the clipboard."
+#~ msgstr "Rimuovi la/le voce/i selezionata/e dalla lista."
+
+#~ msgid "Optional: A free-text document description."
+#~ msgstr "Opzionale: Una descrizione del documento a testo libero."
+
+#~ msgid "View the part selected in the above list."
+#~ msgstr "Visualizza la parte selezionata nella lista soprastante."
+
+#~ msgid "Save finished document."
+#~ msgstr "Salva il documento terminato."
+
+#~ msgid "Document Properties"
+#~ msgstr "Proprietà Documento"
+
+#, fuzzy
+#~ msgid "Document type:"
+#~ msgstr "Tipo di documento"
+
+#, fuzzy
+#~ msgid "Date document created:"
+#~ msgstr "Data di creazione:"
+
+#~ msgid "Associate to episode:"
+#~ msgstr "Associato all'episodio:"
+
+#, fuzzy
+#~ msgid "Organization:"
+#~ msgstr "Organizzazione"
+
+#, fuzzy
+#~ msgid "Comment / Identification:"
+#~ msgstr "Medicazione attuale"
+
+#, fuzzy
+#~ msgid "Load from &file"
+#~ msgstr "Importa da un file"
+
+#, fuzzy
+#~ msgid "Load a &file"
+#~ msgstr "apri file"
+
+#, fuzzy
+#~ msgid "Load from clipboard"
+#~ msgstr "Muovi il paziente su."
+
+#, fuzzy
+#~ msgid "&Vaccinations: by shot"
+#~ msgstr "Vaccinazioni:"
+
+#, fuzzy
+#~ msgid "Manage vaccinations for the current patient (by shots given)."
+#~ msgstr "Gestisci la documentazione delle allergie per il paziente corrente."
+
+#, fuzzy
+#~ msgid "Manage vaccinations for the current patient (by indication)."
+#~ msgstr "Gestisci la documentazione delle allergie per il paziente corrente."
+
+#, fuzzy
+#~ msgid "&Vaccinations: latest"
+#~ msgstr "&Vaccinazioni"
+
+#, fuzzy
+#~ msgid "List latest vaccinations for the current patient."
+#~ msgstr "Modifica i dettagli lavorativi per il paziente corrente."
+
+#~ msgid "&Write letter"
+#~ msgstr "&Scrivi lettera"
+
+#~ msgid "Write a letter for the current patient."
+#~ msgstr "Scrivi una lettere per il paziente corrente."
+
+#~ msgid "GNUmed wiki"
+#~ msgstr "Wiki GNUmed"
+
+#~ msgid "Go to the GNUmed wiki on the web."
+#~ msgstr "Vai al wiki GNUmed sul web."
+
+#, fuzzy, python-format
+#~ msgid "Preparation: %s"
+#~ msgstr "Preparazione"
+
+#, fuzzy, python-format
+#~ msgid " Product name: %s   [#%s]"
+#~ msgstr "Sostanza"
+
+#, fuzzy, python-format
+#~ msgid " ATC (drug): %s"
+#~ msgstr "Aggiungi una sostanza."
+
+#, fuzzy, python-format
+#~ msgid "Other component: %s %s %s"
+#~ msgstr "Componenti"
+
+#, fuzzy, python-format
+#~ msgid "%s%s: %s ago%s"
+#~ msgstr "&Zona:"
+
+#, fuzzy, python-format
+#~ msgid "%s%s: %s ago (%s)"
+#~ msgstr "%s%7s %s: %s (%s parte(i), %s)"
+
+#, fuzzy, python-format
+#~ msgid "%s ago, in %s"
+#~ msgstr "%d giorno/i fa - %s"
+
+#, fuzzy, python-format
+#~ msgid "in %s = %s"
+#~ msgstr "Chiusa"
+
+#~ msgid "child"
+#~ msgstr "bambino"
+
+#~ msgid "boy"
+#~ msgstr "ragazzo"
+
+#~ msgid "girl"
+#~ msgstr "ragazza"
+
+#~ msgid "animal"
+#~ msgstr "animale"
+
+#~ msgid "final"
+#~ msgstr "finale"
+
+#~ msgid "partial"
+#~ msgstr "parziale"
+
+#~ msgid "preliminary"
+#~ msgstr "preliminare"
+
+#~ msgid "already reported"
+#~ msgstr "già riportato"
+
+#~ msgid "corrected result"
+#~ msgstr "risultato corretto"
+
+#~ msgid "missing, reported later"
+#~ msgstr "mancante, riportato in seguito"
+
+#~ msgid "original entry"
+#~ msgstr "voce originale"
+
+#~ msgid "modified entry"
+#~ msgstr "voce modificata"
+
+#, python-format
+#~ msgid "%s: encounter (%s)"
+#~ msgstr "%s: appuntamento (%s)"
+
+#, python-format
+#~ msgid "health issue: %s"
+#~ msgstr "problema di salute: %s"
+
+#, python-format
+#~ msgid "episode     : %s"
+#~ msgstr "episodio: %s"
+
+#~ msgid "The lab request already exists but belongs to a different patient."
+#~ msgstr ""
+#~ "La richiesta di laboratorio esiste già, ma appartiene ad un paziente "
+#~ "differente."
+
+#~ msgid "Verify which patient this lab request really belongs to."
+#~ msgstr ""
+#~ "Verificare a quale paziente appartiene questa richesta di laboratorio"
+
+#, python-format
+#~ msgid ""
+#~ "lab [%s], request ID [%s], expected link with patient [%s], currently "
+#~ "linked to patient [%s]"
+#~ msgstr ""
+#~ "lab [%s], richiesta ID [%s], nesso atteso con paziente [%s], attualmente "
+#~ "connesso al paziente [%s]"
+
+#~ msgid "need lab request when inserting lab result"
+#~ msgstr "necessaria richesta di laboratorio per inserire i risultati"
+
+#~ msgid "error retrieving unreviewed lab results"
+#~ msgstr "errore nel recupero risultati di laboratorio non riesaminati"
+
+#~ msgid "63< Normal >79"
+#~ msgstr "63< Normale >79"
+
+#~ msgid "Requests generated this consultation"
+#~ msgstr "Richieste generate da questa consultazione"
+
+#~ msgid "Request summary"
+#~ msgstr "Sommario Richieste"
+
+#~ msgid "Prescriptions"
+#~ msgstr "Prescrizioni"
+
+#~ msgid "Requests"
+#~ msgstr "Richieste"
+
+#~ msgid "Referrals"
+#~ msgstr "Referenti"
+
+#~ msgid "Recalls and Reviews"
+#~ msgstr "Richiama e Recensiona"
+
+#~ msgid "icon_inbox"
+#~ msgstr "icona_inbox"
+
+#~ msgid "Dose"
+#~ msgstr "Dose"
+
+#~ msgid "Last Date"
+#~ msgstr "Ultima Data"
+
+#~ msgid "Prescribed For"
+#~ msgstr "Prescritto per"
+
+#~ msgid "Quantity"
+#~ msgstr "Quantità"
+
+#~ msgid "First Date"
+#~ msgstr "Prima Data"
+
+#~ msgid "Drug Interactions"
+#~ msgstr "Interazioni Farmacologiche"
+
+#~ msgid "Items prescribed this consultation"
+#~ msgstr "Elementi prescritti in questa consultazione"
+
+#~ msgid "Directions"
+#~ msgstr "Direzioni"
+
+#~ msgid "For"
+#~ msgstr "Per"
+
+#~ msgid "Authority Indications"
+#~ msgstr "Indicazioni Ministeriali"
+
+#~ msgid "Interactions"
+#~ msgstr "Interazioni"
+
+#~ msgid "Pregnancy Information"
+#~ msgstr "Informazioni Gravidanza"
+
+#~ msgid "Restricted Use Information"
+#~ msgstr "Utilizzo delle informazioni limitate"
+
+#~ msgid "Edit Item"
+#~ msgstr "Modifica Elemento"
+
+#~ msgid "Delete Item"
+#~ msgstr "Elimina Elemento"
+
+#~ msgid "Delete all Items"
+#~ msgstr "Elimina tutti gli Elementi"
+
+#~ msgid "Print Single Item"
+#~ msgstr "Stampa articolo singolo"
+
+#~ msgid "Print All Items"
+#~ msgstr "Stampa tutti gli articoli"
+
+#~ msgid "Reprint Item"
+#~ msgstr "Ristampa articolo"
+
+#~ msgid "Reprint All Items"
+#~ msgstr "Ristampa gli articoli"
+
+#~ msgid "Save Item no print"
+#~ msgstr "Salva l'articolo e non stampa"
+
+#~ msgid "Save All Items no print"
+#~ msgstr "Salva tutti gli articoli e non stampa"
+
+#~ msgid "Change Font"
+#~ msgstr "Cambia Carattere"
+
+#~ msgid " (L) "
+#~ msgstr " (S) "
+
+#~ msgid "(R)"
+#~ msgstr "(D)"
+
+#~ msgid "Operation"
+#~ msgstr "Operazione"
+
+#~ msgid "Significant"
+#~ msgstr "Significativo"
+
+#, fuzzy
+#~ msgid "The medical aim for consuming this substance."
+#~ msgstr "L'obiettivo di consumo di questa sostanza."
+
+#, fuzzy
+#~ msgid "Application"
+#~ msgstr "Medicazione"
+
+#, fuzzy
+#~ msgid "<no components>"
+#~ msgstr "Componenti"
+
+#, fuzzy, python-format
+#~ msgid "%s w/ %s%s%s of %s"
+#~ msgstr " Stato: %s, %s%s"
+
+#, fuzzy
+#~ msgid "Cannot add duplicate of (maybe inactive) substance intake."
+#~ msgstr "Non posso aggiungere la medicazione. Nesun paziente attivo."
+
+#, fuzzy, python-format
+#~ msgid " Product name: %%s   [#%s]\n"
+#~ msgstr "Episodio %s%s%s [#%s]"
+
+#, fuzzy, python-format
+#~ msgid " ATC (drug): %s\n"
+#~ msgstr "Aggiungi una sostanza."
+
+#, fuzzy, python-format
+#~ msgid " Started %s%s\n"
+#~ msgstr "Iniziata"
+
+#, fuzzy, python-format
+#~ msgid ""
+#~ "Cannot access document part file:\n"
+#~ "\n"
+#~ " %s"
+#~ msgstr ""
+#~ "Non posso accedere al file xDT\n"
+#~ "\n"
+#~ " [%s]"
+
+#~ msgid "No document type applied. Choose a document type"
+#~ msgstr "Nessun tipo di documento applicato. Scegli un tipo di documento."
+
+#~ msgid "You must select an episode to save this document under."
+#~ msgstr "Devi selezionare un episodio per salvare questo documento in."
+
+#, fuzzy
+#~ msgid "pasted from clipboard"
+#~ msgstr "Muovi il paziente su."
+
+#, fuzzy
+#~ msgid "No part selected for viewing."
+#~ msgstr "Nessun risultato selezionato per la rimozione."
+
+#, fuzzy
+#~ msgid "No part selected for removal."
+#~ msgstr "Nessun risultato selezionato per la rimozione."
+
+#~ msgid "Cannot add document description."
+#~ msgstr "Non posso aggiungere la descrizione al documento."
+
+#, fuzzy
+#~ msgid ""
+#~ "Error setting \"reviewed\" status of new document. The document itself "
+#~ "has been imported properly, however."
+#~ msgstr "Errore assegnando \"rivisto\" al nuovo documento"
+
+#~ msgid "Organisation"
+#~ msgstr "Organizzazione"
+
+#~ msgid "Office"
+#~ msgstr "Ufficio"
+
+#~ msgid "User1"
+#~ msgstr "Utente1"
+
+#~ msgid "User2"
+#~ msgstr "Utente2"
+
+#~ msgid "User3"
+#~ msgstr "Utente3"
+
+#~ msgid "Phone"
+#~ msgstr "Telefono"
+
+#~ msgid "Fax"
+#~ msgstr "Fax"
+
+#~ msgid "Internet"
+#~ msgstr "Internet"
+
+#~ msgid " Postal Address "
+#~ msgstr " Indirizzo Postale "
+
+#~ msgid "Attach documents"
+#~ msgstr "Allega documenti"
+
+#~ msgid "No matching drug found."
+#~ msgstr "Nessun farmaco corrispondente."
+
+#~ msgid "Please enter at least three digits of the drug name."
+#~ msgstr "Si prega di inserire almeno tre cifre del nome del farmaco"
+
+#~ msgid "Starting drug data browser"
+#~ msgstr "Avvio browser dati dei farmaci"
+
+#~ msgid ""
+#~ "Cannot start the drug data browser.\n"
+#~ "\n"
+#~ "There is no drug database specified in the configuration."
+#~ msgstr ""
+#~ "Impossibile avviare il browser dati dei farmaci.\n"
+#~ "\n"
+#~ "Manca una banca dati farmaci specificata nella configurazione."
+
+#~ msgid "   Find   "
+#~ msgstr "   Cerca   "
+
+#~ msgid "Enter the name of the drug you are interested in"
+#~ msgstr "Inserisci il nome del farmaco cui sei interessato"
+
+#~ msgid "&Bookmark"
+#~ msgstr "&Segnalibro"
+
+#~ msgid "Search by"
+#~ msgstr "Cerca per"
+
+#~ msgid "Any"
+#~ msgstr "Qualunque"
+
+#~ msgid "Generic name"
+#~ msgstr "Nome generico"
+
+#~ msgid "&Prescribe"
+#~ msgstr "&Prescrivi"
+
+#~ msgid "&Display"
+#~ msgstr "&Mostra"
+
+#~ msgid "XDT field"
+#~ msgstr "campo XDT"
+
+#~ msgid "XDT field content"
+#~ msgstr "Xdt campo dei contenuti"
+
+#~ msgid "Clinical"
+#~ msgstr "Clinico"
+
+#~ msgid "Error processing form"
+#~ msgstr "Errore processando il modulo"
+
+#~ msgid "You must select a form and type"
+#~ msgstr "È necessario selezionare un modulo e il tipo"
+
+#~ msgid "Missing field"
+#~ msgstr "Campo mancante"
+
+#~ msgid "&Request"
+#~ msgstr "&Richieste"
 
 #, fuzzy
 #~ msgid "Edit &Categories"
@@ -22841,10 +23123,6 @@ msgstr "Annulla e NON connetti a GNUmed"
 #~ msgid "is &active"
 #~ msgstr "non attivo"
 
-#, fuzzy
-#~ msgid "Amount per dose: %s %s%s"
-#~ msgstr "Appuntamenti: %s (%s - %s):"
-
 #~ msgid "Additional notes"
 #~ msgstr "Note aggiuntive"
 
@@ -22952,10 +23230,6 @@ msgstr "Annulla e NON connetti a GNUmed"
 #~ msgstr "Produttore"
 
 #, fuzzy
-#~ msgid " (planned for %s%s)"
-#~ msgstr "nessun paziente trovato per [%s]/%s"
-
-#, fuzzy
 #~ msgid "%s ago (for %s: %s %s %s)"
 #~ msgstr " Durata: %s (%s - %s)"
 
@@ -23038,10 +23312,6 @@ msgstr "Annulla e NON connetti a GNUmed"
 
 #~ msgid "Disabling patient"
 #~ msgstr "Disabilitare paziente"
-
-#, fuzzy
-#~ msgid "&Unknown"
-#~ msgstr "Sconosciuta"
 
 #, fuzzy
 #~ msgid "When was smoking status last confirmed (mostly \"today\") ?"
@@ -23221,10 +23491,6 @@ msgstr "Annulla e NON connetti a GNUmed"
 #~ msgstr "Non posso caricare la storia clinica. Nessun paziente attivo."
 
 #, fuzzy
-#~ msgid "Print Preview"
-#~ msgstr "Il tuo esame"
-
-#, fuzzy
 #~ msgid "Create a new event"
 #~ msgstr "Crea nuovo paziente"
 
@@ -23283,10 +23549,6 @@ msgstr "Annulla e NON connetti a GNUmed"
 
 #~ msgid "Administration"
 #~ msgstr "Amministrazione"
-
-#, fuzzy
-#~ msgid "No vaccination document template selected."
-#~ msgstr "Nessuna vaccinazione da cancellare."
 
 #, fuzzy
 #~ msgid "Printing vaccinations"
@@ -23371,9 +23633,6 @@ msgstr "Annulla e NON connetti a GNUmed"
 
 #~ msgid "part"
 #~ msgstr "parte"
-
-#~ msgid "activating patient from list"
-#~ msgstr "Attiva il paziente dalla lista"
 
 #~ msgid "Cannot read SQL from [%s]. File too big (> 2000 bytes)."
 #~ msgstr "Non posso leggere SQL da [%s]. File troppo grande (> 2000 bytes)."
