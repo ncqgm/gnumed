@@ -38,36 +38,38 @@ def open_urls_in_browser(urls:list[str]=None, new:int=2, autoraise:bool=True, in
 
 	Args:
 		urls: URLs to open
-		new: whether to open a new browser, a new tab in a running browser, or a tab OR a browser (see Python docs)
+		new: whether to open a new browser, a new tab in a running browser, or a tab OR a browser (see Python docs), 2 = open new tab if possible
 		initial_delay: milliseconds to sleep after opening first URL (so that the browser may start up)
 	"""
 	if not urls:
 		return True
 
-	if initial_delay < 0:
-		initial_delay = 0	# can't timewarp just yet
+	# can't timewarp just yet
+	duration2sleep = max(initial_delay, 0) / 1000
 	for url in urls:
-		# new=2: open new tab if possible
-		try:
-			webbrowser.open(url, new = new, autoraise = autoraise, **kwargs)
-			time.sleep(initial_delay / 1000)
-			initial_delay = 1
-		except (webbrowser.Error, OSError, UnicodeEncodeError):
-			_log.exception('error calling browser with url=[%s]', url)
+		open_url_in_browser(url = url, new = new, autoraise = autoraise)
+		time.sleep(duration2sleep)
+		duration2sleep = 0
 	return True
 
 #---------------------------------------------------------------------------
-def open_url_in_browser(url:str=None, new:int=2, autoraise:bool=True, *args, **kwargs) -> bool:
+def open_url_in_browser(url:str=None, new:int=2, autoraise:bool=True) -> bool:
 	"""Open an URL in a browser.
 
 	Args:
 		url: URL to open
-		new: whether to open a new browser, a new tab in a running browser, or a tab OR a browser
+		new: whether to open a new browser, a new tab in a running browser, or a tab OR a browser, 2 = open new tab if possible
 	"""
 	if not url:
 		return True
 
-	return open_urls_in_browser(urls = [url], new = new, autoraise = autoraise, *args, **kwargs)
+	try:
+		webbrowser.open(url, new = new, autoraise = autoraise)
+	except (webbrowser.Error, OSError, UnicodeEncodeError):
+		_log.exception('error calling browser with url=[%s]', url)
+		return False
+
+	return True
 
 #---------------------------------------------------------------------------
 def download_file(url, filename=None, suffix=None):
@@ -581,7 +583,7 @@ if __name__ == '__main__':
 	def test_browser():
 		success = open_url_in_browser(sys.argv[2])
 		print(success)
-		open_url_in_browser(sys.argv[2], abc=222)
+		open_url_in_browser(sys.argv[2])
 
 	#-----------------------------------------------------------------------
 	def test_mirror_url():
@@ -592,7 +594,7 @@ if __name__ == '__main__':
 	#test_compose_email()
 	#test_send_email()
 	#test_dl_data_pack()
-	#test_browser()
-	test_mirror_url()
+	test_browser()
+	#test_mirror_url()
 
 #===========================================================================
