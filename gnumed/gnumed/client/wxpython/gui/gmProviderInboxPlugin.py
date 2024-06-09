@@ -15,7 +15,7 @@ if __name__ == '__main__':
 class gmProviderInboxPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate the provider inbox window."""
 
-	tab_name = _('Inbox')
+	tab_name = _('Messages')
 	required_minimum_role = 'non-clinical access'
 
 	@gmAccessPermissionWidgets.verify_minimum_required_role (
