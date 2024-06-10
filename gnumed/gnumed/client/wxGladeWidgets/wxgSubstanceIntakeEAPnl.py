@@ -99,7 +99,7 @@ class wxgSubstanceIntakeEAPnl(wx.ScrolledWindow):
 		__szr_started.Add(__lbl_comment_on_start, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 5)
 
 		self._TCTRL_comment_on_start = cTextCtrl(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
-		self._TCTRL_comment_on_start.SetToolTip(_("Notes on start date.\n\n('?' is interpreted as 'unknown')"))
+		self._TCTRL_comment_on_start.SetToolTip(_("Notes on start date."))
 		__szr_started.Add(self._TCTRL_comment_on_start, 3, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 3)
 
 		__lbl_discontinued = wx.StaticText(self, wx.ID_ANY, _("Stopped"))
@@ -229,17 +229,17 @@ class wxgSubstanceIntakeEAPnl(wx.ScrolledWindow):
 
 		self.Layout()
 
-		self.Bind(wx.EVT_BUTTON, self._on_started_today_button_pressed, self._BTN_started_today)
-		self.Bind(wx.EVT_CHECKBOX, self._on_start_unknown_checkbox_toggled, self._CHBOX_start_unknown)
-		self.Bind(wx.EVT_BUTTON, self._on_discontinued_today_button_pressed, self._BTN_discontinued_today)
-		self.Bind(wx.EVT_BUTTON, self._on_heart_button_pressed, self._BTN_heart)
-		self.Bind(wx.EVT_BUTTON, self._on_kidneys_button_pressed, self._BTN_kidneys)
-		self.Bind(wx.EVT_BUTTON, self._on_lungs_button_pressed, self._BTN_lungs)
-		self.Bind(wx.EVT_BUTTON, self._on_pregnancy_button_pressed, self._BTN_pregnancy)
-		self.Bind(wx.EVT_BUTTON, self._on_manage_substances_button_pressed, self._BTN_manage_substance)
-		self.Bind(wx.EVT_BUTTON, self._on_manage_doses_button_pressed, self._BTN_manage_doses)
-		self.Bind(wx.EVT_BUTTON, self._on_manage_components_button_pressed, self._BTN_manage_component)
-		self.Bind(wx.EVT_BUTTON, self._on_manage_drug_products_button_pressed, self._BTN_manage_products)
+		self._BTN_started_today.Bind(wx.EVT_BUTTON, self._on_started_today_button_pressed)
+		self._CHBOX_start_unknown.Bind(wx.EVT_CHECKBOX, self._on_start_unknown_checkbox_toggled)
+		self._BTN_discontinued_today.Bind(wx.EVT_BUTTON, self._on_discontinued_today_button_pressed)
+		self._BTN_heart.Bind(wx.EVT_BUTTON, self._on_heart_button_pressed)
+		self._BTN_kidneys.Bind(wx.EVT_BUTTON, self._on_kidneys_button_pressed)
+		self._BTN_lungs.Bind(wx.EVT_BUTTON, self._on_lungs_button_pressed)
+		self._BTN_pregnancy.Bind(wx.EVT_BUTTON, self._on_pregnancy_button_pressed)
+		self._BTN_manage_substance.Bind(wx.EVT_BUTTON, self._on_manage_substances_button_pressed)
+		self._BTN_manage_doses.Bind(wx.EVT_BUTTON, self._on_manage_doses_button_pressed)
+		self._BTN_manage_component.Bind(wx.EVT_BUTTON, self._on_manage_components_button_pressed)
+		self._BTN_manage_products.Bind(wx.EVT_BUTTON, self._on_manage_drug_products_button_pressed)
 		# end wxGlade
 
 	def _on_started_today_button_pressed(self, event):  # wxGlade: wxgSubstanceIntakeEAPnl.<event_handler>
