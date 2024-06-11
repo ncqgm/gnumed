@@ -8,6 +8,8 @@
 \set ON_ERROR_STOP 1
 --set default_transaction_read_only to off;
 
+set check_function_bodies to on;
+
 -- --------------------------------------------------------------
 drop function if exists gm.revalidate_all_constraints() cascade;
 

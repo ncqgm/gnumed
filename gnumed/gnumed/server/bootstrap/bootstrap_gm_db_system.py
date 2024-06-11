@@ -1250,15 +1250,20 @@ class database:
 			return True
 
 		_log.debug('Kelvin: %s', use_the_source_luke)
-		if sane_pg_database_collation is False:
+		if not sane_pg_database_collation:
 			if not gmPG2.refresh_database_default_collation_version_information(conn = self.conn, use_the_source_luke = use_the_source_luke):
 				print_msg('    ... fixing database default collation failed')
 				return False
 
-		if sane_pg_collations is False:
-			if not gmPG2.refresh_collations_version_information(conn = self.conn, use_the_source_luke = use_the_source_luke):
-				print_msg('    ... fixing all other collations failed')
-				return False
+		if not sane_pg_collations:
+			try:
+				if not gmPG2.refresh_collations_version_information(conn = self.conn, use_the_source_luke = use_the_source_luke):
+					print_msg('    ... fixing all other collations failed')
+					return False
+
+			# remove in v23.1/v24
+			except gmPG2.dbapi.errors.UndefinedFunction:
+				_log.exception('constraint validation function failed')
 
 		return True
 
