@@ -1222,22 +1222,21 @@ class database:
 			do_revalidate = (int(do_revalidate) == 1)
 		if not do_revalidate:
 			_log.warning('skipping VALIDATE CONSTRAINT')
-			print_msg("    ... skipped")
+			print_msg('    ... skipped')
 			return True
 
-		_log.info(u'reVALIDATing CONSTRAINTs in cloned target database so upgrade does not fail due to broken data')
-		_log.info(u'this may potentially take "quite a long time" depending on how much data there is in the database')
-		_log.info(u'you may want to monitor the PostgreSQL log for signs of progress')
+		_log.info('reVALIDATing CONSTRAINTs in cloned target database so upgrade does not fail due to broken data')
+		_log.info('this may potentially take "quite a long time" depending on how much data there is in the database')
+		_log.info('you may want to monitor the PostgreSQL log for signs of progress')
 		try:
 			revalidated = gmPG2.revalidate_constraints(link_obj = self.conn)
-		# remove in v23.1/v24
-		except gmPG2.dbapi.errors.UndefinedFunction:
-			_log.exception('constraint validation function failed')
-			return '_\\//'
-
 		except Exception:
 			_log.exception('>>>[VALIDATE CONSTRAINT]<<< failed')
 			return False
+
+		if revalidated is None:
+			_log.exception('constraint validation function missing')
+			return '_\\//'
 
 		return revalidated
 
@@ -1256,14 +1255,14 @@ class database:
 				return False
 
 		if not sane_pg_collations:
-			try:
-				if not gmPG2.refresh_collations_version_information(conn = self.conn, use_the_source_luke = use_the_source_luke):
-					print_msg('    ... fixing all other collations failed')
-					return False
+			refreshed = gmPG2.refresh_collations_version_information(conn = self.conn, use_the_source_luke = use_the_source_luke)
+			if refreshed is False:
+				print_msg('    ... fixing all other collations failed')
+				return False
 
-			# remove in v23.1/v24
-			except gmPG2.dbapi.errors.UndefinedFunction:
-				_log.exception('constraint validation function failed')
+			if refreshed is None:
+				_log.error('constraint validation function failed')
+				return True
 
 		return True
 

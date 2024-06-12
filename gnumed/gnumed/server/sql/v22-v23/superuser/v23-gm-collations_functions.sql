@@ -19,8 +19,8 @@ create function gm.pg_import_system_collations()
 	security definer
 	as '
 BEGIN
-	RAISE NOTICE ''running pg_import_system_collations(%)'', ''pg_catalog''::regnamespace;
-	PERFORM pg_import_system_collations(''pg_catalog''::regnamespace);
+	RAISE NOTICE ''running pg_catalog.pg_import_system_collations(%)'', ''pg_catalog''::regnamespace;
+	PERFORM pg_catalog.pg_import_system_collations(''pg_catalog''::regnamespace);
 END;';
 
 comment on function gm.pg_import_system_collations() is 'Re-imports collations information from the underlying operating system.';
@@ -44,9 +44,9 @@ DECLARE
 	_db_name text;
 	_db_encoding integer;
 BEGIN
-	SELECT current_database() INTO _db_name;
-	SELECT encoding INTO _db_encoding FROM pg_database WHERE datname = current_database();
-	RAISE NOTICE ''database [%]: removing collations for encodings other than the database encoding [%]'', _db_name, pg_encoding_to_char(_db_encoding);
+	SELECT pg_catalog.current_database() INTO _db_name;
+	SELECT encoding INTO _db_encoding FROM pg_database WHERE datname = _db_name;
+	RAISE NOTICE ''database [%]: removing collations for encodings other than the database encoding [%]'', _db_name, pg_catalog.pg_encoding_to_char(_db_encoding);
 	FOR _rec IN (
 		SELECT oid, collnamespace, collname, collencoding
 		FROM pg_collation
@@ -59,7 +59,7 @@ BEGIN
 				AND
 			collencoding <> _db_encoding
 	) LOOP
-		RAISE NOTICE ''dropping collation #% "%.%" (encoding: %)'', _rec.oid, _rec.collnamespace::regnamespace, _rec.collname, pg_encoding_to_char(_rec.collencoding);
+		RAISE NOTICE ''dropping collation #% "%.%" (encoding: %)'', _rec.oid, _rec.collnamespace::regnamespace, _rec.collname, pg_catalog.pg_encoding_to_char(_rec.collencoding);
 		BEGIN
 			EXECUTE ''DROP COLLATION IF EXISTS '' || _rec.collnamespace::regnamespace || ''."'' || _rec.collname || ''"'';
 		EXCEPTION
@@ -96,13 +96,13 @@ BEGIN
 				AND
 			collprovider <> ''d''
 				AND
-			collversion <> pg_collation_actual_version(oid)
+			collversion <> pg_catalog.pg_collation_actual_version(oid)
 	) LOOP
 		RAISE NOTICE ''refreshing collation [%."%"] version information'', _rec.collnamespace::regnamespace, _rec.collname;
 		BEGIN
 			EXECUTE ''ALTER COLLATION '' || _rec.collnamespace::regnamespace || ''."'' || _rec.collname || ''" REFRESH VERSION'';
 		EXCEPTION
-			WHEN undefined_object THEN RAISE NOTICE ''collation does not exist, refresh failed'';
+			WHEN undefined_object THEN RAISE NOTICE ''collation does not exist, cannot refresh'';
 		END;
 	END LOOP;
 END';

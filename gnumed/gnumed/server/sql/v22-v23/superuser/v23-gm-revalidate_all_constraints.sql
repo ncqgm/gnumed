@@ -30,7 +30,6 @@ BEGIN
 	) LOOP
 		RAISE NOTICE ''validating [%] on [%.%]'', _rec.conname, _rec.nspname, _rec.relname;
 		EXECUTE ''UPDATE pg_constraint SET convalidated=false WHERE conname=$1 AND connamespace=$2 AND conrelid=$3'' USING _rec.conname, _rec.connamespace, _rec.conrelid;
-		-- EXECUTE ''ALTER TABLE $1.$2 VALIDATE CONSTRAINT "$3"'' USING _rec.nspname, _rec.relname, _rec.conname;
 		EXECUTE ''ALTER TABLE '' || _rec.nspname || ''.'' || _rec.relname || '' VALIDATE CONSTRAINT "'' || _rec.conname || ''"'';
 	END LOOP;
 END;';

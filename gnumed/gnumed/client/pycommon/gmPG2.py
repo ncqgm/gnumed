@@ -988,7 +988,19 @@ def revalidate_constraints(link_obj:_TLnkObj=None) -> str:
 	"""
 	_log.debug('revalidating all constraints in database')
 	SQL = 'SELECT gm.revalidate_all_constraints();'
-	run_rw_queries(link_obj = link_obj, queries = [{'cmd': SQL}])
+	try:
+		try:
+			run_rw_queries(link_obj = link_obj, queries = [{'cmd': SQL}])
+		except dbapi.errors.UndefinedFunction as exc:
+			if 'gm.revalidate_all_constraints() does not exist' in exc.pgerror:
+				_log.error('gm.revalidate_all_constraints() does not exist')
+				return None
+
+			raise
+	except Exception:
+		_log.exception('failure to revalidate constraints')
+		return False
+
 	return __LLAP
 
 #------------------------------------------------------------------------
@@ -1007,9 +1019,7 @@ def reindex_database(conn=None) -> bool | str:
 
 	dbname = conn.get_dsn_parameters()['dbname']
 	_log.debug('rebuilding all indices in database [%s]', dbname)
-	SQL = PG_SQL.SQL('REINDEX (VERBOSE) DATABASE {}').format (
-		PG_SQL.Identifier(dbname)
-	)
+	SQL = PG_SQL.SQL('REINDEX (VERBOSE) DATABASE {}').format(PG_SQL.Identifier(dbname))
 	# REINDEX must be run outside transactions
 	conn.commit()
 	conn.set_session(readonly = False, autocommit = True)
@@ -1089,7 +1099,7 @@ def refresh_database_default_collation_version_information(conn=None, use_the_so
 		return False
 
 	_log.debug('Kelvin: refreshing database default collation version information')
-	SQL = 'ALTER DATABASE current_database() REFRESH COLLATION VERSION'
+	SQL = PG_SQL.SQL('ALTER DATABASE {} REFRESH COLLATION VERSION').format(PG_SQL.Identifier(conn.info.dbname))
 	try:
 		run_rw_queries(link_obj = conn, queries = [{'cmd': SQL}])
 	except Exception:
@@ -1115,14 +1125,19 @@ def sanity_check_collation_versions(conn=None) -> bool:
 		for each of the collations with mismatching versions from pg_collation.
 	"""
 	SQL = """
-		SELECT *, pg_collation_actual_version(oid), current_database()
+		SELECT *,
+			pg_catalog.pg_collation_actual_version(oid),
+			pg_catalog.pg_encoding_to_char(collencoding),
+			pg_catalog.current_database(),
 		FROM pg_collation
 		WHERE
 			collversion IS DISTINCT FROM NULL
 				AND
 			collprovider <> 'd'
 				AND
-			collversion <> pg_collation_actual_version(oid)
+			collversion <> pg_catalog.pg_collation_actual_version(oid)
+				AND
+			collencoding = (SELECT encoding FROM pg_database WHERE datname = pg_catalog.current_database())
 	"""
 	try:
 		rows, idx = run_ro_queries(link_obj = conn, queries = [{'cmd': SQL}])
@@ -1143,13 +1158,19 @@ def sanity_check_collation_versions(conn=None) -> bool:
 
 #------------------------------------------------------------------------
 def refresh_collations_version_information(conn=None, use_the_source_luke=False) -> bool:
-	"""Update the recorded version of the collation version information.
+	"""Update the recorded versions in pg_collations.
 
-	Needs to be run by the owner of the collations stored in pg_collation.
+	Needs to be run by the owner of the collations stored in
+	pg_collation, typically the database owner.
 
 	Args:
-		conn: a psycopg2 connection for the database intended to be updated
+		conn: a psycopg2 connection to the database intended to be updated
 		use_the_source_luke: do as you are told
+
+	Returns:
+		False: cannot refresh collations
+		True: collations refreshed
+		None: collations refresh function missing
 	"""
 	if not use_the_source_luke:
 		_log.error('REINDEX and VALIDATE CONSTRAINT must have been run before updating collation version information')
@@ -1165,76 +1186,16 @@ def refresh_collations_version_information(conn=None, use_the_source_luke=False)
 
 	_log.debug('Kelvin: refreshing pg_collations row version information')
 	# https://www.postgresql.org/message-id/9aec6e6d-318e-4a36-96a4-3b898c3600c9%40manitou-mail.org
-	SQL = """DO LANGUAGE plpgsql $refresh_pg_coll_version_info$
-		DECLARE
-			_rec record;
-			_db_encoding integer;
-		BEGIN
-			SELECT encoding INTO _db_encoding FROM pg_database WHERE datname = current_database();
-			RAISE NOTICE 'removing collations for encodings other than the database encoding %', pg_encoding_to_char(_db_encoding);
-			FOR _rec IN (
-				SELECT oid, collnamespace, collname, collencoding
-				FROM pg_collation
-				WHERE
-					oid > 1000
-						AND
-					collencoding IS NOT NULL
-						AND
-					collencoding <> -1
-						AND
-					collencoding <> _db_encoding
-			) LOOP
-				RAISE NOTICE 'dropping collation #% "%.%" (encoding: %)', _rec.oid, _rec.collnamespace::regnamespace, _rec.collname, pg_encoding_to_char(_rec.collencoding);
-				BEGIN
-					EXECUTE 'DROP COLLATION ' || _rec.collnamespace::regnamespace || '."' || _rec.collname || '"';
-				EXCEPTION
-					WHEN undefined_object THEN RAISE NOTICE 'collation does not seem to exist (perhaps for the DB encoding ?)';
-				END;
-			END LOOP;
-			RAISE NOTICE 'refreshing collation version information in pg_collations';
-			FOR _rec IN (
-				SELECT collnamespace, collname
-				FROM pg_collation
-				WHERE
-					collversion IS DISTINCT FROM NULL
-						AND
-					collprovider <> 'd'
-						AND
-					collversion <> pg_collation_actual_version(oid)
-			) LOOP
-				RAISE NOTICE 'refreshing collation [%."%"] version information', _rec.collnamespace::regnamespace, _rec.collname;
-				BEGIN
-					EXECUTE 'ALTER COLLATION ' || _rec.collnamespace::regnamespace || '."' || _rec.collname || '" REFRESH VERSION';
-				EXCEPTION
-					WHEN undefined_object THEN RAISE NOTICE 'collation does not exist, refresh failed';
-				END;
-			END LOOP;
-			RAISE NOTICE 'running pg_import_system_collations(%)', 'pg_catalog'::regnamespace;
-			PERFORM pg_import_system_collations('pg_catalog'::regnamespace);
-			RAISE NOTICE 'removing collations, again, for encodings other than the database encoding';
-			FOR _rec IN (
-				SELECT oid, collnamespace, collname, collencoding
-				FROM pg_collation
-				WHERE
-					oid > 1000
-						AND
-					collencoding IS NOT NULL
-						AND
-					collencoding <> -1
-						AND
-					collencoding <> _db_encoding
-			) LOOP
-				RAISE NOTICE 'dropping collation #% "%.%" (encoding: %)', _rec.oid, _rec.collnamespace::regnamespace, _rec.collname, pg_encoding_to_char(_rec.collencoding);
-				BEGIN
-					EXECUTE 'DROP COLLATION ' || _rec.collnamespace::regnamespace || '."' || _rec.collname || '"';
-				EXCEPTION
-					WHEN undefined_object THEN RAISE NOTICE 'collation does not seem to exist (perhaps for the DB encoding ?)';
-				END;
-			END LOOP;
-		END
-	$refresh_pg_coll_version_info$;"""
+	SQL = 'SELECT gm.update_pg_collations();'
 	try:
-		run_rw_queries(link_obj = conn, queries = [{'cmd': SQL}])
+		try:
+			run_rw_queries(link_obj = conn, queries = [{'cmd': SQL}])
+		except dbapi.errors.UndefinedFunction as exc:
+			if 'gm.update_pg_collations() does not exist' in exc.pgerror:
+				_log.error('gm.update_pg_collations() does not exist')
+				return None
+
+			raise
 	except Exception:
 		_log.exception('failure to update collations version information')
 		return False
@@ -3322,6 +3283,45 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 		print('works:', refresh_collations_version_information(use_the_source_luke = [__MIND_MELD, __LLAP]))
 
 	#--------------------------------------------------------------------
+	def check_all_collations():
+#		print('checking DB default collation')
+#		db_collation_valid = sanity_check_database_default_collation_version()
+#		print(' valid:', db_collation_valid)
+		print('checking other collations')
+		other_collations_valid = sanity_check_collation_versions()
+		print(' valid:', other_collations_valid)
+
+	#--------------------------------------------------------------------
+	def refresh_all_collations_version_information():
+		print('checking DB default collation')
+		db_collation_valid = sanity_check_database_default_collation_version()
+		print(' valid:', db_collation_valid)
+		print('checking other collations')
+		other_collations_valid = sanity_check_collation_versions()
+		print(' valid:', other_collations_valid)
+		if db_collation_valid and other_collations_valid:
+			return
+
+		input('[enter] for revalidation/reindexing')
+		luke = revalidate_constraints()
+		print('revalidation:', luke)
+		conn = get_connection(readonly = False)
+		leia = reindex_database(conn = conn)
+		conn.commit()
+		conn.close()
+		print('reindexing:', leia)
+		input('[enter] for collations updates')
+		conn = get_connection(readonly = False)
+		print('refreshing collations version information')
+		if not db_collation_valid:
+			db_collation_updated = refresh_database_default_collation_version_information(conn = conn, use_the_source_luke = [leia, luke])
+			print(' DB collation:', db_collation_updated)
+		if not other_collations_valid:
+			collations_updated = refresh_collations_version_information(conn = conn, use_the_source_luke = [leia, luke])
+			print(' other collations:', collations_updated)
+		conn.rollback()
+
+	#--------------------------------------------------------------------
 	def test_revalidate_constraints():
 		print(revalidate_constraints(link_obj = get_connection(readonly = False)))
 
@@ -3421,7 +3421,9 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_sanity_check_collation_versions()
 	#test_reindex_database()
 	#test_revalidate_constraints()
-	test_refresh_collations_version_information()
+	#test_refresh_collations_version_information()
+	#refresh_all_collations_version_information()
+	check_all_collations()
 
 #	try:
 #		run_ro_queries(queries = [{'cmd': 'select no_function(1)'}])
