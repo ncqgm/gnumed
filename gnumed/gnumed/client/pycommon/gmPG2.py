@@ -1128,7 +1128,7 @@ def sanity_check_collation_versions(conn=None) -> bool:
 		SELECT *,
 			pg_catalog.pg_collation_actual_version(oid),
 			pg_catalog.pg_encoding_to_char(collencoding),
-			pg_catalog.current_database(),
+			pg_catalog.current_database()
 		FROM pg_collation
 		WHERE
 			collversion IS DISTINCT FROM NULL
