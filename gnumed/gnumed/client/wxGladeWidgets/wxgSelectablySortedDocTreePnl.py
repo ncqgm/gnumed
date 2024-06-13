@@ -5,105 +5,98 @@
 
 import wx
 
-# begin wxGlade: dependencies
 import gettext
-# end wxGlade
 
-# begin wxGlade: extracode
-# end wxGlade
 
 
 class wxgSelectablySortedDocTreePnl(wx.ScrolledWindow):
 	def __init__(self, *args, **kwds):
-		# begin wxGlade: wxgSelectablySortedDocTreePnl.__init__
-		kwds["style"] = kwds.get("style", 0) | wx.TAB_TRAVERSAL
+		kwds["style"] = kwds.get("style", 0) | wx.BORDER_NONE | wx.TAB_TRAVERSAL
 		wx.ScrolledWindow.__init__(self, *args, **kwds)
-		self._rbtn_sort_by_age = wx.RadioButton(self, wx.ID_ANY, _("Age"), style=wx.RB_GROUP)
-		self._rbtn_sort_by_review = wx.RadioButton(self, wx.ID_ANY, _("Review status"))
-		self._rbtn_sort_by_episode = wx.RadioButton(self, wx.ID_ANY, _("Episode"))
-		self._rbtn_sort_by_issue = wx.RadioButton(self, wx.ID_ANY, _("Health issue"))
-		self._rbtn_sort_by_type = wx.RadioButton(self, wx.ID_ANY, _("Type"))
-		self._rbtn_sort_by_org = wx.RadioButton(self, wx.ID_ANY, _("Organization"))
-		from Gnumed.wxpython.gmDocumentWidgets import cDocTree
-		self._doc_tree = cDocTree(self, wx.ID_ANY)
-		from Gnumed.wxpython.gmListWidgets import cReportListCtrl
-		self._LCTRL_details = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
-		self._TCTRL_metainfo = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_BESTWRAP | wx.TE_MULTILINE | wx.TE_READONLY)
-
-		self.__set_properties()
-		self.__do_layout()
-
-		self.Bind(wx.EVT_RADIOBUTTON, self._on_sort_by_age_selected, self._rbtn_sort_by_age)
-		self.Bind(wx.EVT_RADIOBUTTON, self._on_sort_by_review_selected, self._rbtn_sort_by_review)
-		self.Bind(wx.EVT_RADIOBUTTON, self._on_sort_by_episode_selected, self._rbtn_sort_by_episode)
-		self.Bind(wx.EVT_RADIOBUTTON, self._on_sort_by_issue_selected, self._rbtn_sort_by_issue)
-		self.Bind(wx.EVT_RADIOBUTTON, self._on_sort_by_type_selected, self._rbtn_sort_by_type)
-		self.Bind(wx.EVT_RADIOBUTTON, self._on_sort_by_org_selected, self._rbtn_sort_by_org)
-		# end wxGlade
-
-	def __set_properties(self):
-		# begin wxGlade: wxgSelectablySortedDocTreePnl.__set_properties
 		self.SetScrollRate(10, 10)
-		self._rbtn_sort_by_age.SetToolTip(_("Sort newest documents to top of tree."))
-		self._rbtn_sort_by_age.SetValue(1)
-		self._rbtn_sort_by_review.SetToolTip(_("Sort unreviewed documents to top of tree."))
-		self._rbtn_sort_by_episode.SetToolTip(_("Sort documents by the episode they belong to."))
-		self._rbtn_sort_by_issue.SetToolTip(_("Sort documents by the health issue they belong to."))
-		self._rbtn_sort_by_type.SetToolTip(_("Sort documents by their type."))
-		self._rbtn_sort_by_org.SetToolTip(_("Sort documents by the organization they are from."))
-		self._LCTRL_details.Enable(False)
-		self._TCTRL_metainfo.SetFont(wx.Font(8, wx.MODERN, wx.NORMAL, wx.NORMAL, 0, ""))
-		# end wxGlade
 
-	def __do_layout(self):
-		# begin wxGlade: wxgSelectablySortedDocTreePnl.__do_layout
 		__szr_main = wx.BoxSizer(wx.VERTICAL)
-		__szr_bottom = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_details = wx.BoxSizer(wx.VERTICAL)
+
 		__szr_top_radio = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_main.Add(__szr_top_radio, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 2)
+
 		__lbl_sort = wx.StaticText(self, wx.ID_ANY, _("Sort documents by"))
 		__szr_top_radio.Add(__lbl_sort, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT | wx.RIGHT, 5)
+
+		self._rbtn_sort_by_age = wx.RadioButton(self, wx.ID_ANY, _("Age"), style=wx.RB_GROUP)
+		self._rbtn_sort_by_age.SetToolTip(_("Sort newest documents to top of tree."))
+		self._rbtn_sort_by_age.SetValue(1)
 		__szr_top_radio.Add(self._rbtn_sort_by_age, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 10)
+
+		self._rbtn_sort_by_review = wx.RadioButton(self, wx.ID_ANY, _("Review status"))
+		self._rbtn_sort_by_review.SetToolTip(_("Sort unreviewed documents to top of tree."))
 		__szr_top_radio.Add(self._rbtn_sort_by_review, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 10)
+
+		self._rbtn_sort_by_episode = wx.RadioButton(self, wx.ID_ANY, _("Episode"))
+		self._rbtn_sort_by_episode.SetToolTip(_("Sort documents by the episode they belong to."))
 		__szr_top_radio.Add(self._rbtn_sort_by_episode, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 10)
+
+		self._rbtn_sort_by_issue = wx.RadioButton(self, wx.ID_ANY, _("Health issue"))
+		self._rbtn_sort_by_issue.SetToolTip(_("Sort documents by the health issue they belong to."))
 		__szr_top_radio.Add(self._rbtn_sort_by_issue, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 10)
+
+		self._rbtn_sort_by_type = wx.RadioButton(self, wx.ID_ANY, _("Type"))
+		self._rbtn_sort_by_type.SetToolTip(_("Sort documents by their type."))
 		__szr_top_radio.Add(self._rbtn_sort_by_type, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 10)
+
+		self._rbtn_sort_by_org = wx.RadioButton(self, wx.ID_ANY, _("Organization"))
+		self._rbtn_sort_by_org.SetToolTip(_("Sort documents by the organization they are from."))
 		__szr_top_radio.Add(self._rbtn_sort_by_org, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 10)
-		__szr_main.Add(__szr_top_radio, 0, wx.EXPAND, 0)
+
 		__hline_middle = wx.StaticLine(self, wx.ID_ANY)
 		__szr_main.Add(__hline_middle, 0, wx.EXPAND, 0)
-		__szr_bottom.Add(self._doc_tree, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__szr_details.Add(self._LCTRL_details, 2, wx.EXPAND, 2)
-		__szr_details.Add(self._TCTRL_metainfo, 1, wx.EXPAND | wx.TOP, 2)
-		__szr_bottom.Add(__szr_details, 1, wx.EXPAND, 0)
-		__szr_main.Add(__szr_bottom, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
+		self._splitter_main = wx.SplitterWindow(self, wx.ID_ANY, style=wx.SP_3D | wx.SP_NOBORDER)
+		self._splitter_main.SetMinimumPaneSize(20)
+		self._splitter_main.SetSashGravity(0.25)
+		__szr_main.Add(self._splitter_main, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 2)
+
+		from Gnumed.wxpython.gmDocumentWidgets import cDocTree
+		self._doc_tree = cDocTree(self._splitter_main, wx.ID_ANY, style=wx.BORDER_SUNKEN | wx.TR_HAS_BUTTONS | wx.TR_NO_BUTTONS | wx.TR_SINGLE)
+
+		from Gnumed.wxpython.gmFilePreviewer import cFilePreviewPnl
+		self._PNL_previews = cFilePreviewPnl(self._splitter_main, wx.ID_ANY, style=wx.BORDER_NONE)
+
+		self._splitter_main.SplitVertically(self._doc_tree, self._PNL_previews)
+
 		self.SetSizer(__szr_main)
 		__szr_main.Fit(self)
-		self.Layout()
-		# end wxGlade
 
-	def _on_sort_by_age_selected(self, event):  # wxGlade: wxgSelectablySortedDocTreePnl.<event_handler>
+		self.Layout()
+
+		self._rbtn_sort_by_age.Bind(wx.EVT_RADIOBUTTON, self._on_sort_by_age_selected)
+		self._rbtn_sort_by_review.Bind(wx.EVT_RADIOBUTTON, self._on_sort_by_review_selected)
+		self._rbtn_sort_by_episode.Bind(wx.EVT_RADIOBUTTON, self._on_sort_by_episode_selected)
+		self._rbtn_sort_by_issue.Bind(wx.EVT_RADIOBUTTON, self._on_sort_by_issue_selected)
+		self._rbtn_sort_by_type.Bind(wx.EVT_RADIOBUTTON, self._on_sort_by_type_selected)
+		self._rbtn_sort_by_org.Bind(wx.EVT_RADIOBUTTON, self._on_sort_by_org_selected)
+
+	def _on_sort_by_age_selected(self, event):
 		print("Event handler '_on_sort_by_age_selected' not implemented!")
 		event.Skip()
 
-	def _on_sort_by_review_selected(self, event):  # wxGlade: wxgSelectablySortedDocTreePnl.<event_handler>
+	def _on_sort_by_review_selected(self, event):
 		print("Event handler '_on_sort_by_review_selected' not implemented!")
 		event.Skip()
 
-	def _on_sort_by_episode_selected(self, event):  # wxGlade: wxgSelectablySortedDocTreePnl.<event_handler>
+	def _on_sort_by_episode_selected(self, event):
 		print("Event handler '_on_sort_by_episode_selected' not implemented!")
 		event.Skip()
 
-	def _on_sort_by_issue_selected(self, event):  # wxGlade: wxgSelectablySortedDocTreePnl.<event_handler>
+	def _on_sort_by_issue_selected(self, event):
 		print("Event handler '_on_sort_by_issue_selected' not implemented!")
 		event.Skip()
 
-	def _on_sort_by_type_selected(self, event):  # wxGlade: wxgSelectablySortedDocTreePnl.<event_handler>
+	def _on_sort_by_type_selected(self, event):
 		print("Event handler '_on_sort_by_type_selected' not implemented!")
 		event.Skip()
 
-	def _on_sort_by_org_selected(self, event):  # wxGlade: wxgSelectablySortedDocTreePnl.<event_handler>
+	def _on_sort_by_org_selected(self, event):
 		print("Event handler '_on_sort_by_org_selected' not implemented!")
 		event.Skip()
 
-# end of class wxgSelectablySortedDocTreePnl

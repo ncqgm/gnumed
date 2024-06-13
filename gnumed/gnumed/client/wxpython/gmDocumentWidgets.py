@@ -1098,77 +1098,70 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 	def __init__(self, parent, id, *args, **kwds):
 		wxgSelectablySortedDocTreePnl.wxgSelectablySortedDocTreePnl.__init__(self, parent, id, *args, **kwds)
 
-		self._LCTRL_details.set_columns(['', ''])
-
-		self.__metainfo4parts = {}
+		self._PNL_previews.filename = None
 		self.__pk_curr_pat = None
 		self.__pk_curr_doc_part = None
-
-		self._doc_tree.show_details_callback = self._update_details
+		self._doc_tree.show_details_callback = self._update_preview
 
 	#--------------------------------------------------------
 	# inherited event handlers
 	#--------------------------------------------------------
 	def _on_sort_by_age_selected(self, evt):
+		evt.Skip()
 		self._doc_tree.sort_mode = 'age'
 		self._doc_tree.SetFocus()
-		self._rbtn_sort_by_age.SetValue(True)
 
 	#--------------------------------------------------------
 	def _on_sort_by_review_selected(self, evt):
+		evt.Skip()
 		self._doc_tree.sort_mode = 'review'
 		self._doc_tree.SetFocus()
-		self._rbtn_sort_by_review.SetValue(True)
 
 	#--------------------------------------------------------
 	def _on_sort_by_episode_selected(self, evt):
+		evt.Skip()
 		self._doc_tree.sort_mode = 'episode'
 		self._doc_tree.SetFocus()
-		self._rbtn_sort_by_episode.SetValue(True)
 
 	#--------------------------------------------------------
-	def _on_sort_by_issue_selected(self, event):
+	def _on_sort_by_issue_selected(self, evt):
+		evt.Skip()
 		self._doc_tree.sort_mode = 'issue'
 		self._doc_tree.SetFocus()
-		self._rbtn_sort_by_issue.SetValue(True)
 
 	#--------------------------------------------------------
 	def _on_sort_by_type_selected(self, evt):
+		evt.Skip()
 		self._doc_tree.sort_mode = 'type'
 		self._doc_tree.SetFocus()
-		self._rbtn_sort_by_type.SetValue(True)
 
 	#--------------------------------------------------------
 	def _on_sort_by_org_selected(self, evt):
+		evt.Skip()
 		self._doc_tree.sort_mode = 'org'
 		self._doc_tree.SetFocus()
-		self._rbtn_sort_by_org.SetValue(True)
 
 	#--------------------------------------------------------
 	#--------------------------------------------------------
-	def _update_details(self, issue=None, episode=None, org_unit=None, document=None, part=None):
+	def _update_preview(self, issue=None, episode=None, org_unit=None, document=None, part=None):
+		print(self.__class__.__name__, 'updating details')
+		if part:
+			self._PNL_previews.filename = part.save_to_file()
+		else:
+			self._PNL_previews.filename = None
 
-		self._LCTRL_details.set_string_items([])
-		self._TCTRL_metainfo.Value = ''
-
-		if document is None:
-			if part is not None:
-				document = part.document
-
-		if issue is None:
-			if episode is not None:
-				issue = episode.health_issue
-
-		items = []
-		items.extend(self.__process_issue(issue))
-		items.extend(self.__process_episode(episode))
-		items.extend(self.__process_org_unit(org_unit))
-		items.extend(self.__process_document(document))
-		# keep this last so self.__pk_curr_doc_part stays current
-		items.extend(self.__process_document_part(part))
-		self._LCTRL_details.set_string_items(items)
-		self._LCTRL_details.set_column_widths()
-		self._LCTRL_details.set_resize_column(1)
+#		if part and not document:
+#			document = part.document
+#		if episode and not issue:
+#			issue = episode.health_issue
+#		lines = []
+#		lines.extend(self.__process_issue(issue))
+#		lines.extend(self.__process_episode(episode))
+#		lines.extend(self.__process_org_unit(org_unit))
+#		lines.extend(self.__process_document(document))
+#		# keep this last so self.__pk_curr_doc_part stays current
+#		lines.extend(self.__process_document_part(part))
+#		print(lines)
 
 	#--------------------------------------------------------
 	# internal helper logic
@@ -1177,28 +1170,6 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 		if self.__pk_curr_pat == pk_patient:
 			return
 		self.__metainfo4parts = {}
-
-	#--------------------------------------------------------
-	def __receive_metainfo_from_worker(self, result):
-		success, desc, pk_obj = result
-		self.__metainfo4parts[pk_obj] = desc
-		if not success:
-			del self.__metainfo4parts[pk_obj]
-		# safely cross thread boundaries
-		wx.CallAfter(self.__update_metainfo, pk_obj)
-
-	#--------------------------------------------------------
-	def __update_metainfo(self, pk_obj, document_part=None):
-		if self.__pk_curr_doc_part != pk_obj:
-			# worker result arrived too late
-			# but don't empty metainfo, might already contain cached value from new doc part node
-			#self._TCTRL_metainfo.Value = ''
-			return
-
-		try:
-			self._TCTRL_metainfo.Value = self.__metainfo4parts[pk_obj]
-		except KeyError:
-			document_part.format_metainfo(callback = self.__receive_metainfo_from_worker)
 
 	#--------------------------------------------------------
 	def __process_issue(self, issue):
@@ -1256,7 +1227,6 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 		# cannot check for cache validity: no patient reference
 		# the doc-part-in-context, however, _will_ have changed
 		self.__pk_curr_doc_part = None
-		self._TCTRL_metainfo.Value = ''
 
 		items = []
 		items.append([_('Organization'), '%s (%s) [#%s]' % (
@@ -1338,7 +1308,6 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 
 		self.__check_cache_validity(document_part['pk_patient'])
 		self.__pk_curr_doc_part = document_part['pk_obj']
-		self.__update_metainfo(document_part['pk_obj'], document_part)
 		items = []
 		items.append(['', ''])
 		if document_part['seq_idx'] is None:
@@ -1359,7 +1328,6 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 		if review == '':
 			review = gmTools.u_diameter
 		items.append([_('Reviewed'), review])
-		#items.append([_(u'Reviewed'), gmTools.bool2subst(document_part['reviewed'], review, u'', u'?')])
 		return items
 
 #============================================================
@@ -1586,25 +1554,27 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			self.SetItemHasChildren(part_node, False)
 
 	#--------------------------------------------------------
+	def __generate_doc_node_label(self, doc):
+		if len(doc['seq_idx_list']) == 0:
+			no_parts = _('no parts')
+		elif len(doc['seq_idx_list']) == 1:
+			no_parts = _('1 part')
+		else:
+			no_parts = _('%s parts') % len(doc['seq_idx_list'])
+		return '%s%7s %s:%s (%s)' % (
+			gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, '', '?'),
+			doc['clin_when'].strftime('%m/%Y'),
+			doc['l10n_type'][:26],
+			gmTools.coalesce(value2test = doc['comment'], return_instead = '', template4value = ' %s'),
+			no_parts
+		)
+
+	#--------------------------------------------------------
 	def __populate_tree_by_episode(self, docs=None):
 		assert docs is not None, '<docs> must not be None'
 
 		intermediate_nodes = {}
 		for doc in docs:
-			parts = doc.parts
-			if len(parts) == 0:
-				no_parts = _('no parts')
-			elif len(parts) == 1:
-				no_parts = _('1 part')
-			else:
-				no_parts = _('%s parts') % len(parts)
-			doc_label = _('%s%7s %s:%s (%s)') % (
-				gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, '', '?'),
-				gmDateTime.pydt_strftime(doc['clin_when'], '%m/%Y'),
-				doc['l10n_type'][:26],
-				gmTools.coalesce(value2test = doc['comment'], return_instead = '', template4value = ' %s'),
-				no_parts
-			)
 			intermediate_label = '%s%s' % (doc['episode'], gmTools.coalesce(doc['health_issue'], '', ' (%s)'))
 			if intermediate_label not in intermediate_nodes:
 				intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
@@ -1612,9 +1582,10 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 				self.SetItemData(intermediate_nodes[intermediate_label], {'pk_episode': doc['pk_episode']})
 				self.SetItemHasChildren(intermediate_nodes[intermediate_label], True)
 			parent = intermediate_nodes[intermediate_label]
+			doc_label = self.__generate_doc_node_label(doc)
 			doc_node = self.AppendItem(parent = parent, text = doc_label)
 			self.SetItemData(doc_node, doc)
-			self.__add_doc_parts_nodes(parent, parts)
+			self.__add_doc_parts_nodes(doc_node, doc.parts)
 		return intermediate_nodes
 
 	#--------------------------------------------------------
@@ -1623,30 +1594,87 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 		intermediate_nodes = {}
 		for doc in docs:
-			parts = doc.parts
-			if len(parts) == 0:
-				no_parts = _('no parts')
-			elif len(parts) == 1:
-				no_parts = _('1 part')
-			else:
-				no_parts = _('%s parts') % len(parts)
-
 			intermediate_label = doc['l10n_type']
-			doc_label = _('%s%7s (%s):%s') % (
-				gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, '', '?'),
-				gmDateTime.pydt_strftime(doc['clin_when'], '%m/%Y'),
-				no_parts,
-				gmTools.coalesce(value2test = doc['comment'], return_instead = '', template4value = ' %s')
-			)
 			if intermediate_label not in intermediate_nodes:
 				intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
 				self.SetItemBold(intermediate_nodes[intermediate_label], bold = True)
 				self.SetItemData(intermediate_nodes[intermediate_label], None)
 				self.SetItemHasChildren(intermediate_nodes[intermediate_label], True)
 			parent = intermediate_nodes[intermediate_label]
+			doc_label = self.__generate_doc_node_label(doc)
 			doc_node = self.AppendItem(parent = parent, text = doc_label)
 			self.SetItemData(doc_node, doc)
-			self.__add_doc_parts_nodes(parent, parts)
+			self.__add_doc_parts_nodes(doc_node, doc.parts)
+		return intermediate_nodes
+
+	#--------------------------------------------------------
+	def __populate_tree_by_age(self, docs=None):
+		assert docs is not None, '<docs> must not be None'
+
+		intermediate_nodes = {}
+		for doc in docs:
+			intermediate_label = gmDateTime.pydt_strftime(doc['clin_when'], '%Y')
+			if intermediate_label not in intermediate_nodes:
+				intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
+				self.SetItemBold(intermediate_nodes[intermediate_label], bold = True)
+				self.SetItemData(intermediate_nodes[intermediate_label], doc['clin_when'])
+				self.SetItemHasChildren(intermediate_nodes[intermediate_label], True)
+			parent = intermediate_nodes[intermediate_label]
+			doc_label = self.__generate_doc_node_label(doc)
+			doc_node = self.AppendItem(parent = parent, text = doc_label)
+			self.SetItemData(doc_node, doc)
+			self.__add_doc_parts_nodes(doc_node, doc.parts)
+		return intermediate_nodes
+
+	#--------------------------------------------------------
+	def __populate_tree_by_issue(self, docs:list=None) -> dict:
+		assert docs is not None, '<docs> must not be None'
+
+		intermediate_nodes = {}
+		for doc in docs:
+			if doc['health_issue']:
+				intermediate_label = doc['health_issue']
+			else:
+				intermediate_label = _('%s (unattributed episode)') % doc['episode']
+			if intermediate_label not in intermediate_nodes:
+				intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
+				self.SetItemBold(intermediate_nodes[intermediate_label], bold = True)
+				self.SetItemData(intermediate_nodes[intermediate_label], {'pk_health_issue': doc['pk_health_issue']})
+				self.SetItemHasChildren(intermediate_nodes[intermediate_label], True)
+			parent = intermediate_nodes[intermediate_label]
+			doc_label = self.__generate_doc_node_label(doc)
+			doc_node = self.AppendItem(parent = parent, text = doc_label)
+			self.SetItemData(doc_node, doc)
+			self.__add_doc_parts_nodes(doc_node, doc.parts)
+		return intermediate_nodes
+
+	#--------------------------------------------------------
+	def __populate_tree_by_org(self, docs:list=None) -> dict:
+		assert docs is not None, '<docs> must not be None'
+
+		intermediate_nodes = {}
+		for doc in docs:
+			if not doc['pk_org']:
+				intermediate_label = _('unknown organization')
+			else:
+				direction = gmTools.bool2subst(doc['unit_is_receiver'], _('to: %s'), _('from: %s'))
+				# this praxis ?
+				if doc['pk_org'] == gmPraxis.gmCurrentPraxisBranch()['pk_org']:
+					org_str = _('this praxis')
+				else:
+					 org_str = doc['organization']
+				intermediate_label = direction % org_str
+			if intermediate_label not in intermediate_nodes:
+				intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
+				self.SetItemBold(intermediate_nodes[intermediate_label], bold = True)
+				# not quite right: always shows data of the _last_ document of _any_ org unit of this org
+				self.SetItemData(intermediate_nodes[intermediate_label], doc.org_unit)
+				self.SetItemHasChildren(intermediate_nodes[intermediate_label], True)
+			parent = intermediate_nodes[intermediate_label]
+			doc_label = self.__generate_doc_node_label(doc)
+			doc_node = self.AppendItem(parent = parent, text = doc_label)
+			self.SetItemData(doc_node, doc)
+			self.__add_doc_parts_nodes(doc_node, doc.parts)
 		return intermediate_nodes
 
 	#--------------------------------------------------------
@@ -1662,111 +1690,36 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		curr_pat = gmPerson.gmCurrentPatient()
 		docs_folder = curr_pat.get_document_folder()
 		docs = docs_folder.get_documents()
+		if docs is None:
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('Error searching documents.'),
+				aTitle = _('loading document list')
+			)
+			wx.EndBusyCursor()
+			return False
+
 		if not docs:
-			if docs is None:
-				gmGuiHelpers.gm_show_error (
-					aMessage = _('Error searching documents.'),
-					aTitle = _('loading document list')
-				)
 			wx.EndBusyCursor()
 			return True
 
 		# fill new tree from document list
 		self.SetItemHasChildren(self.root, True)
-
 		if self.__sort_mode == 'episode':
 			intermediate_nodes = self.__populate_tree_by_episode(docs = docs)
 		elif self.__sort_mode == 'type':
 			intermediate_nodes = self.__populate_tree_by_type(docs = docs)
+		elif self.__sort_mode == 'age':
+			intermediate_nodes = self.__populate_tree_by_age(docs = docs)
+		elif self.__sort_mode == 'issue':
+			intermediate_nodes = self.__populate_tree_by_issue(docs = docs)
+		elif self.__sort_mode == 'org':
+			intermediate_nodes = self.__populate_tree_by_org(docs = docs)
 		else:
-			# add our documents as first level nodes
 			intermediate_nodes = {}
 			for doc in docs:
-				parts = doc.parts
-				if len(parts) == 0:
-					no_parts = _('no parts')
-				elif len(parts) == 1:
-					no_parts = _('1 part')
-				else:
-					no_parts = _('%s parts') % len(parts)
-				if self.__sort_mode == 'issue':
-					doc_label = _('%s%7s %s:%s (%s)') % (
-						gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, '', '?'),
-						gmDateTime.pydt_strftime(doc['clin_when'], '%m/%Y'),
-						doc['l10n_type'][:26],
-						gmTools.coalesce(value2test = doc['comment'], return_instead = '', template4value = ' %s'),
-						no_parts
-					)
-					if doc['health_issue'] is None:
-						intermediate_label = _('%s (unattributed episode)') % doc['episode']
-					else:
-						intermediate_label = doc['health_issue']
-					if intermediate_label not in intermediate_nodes:
-						intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
-						self.SetItemBold(intermediate_nodes[intermediate_label], bold = True)
-						self.SetItemData(intermediate_nodes[intermediate_label], {'pk_health_issue': doc['pk_health_issue']})
-						self.SetItemHasChildren(intermediate_nodes[intermediate_label], True)
-					parent = intermediate_nodes[intermediate_label]
-
-				elif self.__sort_mode == 'org':
-					doc_label = _('%s%7s %s:%s (%s)') % (
-						gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, '', '?'),
-						gmDateTime.pydt_strftime(doc['clin_when'], '%m/%Y'),
-						doc['l10n_type'][:26],
-						gmTools.coalesce(value2test = doc['comment'], return_instead = '', template4value = ' %s'),
-						no_parts
-					)
-					if doc['pk_org'] is None:
-						intermediate_label = _('unknown organization')
-					else:
-						if doc['unit_is_receiver']:
-							direction = _('to: %s')
-						else:
-							direction = _('from: %s')
-						# this praxis ?
-						if doc['pk_org'] == gmPraxis.gmCurrentPraxisBranch()['pk_org']:
-							org_str = _('this praxis')
-						else:
-							 org_str = doc['organization']
-						intermediate_label = direction % org_str
-					if intermediate_label not in intermediate_nodes:
-						intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
-						self.SetItemBold(intermediate_nodes[intermediate_label], bold = True)
-						# not quite right: always shows data of the _last_ document of _any_ org unit of this org
-						self.SetItemData(intermediate_nodes[intermediate_label], doc.org_unit)
-						self.SetItemHasChildren(intermediate_nodes[intermediate_label], True)
-					parent = intermediate_nodes[intermediate_label]
-
-				elif self.__sort_mode == 'age':
-					doc_label = _('%s%7s %s:%s (%s)') % (
-						gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, '', '?'),
-						gmDateTime.pydt_strftime(doc['clin_when'], '%b %d'),
-						doc['l10n_type'][:26],
-						gmTools.coalesce(value2test = doc['comment'], return_instead = '', template4value = ' %s'),
-						no_parts
-					)
-					intermediate_label = gmDateTime.pydt_strftime(doc['clin_when'], '%Y')
-					if intermediate_label not in intermediate_nodes:
-						intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
-						self.SetItemBold(intermediate_nodes[intermediate_label], bold = True)
-						self.SetItemData(intermediate_nodes[intermediate_label], doc['clin_when'])
-						self.SetItemHasChildren(intermediate_nodes[intermediate_label], True)
-					parent = intermediate_nodes[intermediate_label]
-
-				else:
-					doc_label = _('%s%7s %s:%s (%s)') % (
-						gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, '', '?'),
-						gmDateTime.pydt_strftime(doc['clin_when'], '%Y-%m'),
-						doc['l10n_type'][:26],
-						gmTools.coalesce(value2test = doc['comment'], return_instead = '', template4value = ' %s'),
-						no_parts
-					)
-					parent = self.root
-
-			doc_node = self.AppendItem(parent = parent, text = doc_label)
-			self.SetItemData(doc_node, doc)
-			self.__add_doc_parts_nodes(doc_node, parts)
-
+				doc_node = self.AppendItem(parent = self.root, text = self.__generate_doc_node_label(doc))
+				self.SetItemData(doc_node, doc)
+				self.__add_doc_parts_nodes(doc_node, doc.parts)
 		self.__sort_nodes()
 		self.SelectItem(self.root)
 		# restore expansion state
@@ -1912,7 +1865,11 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 		data1 = self.GetItemData(node1)
 		data2 = self.GetItemData(node2)
-		assert (type(data1) == type(data2)), 'nodes must be of same type for sorting'
+#		assert (type(data1) == type(data2)), 'nodes must be of same type for sorting'
+		if type(data1) != type(data2):
+#			print(type(data1))
+#			print(type(data2))
+			return 0
 
 		if isinstance(data1, gmDocuments.cDocument):
 			return self.__compare_document_items(data1, data2)
@@ -1980,6 +1937,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 	#--------------------------------------------------------
 	def __update_details_view(self):
+		print(self.__class__.__name__, 'updating details view')
+
 		# pseudo root node or "type"
 		if self.__curr_node_data is None:
 			self.__show_details_callback(document = None, part = None)
