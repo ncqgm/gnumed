@@ -43,7 +43,7 @@ class cImageDisplay(wx.lib.statbmp.GenStaticBitmap):
 
 	#--------------------------------------------------------
 	def process_char(self, char) -> bool:
-		"""Call action based  on character.
+		"""Call action based on character.
 
 		Returns:
 			True/False based on whether the character mapped to a command.
@@ -97,6 +97,7 @@ class cImageDisplay(wx.lib.statbmp.GenStaticBitmap):
 	# event handlers
 	#--------------------------------------------------------
 	def _on_bitmap_leftclicked(self, event):
+		event.Skip()
 		self.SetFocus()
 		if not self.__callback_on_lclick:
 			return
@@ -159,13 +160,13 @@ class cImageDisplay(wx.lib.statbmp.GenStaticBitmap):
 			target_width = max(target_width, self.__min_width)
 			try:
 				orig_height = img_data.GetHeight()
-				target_height = max(1, round(orig_height / orig_width)) * target_width
+				target_height = round((orig_height / orig_width) * target_width)
 				if target_height and target_width:
 					img_data.Rescale(target_width, target_height, quality = wx.IMAGE_QUALITY_HIGH)
 				else:
-					_log.debug('cannot resize image from [%s] to %sx%s', self.__filename, target_width, target_height)
+					_log.debug('cannot resize image [%s] to %sx%s', self.__filename, target_width, target_height)
 			except Exception:
-				_log.exception('cannot resize image from [%s]', self.__filename)
+				_log.exception('cannot resize image [%s]', self.__filename)
 				return False
 
 		try:

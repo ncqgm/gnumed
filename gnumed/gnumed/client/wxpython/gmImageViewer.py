@@ -55,6 +55,7 @@ class cSingleFileImageViewerPnl(wxgSingleFileImageViewerPnl):
 
 		self.__current_page -= 1
 		self._BMP_image.filename = self.__image_pages[self.__current_page]
+		self.Layout()
 
 	#--------------------------------------------------------
 	def show_next_page(self):
@@ -66,6 +67,7 @@ class cSingleFileImageViewerPnl(wxgSingleFileImageViewerPnl):
 
 		self.__current_page += 1
 		self._BMP_image.filename = self.__image_pages[self.__current_page]
+		self.Layout()
 
 	#--------------------------------------------------------
 	def show_first_page(self):
@@ -74,6 +76,7 @@ class cSingleFileImageViewerPnl(wxgSingleFileImageViewerPnl):
 
 		self.__current_page = 0
 		self._BMP_image.filename = self.__image_pages[0]
+		self.Layout()
 
 	#--------------------------------------------------------
 	# properties

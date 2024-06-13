@@ -23,56 +23,59 @@ class wxgFilePreviewPnl(wx.Panel):
 		__szr_main = wx.BoxSizer(wx.VERTICAL)
 
 		__szr_preview_buttons = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_main.Add(__szr_preview_buttons, 0, wx.EXPAND, 0)
+		__szr_main.Add(__szr_preview_buttons, 0, wx.EXPAND, 2)
 
 		__szr_preview_buttons.Add((20, 20), 2, wx.EXPAND, 0)
 
-		self._BTN_view_file = wx.Button(self, wx.ID_ANY, _("View e&xternally"))
-		self._BTN_view_file.SetToolTip(_("Show in external viewer."))
-		__szr_preview_buttons.Add(self._BTN_view_file, 0, wx.EXPAND, 2)
+		self._LBL_parts = wx.StaticText(self, wx.ID_ANY, _("Part ?/?"))
+		__szr_preview_buttons.Add(self._LBL_parts, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
 		__szr_preview_buttons.Add((20, 20), 1, wx.EXPAND, 0)
 
 		self._BTN_prev_page = wx.Button(self, wx.ID_ANY, _(u" ◀ &prev "), style=wx.BU_EXACTFIT)
-		__szr_preview_buttons.Add(self._BTN_prev_page, 0, wx.EXPAND | wx.RIGHT, 3)
+		__szr_preview_buttons.Add(self._BTN_prev_page, 0, wx.ALIGN_CENTER_VERTICAL, 3)
 
-		self._BTN_first_page = wx.Button(self, wx.ID_ANY, _("&1 "), style=wx.BU_EXACTFIT)
-		__szr_preview_buttons.Add(self._BTN_first_page, 0, wx.EXPAND | wx.RIGHT, 3)
+		self._BTN_first_page = wx.Button(self, wx.ID_ANY, _(" &1 "), style=wx.BU_EXACTFIT)
+		__szr_preview_buttons.Add(self._BTN_first_page, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 3)
 
-		self._BTN_next_page = wx.Button(self, wx.ID_ANY, _(u"&next ▶ "), style=wx.BU_EXACTFIT)
-		__szr_preview_buttons.Add(self._BTN_next_page, 0, wx.EXPAND | wx.RIGHT, 3)
+		self._BTN_next_page = wx.Button(self, wx.ID_ANY, _(u" &next ▶ "), style=wx.BU_EXACTFIT)
+		__szr_preview_buttons.Add(self._BTN_next_page, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 3)
+
+		__szr_preview_buttons.Add((20, 20), 1, wx.EXPAND, 0)
 
 		self._BTN_switch_preview = wx.Button(self, wx.ID_ANY, _(" S&witch preview "), style=wx.BU_EXACTFIT)
 		self._BTN_switch_preview.SetToolTip(_("Switch preview type among Image and Text."))
-		__szr_preview_buttons.Add(self._BTN_switch_preview, 0, wx.EXPAND, 0)
+		__szr_preview_buttons.Add(self._BTN_switch_preview, 0, wx.ALIGN_CENTER_VERTICAL, 3)
+
+		__szr_preview_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+
+		self._BTN_view_file = wx.Button(self, wx.ID_ANY, _(" View e&xternally "), style=wx.BU_EXACTFIT)
+		self._BTN_view_file.SetToolTip(_("Show in external viewer."))
+		__szr_preview_buttons.Add(self._BTN_view_file, 0, wx.ALIGN_CENTER_VERTICAL, 2)
 
 		__szr_preview_buttons.Add((20, 20), 2, wx.EXPAND, 0)
 
-		self._SZR_previews = wx.StaticBoxSizer(wx.StaticBox(self, wx.ID_ANY, _(" Preview")), wx.VERTICAL)
-		__szr_main.Add(self._SZR_previews, 1, wx.EXPAND, 0)
+		_SZR_previews = wx.BoxSizer(wx.VERTICAL)
+		__szr_main.Add(_SZR_previews, 1, wx.EXPAND | wx.TOP, 2)
 
 		self._PNL_image_preview = cSingleFileImageViewerPnl(self, wx.ID_ANY, style=wx.TAB_TRAVERSAL | wx.WANTS_CHARS)
-		self._SZR_previews.Add(self._PNL_image_preview, 1, wx.EXPAND, 0)
+		_SZR_previews.Add(self._PNL_image_preview, 1, wx.EXPAND, 0)
 
 		self._TCTRL_text_preview = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.BORDER_NONE | wx.HSCROLL | wx.TE_DONTWRAP | wx.TE_MULTILINE | wx.TE_READONLY)
 		self._TCTRL_text_preview.SetFont(wx.Font(10, wx.FONTFAMILY_MODERN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
-		self._SZR_previews.Add(self._TCTRL_text_preview, 1, wx.EXPAND, 3)
+		_SZR_previews.Add(self._TCTRL_text_preview, 1, wx.EXPAND, 3)
 
 		self.SetSizer(__szr_main)
 		__szr_main.Fit(self)
 
 		self.Layout()
 
-		self.Bind(wx.EVT_BUTTON, self._on_view_externally_button_pressed, self._BTN_view_file)
-		self.Bind(wx.EVT_BUTTON, self._on_prev_page_button_pressed, self._BTN_prev_page)
-		self.Bind(wx.EVT_BUTTON, self._on_first_page_button_pressed, self._BTN_first_page)
-		self.Bind(wx.EVT_BUTTON, self._on_next_page_button_pressed, self._BTN_next_page)
-		self.Bind(wx.EVT_BUTTON, self._on_switch_preview_button_pressed, self._BTN_switch_preview)
+		self._BTN_prev_page.Bind(wx.EVT_BUTTON, self._on_prev_page_button_pressed)
+		self._BTN_first_page.Bind(wx.EVT_BUTTON, self._on_first_page_button_pressed)
+		self._BTN_next_page.Bind(wx.EVT_BUTTON, self._on_next_page_button_pressed)
+		self._BTN_switch_preview.Bind(wx.EVT_BUTTON, self._on_switch_preview_button_pressed)
+		self._BTN_view_file.Bind(wx.EVT_BUTTON, self._on_view_externally_button_pressed)
 		# end wxGlade
-
-	def _on_view_externally_button_pressed(self, event):  # wxGlade: wxgFilePreviewPnl.<event_handler>
-		print("Event handler '_on_view_externally_button_pressed' not implemented!")
-		event.Skip()
 
 	def _on_prev_page_button_pressed(self, event):  # wxGlade: wxgFilePreviewPnl.<event_handler>
 		print("Event handler '_on_prev_page_button_pressed' not implemented!")
@@ -88,6 +91,10 @@ class wxgFilePreviewPnl(wx.Panel):
 
 	def _on_switch_preview_button_pressed(self, event):  # wxGlade: wxgFilePreviewPnl.<event_handler>
 		print("Event handler '_on_switch_preview_button_pressed' not implemented!")
+		event.Skip()
+
+	def _on_view_externally_button_pressed(self, event):  # wxGlade: wxgFilePreviewPnl.<event_handler>
+		print("Event handler '_on_view_externally_button_pressed' not implemented!")
 		event.Skip()
 
 # end of class wxgFilePreviewPnl

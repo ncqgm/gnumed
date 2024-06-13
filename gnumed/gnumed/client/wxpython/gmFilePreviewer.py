@@ -89,15 +89,6 @@ class cFilePreviewPnl(wxgFilePreviewPnl):
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
-	def __update_box_label(self):
-		box_label = ' %s (%s/%s)' % (
-			_('Image Preview'),
-			self._PNL_image_preview.current_page,
-			self._PNL_image_preview.page_count
-		)
-		self._SZR_previews.StaticBox.SetLabel(box_label)
-
-	#--------------------------------------------------------
 	# image preview
 	#--------------------------------------------------------
 	def _worker__convert_to_image(self, filename:str=None, cookie=None) -> str:
@@ -118,12 +109,15 @@ class cFilePreviewPnl(wxgFilePreviewPnl):
 	#--------------------------------------------------------
 	def __update_image_preview(self, filename):
 		self._PNL_image_preview.filename = filename
+		self.__update_page_label()
+		self.Layout()
 
 	#--------------------------------------------------------
 	def __show_image_preview(self):
 		self._TCTRL_text_preview.Hide()
 		self._PNL_image_preview.Show()
-		self.__update_box_label()
+		self.__update_page_label()
+		self._LBL_parts.Show()
 		self.Layout()
 
 	#--------------------------------------------------------
@@ -164,9 +158,14 @@ class cFilePreviewPnl(wxgFilePreviewPnl):
 	#--------------------------------------------------------
 	def __show_text_preview(self):
 		self._PNL_image_preview.Hide()
+		self._LBL_parts.Hide()
 		self._TCTRL_text_preview.Show()
-		self._SZR_previews.StaticBox.SetLabel(' ' + _('Text preview'))
 		self.Layout()
+
+	#--------------------------------------------------------
+	def __update_page_label(self):
+		self._LBL_parts.Label = _('Page %s/%s') % (self._PNL_image_preview.current_page, self._PNL_image_preview.page_count)
+		self._LBL_parts.Refresh()
 
 	#--------------------------------------------------------
 	# event handlers
@@ -191,19 +190,22 @@ class cFilePreviewPnl(wxgFilePreviewPnl):
 	def _on_prev_page_button_pressed(self, event):
 		event.Skip()
 		self._PNL_image_preview.show_previous_page()
-		self.__update_box_label()
+		self.__update_page_label()
+		self.Layout()
 
 	#--------------------------------------------------------
 	def _on_first_page_button_pressed(self, event):
 		event.Skip()
 		self._PNL_image_preview.show_first_page()
-		self.__update_box_label()
+		self.__update_page_label()
+		self.Layout()
 
 	#--------------------------------------------------------
 	def _on_next_page_button_pressed(self, event):
 		event.Skip()
 		self._PNL_image_preview.show_next_page()
-		self.__update_box_label()
+		self.__update_page_label()
+		self.Layout()
 
 #============================================================
 # main

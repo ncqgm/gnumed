@@ -913,7 +913,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 	def _display_name(self):
 		name = ''
 		if self.person:
-			name = self.person.description
+			name = self.person.description_gender + gmTools.coalesce(self.person.get_formatted_dob(), '', ' %s')
 		self.SetValue(name)
 		# adjust tooltip
 		if self.person is None:
