@@ -44,6 +44,7 @@ IMPROVED: login: DB sanity checking
 IMPROVED: cfg: logging of set-option errors, forward-ported
 IMPROVED: allergy handling
 IMPROVED: hints: gracefully handle failing dynamic hints
+IMPROVED: document archive: add image/text preview
 
 FIX: CLI: --wxp= not needed anymore
 FIX: CLI: --ui= not needed anymore

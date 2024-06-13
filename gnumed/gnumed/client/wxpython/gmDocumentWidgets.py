@@ -1144,7 +1144,6 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 	#--------------------------------------------------------
 	#--------------------------------------------------------
 	def _update_preview(self, issue=None, episode=None, org_unit=None, document=None, part=None):
-		print(self.__class__.__name__, 'updating details')
 		if part:
 			self._PNL_previews.filename = part.save_to_file()
 		else:
@@ -1865,11 +1864,11 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 		data1 = self.GetItemData(node1)
 		data2 = self.GetItemData(node2)
-#		assert (type(data1) == type(data2)), 'nodes must be of same type for sorting'
-		if type(data1) != type(data2):
+		assert (type(data1) == type(data2)), 'nodes must be of same type for sorting'
+#		if type(data1) != type(data2):
 #			print(type(data1))
 #			print(type(data2))
-			return 0
+#			return 0
 
 		if isinstance(data1, gmDocuments.cDocument):
 			return self.__compare_document_items(data1, data2)
@@ -1937,8 +1936,6 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 	#--------------------------------------------------------
 	def __update_details_view(self):
-		print(self.__class__.__name__, 'updating details view')
-
 		# pseudo root node or "type"
 		if self.__curr_node_data is None:
 			self.__show_details_callback(document = None, part = None)
