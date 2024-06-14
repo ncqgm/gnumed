@@ -82,7 +82,7 @@ drop function if exists gm.refresh_pg_collations_version_information() cascade;
 create function gm.refresh_pg_collations_version_information()
 	returns void
 	language plpgsql
-	security invoker
+	security definer
 	as '
 DECLARE
 	_rec record;
@@ -113,6 +113,8 @@ comment on function gm.refresh_pg_collations_version_information() is
 revoke all on function gm.refresh_pg_collations_version_information() from public;
 
 grant execute on function gm.refresh_pg_collations_version_information() to "gm-dbo";
+
+alter function gm.refresh_pg_collations_version_information() owner to postgres;
 
 -- --------------------------------------------------------------
 drop function if exists gm.update_pg_collations() cascade;

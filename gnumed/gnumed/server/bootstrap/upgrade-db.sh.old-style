@@ -38,8 +38,8 @@ fi ;
 LOG_BASE="."
 FIXUP_LOG="${LOG_BASE}/fixup_db-v${PREV_VER}.log"
 FIXUP_CONF="fixup_db-v${PREV_VER}.conf"
-UPGRADE_LOG="${LOG_BASE}/upgrade_db-v${PREV_VER}_v${NEXT_VER}.log"
-UPGRADE_CONF="upgrade_db-v${PREV_VER}_v${NEXT_VER}.conf"
+UPGRADE_LOG="${LOG_BASE}/update_db-v${PREV_VER}_v${NEXT_VER}.log"
+UPGRADE_CONF="update_db-v${PREV_VER}_v${NEXT_VER}.conf"
 TS=$(date +%Y-%m-%d-%H-%M-%S)
 BAK_FILE="backup-upgrade_v${PREV_VER}_to_v${NEXT_VER}-$(hostname)-${TS}.tar"
 
@@ -286,7 +286,7 @@ function apply_source_database_fixups () {
 #--------------------------------------------------
 function upgrade_source_to_target_database () {
 	echo_msg ""
-	echo_msg "2) upgrading to new database ..."
+	echo_msg "3) upgrading to new database ..."
 	# fixup for schema hash function
 	# - cannot be done inside bootstrapper
 	# - only needed for converting anything below v6 with a v6 bootstrapper
@@ -317,7 +317,7 @@ warn_on_existing_target_database
 check_disk_space
 perhaps_backup_source_database
 perhaps_verify_source_database_integrity
-#apply_source_database_fixups
+apply_source_database_fixups
 upgrade_source_to_target_database
 #vacuum_target_database
 

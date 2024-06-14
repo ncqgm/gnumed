@@ -1235,7 +1235,8 @@ class database:
 			return False
 
 		if revalidated is None:
-			_log.exception('constraint validation function missing')
+			_log.error('constraint validation function missing, DO MANUALLY')
+			print_msg('    ... unavailable, DO MANUALLY')
 			return '_\\//'
 
 		return revalidated
@@ -1261,7 +1262,8 @@ class database:
 				return False
 
 			if refreshed is None:
-				_log.error('constraint validation function failed')
+				_log.error('collations validation function missing, DO MANUALLY')
+				print_msg('    ... unavailable, DO MANUALLY')
 				return True
 
 		return True

@@ -983,6 +983,9 @@ def revalidate_constraints(link_obj:_TLnkObj=None) -> str:
 
 	This needs a gm-dbo connection.
 
+	Note that reindexing should have been run *before*
+	this if fixing collations.
+
 	Returns:
 		Magic cookie on success.
 	"""
@@ -994,6 +997,11 @@ def revalidate_constraints(link_obj:_TLnkObj=None) -> str:
 		except dbapi.errors.UndefinedFunction as exc:
 			if 'gm.revalidate_all_constraints() does not exist' in exc.pgerror:
 				_log.error('gm.revalidate_all_constraints() does not exist')
+				return None
+
+		except dbapi.errors.InvalidSchemaName as exc:
+			if 'schema "gm" does not exist' in exc.pgerror:
+				_log.error('schema "gm" does not exist, cannot run gm.revalidate_all_constraints()')
 				return None
 
 			raise
@@ -1193,6 +1201,11 @@ def refresh_collations_version_information(conn=None, use_the_source_luke=False)
 		except dbapi.errors.UndefinedFunction as exc:
 			if 'gm.update_pg_collations() does not exist' in exc.pgerror:
 				_log.error('gm.update_pg_collations() does not exist')
+				return None
+
+		except dbapi.errors.InvalidSchemaName as exc:
+			if 'schema "gm" does not exist' in exc.pgerror:
+				_log.error('schema "gm" does not exist, cannot run gm.update_pg_collations()')
 				return None
 
 			raise
@@ -3302,14 +3315,14 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 		if db_collation_valid and other_collations_valid:
 			return
 
-		input('[enter] for revalidation/reindexing')
-		luke = revalidate_constraints()
-		print('revalidation:', luke)
+		input('[enter] for reindexing/revalidation')
 		conn = get_connection(readonly = False)
 		leia = reindex_database(conn = conn)
 		conn.commit()
 		conn.close()
 		print('reindexing:', leia)
+		luke = revalidate_constraints()
+		print('revalidation:', luke)
 		input('[enter] for collations updates')
 		conn = get_connection(readonly = False)
 		print('refreshing collations version information')
@@ -3320,6 +3333,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 			collations_updated = refresh_collations_version_information(conn = conn, use_the_source_luke = [leia, luke])
 			print(' other collations:', collations_updated)
 		conn.rollback()
+		#conn.commit()
 
 	#--------------------------------------------------------------------
 	def test_revalidate_constraints():
