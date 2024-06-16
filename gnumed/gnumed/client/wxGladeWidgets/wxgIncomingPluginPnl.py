@@ -37,27 +37,27 @@ class wxgIncomingPluginPnl(wx.Panel):
 		__szr_left.Add(__szr_parts_buttons, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 2)
 
 		self._BTN_add_parts = wx.Button(self.__pnl_splitter_left, wx.ID_ANY, _(u" &+Add… "), style=wx.BU_EXACTFIT)
-		self._BTN_add_parts.SetToolTip(_("Add documents from scanner/disc/clipboard to incoming area."))
+		self._BTN_add_parts.SetToolTip(_("Add entries from scanner/disc/clipboard to incoming area."))
 		__szr_parts_buttons.Add(self._BTN_add_parts, 0, wx.EXPAND | wx.RIGHT, 2)
 
 		self._BTN_remove_item = wx.Button(self.__pnl_splitter_left, wx.ID_ANY, _(" &Remove "), style=wx.BU_EXACTFIT)
-		self._BTN_remove_item.SetToolTip(_("Remove highlighted document from incoming area."))
+		self._BTN_remove_item.SetToolTip(_("Remove highlighted entry from incoming area."))
 		__szr_parts_buttons.Add(self._BTN_remove_item, 0, wx.EXPAND | wx.RIGHT, 2)
 
 		__szr_parts_buttons.Add((20, 20), 1, wx.EXPAND, 0)
 
 		self._BTN_unassign_patient = wx.Button(self.__pnl_splitter_left, wx.ID_ANY, _("&Unassign"))
-		self._BTN_unassign_patient.SetToolTip(_("Unassign patient from highlighted document."))
+		self._BTN_unassign_patient.SetToolTip(_("Unassign patient from highlighted entry."))
 		__szr_parts_buttons.Add(self._BTN_unassign_patient, 0, wx.EXPAND | wx.RIGHT, 2)
 
 		self._BTN_goto_item_patient = wx.Button(self.__pnl_splitter_left, wx.ID_ANY, _("&Activate"))
-		self._BTN_goto_item_patient.SetToolTip(_("Activate patient from highlighted or first [x] checked document."))
+		self._BTN_goto_item_patient.SetToolTip(_("Activate patient from highlighted or first [x]-checked entry."))
 		__szr_parts_buttons.Add(self._BTN_goto_item_patient, 0, wx.EXPAND, 0)
 
 		__szr_parts_buttons.Add((20, 20), 2, wx.EXPAND, 0)
 
 		self._BTN_prepare_import = wx.ToggleButton(self.__pnl_splitter_left, wx.ID_ANY, _(" Chart &import "), style=wx.BU_EXACTFIT)
-		self._BTN_prepare_import.SetToolTip(_("Prepare document import:\n\n1) filter by active patient\n2) show document property fields"))
+		self._BTN_prepare_import.SetToolTip(_("Prepare document import:\n\n1) filter entries by active patient\n2) show document property fields"))
 		__szr_parts_buttons.Add(self._BTN_prepare_import, 0, wx.EXPAND, 0)
 
 		from Gnumed.wxpython.gmIncomingDataWidgets import cIncomingDataListCtrl
@@ -76,21 +76,21 @@ class wxgIncomingPluginPnl(wx.Panel):
 		__szr_patient_search_assign.Add(self._TCTRL_search_person, 1, wx.EXPAND, 0)
 
 		self._BTN_assign_selected_patient2items = wx.Button(self._PNL_patient_search_assign, wx.ID_ANY, _(u"⮥ A&ssign "), style=wx.BU_EXACTFIT)
-		self._BTN_assign_selected_patient2items.SetToolTip(_(" Assign patient from search box to [x] checked documents or the highlighted document."))
+		self._BTN_assign_selected_patient2items.SetToolTip(_(" Assign patient from search box to [x]-checked entries, if any, or else the highlighted entry."))
 		__szr_patient_search_assign.Add(self._BTN_assign_selected_patient2items, 0, wx.EXPAND | wx.RIGHT, 2)
 
 		self._BTN_goto_searched_patient = wx.Button(self._PNL_patient_search_assign, wx.ID_ANY, _(u"→&Goto "), style=wx.BU_EXACTFIT)
-		self._BTN_goto_searched_patient.SetToolTip(_("Activate patient from search box."))
+		self._BTN_goto_searched_patient.SetToolTip(_("Make patient from search box the active patient."))
 		__szr_patient_search_assign.Add(self._BTN_goto_searched_patient, 0, wx.EXPAND | wx.RIGHT, 2)
 
 		self._BTN_assign_current_patient2items = wx.Button(self._PNL_patient_search_assign, wx.ID_ANY, _(u" A&ctive⮥ "), style=wx.BU_EXACTFIT)
-		self._BTN_assign_current_patient2items.SetToolTip(_("Assign ACTIVE patient to [x] checked documents or the hightlighted document."))
+		self._BTN_assign_current_patient2items.SetToolTip(_("Assign ACTIVE patient to [x]-checked entries, if any, or else the highlighted entry."))
 		__szr_patient_search_assign.Add(self._BTN_assign_current_patient2items, 0, wx.EXPAND, 2)
 
 		self._PNL_document_properties = wx.Panel(self.__pnl_splitter_left, wx.ID_ANY, style=wx.BORDER_NONE)
 		__szr_left.Add(self._PNL_document_properties, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 2)
 
-		__szr_doc_properties = wx.StaticBoxSizer(wx.StaticBox(self._PNL_document_properties, wx.ID_ANY, _("Patient document")), wx.VERTICAL)
+		__szr_doc_properties = wx.StaticBoxSizer(wx.StaticBox(self._PNL_document_properties, wx.ID_ANY, _("Document properties")), wx.VERTICAL)
 
 		__gridsizer_properties = wx.FlexGridSizer(10, 2, 2, 2)
 		__szr_doc_properties.Add(__gridsizer_properties, 1, wx.EXPAND, 0)
@@ -189,14 +189,14 @@ class wxgIncomingPluginPnl(wx.Panel):
 
 		__szr_import_buttons.Add((20, 20), 0, wx.EXPAND, 0)
 
-		self._BTN_save = wx.Button(self._PNL_document_properties, wx.ID_ANY, _("&Import"))
-		self._BTN_save.SetToolTip(_("Import [x] checked documents from incoming area into patient chart as one document."))
+		self._BTN_save = wx.Button(self._PNL_document_properties, wx.ID_ANY, _("&Import [x]"))
+		self._BTN_save.SetToolTip(_("Import [x]-checked entries from incoming area into patient chart as a single document."))
 		__szr_import_buttons.Add(self._BTN_save, 0, wx.EXPAND, 2)
 
 		__szr_import_buttons.Add((20, 20), 0, wx.EXPAND, 0)
 
 		self._BTN_clear = wx.Button(self._PNL_document_properties, wx.ID_ANY, _("&Clear"))
-		self._BTN_clear.SetToolTip(_("Clear patient document property fields."))
+		self._BTN_clear.SetToolTip(_("Clear document property fields."))
 		__szr_import_buttons.Add(self._BTN_clear, 0, wx.EXPAND, 0)
 
 		__szr_import_buttons.Add((20, 20), 1, wx.EXPAND, 0)

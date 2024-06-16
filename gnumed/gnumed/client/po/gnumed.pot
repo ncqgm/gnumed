@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-08 22:59+0200\n"
+"POT-Creation-Date: 2024-06-14 23:11+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5830,22 +5830,22 @@ msgstr ""
 msgid " &+Add… "
 msgstr ""
 
-msgid "Add documents from scanner/disc/clipboard to incoming area."
+msgid "Add entries from scanner/disc/clipboard to incoming area."
 msgstr ""
 
 msgid " &Remove "
 msgstr ""
 
-msgid "Remove highlighted document from incoming area."
+msgid "Remove highlighted entry from incoming area."
 msgstr ""
 
 msgid "&Unassign"
 msgstr ""
 
-msgid "Unassign patient from highlighted document."
+msgid "Unassign patient from highlighted entry."
 msgstr ""
 
-msgid "Activate patient from highlighted or first [x] checked document."
+msgid "Activate patient from highlighted or first [x]-checked entry."
 msgstr ""
 
 msgid " Chart &import "
@@ -5854,7 +5854,7 @@ msgstr ""
 msgid ""
 "Prepare document import:\n"
 "\n"
-"1) filter by active patient\n"
+"1) filter entries by active patient\n"
 "2) show document property fields"
 msgstr ""
 
@@ -5865,24 +5865,25 @@ msgid "⮥ A&ssign "
 msgstr ""
 
 msgid ""
-" Assign patient from search box to [x] checked documents or the highlighted "
-"document."
+" Assign patient from search box to [x]-checked entries, if any, or else the "
+"highlighted entry."
 msgstr ""
 
 msgid "→&Goto "
 msgstr ""
 
-msgid "Activate patient from search box."
+msgid "Make patient from search box the active patient."
 msgstr ""
 
 msgid " A&ctive⮥ "
 msgstr ""
 
 msgid ""
-"Assign ACTIVE patient to [x] checked documents or the hightlighted document."
+"Assign ACTIVE patient to [x]-checked entries, if any, or else the "
+"highlighted entry."
 msgstr ""
 
-msgid "Patient document"
+msgid "Document properties"
 msgstr ""
 
 msgid "Type:"
@@ -5958,15 +5959,15 @@ msgid ""
 "normal and abnormal resuslts can be relevant."
 msgstr ""
 
-msgid "&Import"
+msgid "&Import [x]"
 msgstr ""
 
 msgid ""
-"Import [x] checked documents from incoming area into patient chart as one "
+"Import [x]-checked entries from incoming area into patient chart as a single "
 "document."
 msgstr ""
 
-msgid "Clear patient document property fields."
+msgid "Clear document property fields."
 msgstr ""
 
 msgid "≈"
@@ -6003,22 +6004,25 @@ msgstr ""
 msgid "Close this dialog."
 msgstr ""
 
+msgid "Sort documents by"
+msgstr ""
+
 msgid "Age"
 msgstr ""
 
-msgid "Review status"
-msgstr ""
-
-msgid "Health issue"
-msgstr ""
-
 msgid "Sort newest documents to top of tree."
+msgstr ""
+
+msgid "Review status"
 msgstr ""
 
 msgid "Sort unreviewed documents to top of tree."
 msgstr ""
 
 msgid "Sort documents by the episode they belong to."
+msgstr ""
+
+msgid "Health issue"
 msgstr ""
 
 msgid "Sort documents by the health issue they belong to."
@@ -6028,9 +6032,6 @@ msgid "Sort documents by their type."
 msgstr ""
 
 msgid "Sort documents by the organization they are from."
-msgstr ""
-
-msgid "Sort documents by"
 msgstr ""
 
 msgid "Se&lect"
@@ -7184,10 +7185,7 @@ msgstr ""
 msgid "&Unknown"
 msgstr ""
 
-msgid ""
-"Notes on start date.\n"
-"\n"
-"('?' is interpreted as 'unknown')"
+msgid "Notes on start date."
 msgstr ""
 
 msgid "Stopped"
@@ -7416,19 +7414,16 @@ msgid ""
 "in this patient"
 msgstr ""
 
-msgid "View e&xternally"
-msgstr ""
-
-msgid "Show in external viewer."
+msgid "Part ?/?"
 msgstr ""
 
 msgid " ◀ &prev "
 msgstr ""
 
-msgid "&1 "
+msgid " &1 "
 msgstr ""
 
-msgid "&next ▶ "
+msgid " &next ▶ "
 msgstr ""
 
 msgid " S&witch preview "
@@ -7437,7 +7432,10 @@ msgstr ""
 msgid "Switch preview type among Image and Text."
 msgstr ""
 
-msgid " Preview"
+msgid " View e&xternally "
+msgstr ""
+
+msgid "Show in external viewer."
 msgstr ""
 
 msgid "Save &under"
@@ -13773,16 +13771,14 @@ msgstr ""
 msgid "Removing communication channel"
 msgstr ""
 
-msgid "Image Preview"
-msgstr ""
-
 msgid "File description/metadata appended"
 msgstr ""
 
 msgid "No text content found."
 msgstr ""
 
-msgid "Text preview"
+#, python-format
+msgid "Page %s/%s"
 msgstr ""
 
 #, python-format
@@ -15666,20 +15662,6 @@ msgid "part %2s"
 msgstr ""
 
 #, python-format
-msgid "%s%7s %s:%s (%s)"
-msgstr ""
-
-#, python-format
-msgid "%s%7s (%s):%s"
-msgstr ""
-
-msgid "Error searching documents."
-msgstr ""
-
-msgid "loading document list"
-msgstr ""
-
-#, python-format
 msgid "%s (unattributed episode)"
 msgstr ""
 
@@ -15695,6 +15677,12 @@ msgid "from: %s"
 msgstr ""
 
 msgid "this praxis"
+msgstr ""
+
+msgid "Error searching documents."
+msgstr ""
+
+msgid "loading document list"
 msgstr ""
 
 msgid "Activate as current photo"
@@ -20199,6 +20187,9 @@ msgid "&Waiting list"
 msgstr ""
 
 msgid "Medication"
+msgstr ""
+
+msgid "Archive"
 msgstr ""
 
 msgid "&Documents"

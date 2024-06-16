@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-08 22:58+0200\n"
-"PO-Revision-Date: 2024-06-08 23:20+0200\n"
+"POT-Creation-Date: 2024-06-14 23:11+0200\n"
+"PO-Revision-Date: 2024-06-14 23:06+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -2905,7 +2905,7 @@ msgstr ""
 "Betriebssystem"
 
 msgid "  risk: data corruption (duplicate entries, faulty sorting)"
-msgstr ""
+msgstr "  Risiko: Datenfehler (doppelte Einträge, fehlerhafte Sortierung)"
 
 msgid " collations with version mismatch"
 msgstr ""
@@ -2948,7 +2948,7 @@ msgid "Time:"
 msgstr "Zeit:"
 
 msgid "Optional: the time of birth if known"
-msgstr "Optional: Die Zeit der Geburt, sofern bekannt."
+msgstr "Optional: Die Zeit der Geburt, sofern bekannt"
 
 msgid "Gender"
 msgstr "Geschlecht"
@@ -3259,7 +3259,6 @@ msgstr ""
 msgid "⚠!"
 msgstr ""
 
-#, fuzzy
 msgid "Discontinue selected intake due to an allergy or intolerance."
 msgstr ""
 "Den gewählten Eintrag wegen einer Allergie oder Unverträglichkeit beenden."
@@ -6523,24 +6522,23 @@ msgstr "Taille"
 msgid " &+Add… "
 msgstr " &+Hinzufügen… "
 
-msgid "Add documents from scanner/disc/clipboard to incoming area."
-msgstr ""
+msgid "Add entries from scanner/disc/clipboard to incoming area."
+msgstr "Einträge von Datenträger, Clipboard oder via Scanner hinzufügen."
 
 msgid " &Remove "
-msgstr "&Entfernen "
+msgstr " &Entfernen "
 
-msgid "Remove highlighted document from incoming area."
-msgstr "Markiertes Dokument aus der Sammelmappe entfernen."
+msgid "Remove highlighted entry from incoming area."
+msgstr "Selektierten Eintrag aus dem Dokumenteneingang entfernen."
 
 msgid "&Unassign"
 msgstr "&Trennen"
 
-msgid "Unassign patient from highlighted document."
-msgstr "Patientenzuordnung des selektierten Dokuments entfernen."
+msgid "Unassign patient from highlighted entry."
+msgstr "Patientenzuordnung des selektierten Eintrags entfernen."
 
-msgid "Activate patient from highlighted or first [x] checked document."
-msgstr ""
-"Patient des selektierten oder ersten [x]-markierten Dokuments aufrufen."
+msgid "Activate patient from highlighted or first [x]-checked entry."
+msgstr "Patient des selektierten oder ersten [x]-markierten Eintrags aufrufen."
 
 msgid " Chart &import "
 msgstr " Kartei&import"
@@ -6548,9 +6546,13 @@ msgstr " Kartei&import"
 msgid ""
 "Prepare document import:\n"
 "\n"
-"1) filter by active patient\n"
+"1) filter entries by active patient\n"
 "2) show document property fields"
 msgstr ""
+"Import als Dokument vorbereiten:\n"
+"\n"
+"1) Einträge anhand des aktiven Patienten filtern\n"
+"2) Eingabefelder für Dokumenteneigenschaften zeigen"
 
 msgid "Patient:"
 msgstr "Patient:"
@@ -6559,25 +6561,30 @@ msgid "⮥ A&ssign "
 msgstr "⮥ Zu&ordnen "
 
 msgid ""
-" Assign patient from search box to [x] checked documents or the highlighted "
-"document."
+" Assign patient from search box to [x]-checked entries, if any, or else the "
+"highlighted entry."
 msgstr ""
+" Patient aus Suchfeld den [x]-markierten Einträgen (sofern vorhanden) - "
+"ansonsten dem selektierten Eintrag - zuordnen."
 
 msgid "→&Goto "
 msgstr "→Auf&rufen "
 
-msgid "Activate patient from search box."
-msgstr ""
+msgid "Make patient from search box the active patient."
+msgstr "Den Patienten aus dem Suchfeld aufrufen."
 
 msgid " A&ctive⮥ "
 msgstr " A&ktiven⮥ "
 
 msgid ""
-"Assign ACTIVE patient to [x] checked documents or the hightlighted document."
+"Assign ACTIVE patient to [x]-checked entries, if any, or else the "
+"highlighted entry."
 msgstr ""
+"Den AKTIVEN Patienten den [x]-markierten Einträgen (sofern vorhanden) - "
+"ansonsten dem selektierten Eintrag - zuordnen."
 
-msgid "Patient document"
-msgstr "Patientendokument"
+msgid "Document properties"
+msgstr "Eigenschaften des Dokuments"
 
 msgid "Type:"
 msgstr "Typ:"
@@ -6671,17 +6678,18 @@ msgstr ""
 "Enthält dieses Dokument medizinisch bedeutsame Ergebnisse ? Auch "
 "Normalbefunde können medizinisch bedeutsam sein."
 
-msgid "&Import"
-msgstr "&Import"
+msgid "&Import [x]"
+msgstr "&Import [x]"
 
 msgid ""
-"Import [x] checked documents from incoming area into patient chart as one "
+"Import [x]-checked entries from incoming area into patient chart as a single "
 "document."
 msgstr ""
+"Die [x]-markierten Einträge als ein Dokument in die Patientenkartei "
+"überführen."
 
-#, fuzzy
-msgid "Clear patient document property fields."
-msgstr "Eigenschaften des Dokuments editieren"
+msgid "Clear document property fields."
+msgstr "Felder für Dokumenteneigenschaften leeren."
 
 msgid "≈"
 msgstr ""
@@ -6717,23 +6725,26 @@ msgstr "Details der Konsultation ändern"
 msgid "Close this dialog."
 msgstr "Diesen Dialog schließen."
 
+msgid "Sort documents by"
+msgstr "Sortiere Dokumente nach"
+
 msgid "Age"
 msgstr "Alter"
 
-msgid "Review status"
-msgstr "Status"
-
-msgid "Health issue"
-msgstr "Grunderkrankung"
-
 msgid "Sort newest documents to top of tree."
 msgstr "Sortiere jüngste Dokumente nach oben."
+
+msgid "Review status"
+msgstr "Status"
 
 msgid "Sort unreviewed documents to top of tree."
 msgstr "Sortiere ungesehene Dokumente nach oben."
 
 msgid "Sort documents by the episode they belong to."
 msgstr "Sortiere Dokumente nach der Episode, zu der sie gehören."
+
+msgid "Health issue"
+msgstr "Grunderkrankung"
 
 msgid "Sort documents by the health issue they belong to."
 msgstr "Sortiere Dokumente nach der Grunderkrankung, zu der sie gehören."
@@ -6743,9 +6754,6 @@ msgstr "Sortiere Dokumente nach ihrem Typ."
 
 msgid "Sort documents by the organization they are from."
 msgstr "Sortiere Dokumente nach der Organisation, aus der sie kommen."
-
-msgid "Sort documents by"
-msgstr "Sortiere Dokumente nach"
 
 msgid "Se&lect"
 msgstr "Aus&wählen"
@@ -8126,43 +8134,35 @@ msgstr ""
 "Wenn dies nicht Ihre Absicht ist, müssen Sie die Auswahl\n"
 "an Testergebnissen ändern."
 
-#, fuzzy
 msgid "Amount of active ingredient."
-msgstr "Kein Patient aktiv."
+msgstr "Wirkstoffmenge"
 
-#, fuzzy
 msgid "Units for the amount of active ingredient."
-msgstr "Einheit für Menge fehlt."
+msgstr "Einheit der Wirkstoffmenge."
 
 msgid "The intake schedule describing how to use the dosage."
-msgstr ""
+msgstr "Der Einnahmeplan, der beschreibt, wie die Dosis genommen werden soll."
 
-#, fuzzy
 msgid "&Today →"
-msgstr "Heute"
+msgstr "&Heute →"
 
-#, fuzzy
 msgid "The start of substance intake."
-msgstr "Der Name des Wirkstoffs."
+msgstr "Beginn der Einnahme."
 
 msgid "&Unknown"
 msgstr "&Unbekannt"
 
-msgid ""
-"Notes on start date.\n"
-"\n"
-"('?' is interpreted as 'unknown')"
-msgstr ""
+msgid "Notes on start date."
+msgstr "Notizen zum Beginn."
 
 msgid "Stopped"
-msgstr ""
+msgstr "Beendet"
 
 msgid "To&day →"
-msgstr ""
+msgstr "&Heute →"
 
-#, fuzzy
 msgid "The end of substance intake."
-msgstr "Der Name des Wirkstoffs."
+msgstr "Ende der Einnahme."
 
 msgid "Notes for:"
 msgstr "Notizen für:"
@@ -8174,6 +8174,11 @@ msgid ""
 "- intake instructions\n"
 "- conditions to observe/report"
 msgstr ""
+"Notizen für den Patienten, etwa:\n"
+"\n"
+"- Sinn der Einnahme\n"
+"- Einnahmehinweise\n"
+"- zu beachtende/berichtende Zustände"
 
 msgid "Providers"
 msgstr "Betreuende"
@@ -8187,7 +8192,7 @@ msgid ""
 msgstr ""
 
 msgid "Ourselves"
-msgstr ""
+msgstr "Intern"
 
 msgid ""
 "Notes for ourselves such as patient-particular observations, notabenes, "
@@ -8195,6 +8200,9 @@ msgid ""
 "\n"
 "Not intended for outside documents."
 msgstr ""
+"Interne Notizen, etwa Patientenspezifika, Notabene, usw.\n"
+"\n"
+"Nicht zur externen Weitergabe."
 
 msgid "Research"
 msgstr "Recherche"
@@ -8414,29 +8422,29 @@ msgstr ""
 "Unterdrückens bei\n"
 "diesem Patienten"
 
-msgid "View e&xternally"
-msgstr "E&xtern zeigen"
-
-msgid "Show in external viewer."
-msgstr "In externem Betrachter anzeigen."
+msgid "Part ?/?"
+msgstr "Teil ?/?"
 
 msgid " ◀ &prev "
 msgstr " ◀ &zurück "
 
-msgid "&1 "
+msgid " &1 "
 msgstr ""
 
-msgid "&next ▶ "
-msgstr "&vor ▶ "
+msgid " &next ▶ "
+msgstr " &vor ▶ "
 
 msgid " S&witch preview "
 msgstr "Vorschau &umschalten"
 
 msgid "Switch preview type among Image and Text."
-msgstr ""
+msgstr "Vorschau zwischen Bild und Text umschalten."
 
-msgid " Preview"
-msgstr "Vorschau"
+msgid " View e&xternally "
+msgstr " E&xtern zeigen "
+
+msgid "Show in external viewer."
+msgstr "In externem Betrachter anzeigen."
 
 msgid "Save &under"
 msgstr "Speichern &unter"
@@ -8906,7 +8914,6 @@ msgstr "Medikamentenhistorie"
 msgid "medication, not abuse"
 msgstr "Medikation, kein Mißbrauch"
 
-#, fuzzy
 msgid "non-use or non-harmful use"
 msgstr "kein oder kein schädlicher Gebrauch"
 
@@ -9006,9 +9013,9 @@ msgstr " Notizen: %s"
 msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
 msgstr "Revision: #%(row_ver)s, %(mod_when)s durch %(mod_by)s."
 
-#, fuzzy, python-format
+#, python-format
 msgid "Substance intake [#%s]                     "
-msgstr "Substanzeinnahme (%s)   [#%s]                     "
+msgstr "Substanzeinnahme [#%s]                     "
 
 msgid "suspected"
 msgstr "vermutet"
@@ -9021,9 +9028,9 @@ msgstr "Substanz: %s   [#%s]"
 msgid " ATC (substance): %s"
 msgstr " ATC (Wirkstoff): %s"
 
-#, fuzzy, python-format
+#, python-format
 msgid " Last checked %s"
-msgstr "Zuletzt überprüft: %s"
+msgstr " Zuletzt überprüft: %s"
 
 #, python-format
 msgid " Episode: %s"
@@ -9081,142 +9088,141 @@ msgstr "Flüssigkeit"
 msgid "unit"
 msgstr "Einheit"
 
-#, fuzzy, python-format
+#, python-format
 msgid "unknown use type [%s]"
-msgstr "unbekannter Teststatus [%s]"
+msgstr "unbekannte Nutzweise [%s]"
 
 msgid "today"
 msgstr "heute"
 
-#, fuzzy
 msgid "started today"
-msgstr "Endet heute"
+msgstr "heute begonnen"
 
-#, fuzzy
 msgid "yesterday"
-msgstr "gestern (%s)"
+msgstr "gestern"
 
 msgid "started yesterday"
 msgstr "Beginn gestern"
 
-#, fuzzy, python-format
+#, python-format
 msgid "started %s"
-msgstr " Begonnen %s%s"
+msgstr "Begonnen %s"
 
-#, fuzzy, python-format
+#, python-format
 msgid "started \"%s\""
-msgstr " Begonnen %s%s"
+msgstr "Begonnen \"%s\""
 
-#, fuzzy, python-format
+#, python-format
 msgid "planned for %s"
-msgstr " (geplant für %s%s)"
+msgstr "geplant für %s"
 
-#, fuzzy
 msgid "discontinued today"
-msgstr "Beendet"
+msgstr "heute beendet"
 
-#, fuzzy
 msgid "discontinued yesterday"
-msgstr " Beendet %s"
+msgstr "gestern beendet"
 
-#, fuzzy, python-format
+#, python-format
 msgid "discontinued %s %s"
-msgstr " Beendet %s"
+msgstr "beendet %s %s"
 
 #, python-format
 msgid "after %s"
 msgstr "nach %s"
 
-#, fuzzy, python-format
+#, python-format
 msgid "Intake revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
-msgstr "Revision: #%(row_ver)s, %(mod_when)s durch %(mod_by)s."
+msgstr "Revision Einnahme: #%(row_ver)s, %(mod_when)s durch %(mod_by)s."
 
-#, fuzzy, python-format
+#, python-format
 msgid "Regimen revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
-msgstr "Revision: #%(row_ver)s, %(mod_when)s durch %(mod_by)s."
+msgstr "Revision Einnahmeschema: #%(row_ver)s, %(mod_when)s durch %(mod_by)s."
 
 msgid "Inactive"
 msgstr "Inaktive"
 
-#, fuzzy, python-format
+#, python-format
 msgid "%s intake of \"%s\""
-msgstr "Abteilungen von \"%s\""
+msgstr "%s Einnahme von \"%s\""
 
-#, fuzzy, python-format
+#, python-format
 msgid "Amount: %s %s"
-msgstr "Menge pro Dosis: %s %s"
+msgstr "Menge: %s %s"
 
 #, python-format
 msgid " Regimen: %s"
 msgstr " Einnahmeplan: %s"
 
-#, fuzzy, python-format
+#, python-format
 msgid "Started: %s%s"
-msgstr " Begonnen %s%s"
+msgstr "Begonnen %s%s"
 
-#, fuzzy, python-format
+#, python-format
 msgid "Discontinued %s"
-msgstr " Beendet %s"
+msgstr "Beendet %s"
 
 #, python-format
 msgid " Reason: %s"
 msgstr " Grund: %s"
 
-#, fuzzy, python-format
+#, python-format
 msgid " Own notes: %s"
-msgstr " Notizen: %s"
+msgstr "Eigene Notizen: %s"
 
-#, fuzzy, python-format
+#, python-format
 msgid "Intake: #%(pk)s, rev %(row_ver)s, %(mod_when)s by %(mod_by)s."
-msgstr "Revision: #%(row_ver)s, %(mod_when)s durch %(mod_by)s."
+msgstr ""
+"Revision: Einnahme #%(pk)s, ver %(row_ver)s, %(mod_when)s durch %(mod_by)s."
 
-#, fuzzy, python-format
+#, python-format
 msgid "Regimen: #%(pk)s, rev %(row_ver)s, %(mod_when)s by %(mod_by)s."
-msgstr "Revision: #%(row_ver)s, %(mod_when)s durch %(mod_by)s."
+msgstr ""
+"Revision: Einnahmeplan #%(pk)s, ver %(row_ver)s, %(mod_when)s durch "
+"%(mod_by)s."
 
 #, python-format
 msgid "delivery unit%s"
 msgstr "Einnahmeeinheit%s"
 
-#, fuzzy, python-format
+#, python-format
 msgid "today%s (%s)"
-msgstr "heute (%s)"
+msgstr "heute%s (%s)"
 
-#, fuzzy, python-format
+#, python-format
 msgid "%s%s (%s+%s)"
-msgstr "%s%7s (%s):%s"
+msgstr ""
 
 #, python-format
 msgid "%s%s%s (in %s%s)"
 msgstr "%s%s%s (in %s%s)"
 
-#, fuzzy, python-format
+#, python-format
 msgid "%s%s (%s-%s,%s)"
-msgstr "%s%s%s (vor %s%s, %s)"
+msgstr ""
 
 #, python-format
 msgid "%s%s%s (%s%s ago, in %s)"
 msgstr "%s%s%s (vor %s%s, in %s)"
 
-#, fuzzy, python-format
+#, python-format
 msgid "%s%s%s (%s%s ago: %s)"
-msgstr "%s%s%s (vor %s%s, %s)"
+msgstr "%s%s%s (vor %s%s: %s)"
 
-#, fuzzy, python-format
+#, python-format
 msgid "%s ago, this year"
-msgstr "zuletzt: vor %s (dieses Jahr)"
+msgstr "vor %s, dieses Jahr"
 
-#, fuzzy, python-format
+#, python-format
 msgid "in %s, this year"
-msgstr "%s (%s diesen Jahres)"
+msgstr "in %s, dieses Jahr"
 
-#, fuzzy, python-format
+#, python-format
 msgid "%s ago: %s"
-msgstr "vor %s = %s"
+msgstr "vor %s: %s"
 
-#, fuzzy, python-format
+#, python-format
 msgid "in %s: %s"
-msgstr "in %s, %s"
+msgstr "in %s: %s"
 
 msgid "until today"
 msgstr "bis heute"
@@ -9630,7 +9636,6 @@ msgstr "Allergien und Unverträglichkeiten\n"
 msgid " (last confirmed %s)"
 msgstr " (zuletzt überprüft %s)"
 
-#, fuzzy
 msgid "allergy state not acquired"
 msgstr "<Allergiestatus nicht erfragt>"
 
@@ -9842,9 +9847,8 @@ msgstr "Verlaufsnotiz"
 msgid "Test result"
 msgstr "Meßwert"
 
-#, fuzzy
 msgid "Substance intake"
-msgstr "Einnahmeplan"
+msgstr "Medikamenteneinnahme"
 
 msgid "Substance intake regimen"
 msgstr "Einnahmeplan"
@@ -10411,16 +10415,14 @@ msgstr "Vorname"
 msgid "last name"
 msgstr "Nachname"
 
-#, fuzzy
 msgid "name part"
-msgstr "beliebiger Namensteil"
+msgstr "Namensteil"
 
 msgid "nickname"
 msgstr "Spitzname"
 
-#, fuzzy
 msgid "name parts"
-msgstr "beliebiger Namensteil"
+msgstr "Namensteile"
 
 msgid "LASTNAME and firstname"
 msgstr "NACHNAME und Vorname"
@@ -12623,54 +12625,44 @@ msgstr ""
 msgid "Incoming document"
 msgstr "Eingegangenes Dokument"
 
-#, fuzzy
 msgid "Nothing selected for external display."
-msgstr "Links ist kein Patient gewählt."
+msgstr "Nichts zum Anzeigen gewählt."
 
-#, fuzzy
 msgid "Cannot display document externally."
-msgstr ""
-"Kann Dokumententeil nicht anzeigen:\n"
-"%s"
+msgstr "Kann Dokument nicht extern anzeigen."
 
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "Cannot display document:\n"
 "%s"
 msgstr ""
-"Kann Dokumententeil nicht anzeigen:\n"
+"Kann Dokument nicht anzeigen:\n"
 "%s"
 
-#, fuzzy
 msgid "displaying incoming document"
-msgstr "Rechnung anzeigen"
+msgstr "Eingegangenes Dokument zeigen"
 
-#, fuzzy
 msgid "directory drop"
-msgstr "Verzeichnis"
+msgstr "Verzeichnisabwurf"
 
 #, python-format
 msgid "Extracting files from folder [%s] ..."
 msgstr "Extrahiere Dateien aus dem Verzeichnis [%s] ..."
 
-#, fuzzy
 msgid "file drop"
-msgstr "Datei"
+msgstr "Dateiabwurf"
 
-#, fuzzy
 msgid "Add documents to incoming area:"
-msgstr "Dokumente aus dem Archiv holen."
+msgstr "Dokumente hinzufügen:"
 
 msgid "from &scanner/camera"
-msgstr ""
+msgstr "von &Scanner/Kamera"
 
-#, fuzzy
 msgid "from &disk"
-msgstr "von: %s"
+msgstr "von &Datenträger"
 
-#, fuzzy
 msgid "from &clipboard"
-msgstr "aus &Zwischenablage holen"
+msgstr "aus &Zwischenablage"
 
 msgid "There is no scanner support installed on this machine."
 msgstr "Das Betriebssystem hat keinen Scannertreiber."
@@ -12689,73 +12681,66 @@ msgstr "Gerät"
 
 #, python-format
 msgid "Data from [%s] already exists in incoming."
-msgstr ""
+msgstr "Daten aus [%s] schon eingegangen."
 
-#, fuzzy, python-format
+#, python-format
 msgid "Error importing [%s]."
-msgstr "Fehler beim Exportieren der Einträge."
+msgstr "Fehler beim Importieren von [%s]."
 
 msgid "No items [x] checked or highlighted."
-msgstr ""
+msgstr "Keine Einträge [x]-markiert oder selektiert."
 
 msgid "other documents"
 msgstr "andere Dokumente"
 
-#, fuzzy
 msgid "Some [x] checked items not associated with active patient."
-msgstr "Die Adresse ist diesem Patienten nicht länger zugeordnet."
+msgstr ""
+"Einige [x]-markierte Einträge sind nicht dem aktiven Patienten zugeordnet."
 
-#, fuzzy
 msgid "Highlighted item not associated with active patient."
-msgstr "Die Adresse ist diesem Patienten nicht länger zugeordnet."
+msgstr "Gewählter Eintrag nicht dem aktiven Patienten zugeordnet."
 
 msgid "Nothing [x] checked or highlighted for saving."
-msgstr ""
+msgstr "Nichts zum Speichern [x]-markiert oder selektiert."
 
-#, fuzzy
 msgid ""
 "Nothing [x] checked or highlighted for saving.\n"
 "\n"
 "Really save an empty document as a reference ?"
 msgstr ""
-"Dokument hat keine Teile. Wirklich leeres Dokument als Referenz speichern ?"
+"Nichts zum Speichern [x]-markiert oder ausgewählt.\n"
+"\n"
+"Wirklich ein leeres Dokument speichern ?"
 
 msgid "saving document"
 msgstr "speichere Dokument"
 
-#, fuzzy
 msgid "No document type selected."
-msgstr "Keine Druckvorlage ausgewählt."
+msgstr "Kein Dokumententyp gewählt."
 
-#, fuzzy
 msgid "No episode selected."
-msgstr "Keine LOINC-Codes gewählt."
+msgstr "Keine Episode gewählt."
 
-#, fuzzy
 msgid "No reviewer selected."
-msgstr "kein Patient gewählt"
+msgstr "Kein Abzeichner gewählt."
 
 msgid "Invalid date of generation."
 msgstr "Ungültiges Erstellungsdaum."
 
-#, fuzzy
 msgid "Irrevocably delete document from incoming area ?"
-msgstr "Dokumente aus der Sammelmappe entfernen."
+msgstr "Dokument unwiederbringlich aus der Sammelmappe entfernen ?"
 
-#, fuzzy
 msgid "Deleting incoming document"
-msgstr "Eingangsdaten löschen"
+msgstr "Eingegangenes Dokument löschen"
 
-#, fuzzy
 msgid "No patient linked to item."
-msgstr "Links ist kein Patient gewählt."
+msgstr "Kein Patient zugeordnet."
 
 msgid "No active patient."
 msgstr "Kein Patient aktiv."
 
-#, fuzzy
 msgid "No patient in search box."
-msgstr "Kein Patient in der Zwischenablage."
+msgstr "Kein Patient im Suchfeld."
 
 msgid ""
 "No pages could be acquired from the source.\n"
@@ -12776,9 +12761,8 @@ msgstr ""
 msgid "acquiring page"
 msgstr "hole Seite"
 
-#, fuzzy
 msgid "imaging device"
-msgstr "von Bildquelle geholt"
+msgstr "Bildquelle"
 
 msgid "Choose a file"
 msgstr "Eine Datei wählen"
@@ -12786,9 +12770,8 @@ msgstr "Eine Datei wählen"
 msgid "all files (Win)"
 msgstr "alle Dateien (Win)"
 
-#, fuzzy
 msgid "Imported files."
-msgstr "exportiere Dateien"
+msgstr "Importierte Dateien."
 
 msgid "clipboard"
 msgstr "Zwischenablage"
@@ -13388,9 +13371,8 @@ msgstr "Formatiervorlage leer"
 msgid "no primary in-praxis provider"
 msgstr "kein Primärarzt in dieser Praxis"
 
-#, fuzzy
 msgid "unobtained"
-msgstr "Behälter"
+msgstr "nicht ermittelt"
 
 msgid "current_meds_for_rx: template is missing"
 msgstr "current_meds_for_rx: template fehlt"
@@ -13569,9 +13551,8 @@ msgstr "Versuch erzwungenen Verbindungsabbruchs"
 msgid "The preparation (form) of the substance or product."
 msgstr "Die Darreichungs-/Zubereitungsform des Wirkstoffs bzw Medikaments."
 
-#, fuzzy
 msgid "The substance the patient is taking."
-msgstr "Der Wirkstoff, optional mit Dosisangabe."
+msgstr "Der Wirkstoff, den der Patient einnimmt."
 
 msgid ""
 "The substance the patient is taking\n"
@@ -13585,9 +13566,8 @@ msgstr "Ein Medikament."
 msgid "A substance with optional strength or a drug product."
 msgstr "Ein Wirkstoff, optional mit Stärke, oder ein Arzneiprodukt."
 
-#, fuzzy
 msgid "Notes for the patient on this substance intake."
-msgstr "Kommentare oder Hinweise zur Einnahme dieser Substanz."
+msgstr "Hinweise für den Patienten zur Einnahme dieses Wirkstoffs."
 
 msgid "icon_syringe"
 msgstr "icon_syringe"
@@ -13678,9 +13658,9 @@ msgstr "Karteieintrag"
 msgid "Patient: %s"
 msgstr "Patient: %s"
 
-#, fuzzy, python-format
+#, python-format
 msgid "Internal: %s"
-msgstr "Einnahme: %s"
+msgstr "Intern: %s"
 
 msgid "Cannot edit more than one substance at once."
 msgstr "Kann nicht mehrere Substanzen gleichzeitig bearbeiten."
@@ -14714,7 +14694,7 @@ msgstr ""
 msgid "Creating invoice"
 msgstr "Rechnungsbeleg erzeugen"
 
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "Patient on bill is not the active patient.\n"
 "\n"
@@ -14723,11 +14703,12 @@ msgid ""
 "\n"
 "Activate patient on bill so invoice PDF can be created ?"
 msgstr ""
-"Es scheint keinen Beleg (PDF) zu dieser Rechnung zu geben.\n"
+"Patient auf der Rechung ist nicht der aktive Patient.\n"
 "\n"
-"Aktiver Patient: %s\n"
-"Patient auf der Rechnung: %s\n"
-"Soll der Rechnungsatient aktiviert werden, sodaß ein Beleg erzeugt werden "
+"Aktiver: %s\n"
+"Auf Rechnung: %s\n"
+"\n"
+"Soll der Rechnungspatient aktiviert werden, sodaß ein Beleg erzeugt werden "
 "kann ?"
 
 #, python-format
@@ -14775,9 +14756,8 @@ msgstr "Ungültige Vorlage für Rechnungsbeleg [%s - %s (%s - Gmd:%s)]"
 msgid "Error generating invoice PDF."
 msgstr "Fehler beim Erzeugen des Rechnungsbelegs."
 
-#, fuzzy
 msgid "Saving invoice"
-msgstr "Rechnungsbeleg erzeugen"
+msgstr "Speichere Rechnungsbeleg"
 
 msgid "Error printing the invoice."
 msgstr "Fehler beim Drucken der Rechnung."
@@ -15579,20 +15559,15 @@ msgstr ""
 msgid "Removing communication channel"
 msgstr "Einen Kommunikationskanal entfernen"
 
-#, fuzzy
-msgid "Image Preview"
-msgstr "Bildgröße"
-
 msgid "File description/metadata appended"
-msgstr ""
+msgstr "Dateibeschreibung/Metadaten angehängt"
 
-#, fuzzy
 msgid "No text content found."
-msgstr "Kein passender Patient gefunden."
+msgstr "Kein Text gefunden."
 
-#, fuzzy
-msgid "Text preview"
-msgstr "Baumansicht"
+#, python-format
+msgid "Page %s/%s"
+msgstr "Seite %s/%s"
 
 #, python-format
 msgid ""
@@ -15658,9 +15633,8 @@ msgstr "nicht vertragen:"
 msgid "discontinued due to allergy or intolerance"
 msgstr "beendet wegen Allergie oder Unverträglichkeit"
 
-#, fuzzy
 msgid "; not tolerated"
-msgstr "nicht vertragen:"
+msgstr "; nicht vertragen"
 
 msgid "Creating new allergy not allowed."
 msgstr "Anlegen einer neuen Allergie nicht vorgesehen."
@@ -17792,20 +17766,6 @@ msgid "part %2s"
 msgstr "Teil %2s"
 
 #, python-format
-msgid "%s%7s %s:%s (%s)"
-msgstr "%s%7s %s:%s (%s)"
-
-#, python-format
-msgid "%s%7s (%s):%s"
-msgstr "%s%7s (%s):%s"
-
-msgid "Error searching documents."
-msgstr "Fehler beim Suchen von Dokumenten."
-
-msgid "loading document list"
-msgstr "Dokumentenliste laden"
-
-#, python-format
 msgid "%s (unattributed episode)"
 msgstr "%s (nicht zugeordnete Episoden)"
 
@@ -17822,6 +17782,12 @@ msgstr "von: %s"
 
 msgid "this praxis"
 msgstr "diese Praxis"
+
+msgid "Error searching documents."
+msgstr "Fehler beim Suchen von Dokumenten."
+
+msgid "loading document list"
+msgstr "Dokumentenliste laden"
 
 msgid "Activate as current photo"
 msgstr "Als aktives Photo aktivieren"
@@ -20007,7 +19973,6 @@ msgstr "Ja, auch nach Updates mit neuen Funktionen suchen."
 msgid "No, check for bug-fix updates only."
 msgstr "Nein, nur nach Updates mit Fehlerbereinigung suchen."
 
-#, fuzzy
 msgid ""
 "GNUmed can check for new releases being available. To do\n"
 "so it needs to load version information from an URL.\n"
@@ -20446,9 +20411,8 @@ msgstr ""
 msgid "GNUmed client"
 msgstr "GNUmed: Hauptprogramm"
 
-#, fuzzy
 msgid "GNUmed STDOUT/STDERR window"
-msgstr "STDOUT/STDERR werden in diesem Fenster angezeigt"
+msgstr "STDOUT/STDERR für GNUmed"
 
 msgid "redirecting STDOUT/STDERR to this log window"
 msgstr "STDOUT/STDERR werden in diesem Fenster angezeigt"
@@ -20561,16 +20525,18 @@ msgstr ""
 "\n"
 " [%s]"
 
-#, fuzzy
 msgid "Deleting substance intake"
-msgstr "Medikation / Substanzeinnahme löschen"
+msgstr "Löschen einer Medikation"
 
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "Really delete substance intake ?\n"
 "\n"
 "%s"
-msgstr "Diese Medikation / Substanzeinnahme jetzt löschen ?"
+msgstr ""
+"Diese Substanzeinnahme wirklich löschen ?\n"
+"\n"
+"%s"
 
 msgid "old"
 msgstr "alt"
@@ -20578,17 +20544,14 @@ msgstr "alt"
 msgid "Substances consumed by the patient"
 msgstr "Vom Patienten konsumierte Substanzen"
 
-#, fuzzy
 msgid "Time range"
-msgstr "Altersbereich"
+msgstr "Zeitverlauf"
 
-#, fuzzy
 msgid "Adding substance intake"
 msgstr "Substanzeinnahme hinzufügen"
 
-#, fuzzy
 msgid "Editing substance intake"
-msgstr "Substanzgebrauch bearbeiten"
+msgstr "Substanzeinnahme bearbeiten"
 
 msgid "Document an allergy against this substance."
 msgstr "Dokument gegen diese Substanz dokumentieren."
@@ -20612,9 +20575,8 @@ msgstr ""
 msgid "Deleting medication"
 msgstr "Medikament löschen"
 
-#, fuzzy
 msgid "Allow editing of intake before deletion."
-msgstr "Die Medikation / Substanzeinnahme vor dem Löschen noch bearbeiten."
+msgstr "Die Substanzeinnahme vor dem Löschen noch bearbeiten."
 
 msgid "Delete immediately without editing first."
 msgstr "Sofort löschen ohne vorheriges Bearbeiten."
@@ -20622,10 +20584,8 @@ msgstr "Sofort löschen ohne vorheriges Bearbeiten."
 msgid "&Cancel"
 msgstr "A&bbrechen"
 
-#, fuzzy
 msgid "Abort. Do not delete or edit intake."
-msgstr ""
-"Abbrechen. Die Medikation / Substanzeinnahme weder löschen noch bearbeiten."
+msgstr "Abbrechen. Die Substanzeinnahme weder löschen noch bearbeiten."
 
 msgid "Now delete substance intake entry ?"
 msgstr "Diese Medikation / Substanzeinnahme jetzt löschen ?"
@@ -20636,9 +20596,9 @@ msgstr "Medikation / Substanzeinnahme löschen"
 msgid "never"
 msgstr "nie"
 
-#, fuzzy, python-format
+#, python-format
 msgid "%s, last confirmed %s"
-msgstr "%s, zuletzt überprüft %s\n"
+msgstr "%s, zuletzt überprüft %s"
 
 #, python-format
 msgid "Comment (%s): %%s"
@@ -20654,51 +20614,44 @@ msgstr "GFR: unbekannt"
 msgid "Existing treatment regimens for %s"
 msgstr ""
 
-#, fuzzy
 msgid "Required: unit."
-msgstr "Pflichtfeld: Geschlecht"
+msgstr "Pflichtfeld: Einheit."
 
-#, fuzzy
 msgid "Required: amount."
-msgstr "Pflichtfeld: Geschlecht"
+msgstr "Pflichtfeld: Menge"
 
-#, fuzzy
 msgid "Amount: must be a number."
-msgstr "USt muß leer bleiben oder ein Zahlenwert sein."
+msgstr "Menge: Muß eine Zahl sein."
 
 msgid "Amount: must be larger than zero."
 msgstr ""
 
-#, fuzzy
 msgid "Required: schedule"
-msgstr "Pflichtfeld: Geschlecht"
+msgstr "Pflichtfeld: Einnahmeplan"
 
 msgid "Required: start of intake (you may select [Unknown]"
 msgstr ""
 
-#, fuzzy, python-format
+#, python-format
 msgid "Discontinued (%s) in the future (now: %s)"
-msgstr "Enddatum (%s) in der Zukunft (jetzt: %s) !"
+msgstr "Enddatum (%s) in der Zukunft (jetzt: %s)"
 
-#, fuzzy, python-format
+#, python-format
 msgid "Discontinued (%s) before started (%s)"
-msgstr "Enddatum (%s) vor Startdatum (%s) !"
+msgstr "Enddatum (%s) vor Startdatum (%s)"
 
-#, fuzzy
 msgid "Required: episode"
-msgstr "Pflichtfeld: Geschlecht"
+msgstr "Pflichtfeld: Episode"
 
-#, fuzzy
 msgid "Required: substance"
-msgstr "Pflichtfeld: Geschlecht"
+msgstr "Pflichtfeld: Wirkstoff"
 
 #, python-format
 msgid "Patient already takes/took \"%s\". You may add a new regimen though."
 msgstr ""
 
-#, fuzzy
 msgid "Substance required."
-msgstr "Substanzmißbrauch"
+msgstr "Wirkstoff nötig."
 
 #, python-format
 msgid "Intake of %s already documented. You may add a new regimen though"
@@ -20944,7 +20897,6 @@ msgstr "zuletzt: vor %s (letztes Jahr)"
 msgid "last confirmed %s\n"
 msgstr "zuletzt überprüft %s\n"
 
-#, fuzzy
 msgid "allergy state not obtained"
 msgstr "<Allergiestatus nicht erfragt>"
 
@@ -23158,6 +23110,9 @@ msgstr "&Warteliste"
 msgid "Medication"
 msgstr "Medikamente"
 
+msgid "Archive"
+msgstr "Archiv"
+
 msgid "&Documents"
 msgstr "&Dokumente"
 
@@ -23295,6 +23250,29 @@ msgstr "Abbrechen"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
+#~ msgid "Activate patient from search box."
+#~ msgstr "Patient aus dem Suchfeld aktivieren."
+
+#~ msgid "Patient document"
+#~ msgstr "Patientendokument"
+
+#~ msgid " Preview"
+#~ msgstr "Vorschau"
+
+#~ msgid "Image Preview"
+#~ msgstr "Bildvorschau"
+
+#~ msgid "Text preview"
+#~ msgstr "Textvorschau"
+
+#, python-format
+#~ msgid "%s%7s %s:%s (%s)"
+#~ msgstr "%s%7s %s:%s (%s)"
+
+#, python-format
+#~ msgid "%s%7s (%s):%s"
+#~ msgstr "%s%7s (%s):%s"
+
 #~ msgid "Unapproved"
 #~ msgstr "Ungebilligte"
 
@@ -23385,9 +23363,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Start over (discards current data)."
 #~ msgstr "Neu beginnen (verwirft die aktuellen Daten)."
-
-#~ msgid "Document Properties"
-#~ msgstr "Eigenschaften des Dokuments"
 
 #~ msgid "Part Sources"
 #~ msgstr "Quellen"
