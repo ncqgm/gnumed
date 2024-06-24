@@ -60,6 +60,9 @@ PG_BEGINNING_OF_TIME = None
 # =======================================================================
 PG_ERROR_EXCEPTION = dbapi.DatabaseError
 
+from psycopg2.errors import UndefinedFunction
+from psycopg2.errors import InvalidSchemaName
+
 default_database = 'gnumed_v23'
 
 postgresql_version_string = None
@@ -1145,6 +1148,7 @@ def sanity_check_collation_versions(conn=None) -> bool:
 				AND
 			collversion <> pg_catalog.pg_collation_actual_version(oid)
 				AND
+			-- must ignore collations not intended for the database encoding
 			collencoding = (SELECT encoding FROM pg_database WHERE datname = pg_catalog.current_database())
 	"""
 	try:
