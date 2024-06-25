@@ -60,9 +60,6 @@ PG_BEGINNING_OF_TIME = None
 # =======================================================================
 PG_ERROR_EXCEPTION = dbapi.DatabaseError
 
-from psycopg2.errors import UndefinedFunction
-from psycopg2.errors import InvalidSchemaName
-
 default_database = 'gnumed_v23'
 
 postgresql_version_string = None
@@ -997,12 +994,12 @@ def revalidate_constraints(link_obj:_TLnkObj=None) -> str:
 	try:
 		try:
 			run_rw_queries(link_obj = link_obj, queries = [{'cmd': SQL}])
-		except dbapi.errors.UndefinedFunction as exc:
+		except dbapi.errors.UndefinedFunction as exc:						# type: ignore [attr-defined] # pylint: disable=no-member
 			if 'gm.revalidate_all_constraints() does not exist' in exc.pgerror:
 				_log.error('gm.revalidate_all_constraints() does not exist')
 				return None
 
-		except dbapi.errors.InvalidSchemaName as exc:
+		except dbapi.errors.InvalidSchemaName as exc:						# type: ignore [attr-defined] # pylint: disable=no-member
 			if 'schema "gm" does not exist' in exc.pgerror:
 				_log.error('schema "gm" does not exist, cannot run gm.revalidate_all_constraints()')
 				return None
@@ -1202,12 +1199,12 @@ def refresh_collations_version_information(conn=None, use_the_source_luke=False)
 	try:
 		try:
 			run_rw_queries(link_obj = conn, queries = [{'cmd': SQL}])
-		except dbapi.errors.UndefinedFunction as exc:
+		except dbapi.errors.UndefinedFunction as exc:						# type: ignore [attr-defined] # pylint: disable=no-member
 			if 'gm.update_pg_collations() does not exist' in exc.pgerror:
 				_log.error('gm.update_pg_collations() does not exist')
 				return None
 
-		except dbapi.errors.InvalidSchemaName as exc:
+		except dbapi.errors.InvalidSchemaName as exc:						# type: ignore [attr-defined] # pylint: disable=no-member
 			if 'schema "gm" does not exist' in exc.pgerror:
 				_log.error('schema "gm" does not exist, cannot run gm.update_pg_collations()')
 				return None
