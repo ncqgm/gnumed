@@ -818,7 +818,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			gmDispatcher.send(signal = 'statustext', msg = _('Exported entries into [%s]') % export_dir)
 			self.__save_soap_note(soap = _('Exported onto removable media:\n - %s') % '\n - '.join([ i['description'] for i in items ]))
 
-		self.__browse_patient_data(dir2save2, encrypted = encrypt, archive = False, has_metadata = True)
+		self.__browse_patient_data(dir2save2)
 
 		# remove_entries ?
 
