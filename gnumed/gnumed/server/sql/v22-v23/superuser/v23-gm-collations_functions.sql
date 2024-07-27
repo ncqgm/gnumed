@@ -34,48 +34,6 @@ alter function gm.pg_import_system_collations() owner to postgres;
 -- --------------------------------------------------------------
 drop function if exists gm.remove_unneeded_collations() cascade;
 
-create function gm.remove_unneeded_collations()
-	returns void
-	language plpgsql
-	security definer
-	as '
-DECLARE
-	_rec record;
-	_db_name text;
-	_db_encoding integer;
-BEGIN
-	SELECT pg_catalog.current_database() INTO _db_name;
-	SELECT encoding INTO _db_encoding FROM pg_database WHERE datname = _db_name;
-	RAISE NOTICE ''database [%]: removing collations for encodings other than the database encoding [%]'', _db_name, pg_catalog.pg_encoding_to_char(_db_encoding);
-	FOR _rec IN (
-		SELECT oid, collnamespace, collname, collencoding
-		FROM pg_collation
-		WHERE
-			oid > 1000
-				AND
-			collencoding IS NOT NULL
-				AND
-			collencoding <> -1
-				AND
-			collencoding <> _db_encoding
-	) LOOP
-		RAISE NOTICE ''dropping collation #% "%.%" (encoding: %)'', _rec.oid, _rec.collnamespace::regnamespace, _rec.collname, pg_catalog.pg_encoding_to_char(_rec.collencoding);
-		BEGIN
-			EXECUTE ''DROP COLLATION IF EXISTS '' || _rec.collnamespace::regnamespace || ''."'' || _rec.collname || ''"'';
-		EXCEPTION
-			WHEN undefined_object THEN RAISE NOTICE ''collation does not seem to exist (perhaps for the DB encoding ?)'';
-		END;
-	END LOOP;
-END;';
-
-comment on function gm.remove_unneeded_collations() is 'Remove collations not suitable for the database encoding (thusly not usable in this database).';
-
-revoke all on function gm.remove_unneeded_collations() from public;
-
-grant execute on function gm.remove_unneeded_collations() to "gm-dbo";
-
-alter function gm.remove_unneeded_collations() owner to postgres;
-
 -- --------------------------------------------------------------
 drop function if exists gm.refresh_pg_collations_version_information() cascade;
 
@@ -125,8 +83,8 @@ create function gm.update_pg_collations()
 	security invoker
 	as '
 BEGIN
+	RAISE NOTICE ''refreshing collations'';
 	PERFORM gm.pg_import_system_collations();
-	PERFORM gm.remove_unneeded_collations();
 	PERFORM gm.refresh_pg_collations_version_information();
 	RAISE NOTICE ''done refreshing collations'';
 END;';
