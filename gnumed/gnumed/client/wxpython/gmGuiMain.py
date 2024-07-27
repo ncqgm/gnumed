@@ -4063,9 +4063,10 @@ def main():
 	if _cfg.get(option = 'debug'):
 		gmDispatcher.connect(receiver = _signal_debugging_monitor)
 		_log.debug('gmDispatcher signal monitor activated')
-	else:
+	if 'debug_sizers' not in _cfg.get(option = 'special'):
 		try:
 			wx.SizerFlags.DisableConsistencyChecks()
+			_log.debug('fatal sizer consistency checks disabled')
 		except AttributeError:
 			pass
 	setup_safe_wxEndBusyCursor()
