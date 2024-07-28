@@ -30,13 +30,15 @@ from Gnumed.business import gmPersonSearch
 _log = logging.getLogger('gm.guitest')
 
 #==============================================================================
-def test_widget(widget_class, *widget_args, patient=-1, size=None, **widget_kwargs):
-	gmPG2.request_login_params(setup_pool = True, force_tui = True)
+def test_widget(widget_class, *widget_args, patient:int=-1, size=None, setup_db:bool=True, **widget_kwargs):
+	if setup_db:
+		gmPG2.request_login_params(setup_pool = True, force_tui = True)
 	gmPraxis.activate_first_praxis_branch()
 	if not __activate_patient(patient = patient):
 		sys.exit()
 
 	app = inspection.InspectableApp()
+	app.SetAssertMode(wx.APP_ASSERT_EXCEPTION | wx.APP_ASSERT_LOG)
 	app.InitInspection()
 	if size is None:
 		size = (800, 600)
@@ -79,6 +81,7 @@ def setup_widget_test_env(patient=-1):
 		sys.exit()
 
 	app = inspection.InspectableApp()
+	app.SetAssertMode(wx.APP_ASSERT_EXCEPTION | wx.APP_ASSERT_LOG)
 	app.InitInspection()
 	frame = wx.Frame(None, id = -1, title = _('GNUmed widget test'), size = (800, 600))
 	frame.CentreOnScreen(wx.BOTH)
