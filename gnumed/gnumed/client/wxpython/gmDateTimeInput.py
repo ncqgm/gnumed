@@ -634,7 +634,7 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 	#--------------------------------------------------------
 	def _on_lose_focus(self, event):
 		# are we valid ?
-		if self.data is None:
+		if not self.raw_data:
 			# no, so try
 			date = self.__text2timestamp()
 			if date is not None:

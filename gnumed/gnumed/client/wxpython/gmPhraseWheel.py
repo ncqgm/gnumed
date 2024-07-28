@@ -701,6 +701,9 @@ class cPhraseWheelBase(wx.TextCtrl):
 
 	#--------------------------------------------------------
 	def __on_lost_focus(self):
+		if not self:
+			return
+
 		self.SetSelection(1,1)
 		is_valid = True
 		# the user may have typed a phrase that is an exact match,
