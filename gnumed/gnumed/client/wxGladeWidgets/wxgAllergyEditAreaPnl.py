@@ -28,7 +28,7 @@ class wxgAllergyEditAreaPnl(wx.ScrolledWindow):
 		from Gnumed.wxpython.gmDateTimeInput import cFuzzyTimestampInput
 		self._DPRW_date_noted = cFuzzyTimestampInput(self, wx.ID_ANY, "")
 		self._DPRW_date_noted.SetToolTip(_("When did the patient notice onset of the reaction.\n\nIf unknown use the date when it was reported to you."))
-		_gszr_main.Add(self._DPRW_date_noted, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+		_gszr_main.Add(self._DPRW_date_noted, 0, wx.EXPAND, 0)
 
 		__lbl_trigger = wx.StaticText(self, wx.ID_ANY, _("Trigger"))
 		_gszr_main.Add(__lbl_trigger, 0, wx.ALIGN_CENTER_VERTICAL, 0)
@@ -36,7 +36,7 @@ class wxgAllergyEditAreaPnl(wx.ScrolledWindow):
 		from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
 		self._PRW_trigger = cPhraseWheel(self, wx.ID_ANY, "")
 		self._PRW_trigger.SetToolTip(_("What is reported to be the trigger for the reaction. Can be\n- a drug (product name, generic, constrast media, ...)\n- a chemical (household, job related)\n- an animal (cat fur, lice, ...)\n- a metal (CrNi, ...)\n- a foodstuff (lactose, ...)\n- a type of pollen (birch, ...)\n- ..."))
-		_gszr_main.Add(self._PRW_trigger, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+		_gszr_main.Add(self._PRW_trigger, 0, wx.EXPAND, 0)
 
 		__lbl_product_name = wx.StaticText(self, wx.ID_ANY, _("Product Name"))
 		_gszr_main.Add(__lbl_product_name, 0, wx.ALIGN_CENTER_VERTICAL, 0)
@@ -44,7 +44,7 @@ class wxgAllergyEditAreaPnl(wx.ScrolledWindow):
 		self._TCTRL_product_name = wx.TextCtrl(self, wx.ID_ANY, "")
 		self._TCTRL_product_name.SetToolTip(_("Product name if a drug is entered as the trigger."))
 		self._TCTRL_product_name.Enable(False)
-		_gszr_main.Add(self._TCTRL_product_name, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+		_gszr_main.Add(self._TCTRL_product_name, 0, wx.EXPAND, 0)
 
 		__lbl_generic = wx.StaticText(self, wx.ID_ANY, _("Generics"))
 		_gszr_main.Add(__lbl_generic, 0, wx.ALIGN_CENTER_VERTICAL, 0)
@@ -67,7 +67,7 @@ class wxgAllergyEditAreaPnl(wx.ScrolledWindow):
 		self._TCTRL_atc_classes = wx.TextCtrl(self, wx.ID_ANY, "")
 		self._TCTRL_atc_classes.SetToolTip(_("Displays drug classe(s) along with their ATC code."))
 		self._TCTRL_atc_classes.Enable(False)
-		_gszr_main.Add(self._TCTRL_atc_classes, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+		_gszr_main.Add(self._TCTRL_atc_classes, 0, wx.EXPAND, 0)
 
 		__lbl_reaction = wx.StaticText(self, wx.ID_ANY, _("Reaction"))
 		__lbl_reaction.SetToolTip(_("Document signs and symptoms. If reaction is to a drug also document time of onset after drug administration (<24h, 24-72h, >72h)."))
@@ -75,7 +75,7 @@ class wxgAllergyEditAreaPnl(wx.ScrolledWindow):
 
 		self._PRW_reaction = cPhraseWheel(self, wx.ID_ANY, "")
 		self._PRW_reaction.SetToolTip(_("Document signs and symptoms. If reaction is to a drug also document time of onset after drug administration (<24h, 24-72h, >72h)."))
-		_gszr_main.Add(self._PRW_reaction, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+		_gszr_main.Add(self._PRW_reaction, 0, wx.EXPAND, 0)
 
 		__lbl_reaction_type = wx.StaticText(self, wx.ID_ANY, _("Reaction Type"))
 		_gszr_main.Add(__lbl_reaction_type, 0, wx.ALIGN_CENTER_VERTICAL, 0)

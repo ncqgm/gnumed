@@ -19,46 +19,48 @@ class wxgAddressSelectionDlg(wx.Dialog):
 		# begin wxGlade: wxgAddressSelectionDlg.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_DIALOG_STYLE
 		wx.Dialog.__init__(self, *args, **kwds)
-		self._LBL_msg = wx.StaticText(self, wx.ID_ANY, _("Select the address you want to use:"))
-		self._PRW_address_searcher = cAddressPhraseWheel(self, wx.ID_ANY, "")
-		self._BTN_manage_addresses = wx.Button(self, wx.ID_ANY, _("&Manage"), style=wx.BU_EXACTFIT)
-		self._BTN_OK = wx.Button(self, wx.ID_OK, "")
-		self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, "")
-
-		self.__set_properties()
-		self.__do_layout()
-
-		self.Bind(wx.EVT_BUTTON, self._on_manage_addresses_button_pressed, self._BTN_manage_addresses)
-		# end wxGlade
-
-	def __set_properties(self):
-		# begin wxGlade: wxgAddressSelectionDlg.__set_properties
 		self.SetTitle(_("Address selection"))
+
+		__szr_main = wx.BoxSizer(wx.VERTICAL)
+
+		self._LBL_msg = wx.StaticText(self, wx.ID_ANY, _("Select the address you want to use:"))
+		__szr_main.Add(self._LBL_msg, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
+
+		__szr_middle = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_main.Add(__szr_middle, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
+
+		self._PRW_address_searcher = cAddressPhraseWheel(self, wx.ID_ANY, "")
+		__szr_middle.Add(self._PRW_address_searcher, 1, wx.EXPAND | wx.RIGHT, 3)
+
+		self._BTN_manage_addresses = wx.Button(self, wx.ID_ANY, _("&Manage"), style=wx.BU_EXACTFIT)
 		self._BTN_manage_addresses.SetToolTip(_("Manage addresses."))
+		__szr_middle.Add(self._BTN_manage_addresses, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_main.Add(__szr_buttons, 0, wx.ALL | wx.EXPAND, 3)
+
+		__szr_buttons.Add((20, 20), 2, wx.EXPAND, 0)
+
+		self._BTN_OK = wx.Button(self, wx.ID_OK, "")
 		self._BTN_OK.SetToolTip(_("Use the selected address."))
 		self._BTN_OK.SetDefault()
-		self._BTN_cancel.SetToolTip(_("Abort address selection."))
-		# end wxGlade
-
-	def __do_layout(self):
-		# begin wxGlade: wxgAddressSelectionDlg.__do_layout
-		__szr_main = wx.BoxSizer(wx.VERTICAL)
-		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_middle = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_main.Add(self._LBL_msg, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
-		__szr_middle.Add(self._PRW_address_searcher, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.RIGHT, 3)
-		__szr_middle.Add(self._BTN_manage_addresses, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_main.Add(__szr_middle, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
-		__szr_buttons.Add((20, 20), 2, wx.EXPAND, 0)
 		__szr_buttons.Add(self._BTN_OK, 0, 0, 0)
+
 		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+
+		self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, "")
+		self._BTN_cancel.SetToolTip(_("Abort address selection."))
 		__szr_buttons.Add(self._BTN_cancel, 0, 0, 0)
+
 		__szr_buttons.Add((20, 20), 2, wx.EXPAND, 0)
-		__szr_main.Add(__szr_buttons, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 3)
+
 		self.SetSizer(__szr_main)
 		__szr_main.Fit(self)
+
 		self.Layout()
 		self.Centre()
+
+		self._BTN_manage_addresses.Bind(wx.EVT_BUTTON, self._on_manage_addresses_button_pressed)
 		# end wxGlade
 
 	def _on_manage_addresses_button_pressed(self, event):  # wxGlade: wxgAddressSelectionDlg.<event_handler>

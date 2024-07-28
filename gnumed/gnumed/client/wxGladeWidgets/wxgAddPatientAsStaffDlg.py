@@ -18,73 +18,83 @@ class wxgAddPatientAsStaffDlg(wx.Dialog):
 		# begin wxGlade: wxgAddPatientAsStaffDlg.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_DIALOG_STYLE | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX | wx.RESIZE_BORDER
 		wx.Dialog.__init__(self, *args, **kwds)
-		self._TXT_person = wx.TextCtrl(self, wx.ID_ANY, _("Data of current patient to be displayed here."), style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_WORDWRAP)
-		self._TXT_short_alias = wx.TextCtrl(self, wx.ID_ANY, "")
-		self._TXT_account = wx.TextCtrl(self, wx.ID_ANY, "")
-		self._TXT_password = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_PASSWORD)
-		self._TXT_password_again = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_PASSWORD)
-		self._TXT_dbo_password = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_PASSWORD)
-		self._BTN_enlist = wx.Button(self, wx.ID_ANY, _("Enlist"))
-		self._BTN_cancel = wx.Button(self, wx.ID_ANY, _("Cancel"))
-
-		self.__set_properties()
-		self.__do_layout()
-
-		self.Bind(wx.EVT_BUTTON, self._on_enlist_button_pressed, self._BTN_enlist)
-		self.Bind(wx.EVT_BUTTON, self._on_cancel_button_pressed, self._BTN_cancel)
-		# end wxGlade
-
-	def __set_properties(self):
-		# begin wxGlade: wxgAddPatientAsStaffDlg.__set_properties
 		self.SetTitle(_("Enlist person as GNUmed user"))
-		self._TXT_person.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_GRAYTEXT))
-		self._TXT_person.Enable(False)
-		self._TXT_short_alias.SetToolTip(_("A short alias identifying the GNUmed user. It is used in the clinical record among other places."))
-		self._TXT_account.SetToolTip(_("The database account for this user.\n\nThe account will be created in the database with proper access rights. Privacy restrictions are currently hardcoded to membership in the PostgreSQL group \"gm-doctors\".\n\nYou can use the name of an existing account but it must not be used by any other GNUmed user yet."))
-		self._TXT_password.SetToolTip(_("The password for the new database account. Input will not be shown."))
-		self._TXT_password.SetFocus()
-		self._TXT_password_again.SetToolTip(_("The database password must be typed again to enable double-checking to protect against typos."))
-		self._TXT_dbo_password.SetToolTip(_("Enlisting GNUmed users is a privileged operation.\nYou must enter the password for the database administrator \"gm-dbo\" here."))
-		self._BTN_enlist.SetToolTip(_("Enlist this person as a GNUmed user and associate it with the given database account."))
-		self._BTN_enlist.SetDefault()
-		self._BTN_cancel.SetToolTip(_("Cancel this dialog, do not enlist new GNUmed user."))
-		# end wxGlade
 
-	def __do_layout(self):
-		# begin wxGlade: wxgAddPatientAsStaffDlg.__do_layout
 		__szr_main = wx.BoxSizer(wx.VERTICAL)
-		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
-		__gszr_middle = wx.FlexGridSizer(5, 2, 0, 0)
+
 		__lbl_person = wx.StaticText(self, wx.ID_ANY, _("The currently selected patient is:"))
 		__szr_main.Add(__lbl_person, 0, wx.ALL, 5)
+
+		self._TXT_person = wx.TextCtrl(self, wx.ID_ANY, _("Data of current patient to be displayed here."), style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_WORDWRAP)
+		self._TXT_person.Enable(False)
 		__szr_main.Add(self._TXT_person, 1, wx.EXPAND | wx.LEFT | wx.RIGHT, 5)
+
 		__lbl_instructions = wx.StaticText(self, wx.ID_ANY, _("User parameters:"))
 		__szr_main.Add(__lbl_instructions, 0, wx.ALL | wx.EXPAND, 5)
+
+		__gszr_middle = wx.FlexGridSizer(5, 2, 0, 0)
+		__szr_main.Add(__gszr_middle, 1, wx.EXPAND | wx.LEFT | wx.RIGHT, 5)
+
 		__lbl_short_alias = wx.StaticText(self, wx.ID_ANY, _("Alias"), style=wx.ALIGN_RIGHT)
 		__gszr_middle.Add(__lbl_short_alias, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALIGN_RIGHT | wx.RIGHT, 3)
-		__gszr_middle.Add(self._TXT_short_alias, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
+		self._TXT_short_alias = wx.TextCtrl(self, wx.ID_ANY, "")
+		self._TXT_short_alias.SetToolTip(_("A short alias identifying the GNUmed user. It is used in the clinical record among other places."))
+		__gszr_middle.Add(self._TXT_short_alias, 1, wx.EXPAND, 0)
+
 		__lbl_account = wx.StaticText(self, wx.ID_ANY, _("Account"), style=wx.ALIGN_RIGHT)
 		__gszr_middle.Add(__lbl_account, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALIGN_RIGHT | wx.RIGHT, 3)
-		__gszr_middle.Add(self._TXT_account, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
+		self._TXT_account = wx.TextCtrl(self, wx.ID_ANY, "")
+		self._TXT_account.SetToolTip(_("The database account for this user.\n\nThe account will be created in the database with proper access rights. Privacy restrictions are currently hardcoded to membership in the PostgreSQL group \"gm-doctors\".\n\nYou can use the name of an existing account but it must not be used by any other GNUmed user yet."))
+		__gszr_middle.Add(self._TXT_account, 1, wx.EXPAND, 0)
+
 		__lbl_password = wx.StaticText(self, wx.ID_ANY, _("Password"), style=wx.ALIGN_RIGHT)
 		__gszr_middle.Add(__lbl_password, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALIGN_RIGHT | wx.RIGHT, 3)
-		__gszr_middle.Add(self._TXT_password, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
+		self._TXT_password = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_PASSWORD)
+		self._TXT_password.SetToolTip(_("The password for the new database account. Input will not be shown."))
+		self._TXT_password.SetFocus()
+		__gszr_middle.Add(self._TXT_password, 1, wx.EXPAND, 0)
+
 		__lbl_password_again = wx.StaticText(self, wx.ID_ANY, _("Password, again"), style=wx.ALIGN_RIGHT)
 		__gszr_middle.Add(__lbl_password_again, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALIGN_RIGHT | wx.RIGHT, 3)
-		__gszr_middle.Add(self._TXT_password_again, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
+		self._TXT_password_again = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_PASSWORD)
+		self._TXT_password_again.SetToolTip(_("The database password must be typed again to enable double-checking to protect against typos."))
+		__gszr_middle.Add(self._TXT_password_again, 1, wx.EXPAND, 0)
+
 		__lbl_dbo_password = wx.StaticText(self, wx.ID_ANY, _("Admin password"), style=wx.ALIGN_RIGHT)
 		__gszr_middle.Add(__lbl_dbo_password, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALIGN_RIGHT | wx.RIGHT, 3)
-		__gszr_middle.Add(self._TXT_dbo_password, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__gszr_middle.AddGrowableCol(1)
-		__szr_main.Add(__gszr_middle, 1, wx.EXPAND | wx.LEFT | wx.RIGHT, 5)
-		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-		__szr_buttons.Add(self._BTN_enlist, 0, 0, 0)
-		__szr_buttons.Add(self._BTN_cancel, 0, 0, 0)
+
+		self._TXT_dbo_password = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_PASSWORD)
+		self._TXT_dbo_password.SetToolTip(_("Enlisting GNUmed users is a privileged operation.\nYou must enter the password for the database administrator \"gm-dbo\" here."))
+		__gszr_middle.Add(self._TXT_dbo_password, 1, wx.EXPAND, 0)
+
+		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_main.Add(__szr_buttons, 0, wx.ALL | wx.EXPAND, 5)
+
+		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+
+		self._BTN_enlist = wx.Button(self, wx.ID_ANY, _("Enlist"))
+		self._BTN_enlist.SetToolTip(_("Enlist this person as a GNUmed user and associate it with the given database account."))
+		self._BTN_enlist.SetDefault()
+		__szr_buttons.Add(self._BTN_enlist, 0, 0, 0)
+
+		self._BTN_cancel = wx.Button(self, wx.ID_ANY, _("Cancel"))
+		self._BTN_cancel.SetToolTip(_("Cancel this dialog, do not enlist new GNUmed user."))
+		__szr_buttons.Add(self._BTN_cancel, 0, 0, 0)
+
+		__gszr_middle.AddGrowableCol(1)
+
 		self.SetSizer(__szr_main)
 		__szr_main.Fit(self)
+
 		self.Layout()
 		self.Centre()
+
+		self._BTN_enlist.Bind(wx.EVT_BUTTON, self._on_enlist_button_pressed)
+		self._BTN_cancel.Bind(wx.EVT_BUTTON, self._on_cancel_button_pressed)
 		# end wxGlade
 
 	def _on_enlist_button_pressed(self, event):  # wxGlade: wxgAddPatientAsStaffDlg.<event_handler>

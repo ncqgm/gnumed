@@ -53,8 +53,8 @@ class wxg3ButtonQuestionDlg(wx.Dialog):
 		self.Layout()
 		self.Centre()
 
-		self.Bind(wx.EVT_BUTTON, self._on_BTN_1_pressed, self._BTN_1)
-		self.Bind(wx.EVT_BUTTON, self._on_BTN_2_pressed, self._BTN_2)
+		self._BTN_1.Bind(wx.EVT_BUTTON, self._on_BTN_1_pressed)
+		self._BTN_2.Bind(wx.EVT_BUTTON, self._on_BTN_2_pressed)
 		# end wxGlade
 
 	def _on_BTN_1_pressed(self, event):  # wxGlade: wxg3ButtonQuestionDlg.<event_handler>

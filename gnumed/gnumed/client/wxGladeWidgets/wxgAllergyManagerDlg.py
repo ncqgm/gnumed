@@ -18,7 +18,7 @@ class wxgAllergyManagerDlg(wx.Dialog):
 		# begin wxGlade: wxgAllergyManagerDlg.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_DIALOG_STYLE | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX | wx.RESIZE_BORDER
 		wx.Dialog.__init__(self, *args, **kwds)
-		self.SetSize((650, 500))
+		self.SetSize((650, 558))
 		self.SetTitle(_("Allergy Manager"))
 
 		__szr_main = wx.BoxSizer(wx.VERTICAL)
@@ -50,7 +50,7 @@ class wxgAllergyManagerDlg(wx.Dialog):
 		__gszr_state.Add(__LBL_set_state, 0, wx.ALIGN_CENTER_VERTICAL, 15)
 
 		__szr_new_state = wx.BoxSizer(wx.HORIZONTAL)
-		__gszr_state.Add(__szr_new_state, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 5)
+		__gszr_state.Add(__szr_new_state, 0, wx.EXPAND, 5)
 
 		self._RBTN_unknown = wx.RadioButton(self, wx.ID_ANY, _("Unknown"))
 		self._RBTN_unknown.SetToolTip(_("Select this if there is no information available on whether the patient has any allergies or not."))
@@ -69,7 +69,7 @@ class wxgAllergyManagerDlg(wx.Dialog):
 
 		self._TCTRL_state_comment = wx.TextCtrl(self, wx.ID_ANY, "")
 		self._TCTRL_state_comment.SetToolTip(_("A comment on the allergy state."))
-		__gszr_state.Add(self._TCTRL_state_comment, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+		__gszr_state.Add(self._TCTRL_state_comment, 1, wx.EXPAND, 0)
 
 		__szr_state_button = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_state.Add(__szr_state_button, 0, wx.EXPAND, 0)
@@ -87,11 +87,11 @@ class wxgAllergyManagerDlg(wx.Dialog):
 		__szr_main.Add(__szr_details, 1, wx.BOTTOM | wx.EXPAND | wx.LEFT | wx.RIGHT, 5)
 
 		from Gnumed.wxpython.gmListWidgets import cReportListCtrl
-		self._LCTRL_allergies = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT | wx.LC_SINGLE_SEL)
+		self._LCTRL_allergies = cReportListCtrl(__szr_details.GetStaticBox(), wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT | wx.LC_SINGLE_SEL)
 		self._LCTRL_allergies.SetToolTip(_("Lists the allergies known for this patient if any."))
 		__szr_details.Add(self._LCTRL_allergies, 2, wx.BOTTOM | wx.EXPAND, 10)
 
-		self._LBL_message = wx.StaticText(self, wx.ID_ANY, _("Input new allergy, or select from among existing allergy items to edit them:"))
+		self._LBL_message = wx.StaticText(__szr_details.GetStaticBox(), wx.ID_ANY, _("Input new allergy, or select from among existing allergy items to edit them:"))
 		__szr_details.Add(self._LBL_message, 0, wx.BOTTOM, 3)
 
 		from Gnumed.wxpython.gmAllergyWidgets import cAllergyEditAreaPnl
@@ -138,12 +138,12 @@ class wxgAllergyManagerDlg(wx.Dialog):
 		self.Layout()
 		self.Centre()
 
-		self.Bind(wx.EVT_BUTTON, self._on_confirm_button_pressed, self._BTN_confirm)
-		self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._on_list_item_selected, self._LCTRL_allergies)
-		self.Bind(wx.EVT_BUTTON, self._on_save_details_button_pressed, self._BTN_save_details)
-		self.Bind(wx.EVT_BUTTON, self._on_clear_button_pressed, self._BTN_clear)
-		self.Bind(wx.EVT_BUTTON, self._on_delete_button_pressed, self._BTN_delete)
-		self.Bind(wx.EVT_BUTTON, self._on_dismiss_button_pressed, self._BTN_dismiss)
+		self._BTN_confirm.Bind(wx.EVT_BUTTON, self._on_confirm_button_pressed)
+		self._LCTRL_allergies.Bind(wx.EVT_LIST_ITEM_SELECTED, self._on_list_item_selected)
+		self._BTN_save_details.Bind(wx.EVT_BUTTON, self._on_save_details_button_pressed)
+		self._BTN_clear.Bind(wx.EVT_BUTTON, self._on_clear_button_pressed)
+		self._BTN_delete.Bind(wx.EVT_BUTTON, self._on_delete_button_pressed)
+		self._BTN_dismiss.Bind(wx.EVT_BUTTON, self._on_dismiss_button_pressed)
 		# end wxGlade
 
 	def _on_confirm_button_pressed(self, event):  # wxGlade: wxgAllergyManagerDlg.<event_handler>

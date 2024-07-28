@@ -14,10 +14,10 @@
 #WXGs=$(grep -L 'for_version="3\.0"' *.wxg)
 #WXGs=$(grep 'wxSYS' *.wxg)
 
-WXGs=$(grep -l '\|wxALIGN_CENTER_VERTICAL' *.wxg)
+WXGs=$(grep -l -E 'wxEXPAND.+wxALIGN_.+' *.wxg)
 
 for WXG in ${WXGs} ; do
-	echo $WXG
+	echo "# $WXG"
 done;
 #exit 0
 
@@ -28,5 +28,5 @@ echo ""
 for WXG in ${WXGs} ; do
 	echo ""
 	echo "read -p 'Convert ${WXG}'"
-	echo "wxglade ${WXG}"
+	echo "wxglade $(pwd)/${WXG}"
 done;
