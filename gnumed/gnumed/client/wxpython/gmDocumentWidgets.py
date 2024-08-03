@@ -215,8 +215,8 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 	if doc is None:
 		wx.EndBusyCursor()
 		gmGuiHelpers.gm_show_error (
-			aMessage = _('Cannot create new document.'),
-			aTitle = _('saving document')
+			error = _('Cannot create new document.'),
+			title = _('saving document')
 		)
 		return None
 
@@ -229,8 +229,8 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 	if not success:
 		wx.EndBusyCursor()
 		gmGuiHelpers.gm_show_error (
-			aMessage = msg,
-			aTitle = _('saving document')
+			error = msg,
+			title = _('saving document')
 		)
 		return None
 
@@ -263,8 +263,8 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 					'off this message in the GNUmed configuration.\n'
 			) % reference
 		gmGuiHelpers.gm_show_info (
-			aMessage = msg,
-			aTitle = _('Saving document')
+			info = msg,
+			title = _('Saving document')
 		)
 	# remove non-temp files
 	tmp_dir = gmTools.gmPaths().tmp_dir
@@ -948,14 +948,14 @@ def acquire_images_from_capture_device(device=None, calling_window=None) -> list
 	except OSError:
 		_log.exception('problem acquiring image from source')
 		gmGuiHelpers.gm_show_error (
-			aMessage = _(
+			error = _(
 				'No images could be acquired from the source.\n\n'
 				'This may mean the scanner driver is not properly installed.\n\n'
 				'On Windows you must install the TWAIN Python module\n'
 				'while on Linux and MacOSX it is recommended to install\n'
 				'the XSane package.'
 			),
-			aTitle = _('Acquiring images')
+			title = _('Acquiring images')
 		)
 		return None
 
@@ -973,8 +973,8 @@ def display_document_part(parent=None, part=None):
 	if part['size'] == 0:
 		_log.debug('cannot display part [%s] - 0 bytes', part['pk_obj'])
 		gmGuiHelpers.gm_show_error (
-			aMessage = _('Document part does not seem to exist in database !'),
-			aTitle = _('showing document')
+			error = _('Document part does not seem to exist in database !'),
+			title = _('showing document')
 		)
 		return None
 
@@ -999,8 +999,8 @@ def display_document_part(parent=None, part=None):
 	)
 	if not successful:
 		gmGuiHelpers.gm_show_error (
-			aMessage = _('Cannot display document part:\n%s') % msg,
-			aTitle = _('showing document')
+			error = _('Cannot display document part:\n%s') % msg,
+			title = _('showing document')
 		)
 		return None
 
@@ -1691,8 +1691,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		docs = docs_folder.get_documents()
 		if docs is None:
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('Error searching documents.'),
-				aTitle = _('loading document list')
+				error = _('Error searching documents.'),
+				title = _('loading document list')
 			)
 			wx.EndBusyCursor()
 			return False
@@ -2116,8 +2116,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		if part['size'] == 0:
 			_log.debug('cannot display part [%s] - 0 bytes', part['pk_obj'])
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('Document part does not seem to exist in database !'),
-				aTitle = _('showing document')
+				error = _('Document part does not seem to exist in database !'),
+				title = _('showing document')
 			)
 			return None
 
@@ -2143,8 +2143,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 		if not successful:
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('Cannot display document part:\n%s') % msg,
-				aTitle = _('showing document')
+				error = _('Cannot display document part:\n%s') % msg,
+				title = _('showing document')
 			)
 			return None
 
@@ -2194,8 +2194,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			return
 		if not self.__curr_node_data.reattach(pk_doc = target_doc['pk_doc']):
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('Cannot move document part.'),
-				aTitle = _('Moving document part')
+				error = _('Cannot move document part.'),
+				title = _('Moving document part')
 			)
 	#--------------------------------------------------------
 	def __delete_part(self, evt):
@@ -2569,8 +2569,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 	#--------------------------------------------------------
 	def __delete_document(self, evt):
 		delete_it = gmGuiHelpers.gm_show_question (
-			aMessage = _('Are you sure you want to delete the document ?'),
-			aTitle = _('Deleting document')
+			question = _('Are you sure you want to delete the document ?'),
+			title = _('Deleting document')
 		)
 		if delete_it is True:
 			curr_pat = gmPerson.gmCurrentPatient()
@@ -3034,8 +3034,8 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			(success, msg) = gmMimeLib.call_viewer_on_file(img_file)
 			if not success:
 				gmGuiHelpers.gm_show_warning (
-					aMessage = _('Cannot show image:\n%s') % msg,
-					aTitle = _('Previewing DICOM image')
+					warning = _('Cannot show image:\n%s') % msg,
+					title = _('Previewing DICOM image')
 				)
 			return success
 
@@ -3053,8 +3053,8 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 				return True
 
 		gmGuiHelpers.gm_show_warning (
-			aMessage = _('Cannot show in DICOM or image viewer:\n%s') % msg,
-			aTitle = _('Previewing DICOM image')
+			warning = _('Cannot show in DICOM or image viewer:\n%s') % msg,
+			title = _('Previewing DICOM image')
 		)
 
 	#--------------------------------------------------------
@@ -3076,8 +3076,8 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			img_fname = self.__pacs.get_instance(filename = fname, instance_id = uuid)
 			if img_fname is None:
 				gmGuiHelpers.gm_show_warning (
-					aMessage = _('Cannot save image as DICOM file.'),
-					aTitle = _('Saving DICOM image')
+					warning = _('Cannot save image as DICOM file.'),
+					title = _('Saving DICOM image')
 				)
 				return False, fnames
 
@@ -3096,8 +3096,8 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			img_fname = self.__pacs.get_instance_preview(filename = fname, instance_id = uuid)
 			if img_fname is None:
 				gmGuiHelpers.gm_show_warning (
-					aMessage = _('Cannot save image as PNG file.'),
-					aTitle = _('Saving DICOM image')
+					warning = _('Cannot save image as PNG file.'),
+					title = _('Saving DICOM image')
 				)
 				return False, fnames
 			fnames['png'] = img_fname
@@ -3686,8 +3686,8 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			wx.EndBusyCursor()
 		if not uploaded:
 			gmGuiHelpers.gm_show_warning (
-				aMessage = _('No files uploaded.'),
-				aTitle = _('Uploading DICOM files')
+				warning = _('No files uploaded.'),
+				title = _('Uploading DICOM files')
 			)
 			return
 
@@ -4015,8 +4015,8 @@ class cModifyOrthancContentDlg(wxgModifyOrthancContentDlg):
 		self.__refresh_patient_list()
 		if not all_modified:
 			gmGuiHelpers.gm_show_warning (
-				aTitle = _('Modifying patient ID'),
-				aMessage = _(
+				title = _('Modifying patient ID'),
+				warning = _(
 					'I was unable to modify all DICOM studies selected.\n'
 					'\n'
 					'Please refer to the log file.'

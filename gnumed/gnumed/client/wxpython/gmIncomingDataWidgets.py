@@ -101,8 +101,8 @@ class cIncomingDataListCtrl(gmListWidgets.cReportListCtrl):
 			return
 
 		gmGuiHelpers.gm_show_warning (
-			aMessage = _('Cannot display document:\n%s') % msg,
-			aTitle = _('displaying incoming document')
+			warning = _('Cannot display document:\n%s') % msg,
+			title = _('displaying incoming document')
 		)
 
 	#--------------------------------------------------------
@@ -362,8 +362,8 @@ class cIncomingPluginPnl(wxgIncomingPluginPnl.wxgIncomingPluginPnl, gmRegetMixin
 			return False
 
 		save_empty = gmGuiHelpers.gm_show_question (
-			aMessage = _('Nothing [x] checked or highlighted for saving.\n\nReally save an empty document as a reference ?'),
-			aTitle = _('saving document')
+			question = _('Nothing [x] checked or highlighted for saving.\n\nReally save an empty document as a reference ?'),
+			title = _('saving document')
 		)
 		if not save_empty:
 			return False
@@ -614,14 +614,14 @@ class cIncomingPluginPnl(wxgIncomingPluginPnl.wxgIncomingPluginPnl, gmRegetMixin
 		except OSError:
 			_log.exception('problem acquiring image from source')
 			gmGuiHelpers.gm_show_error (
-				aMessage = _(
+				error = _(
 					'No pages could be acquired from the source.\n\n'
 					'This may mean the scanner driver is not properly installed.\n\n'
 					'On Windows you must install the TWAIN Python module\n'
 					'while on Linux and MacOSX it is recommended to install\n'
 					'the XSane package.'
 				),
-				aTitle = _('acquiring page')
+				title = _('acquiring page')
 			)
 			return None
 

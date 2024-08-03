@@ -666,8 +666,8 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		except IndexError:
 			_log.exception('problem with provider inbox item data access')
 			gmGuiHelpers.gm_show_error (
-				aTitle = _('handling provider inbox item'),
-				aMessage = _('There was a problem accessing the message data.')
+				title = _('handling provider inbox item'),
+				error = _('There was a problem accessing the message data.')
 			)
 			_log.debug('effecting inbox reload')
 			wx.CallAfter(self.__populate_inbox)

@@ -107,8 +107,8 @@ def __handle_import_error(t, v, tb):
 
 	_log.error('module [%s] not installed', v)
 	gmGuiHelpers.gm_show_error (
-		aTitle = _('Missing GNUmed module'),
-		aMessage = _(
+		title = _('Missing GNUmed module'),
+		error = _(
 			'GNUmed detected that parts of it are not\n'
 			'properly installed. The following message\n'
 			'names the missing part:\n'
@@ -154,8 +154,8 @@ def __handle_access_violation(t, v, tb):
 			u_box_horiz_single * 50
 		)
 	gmGuiHelpers.gm_show_error (
-		aTitle = _('Access violation'),
-		aMessage = _(
+		title = _('Access violation'),
+		error = _(
 			'You do not have access to this part of GNUmed.\n'
 			'\n'
 			'%s'
@@ -174,8 +174,8 @@ def __handle_lost_db_connection(t, v, tb):
 	wx.EndBusyCursor()
 	gmLog2.flush()
 	gmGuiHelpers.gm_show_error (
-		aTitle = _('Lost connection'),
-		aMessage = _(
+		title = _('Lost connection'),
+		error = _(
 			'Since you were last working in GNUmed,\n'
 			'your database connection timed out.\n'
 			'\n'

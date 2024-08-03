@@ -132,8 +132,8 @@ def list_configuration(parent=None):
 	#---------------
 	def delete(item):
 		delete_it = gmGuiHelpers.gm_show_question (
-			aTitle = _('Deleting option'),
-			aMessage = '%s\n\n%s %s (#%s) %s\n\n%s\n\n%s' % (
+			title = _('Deleting option'),
+			question = '%s\n\n%s %s (#%s) %s\n\n%s\n\n%s' % (
 				tooltip(item),
 				gmTools.u_box_horiz_single * 3,
 				item['option'],

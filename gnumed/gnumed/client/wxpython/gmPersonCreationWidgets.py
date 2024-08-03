@@ -541,8 +541,8 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 				_log.debug('country: >>%s<<', self._PRW_country.GetData())
 				_log.exception('cannot link address')
 				gmGuiHelpers.gm_show_error (
-					aTitle = _('Saving address'),
-					aMessage = _(
+					title = _('Saving address'),
+					error = _(
 						'Cannot save this address.\n'
 						'\n'
 						'You will have to add it via the Demographics plugin.\n'
@@ -550,8 +550,8 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 				)
 		elif is_valid is False:
 			gmGuiHelpers.gm_show_error (
-				aTitle = _('Saving address'),
-				aMessage = _(
+				title = _('Saving address'),
+				error = _(
 					'Address not saved.\n'
 					'\n'
 					'You will have to add it via the Demographics plugin.\n'

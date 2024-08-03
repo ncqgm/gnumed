@@ -64,10 +64,7 @@ def _display_clinical_reminders():
 			pat.description_gender,
 			msg['modified_by']
 		)
-		gmGuiHelpers.gm_show_warning (
-			aTitle = _('Clinical reminder'),
-			aMessage = txt
-		)
+		gmGuiHelpers.gm_show_warning(title = _('Clinical reminder'), warning = txt)
 
 	# dynamic hints
 	hints2aggregate = []

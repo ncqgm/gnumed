@@ -374,8 +374,8 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 			import Gnuplot
 		except ImportError:
 			gmGuiHelpers.gm_show_info (
-				aMessage = _('Cannot import "Gnuplot" python module.'),
-				aTitle = _('Query result visualizer')
+				info = _('Cannot import "Gnuplot" python module.'),
+				title = _('Query result visualizer')
 			)
 			return
 
@@ -546,7 +546,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 
 		if len(rows) == 1001:
 			gmGuiHelpers.gm_show_info (
-				aMessage = _(
+				info = _(
 					'This query returned at least %s results.\n'
 					'\n'
 					'GNUmed will only show the first %s rows.\n'
@@ -555,7 +555,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 					'or use LIMIT and OFFSET to batchwise go through\n'
 					'all the matching rows.'
 				) % (limit, limit-1),
-				aTitle = _('Report Generator')
+				title = _('Report Generator')
 			)
 			rows = rows[:-1]		# make it true :-)
 

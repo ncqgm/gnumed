@@ -103,7 +103,7 @@ class cMergePatientsDlg(wxgMergePatientsDlg.wxgMergePatientsDlg):
 				return
 
 		doit = gmGuiHelpers.gm_show_question (
-			aMessage = _(
+			question = _(
 				'Are you positively sure you want to merge patient\n\n'
 				' #%s: %s (%s, %s)\n\n'
 				'into patient\n\n'
@@ -121,7 +121,7 @@ class cMergePatientsDlg(wxgMergePatientsDlg.wxgMergePatientsDlg):
 				patient2keep['gender'],
 				patient2keep.get_formatted_dob(format = '%Y %b %d')
 			),
-			aTitle = _('Merging patients: confirmation'),
+			title = _('Merging patients: confirmation'),
 			cancel_button = False
 		)
 		if not doit:
@@ -161,7 +161,7 @@ class cMergePatientsDlg(wxgMergePatientsDlg.wxgMergePatientsDlg):
 		curr_pat = gmPerson.gmCurrentPatient()
 		# announce success
 		if (curr_pat.connected) and (patient2keep.ID == curr_pat.ID):
-			gmGuiHelpers.gm_show_info(aMessage = msg, aTitle = title)
+			gmGuiHelpers.gm_show_info(info = msg, title = title)
 		# and offer to activate kept patient if not active
 		else:
 			msg = msg + (
@@ -170,8 +170,8 @@ class cMergePatientsDlg(wxgMergePatientsDlg.wxgMergePatientsDlg):
 			'now for further modifications ?\n'
 			)
 			doit = gmGuiHelpers.gm_show_question (
-				aMessage = msg,
-				aTitle = title,
+				question = msg,
+				title = title,
 				cancel_button = False
 			)
 			if doit:
@@ -1153,10 +1153,10 @@ def _verify_staff_chart_access(patient=None):
 		return True
 
 	proceed = gmGuiHelpers.gm_show_question (
-		aTitle = _('Privacy check'),
-		aMessage = _(
+		title = _('Privacy check'),
+		question = _(
 			'You have selected the chart of a member of staff,\n'
-			'for whom privacy is especially important:\n'
+			'for which privacy is particularly important:\n'
 			'\n'
 			'  %s, %s\n'
 			'\n'
@@ -1213,8 +1213,8 @@ def _check_has_dob(patient=None):
 
 	if patient['dob'] is None:
 		gmGuiHelpers.gm_show_warning (
-			aTitle = _('Checking date of birth'),
-			aMessage = _(
+			title = _('Checking date of birth'),
+			warning = _(
 				'\n'
 				' %s\n'
 				'\n'

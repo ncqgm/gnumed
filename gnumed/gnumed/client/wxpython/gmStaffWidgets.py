@@ -180,7 +180,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		conn.close()
 		self.__init_ui_data()
 		if not success:
-			gmGuiHelpers.gm_show_error(aMessage = msg, aTitle = _('Removing GNUmed user'))
+			gmGuiHelpers.gm_show_error(error = msg, title = _('Removing GNUmed user'))
 			return False
 		return True
 	#--------------------------------------------------------
@@ -199,8 +199,8 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		if not success:
 			conn.close()
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('Failed to save changes to GNUmed database user.'),
-				aTitle = _('Modifying GNUmed user')
+				error = _('Failed to save changes to GNUmed database user.'),
+				title = _('Modifying GNUmed user')
 			)
 			return False
 
@@ -208,8 +208,8 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		if target_role is not None:
 			if not staff.set_role(conn = conn, role = target_role):
 				gmGuiHelpers.gm_show_error (
-					aMessage = _('Failed to set role [%s] for GNUmed database user.') % self._PRW_user_role.GetValue().strip(),
-					aTitle = _('Modifying GNUmed user')
+					error = _('Failed to set role [%s] for GNUmed database user.') % self._PRW_user_role.GetValue().strip(),
+					title = _('Modifying GNUmed user')
 				)
 
 		conn.close()
@@ -251,8 +251,8 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 		# sanity checks
 		if self._TXT_password.GetValue() != self._TXT_password_again.GetValue():
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('Password entries do not match. Please type in the passwords again to rule out typos.'),
-				aTitle = _('Adding GNUmed user')
+				error = _('Password entries do not match. Please type in the passwords again to rule out typos.'),
+				title = _('Adding GNUmed user')
 			)
 			self._TXT_password.SetValue('')
 			self._TXT_password_again.SetValue('')
@@ -260,13 +260,13 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 
 		if self._TXT_password.GetValue().strip() == '':
 			really_wants_empty_password = gmGuiHelpers.gm_show_question (
-				aMessage = _(
+				question = _(
 					'Are you positively sure you want to create\n'
 					'a user with an empty password ?\n'
 					'\n'
 					'Think about the record access implications !'
 				),
-				aTitle = _('Adding GNUmed user')
+				title = _('Adding GNUmed user')
 			)
 			if not really_wants_empty_password:
 				return False
@@ -289,7 +289,7 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 		)
 		conn.close()
 		if not success:
-			gmGuiHelpers.gm_show_error(aMessage = msg, aTitle = _('Adding GNUmed user'))
+			gmGuiHelpers.gm_show_error(error = msg, title = _('Adding GNUmed user'))
 			return False
 
 		if self.IsModal():

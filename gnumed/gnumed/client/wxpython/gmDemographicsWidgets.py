@@ -52,8 +52,8 @@ def edit_tag_image(parent=None, tag_image=None, single_entry=False):
 	if tag_image is not None:
 		if tag_image['is_in_use']:
 			gmGuiHelpers.gm_show_info (
-				aTitle = _('Editing tag'),
-				aMessage = _(
+				title = _('Editing tag'),
+				info = _(
 					'Cannot edit the image tag\n'
 					'\n'
 					' "%s"\n'
@@ -1132,8 +1132,8 @@ class cPersonNameEAPnl(wxgPersonNameEAPnl.wxgPersonNameEAPnl, gmEditArea.cGeneri
 		except gmPG2.dbapi.IntegrityError as exc:
 			_log.exception('cannot save new name')
 			gmGuiHelpers.gm_show_error (
-				aTitle = _('Adding name'),
-				aMessage = _(
+				title = _('Adding name'),
+				error = _(
 					'Cannot add this name to the patient !\n'
 					'\n'
 					' %s'
@@ -1178,8 +1178,8 @@ class cPersonNameEAPnl(wxgPersonNameEAPnl.wxgPersonNameEAPnl, gmEditArea.cGeneri
 			except gmPG2.dbapi.IntegrityError as exc:
 				_log.exception('cannot clone name when editing existing name')
 				gmGuiHelpers.gm_show_error (
-					aTitle = _('Editing name'),
-					aMessage = _(
+					title = _('Editing name'),
+					error = _(
 						'Cannot clone a copy of this name !\n'
 						'\n'
 						' %s'

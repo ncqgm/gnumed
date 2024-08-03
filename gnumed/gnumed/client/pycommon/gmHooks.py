@@ -129,7 +129,7 @@ def on_startup_after_GUI_init():
 
 def request_user_attention():
 	# signal user to look at GNUmed
-	gmGuiHelpers.gm_show_info(_('Hey, GNUmed wants you to take a look at it !'))
+	gmGuiHelpers.gm_show_info(_('Hey, GNUmed wants you to take a look at it !'), _('GNUmed hook'))
 
 
 #def on_app_activated_startup():

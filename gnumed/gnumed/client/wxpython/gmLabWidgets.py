@@ -372,8 +372,8 @@ class cLabJournalNB(wx.Notebook):
 	def update(self):
 		if self.__pat['pk'] is None:
 			gmGuiHelpers.gm_show_error(
-				aMessage = _('Cannot load lab journal.\nYou first need to select a patient.'),
-				aTitle = _('loading lab journal')
+				error = _('Cannot load lab journal.\nYou first need to select a patient.'),
+				title = _('loading lab journal')
 			)
 			return None
 
@@ -633,8 +633,8 @@ class cLabJournalNB(wx.Notebook):
 			else:
 				_log.error( 'setting result status to reviewed failed %s' % error)
 				gmGuiHelpers.gm_show_error (
-					aMessage = _('Cannot mark results as "reviewed":\n%s') % error,
-					aTitle = _('update result status')
+					error = _('Cannot mark results as "reviewed":\n%s') % error,
+					title = _('update result status')
 				)
 				return None
 
@@ -716,8 +716,8 @@ class cLabDataGrid(wx.Grid):
 		if self.__pat['pk'] is None:
 			_log.error( 'need patient for update')
 			gmGuiHelpers.gm_show_error(
-				aMessage = _('Cannot load lab data.\nYou first need to select a patient.'),
-				aTitle = _('loading lab data')
+				error = _('Cannot load lab data.\nYou first need to select a patient.'),
+				title = _('loading lab data')
 			)
 			return None
 
@@ -745,8 +745,8 @@ class cLabDataGrid(wx.Grid):
 		if results is None:
 			name = self.__pat.get_names()
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('Error loading lab data for patient\n[%s %s].') % (name['firstnames'], name['lastnames']),
-				aTitle = _('loading lab data')
+				error = _('Error loading lab data for patient\n[%s %s].') % (name['firstnames'], name['lastnames']),
+				title = _('loading lab data')
 			)
 			return None
 		if len(results) == 0:

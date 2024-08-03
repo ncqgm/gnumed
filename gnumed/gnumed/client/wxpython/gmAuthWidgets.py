@@ -333,8 +333,8 @@ Please enter the current password for <%s>:""") % (
 	except Exception:
 		_log.exception('cannot connect')
 		gmGuiHelpers.gm_show_error (
-			aMessage = _('Cannot connect as the GNUmed database owner <%s>.') % dbo_account,
-			aTitle = procedure
+			error = _('Cannot connect as the GNUmed database owner <%s>.') % dbo_account,
+			title = procedure
 		)
 		gmPG2.log_database_access(action = 'failed to connect as database owner for [%s]' % procedure)
 	return conn

@@ -833,8 +833,8 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		except Exception:
 			_log.exception('cannot call [%s] on keyword [%s] to create widget' % (create_widget, kwd))
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('Cannot invoke [%s] for keyword [%s].') % (create_widget, kwd),
-				aTitle = _('showing keyword popup')
+				error = _('Cannot invoke [%s] for keyword [%s].') % (create_widget, kwd),
+				title = _('showing keyword popup')
 			)
 			return False
 
@@ -912,8 +912,8 @@ if __name__ == '__main__':
 		for key in kwargs():
 			msg = msg + "\n%s ==> %s" % (key, kwargs[key])
 		gmGuiHelpers.gm_show_info (
-			aMessage = msg,
-			aTitle = 'msg box on create_widget from test_keyword'
+			info = msg,
+			title = 'msg box on create_widget from test_keyword'
 		)
 	#================================================================
 	class cTestKwdPopupPanel(wx.Panel):

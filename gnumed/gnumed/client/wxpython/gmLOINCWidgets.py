@@ -40,8 +40,8 @@ def update_loinc_reference_data():
 	if loinc_zip is None:
 		wx.EndBusyCursor()
 		gmGuiHelpers.gm_show_warning (
-			aTitle = _('Downloading LOINC'),
-			aMessage = _('Error downloading the latest LOINC data.\n')
+			title = _('Downloading LOINC'),
+			warning = _('Error downloading the latest LOINC data.\n')
 		)
 		return False
 

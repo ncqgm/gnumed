@@ -258,12 +258,12 @@ def generate_form_from_template(parent=None, template_types=None, edit=None, tem
 		_log.exception('cannot instantiate document template [%s]', template)
 		wx.EndBusyCursor()
 		gmGuiHelpers.gm_show_error (
-			aMessage = _('Invalid document template [%s - %s (%s)]') % (
+			error = _('Invalid document template [%s - %s (%s)]') % (
 				template['name_long'],
 				template['external_version'],
 				template['engine']
 			),
-			aTitle = _('Generating document from template')
+			title = _('Generating document from template')
 		)
 		return None
 	ph = gmMacro.gmPlaceholderHandler()
@@ -286,8 +286,8 @@ def generate_form_from_template(parent=None, template_types=None, edit=None, tem
 		return form
 
 	gmGuiHelpers.gm_show_error (
-		aMessage = _('Error generating document printout.'),
-		aTitle = _('Generating document printout')
+		error = _('Error generating document printout.'),
+		title = _('Generating document printout')
 	)
 	return None
 
@@ -367,8 +367,8 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 		printed = gmPrinting.print_files(filenames = files2print, jobtype = jobtype, verbose = _cfg.get(option = 'debug'))
 		if not printed:
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('Error printing documents.'),
-				aTitle = _('Printing [%s]') % jobtype
+				error = _('Error printing documents.'),
+				title = _('Printing [%s]') % jobtype
 			)
 			return False
 		soap_lines.append(_('Printed: %s') % ', '.join(form_names))
@@ -569,8 +569,8 @@ def manage_form_templates(parent=None, template_types=None, active_only=False, e
 	#-------------------------
 	def delete(template):
 		delete = gmGuiHelpers.gm_show_question (
-			aTitle = _('Deleting form template.'),
-			aMessage = _(
+			title = _('Deleting form template.'),
+			question = _(
 				'Are you sure you want to delete\n'
 				'the following form template ?\n\n'
 				' "%s (%s)"\n\n'

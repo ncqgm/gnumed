@@ -593,17 +593,12 @@ def undecorate_window_title(title):
 	return title.strip()
 
 # ========================================================================
-def gm_show_error(aMessage=None, aTitle = None, error=None, title=None):
-
-	if error is None:
-		error = aMessage
-	if error is None:
+def gm_show_error(error:str=None, title:str=None):
+	if not error:
 		error = _('programmer forgot to specify error message')
 	error += _("\n\nPlease consult the error log for all the gory details !")
-	if title is None:
-		title = aTitle
-	if title is None:
-		title = _('generic error message')
+	if not title:
+		title = _('GNUmed error')
 	dlg = wx.MessageDialog (
 		parent = None,
 		message = error,
@@ -612,19 +607,13 @@ def gm_show_error(aMessage=None, aTitle = None, error=None, title=None):
 	)
 	dlg.ShowModal()
 	dlg.DestroyLater()
-	return True
 
 #-------------------------------------------------------------------------
-def gm_show_info(aMessage=None, aTitle=None, info=None, title=None):
-
-	if info is None:
-		info = aMessage
-	if info is None:
+def gm_show_info(info:str=None, title:str=None):
+	if not info:
 		info = _('programmer forgot to specify info message')
-	if title is None:
-		title = aTitle
-	if title is None:
-		title = _('generic info message')
+	if not title:
+		title = _('GNUmed info message')
 	dlg = wx.MessageDialog (
 		parent = None,
 		message = info,
@@ -633,35 +622,29 @@ def gm_show_info(aMessage=None, aTitle=None, info=None, title=None):
 	)
 	dlg.ShowModal()
 	dlg.DestroyLater()
-	return True
 
 #-------------------------------------------------------------------------
-def gm_show_warning(aMessage=None, aTitle=None):
-	if aMessage is None:
-		aMessage = _('programmer forgot to specify warning')
-	if aTitle is None:
-		aTitle = _('generic warning message')
-
-	dlg = wx.MessageDialog (
-		parent = None,
-		message = aMessage,
-		caption = decorate_window_title(aTitle),
-		style = wx.OK | wx.ICON_EXCLAMATION | wx.STAY_ON_TOP
-	)
+def gm_show_warning(warning:str=None, title:str=None):
+	if not warning:
+		warning = _('programmer forgot to specify warning')
+	if not title:
+		title = _('GNUmed warning message')
+	title = decorate_window_title(title)
+	style = wx.OK | wx.ICON_EXCLAMATION | wx.STAY_ON_TOP
+	dlg = wx.MessageDialog(parent = None, message = warning, caption = title, style = style)
 	dlg.ShowModal()
 	dlg.DestroyLater()
-	return True
 
 #-------------------------------------------------------------------------
-def gm_show_question(aMessage='programmer forgot to specify question', aTitle='generic user question dialog', cancel_button=False, question=None, title=None):
+def gm_show_question(question:str=None, title:str=None, cancel_button:bool=False) -> bool | None:
 	if cancel_button:
 		style = wx.YES_NO | wx.CANCEL | wx.ICON_QUESTION | wx.STAY_ON_TOP
 	else:
 		style = wx.YES_NO | wx.ICON_QUESTION | wx.STAY_ON_TOP
-	if question is None:
-		question = aMessage
-	if title is None:
-		title = aTitle
+	if not question:
+		question = 'programmer forgot to specify question'
+	if not title:
+		title = _('GNUmed user question')
 	title = decorate_window_title(title)
 	dlg = wx.MessageDialog(None, question, title, style)
 	btn_pressed = dlg.ShowModal()
@@ -669,11 +652,10 @@ def gm_show_question(aMessage='programmer forgot to specify question', aTitle='g
 	if btn_pressed == wx.ID_YES:
 		return True
 
-	elif btn_pressed == wx.ID_NO:
+	if btn_pressed == wx.ID_NO:
 		return False
 
-	else:
-		return None
+	return None
 
 #======================================================================
 if __name__ == '__main__':

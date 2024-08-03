@@ -81,8 +81,8 @@ def print_medication_list(parent=None):
 		template = configure_medication_list_template(parent = parent)
 		if template is None:
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('There is no medication list template configured.'),
-				aTitle = _('Printing medication list')
+				error = _('There is no medication list template configured.'),
+				title = _('Printing medication list')
 			)
 			return False
 
@@ -96,8 +96,8 @@ def print_medication_list(parent=None):
 		template = gmForms.get_form_template(name_long = name, external_version = ver)
 		if template is None:
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('Cannot load medication list template [%s - %s]') % (name, ver),
-				aTitle = _('Printing medication list')
+				error = _('Cannot load medication list template [%s - %s]') % (name, ver),
+				title = _('Printing medication list')
 			)
 			return False
 
@@ -166,8 +166,8 @@ def get_prescription_template(parent=None):
 		template = configure_prescription_template(parent = parent)
 		if template is None:
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('There is no prescription template configured.'),
-				aTitle = _('Printing prescription')
+				error = _('There is no prescription template configured.'),
+				title = _('Printing prescription')
 			)
 			return None
 		return template
@@ -181,8 +181,8 @@ def get_prescription_template(parent=None):
 	template = gmForms.get_form_template(name_long = name, external_version = ver)
 	if template is None:
 		gmGuiHelpers.gm_show_error (
-			aMessage = _('Cannot load prescription template [%s - %s]') % (name, ver),
-			aTitle = _('Printing prescription')
+			error = _('Cannot load prescription template [%s - %s]') % (name, ver),
+			title = _('Printing prescription')
 		)
 		return None
 	return template

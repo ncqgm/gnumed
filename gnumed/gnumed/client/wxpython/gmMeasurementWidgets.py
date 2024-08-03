@@ -495,8 +495,8 @@ def get_default_gnuplot_template(parent = None):
 		# still not configured -> return
 		if default_template is None:
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('There is no default Gnuplot one-type script template configured.'),
-				aTitle = _('Plotting test results')
+				error = _('There is no default Gnuplot one-type script template configured.'),
+				title = _('Plotting test results')
 			)
 			return None
 		return default_template
@@ -517,8 +517,8 @@ def get_default_gnuplot_template(parent = None):
 		# still not configured -> return
 		if default_template is None:
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('Cannot load default Gnuplot script template [%s - %s]') % (name, ver),
-				aTitle = _('Plotting test results')
+				error = _('Cannot load default Gnuplot script template [%s - %s]') % (name, ver),
+				title = _('Plotting test results')
 			)
 			return None
 
@@ -550,8 +550,8 @@ def plot_measurements(parent=None, tests:[]=None, format:str=None, show_year:boo
 		)
 	if template is None:
 		gmGuiHelpers.gm_show_error (
-			aMessage = _('Cannot plot without a plot script.'),
-			aTitle = _('Plotting test results')
+			error = _('Cannot plot without a plot script.'),
+			title = _('Plotting test results')
 		)
 		return False
 

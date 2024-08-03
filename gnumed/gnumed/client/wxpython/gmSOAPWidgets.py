@@ -600,11 +600,11 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 			return True
 
 		gmGuiHelpers.gm_show_error (
-			aMessage = _(
+			error = _(
 				'Cannot open progress note editor for\n\n'
 				'[%s].\n\n'
 			) % problem['problem'],
-			aTitle = _('opening progress note editor')
+			title = _('opening progress note editor')
 		)
 		return False
 	#--------------------------------------------------------
@@ -1161,8 +1161,8 @@ if __name__ == "__main__":
 		for key in kwargs:
 			msg = msg + "\n%s ==> %s" % (key, kwargs[key])
 		gmGuiHelpers.gm_show_info (
-			aMessage = msg,
-			aTitle = 'msg box on create_widget from test_keyword'
+			info = msg,
+			title = 'msg box on create_widget from test_keyword'
 		)
 	#--------------------------------------------------------
 	def test_soap_notebook():

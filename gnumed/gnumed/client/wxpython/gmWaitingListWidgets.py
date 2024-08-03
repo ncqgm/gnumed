@@ -353,8 +353,8 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 			pat = gmPerson.cPerson(aPK_obj = item['pk_identity'])
 		except gmExceptions.ConstructorError:
 			gmGuiHelpers.gm_show_info (
-				aTitle = _('Waiting list'),
-				aMessage = _('Cannot activate patient.\n\nIt has probably been disabled.')
+				title = _('Waiting list'),
+				info = _('Cannot activate patient.\n\nIt has probably been disabled.')
 			)
 			return
 		curr_pat = gmPerson.gmCurrentPatient()
@@ -373,8 +373,8 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 			pat = gmPerson.cPerson(aPK_obj = item['pk_identity'])
 		except gmExceptions.ConstructorError:
 			gmGuiHelpers.gm_show_info (
-				aTitle = _('Waiting list'),
-				aMessage = _('Cannot activate patient.\n\nIt has probably been disabled.')
+				title = _('Waiting list'),
+				info = _('Cannot activate patient.\n\nIt has probably been disabled.')
 			)
 			return
 		curr_pat = gmPerson.gmCurrentPatient()
@@ -391,8 +391,8 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 			pat = gmPerson.cPerson(aPK_obj = item['pk_identity'])
 		except gmExceptions.ConstructorError:
 			gmGuiHelpers.gm_show_info (
-				aTitle = _('Waiting list'),
-				aMessage = _('Cannot activate patient.\n\nIt has probably been disabled.')
+				title = _('Waiting list'),
+				info = _('Cannot activate patient.\n\nIt has probably been disabled.')
 			)
 			return
 		self.__id_most_recently_activated_patient = item['pk_identity']

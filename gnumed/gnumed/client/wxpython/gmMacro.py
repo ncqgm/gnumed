@@ -3298,8 +3298,8 @@ class cMacroPrimitives:
 			'Do you want to allow breaking the connection ?'
 		)
 		can_break_conn = gmGuiHelpers.gm_show_question (
-			aMessage = msg,
-			aTitle = _('forced detach attempt')
+			question = msg,
+			title = _('forced detach attempt')
 		)
 		if can_break_conn:
 			self.__user_answer = 1

@@ -52,8 +52,8 @@ def verify_minimum_required_role(minimum_role:str, activity:str=None, return_val
 					return return_value_on_failure
 
 				gmGuiHelpers.gm_show_error (
-					aTitle = _('Access denied'),
-					aMessage = _(
+					title = _('Access denied'),
+					error = _(
 						'Your account is not set up to access this part of GNUmed:\n'
 						'\n'
 						'  [%s]'

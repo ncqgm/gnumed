@@ -57,8 +57,8 @@ def turn_substance_intake_into_allergy(parent=None, intake=None, emr=None):
 #	comps = [ c['substance'] for c in drug.components ]
 #	if len(comps) > 1:
 #		gmGuiHelpers.gm_show_info (
-#			aTitle = _('Documented an allergy'),
-#			aMessage = _(
+#			title = _('Documented an allergy'),
+#			info = _(
 #				'An allergy was documented against the substance:\n'
 #				'\n'
 #				'  [%s]\n'

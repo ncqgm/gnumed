@@ -79,8 +79,8 @@ def add_files_to_export_area(parent=None, filenames=None, hint=None, unlock_pati
 	if not pat.export_area.add_files(filenames = filenames, hint = hint):
 		wx.EndBusyCursor()
 		gmGuiHelpers.gm_show_error (
-			aMessage = _('Cannot import files into export area.'),
-			aTitle = _('Export area')
+			error = _('Cannot import files into export area.'),
+			title = _('Export area')
 		)
 		return False
 
@@ -699,8 +699,8 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		printed = gmPrinting.print_files(filenames = files2print, jobtype = jobtype, verbose = _cfg.get(option = 'debug'))
 		if not printed:
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('Error printing documents.'),
-				aTitle = _('Printing [%s]') % jobtype
+				error = _('Error printing documents.'),
+				title = _('Printing [%s]') % jobtype
 			)
 			return False
 
@@ -904,8 +904,8 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		success, ret_code, stdout = gmShellAPI.run_process(cmd_line = args, verbose = _cfg.get(option = 'debug'))
 		if not success:
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('Error mailing documents.'),
-				aTitle = _('Mailing documents')
+				error = _('Error mailing documents.'),
+				title = _('Mailing documents')
 			)
 			return False
 
@@ -957,8 +957,8 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		success, ret_code, stdout = gmShellAPI.run_process(cmd_line = args, verbose = _cfg.get(option = 'debug'))
 		if not success:
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('Error faxing documents to\n\n  %s') % fax_number,
-				aTitle = _('Faxing documents')
+				error = _('Error faxing documents to\n\n  %s') % fax_number,
+				title = _('Faxing documents')
 			)
 			return False
 
@@ -1077,8 +1077,8 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			wx.EndBusyCursor()
 		if export_dir is None:
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('Error exporting entries.'),
-				aTitle = msg_title
+				error = _('Error exporting entries.'),
+				title = msg_title
 			)
 			return None
 
@@ -1105,8 +1105,8 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		wx.EndBusyCursor()
 		if zip_file is None:
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('Error creating zip file.'),
-				aTitle = msg_title
+				error = _('Error creating zip file.'),
+				title = msg_title
 			)
 		return zip_file
 
@@ -1212,8 +1212,8 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			return True
 
 		gmGuiHelpers.gm_show_error (
-			aMessage = _('Error burning documents to CD/DVD.'),
-			aTitle = _('Burning documents')
+			error = _('Error burning documents to CD/DVD.'),
+			title = _('Burning documents')
 		)
 		return False
 
@@ -1447,8 +1447,8 @@ class cPrintMgrPluginPnl(wxgPrintMgrPluginPnl.wxgPrintMgrPluginPnl, gmRegetMixin
 		printed = gmPrinting.print_files(filenames = files2print, jobtype = jobtype, verbose = _cfg.get(option = 'debug'))
 		if not printed:
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('Error printing documents.'),
-				aTitle = _('Printing [%s]') % jobtype
+				error = _('Error printing documents.'),
+				title = _('Printing [%s]') % jobtype
 			)
 			return False
 

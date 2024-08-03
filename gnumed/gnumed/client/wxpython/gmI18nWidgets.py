@@ -194,8 +194,8 @@ def manage_translations(parent=None, language=None):
 			)
 		)
 		delete_it = gmGuiHelpers.gm_show_question (
-			aTitle = _('Deleting translation from database'),
-			aMessage = msg
+			title = _('Deleting translation from database'),
+			question = msg
 		)
 		if not delete_it:
 			return False
@@ -209,8 +209,8 @@ def manage_translations(parent=None, language=None):
 	def contribute_translations(item=None):
 
 		do_it = gmGuiHelpers.gm_show_question (
-			aTitle = _('Contributing translations'),
-			aMessage = _('Do you want to contribute your translations to the GNUmed project ?')
+			title = _('Contributing translations'),
+			question = _('Do you want to contribute your translations to the GNUmed project ?')
 		)
 		if not do_it:
 			return False

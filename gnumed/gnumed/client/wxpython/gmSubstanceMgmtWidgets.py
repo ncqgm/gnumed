@@ -75,8 +75,8 @@ def get_drug_database(parent=None, patient=None):
 		# still not configured -> return
 		if default_db is None:
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('There is no default drug database configured.'),
-				aTitle = _('Jumping to drug database')
+				error = _('There is no default drug database configured.'),
+				title = _('Jumping to drug database')
 			)
 			return None
 
@@ -885,8 +885,8 @@ def edit_drug_product(parent=None, drug_product=None, single_entry=False):
 	if drug_product is not None:
 		if drug_product.is_in_use_by_patients:
 			gmGuiHelpers.gm_show_info (
-				aTitle = _('Editing drug'),
-				aMessage = _(
+				title = _('Editing drug'),
+				info = _(
 					'Cannot edit the drug product\n'
 					'\n'
 					' "%s" (%s)\n'
@@ -943,8 +943,8 @@ def manage_drug_products(parent=None, ignore_OK_button=False):
 		if product is not None:
 			if product.is_in_use_as_vaccine:
 				gmGuiHelpers.gm_show_info (
-					aTitle = _('Editing medication'),
-					aMessage = _(
+					title = _('Editing medication'),
+					info = _(
 						'Cannot edit the vaccine product\n'
 						'\n'
 						' "%s" (%s)\n'
@@ -960,8 +960,8 @@ def manage_drug_products(parent=None, ignore_OK_button=False):
 	def delete(product):
 		if not product.delete_associated_vaccine():
 			gmGuiHelpers.gm_show_info (
-				aTitle = _('Deleting vaccine'),
-				aMessage = _(
+				title = _('Deleting vaccine'),
+				info = _(
 					'Cannot delete the vaccine product\n'
 					'\n'
 					' "%s" (%s)\n'
@@ -1022,8 +1022,8 @@ def manage_components_of_drug_product(parent=None, product=None):
 	if product is not None:
 		if product.is_in_use_by_patients:
 			gmGuiHelpers.gm_show_info (
-				aTitle = _('Managing components of a drug'),
-				aMessage = _(
+				title = _('Managing components of a drug'),
+				info = _(
 					'Cannot manage the components of the drug product\n'
 					'\n'
 					' "%s" (%s)\n'
@@ -1319,8 +1319,8 @@ def edit_single_component_generic_drug(parent=None, drug=None, single_entry=Fals
 #	if drug is not None:
 #		if drug.is_in_use_by_patients:
 #			gmGuiHelpers.gm_show_info (
-#				aTitle = _('Editing single-component generic drug'),
-#				aMessage = _(
+#				title = _('Editing single-component generic drug'),
+#				info = _(
 #					'Cannot edit the single-component generic drug\n'
 #					'\n'
 #					' "%s" (%s)\n'
@@ -1384,8 +1384,8 @@ def manage_single_component_generic_drugs(parent=None, ignore_OK_button=False):
 		if product is not None:
 			if product.is_vaccine:
 				gmGuiHelpers.gm_show_info (
-					aTitle = _('Editing medication'),
-					aMessage = _(
+					title = _('Editing medication'),
+					info = _(
 						'Cannot edit the medication\n'
 						'\n'
 						' "%s" (%s)\n'
@@ -1402,8 +1402,8 @@ def manage_single_component_generic_drugs(parent=None, ignore_OK_button=False):
 	def delete(product):
 		if product.is_vaccine:
 			gmGuiHelpers.gm_show_info (
-				aTitle = _('Deleting medication'),
-				aMessage = _(
+				title = _('Deleting medication'),
+				info = _(
 					'Cannot delete the medication\n'
 					'\n'
 					' "%s" (%s)\n'

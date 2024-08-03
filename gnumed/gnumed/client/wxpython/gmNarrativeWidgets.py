@@ -409,11 +409,11 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 			return True
 
 		gmGuiHelpers.gm_show_error (
-			aMessage = _(
+			_(
 				'Cannot open progress note editor for\n\n'
 				'[%s].\n\n'
 			) % problem['problem'],
-			aTitle = _('opening progress note editor')
+			_('opening progress note editor')
 		)
 		return False
 	#--------------------------------------------------------
@@ -643,13 +643,13 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 
 #		if self.__encounter_modified():
 #			do_save_enc = gmGuiHelpers.gm_show_question (
-#				aMessage = _(
+#				question = _(
 #					'You have modified the details\n'
 #					'of the current encounter.\n'
 #					'\n'
 #					'Do you want to save those changes ?'
 #				),
-#				aTitle = _('Starting new encounter')
+#				title = _('Starting new encounter')
 #			)
 #			if do_save_enc:
 #				if not self.save_encounter():

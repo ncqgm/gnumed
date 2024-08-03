@@ -100,21 +100,21 @@ class cPatientPicture(wx.StaticBitmap):
 		except OSError:
 			_log.exception('problem acquiring image from source')
 			gmGuiHelpers.gm_show_error (
-				aMessage = _(
+				error = _(
 					'No image could be acquired from the source.\n\n'
 					'This may mean the scanner driver is not properly installed.\n\n'
 					'On Windows you must install the TWAIN Python module\n'
 					'while on Linux and MacOSX it is recommended to install\n'
 					'the XSane package.'
 				),
-				aTitle = _('Acquiring photo')
+				title = _('Acquiring photo')
 			)
 			return
 
 		if fnames is False:
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('Patient photo could not be acquired from source.'),
-				aTitle = _('Acquiring photo')
+				error = _('Patient photo could not be acquired from source.'),
+				title = _('Acquiring photo')
 			)
 			return
 

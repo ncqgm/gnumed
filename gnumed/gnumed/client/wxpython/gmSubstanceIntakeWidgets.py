@@ -163,8 +163,8 @@ def delete_intake_with_regimen(parent=None, intake=None):
 	if edit_first == wx.ID_YES:
 		edit_intake_with_regimen(parent = parent, intake_with_regimen = intake)
 		delete_it = gmGuiHelpers.gm_show_question (
-			aMessage = _('Now delete substance intake entry ?'),
-			aTitle = _('Deleting medication / substance intake')
+			question = _('Now delete substance intake entry ?'),
+			title = _('Deleting medication / substance intake')
 		)
 	else:
 		delete_it = True

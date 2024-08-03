@@ -64,8 +64,8 @@ def regenerate_generic_vaccines():
 	if not gmPG2.run_sql_script(sql_script, conn = dbo_conn):
 		wx.EndBusyCursor()
 		gmGuiHelpers.gm_show_warning (
-			aMessage = _('Error regenerating generic vaccines.\n\nSee [%s]') % sql_script,
-			aTitle = _('Regenerating generic vaccines')
+			warning = _('Error regenerating generic vaccines.\n\nSee [%s]') % sql_script,
+			title = _('Regenerating generic vaccines')
 		)
 		return False
 
@@ -404,8 +404,8 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 			change_of_product = self.data['pk_drug_product'] != self._PRW_drug_product.GetData()
 			if change_of_product and self.data.is_in_use:
 				do_it = gmGuiHelpers.gm_show_question (
-					aTitle = _('Saving vaccine'),
-					aMessage = _(
+					title = _('Saving vaccine'),
+					question = _(
 						'This vaccine is already in use:\n'
 						'\n'
 						' "%s"\n'

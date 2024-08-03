@@ -402,8 +402,8 @@ def get_invoice_template(parent=None, with_vat=True):
 		template = configure_invoice_template(parent = parent, with_vat = with_vat)
 		if template is None:
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('There is no invoice template configured.'),
-				aTitle = _('Getting invoice template')
+				error = _('There is no invoice template configured.'),
+				title = _('Getting invoice template')
 			)
 			return None
 	else:
@@ -416,8 +416,8 @@ def get_invoice_template(parent=None, with_vat=True):
 		template = gmForms.get_form_template(name_long = name, external_version = ver)
 		if template is None:
 			gmGuiHelpers.gm_show_error (
-				aMessage = _('Cannot load invoice template [%s - %s]') % (name, ver),
-				aTitle = _('Getting invoice template')
+				error = _('Cannot load invoice template [%s - %s]') % (name, ver),
+				title = _('Getting invoice template')
 			)
 			return None
 
@@ -482,7 +482,7 @@ def create_bill_from_items(bill_items=None):
 			has_errors = True
 			break
 	if has_errors:
-		gmGuiHelpers.gm_show_warning(aTitle = _('Checking invoice items'), aMessage = msg)
+		gmGuiHelpers.gm_show_warning(title = _('Checking invoice items'), warning = msg)
 		return None
 
 	# create bill
@@ -504,8 +504,8 @@ def create_bill_from_items(bill_items=None):
 		invoice_id = None
 	if invoice_id is None:
 		gmGuiHelpers.gm_show_warning (
-			aTitle = _('Generating bill'),
-			aMessage = _('Could not generate invoice ID.\n\nTry again later.')
+			title = _('Generating bill'),
+			warning = _('Could not generate invoice ID.\n\nTry again later.')
 		)
 		return None
 
@@ -553,8 +553,8 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 
 		if not gmPatSearchWidgets.set_active_patient(patient = bill['pk_patient']):
 			gmGuiHelpers.gm_show_error (
-				aTitle = _('Creating invoice'),
-				aMessage = _('Cannot activate patient #%s.') % bill['pk_patient']
+				title = _('Creating invoice'),
+				error = _('Cannot activate patient #%s.') % bill['pk_patient']
 			)
 			return False
 
@@ -564,8 +564,8 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 		if bill['close_date'] is None:
 			_log.error('cannot create invoice from bill, bill not closed')
 			gmGuiHelpers.gm_show_warning (
-				aTitle = _('Creating invoice'),
-				aMessage = _(
+				title = _('Creating invoice'),
+				warning = _(
 					'Cannot create invoice from bill.\n'
 					'\n'
 					'The bill does not have a closing date set.'
@@ -577,8 +577,8 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 		if bill['pk_receiver_address'] is None:
 			_log.error('cannot create invoice from bill, lacking receiver address')
 			gmGuiHelpers.gm_show_warning (
-				aTitle = _('Creating invoice'),
-				aMessage = _(
+				title = _('Creating invoice'),
+				warning = _(
 					'Cannot create invoice from bill.\n'
 					'\n'
 					'There is no receiver address.'
@@ -590,8 +590,8 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 		if bill['apply_vat'] is None:
 			_log.error('cannot create invoice from bill, apply_vat undecided')
 			gmGuiHelpers.gm_show_warning (
-				aTitle = _('Creating invoice'),
-				aMessage = _(
+				title = _('Creating invoice'),
+				warning = _(
 					'Cannot create invoice from bill.\n'
 					'\n'
 					'You must decide on whether to apply VAT.'
@@ -603,8 +603,8 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 	template = get_invoice_template(parent = parent, with_vat = bill['apply_vat'])
 	if template is None:
 		gmGuiHelpers.gm_show_warning (
-			aTitle = _('Creating invoice'),
-			aMessage = _(
+			title = _('Creating invoice'),
+			warning = _(
 				'Cannot create invoice from bill\n'
 				'without an invoice template.'
 			)
@@ -617,26 +617,26 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 	except KeyError:
 		_log.exception('cannot instantiate invoice template [%s]', template)
 		gmGuiHelpers.gm_show_error (
-			aMessage = _('Invalid invoice template [%s - %s (%s - Gmd:%s)]') % (
+			error = _('Invalid invoice template [%s - %s (%s - Gmd:%s)]') % (
 				template['name_long'],
 				template['external_version'],
 				template['engine'],
 				template['gnumed_revision']
 			),
-			aTitle = _('Creating invoice')
+			title = _('Creating invoice')
 		)
 		return False
 
 	if not invoice:
 		_log.error('cannot instantiate invoice template [%s]', template)
 		gmGuiHelpers.gm_show_error (
-			aMessage = _('Invalid invoice template [%s - %s (%s - Gmd:%s)]') % (
+			error = _('Invalid invoice template [%s - %s (%s - Gmd:%s)]') % (
 				template['name_long'],
 				template['external_version'],
 				template['engine'],
 				template['gnumed_revision']
 			),
-			aTitle = _('Creating invoice')
+			title = _('Creating invoice')
 		)
 		return False
 
@@ -648,8 +648,8 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 	pdf_name = invoice.generate_output()
 	if pdf_name is None:
 		gmGuiHelpers.gm_show_error (
-			aMessage = _('Error generating invoice PDF.'),
-			aTitle = _('Creating invoice')
+			error = _('Error generating invoice PDF.'),
+			title = _('Creating invoice')
 		)
 		return False
 
@@ -671,8 +671,8 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 			bill.save()
 		else:
 			gmGuiHelpers.gm_show_warning (
-				aTitle = _('Saving invoice'),
-				aMessage = ('Cannot save invoice into document archive.')
+				title = _('Saving invoice'),
+				warning = ('Cannot save invoice into document archive.')
 			)
 	if not print_it:
 		return True
@@ -681,8 +681,8 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 	printed = gmPrinting.print_files(filenames = [pdf_name], jobtype = 'invoice', verbose = _cfg.get(option = 'debug'))
 	if not printed:
 		gmGuiHelpers.gm_show_error (
-			aMessage = _('Error printing the invoice.'),
-			aTitle = _('Printing invoice')
+			error = _('Error printing the invoice.'),
+			title = _('Printing invoice')
 		)
 		return True	# anyway
 
@@ -865,7 +865,7 @@ def manage_bills(parent=None, patient=None):
 		if invoice is not None:
 			success, msg = invoice.parts[-1].display_via_mime()
 			if not success:
-				gmGuiHelpers.gm_show_error(aMessage = msg, aTitle = _('Displaying invoice'))
+				gmGuiHelpers.gm_show_error(error = msg, title = _('Displaying invoice'))
 			return False
 
 		# create it ?
@@ -884,8 +884,8 @@ def manage_bills(parent=None, patient=None):
 		# prepare invoicing
 		if not bill.set_missing_address_from_default():
 			gmGuiHelpers.gm_show_warning (
-				aTitle = _('Creating invoice'),
-				aMessage = _(
+				title = _('Creating invoice'),
+				warning = _(
 					'There is no pre-configured billing address.\n'
 					'\n'
 					'Select the address you want to send the bill to.'
@@ -1099,8 +1099,8 @@ class cBillEAPnl(wxgBillEAPnl.wxgBillEAPnl, gmEditArea.cGenericEditAreaMixin):
 		)
 		if adr is None:
 			gmGuiHelpers.gm_show_info (
-				aTitle = _('Selecting address'),
-				aMessage = _('GNUmed does not know any addresses for this patient.')
+				title = _('Selecting address'),
+				info = _('GNUmed does not know any addresses for this patient.')
 			)
 			return
 
@@ -1321,12 +1321,12 @@ class cPersonBillItemsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			return
 		if bill['pk_receiver_address'] is None:
 			gmGuiHelpers.gm_show_error (
-				aMessage = _(
+				error = _(
 					'Cannot create invoice.\n'
 					'\n'
 					'No receiver address selected.'
 				),
-				aTitle = _('Creating invoice')
+				title = _('Creating invoice')
 			)
 			return
 		if bill['close_date'] is None:

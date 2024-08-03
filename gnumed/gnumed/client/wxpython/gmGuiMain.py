@@ -3864,12 +3864,12 @@ class gmApp(wx.App):
 		except SocketError as e:
 			_log.exception('cannot start GNUmed XML-RPC server')
 			gmGuiHelpers.gm_show_error (
-				aMessage = (
+				error = (
 					'Cannot start the GNUmed server:\n'
 					'\n'
 					' [%s]'
 				) % e,
-				aTitle = _('GNUmed startup')
+				title = _('GNUmed startup')
 			)
 			return False
 
