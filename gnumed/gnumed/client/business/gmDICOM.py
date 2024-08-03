@@ -176,14 +176,14 @@ class cOrthancServer:
 	#--------------------------------------------------------
 	# download API
 	#--------------------------------------------------------
-	def get_matching_patients(self, person) -> list:
+	def get_matching_patients(self, person) -> list[str]:
 		"""Fetch matching patients from an Orthanc DICOM server.
 
 		Matches are searched for via stored "external ID" and
 		via generically generated ID. The external IDs are
 		fetched from the patient store, must be of type
-		"PACS" and must be marked as issued by the
-		instantiated PACS <self.>
+		"PACS" and must be marked as issued by the PACS
+		represented by this instance (self).
 
 		Args:
 			person: a gmPerson.cPerson instance
@@ -266,7 +266,7 @@ class cOrthancServer:
 		return matches
 
 	#--------------------------------------------------------
-	def get_patients_by_name_parts(self, name_parts=None, gender=None, dob=None, fuzzy=False):
+	def get_patients_by_name_parts(self, name_parts:list[str]=None, gender=None, dob=None, fuzzy=False):
 		# fuzzy: allow partial/substring matches (but not across name part boundaries ',' or '^')
 		matching_patients = []
 		clean_parts = []
@@ -731,7 +731,7 @@ class cOrthancServer:
 	#--------------------------------------------------------
 	# upload API
 	#--------------------------------------------------------
-	def upload_dicom_file(self, filename:str, check_mime_type:bool=False) -> bool:
+	def upload_dicom_file(self, filename:str, check_mime_type:bool=False) -> str | None:
 		"""Update a DICOM file.
 
 		Will silently ignore DICOMDIR files (which are application/dicom but
@@ -742,7 +742,7 @@ class cOrthancServer:
 			check_mime_type: whether to check the file for being application/dicom, and to fail if not
 
 		Returns:
-			True/False
+			None or Orthanc patient UID
 		"""
 		_log.info('processing: %s', filename)
 		if gmTools.fname_stem(filename) == 'DICOMDIR':
@@ -775,13 +775,17 @@ class cOrthancServer:
 			return False
 
 		_log.debug(uploaded)
+		patient = uploaded['ParentPatient']
 		# paranoia, as is our custom
 		verified = self.verify_instance (
 			instance_id = uploaded['ID'],
 			filename = filename,
 			attempt_download = True
 		)
-		return verified
+		if verified:
+			return patient
+
+		return None
 
 	#--------------------------------------------------------
 	def verify_instance(self, instance_id:str, filename:str=None, attempt_download:bool=False) -> bool:
@@ -873,19 +877,23 @@ class cOrthancServer:
 		return is_valid
 
 	#--------------------------------------------------------
-	def upload_dicom_files(self, files=None, check_mime_type=False):
+	def upload_dicom_files(self, files:[str]=None, check_mime_type:bool=False) -> ([str],[str],[str]):
 		uploaded = []
 		not_uploaded = []
+		patients = []
 		for filename in files:
-			success = self.upload_dicom_file(filename, check_mime_type = check_mime_type)
-			if success:
-				uploaded.append(filename)
+			patient = self.upload_dicom_file(filename, check_mime_type = check_mime_type)
+			if not patient:
+				not_uploaded.append(filename)
 				continue
-			not_uploaded.append(filename)
+
+			uploaded.append(filename)
+			if patient not in patients:
+				patients.append(patient)
 
 		if len(not_uploaded) > 0:
 			_log.error('not all files uploaded')
-		return (uploaded, not_uploaded)
+		return (uploaded, not_uploaded, patients)
 
 	#--------------------------------------------------------
 	def upload_from_directory(self, directory=None, recursive=False, check_mime_type=False, ignore_other_files=True):
@@ -908,6 +916,7 @@ class cOrthancServer:
 		_log.debug('recursing for DICOM files')
 		uploaded = []
 		not_uploaded = []
+		patients = []
 		for curr_root, curr_root_subdirs, curr_root_files in os.walk(directory, onerror = _on_error):
 			_log.debug('recursing into [%s]', curr_root)
 			files2try = [ os.path.join(curr_root, f) for f in curr_root_files ]
@@ -915,18 +924,15 @@ class cOrthancServer:
 			if ignore_other_files:
 				files2try = [ f for f in files2try if gmMimeLib.guess_mimetype(f) == 'application/dicom' ]
 				_log.debug('DICOM files therein: %s', len(files2try))
-			up, not_up = self.upload_dicom_files (
+			up, not_up, pats = self.upload_dicom_files (
 				files = files2try,
 				check_mime_type = check_mime_type
 			)
 			uploaded.extend(up)
 			not_uploaded.extend(not_up)
+			patients.extend(pats)
 
-		return (uploaded, not_uploaded)
-
-	#--------------------------------------------------------
-	def upload_by_DICOMDIR(self, DICOMDIR=None):
-		pass
+		return (uploaded, not_uploaded, patients)
 
 	#--------------------------------------------------------
 	# helper functions
@@ -1697,6 +1703,9 @@ if __name__ == "__main__":
 	if len(sys.argv) == 1:
 		sys.exit()
 
+	from Gnumed.pycommon import gmLog2
+	gmLog2.print_logfile_name()
+
 	if sys.argv[1] != 'test':
 		fname = sys.argv[1]
 		try: dcm_template = sys.argv[2]
@@ -1779,12 +1788,12 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------
 	def test_upload_file():
-		orthanc.upload_dicom_file(filename = sys.argv[4], check_mime_type = True)
+		print(orthanc.upload_dicom_file(filename = sys.argv[4], check_mime_type = True))
 
 	#--------------------------------------------------------
 	def test_upload_files():
 		#orthanc.upload_dicom_file(sys.argv[2])
-		orthanc.upload_from_directory(directory = sys.argv[4], recursive = True, check_mime_type = False, ignore_other_files = True)
+		print(orthanc.upload_from_directory(directory = sys.argv[4], recursive = True, check_mime_type = False, ignore_other_files = True))
 
 	#--------------------------------------------------------
 	def test_get_instance_preview():
@@ -1869,9 +1878,12 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------
 	def test_patient():
-		print(orthanc.get_patient('89729867-a08815a6-37c59f5a-f1f6ea57-6c1e17cb'))
-		input()
-		print(orthanc.get_patient('1cff9d34-96047a5a-afb97dd0-33a84dc7-a710ef8f'))
+		#print(orthanc.get_patients_by_name_parts(name_parts = ['Seb'], fuzzy = True))
+		#return
+
+		print(orthanc.get_patient('bc107806-098880eb-95529338-0f54c681-c4b5ccc4'))
+		#input()
+		#print(orthanc.get_patient('1cff9d34-96047a5a-afb97dd0-33a84dc7-a710ef8f'))
 		return
 
 		#'/patients/89729867-a08815a6-37c59f5a-f1f6ea57-6c1e17cb'
@@ -1950,7 +1962,7 @@ if __name__ == "__main__":
 	#test_file2dcm()
 	#sys.exit
 
-	#_connect()
+	_connect()
 	#run_console()
 	#test_verify_instance()
 	#test_modify_patient_id()
@@ -1958,4 +1970,4 @@ if __name__ == "__main__":
 	#test_upload_file()
 	#test_get_instance_preview()
 	#test_get_instance_tags()
-	#test_patient()
+	test_patient()

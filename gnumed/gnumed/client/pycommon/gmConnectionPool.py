@@ -1029,14 +1029,18 @@ if __name__ == "__main__":
 	#--------------------------------------------------------------------
 	def test_verbose_get_connection():
 		creds = cPGCredentials()
-		creds.database = 'gnumed_v22'
+		creds.database = 'gnumed_v23'
 		creds.user = 'any-doc'
+		creds.host = 'localhost'
 		pool = gmConnectionPool()
 		pool.credentials = creds
-		conn = pool.get_connection(verbose = True)
+		conn = pool.get_raw_connection()
+		print(conn.info)
+		print(conn.info.dsn_parameters)
+		#conn = pool.get_connection(verbose = True)
 		#conn = pool.get_connection(verbose = False)
-		curs = conn.cursor()
-		curs.execute('select pg_sleep(4);')
+		#curs = conn.cursor()
+		#curs.execute('select pg_sleep(4);')
 
 	#--------------------------------------------------------------------
 	def test_get_connection():

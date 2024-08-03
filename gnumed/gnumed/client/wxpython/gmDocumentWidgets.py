@@ -2601,9 +2601,12 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	# internal helpers
 	#--------------------------------------------------------
 	def __init_ui(self):
-
 		pool = gmConnectionPool.gmConnectionPool()
-		self._TCTRL_host.Value = gmTools.coalesce(pool.credentials.host, 'localhost')
+		try:
+			host = pool.get_raw_connection().info.dsn_parameters['host'].split(',')[0]
+		except KeyError:
+			host = ''
+		self._TCTRL_host.Value = host
 		self._TCTRL_port.Value = '8042'
 
 		self._LCTRL_studies.set_columns(columns = [_('Date'), _('Description'), _('Organization'), _('Authority')])
@@ -3670,9 +3673,10 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		dlg.DestroyLater()
 		if choice != wx.ID_OK:
 			return True
+
 		wx.BeginBusyCursor()
 		try:
-			uploaded, not_uploaded = self.__pacs.upload_from_directory (
+			uploaded, not_uploaded, new_patients = self.__pacs.upload_from_directory (
 				directory = dicom_dir,
 				recursive = True,
 				check_mime_type = False,
@@ -3680,25 +3684,53 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			)
 		finally:
 			wx.EndBusyCursor()
+		if not uploaded:
+			gmGuiHelpers.gm_show_warning (
+				aMessage = _('No files uploaded.'),
+				aTitle = _('Uploading DICOM files')
+			)
+			return
+
 		if len(not_uploaded) == 0:
 			q = _('Delete the uploaded DICOM files now ?')
 		else:
-			q = _('Some files have not been uploaded.\n\nDo you want to delete those DICOM files which have been sent to the PACS successfully ?')
+			q = _('Some files have not been uploaded.\n\nDo you want to delete those DICOM files which *have* been sent to the PACS successfully ?')
 			_log.error('not uploaded:')
 			for f in not_uploaded:
 				_log.error(f)
-
 		delete_uploaded = gmGuiHelpers.gm_show_question (
 			title = _('Uploading DICOM files'),
 			question = q,
 			cancel_button = False
 		)
-		if not delete_uploaded:
-			return
 		wx.BeginBusyCursor()
-		for f in uploaded:
-			gmTools.remove_file(f)
+		if delete_uploaded:
+			try:
+				for f in uploaded:
+					gmTools.remove_file(f)
+			finally:
+				wx.EndBusyCursor()
+		info = ''
+		for orth_pat_id in new_patients:
+			try:
+				orth_pat = self.__pacs.get_patient(orth_pat_id)['MainDicomTags']
+				_log.debug(orth_pat)
+				info += '%s - %s - %s\n' % (orth_pat['PatientName'], orth_pat['PatientSex'], orth_pat['PatientBirthDate'])
+				info += ' ID: %s\n' % orth_pat['PatientID']
+				info += ' Orthanc: %s\n' % orth_pat_id
+
+			except Exception:
+				_log.execption('cannot retrieve/process Orthanc data for patient [%s]', orth_pat_id)
+			continue
 		wx.EndBusyCursor()
+		if not info:
+			return
+
+		info = _('Information has been added to the PACS for the following patients:\n\n') + info
+		gmGuiHelpers.gm_show_info (
+			title = _('Uploading DICOM files'),
+			info = info
+		)
 
 	#--------------------------------------------------------
 	def _on_modify_orthanc_content_button_pressed(self, event):
