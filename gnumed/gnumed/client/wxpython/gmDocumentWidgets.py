@@ -3711,14 +3711,17 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			finally:
 				wx.EndBusyCursor()
 		info = ''
+		already_seen = []
 		for orth_pat_id in new_patients:
+			if orth_pat_id in already_seen:
+				continue
 			try:
 				orth_pat = self.__pacs.get_patient(orth_pat_id)['MainDicomTags']
 				_log.debug(orth_pat)
 				info += '%s - %s - %s\n' % (orth_pat['PatientName'], orth_pat['PatientSex'], orth_pat['PatientBirthDate'])
 				info += ' ID: %s\n' % orth_pat['PatientID']
 				info += ' Orthanc: %s\n' % orth_pat_id
-
+				already_seen.append(orth_pat_id)
 			except Exception:
 				_log.execption('cannot retrieve/process Orthanc data for patient [%s]', orth_pat_id)
 			continue

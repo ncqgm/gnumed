@@ -732,10 +732,10 @@ class cOrthancServer:
 	# upload API
 	#--------------------------------------------------------
 	def upload_dicom_file(self, filename:str, check_mime_type:bool=False) -> str | None:
-		"""Update a DICOM file.
+		"""Upload a DICOM file.
 
-		Will silently ignore DICOMDIR files (which are application/dicom but
-		Orthanc does not process them).
+		Will silently ignore DICOMDIR files (which are
+		application/dicom but Orthanc does not process them).
 
 		Args:
 			filename: DICOM file to upload
@@ -747,19 +747,19 @@ class cOrthancServer:
 		_log.info('processing: %s', filename)
 		if gmTools.fname_stem(filename) == 'DICOMDIR':
 			_log.debug('ignoring, no use uploading DICOMDIR files to Orthanc')
-			return True
+			return None
 
 		if check_mime_type:
 			mimetype = gmMimeLib.guess_mimetype(filename)
 			if mimetype != 'application/dicom':
 				_log.error('not considered a DICOM (application/dicom) file: %s, not uploading', mimetype)
-				return False
+				return None
 
 		try:
 			f = open(filename, 'rb')
 		except Exception:
 			_log.exception('failed to open file')
-			return False
+			return None
 
 		dcm_data = f.read()
 		f.close()
@@ -767,12 +767,12 @@ class cOrthancServer:
 		uploaded = self.__run_POST(upload_url, data = dcm_data, content_type = 'application/dicom')
 		if uploaded is False:
 			_log.error('upload failed')
-			return False
+			return None
 
 		# typically a 404 following the upload of a DICOM file w/o identifiers
 		if uploaded == []:
 			_log.error('upload failed')
-			return False
+			return None
 
 		_log.debug(uploaded)
 		patient = uploaded['ParentPatient']
@@ -877,7 +877,18 @@ class cOrthancServer:
 		return is_valid
 
 	#--------------------------------------------------------
-	def upload_dicom_files(self, files:[str]=None, check_mime_type:bool=False) -> ([str],[str],[str]):
+	def upload_dicom_files(self, files:list(str)=None, check_mime_type:bool=False) -> tuple(list(str),list(str),list(str)):
+		"""Upload a list of DICOM files.
+
+		Args:
+			files: list of files to upload
+			check_mime_type: see upload_dicom_file()
+
+		Returns:
+			a tuple of lists (uploaded_files, files_not_uploaded, patients)
+
+			patients will contain a list of patients affected by uploaded files
+		"""
 		uploaded = []
 		not_uploaded = []
 		patients = []
@@ -896,8 +907,20 @@ class cOrthancServer:
 		return (uploaded, not_uploaded, patients)
 
 	#--------------------------------------------------------
-	def upload_from_directory(self, directory=None, recursive=False, check_mime_type=False, ignore_other_files=True):
+	def upload_from_directory(self, directory:str=None, recursive:bool=False, check_mime_type:bool=False, ignore_other_files:bool=True):
+		"""Upload DICOM files for a directory
 
+		Args:
+			directory: the directory from which to upload
+			recursive: whether to recurse into subdirectories
+			ignore_other_files: whether to actively ignore non-DICOM files
+			check_mime_type: see upload_dicom_file()
+
+		Returns:
+			a tuple of lists (uploaded_files, files_not_uploaded, patients)
+
+			patients will contain a list of patients affected by uploaded files
+		"""
 		#--------------------
 		def _on_error(exc):
 			_log.error('DICOM (?) file not accessible: %s', exc.filename)
@@ -931,7 +954,6 @@ class cOrthancServer:
 			uploaded.extend(up)
 			not_uploaded.extend(not_up)
 			patients.extend(pats)
-
 		return (uploaded, not_uploaded, patients)
 
 	#--------------------------------------------------------
