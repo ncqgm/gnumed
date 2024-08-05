@@ -877,7 +877,7 @@ class cOrthancServer:
 		return is_valid
 
 	#--------------------------------------------------------
-	def upload_dicom_files(self, files:list(str)=None, check_mime_type:bool=False) -> tuple(list(str),list(str),list(str)):
+	def upload_dicom_files(self, files:list[str]=None, check_mime_type:bool=False) -> tuple[list[str],list[str],list[str]]:
 		"""Upload a list of DICOM files.
 
 		Args:

@@ -978,7 +978,7 @@ def get_col_names(link_obj:_TLnkObj=None, schema='public', table=None):
 	return [ row[0] for row in rows]
 
 #------------------------------------------------------------------------
-def revalidate_constraints(link_obj:_TLnkObj=None) -> str:
+def revalidate_constraints(link_obj:_TLnkObj=None) -> str | bool:
 	"""Revalidate all database constraints.
 
 	This needs a gm-dbo connection.
@@ -1012,7 +1012,7 @@ def revalidate_constraints(link_obj:_TLnkObj=None) -> str:
 	return __LLAP
 
 #------------------------------------------------------------------------
-def reindex_database(conn=None) -> bool | str:
+def reindex_database(conn=None) -> str | bool:
 	"""Reindex the database "conn" is connected to.
 
 	Args:
