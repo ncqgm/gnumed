@@ -434,28 +434,34 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		if not self._payload[self._idx['filename']].startswith('DIR::'):
 			return False
 		if len(self._payload[self._idx['filename']].split('::', 2)) != 3:
+			_log.exception('DIRENTRY [%s]: malformed', self._payload[self._idx['filename']])
 			return False
 		return True
 
 	is_DIRENTRY = property(_is_DIRENTRY)
 
 	#--------------------------------------------------------
-	def _is_valid_DIRENTRY(self):
-		"""Check whether this item is a _valid_ DIRENTRY."""
+	def _is_local_DIRENTRY(self):
+		"""Check whether this item is a _local_ DIRENTRY."""
 		if not self.is_DIRENTRY:
 			return False
-		# malformed ?
-		try:
-			tag, node, local_fs_path = self._payload[self._idx['filename']].split('::', 2)
-		except ValueError:
-			# should not happen because structure already checked in .is_DIRENTRY,
-			# better safe than sorry
-			_log.exception('DIRENTRY [%s]: malformed', self._payload[self._idx['filename']])
+
+		tag, node, local_fs_path = self._payload[self._idx['filename']].split('::', 2)
+		if node == platform.node():
+			return True
+
+		_log.warning('DIRENTRY [%s]: not on this machine (%s)', self._payload[self._idx['filename']], platform.node())
+		return False
+
+	is_local_DIRENTRY = property(_is_local_DIRENTRY)
+
+	#--------------------------------------------------------
+	def _is_valid_DIRENTRY(self):
+		"""Check whether this item is a _valid_ DIRENTRY."""
+		if not self.is_local_DIRENTRY:
 			return False
-		# this machine ?
-		if node != platform.node():
-			_log.warning('DIRENTRY [%s]: not on this machine (%s)', self._payload[self._idx['filename']], platform.node())
-			return False
+
+		tag, node, local_fs_path = self._payload[self._idx['filename']].split('::', 2)
 		# valid path ?
 		if not os.path.isdir(local_fs_path):
 			_log.warning('DIRENTRY [%s]: directory not found (old DIRENTRY ?)', self._payload[self._idx['filename']])
@@ -463,6 +469,40 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		return True
 
 	is_valid_DIRENTRY = property(_is_valid_DIRENTRY)
+
+	#--------------------------------------------------------
+	def _get_DIRENTRY_node(self):
+		if not self.is_DIRENTRY:
+			return None
+
+		try:
+			tag, node, local_fs_path = self._payload[self._idx['filename']].split('::', 2)
+		except ValueError:
+			# should not happen because structure already checked in .is_DIRENTRY,
+			# better safe than sorry
+			_log.exception('DIRENTRY [%s]: malformed', self._payload[self._idx['filename']])
+			return None
+
+		return node
+
+	DIRENTRY_node = property(_get_DIRENTRY_node)
+
+	#--------------------------------------------------------
+	def _get_DIRENTRY_path(self):
+		if not self.is_DIRENTRY:
+			return None
+
+		try:
+			tag, node, local_fs_path = self._payload[self._idx['filename']].split('::', 2)
+		except ValueError:
+			# should not happen because structure already checked in .is_DIRENTRY,
+			# better safe than sorry
+			_log.exception('DIRENTRY [%s]: malformed', self._payload[self._idx['filename']])
+			return None
+
+		return local_fs_path
+
+	DIRENTRY_path = property(_get_DIRENTRY_path)
 
 	#--------------------------------------------------------
 	def _is_DICOM_directory(self):
@@ -887,11 +927,7 @@ class cExportArea(object):
 	#--------------------------------------------------------
 	def remove_item(self, item):
 		if item.is_valid_DIRENTRY:
-			tag, node, local_fs_path = item['filename'].split('::', 2)
-			gmTools.remove_file(os.path.join(local_fs_path, DIRENTRY_README_NAME))
-		elif item.is_DIRENTRY:
-			return False
-
+			gmTools.remove_file(os.path.join(item.DIRENTRY_path, DIRENTRY_README_NAME))
 		return delete_export_item(pk_export_item = item['pk_export_item'])
 
 	#--------------------------------------------------------

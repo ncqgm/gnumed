@@ -9,6 +9,7 @@
 	1.8.19
 
 FIX: export area: exception on browsing export dir
+FIX: export area: allow removing remote/empty/stale DIRENTRYs
 
 IMPROVED: documents: part export filename
 IMPROVED: regular expression strings [thanks Wolfgang]

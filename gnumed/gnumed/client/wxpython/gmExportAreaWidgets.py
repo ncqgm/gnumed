@@ -8,6 +8,7 @@ import sys
 import logging
 import os.path
 import shutil
+import platform
 
 
 # 3rd party
@@ -638,7 +639,24 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		)
 		if not really_delete:
 			return
+
 		for item in items:
+			if item.is_DIRENTRY and not item.is_local_DIRENTRY:
+				delete_remote = gmGuiHelpers.gm_show_question (
+					title = _('Deleting entry from export area.'),
+					question = _(
+						'Entry points to directory\n'
+						'\n'
+						' %s\n'
+						'\n'
+						'on node [%s]\n'
+						'(this node: [%s])\n'
+						'\n'
+						'Remove remote item from the patient export area ?'
+					 ) % (item.DIRENTRY_path, item.DIRENTRY_node, platform.node())
+				)
+				if not delete_remote:
+					continue
 			gmPerson.gmCurrentPatient().export_area.remove_item(item)
 
 	#--------------------------------------------------------
