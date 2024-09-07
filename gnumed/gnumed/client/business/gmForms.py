@@ -294,6 +294,7 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 		"""
 		fname = self.save_to_file(use_sandbox = use_sandbox)
 		if not fname:
+			_log.debug('cannot save form data to file')
 			return None
 
 		engine = form_engines[self._payload[self._idx['engine']]]
