@@ -2285,6 +2285,29 @@ def run_ro_queries (
 	return (data, col_idx)
 
 #------------------------------------------------------------------------
+def __safely_close_cursor_and_rollback_close_conn(close_cursor=None, rollback_tx=None, close_conn=None):
+	if close_cursor:
+		try:
+			close_cursor()
+		except PG_ERROR_EXCEPTION as pg_exc:
+			_log.exception('cannot close cursor')
+			gmConnectionPool.log_pg_exception_details(pg_exc)
+	if rollback_tx:
+		try:
+			# need to rollback so ABORT state isn't retained in pooled connections
+			rollback_tx()
+		except PG_ERROR_EXCEPTION as pg_exc:
+			_log.exception('cannot rollback transaction')
+			gmConnectionPool.log_pg_exception_details(pg_exc)
+	if close_conn:
+		try:
+			close_conn()
+		#except dbapi.InterfaceError:
+		except PG_ERROR_EXCEPTION as pg_exc:
+			_log.exception('cannot close connection')
+			gmConnectionPool.log_pg_exception_details(pg_exc)
+
+#------------------------------------------------------------------------
 def run_rw_queries (
 	link_obj:_TLnkObj=None,
 #	queries:Sequence[Mapping[str, str | list | dict]]=None,
@@ -2294,7 +2317,7 @@ def run_rw_queries (
 	get_col_idx:bool=False,
 	verbose:bool=False
 ) -> tuple[list[dbapi.extras.DictRow], dict[str, int] | None]:
-	"""Convenience function for running read-write queries
+	"""Convenience function for running read-write queries.
 
 	Typically (part of) a transaction.
 
@@ -2350,32 +2373,29 @@ def run_rw_queries (
 
 	if link_obj is None:
 		conn = get_connection(readonly = False)
-		conn_close = conn.close
-		conn_commit = conn.commit
-		tx_rollback = conn.rollback
 		curs = conn.cursor()
+		conn_close = conn.close
+		tx_commit = conn.commit
+		tx_rollback = conn.rollback
 		curs_close = curs.close
 		notices_accessor = conn
-	elif isinstance(link_obj, dbapi._psycopg.connection):
-		conn_close = lambda *x: None
-		if end_tx:
-			conn_commit = link_obj.commit
-			tx_rollback = link_obj.rollback
-		else:
-			conn_commit = lambda *x: None
-			tx_rollback = lambda *x: None
-		curs = link_obj.cursor()
-		curs_close = curs.close
-		notices_accessor = link_obj
-	elif isinstance(link_obj, dbapi._psycopg.cursor):
-		conn_close = lambda *x: None
-		conn_commit = lambda *x: None
-		tx_rollback = lambda *x: None
-		curs = link_obj
-		curs_close = lambda *x: None
-		notices_accessor = curs.connection
 	else:
-		raise ValueError('link_obj must be cursor, connection or None but not [%s]' % link_obj)
+		conn_close = lambda *x: None
+		tx_commit = lambda *x: None
+		tx_rollback = lambda *x: None
+		curs_close = lambda *x: None
+		if isinstance(link_obj, dbapi._psycopg.cursor):
+			curs = link_obj
+			notices_accessor = curs.connection
+		elif isinstance(link_obj, dbapi._psycopg.connection):
+			if end_tx:
+				tx_commit = link_obj.commit
+				tx_rollback = link_obj.rollback
+			curs = link_obj.cursor()
+			curs_close = curs.close
+			notices_accessor = link_obj
+		else:
+			raise ValueError('link_obj must be cursor, connection or None but not [%s]' % link_obj)
 
 	for query in queries:
 		try:
@@ -2396,17 +2416,12 @@ def run_rw_queries (
 			for notice in notices_accessor.notices:
 				_log.debug(notice.replace('\n', '/').replace('\n', '/'))
 			del notices_accessor.notices[:]
-			try:
-				curs_close()
-			except PG_ERROR_EXCEPTION as pg_exc2:
-				_log.exception('cannot close cursor')
-				gmConnectionPool.log_pg_exception_details(pg_exc2)
-			try:
-				tx_rollback()		# need to rollback so ABORT state isn't preserved in pooled conns
-			except PG_ERROR_EXCEPTION as pg_exc2:
-				_log.exception('cannot rollback transaction')
-				gmConnectionPool.log_pg_exception_details(pg_exc2)
-			# privilege problem
+			__safely_close_cursor_and_rollback_close_conn (
+				curs_close,
+				tx_rollback,
+				conn_close
+			)
+			# privilege problem ?
 			if pg_exc.pgcode == PG_error_codes.INSUFFICIENT_PRIVILEGE:
 				details = 'Query: [%s]' % curs.query.decode(errors = 'replace').strip().strip('\n').strip().strip('\n')
 				if curs.statusmessage != '':
@@ -2418,27 +2433,17 @@ def run_rw_queries (
 					msg = '[%s]' % pg_exc.pgcode
 				else:
 					msg = '[%s]: %s' % (pg_exc.pgcode, pg_exc.pgerror)
-				try:
-					curs_close()
-					tx_rollback()			# just for good measure
-					conn_close()
-				except dbapi.InterfaceError:
-					_log.exception('cannot cleanup')
 				raise gmExceptions.AccessDenied (
 					msg,
 					source = 'PostgreSQL',
 					code = pg_exc.pgcode,
 					details = details
 				)
-			# other problem
+
+			# other DB problem
 			gmLog2.log_stack_trace()
-			try:
-				curs_close()
-				tx_rollback()			# just for good measure
-				conn_close()
-			except dbapi.InterfaceError:
-				_log.exception('cannot cleanup')
 			raise
+
 		# other exception
 		except Exception:
 			_log.exception('error running query in RW connection')
@@ -2447,17 +2452,11 @@ def run_rw_queries (
 				_log.debug(notice.replace('\n', '/').replace('\n', '/'))
 			del notices_accessor.notices[:]
 			gmLog2.log_stack_trace()
-			try:
-				curs_close()
-			except PG_ERROR_EXCEPTION as pg_exc:
-				_log.exception('cannot close cursor')
-				gmConnectionPool.log_pg_exception_details(pg_exc)
-			try:
-				tx_rollback()		# need to rollback so ABORT state isn't preserved in pooled conns
-				conn_close()
-			except PG_ERROR_EXCEPTION as pg_exc:
-				_log.exception('cannot rollback transation')
-				gmConnectionPool.log_pg_exception_details(pg_exc)
+			__safely_close_cursor_and_rollback_close_conn (
+				curs_close,
+				tx_rollback,
+				conn_close
+			)
 			raise
 
 	data = None
@@ -2468,65 +2467,19 @@ def run_rw_queries (
 		except Exception:
 			_log.exception('error fetching data from RW query')
 			gmLog2.log_stack_trace()
-			try:
-				curs_close()
-				tx_rollback()
-				conn_close()
-			except dbapi.InterfaceError:
-				_log.exception('cannot cleanup')
-				raise
+			__safely_close_cursor_and_rollback_close_conn (
+				curs_close,
+				tx_rollback,
+				conn_close
+			)
 			raise
+
 		if get_col_idx:
 			col_idx = get_col_indices(curs)
-
 	curs_close()
-	conn_commit()
+	tx_commit()
 	conn_close()
 	return (data, col_idx)
-
-#------------------------------------------------------------------------
-def run_insert(link_obj:_TLnkObj=None, schema=None, table=None, values=None, returning=None, end_tx=False, get_col_idx=False, verbose=False):
-	"""Generates and runs SQL for an INSERT query.
-
-	values: dict of values keyed by field to insert them into
-	"""
-	if schema is None:
-		schema = 'public'
-
-	fields = list(values)		# that way val_snippets and fields really should end up in the same order
-	val_snippets = []
-	for field in fields:
-		val_snippets.append('%%(%s)s' % field)
-
-	if returning is None:
-		returning = ''
-		return_data = False
-	else:
-		returning = '\n\tRETURNING\n\t\t%s' % ', '.join(returning)
-		return_data = True
-
-	cmd = """\nINSERT INTO %s.%s (
-		%s
-	) VALUES (
-		%s
-	)%s""" % (
-		schema,
-		table,
-		',\n\t\t'.join(fields),
-		',\n\t\t'.join(val_snippets),
-		returning
-	)
-
-	_log.debug('running SQL: >>>%s<<<', cmd)
-
-	return run_rw_queries (
-		link_obj = link_obj,
-		queries = [{'cmd': cmd, 'args': values}],
-		end_tx = end_tx,
-		return_data = return_data,
-		get_col_idx = get_col_idx,
-		verbose = verbose
-	)
 
 # =======================================================================
 # connection handling API
@@ -2572,12 +2525,9 @@ def log_pg_exception(exc:Exception, msg:str=None):
 
 #-----------------------------------------------------------------------
 def log_database_access(action=None):
-	run_insert (
-		schema = 'gm',
-		table = 'access_log',
-		values = {'user_action': action},
-		end_tx = True
-	)
+	args = {'action': action}
+	SQL = "INSERT INTO gm.access_log (user_action) VALUES (%(action)s)"
+	run_rw_queries(queries = [{'cmd': SQL, 'args': args}])
 
 #-----------------------------------------------------------------------
 def sanity_check_time_skew(tolerance:int=60) -> bool:
@@ -3152,9 +3102,19 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------------------
 	def test_run_query():
-		login, creds = request_login_params()
-		pool = gmConnectionPool.gmConnectionPool()
-		pool.credentials = creds
+		conn = get_connection(readonly=False)
+		curs = conn.cursor()
+		curs.execute('SELECT 1;')
+		curs.fetchall()
+		curs.close()
+		conn.rollback()
+		conn.close()
+		print(curs.query)
+		print(curs.statusmessage)
+		return
+
+		#pool = gmConnectionPool.gmConnectionPool()
+		#pool.credentials = creds
 		gmDateTime.init()
 		args = {'dt': gmDateTime.pydt_max_here()}
 		cmd = "SELECT %(dt)s"
@@ -3401,7 +3361,6 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_get_index_name()
 	#test_set_user_language()
 	#test_get_schema_revision_history()
-	#test_run_query()
 	#test_schema_exists()
 	#test_get_foreign_key_names()
 	#test_row_locks()
@@ -3421,6 +3380,8 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	request_login_params(setup_pool = True, force_tui = True)
 	gmConnectionPool._VERBOSE_PG_LOG = True
 
+	test_run_query()
+
 	#SQL = 'select 1 as one, 2 as two'
 	#SQL = 'SELECT pg_sleep(4)'
 	#rows, idx = run_ro_queries(queries = [{'cmd': SQL}], get_col_idx = True)
@@ -3438,7 +3399,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_revalidate_constraints()
 	#test_refresh_collations_version_information()
 	#refresh_all_collations_version_information()
-	check_all_collations()
+	#check_all_collations()
 
 #	try:
 #		run_ro_queries(queries = [{'cmd': 'select no_function(1)'}])
