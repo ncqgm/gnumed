@@ -11,6 +11,7 @@
 FIX: export area: exception on browsing export dir
 FIX: export area: allow removing remote/empty/stale DIRENTRYs
 FIX: document: gracefully handle empty templates [thanks parallels]
+FIX: episodes: do not auto-tinker with open state of existing episodes
 
 IMPROVED: documents: part export filename
 IMPROVED: regular expression strings [thanks Wolfgang]

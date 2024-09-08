@@ -1758,25 +1758,20 @@ def create_episode(pk_health_issue=None, episode_name=None, is_open=False, allow
 
 	pk_health_issue - given health issue PK
 	episode_name - name of episode
+	is_open - whether a *new* episode is to be open (don't tinker with existing ones)
 	"""
 	if not allow_dupes:
 		try:
-			episode = cEpisode(name = episode_name, health_issue = pk_health_issue, encounter = encounter, link_obj = link_obj)
-			if episode['episode_open'] != is_open:
-				episode['episode_open'] = is_open
-				episode.save_payload()
-			return episode
+			return cEpisode(name = episode_name, health_issue = pk_health_issue, encounter = encounter, link_obj = link_obj)
+
 		except gmExceptions.ConstructorError:
 			pass
-
 	queries = []
 	cmd = "INSERT INTO clin.episode (fk_health_issue, description, is_open, fk_encounter) VALUES (%s, %s, %s::boolean, %s)"
 	queries.append({'cmd': cmd, 'args': [pk_health_issue, episode_name, is_open, encounter]})
 	queries.append({'cmd': cEpisode._cmd_fetch_payload % "currval('clin.episode_pk_seq')"})
 	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, return_data=True, get_col_idx=True)
-
-	episode = cEpisode(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_episode'})
-	return episode
+	return cEpisode(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_episode'})
 
 #-----------------------------------------------------------
 def delete_episode(episode=None):
