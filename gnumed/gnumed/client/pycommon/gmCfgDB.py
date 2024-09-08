@@ -287,17 +287,16 @@ class cCfgSQL:
 			'usr': owner,
 			'desc': description
 		}
-		cmd = 'SELECT cfg.set_option(%(opt)s, %(val)s, %(wp)s, %(cookie)s, %(usr)s, %(desc)s)'
-		rw_conn = gmPG2.get_connection(readonly = False)
+		_log.debug('value:  [%s]', value)
+		_log.debug('JSON: >>>%s<<<', args['val'])
+		SQL = 'SELECT cfg.set_option(%(opt)s, %(val)s, %(wp)s, %(cookie)s, %(usr)s, %(desc)s)'
+		queries = [{'cmd': cmd, 'args': args}]
 		try:
-			rows, idx = gmPG2.run_rw_queries(link_obj=rw_conn, queries=[{'cmd': cmd, 'args': args}], return_data=True)
+			rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True)
 			result = rows[0][0]
 		except Exception:
 			_log.exception('cannot set option: [%s]=<%s>', option, value)
 			result = False
-		finally:
-			rw_conn.commit()
-			rw_conn.close()
 		return result
 
 	#-----------------------------------------------
