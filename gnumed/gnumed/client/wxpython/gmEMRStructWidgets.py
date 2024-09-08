@@ -446,7 +446,9 @@ class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	#--------------------------------------------------------
 	def GetData(self, can_create=False, as_instance=False, is_open=False, link_obj=None):
 		self.__is_open_for_create_data = is_open		# used (only) in _create_data()
-		return gmPhraseWheel.cPhraseWheel.GetData(self, can_create = can_create, as_instance = as_instance, link_obj = link_obj)
+		result = gmPhraseWheel.cPhraseWheel.GetData(self, can_create = can_create, as_instance = as_instance, link_obj = link_obj)
+		self.__is_open_for_create_data = False
+		return result
 
 	#--------------------------------------------------------
 	def _create_data(self, link_obj=None):
