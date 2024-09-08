@@ -2160,6 +2160,29 @@ def sanitize_pg_regex(expression=None, escape_all=False):
 		#']', '\]',			# not needed
 
 #------------------------------------------------------------------------
+def __safely_close_cursor_and_rollback_close_conn(close_cursor=None, rollback_tx=None, close_conn=None):
+	if close_cursor:
+		try:
+			close_cursor()
+		except PG_ERROR_EXCEPTION as pg_exc:
+			_log.exception('cannot close cursor')
+			gmConnectionPool.log_pg_exception_details(pg_exc)
+	if rollback_tx:
+		try:
+			# need to rollback so ABORT state isn't retained in pooled connections
+			rollback_tx()
+		except PG_ERROR_EXCEPTION as pg_exc:
+			_log.exception('cannot rollback transaction')
+			gmConnectionPool.log_pg_exception_details(pg_exc)
+	if close_conn:
+		try:
+			close_conn()
+		#except dbapi.InterfaceError:
+		except PG_ERROR_EXCEPTION as pg_exc:
+			_log.exception('cannot close connection')
+			gmConnectionPool.log_pg_exception_details(pg_exc)
+
+#------------------------------------------------------------------------
 def run_ro_queries (
 	link_obj:_TLnkObj=None,
 	#queries:Sequence[Mapping[str, str | list | dict]]=None,
@@ -2184,34 +2207,33 @@ def run_ro_queries (
 	Returns:
 		A tuple holding (data rows, column index in row data as per DB-API)
 	"""
-	if isinstance(link_obj, dbapi._psycopg.cursor):
-		curs = link_obj
-		curs_close = lambda *x: None
-		tx_rollback = lambda *x: None
-		readonly_rollback_just_in_case = lambda *x: None
-	elif isinstance(link_obj, dbapi._psycopg.connection):
-		curs = link_obj.cursor()
-		curs_close = curs.close
-		tx_rollback = link_obj.rollback
-		if link_obj.autocommit is True:		# readonly connection ?
-			readonly_rollback_just_in_case = link_obj.rollback
-		else:
-			# do not rollback readonly queries on passed-in readwrite
-			# connections just in case because they may have already
-			# seen fully legitimate write action which would get lost
-			readonly_rollback_just_in_case = lambda *x: None
-	elif link_obj is None:
+	assert queries is not None, '<queries> must not be None'
+	assert isinstance(link_obj, (dbapi._psycopg.connection, dbapi._psycopg.cursor, type(None))), '<link_obj> must be None, a cursor, or a connection, but [%s] is of type (%s)' % (link_obj, type(link_obj))
+
+	if link_obj is None:
 		conn = get_connection(readonly = True, verbose = verbose)
 		curs = conn.cursor()
 		curs_close = curs.close
 		tx_rollback = conn.rollback
 		readonly_rollback_just_in_case = conn.rollback
 	else:
-		raise ValueError('link_obj must be cursor, connection or None but not [%s]' % link_obj)
+		curs_close = lambda *x: None
+		tx_rollback = lambda *x: None
+		readonly_rollback_just_in_case = lambda *x: None
+		if isinstance(link_obj, dbapi._psycopg.cursor):
+			curs = link_obj
+		elif isinstance(link_obj, dbapi._psycopg.connection):
+			curs = link_obj.cursor()
+			curs_close = curs.close
+			tx_rollback = link_obj.rollback
+			if link_obj.autocommit is True:		# readonly connection ?
+				readonly_rollback_just_in_case = link_obj.rollback
+				# do NOT rollback readonly queries on passed-in readwrite
+				# connections just in case because they may have already
+				# seen fully legitimate write action which would get lost
 
 	if verbose:
 		_log.debug('cursor: %s', curs)
-
 	for query in queries:
 		try:
 			args = query['args']
@@ -2224,88 +2246,80 @@ def run_ro_queries (
 		except PG_ERROR_EXCEPTION as pg_exc:
 			_log.error('query failed in RO connection')
 			gmConnectionPool.log_pg_exception_details(pg_exc)
-			try:
-				curs_close()
-			except PG_ERROR_EXCEPTION as pg_exc2:
-				_log.exception('cannot close cursor')
-				gmConnectionPool.log_pg_exception_details(pg_exc2)
-			try:
-				tx_rollback()		# need to rollback so ABORT state isn't preserved in pooled conns
-			except PG_ERROR_EXCEPTION as pg_exc2:
-				_log.exception('cannot rollback transaction')
-				gmConnectionPool.log_pg_exception_details(pg_exc2)
-			if pg_exc.pgcode == PG_error_codes.INSUFFICIENT_PRIVILEGE:
-				details = 'Query: [%s]' % curs.query.decode(errors = 'replace').strip().strip('\n').strip().strip('\n')
-				if curs.statusmessage != '':
-					details = 'Status: %s\n%s' % (
-						curs.statusmessage.strip().strip('\n').strip().strip('\n'),
-						details
-					)
-				if pg_exc.pgerror is None:
-					msg = '[%s]' % pg_exc.pgcode
-				else:
-					msg = '[%s]: %s' % (pg_exc.pgcode, pg_exc.pgerror)
-				raise gmExceptions.AccessDenied (
-					msg,
-					source = 'PostgreSQL',
-					code = pg_exc.pgcode,
-					details = details
-				)
+			__safely_close_cursor_and_rollback_close_conn (
+				close_cursor = curs_close,
+				rollback_tx = tx_rollback,	# rollback so any ABORT state isn't preserved in pooled connections
+				close_conn = False			# do not close connection, RO connections are pooled
+			)
+			__perhaps_reraise_as_permissions_error(pg_exc, curs)
 			raise
+
 		except Exception:
 			_log.exception('error during query run in RO connection')
 			gmConnectionPool.log_cursor_state(curs)
-			try:
-				curs_close()
-			except PG_ERROR_EXCEPTION as pg_exc:
-				_log.exception('cannot close cursor')
-				gmConnectionPool.log_pg_exception_details(pg_exc)
-			try:
-				tx_rollback()		# need to rollback so ABORT state isn't preserved in pooled conns
-			except PG_ERROR_EXCEPTION as pg_exc:
-				_log.exception('cannot rollback transation')
-				gmConnectionPool.log_pg_exception_details(pg_exc)
+			__safely_close_cursor_and_rollback_close_conn (
+				close_cursor = curs_close,
+				rollback_tx = tx_rollback,	# rollback so any ABORT state isn't preserved in pooled connections
+				close_conn = False			# do not close connection, RO connections are pooled
+			)
 			raise
 
-	data = None
-	col_idx = None
-	if return_data:
-		data = curs.fetchall()
-		if verbose:
-			_log.debug('last query returned [%s (%s)] rows', curs.rowcount, len(data))
-			_log.debug('cursor description: %s', curs.description)
-		if get_col_idx:
-			col_idx = get_col_indices(curs)
+	if not return_data:
+		__safely_close_cursor_and_rollback_close_conn (
+			close_cursor = curs_close,
+			# rollback just-in-case so we can see data committed meanwhile if
+			# the link object had been passed in and thusly might be part of
+			# a long-running transaction -- but only if its a readonly framing
+			# transaction, do not rollback framing readwrite connections
+			rollback_tx = readonly_rollback_just_in_case,
+			close_conn = False			# do not close connection, RO connections are pooled
+		)
+		return (None, None)
 
-	curs_close()
-	# so we can see data committed meanwhile if the
-	# link object had been passed in and thusly might
-	# be part of a long-running read-only transaction
-	readonly_rollback_just_in_case()
+	data = curs.fetchall()
+	if verbose:
+		_log.debug('last query returned [%s (%s)] rows', curs.rowcount, len(data))
+		_log.debug('cursor description: %s', curs.description)
+	col_idx = get_col_indices(curs) if get_col_idx else None
+	__safely_close_cursor_and_rollback_close_conn (
+		close_cursor = curs_close,
+		# rollback just-in-case so we can see data committed meanwhile if
+		# the link object had been passed in and thusly might be part of
+		# a long-running transaction -- but only if its a readonly framing
+		# transaction, do not rollback framing readwrite connections
+		rollback_tx = readonly_rollback_just_in_case,
+		close_conn = False			# do not close connection, RO connections are pooled
+	)
 	return (data, col_idx)
 
 #------------------------------------------------------------------------
-def __safely_close_cursor_and_rollback_close_conn(close_cursor=None, rollback_tx=None, close_conn=None):
-	if close_cursor:
-		try:
-			close_cursor()
-		except PG_ERROR_EXCEPTION as pg_exc:
-			_log.exception('cannot close cursor')
-			gmConnectionPool.log_pg_exception_details(pg_exc)
-	if rollback_tx:
-		try:
-			# need to rollback so ABORT state isn't retained in pooled connections
-			rollback_tx()
-		except PG_ERROR_EXCEPTION as pg_exc:
-			_log.exception('cannot rollback transaction')
-			gmConnectionPool.log_pg_exception_details(pg_exc)
-	if close_conn:
-		try:
-			close_conn()
-		#except dbapi.InterfaceError:
-		except PG_ERROR_EXCEPTION as pg_exc:
-			_log.exception('cannot close connection')
-			gmConnectionPool.log_pg_exception_details(pg_exc)
+def __log_notices(notices_accessor=None):
+	for notice in notices_accessor.notices:
+		_log.debug(notice.replace('\n', '/').replace('\n', '/'))
+	del notices_accessor.notices[:]
+
+#------------------------------------------------------------------------
+def __perhaps_reraise_as_permissions_error(pg_exc, curs):
+	if pg_exc.pgcode != PG_error_codes.INSUFFICIENT_PRIVILEGE:
+		return
+
+	# privilege problem -- normalize as GNUmed exception
+	details = 'Query: [%s]' % curs.query.decode(errors = 'replace').strip().strip('\n').strip().strip('\n')
+	if curs.statusmessage != '':
+		details = 'Status: %s\n%s' % (
+			curs.statusmessage.strip().strip('\n').strip().strip('\n'),
+			details
+		)
+	if pg_exc.pgerror is None:
+		msg = '[%s]' % pg_exc.pgcode
+	else:
+		msg = '[%s]: %s' % (pg_exc.pgcode, pg_exc.pgerror)
+	raise gmExceptions.AccessDenied (
+		msg,
+		source = 'PostgreSQL',
+		code = pg_exc.pgcode,
+		details = details
+	)
 
 #------------------------------------------------------------------------
 def run_rw_queries (
@@ -2370,6 +2384,7 @@ def run_rw_queries (
 		* for *index* see "get_col_idx"
 	"""
 	assert queries is not None, '<queries> must not be None'
+	assert isinstance(link_obj, (dbapi._psycopg.connection, dbapi._psycopg.cursor, type(None))), '<link_obj> must be None, a cursor, or a connection, but [%s] is of type (%s)' % (link_obj, type(link_obj))
 
 	if link_obj is None:
 		conn = get_connection(readonly = False)
@@ -2388,15 +2403,12 @@ def run_rw_queries (
 			curs = link_obj
 			notices_accessor = curs.connection
 		elif isinstance(link_obj, dbapi._psycopg.connection):
-			if end_tx:
-				tx_commit = link_obj.commit
-				tx_rollback = link_obj.rollback
 			curs = link_obj.cursor()
 			curs_close = curs.close
 			notices_accessor = link_obj
-		else:
-			raise ValueError('link_obj must be cursor, connection or None but not [%s]' % link_obj)
-
+			if end_tx:
+				tx_commit = link_obj.commit
+				tx_rollback = link_obj.rollback
 	for query in queries:
 		try:
 			args = query['args']
@@ -2406,51 +2418,27 @@ def run_rw_queries (
 			curs.execute(query['cmd'], args)
 			if verbose:
 				gmConnectionPool.log_cursor_state(curs)
-			for notice in notices_accessor.notices:
-				_log.debug(notice.replace('\n', '/').replace('\n', '/'))
-			del notices_accessor.notices[:]
+			__log_notices(notices_accessor)
 		# DB related exceptions
 		except dbapi.Error as pg_exc:
 			_log.error('query failed in RW connection')
 			gmConnectionPool.log_pg_exception_details(pg_exc)
-			for notice in notices_accessor.notices:
-				_log.debug(notice.replace('\n', '/').replace('\n', '/'))
-			del notices_accessor.notices[:]
+			__log_notices(notices_accessor)
 			__safely_close_cursor_and_rollback_close_conn (
 				curs_close,
 				tx_rollback,
 				conn_close
 			)
-			# privilege problem ?
-			if pg_exc.pgcode == PG_error_codes.INSUFFICIENT_PRIVILEGE:
-				details = 'Query: [%s]' % curs.query.decode(errors = 'replace').strip().strip('\n').strip().strip('\n')
-				if curs.statusmessage != '':
-					details = 'Status: %s\n%s' % (
-						curs.statusmessage.strip().strip('\n').strip().strip('\n'),
-						details
-					)
-				if pg_exc.pgerror is None:
-					msg = '[%s]' % pg_exc.pgcode
-				else:
-					msg = '[%s]: %s' % (pg_exc.pgcode, pg_exc.pgerror)
-				raise gmExceptions.AccessDenied (
-					msg,
-					source = 'PostgreSQL',
-					code = pg_exc.pgcode,
-					details = details
-				)
-
-			# other DB problem
+			__perhaps_reraise_as_permissions_error(pg_exc, curs)
+			# not a permissions problem
 			gmLog2.log_stack_trace()
 			raise
 
-		# other exception
+		# other exceptions
 		except Exception:
 			_log.exception('error running query in RW connection')
 			gmConnectionPool.log_cursor_state(curs)
-			for notice in notices_accessor.notices:
-				_log.debug(notice.replace('\n', '/').replace('\n', '/'))
-			del notices_accessor.notices[:]
+			__log_notices(notices_accessor)
 			gmLog2.log_stack_trace()
 			__safely_close_cursor_and_rollback_close_conn (
 				curs_close,
@@ -2458,24 +2446,29 @@ def run_rw_queries (
 				conn_close
 			)
 			raise
+
+	if not return_data:
+		curs_close()
+		tx_commit()
+		conn_close()
+		return (None, None)
 
 	data = None
-	col_idx = None
-	if return_data:
-		try:
-			data = curs.fetchall()
-		except Exception:
-			_log.exception('error fetching data from RW query')
-			gmLog2.log_stack_trace()
-			__safely_close_cursor_and_rollback_close_conn (
-				curs_close,
-				tx_rollback,
-				conn_close
-			)
-			raise
+	try:
+		data = curs.fetchall()
+	except Exception:
+		_log.exception('error fetching data from RW query')
+		gmLog2.log_stack_trace()
+		__safely_close_cursor_and_rollback_close_conn (
+			curs_close,
+			tx_rollback,
+			conn_close
+		)
+		raise
 
-		if get_col_idx:
-			col_idx = get_col_indices(curs)
+	col_idx = None
+	if get_col_idx:
+		col_idx = get_col_indices(curs)
 	curs_close()
 	tx_commit()
 	conn_close()
