@@ -2313,14 +2313,10 @@ def run_ro_queries (
 	if verbose:
 		_log.debug('cursor: %s', curs)
 	for query in queries:
-		try:
-			args = query['args']
-		except KeyError:
-			args = None
+		try:				args = query['args']
+		except KeyError:	args = None
 		try:
 			curs.execute(query['cmd'], args)
-			if verbose:
-				gmConnectionPool.log_cursor_state(curs)
 		except PG_ERROR_EXCEPTION as pg_exc:
 			_log.error('query failed in RO connection')
 			gmConnectionPool.log_pg_exception_details(pg_exc)
@@ -2341,6 +2337,9 @@ def run_ro_queries (
 				close_conn = False			# do not close connection, RO connections are pooled
 			)
 			raise
+
+		if verbose:
+			gmConnectionPool.log_cursor_state(curs)
 
 	if not return_data:
 		__safely_close_cursor_and_rollback_close_conn (
@@ -2488,35 +2487,25 @@ def run_rw_queries (
 				tx_commit = link_obj.commit
 				tx_rollback = link_obj.rollback
 	for query in queries:
-		try:
-			args = query['args']
-		except KeyError:
-			args = None
+		try:				args = query['args']
+		except KeyError:	args = None
 		try:
 			curs.execute(query['cmd'], args)
-			if verbose:
-				gmConnectionPool.log_cursor_state(curs)
-			__log_notices(notices_accessor)
-		# DB related exceptions
-		except dbapi.Error as pg_exc:
+		except dbapi.Error as pg_exc:			# DB related exceptions
 			_log.error('query failed in RW connection')
 			gmConnectionPool.log_pg_exception_details(pg_exc)
-			__log_notices(notices_accessor)
 			__safely_close_cursor_and_rollback_close_conn (
 				curs_close,
 				tx_rollback,
 				conn_close
 			)
 			__perhaps_reraise_as_permissions_error(pg_exc, curs)
-			# not a permissions problem
 			gmLog2.log_stack_trace()
 			raise
 
-		# other exceptions
-		except Exception:
+		except Exception:						# other exceptions
 			_log.exception('error running query in RW connection')
 			gmConnectionPool.log_cursor_state(curs)
-			__log_notices(notices_accessor)
 			gmLog2.log_stack_trace()
 			__safely_close_cursor_and_rollback_close_conn (
 				curs_close,
@@ -2524,6 +2513,10 @@ def run_rw_queries (
 				conn_close
 			)
 			raise
+
+		if verbose:
+			gmConnectionPool.log_cursor_state(curs)
+		__log_notices(notices_accessor)
 
 	if not return_data:
 		curs_close()
