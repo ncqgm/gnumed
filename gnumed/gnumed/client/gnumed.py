@@ -91,6 +91,8 @@ Run the named TOOL instead of a GUI.
 
 Currently implemented tools:
 
+	update_collations: Update collations version information in the database.
+
 	check_enc_epi_xref: Cross-check that foreign keys values in any given row of any table carrying both of fk_episode and fk_encounter do point to episodes and encounters, respectively, of the very same patient.
 
 	export_pat_emr_structure: Export the EMR structure (issues and episodes) of a patient into a text file.
@@ -321,9 +323,8 @@ if __name__ != "__main__":
 	print("-----------------------------------------------------------------")
 #	sys.exit(1)
 
-
 # do not run as root
-if os.name in ['posix'] and os.geteuid() == 0:
+if os.name in ['posix'] and os.geteuid() == 0 and '--tool=' not in '#'.join(sys.argv):
 	print("""
 GNUmed startup: GNUmed should not be run as root.
 -------------------------------------------------
@@ -372,7 +373,8 @@ _known_tools = [
 	'read_all_rows_of_table',
 	'fingerprint_db',
 	'generate_man_page',
-	'get_object_passphrases'
+	'get_object_passphrases',
+	'update_collations'
 ]
 
 
@@ -1105,6 +1107,9 @@ def run_tool():
 		man_page_fname = generate_man_page(fname = os.path.abspath(os.path.join('.', 'gnumed.1')))
 		print('MAN page saved as:', man_page_fname)
 		return 0
+
+	if tool == 'update_collations':
+		return gmPG2.run_collations_tool()
 
 	login, creds = gmPG2.request_login_params()
 	gmConnectionPool._VERBOSE_PG_LOG = _cfg.get(option = 'debug')

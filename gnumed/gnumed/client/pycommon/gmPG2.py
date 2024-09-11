@@ -20,6 +20,7 @@ __license__ = 'GPL v2 or later (details at https://www.gnu.org)'
 import time
 import sys
 import os
+import pwd
 import stat
 import logging
 import datetime as pydt
@@ -304,7 +305,7 @@ _TQueries = Sequence [
 # =======================================================================
 # login API
 # =======================================================================
-def __request_login_params_tui():
+def __request_login_params_tui(user:str=None):
 	"""Text mode request of database login parameters"""
 
 	import getpass
@@ -314,7 +315,11 @@ def __request_login_params_tui():
 	try:
 		login.host = prompted_input(prompt = "host ('' = non-TCP/IP)", default = '')
 		login.database = prompted_input(prompt = "database", default = default_database)
-		login.user = prompted_input(prompt = "user name", default = '')
+		if user:
+			print('Fixed user: [%s]' % user)
+			login.user = user
+		else:
+			login.user = prompted_input(prompt = "user name", default = '')
 		tmp = 'password for "%s" (not shown): ' % login.user
 		login.password = getpass.getpass(tmp)
 		gmLog2.add_word2hide(login.password)
@@ -365,7 +370,11 @@ def __request_login_params_gui_wx():
 	return login, creds
 
 #---------------------------------------------------
-def request_login_params(setup_pool:bool=False, force_tui:bool=False) -> tuple[gmLoginInfo.LoginInfo, gmConnectionPool.cPGCredentials]:
+def request_login_params (
+	setup_pool:bool=False,
+	force_tui:bool=False,
+	user:str=None
+) -> tuple[gmLoginInfo.LoginInfo, gmConnectionPool.cPGCredentials]:
 	"""Request login parameters for database connection.
 
 	Args:
@@ -390,7 +399,7 @@ def request_login_params(setup_pool:bool=False, force_tui:bool=False) -> tuple[g
 
 	# well, either we are on the console or
 	# wxPython does not work, use text mode
-	login, creds = __request_login_params_tui()
+	login, creds = __request_login_params_tui(user = user)
 	if setup_pool:
 		pool = gmConnectionPool.gmConnectionPool()
 		pool.credentials = creds
@@ -978,6 +987,7 @@ def get_col_names(link_obj:_TLnkObj=None, schema='public', table=None):
 	return [ row[0] for row in rows]
 
 #------------------------------------------------------------------------
+#------------------------------------------------------------------------
 def revalidate_constraints(link_obj:_TLnkObj=None) -> str | bool:
 	"""Revalidate all database constraints.
 
@@ -1215,6 +1225,74 @@ def refresh_collations_version_information(conn=None, use_the_source_luke=False)
 		return False
 
 	return True
+
+
+#------------------------------------------------------------------------
+def run_collations_tool() -> int:
+	print('Fixing database collations version mismatches.')
+	print('----------------------------------------------')
+	if os.getuid() != 0:
+		print('Not running as root. Aborting.')
+		return -2
+
+	try:
+		running_as = pwd.getpwuid(os.getuid())[0]
+	except KeyError:
+		print('Running as unknown user. Aborting.')
+		return -2
+
+	pg_demon_user_passwd_line = None
+	try:
+		pg_demon_user_passwd_line = pwd.getpwnam('postgres')
+	except KeyError:
+		try:
+			pg_demon_user_passwd_line = pwd.getpwnam('pgsql')
+		except KeyError:
+			print('cannot identify postgres superuser account')
+			return -2
+
+	if os.getuid() != pg_demon_user_passwd_line[2]:
+		os.setuid(pg_demon_user_passwd_line[2])
+
+	if os.getuid() != pg_demon_user_passwd_line[2]:
+		print('Failed to become database superuser [%s]' % pg_demon_user_passwd_line[0])
+		return -2
+
+	request_login_params (
+		setup_pool = True,
+		force_tui = True,
+		user = pg_demon_user_passwd_line[0]
+	)
+	conn = get_connection(readonly = False)
+	default_collation_valid = sanity_check_database_default_collation_version(conn = conn)
+	other_collations_valid = sanity_check_collation_versions(conn = conn)
+	if default_collation_valid and other_collations_valid:
+		print('All collations valid.')
+		return 0
+
+	llap = []
+	llap.append(revalidate_constraints(link_obj = conn))
+	llap.append(reindex_database(conn = conn))
+	if not default_collation_valid:
+		print('Refreshing database default collation version.')
+		if not refresh_database_default_collation_version_information(conn = conn, use_the_source_luke = llap):
+			print('Failed. Aborting.')
+			conn.rollback()
+			conn.close()
+			return -2
+
+	if not other_collations_valid:
+		print('Refreshing general collation versions.')
+		if not refresh_collations_version_information(conn = conn, use_the_source_luke = llap):
+			print('Failed. Aborting.')
+			conn.rollback()
+			conn.close()
+			return -2
+
+	conn.commit()
+	conn.close()
+	print('All collation versions refreshed.')
+	return 0
 
 #------------------------------------------------------------------------
 # i18n functions
@@ -3334,6 +3412,8 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#--------------------------------------------------------------------
 	# run tests
 
+	run_collations_tool()
+
 	# legacy:
 	#test_connection_pool()
 
@@ -3370,10 +3450,10 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#print(dbapi._psycopg.connection)
 	#print(dbapi._psycopg.cursor)
 
-	request_login_params(setup_pool = True, force_tui = True)
-	gmConnectionPool._VERBOSE_PG_LOG = True
+	#request_login_params(setup_pool = True, force_tui = True)
+	#gmConnectionPool._VERBOSE_PG_LOG = True
 
-	test_run_query()
+	#test_run_query()
 
 	#SQL = 'select 1 as one, 2 as two'
 	#SQL = 'SELECT pg_sleep(4)'
