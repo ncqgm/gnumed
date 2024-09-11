@@ -290,7 +290,7 @@ class cCfgSQL:
 		_log.debug('value:  [%s]', value)
 		_log.debug('JSON: >>>%s<<<', args['val'])
 		SQL = 'SELECT cfg.set_option(%(opt)s, %(val)s, %(wp)s, %(cookie)s, %(usr)s, %(desc)s)'
-		queries = [{'cmd': cmd, 'args': args}]
+		queries = [{'cmd': SQL, 'args': args}]
 		try:
 			rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True)
 			result = rows[0][0]
