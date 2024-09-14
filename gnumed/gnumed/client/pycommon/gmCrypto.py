@@ -17,6 +17,7 @@ import sys
 import os
 import logging
 import tempfile
+import shutil
 
 
 # GNUmed libs
@@ -69,8 +70,8 @@ def create_encrypted_zip_archive_from_dir(source_dir, comment=None, overwrite=Tr
 	if len(passphrase) < 5:
 		_log.error('<passphrase> must be at least 5 characters/signs/digits')
 		return None
-	gmLog2.add_word2hide(passphrase)
 
+	gmLog2.add_word2hide(passphrase)
 	source_dir = os.path.abspath(source_dir)
 	if not os.path.isdir(source_dir):
 		_log.error('<source_dir> does not exist or is not a directory: %s', source_dir)
@@ -84,32 +85,42 @@ def create_encrypted_zip_archive_from_dir(source_dir, comment=None, overwrite=Tr
 		_log.warning('no 7z binary found')
 		return None
 
-	sandbox_dir = gmTools.mk_sandbox_dir()
-	archive_path_inner = os.path.join(sandbox_dir, 'data')
-	if not gmTools.mkdir(archive_path_inner):
-		_log.error('cannot create scratch space for inner achive: %s', archive_path_inner)
-	archive_fname_inner = 'data.zip'
-	archive_name_inner = os.path.join(archive_path_inner, archive_fname_inner)
-	archive_path_outer = gmTools.gmPaths().tmp_dir
-	archive_fname_outer = 'datawrapper.zip'
-	archive_name_outer = os.path.join(archive_path_outer, archive_fname_outer)
+	_log.debug('source directory: %s', source_dir)
+	archive_sandbox = gmTools.mk_sandbox_dir()
+	_log.debug('archive creation sandbox: %s', archive_sandbox)
+	inner_archive_dir = os.path.join(archive_sandbox, 'inner')
+	if not gmTools.mkdir(inner_archive_dir):
+		_log.error('cannot create scratch space for inner archive: %s', inner_archive_dir)
+		return None
+
+	outer_archive_dir = os.path.join(archive_sandbox, 'outer')
+	if not gmTools.mkdir(outer_archive_dir):
+		_log.error('cannot create scratch space for outer archive: %s', outer_archive_dir)
+		return None
+
+	inner_archive_name = os.path.join(inner_archive_dir, 'data.zip')
+	outer_archive_name = os.path.join(outer_archive_dir, 'datawrapper.zip')
 	# remove existing archives so they don't get *updated* rather than newly created
 	if overwrite:
-		if not gmTools.remove_file(archive_name_inner, force = True):
-			_log.error('cannot remove existing archive [%s]', archive_name_inner)
+		if not gmTools.remove_file(inner_archive_name, force = True):
+			_log.error('cannot remove existing archive [%s]', inner_archive_name)
 			return False
 
-		if not gmTools.remove_file(archive_name_outer, force = True):
-			_log.error('cannot remove existing archive [%s]', archive_name_outer)
+		if not gmTools.remove_file(outer_archive_name, force = True):
+			_log.error('cannot remove existing archive [%s]', outer_archive_name)
 			return False
+
+	tmp = gmTools.copy_tree_content(source_dir, inner_archive_dir)
+	if not tmp:
+		_log.error('cannot move source data to inner archive creation scratch dir')
+		return False
 
 	# 7z does not support ZIP comments so create a text file holding the comment
 	if comment is not None:
 		tmp, fname = os.path.split(source_dir.rstrip(os.sep))
-		comment_filename = os.path.join(sandbox_dir, '000-%s-comment.txt' % fname)
+		comment_filename = os.path.join(inner_archive_dir, '000-%s-comment.txt' % fname)
 		with open(comment_filename, mode = 'wt', encoding = 'utf8', errors = 'replace') as comment_file:
 			comment_file.write(comment)
-
 	# create inner (data) archive: uncompressed, unencrypted, similar to a tar archive
 	args = [
 		binary,
@@ -118,7 +129,8 @@ def create_encrypted_zip_archive_from_dir(source_dir, comment=None, overwrite=Tr
 		'-bd',				# no progress indicator
 		'-mx0',				# no compression (only store files)
 		'-mcu=on',			# UTF8 filenames
-		'-l',				# store content of links, not links
+		# now the default and switch not supported anymore
+		#'-l',				# store content of links, not links
 		'-scsUTF-8',		# console charset
 		'-tzip'				# force ZIP format
 	]
@@ -127,19 +139,41 @@ def create_encrypted_zip_archive_from_dir(source_dir, comment=None, overwrite=Tr
 		args.append('-bt')
 	else:
 		args.append('-bb1')
-	args.append(archive_name_inner)
-	args.append(source_dir)
-	if comment is not None:
-		args.append(comment_filename)
+	args.append(inner_archive_name)
+	args.append(os.path.join(inner_archive_dir, '.'))
+	_log.debug(args)
+	old_cwd = os.getcwd()
+	os.chdir(inner_archive_dir)
 	success, exit_code, stdout = gmShellAPI.run_process(cmd_line = args, encoding = 'utf8', verbose = verbose)
+	os.chdir(old_cwd)
 	if not success:
 		_log.error('cannot create inner archive')
 		return None
 
-	# create "decompress instructions" file
-	instructions_filename = os.path.join(archive_path_inner, '000-on_Windows-open_with-WinZip_or_7z_tools')
-	open(instructions_filename, mode = 'wt').close()
+	# test
+	args = [
+		binary,
+		't',				# test archive
+		'-bd',				# no progress indicator
+		'-scsUTF-8'			# console charset
+	]
+	if verbose:
+		args.append('-bb3')
+		args.append('-bt')
+	else:
+		args.append('-bb1')
+	args.append(inner_archive_name)
+	_log.debug(args)
+	success, exit_code, stdout = gmShellAPI.run_process(cmd_line = args, encoding = 'utf8', verbose = verbose)
+	if not success:
+		_log.error('cannot verify integrity of inner zip archive')
+		return None
 
+	# FIXME: needs error handling
+	shutil.move(inner_archive_name, outer_archive_dir)
+	# create "decompress instructions" file
+	instructions_filename = os.path.join(outer_archive_dir, '000-on_Windows-open_with-WinZip_or_7z_tools')
+	open(instructions_filename, mode = 'wt').close()
 	# create outer (wrapper) archive: compressed, encrypted
 	args = [
 		binary,
@@ -148,7 +182,8 @@ def create_encrypted_zip_archive_from_dir(source_dir, comment=None, overwrite=Tr
 		'-bd',					# no progress indicator
 		'-mx9',					# best available zip compression ratio
 		'-mcu=on',				# UTF8 filenames
-		'-l',					# store content of links, not links
+		# now the default and switch not supported anymore
+		#'-l',					# store content of links, not links
 		'-scsUTF-8',			# console charset
 		'-tzip',				# force ZIP format
 		'-mem=AES256',			# force useful encryption
@@ -159,13 +194,38 @@ def create_encrypted_zip_archive_from_dir(source_dir, comment=None, overwrite=Tr
 		args.append('-bt')
 	else:
 		args.append('-bb1')
-	args.append(archive_name_outer)
-	args.append(archive_path_inner)
+	args.append(outer_archive_name)
+	args.append(os.path.join(outer_archive_dir, '.'))
+	_log.debug(args)
+	old_cwd = os.getcwd()
+	os.chdir(outer_archive_dir)
 	success, exit_code, stdout = gmShellAPI.run_process(cmd_line = args, encoding = 'utf8', verbose = verbose)
-	if success:
-		return archive_name_outer
-	_log.error('cannot create outer archive')
-	return None
+	os.chdir(old_cwd)
+	if not success:
+		_log.error('cannot create wrapper archive')
+		return None
+
+	# test
+	args = [
+		binary,
+		't',					# test archive
+		'-bd',					# no progress indicator
+		'-scsUTF-8',			# console charset
+		'-p%s' % passphrase		# set passphrase
+	]
+	if verbose:
+		args.append('-bb3')
+		args.append('-bt')
+	else:
+		args.append('-bb1')
+	args.append(outer_archive_name)
+	_log.debug(args)
+	success, exit_code, stdout = gmShellAPI.run_process(cmd_line = args, encoding = 'utf8', verbose = verbose)
+	if not success:
+		_log.error('cannot verify integrity of outer zip archive')
+		return None
+
+	return outer_archive_name
 
 #---------------------------------------------------------------------------
 def create_zip_archive_from_dir(source_dir, archive_name=None, comment=None, overwrite=True, verbose=False):
@@ -205,7 +265,6 @@ def create_zip_archive_from_dir(source_dir, archive_name=None, comment=None, ove
 		else:
 			_log.error('cannot remove existing archive comment file [%s]', comment_filename)
 			comment = None
-
 	# compress
 	args = [
 		binary,
@@ -214,7 +273,8 @@ def create_zip_archive_from_dir(source_dir, archive_name=None, comment=None, ove
 		'-bd',				# no progress indicator
 		'-mx9',				# best available zip compression ratio
 		'-mcu=on',			# UTF8 filenames
-		'-l',				# store content of links, not links
+		# now the default and switch not supported anymore:
+		#'-l',				# store content of links, not links
 		'-scsUTF-8',		# console charset
 		'-tzip'				# force ZIP format
 	]
@@ -227,13 +287,34 @@ def create_zip_archive_from_dir(source_dir, archive_name=None, comment=None, ove
 	args.append(source_dir)
 	if comment is not None:
 		args.append(comment_filename)
+	_log.debug(args)
 	success, exit_code, stdout = gmShellAPI.run_process(cmd_line = args, encoding = 'utf8', verbose = verbose)
 	if comment is not None:
 		gmTools.remove_file(comment_filename)
-	if success:
-		return archive_name
+	if not success:
+		_log.error('cannot create zip archive')
+		return None
 
-	return None
+	# test
+	args = [
+		binary,
+		't',				# test archive
+		'-bd',				# no progress indicator
+		'-scsUTF-8'			# console charset
+	]
+	if verbose:
+		args.append('-bb3')
+		args.append('-bt')
+	else:
+		args.append('-bb1')
+	args.append(archive_name)
+	_log.debug(args)
+	success, exit_code, stdout = gmShellAPI.run_process(cmd_line = args, encoding = 'utf8', verbose = verbose)
+	if not success:
+		_log.error('cannot verify zip archive integrity')
+		return None
+
+	return archive_name
 
 #===========================================================================
 # file decryption methods
@@ -418,6 +499,7 @@ def encrypt_pdf(filename=None, passphrase=None, verbose=False, remove_unencrypte
 		filename,
 		filename_encrypted
 	]
+	_log.debug(args)
 	success, exit_code, stdout = gmShellAPI.run_process(cmd_line = args, encoding = 'utf8', verbose = verbose)
 	if not success:
 		return None
