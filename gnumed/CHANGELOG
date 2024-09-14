@@ -69,6 +69,7 @@ FIX: episodes: do not auto-tinker with open state of existing episodes
 
 IMPROVED: documents: part export filename
 IMPROVED: regular expression strings [thanks Wolfgang]
+IMPROVED: export area: saving entries as archive
 
 	1.8.18
 

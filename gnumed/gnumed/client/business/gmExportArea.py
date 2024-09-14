@@ -1055,7 +1055,8 @@ class cExportArea(object):
 		pat = cPatient(aPK_obj = self.__pk_identity)
 		target_base_dir = base_dir
 		if target_base_dir is None:
-			target_base_dir = gmTools.mk_sandbox_dir(prefix = '%s-' % pat.subdir_name)
+			target_sandbox_dir = gmTools.mk_sandbox_dir()
+			target_base_dir = os.path.join(target_sandbox_dir, pat.subdir_name)
 		gmTools.mkdir(target_base_dir)
 		_log.debug('patient media base dir: %s', target_base_dir)
 		if not gmTools.dir_is_empty(target_base_dir):
@@ -1067,7 +1068,7 @@ class cExportArea(object):
 
 		html_data = {}
 
-		# 1) assemble everything in a sandbox
+		# 1) assemble everything into a sandbox
 		# - setup sandbox
 		sandbox_dir = gmTools.mk_sandbox_dir()
 		_log.debug('sandbox dir: %s', sandbox_dir)
@@ -1085,7 +1086,7 @@ class cExportArea(object):
 		pat.export_as_gdt(filename = os.path.join(sandbox_dir, 'patient.gdt'))
 		pat.export_as_xml_linuxmednews(filename = os.path.join(sandbox_dir, 'patient.xml'))
 		pat.export_as_vcard(filename = os.path.join(sandbox_dir, 'patient.vcf'))
-		pat.export_as_mecard(filename = os.path.join(sandbox_dir, u'patient.mcf'))
+		pat.export_as_mecard(filename = os.path.join(sandbox_dir, 'patient.mcf'))
 		# - create CD.INF
 		self._create_cd_inf(pat, sandbox_dir)
 		# - export items
