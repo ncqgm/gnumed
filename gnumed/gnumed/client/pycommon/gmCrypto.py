@@ -645,6 +645,8 @@ if __name__ == '__main__':
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 
+	gmLog2.print_logfile_name()
+
 	#-----------------------------------------------------------------------
 	def test_gpg_decrypt():
 		print(gpg_decrypt_file(filename = sys.argv[2], verbose = True))
@@ -660,6 +662,7 @@ if __name__ == '__main__':
 	#-----------------------------------------------------------------------
 	def test_encrypt_pdf():
 		print(encrypt_pdf(filename = sys.argv[2], passphrase = sys.argv[3], verbose = True))
+		#print(encrypt_pdf(filename = sys.argv[2], passphrase = 'PW mit Leerzeichen', verbose = True))
 
 	#-----------------------------------------------------------------------
 	def test_encrypt_file():
@@ -682,6 +685,7 @@ if __name__ == '__main__':
 			comment = 'GNUmed test archive',
 			overwrite = True,
 			passphrase = sys.argv[3],
+#			passphrase = 'PW mit Leerzeichen',
 			verbose = True
 		))
 
