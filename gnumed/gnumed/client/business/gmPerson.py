@@ -691,14 +691,14 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		return []
 
 	#--------------------------------------------------------
-	def get_description_gender(self, with_nickname:bool=True) -> str:
+	def get_description_gender(self, with_nickname:bool=False) -> str:
 		if with_nickname:
-			template = _('%(last)s,%(title)s %(first)s%(nick)s (%(sex)s)')
+			template = _('%(last)s %(first)s%(title)s%(nick)s (%(sex)s)')
 		else:
-			template = _('%(last)s,%(title)s %(first)s (%(sex)s)')
+			template = _('%(last)s %(first)s%(title)s (%(sex)s)')
 		return template % {
-			'last': self._payload[self._idx['lastnames']],
-			'title': gmTools.coalesce(self._payload[self._idx['title']], '', ' %s'),
+			'last': self._payload[self._idx['lastnames']].upper(),
+			'title': gmTools.coalesce(self._payload[self._idx['title']], '', ' (%s)'),
 			'first': self._payload[self._idx['firstnames']],
 			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], '', " '%s'"),
 			'sex': self.gender_symbol

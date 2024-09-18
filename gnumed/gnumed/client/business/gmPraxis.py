@@ -95,6 +95,19 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 		return txt
 
 	#--------------------------------------------------------
+	def format_for_failsafe_output(self, max_width:int=80) -> list[str]:
+		lines = []
+		lines.append(_('%s of %s') % (self['branch'], self['praxis']))
+		adr = self.address
+		if adr:
+			lines.extend(adr.format_for_failsafe_output(max_width = max_width))
+		for ch in self.get_comm_channels():
+			if ch['is_confidential']:
+				continue
+			lines.append('%s: %s' % (ch['l10n_comm_type'], ch['url']))
+		return lines
+
+	#--------------------------------------------------------
 	def lock(self, exclusive=False):
 		return lock_praxis_branch(pk_praxis_branch = self._payload[self._idx['pk_praxis_branch']], exclusive = exclusive)
 

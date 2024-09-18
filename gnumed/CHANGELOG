@@ -21,6 +21,7 @@ NEW: export area: escrow passphrases used during file export
 NEW: tool: get_object_passphrases
 NEW: plugins: gmIncomingAreaPlugin supercedes gmScanIdxMedDocsPlugin
 NEW: tool: update_collations
+NEW: forms: failsafe medication list
 
 IMPROVED: GUI: show current patient in window titles
 IMPROVED: placeholder: $current_provider_name$

@@ -18,9 +18,13 @@ if __name__ == '__main__':
 
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmCfgDB
+from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmNetworkTools
+from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmMimeLib
 
+from Gnumed.business import gmPerson
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmMedication
 from Gnumed.business import gmForms
@@ -35,6 +39,8 @@ from Gnumed.wxpython import gmSubstanceIntakeWidgets
 
 
 _log = logging.getLogger('gm.ui')
+
+_cfg = gmCfgINI.gmCfgData()
 
 #============================================================
 # current substances grid
@@ -66,6 +72,52 @@ def configure_medication_list_template(parent=None):
 	return template
 
 #------------------------------------------------------------
+def generate_failsafe_medication_list(patient:int=None, max_width:int=80, eol:str=None) -> str|list:
+	lines = ['#' + '=' * (max_width - 2) + '#']
+	provider = gmStaff.gmCurrentProvider()
+	lines.append('%s%s %s' % (
+		gmTools.coalesce(provider['title'], '', '%s '),
+		provider['firstnames'],
+		provider['lastnames']
+	))
+	praxis = gmPraxis.gmCurrentPraxisBranch()
+	lines.extend(praxis.format_for_failsafe_output(max_width = max_width))
+	lines.append('')
+	title = _('Medication List -- %s') % gmDateTime.pydt_now_here().strftime('%Y %b %d')
+	lines.append('*' * len(title))
+	lines.append(title)
+	lines.append('*' * len(title))
+	lines.append('')
+	if not patient:
+		patient = gmPerson.gmCurrentPatient()
+	lines.append(_('Patient: %s') % patient.description_gender)
+	lines.append(_('DOB: %s (%s)') % (
+			patient.get_formatted_dob(honor_estimation = True),
+			patient.medical_age
+		))
+	lines.append('')
+	lines.extend(gmMedication.generate_failsafe_medication_list_entries (
+		pk_patient = patient.ID,
+		max_width = max_width,
+		eol = None
+	))
+	lines.append('')
+	lines.append(_('(GNUmed v%s failsafe medication list -- https://www.gnumed.de)') % _cfg.get(option = 'client_version'))
+	lines.append('#' + '=' * (max_width - 2) + '#')
+	if eol:
+		return eol.join(lines)
+
+	return lines
+
+#------------------------------------------------------------
+def save_failsafe_medication_list(patient:int=None, max_width:int=80, filename:str=None) -> str:
+	if not filename:
+		filename = gmTools.get_unique_filename()
+	with open(filename, 'w', encoding = 'utf8') as ml_file:
+		ml_file.write(generate_failsafe_medication_list(patient = patient, max_width = max_width, eol = '\n'))
+	return filename
+
+#------------------------------------------------------------
 def print_medication_list(parent=None):
 
 	if parent is None:
@@ -77,12 +129,13 @@ def print_medication_list(parent=None):
 		option = option,
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 	)
+	title = _('Printing medication list')
 	if template is None:
 		template = configure_medication_list_template(parent = parent)
 		if template is None:
 			gmGuiHelpers.gm_show_error (
 				error = _('There is no medication list template configured.'),
-				title = _('Printing medication list')
+				title = title
 			)
 			return False
 
@@ -93,11 +146,12 @@ def print_medication_list(parent=None):
 			_log.exception('problem splitting medication list template name [%s]', template)
 			gmDispatcher.send(signal = 'statustext', msg = _('Problem loading medication list template.'), beep = True)
 			return False
+
 		template = gmForms.get_form_template(name_long = name, external_version = ver)
 		if template is None:
 			gmGuiHelpers.gm_show_error (
 				error = _('Cannot load medication list template [%s - %s]') % (name, ver),
-				title = _('Printing medication list')
+				title = title
 			)
 			return False
 
@@ -107,15 +161,20 @@ def print_medication_list(parent=None):
 		template = template,
 		edit = False
 	)
-	if meds_list is None:
-		return False
+	if not meds_list:
+		gmGuiHelpers.gm_show_info (
+			title = title,
+			info = _('Pretty medication list form failed. Generating failsafe version.')
+		)
+		meds_list = save_failsafe_medication_list(max_width = 80)
+		gmMimeLib.call_editor_on_file(filename = med_list, block = True)
+		return True
 
 	# 3) print template
 	return gmFormWidgets.act_on_generated_forms (
 		parent = parent,
 		forms = [meds_list],
 		jobtype = 'medication_list',
-		#episode_name = u'administrative',
 		episode_name = gmMedication.DEFAULT_MEDICATION_HISTORY_EPISODE,
 		progress_note = _('generated medication list document'),
 		review_copy_as_normal = True
@@ -818,13 +877,18 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	from Gnumed.business import gmPerson
 	from Gnumed.wxpython import gmGuiTest
 
 	#----------------------------------------
+	#pat = gmPerson.cPerson(12)
 	#gmGuiTest.test_widget(cCurrentSubstancesGrid, patient = 12)
 
 	main_frame = gmGuiTest.setup_widget_test_env(patient = 12)
-	my_widget = cCurrentSubstancesGrid(main_frame)
-	my_widget.patient = gmPerson.gmCurrentPatient()
-	wx.GetApp().MainLoop()
+	#print(generate_failsafe_medication_list(patient = gmPerson.gmCurrentPatient(), max_width = 80, eol = '\n'))
+	gmStaff.set_current_provider_to_logged_on_user()
+	meds_list = save_failsafe_medication_list(max_width = 80)
+	gmMimeLib.call_editor_on_file(filename = meds_list, block = True)
+
+#	my_widget = cCurrentSubstancesGrid(main_frame)
+#	my_widget.patient = gmPerson.gmCurrentPatient()
+#	wx.GetApp().MainLoop()

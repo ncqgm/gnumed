@@ -2158,6 +2158,42 @@ class cIntakeWithRegimen(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 	#--------------------------------------------------------
+	def format_for_failsafe_output(self, max_width:int=80) -> list[str]:
+		lines = [('Substance: %s %s') % (
+			self['substance'],
+			self.formatted_units
+		)]
+		if self['schedule']:
+			lines.append('  ' + _('Regimen: %s') % self['schedule'])
+		lines.append('  ' + _('Timerange: %s') % self.medically_formatted_timerange)
+		if self['notes4patient']:
+			lines.append(gmTools.wrap (
+				_('Patient notes: %s') % self['notes4patient'],
+				width = max_width,
+				initial_indent = '  ',
+				subsequent_indent = '    '
+			))
+		if self['intake_instructions']:
+			lines.append(gmTools.wrap (
+				_('Instructions: %s') % self['intake_instructions'],
+				width = max_width,
+				initial_indent = '  ',
+				subsequent_indent = '    '
+			))
+		if self['notes4provider']:
+			lines.append(gmTools.wrap (
+				_('Provider notes: %s') % self['notes4provider'],
+				width = max_width,
+				initial_indent = '  ',
+				subsequent_indent = '    '
+			))
+		lines.append('  ' + _('Episode: %s%s') % (
+			self['episode'],
+			gmTools.coalesce(self['health_issue'], '', ' (%s: %%s)' % _('Issue'))
+		))
+		return lines
+
+	#--------------------------------------------------------
 	def _get_use_type_string(self):
 		return use_type2str(self._payload['use_type'])
 
@@ -2307,7 +2343,7 @@ def get_intakes_with_regimens (
 	if not include_inactive:
 		where_parts.append('((discontinued IS NULL) OR (discontinued > clock_timestamp()))')
 	if exclude_potential_abuses:
-		where_parts.append('use_type IS NULL')
+		where_parts.append('use_type IS NULL -- explicit medications only')
 	if exclude_medications:
 		where_parts.append('use_type IS NOT NULL')
 	if episodes:
@@ -3400,6 +3436,28 @@ def __generate_enhanced_amts_data_template_definition_file_v2_0(work_dir=None):
 	amts_template.close()
 
 	return amts_fname
+
+#------------------------------------------------------------
+# failsafe medication list
+#------------------------------------------------------------
+def generate_failsafe_medication_list_entries(pk_patient:int=None, max_width:int=80, eol:str=None) -> str|list:
+	lines = []
+	iwrs = get_intakes_with_regimens (
+		pk_patient = pk_patient,
+		include_inactive = False,
+		order_by = 'discontinued NULLS FIRST, substance',
+		exclude_potential_abuses = True,
+		exclude_medications = False
+	)
+	delim = '#' + '-' * (max_width - 1)
+	for i in iwrs:
+		lines.append(delim)
+		lines.extend(i.format_for_failsafe_output(max_width = max_width))
+	lines.append(delim)
+	if not eol:
+		return lines
+
+	return eol.join(lines)
 
 #------------------------------------------------------------
 # other formatting
@@ -4503,6 +4561,11 @@ if __name__ == "__main__":
 			))
 			input()
 
+	#-----------------------------------------------------------------------
+	def test_format_medication_list():
+		print(generate_failsafe_medication_list_entries(pk_patient = 12, max_width = 80, eol = '\n'))
+		return
+
 	#--------------------------------------------------------
 	# generic
 	#test_URLs()
@@ -4511,8 +4574,9 @@ if __name__ == "__main__":
 	#test_format_units()
 
 	gmPG2.request_login_params(setup_pool = True)
+	test_format_medication_list()
 	#test_format_regimen_like_as_multiple_lines()
-	test_format_regimen_like_as_single_line()
+	#test_format_regimen_like_as_single_line()
 	#test_get_substances()
 	#test_get_doses()
 	#test_get_components()

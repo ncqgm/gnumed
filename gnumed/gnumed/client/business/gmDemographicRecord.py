@@ -592,6 +592,10 @@ class cAddress(gmBusinessDBObject.cBusinessDBObject):
 		return format_address(address = self, show_type = False)
 
 	#--------------------------------------------------------
+	def format_for_failsafe_output(self, max_width:int=80) -> list[str]:
+		return format_address_for_failsafe_output(self, max_width)
+
+	#--------------------------------------------------------
 	def _get_as_map_url(self):
 		"""Format as an openstreetmap location search URL.
 
@@ -779,6 +783,30 @@ def format_address(address=None, show_type=False):
 		)
 	txt = template % data
 	return txt.split('\n')
+
+#------------------------------------------------------------
+def format_address_for_failsafe_output(address:cAddress=None, max_width:int=80) -> list[str]:
+	data = {
+		'street': address['street'],
+		'notes_street': gmTools.coalesce(address['notes_street'], '', ' (%s)'),
+		'number': address['number'],
+		'subunit': gmTools.coalesce(address['subunit'], '', '/%s'),
+		'notes_subunit': gmTools.coalesce(address['notes_subunit'], '', ' (%s)'),
+		'zip': address['postcode'],
+		'urb': address['urb'],
+		'suburb': gmTools.coalesce(address['suburb'], '', ' (%s)'),
+		'l10n_region': address['l10n_region'],
+		'code_region': address['code_region'],
+		'l10n_country': address['l10n_country'],
+		'code_country': address['code_country']
+	}
+	lines = []
+	lines.append(gmTools.shorten_text(_('Street: %(street)s%(notes_street)s') % data, max_width))
+	lines.append(gmTools.shorten_text(_('Number/Unit: %(number)s%(subunit)s%(notes_subunit)s') % data, max_width))
+	lines.append(gmTools.shorten_text(_('Location: %(zip)s %(urb)s%(suburb)s') % data, max_width))
+	lines.append(gmTools.shorten_text(_('Region: %(l10n_region)s, %(code_region)s') % data, max_width))
+	lines.append(gmTools.shorten_text(_('Country: %(l10n_country)s, %(code_country)s') % data, max_width))
+	return lines
 
 #------------------------------------------------------------
 def create_address_type(address_type=None):
