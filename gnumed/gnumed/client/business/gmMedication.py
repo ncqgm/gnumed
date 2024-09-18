@@ -2159,7 +2159,7 @@ class cIntakeWithRegimen(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def format_for_failsafe_output(self, max_width:int=80) -> list[str]:
-		lines = [('Substance: %s %s') % (
+		lines = [_('Substance: %s %s') % (
 			self['substance'],
 			self.formatted_units
 		)]

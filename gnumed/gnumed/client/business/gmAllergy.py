@@ -330,6 +330,24 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 		return lines
 
 	#--------------------------------------------------------
+	def format_for_failsafe_output(self, max_width:int=80) -> list[str]:
+		lines = [
+			'%s%s: %s' % (
+				self._payload['l10n_type'],
+				gmTools.bool2subst (
+					self._payload['definite'],
+					' (%s)' % _('definite'),
+					' (%s)' % _('indefinite'),
+					''
+				),
+				self._payload['descriptor']
+			)
+		]
+		if self._payload['reaction']:
+			lines.append(gmTools.shorten_text('  ' + self._payload['reaction'], max_width))
+		return lines
+
+	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
 		if attribute == 'pk_type':
 			if value in ['allergy', 'sensitivity']:
@@ -451,6 +469,9 @@ if __name__ == '__main__':
 	def test():
 		allg = cAllergy(aPK_obj=1)
 		print(allg)
+		print('\n'.join(allg.format_for_failsafe_output()))
+		return
+
 		fields = allg.get_fields()
 		for field in fields:
 			print(field, ':', allg[field])
@@ -473,4 +494,5 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	gmPG2.request_login_params(setup_pool = True)
 
-	test_state()
+	#test_state()
+	test()

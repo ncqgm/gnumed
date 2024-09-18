@@ -74,14 +74,16 @@ def configure_medication_list_template(parent=None):
 #------------------------------------------------------------
 def generate_failsafe_medication_list(patient:int=None, max_width:int=80, eol:str=None) -> str|list:
 	lines = ['#' + '=' * (max_width - 2) + '#']
+	lines.append(_('Healthcare provider:'))
 	provider = gmStaff.gmCurrentProvider()
-	lines.append('%s%s %s' % (
+	lines.append('  %s%s %s' % (
 		gmTools.coalesce(provider['title'], '', '%s '),
 		provider['firstnames'],
 		provider['lastnames']
 	))
 	praxis = gmPraxis.gmCurrentPraxisBranch()
-	lines.extend(praxis.format_for_failsafe_output(max_width = max_width))
+	for line in praxis.format_for_failsafe_output(max_width = max_width):
+		lines.append('  ' + line)
 	lines.append('')
 	title = _('Medication List -- %s') % gmDateTime.pydt_now_here().strftime('%Y %b %d')
 	lines.append('*' * len(title))
@@ -90,8 +92,9 @@ def generate_failsafe_medication_list(patient:int=None, max_width:int=80, eol:st
 	lines.append('')
 	if not patient:
 		patient = gmPerson.gmCurrentPatient()
-	lines.append(_('Patient: %s') % patient.description_gender)
-	lines.append(_('DOB: %s (%s)') % (
+	lines.append(_('Patient:'))
+	lines.append('  ' + patient.description_gender)
+	lines.append('  ' + _('born: %s (%s)') % (
 			patient.get_formatted_dob(honor_estimation = True),
 			patient.medical_age
 		))
@@ -102,6 +105,14 @@ def generate_failsafe_medication_list(patient:int=None, max_width:int=80, eol:st
 		eol = None
 	))
 	lines.append('')
+	emr = patient.emr
+	if not emr.allergy_state:
+		lines.append(_('Allergies: unknown'))
+	else:
+		for a in emr.get_allergies():
+			lines.extend(a.format_for_failsafe_output(max_width = max_width))
+	lines.append('')
+	lines.append('#' + '-' * (max_width - 2) + '#')
 	lines.append(_('(GNUmed v%s failsafe medication list -- https://www.gnumed.de)') % _cfg.get(option = 'client_version'))
 	lines.append('#' + '=' * (max_width - 2) + '#')
 	if eol:
