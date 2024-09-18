@@ -5,7 +5,9 @@ __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 import sys
+import locale
 import logging
+import functools
 
 
 if __name__ == '__main__':
@@ -619,6 +621,25 @@ class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 		return lines
 
 	#--------------------------------------------------------
+	def format_for_failsafe_output(self, max_width:int=80) -> list[str]:
+		lines = []
+		lines.append(gmTools.shorten_text(
+			'%s: %s [%s]%s' % (
+				self._payload['date_given'].strftime('%Y %b %d'),
+				self._payload['vaccine'],
+				self._payload['batch_no'],
+				gmTools.coalesce(self._payload['site'], '', ' (%s)')
+			),
+			max_width
+		))
+		lines.append('  ' + _('Indications: %s') % ' / '.join([ i['l10n_indication'] for i in self._payload['indications'] ]))
+		if self._payload['comment']:
+			lines.append(gmTools.shorten_text('  ' + self._payload['comment'], max_width))
+		if self._payload['reaction']:
+			lines.append(gmTools.shorten_text('  ' + self._payload['reaction'], max_width))
+		return lines
+
+	#--------------------------------------------------------
 	def _get_vaccine(self):
 		return cVaccine(aPK_obj = self._payload[self._idx['pk_vaccine']])
 
@@ -663,8 +684,45 @@ def get_vaccinations(pk_identity=None, pk_episodes=None, pk_health_issues=None, 
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}], get_col_idx = True)
 	if return_pks:
 		return [ r['pk_vaccination'] for r in rows ]
+
 	vaccs = [ cVaccination(row = {'idx': idx, 'data': r, 'pk_field': 'pk_vaccination'})  for r in rows ]
 	return vaccs
+
+#------------------------------------------------------------
+def format_vaccinations_by_indication_for_failsafe_output(pk_patient:int, max_width:int=80) -> list[str]:
+	shots = get_vaccinations(pk_identity = pk_patient)
+	if not shots:
+		return []
+
+	shots_by_ind = {}
+	for shot in shots:
+		inds = shot['indications']
+		for ind in inds:
+			try:
+				shots_by_ind[ind['l10n_indication']]
+			except KeyError:
+				shots_by_ind[ind['l10n_indication']] = []
+			shots_by_ind[ind['l10n_indication']].append(shot)
+	lines = []
+	l10n_inds_sorted = sorted(shots_by_ind.keys(), key = functools.cmp_to_key(locale.strcoll))
+	for ind in l10n_inds_sorted:
+		lines.append('')
+		lines.append(_('Indication: %s') % ind)
+		shots4ind = sorted(shots_by_ind[ind], key = lambda d: d['date_given'], reverse = True)
+		for shot in shots4ind:
+			lines.append(gmTools.shorten_text (
+				'  %s: %s [%s]' % (
+					shot['date_given'].strftime('%Y %b %d'),
+					shot['vaccine'],
+					shot['batch_no']
+				),
+				max_width
+			))
+			if shot['comment']:
+				lines.append(gmTools.shorten_text('   ' + shot['comment'], max_width))
+			if shot._payload['reaction']:
+				lines.append(gmTools.shorten_text('   ' + shot['reaction'], max_width))
+	return lines
 
 #------------------------------------------------------------
 def create_vaccination(encounter=None, episode=None, vaccine=None, batch_no=None):
@@ -869,8 +927,10 @@ if __name__ == '__main__':
 
 	#--------------------------------------------------------
 	def test_get_vaccinations():
-		v1 = get_vaccinations(return_pks = True, order_by = 'date_given')
-		print(v1)
+		#v1 = get_vaccinations(return_pks = True, order_by = 'date_given')
+		#print(v1)
+		for v in get_vaccinations(order_by = 'date_given, vaccine'):
+			print('\n'.join(v.format_for_failsafe_output()))
 
 	#--------------------------------------------------------
 	def test_create_generic_vaccine_sql():
@@ -885,6 +945,11 @@ if __name__ == '__main__':
 		))
 
 	#--------------------------------------------------------
+	def test_format_vaccs_failsafe():
+		print('\n'.join(format_vaccinations_by_indication_for_failsafe_output(pk_patient = 12)))
+
+	#--------------------------------------------------------
+	gmPG2.request_login_params(setup_pool = True)
 	#test_vaccination_course()
 	#test_put_patient_on_schedule()
 	#test_scheduled_vacc()
@@ -893,6 +958,7 @@ if __name__ == '__main__':
 	#test_due_booster()
 
 	#test_get_vaccines()
-	test_get_vaccinations()
+	#test_get_vaccinations()
+	test_format_vaccs_failsafe()
 	#test_create_generic_vaccine_sql()
 	#test_write_generic_vaccine_sql(sys.argv[2], sys.argv[3])

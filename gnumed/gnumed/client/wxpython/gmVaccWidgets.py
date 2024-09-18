@@ -595,6 +595,36 @@ def configure_vaccination_plans_url():
 		validator = is_valid
 	)
 
+#------------------------------------------------------------
+def generate_failsafe_vaccination_history(patient=None, max_width:int=80, eol:str=None) -> str|list:
+	if not patient:
+		patient = gmPerson.gmCurrentPatient()
+	lines, footer = gmFormWidgets.generate_failsafe_form_wrapper (
+		pk_patient = patient.ID,
+		title = _('Vaccination history -- %s') % gmDateTime.pydt_now_here().strftime('%Y %b %d'),
+		max_width = max_width
+	)
+	lines.append('')
+	lines.append('#' + '-' * (max_width - 2) + '#')
+	lines.extend(gmVaccination.format_vaccinations_by_indication_for_failsafe_output (
+		pk_patient = 12,
+		max_width = max_width
+	))
+	lines.append('')
+	lines.extend(footer)
+	if eol:
+		return eol.join(lines)
+
+	return lines
+
+#------------------------------------------------------------
+def save_failsafe_vaccination_history(patient:int=None, max_width:int=80, filename:str=None) -> str:
+	if not filename:
+		filename = gmTools.get_unique_filename()
+	with open(filename, 'w', encoding = 'utf8') as vacc_file:
+		vacc_file.write(generate_failsafe_vaccination_history(patient = patient, max_width = max_width, eol = '\n'))
+	return filename
+
 #----------------------------------------------------------------------
 def print_vaccinations(parent=None):
 
@@ -611,9 +641,14 @@ def print_vaccinations(parent=None):
 		],
 		edit = False
 	)
-
 	if vaccs_printout is None:
-		return False
+		gmGuiHelpers.gm_show_info (
+			title = title,
+			info = _('Pretty vaccination history form failed. Generating failsafe version.')
+		)
+		vaccs_printout = save_failsafe_vaccination_history(max_width:int=80)
+		gmMimeLib.call_editor_on_file(filename = vaccs_printout, block = True)
+		return True
 
 	return gmFormWidgets.act_on_generated_forms (
 		parent = parent,
@@ -808,9 +843,9 @@ def manage_vaccinations(parent=None, latest_only=False, expand_indications=False
 	)
 
 #----------------------------------------------------------------------
-from Gnumed.wxGladeWidgets import wxgVaccinationEAPnl
+from Gnumed.wxGladeWidgets.wxgVaccinationEAPnl import wxgVaccinationEAPnl
 
-class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGenericEditAreaMixin):
+class cVaccinationEAPnl(wxgVaccinationEAPnl, gmEditArea.cGenericEditAreaMixin):
 	"""
 	- warn on apparent duplicates
 	- ask if "missing" (= previous, non-recorded) vaccinations
@@ -826,7 +861,7 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 		except KeyError:
 			data = None
 
-		wxgVaccinationEAPnl.wxgVaccinationEAPnl.__init__(self, *args, **kwargs)
+		wxgVaccinationEAPnl.__init__(self, *args, **kwargs)
 		gmEditArea.cGenericEditAreaMixin.__init__(self)
 
 		self.mode = 'new'
@@ -1071,6 +1106,28 @@ if __name__ == "__main__":
 
 	if sys.argv[1] != 'test':
 		sys.exit()
+
+	def test_failsafe_vacc_hx():
+		print(save_failsafe_vaccination_history())
+
+	gmPG2.request_login_params(setup_pool = True, force_tui = True)
+	gmPraxis.activate_first_praxis_branch()
+	#gmStaff.set_current_provider_to_logged_on_user()
+	gmPerson.set_active_patient(patient = 12)
+	test_failsafe_vacc_hx()
+	sys.exit()
+
+	from Gnumed.wxpython import gmGuiTest
+
+	#----------------------------------------
+	#pat = gmPerson.cPerson(12)
+	#gmGuiTest.test_widget(cCurrentSubstancesGrid, patient = 12)
+
+	main_frame = gmGuiTest.setup_widget_test_env(patient = 12)
+	#print(generate_failsafe_medication_list(patient = gmPerson.gmCurrentPatient(), max_width = 80, eol = '\n'))
+	gmStaff.set_current_provider_to_logged_on_user()
+	meds_list = save_failsafe_medication_list(max_width = 80)
+	gmMimeLib.call_editor_on_file(filename = meds_list, block = True)
 
 	app = wx.PyWidgetTester(size = (600, 600))
 	#app.SetWidget(cXxxPhraseWheel, -1)
