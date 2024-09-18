@@ -41,6 +41,8 @@ from Gnumed.wxpython.gmDocumentWidgets import save_files_as_new_document
 
 
 _log = logging.getLogger('gm.ui')
+_cfg = gmCfgINI.gmCfgData()
+
 
 _ID_FORM_DISPOSAL_PRINT, \
 _ID_FORM_DISPOSAL_REMOTE_PRINT, \
@@ -228,6 +230,45 @@ def print_doc_from_ooo_template(template=None):
 	return True
 
 #------------------------------------------------------------
+def generate_failsafe_form_wrapper(pk_patient:int=None, title:str=None, max_width:int=80) -> list[list[str]]:
+	header = []
+	header = ['#' + '=' * (max_width - 2) + '#']
+	header.append(_('Healthcare provider:'))
+	provider = gmStaff.gmCurrentProvider()
+	header.append('  %s%s %s' % (
+		gmTools.coalesce(provider['title'], '', '%s '),
+		provider['firstnames'],
+		provider['lastnames']
+	))
+	praxis = gmPraxis.gmCurrentPraxisBranch()
+	for line in praxis.format_for_failsafe_output(max_width = max_width):
+		header.append('  ' + line)
+	header.append('#' + '-' * (max_width - 2) + '#')
+	header.append('')
+	patient = gmPerson.cPerson(pk_patient)
+	header.append(_('Patient:'))
+	header.append('  ' + patient.description_gender)
+	header.append('  ' + _('born: %s (%s)') % (
+			patient.get_formatted_dob(honor_estimation = True),
+			patient.medical_age
+		))
+	header.append('')
+	header.append('#' + '-' * (max_width - 2) + '#')
+	if title:
+		indent = ' ' * ((max_width - len(title)) // 2)
+		header.append('')
+		header.append(indent + ('*' * len(title)))
+		header.append(indent + title)
+		header.append(indent + ('*' * len(title)))
+		header.append('')
+	footer = []
+	footer.append('')
+	footer.append('#' + '-' * (max_width - 2) + '#')
+	footer.append(_('(GNUmed v%s failsafe form -- https://www.gnumed.de)') % _cfg.get(option = 'client_version'))
+	footer.append('#' + '=' * (max_width - 2) + '#')
+	return [header, footer]
+
+#------------------------------------------------------------
 def generate_form_from_template(parent=None, template_types=None, edit=None, template=None, excluded_template_types=None):
 	"""If <edit> is None it will honor the template setting."""
 
@@ -366,7 +407,6 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 		if len(files2print) == 0:
 			return True
 		# print
-		_cfg = gmCfgINI.gmCfgData()
 		printed = gmPrinting.print_files(filenames = files2print, jobtype = jobtype, verbose = _cfg.get(option = 'debug'))
 		if not printed:
 			gmGuiHelpers.gm_show_error (
@@ -1191,8 +1231,19 @@ if __name__ == '__main__':
 		print_generic_document()	#parent=None, jobtype=None, episode=None
 
 	#----------------------------------------
+	def test_generate_failsafe_form_wrapper():
+		from Gnumed.pycommon import gmPG2
+		gmPG2.request_login_params(setup_pool = True)
+		gmPraxis.activate_first_praxis_branch()
+		header, footer = generate_failsafe_form_wrapper(pk_patient = 12, max_width = 80)
+		print('\n'.join(header))
+		print('   HERE GOES THE FORM')
+		print('\n'.join(footer))
+
+	#----------------------------------------
 	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
 		#test_cFormTemplateEAPnl()
-		test_print_generic_document()
+		#test_print_generic_document()
+		test_generate_failsafe_form_wrapper()
 
 #============================================================

@@ -72,33 +72,14 @@ def configure_medication_list_template(parent=None):
 	return template
 
 #------------------------------------------------------------
-def generate_failsafe_medication_list(patient:int=None, max_width:int=80, eol:str=None) -> str|list:
-	lines = ['#' + '=' * (max_width - 2) + '#']
-	lines.append(_('Healthcare provider:'))
-	provider = gmStaff.gmCurrentProvider()
-	lines.append('  %s%s %s' % (
-		gmTools.coalesce(provider['title'], '', '%s '),
-		provider['firstnames'],
-		provider['lastnames']
-	))
-	praxis = gmPraxis.gmCurrentPraxisBranch()
-	for line in praxis.format_for_failsafe_output(max_width = max_width):
-		lines.append('  ' + line)
-	lines.append('')
-	title = _('Medication List -- %s') % gmDateTime.pydt_now_here().strftime('%Y %b %d')
-	lines.append('*' * len(title))
-	lines.append(title)
-	lines.append('*' * len(title))
-	lines.append('')
+def generate_failsafe_medication_list(patient=None, max_width:int=80, eol:str=None) -> str|list:
 	if not patient:
 		patient = gmPerson.gmCurrentPatient()
-	lines.append(_('Patient:'))
-	lines.append('  ' + patient.description_gender)
-	lines.append('  ' + _('born: %s (%s)') % (
-			patient.get_formatted_dob(honor_estimation = True),
-			patient.medical_age
-		))
-	lines.append('')
+	lines, footer = gmFormWidgets.generate_failsafe_form_wrapper (
+		pk_patient = patient.ID,
+		title = _('Medication List -- %s') % gmDateTime.pydt_now_here().strftime('%Y %b %d'),
+		max_width = max_width
+	)
 	lines.extend(gmMedication.generate_failsafe_medication_list_entries (
 		pk_patient = patient.ID,
 		max_width = max_width,
@@ -112,16 +93,14 @@ def generate_failsafe_medication_list(patient:int=None, max_width:int=80, eol:st
 		for a in emr.get_allergies():
 			lines.extend(a.format_for_failsafe_output(max_width = max_width))
 	lines.append('')
-	lines.append('#' + '-' * (max_width - 2) + '#')
-	lines.append(_('(GNUmed v%s failsafe medication list -- https://www.gnumed.de)') % _cfg.get(option = 'client_version'))
-	lines.append('#' + '=' * (max_width - 2) + '#')
+	lines.extend(footer)
 	if eol:
 		return eol.join(lines)
 
 	return lines
 
 #------------------------------------------------------------
-def save_failsafe_medication_list(patient:int=None, max_width:int=80, filename:str=None) -> str:
+def save_failsafe_medication_list(patient=None, max_width:int=80, filename:str=None) -> str:
 	if not filename:
 		filename = gmTools.get_unique_filename()
 	with open(filename, 'w', encoding = 'utf8') as ml_file:
