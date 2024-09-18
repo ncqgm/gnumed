@@ -153,7 +153,7 @@ from Gnumed.pycommon.gmTools import tex_escape_string
 from Gnumed.pycommon.gmTools import xetex_escape_string
 from Gnumed.pycommon.gmTools import compare_dict_likes
 from Gnumed.pycommon.gmTools import format_dict_like
-from Gnumed.pycommon.gmTools import dicts2table
+from Gnumed.pycommon.gmTools import dicts2table_columns
 from Gnumed.pycommon.gmTools import u_left_arrow
 
 
@@ -521,6 +521,8 @@ class cBusinessDBObject(object):
 				'cannot return keys, nascent ?'
 			]
 
+	keys = property(get_fields)
+
 	#--------------------------------------------------------
 	def get_updatable_fields(self) -> list[str]:
 		"""Return a list of fields that can be updated."""
@@ -661,7 +663,7 @@ class cBusinessDBObject(object):
 
 		lines = ['%s (%s versions)' % (title, rows[0]['row_version'] + 1)]
 		column_labels = [ 'rev %s (%s)' % (r['row_version'], pydt_strftime(r['audit__action_when'], format = '%Y %b %d %H:%M', none_str = 'live row')) for r in rows ]
-		lines.extend (dicts2table (
+		lines.extend (dicts2table_columns (
 			rows,
 			left_margin = 1,
 			eol = None,

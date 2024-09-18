@@ -1564,37 +1564,42 @@ def unwrap(text=None, max_length=None, strip_whitespace=True, remove_empty_lines
 	return text
 
 #---------------------------------------------------------------------------
-def shorten_text(text=None, max_length=None):
+def shorten_text(text:str=None, max_length:int=None, ellipsis:str=u_ellipsis) -> str:
+	"""Shorten <text> to <max_length>-1 and append <ellipsis>."""
+	if not max_length:
+		return text
 
 	if len(text) <= max_length:
 		return text
 
-	return text[:max_length-1] + u_ellipsis
+	return text[:max_length-1] + ellipsis
 
 #---------------------------------------------------------------------------
-def shorten_words_in_line(text=None, max_length=None, min_word_length=None, ignore_numbers=True, ellipsis=u_ellipsis):
+def shorten_words_in_line(text:str=None, max_length:int=None, min_word_length:int=3, ignore_numbers:bool=True, ellipsis:str=u_ellipsis) -> str:
 	if text is None:
 		return None
-	if max_length is None:
-		max_length = len(text)
-	else:
-		if len(text) <= max_length:
-			return text
+
+	if not max_length:
+		return text
+
+	if len(text) <= max_length:
+		return text
+
 	old_words = regex.split(r'\s+', text, flags = regex.UNICODE)
-	no_old_words = len(old_words)
-	max_word_length = max(min_word_length, (max_length // no_old_words))
-	words = []
+	nbr_old_words = len(old_words)
+	max_word_length = max(min_word_length, (max_length // nbr_old_words))
+	new_words = []
 	for word in old_words:
 		if len(word) <= max_word_length:
-			words.append(word)
+			new_words.append(word)
 			continue
 		if ignore_numbers:
 			tmp = word.replace('-', '').replace('+', '').replace('.', '').replace(',', '').replace('/', '').replace('&', '').replace('*', '')
 			if tmp.isdigit():
-				words.append(word)
+				new_words.append(word)
 				continue
-		words.append(word[:max_word_length] + ellipsis)
-	return ' '.join(words)
+		new_words.append(word[:max_word_length] + ellipsis)
+	return ' '.join(new_words)
 
 #---------------------------------------------------------------------------
 def xml_escape_string(text=None):
@@ -1914,8 +1919,64 @@ def format_dict_like(d, relevant_keys=None, template=None, missing_key_template=
 	return eol.join(lines)
 
 #---------------------------------------------------------------------------
-def dicts2table(dict_list, left_margin=0, eol='\n', keys2ignore=None, column_labels=None, show_only_changes=False, equality_value='<=>', date_format=None):	#, relevant_keys=None, template=None
-	"""Each dict in <dict_list> becomes a column.
+def dict2table_row (
+	d:dict,
+	col_sep:str=' | ',
+	bool3_vals:dict[bool|None,str]=None,
+	date_format:str='%Y %b %d  %H:%M',
+	max_row_lng:int=80,
+	ellipsis:str=u_ellipsis,
+	relevant_keys:list=None,
+	missing_key_template:str='<?>',
+	eol:str='\n'
+) -> str:
+	"""Turn a dict like into a row for a table.
+
+	Args:
+		bool3_vals: text replacements for True/False/None
+		ellipsis:
+			None - cell content will be wrapped as necessary
+			empty ('') - cell content will not be shortened or wrapped
+			nonempty - character(s) to signify abbreviation (say, dot, ellipsis, ...)
+		relevant_keys: list of keys into <d> which are deemed relevant, and therefore required, too, also defines cell order
+		eol: EOL to be used when wrapping cell content
+	"""
+	if not bool3_vals:
+		bool3_vals = {True: 'True', False: 'False', None: '?'}
+	if not relevant_keys:
+		relevant_keys = list(d.keys)
+	d = normalize_dict_like(d, relevant_keys, missing_key_template = missing_key_template)
+	cells = []
+	for key in relevant_keys:
+		val = d[key]
+		if isinstance(val, bool) or val is None:
+			val = bool3_vals[val]
+		elif isinstance(val, str):
+			if ellipsis is None:
+				# actually: wrap as necessary
+				val = unwrap(val, line_separator = '//')
+			elif ellipsis:
+				val = unwrap(val, line_separator = '//')
+				#val = gmTools.shorten_text()
+			else:
+				val = unwrap(val, line_separator = '//')
+		elif isinstance(val, pydt.datetime):
+			if not date_format:
+				val = '%s' % val
+			else:
+				val = val.strftime(date_format)
+		else:
+			val = '%s' % val
+		cells.append(val)
+
+	print(col_sep.join(cells))
+	return col_sep.join(cells)
+
+#---------------------------------------------------------------------------
+def dicts2table_columns(dict_list, left_margin=0, eol='\n', keys2ignore=None, column_labels=None, show_only_changes=False, equality_value='<=>', date_format=None):	#, relevant_keys=None, template=None
+	"""Each dict in <dict_list> becomes a column of a table.
+
+	Think of a list of lab results.
 
 	- each key of dict becomes a row label, unless in keys2ignore
 
@@ -2018,7 +2079,7 @@ def dicts2table(dict_list, left_margin=0, eol='\n', keys2ignore=None, column_lab
 	return ('|' + eol).join(table_lines) + '|' + eol
 
 #---------------------------------------------------------------------------
-def normalize_dict_like(d, required_keys, missing_key_template='<[%(key)s] MISSING>'):
+def normalize_dict_like(d, required_keys:list, missing_key_template:str='<[%(key)s] MISSING>'):
 	for key in required_keys:
 		try:
 			d[key]
@@ -2777,8 +2838,8 @@ second line\n
 			{'pkey': 5, 'value': 'c5---'},
 		]
 		with open('x.txt', 'w', encoding = 'utf8') as f:
-			f.write(dicts2table(dicts, left_margin=2, eol='\n', keys2ignore=None, show_only_changes=True, column_labels = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6']))
-			#print(dicts2table(dicts, left_margin=2, eol='\n', keys2ignore=None, show_only_changes=True, column_labels = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6']))
+			f.write(dicts2table_columns(dicts, left_margin=2, eol='\n', keys2ignore=None, show_only_changes=True, column_labels = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6']))
+			#print(dicts2table_columns(dicts, left_margin=2, eol='\n', keys2ignore=None, show_only_changes=True, column_labels = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6']))
 
 	#-----------------------------------------------------------------------
 	def test_create_dir_desc_file():
