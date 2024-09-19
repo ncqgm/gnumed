@@ -51,6 +51,7 @@ from Gnumed.wxpython import gmOrganizationWidgets
 from Gnumed.wxpython import gmEMRStructWidgets
 from Gnumed.wxpython import gmCfgWidgets
 from Gnumed.wxpython import gmDocumentWidgets
+from Gnumed.wxpython import gmFormWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -379,6 +380,10 @@ def manage_measurements(parent=None, single_selection=False, emr=None, measureme
 		return plot_measurements(parent = parent, tests = data)
 
 	#------------------------------------------------------------
+	def do_print(lctrl):
+		return print_measurements(tests = lctrl.get_selected_item_data())
+
+	#------------------------------------------------------------
 	def get_tooltip(measurement):
 		return measurement.format(with_review=True, with_evaluation=True, with_ranges=True)
 
@@ -426,7 +431,8 @@ def manage_measurements(parent=None, single_selection=False, emr=None, measureme
 		delete_callback = delete,
 		list_tooltip_callback = get_tooltip,
 		left_extra_button = (_('Review'), _('Review current selection'), do_review, True),
-		middle_extra_button = (_('Plot'), _('Plot current selection'), do_plot, True)
+		middle_extra_button = (_('Plot'), _('Plot current selection'), do_plot, False),
+		right_extra_button = (_('Print'), _('Print current selection'), do_print, False)
 	)
 
 #================================================================
@@ -450,8 +456,6 @@ def configure_default_top_lab_panel(parent=None):
 
 #================================================================
 def configure_default_gnuplot_template(parent=None):
-
-	from Gnumed.wxpython import gmFormWidgets
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -595,6 +599,50 @@ def plot_adjacent_measurements(parent=None, test=None, format=None, show_year=Tr
 		show_year = show_year,
 		use_default_template = use_default_template
 	)
+
+#----------------------------------------------------------------
+def print_measurements(tests=None) -> bool:
+	if not tests:
+		tests = None
+		print_all = gmGuiHelpers.gm_show_question (
+			title = _('Printing measurements'),
+			question = _('No measurements selected.\n\nPrint ALL results of patient ?')
+		)
+		if not print_all:
+			return True
+
+	labs_list = save_failsafe_test_results_list(test_results = tests, max_width = 80)
+	gmMimeLib.call_editor_on_file(filename = labs_list, block = True)
+	return True
+
+#----------------------------------------------------------------
+def generate_failsafe_test_results_list(patient=None, test_results:list=None, max_width:int=80, eol:str=None) -> str|list:
+	if not patient:
+		patient = gmPerson.gmCurrentPatient()
+	lines, footer = gmFormWidgets.generate_failsafe_form_wrapper (
+		pk_patient = patient.ID,
+		title = _('Lab results -- %s') % gmDateTime.pydt_now_here().strftime('%Y %b %d'),
+		max_width = max_width
+	)
+	lines.extend(gmPathLab.generate_failsafe_test_results_entries (
+		pk_patient = patient.ID,
+		test_results = test_results,
+		max_width = max_width
+	))
+	lines.append('')
+	lines.extend(footer)
+	if eol:
+		return eol.join(lines)
+
+	return lines
+
+#------------------------------------------------------------
+def save_failsafe_test_results_list(patient=None, test_results=None, max_width:int=80, filename:str=None) -> str:
+	if not filename:
+		filename = gmTools.get_unique_filename()
+	with open(filename, 'w', encoding = 'utf8') as tr_file:
+		tr_file.write(generate_failsafe_test_results_list(patient = patient, test_results = test_results, max_width = max_width, eol = '\n'))
+	return filename
 
 #================================================================
 #from Gnumed.wxGladeWidgets import wxgPrimaryCareVitalsInputPnl
@@ -750,15 +798,15 @@ class cLabRelatedDocumentsPnl(wxgLabRelatedDocumentsPnl.wxgLabRelatedDocumentsPn
 	lab_reference = property(lambda x:x, _set_lab_reference)
 
 #================================================================
-from Gnumed.wxGladeWidgets import wxgMeasurementsAsListPnl
+from Gnumed.wxGladeWidgets.wxgMeasurementsAsListPnl import wxgMeasurementsAsListPnl
 
-class cMeasurementsAsListPnl(wxgMeasurementsAsListPnl.wxgMeasurementsAsListPnl, gmRegetMixin.cRegetOnPaintMixin):
+class cMeasurementsAsListPnl(wxgMeasurementsAsListPnl, gmRegetMixin.cRegetOnPaintMixin):
 	"""A class for displaying all measurement results as a simple list.
 
 	- operates on a cPatient instance handed to it and NOT on the currently active patient
 	"""
 	def __init__(self, *args, **kwargs):
-		wxgMeasurementsAsListPnl.wxgMeasurementsAsListPnl.__init__(self, *args, **kwargs)
+		wxgMeasurementsAsListPnl.__init__(self, *args, **kwargs)
 
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
@@ -883,15 +931,15 @@ class cMeasurementsAsListPnl(wxgMeasurementsAsListPnl.wxgMeasurementsAsListPnl, 
 	patient = property(_get_patient, _set_patient)
 
 #================================================================
-from Gnumed.wxGladeWidgets import wxgMeasurementsByDayPnl
+from Gnumed.wxGladeWidgets.wxgMeasurementsByDayPnl import wxgMeasurementsByDayPnl
 
-class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmRegetMixin.cRegetOnPaintMixin):
+class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl, gmRegetMixin.cRegetOnPaintMixin):
 	"""A class for displaying measurement results as a list partitioned by day.
 
 	- operates on a cPatient instance handed to it and NOT on the currently active patient
 	"""
 	def __init__(self, *args, **kwargs):
-		wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl.__init__(self, *args, **kwargs)
+		wxgMeasurementsByDayPnl.__init__(self, *args, **kwargs)
 
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
@@ -1077,15 +1125,15 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl.wxgMeasurementsByDayPnl, gmR
 	patient = property(_get_patient, _set_patient)
 
 #================================================================
-from Gnumed.wxGladeWidgets import wxgMeasurementsByIssuePnl
+from Gnumed.wxGladeWidgets.wxgMeasurementsByIssuePnl import wxgMeasurementsByIssuePnl
 
-class cMeasurementsByIssuePnl(wxgMeasurementsByIssuePnl.wxgMeasurementsByIssuePnl, gmRegetMixin.cRegetOnPaintMixin):
+class cMeasurementsByIssuePnl(wxgMeasurementsByIssuePnl, gmRegetMixin.cRegetOnPaintMixin):
 	"""A class for displaying measurement results as a list partitioned by issue/episode.
 
 	- operates on a cPatient instance handed to it and NOT on the currently active patient
 	"""
 	def __init__(self, *args, **kwargs):
-		wxgMeasurementsByIssuePnl.wxgMeasurementsByIssuePnl.__init__(self, *args, **kwargs)
+		wxgMeasurementsByIssuePnl.__init__(self, *args, **kwargs)
 
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
@@ -1356,9 +1404,9 @@ class cMeasurementsByBatteryPnl(wxgMeasurementsByBatteryPnl.wxgMeasurementsByBat
 	patient = property(_get_patient, _set_patient)
 
 #================================================================
-from Gnumed.wxGladeWidgets import wxgMeasurementsAsMostRecentListPnl
+from Gnumed.wxGladeWidgets.wxgMeasurementsAsMostRecentListPnl import wxgMeasurementsAsMostRecentListPnl
 
-class cMeasurementsAsMostRecentListPnl(wxgMeasurementsAsMostRecentListPnl.wxgMeasurementsAsMostRecentListPnl, gmRegetMixin.cRegetOnPaintMixin):
+class cMeasurementsAsMostRecentListPnl(wxgMeasurementsAsMostRecentListPnl, gmRegetMixin.cRegetOnPaintMixin):
 	"""A list ctrl class for displaying measurement results.
 
 		- most recent results
@@ -1367,7 +1415,7 @@ class cMeasurementsAsMostRecentListPnl(wxgMeasurementsAsMostRecentListPnl.wxgMea
 	- operates on a cPatient instance handed to it and NOT on the currently active patient
 	"""
 	def __init__(self, *args, **kwargs):
-		wxgMeasurementsAsMostRecentListPnl.wxgMeasurementsAsMostRecentListPnl.__init__(self, *args, **kwargs)
+		wxgMeasurementsAsMostRecentListPnl.__init__(self, *args, **kwargs)
 
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
@@ -4824,7 +4872,14 @@ class cTestPanelEAPnl(wxgTestPanelEAPnl.wxgTestPanelEAPnl, gmEditArea.cGenericEd
 #----------------------------------------------------------------
 if __name__ == '__main__':
 
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
+
 	from Gnumed.wxpython import gmPatSearchWidgets
+	from Gnumed.wxpython import gmGuiTest
 
 	gmDateTime.init()
 
@@ -4844,6 +4899,11 @@ if __name__ == '__main__':
 		cMeasurementEditAreaPnl(app.frame, -1)
 		app.frame.Show()
 		app.MainLoop()
+
+	#------------------------------------------------------------
+	def test_print_results():
+		print_measurements()
+
 	#------------------------------------------------------------
 #	def test_primary_care_vitals_pnl():
 #		app = wx.PyWidgetTester(size = (500, 300))
@@ -4851,9 +4911,16 @@ if __name__ == '__main__':
 #		app.frame.Show()
 #		app.MainLoop()
 	#------------------------------------------------------------
-	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
-		#test_grid()
-		test_test_ea_pnl()
-		#test_primary_care_vitals_pnl()
+	#pat = gmPerson.cPerson(12)
+	#gmGuiTest.test_widget(cCurrentSubstancesGrid, patient = 12)
+
+	main_frame = gmGuiTest.setup_widget_test_env(patient = 12)
+	gmStaff.set_current_provider_to_logged_on_user()
+
+	#test_grid()
+	#test_test_ea_pnl()
+	#test_primary_care_vitals_pnl()
+
+	test_print_results()
 
 #================================================================

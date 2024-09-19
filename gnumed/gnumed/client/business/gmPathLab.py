@@ -2557,6 +2557,39 @@ def create_test_result(encounter=None, episode=None, type=None, intended_reviewe
 	return tr
 
 #------------------------------------------------------------
+def generate_failsafe_test_results_entries(pk_patient:int=None, test_results:list[cTestResult]=None, max_width:int=80) -> list[str]:
+	if not test_results:
+		if pk_patient:
+			test_results = get_test_results(pk_patient = 12, order_by = 'unified_abbrev, clin_when DESC')
+	if not test_results:
+		return []
+
+	prev_abbrev = None
+	prev_date = None
+	lines = []
+	for tr in test_results:
+		abbrev = tr['unified_abbrev']
+		if abbrev != prev_abbrev:
+			lines.append('')
+			lines.append('%s - %s' % (abbrev, tr['unified_name']))
+			prev_abbrev = abbrev
+		line = '  %s: %s %s%s%s' % (
+			tr['clin_when'].strftime('%Y %b %d %H:%m'),
+			tr['unified_val'],
+			tr['val_unit'],
+			gmTools.bool2subst(tr.is_considered_abnormal, ' !', '', ''),
+			gmTools.coalesce(tr.formatted_range, '', ' (%s)')
+		)
+		lines.append(gmTools.shorten_text(line, max_width))
+		if tr['note_test_org']:
+			cmt = _('  Lab: %s') % tr['note_test_org'].replace('\n', ' // ')
+			lines.append(gmTools.shorten_text(cmt, max_width))
+		if tr['comment']:
+			cmt = _('  Praxis: %s') % tr['comment'].replace('\n', ' // ')
+			lines.append(gmTools.shorten_text(cmt, max_width))
+	return lines
+
+#------------------------------------------------------------
 def format_test_results(results=None, output_format='latex'):
 
 	_log.debug('formatting test results into [%s]', output_format)
@@ -3315,6 +3348,17 @@ if __name__ == '__main__':
 		export_results_for_gnuplot(results=results, filename='test.gpl', show_year=True, patient=None)
 
 	#--------------------------------------------------------
+	def test_get_test_results():
+		results = get_test_results(pk_patient = 12, order_by = 'unified_abbrev, clin_when DESC')
+
+	#--------------------------------------------------------
+	def test_format_test_results_failsafe():
+		results = get_test_results(pk_patient = 12, order_by = 'unified_abbrev, clin_when DESC')
+		lines = generate_failsafe_test_results_entries(results)
+		for line in lines:
+			print(line)
+
+	#--------------------------------------------------------
 
 	#print(GPLOT_DATAFILE_HEADER % 'test')
 
@@ -3334,8 +3378,10 @@ if __name__ == '__main__':
 	#test_format_test_results()
 	#test_calculate_bmi()
 	#test_test_panel()
+	#test_get_test_results()
 	#test_get_most_recent_results_for_panel()
 	#test_get_most_recent_results_in_loinc_group()
-	test_export_result_for_gnuplot()
+	#test_export_result_for_gnuplot()
+	test_format_test_results_failsafe()
 
 #============================================================
