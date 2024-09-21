@@ -17,21 +17,24 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.8.18 (database v22.28)',
-	'GNUmed 1.8.18 Release Notes:
+	'Release Notes for GNUmed 1.8.19 (database v22.28)',
+	'GNUmed 1.8.19 Release Notes:
 
-	1.8.18
+	1.8.19
 
-IMPROVED: new-patient: dialog layout
-IMPROVED: phrasewheels: in-focus signalling
-IMPROVED: less diagnostic GTK output on console
+FIX: export area: exception on browsing export dir
+FIX: export area: allow removing remote/empty/stale DIRENTRYs
+FIX: document: gracefully handle empty templates [thanks parallels]
+FIX: episodes: do not auto-tinker with open state of existing episodes
 
-	22.28
+IMPROVED: documents: part export filename
+IMPROVED: regular expression strings [thanks Wolfgang]
+IMPROVED: export area: saving entries as archive
 
-FIX: concatenation of the database schema structure
+	22.29
 
-IMPROVED: documentation for backup systemd .service file
+no changes
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.28@1.8.18');
+select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.28@1.8.19');
