@@ -237,6 +237,35 @@ def get_prescription_template(parent=None):
 	return template
 
 #------------------------------------------------------------
+def generate_failsafe_prescription(pk_patient:int=None, max_width:int=80, eol:str=None) -> str|list:
+	if not pk_patient:
+		pk_patient = gmPerson.gmCurrentPatient().ID
+	lines, footer = gmFormWidgets.generate_failsafe_form_wrapper (
+		pk_patient = pk_patient
+		title = _('Prescription -- %s') % gmDateTime.pydt_now_here().strftime('%Y %b %d'),
+		max_width = max_width
+	)
+	lines.extend(gmMedication.generate_failsafe_medication_list_entries (
+		pk_patient = patient.ID,
+		max_width = max_width,
+		eol = None
+	))
+	lines.append('')
+	lines.extend(footer)
+	if eol:
+		return eol.join(lines)
+
+	return lines
+
+#------------------------------------------------------------
+def save_failsafe_prescription(patient=None, max_width:int=80, filename:str=None) -> str:
+	if not filename:
+		filename = gmTools.get_unique_filename()
+	with open(filename, 'w', encoding = 'utf8') as rx_file:
+		rx_file.write(generate_failsafe_prescription(patient = patient, max_width = max_width, eol = '\n'))
+	return filename
+
+#------------------------------------------------------------
 def print_prescription(parent=None, emr=None):
 	# 1) get template
 	rx_template = get_prescription_template(parent = parent)
@@ -249,8 +278,14 @@ def print_prescription(parent=None, emr=None):
 		template = rx_template,
 		edit = False
 	)
-	if rx is None:
-		return False
+	if not rx:
+		gmGuiHelpers.gm_show_info (
+			title = title,
+			info = _('Pretty prescription form failed. Generating failsafe version.')
+		)
+		rx = save_failsafe_prescription(patient = emr.pk_patient, max_width = 80)
+		gmMimeLib.call_editor_on_file(filename = rx, block = True)
+		return True
 
 	# 3) print template
 	return gmFormWidgets.act_on_generated_forms (
