@@ -2565,7 +2565,6 @@ def generate_failsafe_test_results_entries(pk_patient:int=None, test_results:lis
 		return []
 
 	prev_abbrev = None
-	prev_date = None
 	lines = []
 	for tr in test_results:
 		abbrev = tr['unified_abbrev']
@@ -3350,6 +3349,7 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_get_test_results():
 		results = get_test_results(pk_patient = 12, order_by = 'unified_abbrev, clin_when DESC')
+		print(results)
 
 	#--------------------------------------------------------
 	def test_format_test_results_failsafe():

@@ -1235,12 +1235,6 @@ def run_collations_tool() -> int:
 		print('Not running as root. Aborting.')
 		return -2
 
-	try:
-		running_as = pwd.getpwuid(os.getuid())[0]
-	except KeyError:
-		print('Running as unknown user. Aborting.')
-		return -2
-
 	pg_demon_user_passwd_line = None
 	try:
 		pg_demon_user_passwd_line = pwd.getpwnam('postgres')
@@ -1251,9 +1245,9 @@ def run_collations_tool() -> int:
 			print('cannot identify postgres superuser account')
 			return -2
 
+	_log.debug('PG demon user: %s', pg_demon_user_passwd_line)
 	if os.getuid() != pg_demon_user_passwd_line[2]:
 		os.setuid(pg_demon_user_passwd_line[2])
-
 	if os.getuid() != pg_demon_user_passwd_line[2]:
 		print('Failed to become database superuser [%s]' % pg_demon_user_passwd_line[0])
 		return -2

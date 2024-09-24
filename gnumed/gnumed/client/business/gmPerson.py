@@ -50,7 +50,6 @@ from Gnumed.business.gmXdtMappings import map_gender_gm2xdt
 _log = logging.getLogger('gm.person')
 
 __gender_list = None
-__gender_idx = None
 
 __gender2salutation_map = None
 __gender2string_map = None
@@ -429,12 +428,14 @@ class cDTO_person(object):
 			if val is None:
 				object.__setattr__(self, attr, val)
 				return
-			glist, idx = get_gender_list()
+
+			glist = get_gender_list()
 			for gender in glist:
 				if str(val) in [gender[0], gender[1], gender[2], gender[3]]:
-					val = gender[idx['tag']]
+					val = gender['tag']
 					object.__setattr__(self, attr, val)
 					return
+
 			raise ValueError('invalid gender: [%s]' % val)
 
 		if attr == 'dob':
@@ -2513,17 +2514,16 @@ def set_active_patient(patient=None, forced_reload=False):
 #============================================================
 # gender related
 #------------------------------------------------------------
-def get_gender_list() -> tuple:
+def get_gender_list() -> list:
 	"""Retrieves the list of known genders from the database."""
-	global __gender_idx
 	global __gender_list
 
 	if __gender_list is None:
 		cmd = "SELECT tag, l10n_tag, label, l10n_label, sort_weight FROM dem.v_gender_labels ORDER BY sort_weight DESC"
-		__gender_list, __gender_idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+		__gender_list, tmp = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
 		_log.debug('genders in database: %s' % __gender_list)
 
-	return (__gender_list, __gender_idx)
+	return __gender_list
 
 #------------------------------------------------------------
 map_gender2mf = {
@@ -2565,7 +2565,7 @@ def map_gender2string(gender=None):
 	global __gender2string_map
 
 	if __gender2string_map is None:
-		genders, idx = get_gender_list()
+		genders = get_gender_list()
 		__gender2string_map = {
 			'm': _('male'),
 			'f': _('female'),
@@ -2575,8 +2575,8 @@ def map_gender2string(gender=None):
 			None: _('unknown gender')
 		}
 		for g in genders:
-			__gender2string_map[g[idx['l10n_tag']]] = g[idx['l10n_label']]
-			__gender2string_map[g[idx['tag']]] = g[idx['l10n_label']]
+			__gender2string_map[g['l10n_tag']] = g['l10n_label']
+			__gender2string_map[g['tag']] = g['l10n_label']
 		_log.debug('gender -> string mapping: %s' % __gender2string_map)
 
 	return __gender2string_map[gender]
@@ -2587,7 +2587,7 @@ def map_gender2salutation(gender=None):
 	global __gender2salutation_map
 
 	if __gender2salutation_map is None:
-		genders, idx = get_gender_list()
+		genders = get_gender_list()
 		__gender2salutation_map = {
 			'm': _('Mr'),
 			'f': _('Mrs'),
@@ -2597,9 +2597,9 @@ def map_gender2salutation(gender=None):
 			None: ''
 		}
 		for g in genders:
-			__gender2salutation_map[g[idx['l10n_tag']]] = __gender2salutation_map[g[idx['tag']]]
-			__gender2salutation_map[g[idx['label']]] = __gender2salutation_map[g[idx['tag']]]
-			__gender2salutation_map[g[idx['l10n_label']]] = __gender2salutation_map[g[idx['tag']]]
+			__gender2salutation_map[g['l10n_tag']] = __gender2salutation_map[g['tag']]
+			__gender2salutation_map[g['label']] = __gender2salutation_map[g['tag']]
+			__gender2salutation_map[g['l10n_label']] = __gender2salutation_map[g['tag']]
 		_log.debug('gender -> salutation mapping: %s' % __gender2salutation_map)
 
 	return __gender2salutation_map[gender]
@@ -2750,10 +2750,11 @@ if __name__ == '__main__':
 			print('  ', name)
 	#--------------------------------------------------------
 	def test_gender_list():
-		genders, idx = get_gender_list()
-		print("\n\nRetrieving gender enum (tag, label, weight):")
+		genders = get_gender_list()
+		print("\n\nRetrieving gender enum (tag, label, sort_weight):")
 		for gender in genders:
-			print("%s, %s, %s" % (gender[idx['tag']], gender[idx['l10n_label']], gender[idx['sort_weight']]))
+			print("%s, %s, %s" % (gender['tag'], gender['l10n_label'], gender['sort_weight']))
+
 	#--------------------------------------------------------
 	def test_export_area():
 		person = cPerson(aPK_obj = 12)
@@ -2855,7 +2856,6 @@ if __name__ == '__main__':
 	#test_identity()
 	#test_search_by_dto()
 	#test_name()
-	#test_gender_list()
 
 	#map_gender2salutation('m')
 	# module functions
@@ -2867,10 +2867,11 @@ if __name__ == '__main__':
 	#test_vcf()
 
 	gmPG2.request_login_params(setup_pool = True)
+	test_gender_list()
 	#test_set_active_pat()
 	#test_mecard()
 	#test_ext_id()
-	test_current_patient()
+	#test_current_patient()
 	#test_assimilate_identity()
 	#test_get_person_duplicates()
 	#test_get_potential_person_dupes()
