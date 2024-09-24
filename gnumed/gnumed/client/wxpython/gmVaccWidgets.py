@@ -646,7 +646,7 @@ def print_vaccinations(parent=None):
 			title = title,
 			info = _('Pretty vaccination history form failed. Generating failsafe version.')
 		)
-		vaccs_printout = save_failsafe_vaccination_history(max_width:int=80)
+		vaccs_printout = save_failsafe_vaccination_history(max_width = 80)
 		gmMimeLib.call_editor_on_file(filename = vaccs_printout, block = True)
 		return True
 

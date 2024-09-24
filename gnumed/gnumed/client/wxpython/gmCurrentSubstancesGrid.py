@@ -241,7 +241,7 @@ def generate_failsafe_prescription(pk_patient:int=None, max_width:int=80, eol:st
 	if not pk_patient:
 		pk_patient = gmPerson.gmCurrentPatient().ID
 	lines, footer = gmFormWidgets.generate_failsafe_form_wrapper (
-		pk_patient = pk_patient
+		pk_patient = pk_patient,
 		title = _('Prescription -- %s') % gmDateTime.pydt_now_here().strftime('%Y %b %d'),
 		max_width = max_width
 	)
