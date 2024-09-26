@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-14 23:11+0200\n"
-"PO-Revision-Date: 2024-06-14 23:06+0200\n"
+"POT-Creation-Date: 2024-09-22 16:42+0200\n"
+"PO-Revision-Date: 2024-09-22 17:19+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -2908,7 +2908,7 @@ msgid "  risk: data corruption (duplicate entries, faulty sorting)"
 msgstr "  Risiko: Datenfehler (doppelte Einträge, fehlerhafte Sortierung)"
 
 msgid " collations with version mismatch"
-msgstr ""
+msgstr " Sortierungen mit Versionsproblemen"
 
 #, python-format
 msgid " database encoding not UTF8 but rather: %s"
@@ -3186,6 +3186,12 @@ msgid ""
 "Note that this does not apply to discontinued (historic) regimen of ongoing "
 "substance intakes."
 msgstr ""
+"Beendete Wirkstoffeinnahmen anzeigen ?\n"
+"\n"
+"Bei Markierung werden auch beendete Wirkstoffeinnahmen gezeigt.\n"
+"\n"
+"Achtung: dies bezieht sich nicht auf historische Einnahmepläne _aktiver_ "
+"Wirkstoffeinnahmen."
 
 msgid "Add intake."
 msgstr "Einnahme hinzufügen."
@@ -3230,7 +3236,7 @@ msgstr ""
 
 msgid ""
 "Handling of drugs / the selected drug in the presence of renal insufficiency."
-msgstr ""
+msgstr "Vorgehen bei Niereninsuffizienz."
 
 msgid "🫁"
 msgstr ""
@@ -4695,14 +4701,17 @@ msgstr "Hotline"
 msgid "Log file"
 msgstr "Logdatei"
 
+msgid "Enlist person as GNUmed user"
+msgstr "Person als GNUmed-Nutzer aufnehmen"
+
+msgid "The currently selected patient is:"
+msgstr "Der aktuelle Patient ist:"
+
 msgid "Data of current patient to be displayed here."
 msgstr "Daten des aktiven Patienten sollen hier angezeigt werden."
 
-msgid "Enlist"
-msgstr "Aufnehmen"
-
-msgid "Enlist person as GNUmed user"
-msgstr "Person als GNUmed-Nutzer aufnehmen"
+msgid "User parameters:"
+msgstr "Nutzerdetails:"
 
 msgid ""
 "A short alias identifying the GNUmed user. It is used in the clinical record "
@@ -4710,6 +4719,9 @@ msgid ""
 msgstr ""
 "Das Kürzel für den GNUmed-Nutzer. Dieses wird unter anderem in der "
 "Karteikarte genutzt."
+
+msgid "Account"
+msgstr "Konto"
 
 msgid ""
 "The database account for this user.\n"
@@ -4734,6 +4746,9 @@ msgid "The password for the new database account. Input will not be shown."
 msgstr ""
 "Das Passwort für den neuen Datenbanknutzer. Die Eingabe bleibt unsichtbar."
 
+msgid "Password, again"
+msgstr "nochmals das Passwort"
+
 msgid ""
 "The database password must be typed again to enable double-checking to "
 "protect against typos."
@@ -4741,12 +4756,18 @@ msgstr ""
 "Das Datenbankpasswort muß zweifach eingegeben werden, damit GNUmed auf "
 "Tippfehler prüfen kann."
 
+msgid "Admin password"
+msgstr "Verwalterpasswort"
+
 msgid ""
 "Enlisting GNUmed users is a privileged operation.\n"
 "You must enter the password for the database administrator \"gm-dbo\" here."
 msgstr ""
 "GNUmed-Nutzer anzulegen ist eine zugangsbeschränkte Funktion.\n"
 "Sie müssen hier das Passwort des Datenbankverwalters \"gm-dbo\" eingeben."
+
+msgid "Enlist"
+msgstr "Aufnehmen"
 
 msgid ""
 "Enlist this person as a GNUmed user and associate it with the given database "
@@ -4757,21 +4778,6 @@ msgstr ""
 msgid "Cancel this dialog, do not enlist new GNUmed user."
 msgstr "Abbrechen, nicht als GNUmed-Nutzer aufnehmen."
 
-msgid "The currently selected patient is:"
-msgstr "Der aktuelle Patient ist:"
-
-msgid "User parameters:"
-msgstr "Nutzerdetails:"
-
-msgid "Account"
-msgstr "Konto"
-
-msgid "Password, again"
-msgstr "nochmals das Passwort"
-
-msgid "Admin password"
-msgstr "Verwalterpasswort"
-
 msgid "Please select a health issue:"
 msgstr "Bitte eine Grunderkrankung wählen:"
 
@@ -4781,17 +4787,14 @@ msgstr "OK"
 msgid "Health issue selector"
 msgstr "Wahl einer Grunderkrankung"
 
-msgid "Anamnestic"
-msgstr "Anamnestisch"
-
-msgid " + "
-msgstr ""
-
-msgid "ADR"
-msgstr "UAW"
+msgid "Date given"
+msgstr "Impfdatum"
 
 msgid "Mandatory: When was the vaccination given to the patient ?"
 msgstr "Pflichtfeld: Wann wurde die Impfung verabreicht ?"
+
+msgid "Anamnestic"
+msgstr "Anamnestisch"
 
 msgid ""
 "Check this if - within the SOAP classification - you want to mark the entry "
@@ -4799,6 +4802,9 @@ msgid ""
 msgstr ""
 "Markieren Sie dieses Feld, wenn die Impfung als Anamnese anstelle von "
 "Procedere gespeichert werden soll."
+
+msgid "Vaccine ..."
+msgstr "Impfstoff ..."
 
 msgid ""
 "The vaccine used, if known.\n"
@@ -4809,8 +4815,14 @@ msgstr ""
 "\n"
 "Markieren Sie die Impfkrankheiten, falls der Impfstoff nicht bekannt ist."
 
+msgid " + "
+msgstr ""
+
 msgid "Add a vaccine to GNUmed."
 msgstr "Einen Impfstoff zu GNUmed hinzufügen."
+
+msgid "Batch №"
+msgstr "Charge"
 
 msgid "The batch number of the vaccine."
 msgstr "Die Chargennummer des Impfstoffs."
@@ -4829,38 +4841,32 @@ msgstr ""
 "\n"
 "Sie können aber auch den Namen für eine neue Episode eingeben."
 
+msgid "Site"
+msgstr "Stelle"
+
 msgid "The injection site, if known."
 msgstr "Der Injektionsort, sofern bekant."
+
+msgid "Given by"
+msgstr "Impfarzt"
 
 msgid "The provider who administered the vaccine, if known."
 msgstr "Der Mitarbeiter, der die Impfung verabreicht hat, sofern bekannt."
 
+msgid "Reaction"
+msgstr "Reaktion"
+
 msgid "Record any adverse reactions to this vaccine."
 msgstr "Vermerken Sie hier etwaige Impfreaktionen."
+
+msgid "ADR"
+msgstr "UAW"
 
 msgid "Report this event as an adverse drug reaction."
 msgstr "Als unübliche Impfreaktion melden."
 
 msgid "Any comment you may wish to relate to this vaccination."
 msgstr "Ein Kommentar zu dieser Impfung."
-
-msgid "Date given"
-msgstr "Impfdatum"
-
-msgid "Vaccine ..."
-msgstr "Impfstoff ..."
-
-msgid "Batch №"
-msgstr "Charge"
-
-msgid "Site"
-msgstr "Stelle"
-
-msgid "Given by"
-msgstr "Impfarzt"
-
-msgid "Reaction"
-msgstr "Reaktion"
 
 msgid "Manage panels"
 msgstr "Profile verwalten"
@@ -6025,11 +6031,11 @@ msgstr ""
 msgid "&Show missing"
 msgstr "&Fehlende zeigen"
 
-msgid "Manage"
-msgstr "Verwalten"
-
 msgid "Check to show panel tests which lack results."
 msgstr "Zeige Testprofile ohne Messungen."
+
+msgid "Manage"
+msgstr "Verwalten"
 
 msgid "Dynamic hints"
 msgstr "Dynamische Hinweise"
@@ -6541,7 +6547,7 @@ msgid "Activate patient from highlighted or first [x]-checked entry."
 msgstr "Patient des selektierten oder ersten [x]-markierten Eintrags aufrufen."
 
 msgid " Chart &import "
-msgstr " Kartei&import"
+msgstr " Kartei&import "
 
 msgid ""
 "Prepare document import:\n"
@@ -7671,7 +7677,7 @@ msgid "http://docutils.sourceforge.net/docs/user/rst/quickref.html"
 msgstr ""
 
 msgid "Generic multi line text entry dialog"
-msgstr "allgemeiner Texteingabedialog"
+msgstr "Allgemeiner Texteingabedialog"
 
 msgid ""
 "This is an option for power users.\n"
@@ -8020,17 +8026,17 @@ msgstr "Dokumente:"
 msgid "Displays the list of persons to select from."
 msgstr "Zeigt die Liste der Personen zur Auswahl."
 
-msgid "&L"
-msgstr "&L"
-
-msgid "&N"
-msgstr "&N"
+msgid " &L "
+msgstr ""
 
 msgid "List all encounters."
 msgstr "Alle Kontakte (einschließlich leere) auflisten."
 
 msgid "The encounter."
 msgstr "Der Kontakt."
+
+msgid " &N "
+msgstr ""
 
 msgid "Start a new encounter for the active patient."
 msgstr "Einen neuen Kontakt für den aktiven Patienten beginnen."
@@ -8190,6 +8196,11 @@ msgid ""
 "- contraindications/interactions assessment\n"
 "- monitoring considerations"
 msgstr ""
+"Notizen zu dieser Einnahme für medizinischens Personal, etwa:\n"
+"\n"
+"- unübliche Dosis/Indikation\n"
+"- Einschätzung von Kontraindikationen/Interaktionen\n"
+"- Überlegungen zum Monitoring"
 
 msgid "Ourselves"
 msgstr "Intern"
@@ -8222,10 +8233,10 @@ msgid "Discharge staff"
 msgstr "Entlassen"
 
 msgid "Enlist current patient"
-msgstr "aktuellen Patienten aufnehmen"
+msgstr "Aktuellen Patienten aufnehmen"
 
 msgid "button_1"
-msgstr "?Knopf?"
+msgstr "Knopf_1"
 
 msgid "Lists the existing users in the GNUmed system."
 msgstr "Zeigt die registrierten Mitarbeiter dieses GNUmed-Systems."
@@ -8364,11 +8375,11 @@ msgstr "Anzahl"
 msgid "Factor"
 msgstr "Faktor"
 
-msgid "Select the address you want to use:"
-msgstr "Wählen Sie die Adresse, die Sie verwenden wollen:"
-
 msgid "Address selection"
 msgstr "Adresswahl"
+
+msgid "Select the address you want to use:"
+msgstr "Wählen Sie die Adresse, die Sie verwenden wollen:"
 
 msgid "Manage addresses."
 msgstr "Adressen verwalten."
@@ -8435,7 +8446,7 @@ msgid " &next ▶ "
 msgstr " &vor ▶ "
 
 msgid " S&witch preview "
-msgstr "Vorschau &umschalten"
+msgstr " Vorschau &umschalten "
 
 msgid "Switch preview type among Image and Text."
 msgstr "Vorschau zwischen Bild und Text umschalten."
@@ -8985,6 +8996,33 @@ msgid "units"
 msgstr "Einheiten"
 
 #, python-format
+msgid "Substance: %s %s"
+msgstr "Substanz: %s %s"
+
+#, python-format
+msgid "Regimen: %s"
+msgstr "Einnahmeplan: %s"
+
+#, python-format
+msgid "Timerange: %s"
+msgstr "Zeitverlauf: %s"
+
+#, python-format
+msgid "Patient notes: %s"
+msgstr "Patient: %s"
+
+#, python-format
+msgid "Provider notes: %s"
+msgstr "Betreuernotiz: %s"
+
+#, python-format
+msgid "Episode: %s%s"
+msgstr "Episode: %s%s"
+
+msgid "Issue"
+msgstr "Grunderkrankung"
+
+#, python-format
 msgid ""
 "Substance abuse entry                                              [#%s]"
 msgstr "Substanzmißbrauch                                              [#%s]"
@@ -9046,7 +9084,7 @@ msgstr " Betreuernotiz: %s"
 
 #, python-format
 msgid " Patient advice: %s"
-msgstr "Patientenhinweis: %s"
+msgstr " Patientenhinweis: %s"
 
 #, python-format
 msgid "Intake: %s"
@@ -9167,7 +9205,7 @@ msgstr " Grund: %s"
 
 #, python-format
 msgid " Own notes: %s"
-msgstr "Eigene Notizen: %s"
+msgstr " Eigene Notizen: %s"
 
 #, python-format
 msgid "Intake: #%(pk)s, rev %(row_ver)s, %(mod_when)s by %(mod_by)s."
@@ -9531,6 +9569,26 @@ msgstr ""
 " Land: %(l10n_region)s, %(code_region)s\n"
 " Staat: %(l10n_country)s, %(code_country)s"
 
+#, python-format
+msgid "Street: %(street)s%(notes_street)s"
+msgstr "Straße: %(street)s%(notes_street)s"
+
+#, python-format
+msgid "Number/Unit: %(number)s%(subunit)s%(notes_subunit)s"
+msgstr "Hausnummer: %(number)s%(subunit)s%(notes_subunit)s"
+
+#, python-format
+msgid "Location: %(zip)s %(urb)s%(suburb)s"
+msgstr "Ort: %(zip)s %(urb)s%(suburb)s"
+
+#, python-format
+msgid "Region: %(l10n_region)s, %(code_region)s"
+msgstr "Region: %(l10n_region)s, %(code_region)s"
+
+#, python-format
+msgid "Country: %(l10n_country)s, %(code_country)s"
+msgstr "Land: %(l10n_country)s, %(code_country)s"
+
 msgid "Textual keyword expansion"
 msgstr "Textmakro"
 
@@ -9755,7 +9813,7 @@ msgstr "SOAP_string_Administrative=Administrativ"
 
 #, python-format
 msgid "%s (auto-import %s)"
-msgstr ""
+msgstr "%s (Autoimport %s)"
 
 msgid "Active clinical hint"
 msgstr "Aktiver klinischer Tip"
@@ -9829,6 +9887,10 @@ msgstr "Impedanz:"
 #, python-format
 msgid "Praxis branch                   #%s\n"
 msgstr "Praxis-Zweigstelle              #%s\n"
+
+#, python-format
+msgid "%s of %s"
+msgstr "%s von %s"
 
 #, python-format
 msgid ""
@@ -9964,12 +10026,12 @@ msgid "<country_code> cannot be empty"
 msgstr "<country_code> darf nicht leer sein"
 
 #, python-format
-msgid "%(last)s,%(title)s %(first)s%(nick)s (%(sex)s)"
-msgstr "%(title)s %(last)s, %(first)s%(nick)s (%(sex)s)"
+msgid "%(last)s %(first)s%(title)s%(nick)s (%(sex)s)"
+msgstr ""
 
 #, python-format
-msgid "%(last)s,%(title)s %(first)s (%(sex)s)"
-msgstr "%(title)s %(last)s, %(first)s (%(sex)s)"
+msgid "%(last)s %(first)s%(title)s (%(sex)s)"
+msgstr ""
 
 #, python-format
 msgid "%(last)s,%(title)s %(first)s%(nick)s"
@@ -10312,6 +10374,14 @@ msgid "Norm: %s"
 msgstr "Normbereich: %s"
 
 #, python-format
+msgid "  Lab: %s"
+msgstr "Labor: %s"
+
+#, python-format
+msgid "  Praxis: %s"
+msgstr "  Praxis: %s"
+
+#, python-format
 msgid "unknown test results output format [%s]"
 msgstr "unbekanntes Format [%s] für die Ausgabe von Meßwerten"
 
@@ -10369,10 +10439,6 @@ msgstr "1 Teil"
 #, python-format
 msgid "%s parts"
 msgstr "%s Teile"
-
-#, python-format
-msgid "%s of %s"
-msgstr "%s von %s"
 
 #, python-format
 msgid " Receiver: %s @ %s\n"
@@ -10638,6 +10704,14 @@ msgstr " Alter %s - %s"
 
 msgid " Indications"
 msgstr " Indikationen"
+
+#, python-format
+msgid "Indications: %s"
+msgstr "Indikationen: %s"
+
+#, python-format
+msgid "Indication: %s"
+msgstr "Indikation: %s"
 
 #, python-format
 msgid "unknown vaccinations output format [%s]"
@@ -11336,7 +11410,7 @@ msgid "Doc"
 msgstr "Arzt"
 
 msgid "Adding a new episode"
-msgstr "neue Episode hinzufügen"
+msgstr "Neue Episode hinzufügen"
 
 msgid "Editing an episode"
 msgstr "Episode bearbeiten"
@@ -11941,9 +12015,6 @@ msgstr "Auswahl von [%s]-Notizen"
 msgid "Who"
 msgstr "Wer"
 
-msgid "Issue"
-msgstr "Grunderkrankung"
-
 msgid "No narrative available for this health issue."
 msgstr "Für die gewählte Grunderkrankung sind keine Karteieinträge vorhanden."
 
@@ -12387,7 +12458,7 @@ msgid "Set pass phrase"
 msgstr "Passwort setzen"
 
 msgid "This is not correctly encrypted text!"
-msgstr "Dies ist kein korrekt entschlüsselter Text"
+msgstr "Dies ist kein korrekt verschlüsselter Text!"
 
 msgid "Please enter your pass phrase:"
 msgstr "Bitte geben Sie Ihr Passwort ein:"
@@ -12487,6 +12558,13 @@ msgstr ""
 "Sie können das Feld leerlassen. Wenn Sie eine URL\n"
 "eingeben wollen, muß diese momentan erreichbar sein."
 
+#, python-format
+msgid "Vaccination history -- %s"
+msgstr "Impfstand -- %s"
+
+msgid "Pretty vaccination history form failed. Generating failsafe version."
+msgstr "Fehlerhafte Vorlage \"Impfhistorie\". Erzeuge Notfallversion."
+
 msgid "Adding new vaccinations"
 msgstr "Neue Impfungen hinzufügen"
 
@@ -12565,7 +12643,9 @@ msgstr "%s  (Erstimpfung)"
 msgid ""
 "Protects against:\n"
 " "
-msgstr "Schützt gegen:"
+msgstr ""
+"Schützt gegen:\n"
+" "
 
 msgid "prevention"
 msgstr "Prävention"
@@ -13573,7 +13653,7 @@ msgid "icon_syringe"
 msgstr "icon_syringe"
 
 msgid "Active Problems"
-msgstr "aktuelle Probleme"
+msgstr "Aktive Probleme"
 
 msgid "     Habits            Risk Factors"
 msgstr "     Angewohnheiten       Risikofaktoren"
@@ -13582,7 +13662,7 @@ msgid "Inbox"
 msgstr "Posteingang"
 
 msgid "   Alerts   "
-msgstr " Caveat"
+msgstr "   Caveat   "
 
 msgid "&Summary"
 msgstr "&Zusammenfassung"
@@ -13593,11 +13673,18 @@ msgstr "icon_clinical_summary"
 msgid "No medication list template configured."
 msgstr "Keine Druckvorlage für die Medikamentenliste voreingestellt."
 
-msgid "There is no medication list template configured."
-msgstr "Es ist keine Druckvorlagen für die Medikamentenliste eingestellt."
+#, python-format
+msgid "Medication List -- %s"
+msgstr "Medikamentenliste -- %s"
+
+msgid "Allergies: unknown"
+msgstr "Allergien: unbekannt"
 
 msgid "Printing medication list"
 msgstr "Drucken der Medikamentenliste"
+
+msgid "There is no medication list template configured."
+msgstr "Es ist keine Druckvorlagen für die Medikamentenliste eingestellt."
 
 msgid "Problem loading medication list template."
 msgstr "Problem beim Laden der Druckvorlage für die Medikamentenliste."
@@ -13605,6 +13692,9 @@ msgstr "Problem beim Laden der Druckvorlage für die Medikamentenliste."
 #, python-format
 msgid "Cannot load medication list template [%s - %s]"
 msgstr "Kann Vorlage [%s - %s] für Medikamentenliste nicht laden"
+
+msgid "Pretty medication list form failed. Generating failsafe version."
+msgstr "Fehlerhafte Vorlage \"Medikamentenliste\". Erzeuge Notfallversion."
 
 msgid "generated medication list document"
 msgstr "Medikamentenliste erzeugt"
@@ -13627,6 +13717,13 @@ msgstr "Problem beim Laden der Druckvorlage für Verordnungen."
 #, python-format
 msgid "Cannot load prescription template [%s - %s]"
 msgstr "Kann Vorlage [%s - %s] für Verordnungen nicht laden"
+
+#, python-format
+msgid "Prescription -- %s"
+msgstr "Rezept -- %s"
+
+msgid "Pretty prescription form failed. Generating failsafe version."
+msgstr "Fehlerhafte Vorlage \"Rezept\". Erzeuge Notfallversion."
 
 msgid "generated prescription"
 msgstr "Verordnung erzeugt"
@@ -13962,7 +14059,7 @@ msgid "Address details must be filled in completely or not at all."
 msgstr "Adressangaben müssen komplett oder gar nicht eingegeben werden."
 
 msgid "Saving contact data"
-msgstr "Kontaktdaten speichern."
+msgstr "Kontaktdaten speichern"
 
 #, python-format
 msgid ""
@@ -14911,6 +15008,8 @@ msgstr "Rechnungsposten wählen und stornieren."
 
 msgid "Must select address (perhaps first add to patient) if closing bill."
 msgstr ""
+"Zum Abschließen einer Rechnung muß eine Adresse gewählt werden (ggf dem "
+"Patienten eine hinzufügen)."
 
 #, python-format
 msgid "&VAT applies (%s%%)"
@@ -16193,20 +16292,23 @@ msgstr ""
 "\n"
 "Die Logdatei enthält genauere Angaben !"
 
-msgid "generic error message"
-msgstr "allgemeine Fehlermeldung"
+msgid "GNUmed error"
+msgstr "GNUmed: Fehler"
 
 msgid "programmer forgot to specify info message"
 msgstr "Programmierer hat vergessen, Information anzugeben"
 
-msgid "generic info message"
-msgstr "allgemeine Information"
+msgid "GNUmed info message"
+msgstr "GNUmed: Information"
 
 msgid "programmer forgot to specify warning"
 msgstr "Programmierer hat vergessen, Warnung anzugeben"
 
-msgid "generic warning message"
-msgstr "allgemeine Warnmeldung"
+msgid "GNUmed warning message"
+msgstr "GNUmed: Warnung"
+
+msgid "GNUmed user question"
+msgstr "GNUmed: Abfrage"
 
 msgid "Editing EDC"
 msgstr "ET bearbeiten"
@@ -16536,7 +16638,7 @@ msgstr "Datenschutzprüfung"
 #, python-format
 msgid ""
 "You have selected the chart of a member of staff,\n"
-"for whom privacy is especially important:\n"
+"for which privacy is particularly important:\n"
 "\n"
 "  %s, %s\n"
 "\n"
@@ -16553,7 +16655,7 @@ msgstr ""
 "\n"
 "  %s, %s\n"
 "\n"
-"Unter Umständen ist dies beabsichtigt.\n"
+"Je nach Umständen kann dies beabsichtigt sein.\n"
 "\n"
 "Bedenken Sie, daß alle Karteizugriffe aufgezeichnet\n"
 "und daß %s%s über den Zugriff\n"
@@ -16943,6 +17045,28 @@ msgstr ""
 "Wirklich %s gewählte Dokumente aus\n"
 "der Sammelmappe entfernen ?"
 
+msgid "Deleting entry from export area."
+msgstr "Eintrag aus der Sammelmappe entfernen."
+
+#, python-format
+msgid ""
+"Entry points to directory\n"
+"\n"
+" %s\n"
+"\n"
+"on node [%s]\n"
+"(this node: [%s])\n"
+"\n"
+"Remove remote item from the patient export area ?"
+msgstr ""
+"Eintrag verweist auf Verzeichnis\n"
+"\n"
+" %s\n"
+"auf Computer [%s]\n"
+"(dieser Computer: [%s])\n"
+"\n"
+"Nicht-lokalen Eintrag as der Sammelmappe entfernen ?"
+
 msgid "Error printing documents."
 msgstr "Fehler beim Drucken der Dokumente."
 
@@ -17290,6 +17414,17 @@ msgstr ""
 
 msgid "OOo startup time"
 msgstr "OOo-Aufrufzeit"
+
+msgid "Healthcare provider:"
+msgstr "Gesundheitseinrichtung:"
+
+#, python-format
+msgid "born: %s (%s)"
+msgstr "Geboren: %s (%s)"
+
+#, python-format
+msgid "(GNUmed v%s failsafe form -- https://www.gnumed.de)"
+msgstr "(GNUmed Notformular -- https://www.gnumed.de)"
 
 msgid "No document template selected."
 msgstr "Keine Druckvorlage ausgewählt."
@@ -17847,7 +17982,7 @@ msgstr ""
 
 #, python-format
 msgid "Processing document part: %s"
-msgstr "verarbeite Dokumententeil: %s"
+msgstr "Verarbeite Dokumententeil: %s"
 
 #, python-format
 msgid ""
@@ -17905,7 +18040,7 @@ msgstr ""
 
 #, python-format
 msgid "Processing document: %s"
-msgstr "verarbeite Dokument: %s"
+msgstr "Verarbeite Dokument: %s"
 
 #, python-format
 msgid ""
@@ -18256,21 +18391,31 @@ msgstr ""
 "Wählen Sie das Verzeichnis, aus welchem DICOM-Dateien rekursiv hochgeladen "
 "werden sollen."
 
+msgid "No files uploaded."
+msgstr "Keine Dateien hochgeladen."
+
+msgid "Uploading DICOM files"
+msgstr "Lade DICOM-Dateien hoch"
+
 msgid "Delete the uploaded DICOM files now ?"
 msgstr "Die hochgeladenen DICOM-Dateien jetzt löschen ?"
 
 msgid ""
 "Some files have not been uploaded.\n"
 "\n"
-"Do you want to delete those DICOM files which have been sent to the PACS "
+"Do you want to delete those DICOM files which *have* been sent to the PACS "
 "successfully ?"
 msgstr ""
 "Einige Dateien wurden nicht hochgeladen.\n"
 "\n"
-"Wollen Sie die erfolgreich hochgeladenen DICOM-Dateien jetzt löschen ?"
+"Wollen Sie die _erfolgreich_ hochgeladenen DICOM-Dateien jetzt löschen ?"
 
-msgid "Uploading DICOM files"
-msgstr "Lade DICOM-Dateien hoch"
+msgid ""
+"Information has been added to the PACS for the following patients:\n"
+"\n"
+msgstr ""
+"Für die folgenden Patienten wurden Daten ins PACS geladen:\n"
+"\n"
 
 #, python-format
 msgid "Working on: Orthanc \"%s\" (AET \"%s\" @ %s:%s, Version %s)"
@@ -18914,7 +19059,7 @@ msgid "&Vaccinations: latest per indication"
 msgstr "&Impfungen: nach Indikation"
 
 msgid "Vaccinations ordered by indication, showing latest shot for each."
-msgstr ""
+msgstr "Impfungen geordnet nach Indikation, jüngste Impfung pro Indikation."
 
 msgid "&Family history (FHx)"
 msgstr "&Familienanamnese"
@@ -19299,7 +19444,7 @@ msgstr ""
 "2.8)."
 
 msgid "Test fault handler"
-msgstr "faulthandler testen"
+msgstr "Faulthandler testen"
 
 msgid "Simulate a catastrophic fault (SIGSEGV)."
 msgstr "Einen katastrophalen Fehler simulieren (SIGSEGV)."
@@ -20474,7 +20619,7 @@ msgstr ""
 "\t--conf-file=<FILE>"
 
 msgid "Checking configuration files"
-msgstr "prüfe Konfiguration"
+msgstr "Prüfe Konfigurationsdateien"
 
 msgid "GNUmed startup"
 msgstr "GNUmed-Start"
@@ -20612,25 +20757,25 @@ msgstr "GFR: unbekannt"
 
 #, python-format
 msgid "Existing treatment regimens for %s"
-msgstr ""
+msgstr "Existierende Einnahmepläne für %s"
 
 msgid "Required: unit."
 msgstr "Pflichtfeld: Einheit."
 
 msgid "Required: amount."
-msgstr "Pflichtfeld: Menge"
+msgstr "Pflichtfeld: Menge."
 
 msgid "Amount: must be a number."
 msgstr "Menge: Muß eine Zahl sein."
 
 msgid "Amount: must be larger than zero."
-msgstr ""
+msgstr "Menge: muß größer als 0 sein."
 
 msgid "Required: schedule"
 msgstr "Pflichtfeld: Einnahmeplan"
 
 msgid "Required: start of intake (you may select [Unknown]"
-msgstr ""
+msgstr "Pflichtfeld: Beginn der Einnahme (ansonsten [Unbekannt] auswählen)"
 
 #, python-format
 msgid "Discontinued (%s) in the future (now: %s)"
@@ -20649,6 +20794,8 @@ msgstr "Pflichtfeld: Wirkstoff"
 #, python-format
 msgid "Patient already takes/took \"%s\". You may add a new regimen though."
 msgstr ""
+"Patient nimmt/nahm schon \"%s\". Sie können aber einen Einnahmeplan "
+"hinzufügen."
 
 msgid "Substance required."
 msgstr "Wirkstoff nötig."
@@ -20656,6 +20803,8 @@ msgstr "Wirkstoff nötig."
 #, python-format
 msgid "Intake of %s already documented. You may add a new regimen though"
 msgstr ""
+"Einnahme von %s schon dokumentiert. Sie können aber einen Einnahmeplan "
+"hinzufügen"
 
 msgid "generic activity"
 msgstr "allgemeine Aktivität"
@@ -21545,7 +21694,7 @@ msgstr "HL7-Daten aus Datei [%s] vorbereitet."
 msgid "Importing HL7 data"
 msgstr "Importieren von HL7-Daten"
 
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "There has not been a patient explicitly associated\n"
 "with this chunk of HL7 data. However, the data file\n"
@@ -21619,6 +21768,9 @@ msgstr "Derzeitige Auswahl bewerten und abzeichnen"
 msgid "Plot current selection"
 msgstr "Derzeitige Auswahl grafisch darstellen"
 
+msgid "Print current selection"
+msgstr "Derzeitige Auswahl drucken"
+
 msgid ""
 "Select the measurements panel to show in the top pane for continuous "
 "monitoring."
@@ -21665,6 +21817,22 @@ msgstr "Laborwertkurve in Sammelmappe des aktiven Patient legen ?"
 
 msgid "lab results plot"
 msgstr "Laborwertkurve"
+
+msgid "Printing measurements"
+msgstr "Testergebnisse drucken"
+
+msgid ""
+"No measurements selected.\n"
+"\n"
+"Print ALL results of patient ?"
+msgstr ""
+"Keine Testergebnisse ausgewählt.\n"
+"\n"
+"Sollen ALLE Messungen des Patienten gedruckt werden ?"
+
+#, python-format
+msgid "Lab results -- %s"
+msgstr "Laborergebnisse -- %s"
 
 msgid "no related documents"
 msgstr "keine relevanten Dokumente"
@@ -22657,7 +22825,7 @@ msgstr ""
 "Sie diese oder beheben Sie sie. Verlassen Sie sich nicht auf das vollständig "
 "fehlerfreie Funktionieren dieser Datenbank !"
 
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "Unable to connect to database:\n"
 "\n"
@@ -22678,10 +22846,11 @@ msgstr ""
 "\n"
 "%s\n"
 "\n"
-"Mit korrekten Angaben neu versuchen oder abbrechen.\n"
+"Mit korrekten Zugangsdaten erneut versuchen oder abbrechen.\n"
 "\n"
 "Standardbenutzer und -passwort für die öffentliche und\n"
 "neu erstellte GNUmed-Datenbanken sind {any-doc, any-doc}.\n"
+"\n"
 "Möglicherweise müssen die PostgreSQL-Einstellungen\n"
 "für die Anmeldung in pg_hba.conf überprüft werden.\n"
 "Details unter:\n"
@@ -22869,7 +23038,7 @@ msgstr "Anmeldung abbrechen."
 msgid "Help for login screen"
 msgstr "Hilfe zur Anmeldemaske"
 
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "Unable to connect to the database ?\n"
 "\n"
@@ -22899,14 +23068,14 @@ msgid ""
 "\n"
 " %s"
 msgstr ""
-"Verbindungsprobleme mit der Datenbank:\n"
+"Verbindungsprobleme mit der Datenbank ?\n"
 "\n"
-"  \"... FATAL: password authentication failed ...\" ?\n"
+" \"PostgreSQL: FATAL:  password authentication failed ...\"\n"
 "\n"
 "→ Standardbenutzer und -passwort für öffentliche und\n"
 "neu erstellte GNUmed-Datenbanken sind {any-doc, any-doc}.\n"
 "\n"
-"  \"... could not connect to server ...\" ?\n"
+" \"... could not connect to server ...\"\n"
 "\n"
 "→ meist liegt dies daran, daß PostgreSQL noch nicht installiert\n"
 "und konfiguriert oder noch keine eigene GNUmed-Datenbank\n"
@@ -23249,6 +23418,15 @@ msgstr "Abbrechen"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
+
+#~ msgid "&L"
+#~ msgstr "&L"
+
+#~ msgid "&N"
+#~ msgstr "&N"
+
+#~ msgid "generic error message"
+#~ msgstr "allgemeine Fehlermeldung"
 
 #~ msgid "Activate patient from search box."
 #~ msgstr "Patient aus dem Suchfeld aktivieren."
@@ -23868,9 +24046,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ msgid "icon-future_mom"
 #~ msgstr "icon-future_mom"
 
-#~ msgid "Prescriptions"
-#~ msgstr "Verordnungen"
-
 #~ msgid "Requests"
 #~ msgstr "Aufträge"
 
@@ -24354,9 +24529,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "  IMMUNISATIONS  "
 #~ msgstr "  IMPFUNGEN  "
-
-#~ msgid "Indications"
-#~ msgstr "Indikationen"
 
 #~ msgid "Active Schedules"
 #~ msgstr "aktive Impfpläne"
@@ -26085,9 +26257,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ msgstr ""
 #~ "\n"
 #~ " Doc: "
-
-#~ msgid "Lab: %s\n"
-#~ msgstr "Lab: %s\n"
 
 #~ msgid ""
 #~ "\n"
@@ -27856,9 +28025,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ msgstr ""
 #~ "Fehler beim Suchen nach Dokumenten für:\n"
 #~ "[%s %s]."
-
-#~ msgid "No allergies known"
-#~ msgstr "Keine Allergien bekannt"
 
 #~ msgid "%s (last confirmed %s)%-90s"
 #~ msgstr "%s (zuletzt überprüft %s)%-90s"

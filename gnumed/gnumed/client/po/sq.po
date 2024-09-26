@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-08 22:59+0200\n"
+"POT-Creation-Date: 2024-09-22 16:43+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4504,18 +4504,24 @@ msgstr ""
 msgid "Log file"
 msgstr ""
 
+msgid "Enlist person as GNUmed user"
+msgstr ""
+
+msgid "The currently selected patient is:"
+msgstr ""
+
 msgid "Data of current patient to be displayed here."
 msgstr ""
 
-msgid "Enlist"
-msgstr ""
-
-msgid "Enlist person as GNUmed user"
+msgid "User parameters:"
 msgstr ""
 
 msgid ""
 "A short alias identifying the GNUmed user. It is used in the clinical record "
 "among other places."
+msgstr ""
+
+msgid "Account"
 msgstr ""
 
 msgid ""
@@ -4532,14 +4538,23 @@ msgstr ""
 msgid "The password for the new database account. Input will not be shown."
 msgstr ""
 
+msgid "Password, again"
+msgstr ""
+
 msgid ""
 "The database password must be typed again to enable double-checking to "
 "protect against typos."
 msgstr ""
 
+msgid "Admin password"
+msgstr ""
+
 msgid ""
 "Enlisting GNUmed users is a privileged operation.\n"
 "You must enter the password for the database administrator \"gm-dbo\" here."
+msgstr ""
+
+msgid "Enlist"
 msgstr ""
 
 msgid ""
@@ -4548,21 +4563,6 @@ msgid ""
 msgstr ""
 
 msgid "Cancel this dialog, do not enlist new GNUmed user."
-msgstr ""
-
-msgid "The currently selected patient is:"
-msgstr ""
-
-msgid "User parameters:"
-msgstr ""
-
-msgid "Account"
-msgstr ""
-
-msgid "Password, again"
-msgstr ""
-
-msgid "Admin password"
 msgstr ""
 
 msgid "Please select a health issue:"
@@ -4574,21 +4574,21 @@ msgstr ""
 msgid "Health issue selector"
 msgstr ""
 
-msgid "Anamnestic"
-msgstr ""
-
-msgid " + "
-msgstr ""
-
-msgid "ADR"
+msgid "Date given"
 msgstr ""
 
 msgid "Mandatory: When was the vaccination given to the patient ?"
 msgstr ""
 
+msgid "Anamnestic"
+msgstr ""
+
 msgid ""
 "Check this if - within the SOAP classification - you want to mark the entry "
 "as Subjective rather than Plan."
+msgstr ""
+
+msgid "Vaccine ..."
 msgstr ""
 
 msgid ""
@@ -4597,7 +4597,13 @@ msgid ""
 "If unknown check off the indications which were vaccinated against."
 msgstr ""
 
+msgid " + "
+msgstr ""
+
 msgid "Add a vaccine to GNUmed."
+msgstr ""
+
+msgid "Batch №"
 msgstr ""
 
 msgid "The batch number of the vaccine."
@@ -4611,37 +4617,31 @@ msgid ""
 "Alternatively, type the name for a new episode."
 msgstr ""
 
+msgid "Site"
+msgstr ""
+
 msgid "The injection site, if known."
+msgstr ""
+
+msgid "Given by"
 msgstr ""
 
 msgid "The provider who administered the vaccine, if known."
 msgstr ""
 
+msgid "Reaction"
+msgstr ""
+
 msgid "Record any adverse reactions to this vaccine."
+msgstr ""
+
+msgid "ADR"
 msgstr ""
 
 msgid "Report this event as an adverse drug reaction."
 msgstr ""
 
 msgid "Any comment you may wish to relate to this vaccination."
-msgstr ""
-
-msgid "Date given"
-msgstr ""
-
-msgid "Vaccine ..."
-msgstr ""
-
-msgid "Batch №"
-msgstr ""
-
-msgid "Site"
-msgstr ""
-
-msgid "Given by"
-msgstr ""
-
-msgid "Reaction"
 msgstr ""
 
 msgid "Manage panels"
@@ -5696,10 +5696,10 @@ msgstr ""
 msgid "&Show missing"
 msgstr ""
 
-msgid "Manage"
+msgid "Check to show panel tests which lack results."
 msgstr ""
 
-msgid "Check to show panel tests which lack results."
+msgid "Manage"
 msgstr ""
 
 #, fuzzy
@@ -6129,23 +6129,23 @@ msgstr ""
 msgid " &+Add… "
 msgstr ""
 
-msgid "Add documents from scanner/disc/clipboard to incoming area."
+msgid "Add entries from scanner/disc/clipboard to incoming area."
 msgstr ""
 
 #, fuzzy
 msgid " &Remove "
 msgstr "Filet e linjes kohore."
 
-msgid "Remove highlighted document from incoming area."
+msgid "Remove highlighted entry from incoming area."
 msgstr ""
 
 msgid "&Unassign"
 msgstr ""
 
-msgid "Unassign patient from highlighted document."
+msgid "Unassign patient from highlighted entry."
 msgstr ""
 
-msgid "Activate patient from highlighted or first [x] checked document."
+msgid "Activate patient from highlighted or first [x]-checked entry."
 msgstr ""
 
 msgid " Chart &import "
@@ -6154,7 +6154,7 @@ msgstr ""
 msgid ""
 "Prepare document import:\n"
 "\n"
-"1) filter by active patient\n"
+"1) filter entries by active patient\n"
 "2) show document property fields"
 msgstr ""
 
@@ -6166,15 +6166,15 @@ msgid "⮥ A&ssign "
 msgstr ""
 
 msgid ""
-" Assign patient from search box to [x] checked documents or the highlighted "
-"document."
+" Assign patient from search box to [x]-checked entries, if any, or else the "
+"highlighted entry."
 msgstr ""
 
 msgid "→&Goto "
 msgstr ""
 
 #, fuzzy
-msgid "Activate patient from search box."
+msgid "Make patient from search box the active patient."
 msgstr "Mjekime aktive: %s"
 
 #, fuzzy
@@ -6182,12 +6182,13 @@ msgid " A&ctive⮥ "
 msgstr "inaktiv"
 
 msgid ""
-"Assign ACTIVE patient to [x] checked documents or the hightlighted document."
+"Assign ACTIVE patient to [x]-checked entries, if any, or else the "
+"highlighted entry."
 msgstr ""
 
 #, fuzzy
-msgid "Patient document"
-msgstr " %s dokumente\n"
+msgid "Document properties"
+msgstr "Vecorite e ngjarjes"
 
 msgid "Type:"
 msgstr ""
@@ -6265,16 +6266,16 @@ msgid ""
 msgstr ""
 
 #, fuzzy
-msgid "&Import"
+msgid "&Import [x]"
 msgstr "Direktoria e Linjes Kohore..."
 
 msgid ""
-"Import [x] checked documents from incoming area into patient chart as one "
+"Import [x]-checked entries from incoming area into patient chart as a single "
 "document."
 msgstr ""
 
 #, fuzzy
-msgid "Clear patient document property fields."
+msgid "Clear document property fields."
 msgstr " %s dokumente\n"
 
 msgid "≈"
@@ -6311,16 +6312,16 @@ msgstr ""
 msgid "Close this dialog."
 msgstr ""
 
+msgid "Sort documents by"
+msgstr ""
+
 msgid "Age"
 msgstr ""
 
-msgid "Review status"
+msgid "Sort newest documents to top of tree."
 msgstr ""
 
-msgid "Health issue"
-msgstr "Ceshtje shendeti"
-
-msgid "Sort newest documents to top of tree."
+msgid "Review status"
 msgstr ""
 
 msgid "Sort unreviewed documents to top of tree."
@@ -6329,6 +6330,9 @@ msgstr ""
 msgid "Sort documents by the episode they belong to."
 msgstr ""
 
+msgid "Health issue"
+msgstr "Ceshtje shendeti"
+
 msgid "Sort documents by the health issue they belong to."
 msgstr ""
 
@@ -6336,9 +6340,6 @@ msgid "Sort documents by their type."
 msgstr ""
 
 msgid "Sort documents by the organization they are from."
-msgstr ""
-
-msgid "Sort documents by"
 msgstr ""
 
 msgid "Se&lect"
@@ -7396,16 +7397,16 @@ msgstr "Dokumenta:"
 msgid "Displays the list of persons to select from."
 msgstr ""
 
-msgid "&L"
-msgstr ""
-
-msgid "&N"
+msgid " &L "
 msgstr ""
 
 msgid "List all encounters."
 msgstr ""
 
 msgid "The encounter."
+msgstr ""
+
+msgid " &N "
 msgstr ""
 
 msgid "Start a new encounter for the active patient."
@@ -7511,10 +7512,7 @@ msgstr "Substance"
 msgid "&Unknown"
 msgstr "Format i panjohur."
 
-msgid ""
-"Notes on start date.\n"
-"\n"
-"('?' is interpreted as 'unknown')"
+msgid "Notes on start date."
 msgstr ""
 
 msgid "Stopped"
@@ -7693,10 +7691,10 @@ msgstr ""
 msgid "Factor"
 msgstr ""
 
-msgid "Select the address you want to use:"
+msgid "Address selection"
 msgstr ""
 
-msgid "Address selection"
+msgid "Select the address you want to use:"
 msgstr ""
 
 msgid "Manage addresses."
@@ -7746,20 +7744,16 @@ msgid ""
 "in this patient"
 msgstr ""
 
-msgid "View e&xternally"
+msgid "Part ?/?"
 msgstr ""
-
-#, fuzzy
-msgid "Show in external viewer."
-msgstr "E pamundur te kopjoj"
 
 msgid " ◀ &prev "
 msgstr ""
 
-msgid "&1 "
+msgid " &1 "
 msgstr ""
 
-msgid "&next ▶ "
+msgid " &next ▶ "
 msgstr ""
 
 msgid " S&witch preview "
@@ -7768,8 +7762,12 @@ msgstr ""
 msgid "Switch preview type among Image and Text."
 msgstr ""
 
-msgid " Preview"
+msgid " View e&xternally "
 msgstr ""
+
+#, fuzzy
+msgid "Show in external viewer."
+msgstr "E pamundur te kopjoj"
 
 msgid "Save &under"
 msgstr ""
@@ -8281,6 +8279,33 @@ msgstr ""
 
 msgid "units"
 msgstr "njesi"
+
+#, fuzzy, python-format
+msgid "Substance: %s %s"
+msgstr "Substance: %s [#%s]\n"
+
+#, fuzzy, python-format
+msgid "Regimen: %s"
+msgstr " Regjim: %s\n"
+
+#, fuzzy, python-format
+msgid "Timerange: %s"
+msgstr "Linje kohore"
+
+#, fuzzy, python-format
+msgid "Patient notes: %s"
+msgstr " Pacienti: #%s\n"
+
+#, fuzzy, python-format
+msgid "Provider notes: %s"
+msgstr "Printo"
+
+#, fuzzy, python-format
+msgid "Episode: %s%s"
+msgstr " Episod: %s\n"
+
+msgid "Issue"
+msgstr ""
 
 #, fuzzy, python-format
 msgid ""
@@ -8844,6 +8869,26 @@ msgstr ""
 " Zona: %(l10n_region)s, %(code_region)s\n"
 " Shteti: %(l10n_country)s, %(code_country)s"
 
+#, python-format
+msgid "Street: %(street)s%(notes_street)s"
+msgstr ""
+
+#, python-format
+msgid "Number/Unit: %(number)s%(subunit)s%(notes_subunit)s"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Location: %(zip)s %(urb)s%(suburb)s"
+msgstr "Organizate: %s (%s)"
+
+#, python-format
+msgid "Region: %(l10n_region)s, %(code_region)s"
+msgstr ""
+
+#, python-format
+msgid "Country: %(l10n_country)s, %(code_country)s"
+msgstr ""
+
 msgid "Textual keyword expansion"
 msgstr ""
 
@@ -9138,6 +9183,10 @@ msgstr "Impedanca:"
 msgid "Praxis branch                   #%s\n"
 msgstr ""
 
+#, fuzzy, python-format
+msgid "%s of %s"
+msgstr "Njesi: %s (%s)"
+
 #, python-format
 msgid ""
 "FN:%(l10n_unit_category)s %(branch)s of %(l10n_organization_category)s "
@@ -9279,11 +9328,11 @@ msgid "<country_code> cannot be empty"
 msgstr "<country> nuk mund te jete bosh"
 
 #, fuzzy, python-format
-msgid "%(last)s,%(title)s %(first)s%(nick)s (%(sex)s)"
+msgid "%(last)s %(first)s%(title)s%(nick)s (%(sex)s)"
 msgstr "%(mbiemer)s,%(titull)s %(emer)s%(nofke)s (%(seksi)s)"
 
 #, fuzzy, python-format
-msgid "%(last)s,%(title)s %(first)s (%(sex)s)"
+msgid "%(last)s %(first)s%(title)s (%(sex)s)"
 msgstr "%(mbiemer)s,%(titull)s %(emer)s%(nofke)s (%(seksi)s)"
 
 #, fuzzy, python-format
@@ -9616,6 +9665,16 @@ msgstr " Dita e faturimit: %s"
 msgid "Norm: %s"
 msgstr ""
 
+#, fuzzy, python-format
+msgid "  Lab: %s"
+msgstr ""
+"\n"
+" ne faturen: %s"
+
+#, fuzzy, python-format
+msgid "  Praxis: %s"
+msgstr " Pacienti: #%s\n"
+
 #, python-format
 msgid "unknown test results output format [%s]"
 msgstr "formati i rezultateve te testit, i panjohur [%s]"
@@ -9676,10 +9735,6 @@ msgstr "1 pjese"
 #, python-format
 msgid "%s parts"
 msgstr "%s pjese"
-
-#, fuzzy, python-format
-msgid "%s of %s"
-msgstr "Njesi: %s (%s)"
 
 #, fuzzy, python-format
 msgid " Receiver: %s @ %s\n"
@@ -9949,6 +10004,14 @@ msgstr "Njesi: %s (%s)"
 
 #, fuzzy
 msgid " Indications"
+msgstr "Informacion"
+
+#, fuzzy, python-format
+msgid "Indications: %s"
+msgstr "Informacion"
+
+#, fuzzy, python-format
+msgid "Indication: %s"
 msgstr "Informacion"
 
 #, python-format
@@ -11173,9 +11236,6 @@ msgstr ""
 msgid "Who"
 msgstr ""
 
-msgid "Issue"
-msgstr ""
-
 msgid "No narrative available for this health issue."
 msgstr ""
 
@@ -11606,6 +11666,13 @@ msgid ""
 "\n"
 "You can leave this empty but to set it to a specific\n"
 "address the URL must be accessible now."
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Vaccination history -- %s"
+msgstr "Hostoriku i mjekimit"
+
+msgid "Pretty vaccination history form failed. Generating failsafe version."
 msgstr ""
 
 msgid "Adding new vaccinations"
@@ -12627,10 +12694,18 @@ msgstr ""
 msgid "No medication list template configured."
 msgstr ""
 
-msgid "There is no medication list template configured."
-msgstr ""
+#, fuzzy, python-format
+msgid "Medication List -- %s"
+msgstr "Liste mjekimi"
+
+#, fuzzy
+msgid "Allergies: unknown"
+msgstr "Alegjite dhe intolerancat\n"
 
 msgid "Printing medication list"
+msgstr ""
+
+msgid "There is no medication list template configured."
 msgstr ""
 
 msgid "Problem loading medication list template."
@@ -12638,6 +12713,9 @@ msgstr ""
 
 #, python-format
 msgid "Cannot load medication list template [%s - %s]"
+msgstr ""
+
+msgid "Pretty medication list form failed. Generating failsafe version."
 msgstr ""
 
 msgid "generated medication list document"
@@ -12660,6 +12738,13 @@ msgstr ""
 
 #, python-format
 msgid "Cannot load prescription template [%s - %s]"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Prescription -- %s"
+msgstr "Përshkrim"
+
+msgid "Pretty prescription form failed. Generating failsafe version."
 msgstr ""
 
 #, fuzzy
@@ -14282,10 +14367,6 @@ msgstr ""
 msgid "Removing communication channel"
 msgstr ""
 
-#, fuzzy
-msgid "Image Preview"
-msgstr "File imazhi"
-
 msgid "File description/metadata appended"
 msgstr ""
 
@@ -14293,8 +14374,9 @@ msgstr ""
 msgid "No text content found."
 msgstr "Asnjë përputhje"
 
-msgid "Text preview"
-msgstr ""
+#, fuzzy, python-format
+msgid "Page %s/%s"
+msgstr "File imazhi"
 
 #, python-format
 msgid ""
@@ -14882,20 +14964,26 @@ msgstr ""
 "\n"
 "Ju lutem konsultoni loget e gabimeve per detajet e plota!"
 
-msgid "generic error message"
-msgstr "mesazh gabimi i pergjithshem"
+msgid "GNUmed error"
+msgstr ""
 
 msgid "programmer forgot to specify info message"
 msgstr "programuesi ka harruar te specifikoje nje mesazh informues"
 
-msgid "generic info message"
+#, fuzzy
+msgid "GNUmed info message"
 msgstr "mesazh informues i pergjithshem"
 
 msgid "programmer forgot to specify warning"
 msgstr "programuesi ka harruar te specifikoje nje paralajmerim"
 
-msgid "generic warning message"
+#, fuzzy
+msgid "GNUmed warning message"
 msgstr "mesazh paralajmerimi i pergjithshem"
+
+#, fuzzy
+msgid "GNUmed user question"
+msgstr "Krijo nje ngjarje te re"
 
 #, fuzzy
 msgid "Editing EDC"
@@ -15156,7 +15244,7 @@ msgstr ""
 #, python-format
 msgid ""
 "You have selected the chart of a member of staff,\n"
-"for whom privacy is especially important:\n"
+"for which privacy is particularly important:\n"
 "\n"
 "  %s, %s\n"
 "\n"
@@ -15506,6 +15594,22 @@ msgid ""
 "from the patient export area ?"
 msgstr ""
 
+#, fuzzy
+msgid "Deleting entry from export area."
+msgstr "E pamundur te kopjoj"
+
+#, python-format
+msgid ""
+"Entry points to directory\n"
+"\n"
+" %s\n"
+"\n"
+"on node [%s]\n"
+"(this node: [%s])\n"
+"\n"
+"Remove remote item from the patient export area ?"
+msgstr ""
+
 msgid "Error printing documents."
 msgstr ""
 
@@ -15811,6 +15915,17 @@ msgid ""
 msgstr ""
 
 msgid "OOo startup time"
+msgstr ""
+
+msgid "Healthcare provider:"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "born: %s (%s)"
+msgstr "Njesi: %s (%s)"
+
+#, python-format
+msgid "(GNUmed v%s failsafe form -- https://www.gnumed.de)"
 msgstr ""
 
 msgid "No document template selected."
@@ -16243,20 +16358,6 @@ msgid "part %2s"
 msgstr ""
 
 #, python-format
-msgid "%s%7s %s:%s (%s)"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "%s%7s (%s):%s"
-msgstr " Kohezgjatja: %s (%s - %s)"
-
-msgid "Error searching documents."
-msgstr ""
-
-msgid "loading document list"
-msgstr ""
-
-#, python-format
 msgid "%s (unattributed episode)"
 msgstr ""
 
@@ -16275,6 +16376,12 @@ msgstr " Keshille: %s\n"
 #, fuzzy
 msgid "this praxis"
 msgstr "orë"
+
+msgid "Error searching documents."
+msgstr ""
+
+msgid "loading document list"
+msgstr ""
 
 msgid "Activate as current photo"
 msgstr ""
@@ -16681,17 +16788,25 @@ msgstr "%s më parë"
 msgid "Select the directory from which to recursively upload DICOM files."
 msgstr ""
 
+msgid "No files uploaded."
+msgstr ""
+
+msgid "Uploading DICOM files"
+msgstr ""
+
 msgid "Delete the uploaded DICOM files now ?"
 msgstr ""
 
 msgid ""
 "Some files have not been uploaded.\n"
 "\n"
-"Do you want to delete those DICOM files which have been sent to the PACS "
+"Do you want to delete those DICOM files which *have* been sent to the PACS "
 "successfully ?"
 msgstr ""
 
-msgid "Uploading DICOM files"
+msgid ""
+"Information has been added to the PACS for the following patients:\n"
+"\n"
 msgstr ""
 
 #, python-format
@@ -19651,6 +19766,9 @@ msgstr ""
 msgid "Plot current selection"
 msgstr ""
 
+msgid "Print current selection"
+msgstr ""
+
 msgid ""
 "Select the measurements panel to show in the top pane for continuous "
 "monitoring."
@@ -19695,6 +19813,20 @@ msgstr ""
 
 #, fuzzy
 msgid "lab results plot"
+msgstr "Kerkoni rezultatet per '%s'"
+
+#, fuzzy
+msgid "Printing measurements"
+msgstr "Liste mjekimi"
+
+msgid ""
+"No measurements selected.\n"
+"\n"
+"Print ALL results of patient ?"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Lab results -- %s"
 msgstr "Kerkoni rezultatet per '%s'"
 
 #, fuzzy
@@ -20924,6 +21056,9 @@ msgstr ""
 msgid "Medication"
 msgstr ""
 
+msgid "Archive"
+msgstr ""
+
 msgid "&Documents"
 msgstr ""
 
@@ -21044,6 +21179,21 @@ msgstr ""
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr ""
+
+#, fuzzy
+#~ msgid "Patient document"
+#~ msgstr " %s dokumente\n"
+
+#, fuzzy
+#~ msgid "Image Preview"
+#~ msgstr "File imazhi"
+
+#~ msgid "generic error message"
+#~ msgstr "mesazh gabimi i pergjithshem"
+
+#, fuzzy, python-format
+#~ msgid "%s%7s (%s):%s"
+#~ msgstr " Kohezgjatja: %s (%s - %s)"
 
 #, fuzzy
 #~ msgid "Organization:"
