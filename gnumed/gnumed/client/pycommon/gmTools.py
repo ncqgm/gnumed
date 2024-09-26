@@ -1944,7 +1944,7 @@ def dict2table_row (
 	if not bool3_vals:
 		bool3_vals = {True: 'True', False: 'False', None: '?'}
 	if not relevant_keys:
-		relevant_keys = list(d.keys)
+		relevant_keys = list(d.keys())
 	d = normalize_dict_like(d, relevant_keys, missing_key_template = missing_key_template)
 	cells = []
 	for key in relevant_keys:

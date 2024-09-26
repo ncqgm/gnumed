@@ -120,7 +120,7 @@ def create_encrypted_zip_archive_from_dir(source_dir:str, comment:str=None, over
 	tmp = gmTools.copy_tree_content(source_dir, inner_archive_dir)
 	if not tmp:
 		_log.error('cannot move source data to inner archive creation scratch dir')
-		return False
+		return None
 
 	# 7z does not support ZIP comments so create a text file holding the comment
 	if comment is not None:
