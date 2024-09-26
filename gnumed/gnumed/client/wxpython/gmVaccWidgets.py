@@ -27,8 +27,10 @@ from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmNetworkTools
 from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmMimeLib
 
 from Gnumed.business import gmPerson
+from Gnumed.business import gmStaff
 from Gnumed.business import gmVaccination
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmProviderInbox
@@ -643,7 +645,7 @@ def print_vaccinations(parent=None):
 	)
 	if vaccs_printout is None:
 		gmGuiHelpers.gm_show_info (
-			title = title,
+			title = _('Printing vaccination history'),
 			info = _('Pretty vaccination history form failed. Generating failsafe version.')
 		)
 		vaccs_printout = save_failsafe_vaccination_history(max_width = 80)
@@ -1126,8 +1128,8 @@ if __name__ == "__main__":
 	main_frame = gmGuiTest.setup_widget_test_env(patient = 12)
 	#print(generate_failsafe_medication_list(patient = gmPerson.gmCurrentPatient(), max_width = 80, eol = '\n'))
 	gmStaff.set_current_provider_to_logged_on_user()
-	meds_list = save_failsafe_medication_list(max_width = 80)
-	gmMimeLib.call_editor_on_file(filename = meds_list, block = True)
+	vaccs_hx = save_failsafe_vaccination_history(max_width = 80)
+	gmMimeLib.call_editor_on_file(filename = vaccs_hx, block = True)
 
 	app = wx.PyWidgetTester(size = (600, 600))
 	#app.SetWidget(cXxxPhraseWheel, -1)

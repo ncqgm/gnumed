@@ -157,7 +157,7 @@ def print_medication_list(parent=None):
 			info = _('Pretty medication list form failed. Generating failsafe version.')
 		)
 		meds_list = save_failsafe_medication_list(max_width = 80)
-		gmMimeLib.call_editor_on_file(filename = med_list, block = True)
+		gmMimeLib.call_editor_on_file(filename = meds_list, block = True)
 		return True
 
 	# 3) print template
@@ -246,7 +246,7 @@ def generate_failsafe_prescription(pk_patient:int=None, max_width:int=80, eol:st
 		max_width = max_width
 	)
 	lines.extend(gmMedication.generate_failsafe_medication_list_entries (
-		pk_patient = patient.ID,
+		pk_patient = pk_patient,
 		max_width = max_width,
 		eol = None
 	))
@@ -280,7 +280,7 @@ def print_prescription(parent=None, emr=None):
 	)
 	if not rx:
 		gmGuiHelpers.gm_show_info (
-			title = title,
+			title = _('Printing prescription'),
 			info = _('Pretty prescription form failed. Generating failsafe version.')
 		)
 		rx = save_failsafe_prescription(patient = emr.pk_patient, max_width = 80)
