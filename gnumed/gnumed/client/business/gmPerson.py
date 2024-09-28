@@ -1723,6 +1723,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 	bills = property(get_bills)
+
 	#----------------------------------------------------------------------
 	# relatives API
 	#----------------------------------------------------------------------
@@ -1754,24 +1755,22 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		return [(row[0], cPerson(row = {'data': row[1:], 'idx':idx, 'pk_field': 'pk_identity'})) for row in rows]
 
 	#--------------------------------------------------------
-	def link_new_relative(self, rel_type = 'parent'):
+	def link_new_relative(self, rel_type:str='parent') -> bool:
 		# create new relative
 		id_new_relative = create_dummy_identity()
-
-		relative = cPerson(aPK_obj=id_new_relative)
+		relative = cPerson(aPK_obj = id_new_relative)
 		# pre-fill with data from ourselves
 #		relative.copy_addresses(self)
 		relative.add_name( '**?**', self.get_names()['lastnames'])
 		# and link the two
-		if 'relatives' in self._ext_cache:
-			del self._ext_cache['relatives']
-		cmd = """
-			insert into dem.lnk_person2relative (
+		SQL = """
+			INSERT INTO dem.lnk_person2relative (
 				id_identity, id_relative, id_relation_type
-			) values (
-				%s, %s, (select id from dem.relation_types where description = %s)
+			) VALUES (
+				%s, %s, (SELECT id FROM dem.relation_types WHERE description = %s)
 			)"""
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [self.ID, id_new_relative, rel_type  ]}])
+		args = [self.ID, id_new_relative, rel_type]
+		gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}])
 		return True
 
 	#----------------------------------------------------------------------

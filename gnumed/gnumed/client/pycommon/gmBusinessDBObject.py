@@ -362,7 +362,6 @@ class cBusinessDBObject(object):
 		self.pk_obj:int|dict = -1
 		self._idx:dict[str, int] = {}
 		self._payload:dict|'gmPG2.dbapi.extras.DictRow' = {}	# the cache for backend object values (mainly table fields)
-		self._ext_cache:dict = {}	# the cache for extended method's results
 		self._is_modified:bool = False
 		self.original_payload:list = None
 		# only now check child classes
