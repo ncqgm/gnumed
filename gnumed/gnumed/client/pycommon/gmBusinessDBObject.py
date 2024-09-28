@@ -361,7 +361,7 @@ class cBusinessDBObject(object):
 		# fail which will then call __str__ in stack trace logging if --debug
 		# was given which in turn needs those instance variables
 		self.pk_obj:int|dict = -1
-		self._idx:dict[str, int] = {}
+		self._idx:dict[str, int|str] = {}
 		self._payload:dict|'gmPG2.dbapi.extras.DictRow' = {}	# the cache for backend object values (mainly table fields)
 		self._is_modified:bool = False
 		self.original_payload:list = None
@@ -436,7 +436,8 @@ class cBusinessDBObject(object):
 			assert len(row['idx']) == len(row['data']), "[%s:??]: 'idx'<->'data' field count mismatch: %s" % (self.__class__.__name__, row)
 
 		except KeyError:
-			self._idx = self._payload.keys()
+			k = list(self._payload.keys())
+			self._idx = dict(zip(k, k))
 		if 'pk_field' in row:
 			self.pk_obj = self._payload[row['pk_field']]
 		else:
@@ -512,14 +513,13 @@ class cBusinessDBObject(object):
 	#--------------------------------------------------------
 	def get_fields(self) -> list[str]:
 		"""Return list of accessible fields."""
-		try:
-			return self._payload.keys()
-
-		except AttributeError:
-			return [
+		keys = list(self._payload.keys())
+		if not keys:
+			keys = [
 				'[%s @ %s]' % (self.__class__.__name__, id(self)),
-				'cannot return keys, nascent ?'
+				'no keys, nascent instance ?'
 			]
+		return keys
 
 	keys = property(get_fields)
 
@@ -701,10 +701,10 @@ class cBusinessDBObject(object):
 		else:
 			args:list = [self.pk_obj]		# type: ignore [no-redef]
 		queries = [{'cmd': self.__class__._cmd_fetch_payload, 'args': args}]
-		rows, self._idx = gmPG2.run_ro_queries (
+		rows, tmp = gmPG2.run_ro_queries (
 			link_obj = link_obj,
 			queries = queries,
-			get_col_idx = True
+			get_col_idx = False
 		)
 		if len(rows) == 0:
 			_log.error('[%s:%s]: no such instance' % (self.__class__.__name__, self.pk_obj))
@@ -714,6 +714,8 @@ class cBusinessDBObject(object):
 			raise AssertionError('[%s:%s]: %s instances !' % (self.__class__.__name__, self.pk_obj, len(rows)))
 
 		self._payload = rows[0]
+		k = list(self._payload.keys())
+		self._idx = dict(zip(k, k))
 		return True
 
 	#--------------------------------------------------------
