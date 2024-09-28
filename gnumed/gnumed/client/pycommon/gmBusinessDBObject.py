@@ -155,6 +155,7 @@ from Gnumed.pycommon.gmTools import compare_dict_likes
 from Gnumed.pycommon.gmTools import format_dict_like
 from Gnumed.pycommon.gmTools import dicts2table_columns
 from Gnumed.pycommon.gmTools import u_left_arrow
+from Gnumed.pycommon.gmTools import u_ellipsis
 
 
 _log = logging.getLogger('gm.db')
@@ -536,11 +537,15 @@ class cBusinessDBObject(object):
 			bools = {True: bool_strings[0], False: bool_strings[1]}
 		data = {}
 		for field in self._payload.keys():
-			# FIXME: harden against BYTEA fields
-			#if type(self._payload[self._idx[field]]) == ...
-			#	data[field] = _('<%s bytes of binary data>') % len(self._payload[self._idx[field]])
-			#	continue
-			val = self._payload[field]
+			# harden against BYTEA fields
+			if isinstance(self._payload[field], memoryview):
+				val = _('binary data: %s%s (total: %s bytes)') % (
+					self._payload[field].obj[:10],
+					u_ellipsis,
+					self._payload[field].nbytes
+				)
+			else:
+				val = self._payload[field]
 			if val is None:
 				data[field] = none_string
 				continue
@@ -818,19 +823,19 @@ if __name__ == '__main__':
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 
-	db_row = {'bogus_pk': -1, 'bogus_field': 'bogus_data', 'bogus_date': datetime.datetime.now(), 'test': -1}
-	db_idx = {'bogus_pk': 0, 'bogus_field': 1, 'bogus_date': 2, 'test': 3}
+	db_row = {'bogus_pk': -1, 'bogus_field': 'bogus_data', 'bogus_date': datetime.datetime.now(), 'test': -1, 'bogus_binary': memoryview(b'123456789012345678901234567890123456789012345678901234567890')}
+	db_idx = {'bogus_pk': 0, 'bogus_field': 1, 'bogus_date': 2, 'test': 3, 'bogus_binary': 4}
 	row_data = {
 		'pk_field': 'bogus_pk',
 		#'idx': db_idx,
 		'data': db_row
 	}
 	obj = cTestObj(row = row_data)
-	print('format():', obj.format())
+	#print('format():', obj.format())
 	print('as_dict():', obj.fields_as_dict())
-	print('test:', obj['test'])
-	obj['test'] = 'test'
-	print('test:', obj['test'])
+	#print('test:', obj['test'])
+	#obj['test'] = 'test'
+	#print('test:', obj['test'])
 	#print(obj['wrong_field'])
 	#obj['wrong_field'] = 1
 	#print(obj['wrong_field'])
