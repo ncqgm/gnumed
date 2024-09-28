@@ -39,9 +39,9 @@ _log = logging.getLogger('gm.ui.tl')
 #from Gnumed.timelinelib.canvas.data import TimePeriod
 
 # activate experimental container features
-from Gnumed.timelinelib.features.experimental import experimentalfeatures
-experimentalfeatures.EXTENDED_CONTAINER_HEIGHT.set_active(True)
-experimentalfeatures.EXTENDED_CONTAINER_STRATEGY.set_active(True)
+#from Gnumed.timelinelib.features.experimental import experimentalfeatures
+#experimentalfeatures.EXTENDED_CONTAINER_HEIGHT.set_active(True)
+#experimentalfeatures.EXTENDED_CONTAINER_STRATEGY.set_active(True)
 
 from Gnumed.timelinelib.canvas.data.timeperiod import TimePeriod
 from Gnumed.timelinelib.calendar.gregorian.gregorian import GregorianDateTime

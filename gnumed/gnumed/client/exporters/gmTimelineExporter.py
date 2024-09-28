@@ -431,9 +431,9 @@ def __format_intake_as_timeline_xml(intake):
 		format_pydt(end),
 		gmTools.xml_escape_string(intake['substance']),
 		_('Substances'),
-		gmTools.xml_escape_string(intake.format (
+		gmTools.xml_escape_string(''.join(intake.format (
 			single_line = False
-		).strip().strip('\n').strip())
+		)).strip().strip('\n').strip())
 	)
 
 #------------------------------------------------------------

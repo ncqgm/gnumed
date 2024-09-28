@@ -683,7 +683,7 @@ class DefaultDrawingAlgorithm(Drawer):
         p0 = wx.Point(tipx, tipy)
         path.MoveToPoint(p0.x, p0.y)
         # Next point is the left base of the arrow
-        p1 = wx.Point(p0.x + H_ARROW * math.tan(math.radians(AA)),
+        p1 = wx.Point(round(p0.x + H_ARROW * math.tan(math.radians(AA))),
                       p0.y - H_ARROW)
         path.AddLineToPoint(p1.x, p1.y)
         # Start of lower left rounded corner
