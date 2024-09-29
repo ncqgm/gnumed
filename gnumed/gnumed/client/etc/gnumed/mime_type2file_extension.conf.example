@@ -7,17 +7,12 @@
 # ~/.gnumed/
 #	 for user specific configuration
 #
-# see also: https://www.gnumed.de/bin/view/Gnumed/ConfigFiles
-#
 # -------------------------------------------------------------
-
 
 [extensions]
 
 # - the option should be a mime type
-# - the value should be the corresponding filename
-#   extension without a leading "."
+# - the value should be the corresponding filename extension
 image/x-bmp = bmp
-
 
 # -------------------------------------------------------------

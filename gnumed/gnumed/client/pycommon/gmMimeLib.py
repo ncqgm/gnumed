@@ -244,7 +244,9 @@ def guess_ext_by_mimetype(mimetype=''):
 		option = mimetype,
 		source_order = [('user-mime', 'return'), ('system-mime', 'return')]
 	)
-	if ext is not None:
+	if ext and ext.startswith('.'):
+		ext = ext[1:]
+	if ext:
 		_log.debug('<%s>: %s', mimetype, ext)
 		return ext
 

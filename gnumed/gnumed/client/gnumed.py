@@ -100,9 +100,13 @@ Show this help.
 
 
 .SH CONFIGURATION
+
+GNUmed uses scripts and configuration files to customize
+interaction with the system at startup and runtime.
+
 .PP
 .TP
-.B Client startup and shutdown (OS level)
+.B Shell level startup
 
 A shell script /usr/bin/gnumed is used to startup the client.
 It checks whether the systemwide configuration file
@@ -125,7 +129,7 @@ scripts in order if they exist:
 
 .PP
 .TP
-.B wxPython client startup
+.B Application level startup
 
 The gnumed.py script checks for INI style configuration files
 and fails if it does not find any. The files are searched for
@@ -154,29 +158,48 @@ options:
 
 .PP
 .TP
-.B client/system interaction at runtime
+.B Runtime interaction
 
-GNUmed uses scripts and configuration files to customize system interaction at runtime:
+These scripts must be found in the PATH for the client to be
+able to use them. When attempting to run a script the client
+will store API information into the log file (at DEBUG
+level).
 
 .B gm-print_doc(.bat)
 
-Called to print documents if other methods fail. Check the GNUmed debug log for the API.
+Called to print documents if other methods fail.
 
 .B gm-mail_doc(.bat)
 
-Called to e-mail documents if other methods fail. Check the GNUmed debug log for the API.
+Called to e-mail documents if other methods fail.
 
 .B gm-fax_doc(.bat)
 
-Called to fax documents if other methods fail. Check the GNUmed debug log for the API.
+Called to fax documents if other methods fail.
 
 .B gm-burn_doc(.bat)
 
-Called to burn a directory onto CD/DVD if other methods fail. Check the GNUmed debug log for the API.
+Called to burn a directory onto CD/DVD if other methods fail.
+
+.B gm-describe_file
+
+Called to retrieve metadata about a file.
+
+.B gm-convert_file
+
+Called to convert files among formats if other methods fail.
+
+.B gm-create_datamatrix
+
+Called to create a datamatrix.
+
+.B gm-create_dicomdir
+
+Called to generate a DICOMDIR file for a range of DICOM images.
 
 .B gm-unicode2clipboard
 
-Called to help the user enter non-native characters if other methods fail. Check the GNUmed debug log for the API.
+Called to help the user enter non-native characters if other methods fail.
 
 .B ~/.config/gnumed/gnumed-xsanerc.conf
 
@@ -192,7 +215,7 @@ When you configure XSane after calling it from GNUmed your changes will be store
 
 GNUmed will use these files to map mime types to file extensions if need be.
 
-The file must contain a group [extensions] under which there can be one option per mime type specifying the extension to use on files of said type. Set the value to the raw extension only, omitting the ".", like so:
+The file must contain a group [extensions] under which there can be one option per mime type specifying the extension to use on files of said type, like this:
 
 .nf
 [extensions]
