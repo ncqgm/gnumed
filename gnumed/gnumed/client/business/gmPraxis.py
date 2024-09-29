@@ -89,7 +89,7 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 			unit = self.org_unit
 			return '%s@%s' % (unit['unit'], unit['organization'])
 
-		txt = _('Praxis branch                   #%s\n') % self._payload[self._idx['pk_praxis_branch']]
+		txt = _('Praxis branch                   #%s\n') % self._payload['pk_praxis_branch']
 		txt += ' '
 		txt += '\n '.join(self.org_unit.format(with_address = True, with_org = True, with_comms = True))
 		return txt
@@ -109,11 +109,11 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def lock(self, exclusive=False):
-		return lock_praxis_branch(pk_praxis_branch = self._payload[self._idx['pk_praxis_branch']], exclusive = exclusive)
+		return lock_praxis_branch(pk_praxis_branch = self._payload['pk_praxis_branch'], exclusive = exclusive)
 
 	#--------------------------------------------------------
 	def unlock(self, exclusive=False):
-		return unlock_praxis_branch(pk_praxis_branch = self._payload[self._idx['pk_praxis_branch']], exclusive = exclusive)
+		return unlock_praxis_branch(pk_praxis_branch = self._payload['pk_praxis_branch'], exclusive = exclusive)
 
 	#--------------------------------------------------------
 	def get_comm_channels(self, comm_medium=None):
@@ -144,13 +144,13 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 	# properties
 	#--------------------------------------------------------
 	def _get_org_unit(self):
-		return gmOrganization.cOrgUnit(aPK_obj = self._payload[self._idx['pk_org_unit']])
+		return gmOrganization.cOrgUnit(aPK_obj = self._payload['pk_org_unit'])
 
 	org_unit = property(_get_org_unit)
 
 	#--------------------------------------------------------
 	def _get_org(self):
-		return gmOrganization.cOrg(aPK_obj = self._payload[self._idx['pk_org']])
+		return gmOrganization.cOrg(aPK_obj = self._payload['pk_org'])
 
 	organization = property(_get_org)
 

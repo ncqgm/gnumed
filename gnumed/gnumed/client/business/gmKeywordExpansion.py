@@ -63,10 +63,10 @@ class cKeywordExpansion(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def save_to_file(self, aChunkSize=0, target_mime=None, target_extension=None, ignore_conversion_problems=False):
 
-		if self._payload[self._idx['is_textual']]:
+		if self._payload['is_textual']:
 			return None
 
-		if self._payload[self._idx['data_size']] == 0:
+		if self._payload['data_size'] == 0:
 			return None
 
 		exported_fname = gmTools.get_unique_filename(prefix = 'gm-data_snippet-')
@@ -77,7 +77,7 @@ class cKeywordExpansion(gmBusinessDBObject.cBusinessDBObject):
 			},
 			filename = exported_fname,
 			chunk_size = aChunkSize,
-			data_size = self._payload[self._idx['data_size']]
+			data_size = self._payload['data_size']
 		)
 
 		if not success:
@@ -123,30 +123,30 @@ class cKeywordExpansion(gmBusinessDBObject.cBusinessDBObject):
 	def format(self):
 		txt = '%s            #%s\n' % (
 			gmTools.bool2subst (
-				self._payload[self._idx['is_textual']],
+				self._payload['is_textual'],
 				_('Textual keyword expansion'),
 				_('Binary keyword expansion')
 			),
-			self._payload[self._idx['pk_expansion']]
+			self._payload['pk_expansion']
 		)
 		txt += ' %s%s\n' % (
 			gmTools.bool2subst (
-				self._payload[self._idx['private_expansion']],
+				self._payload['private_expansion'],
 				_('private'),
 				_('public')
 			),
 			gmTools.bool2subst (
-				self._payload[self._idx['is_encrypted']],
+				self._payload['is_encrypted'],
 				', %s' % _('encrypted'),
 				''
 			)
 		)
-		txt += _(' Keyword: %s\n') % self._payload[self._idx['keyword']]
-		txt += _(' Owner: %s\n') % self._payload[self._idx['owner']]
-		if self._payload[self._idx['is_textual']]:
-			txt += '\n%s' % self._payload[self._idx['expansion']]
+		txt += _(' Keyword: %s\n') % self._payload['keyword']
+		txt += _(' Owner: %s\n') % self._payload['owner']
+		if self._payload['is_textual']:
+			txt += '\n%s' % self._payload['expansion']
 		else:
-			txt += ' Data: %s (%s Bytes)' % (gmTools.size2str(self._payload[self._idx['data_size']]), self._payload[self._idx['data_size']])
+			txt += ' Data: %s (%s Bytes)' % (gmTools.size2str(self._payload['data_size']), self._payload['data_size'])
 
 		return txt
 

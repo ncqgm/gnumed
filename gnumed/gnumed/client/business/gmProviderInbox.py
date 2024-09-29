@@ -68,60 +68,60 @@ class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 	def format(self, with_patient=True):
 		tt = '%s: %s%s\n' % (
 			gmDateTime.pydt_strftime (
-				self._payload[self._idx['received_when']],
+				self._payload['received_when'],
 				format = '%A, %Y %b %d, %H:%M',
 				accuracy = gmDateTime.acc_minutes
 			),
-			gmTools.bool2subst(self._payload[self._idx['is_virtual']], _('virtual message'), _('message')),
-			gmTools.coalesce(self._payload[self._idx['pk_inbox_message']], '', ' #%s ')
+			gmTools.bool2subst(self._payload['is_virtual'], _('virtual message'), _('message')),
+			gmTools.coalesce(self._payload['pk_inbox_message'], '', ' #%s ')
 		)
 
 		tt += '%s: %s\n' % (
-			self._payload[self._idx['l10n_category']],
-			self._payload[self._idx['l10n_type']]
+			self._payload['l10n_category'],
+			self._payload['l10n_type']
 		)
 
 		tt += '%s %s %s\n' % (
-			self._payload[self._idx['modified_by']],
+			self._payload['modified_by'],
 			gmTools.u_arrow2right,
-			gmTools.coalesce(self._payload[self._idx['provider']], _('everyone'))
+			gmTools.coalesce(self._payload['provider'], _('everyone'))
 		)
 
 		tt += '\n%s%s%s\n\n' % (
 			gmTools.u_left_double_angle_quote,
-			self._payload[self._idx['comment']],
+			self._payload['comment'],
 			gmTools.u_right_double_angle_quote
 		)
 
-		if with_patient and (self._payload[self._idx['pk_patient']] is not None):
+		if with_patient and (self._payload['pk_patient'] is not None):
 			tt += _('Patient: %s, %s%s %s   #%s\n' % (
-				self._payload[self._idx['lastnames']],
-				self._payload[self._idx['firstnames']],
-				gmTools.coalesce(self._payload[self._idx['l10n_gender']], '', ' (%s)'),
-				gmDateTime.pydt_strftime(self._payload[self._idx['dob']], '%Y %b %d', none_str = ''),
-				self._payload[self._idx['pk_patient']]
+				self._payload['lastnames'],
+				self._payload['firstnames'],
+				gmTools.coalesce(self._payload['l10n_gender'], '', ' (%s)'),
+				gmDateTime.pydt_strftime(self._payload['dob'], '%Y %b %d', none_str = ''),
+				self._payload['pk_patient']
 			))
 
-		if self._payload[self._idx['due_date']] is not None:
-			if self._payload[self._idx['is_overdue']]:
+		if self._payload['due_date'] is not None:
+			if self._payload['is_overdue']:
 				template = _('Due: %s (%s ago)\n')
 			else:
 				template = _('Due: %s (in %s)\n')
 			tt += template % (
-				gmDateTime.pydt_strftime(self._payload[self._idx['due_date']], '%Y %b %d'),
-				gmDateTime.format_interval_medically(self._payload[self._idx['interval_due']])
+				gmDateTime.pydt_strftime(self._payload['due_date'], '%Y %b %d'),
+				gmDateTime.format_interval_medically(self._payload['interval_due'])
 			)
 
-		if self._payload[self._idx['expiry_date']] is not None:
-			if self._payload[self._idx['is_expired']]:
+		if self._payload['expiry_date'] is not None:
+			if self._payload['is_expired']:
 				template = _('Expired: %s\n')
 			else:
 				template = _('Expires: %s\n')
-			tt += template % gmDateTime.pydt_strftime(self._payload[self._idx['expiry_date']], '%Y %b %d')
+			tt += template % gmDateTime.pydt_strftime(self._payload['expiry_date'], '%Y %b %d')
 
-		if self._payload[self._idx['data']] is not None:
-			tt += self._payload[self._idx['data']][:150]
-			if len(self._payload[self._idx['data']]) > 150:
+		if self._payload['data'] is not None:
+			tt += self._payload['data'][:150]
+			if len(self._payload['data']) > 150:
 				tt += gmTools.u_ellipsis
 
 		return tt

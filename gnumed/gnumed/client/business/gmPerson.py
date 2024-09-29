@@ -508,20 +508,20 @@ class cPersonName(gmBusinessDBObject.cBusinessDBObject):
 			# cannot *directly* deactivate a name, only indirectly
 			# by activating another one
 			# FIXME: should be done at DB level
-			if self._payload[self._idx['active_name']] is True:
+			if self._payload['active_name'] is True:
 				return
 		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
 
 	#--------------------------------------------------------
 	def _get_description(self):
 		return '%(last)s, %(title)s %(first)s%(nick)s' % {
-			'last': self._payload[self._idx['lastnames']],
+			'last': self._payload['lastnames'],
 			'title': gmTools.coalesce (
-				self._payload[self._idx['title']],
-				map_gender2salutation(self._payload[self._idx['gender']])
+				self._payload['title'],
+				map_gender2salutation(self._payload['gender'])
 			),
-			'first': self._payload[self._idx['firstnames']],
-			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], '', " '%s'", '%s')
+			'first': self._payload['firstnames'],
+			'nick': gmTools.coalesce(self._payload['preferred'], '', " '%s'", '%s')
 		}
 
 	description = property(_get_description)
@@ -566,7 +566,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	]
 	#--------------------------------------------------------
 	def _get_ID(self):
-		return self._payload[self._idx['pk_identity']]
+		return self._payload['pk_identity']
 
 	ID = property(_get_ID)
 
@@ -583,9 +583,9 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 					raise TypeError('[%s]: type [%s] (%s) invalid for attribute [dob], must be datetime.datetime or None' % (self.__class__.__name__, type(value), value))
 
 				# compare DOB at seconds level
-				if self._payload[self._idx['dob']] is not None:
+				if self._payload['dob'] is not None:
 					old_dob = gmDateTime.pydt_strftime (
-						self._payload[self._idx['dob']],
+						self._payload['dob'],
 						format = '%Y %m %d %H %M %S',
 						accuracy = gmDateTime.acc_seconds
 					)
@@ -605,7 +605,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_is_patient(self) -> bool:
-		return identity_is_patient(self._payload[self._idx['pk_identity']])
+		return identity_is_patient(self._payload['pk_identity'])
 
 	def _set_is_patient(self, turn_into_patient:bool):
 		if not turn_into_patient:
@@ -624,14 +624,14 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_as_patient(self) -> 'cPatient':
 		self.is_patient = True
-		return cPatient(self._payload[self._idx['pk_identity']])
+		return cPatient(self._payload['pk_identity'])
 
 	as_patient = property(_get_as_patient)
 
 	#--------------------------------------------------------
 	def _get_staff_id(self) -> int:
 		cmd = "SELECT pk FROM dem.staff WHERE fk_identity = %(pk)s"
-		args = {'pk': self._payload[self._idx['pk_identity']]}
+		args = {'pk': self._payload['pk_identity']}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		if rows:
 			return rows[0][0]
@@ -643,13 +643,13 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	# identity API
 	#--------------------------------------------------------
 	def _get_gender_symbol(self) -> str:
-		return map_gender2symbol[self._payload[self._idx['gender']]]
+		return map_gender2symbol[self._payload['gender']]
 
 	gender_symbol = property(_get_gender_symbol)
 
 	#--------------------------------------------------------
 	def _get_gender_string(self) -> str:
-		return map_gender2string(gender = self._payload[self._idx['gender']])
+		return map_gender2string(gender = self._payload['gender'])
 
 	gender_string = property(_get_gender_string)
 
@@ -666,14 +666,14 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		if names:
 			return names[0]
 
-		_log.error('cannot retrieve active name for patient [%s]', self._payload[self._idx['pk_identity']])
+		_log.error('cannot retrieve active name for patient [%s]', self._payload['pk_identity'])
 		return None
 
 	active_name = property(get_active_name)
 
 	#--------------------------------------------------------
 	def get_names(self, active_only:bool=False, exclude_active:bool=False) -> list[cPersonName]:
-		args = {'pk_pat': self._payload[self._idx['pk_identity']]}
+		args = {'pk_pat': self._payload['pk_identity']}
 		where_parts = ['pk_identity = %(pk_pat)s']
 		if active_only:
 			where_parts.append('active_name is True')
@@ -698,10 +698,10 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		else:
 			template = _('%(last)s %(first)s%(title)s (%(sex)s)')
 		return template % {
-			'last': self._payload[self._idx['lastnames']].upper(),
-			'title': gmTools.coalesce(self._payload[self._idx['title']], '', ' (%s)'),
-			'first': self._payload[self._idx['firstnames']],
-			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], '', " '%s'"),
+			'last': self._payload['lastnames'].upper(),
+			'title': gmTools.coalesce(self._payload['title'], '', ' (%s)'),
+			'first': self._payload['firstnames'],
+			'nick': gmTools.coalesce(self._payload['preferred'], '', " '%s'"),
 			'sex': self.gender_symbol
 		}
 
@@ -714,10 +714,10 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		else:
 			template = _('%(last)s,%(title)s %(first)s')
 		return template % {
-			'last': self._payload[self._idx['lastnames']],
-			'title': gmTools.coalesce(self._payload[self._idx['title']], '', ' %s'),
-			'first': self._payload[self._idx['firstnames']],
-			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], '', " '%s'")
+			'last': self._payload['lastnames'],
+			'title': gmTools.coalesce(self._payload['title'], '', ' %s'),
+			'first': self._payload['firstnames'],
+			'nick': gmTools.coalesce(self._payload['preferred'], '', " '%s'")
 		}
 
 	description = property(get_description)
@@ -752,14 +752,14 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		active name.
 		@param nickname The preferred/nick/warrior name to set.
 		"""
-		if self._payload[self._idx['preferred']] == nickname:
+		if self._payload['preferred'] == nickname:
 			return True
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': "SELECT dem.set_nickname(%s, %s)", 'args': [self.ID, nickname]}])
 		# setting nickname doesn't change dem.identity, so other fields
 		# of dem.v_active_persons do not get changed as a consequence of
 		# setting the nickname, hence locally setting nickname matches
 		# in-database reality
-		self._payload[self._idx['preferred']] = nickname
+		self._payload['preferred'] = nickname
 		#self.refetch_payload()
 		return True
 
@@ -1267,10 +1267,10 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			ext_ids = self.get_external_ids(id_type = external_id_type)
 			if len(ext_ids) > 0:
 				gdt_file.write(template % ('%03d' % (9 + len(ext_ids[0]['value'])), '3000', ext_ids[0]['value']))
-		gdt_file.write(template % ('%03d' % (9 + len(self._payload[self._idx['lastnames']])), '3101', self._payload[self._idx['lastnames']]))
-		gdt_file.write(template % ('%03d' % (9 + len(self._payload[self._idx['firstnames']])), '3102', self._payload[self._idx['firstnames']]))
-		gdt_file.write(template % ('%03d' % (9 + len(self._payload[self._idx['dob']].strftime('%d%m%Y'))), '3103', self._payload[self._idx['dob']].strftime('%d%m%Y')))
-		gdt_file.write(template % ('010', '3110', map_gender_gm2xdt[self._payload[self._idx['gender']]]))
+		gdt_file.write(template % ('%03d' % (9 + len(self._payload['lastnames'])), '3101', self._payload['lastnames']))
+		gdt_file.write(template % ('%03d' % (9 + len(self._payload['firstnames'])), '3102', self._payload['firstnames']))
+		gdt_file.write(template % ('%03d' % (9 + len(self._payload['dob'].strftime('%d%m%Y'))), '3103', self._payload['dob'].strftime('%d%m%Y')))
+		gdt_file.write(template % ('010', '3110', map_gender_gm2xdt[self._payload['gender']]))
 		gdt_file.write(template % ('025', '6330', 'GNUmed::9206::encoding'))
 		gdt_file.write(template % ('%03d' % (9 + len(encoding)), '6331', encoding))
 		if external_id_type is None:
@@ -1297,32 +1297,32 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		pat = etree.Element('patient')
 
 		first = etree.SubElement(pat, 'firstname')
-		first.text = gmTools.coalesce(self._payload[self._idx['firstnames']], '')
+		first.text = gmTools.coalesce(self._payload['firstnames'], '')
 
 		last = etree.SubElement(pat, 'lastname')
-		last.text = gmTools.coalesce(self._payload[self._idx['lastnames']], '')
+		last.text = gmTools.coalesce(self._payload['lastnames'], '')
 
 		# privacy
 		#middle = etree.SubElement(pat, u'middlename')
 		#middle.set(u'comment', _('preferred name/call name/...'))
-		#middle.text = gmTools.coalesce(self._payload[self._idx['preferred']], u'')
+		#middle.text = gmTools.coalesce(self._payload['preferred'], u'')
 
 		pref = etree.SubElement(pat, 'name_prefix')
-		pref.text = gmTools.coalesce(self._payload[self._idx['title']], '')
+		pref.text = gmTools.coalesce(self._payload['title'], '')
 
 		suff = etree.SubElement(pat, 'name_suffix')
 		suff.text = ''
 
 		dob = etree.SubElement(pat, 'DOB')
 		dob.set('format', dob_format)
-		dob.text = gmDateTime.pydt_strftime(self._payload[self._idx['dob']], dob_format, accuracy = gmDateTime.acc_days, none_str = '')
+		dob.text = gmDateTime.pydt_strftime(self._payload['dob'], dob_format, accuracy = gmDateTime.acc_days, none_str = '')
 
 		gender = etree.SubElement(pat, 'gender')
 		gender.set('comment', self.gender_string)
-		if self._payload[self._idx['gender']] is None:
+		if self._payload['gender'] is None:
 			gender.text = ''
 		else:
-			gender.text = map_gender2mf[self._payload[self._idx['gender']]]
+			gender.text = map_gender2mf[self._payload['gender']]
 
 		home = etree.SubElement(pat, 'home_address')
 		adrs = self.get_addresses(address_type = 'home')
@@ -1396,17 +1396,17 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		vc.add('fn')
 		vc.fn.value = self.get_description(with_nickname = False)	# privacy
 		vc.add('n')
-		vc.n.value = vobject.vcard.Name(family = self._payload[self._idx['lastnames']], given = self._payload[self._idx['firstnames']])
+		vc.n.value = vobject.vcard.Name(family = self._payload['lastnames'], given = self._payload['firstnames'])
 		# privacy
 		#vc.add(u'nickname')
-		#vc.nickname.value = gmTools.coalesce(self._payload[self._idx['preferred']], u'')
+		#vc.nickname.value = gmTools.coalesce(self._payload['preferred'], u'')
 		vc.add('title')
-		vc.title.value = gmTools.coalesce(self._payload[self._idx['title']], '')
+		vc.title.value = gmTools.coalesce(self._payload['title'], '')
 		vc.add('gender')
 		# FIXME: dont know how to add gender_string after ';'
-		vc.gender.value = map_gender2vcard[self._payload[self._idx['gender']]]#, self.gender_string
+		vc.gender.value = map_gender2vcard[self._payload['gender']]#, self.gender_string
 		vc.add('bday')
-		vc.bday.value = gmDateTime.pydt_strftime(self._payload[self._idx['dob']], dob_format, accuracy = gmDateTime.acc_days, none_str = '')
+		vc.bday.value = gmDateTime.pydt_strftime(self._payload['dob'], dob_format, accuracy = gmDateTime.acc_days, none_str = '')
 
 		channels = self.get_comm_channels(comm_medium = 'homephone')
 		if len(channels) > 0:
@@ -1501,12 +1501,12 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		"""
 		mecard_fields = [
 			'MECARD:N:%s,%s' % (
-				self._payload[self._idx['lastnames']].strip(),
-				self._payload[self._idx['firstnames']].strip()
+				self._payload['lastnames'].strip(),
+				self._payload['firstnames'].strip()
 			)
 		]
-		if self._payload[self._idx['dob']] is not None:
-			mecard_fields.append('BDAY:%s' % self._payload[self._idx['dob']].strftime('%Y%m%d'))
+		if self._payload['dob'] is not None:
+			mecard_fields.append('BDAY:%s' % self._payload['dob'].strftime('%Y%m%d'))
 		adrs = self.get_addresses(address_type = 'home')
 		if len(adrs) > 0:
 			mecard_fields.append('ADR:,%(subunit)s,%(number)s,%(street)s,%(urb)s,,%(postcode)s,%(l10n_country)s' % adrs[0])
@@ -1781,9 +1781,9 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_emergency_contact_from_database(self):
-		if self._payload[self._idx['pk_emergency_contact']] is None:
+		if self._payload['pk_emergency_contact'] is None:
 			return None
-		return cPerson(self._payload[self._idx['pk_emergency_contact']])
+		return cPerson(self._payload['pk_emergency_contact'])
 
 	emergency_contact_in_database = property(_get_emergency_contact_from_database)
 
@@ -1792,10 +1792,10 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	#----------------------------------------------------------------------
 	def get_formatted_dob(self, format='%Y %b %d', none_string=None, honor_estimation=False):
 		return gmDateTime.format_dob (
-			self._payload[self._idx['dob']],
+			self._payload['dob'],
 			format = format,
 			none_string = none_string,
-			dob_is_estimated = self._payload[self._idx['dob_is_estimated']] and honor_estimation
+			dob_is_estimated = self._payload['dob_is_estimated'] and honor_estimation
 		)
 
 	#----------------------------------------------------------------------
@@ -1818,7 +1818,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 		return '%s%s' % (
 			gmTools.bool2subst (
-				self._payload[self._idx['dob_is_estimated']],
+				self._payload['dob_is_estimated'],
 				gmTools.u_almost_equal_to,
 				''
 			),
@@ -1910,7 +1910,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	#----------------------------------------------------------------------
 	def get_last_encounter(self):
 		cmd = 'select * from clin.v_most_recent_encounters where pk_patient=%s'
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self._payload[self._idx['pk_identity']]]}])
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self._payload['pk_identity']]}])
 		if rows:
 			return rows[0]
 
@@ -1918,13 +1918,13 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def get_messages(self, order_by:str=None):
-		return gmProviderInbox.get_inbox_messages(pk_patient = self._payload[self._idx['pk_identity']], order_by = order_by)
+		return gmProviderInbox.get_inbox_messages(pk_patient = self._payload['pk_identity'], order_by = order_by)
 
 	messages = property(get_messages)
 
 	#--------------------------------------------------------
 	def _get_overdue_messages(self):
-		return gmProviderInbox.get_overdue_messages(pk_patient = self._payload[self._idx['pk_identity']])
+		return gmProviderInbox.get_overdue_messages(pk_patient = self._payload['pk_identity'])
 
 	overdue_messages = property(_get_overdue_messages)
 
@@ -1935,7 +1935,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_dynamic_hints(self, pk_encounter:int=None):
 		return gmAutoHints.get_hints_for_patient (
-			pk_identity = self._payload[self._idx['pk_identity']],
+			pk_identity = self._payload['pk_identity'],
 			pk_encounter = pk_encounter
 		)
 
@@ -1943,17 +1943,17 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_suppressed_hints(self):
-		return gmAutoHints.get_suppressed_hints(pk_identity = self._payload[self._idx['pk_identity']])
+		return gmAutoHints.get_suppressed_hints(pk_identity = self._payload['pk_identity'])
 
 	suppressed_hints = property(_get_suppressed_hints)
 
 	#--------------------------------------------------------
 	def _get_primary_provider_identity(self):
-		if self._payload[self._idx['pk_primary_provider']] is None:
+		if self._payload['pk_primary_provider'] is None:
 			return None
 
 		cmd = "SELECT * FROM dem.v_all_persons WHERE pk_identity = (SELECT pk_identity FROM dem.v_staff WHERE pk_staff = %(pk_staff)s)"
-		args = {'pk_staff': self._payload[self._idx['pk_primary_provider']]}
+		args = {'pk_staff': self._payload['pk_primary_provider']}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		if len(rows) == 0:
 			return None
@@ -1964,10 +1964,10 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_primary_provider(self):
-		if self._payload[self._idx['pk_primary_provider']] is None:
+		if self._payload['pk_primary_provider'] is None:
 			return None
 		from Gnumed.business import gmStaff
-		return gmStaff.cStaff(aPK_obj = self._payload[self._idx['pk_primary_provider']])
+		return gmStaff.cStaff(aPK_obj = self._payload['pk_primary_provider'])
 
 	primary_provider = property(_get_primary_provider)
 
@@ -1978,10 +1978,10 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		"""Format patient demographics into patient specific path name fragment."""
 
 		return gmTools.fname_sanitize('%s-%s-%s-ID_%s' % (
-			self._payload[self._idx['lastnames']],
-			self._payload[self._idx['firstnames']],
+			self._payload['lastnames'],
+			self._payload['firstnames'],
 			self.get_formatted_dob(format = '%Y-%m-%d'),
-			self._payload[self._idx['pk_identity']]		# make unique across "same" patients
+			self._payload['pk_identity']		# make unique across "same" patients
 		))
 		#).replace (
 		#	u'\u2248', u''			# "approximately", having been added by dob_is_estimated
@@ -2038,7 +2038,7 @@ class cPatient(cPerson):
 
 	#----------------------------------------------------------
 	def get_emr(self):
-		_log.debug('accessing EMR for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], threading.get_native_id())
+		_log.debug('accessing EMR for identity [%s], thread [%s]', self._payload['pk_identity'], threading.get_native_id())
 
 		# fast path: already set, just return it
 		if self.__emr is not None:
@@ -2066,9 +2066,9 @@ class cPatient(cPerson):
 			if not got_lock:
 				_log.error('still failed to acquire EMR access lock, aborting (thread [%s])', threading.get_native_id())
 				self.__emr_access_lock.release()
-				raise AttributeError('cannot lock access to EMR for identity [%s]' % self._payload[self._idx['pk_identity']])
+				raise AttributeError('cannot lock access to EMR for identity [%s]' % self._payload['pk_identity'])
 
-		_log.debug('pulling chart for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], threading.get_native_id())
+		_log.debug('pulling chart for identity [%s], thread [%s]', self._payload['pk_identity'], threading.get_native_id())
 		if not stack_logged:
 			# do some logging as we are pulling the chart for the first time
 			call_stack = inspect.stack()
@@ -2080,9 +2080,9 @@ class cPatient(cPerson):
 			stack_logged = True
 
 		self.is_patient = True
-		emr = cClinicalRecord(aPKey = self._payload[self._idx['pk_identity']])
+		emr = cClinicalRecord(aPKey = self._payload['pk_identity'])
 
-		_log.debug('returning EMR for identity [%s], thread [%s]', self._payload[self._idx['pk_identity']], threading.get_native_id())
+		_log.debug('returning EMR for identity [%s], thread [%s]', self._payload['pk_identity'], threading.get_native_id())
 		self.__emr = emr
 		self.__emr_access_lock.release()
 		return self.__emr
@@ -2092,7 +2092,7 @@ class cPatient(cPerson):
 	#----------------------------------------------------------
 	def get_document_folder(self):
 		if self.__doc_folder is None:
-			self.__doc_folder = cDocumentFolder(aPKey = self._payload[self._idx['pk_identity']])
+			self.__doc_folder = cDocumentFolder(aPKey = self._payload['pk_identity'])
 		return self.__doc_folder
 
 	document_folder = property(get_document_folder)

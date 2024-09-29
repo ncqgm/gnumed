@@ -73,7 +73,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj = aPK_obj, row = row)
 
 		# are we SELF ?
-		self.__is_current_user = (gmPG2.get_current_user() == self._payload[self._idx['db_user']])
+		self.__is_current_user = (gmPG2.get_current_user() == self._payload['db_user'])
 
 		self.__inbox = None
 
@@ -91,7 +91,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_ro_queries (
 			queries = [{
 				'cmd': 'select i18n.get_curr_lang(%(usr)s)',
-				'args': {'usr': self._payload[self._idx['db_user']]}
+				'args': {'usr': self._payload['db_user']}
 			}]
 		)
 		return rows[0][0]
@@ -99,7 +99,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 	def _set_db_lang(self, language):
 		if not gmPG2.set_user_language(language = language):
 			raise ValueError (
-				'Cannot set database language to [%s] for user [%s].' % (language, self._payload[self._idx['db_user']])
+				'Cannot set database language to [%s] for user [%s].' % (language, self._payload['db_user'])
 			)
 		return
 
@@ -109,7 +109,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 	def _get_inbox(self):
 		if self.__inbox is None:
 			from Gnumed.business import gmProviderInbox
-			self.__inbox = gmProviderInbox.cProviderInbox(provider_id = self._payload[self._idx['pk_staff']])
+			self.__inbox = gmProviderInbox.cProviderInbox(provider_id = self._payload['pk_staff'])
 		return self.__inbox
 
 	inbox = property(_get_inbox)
@@ -117,18 +117,18 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_identity(self):
 		from Gnumed.business.gmPerson import cPerson
-		return cPerson(self._payload[self._idx['pk_identity']])
+		return cPerson(self._payload['pk_identity'])
 
 	identity = property(_get_identity)
 
 	#--------------------------------------------------------
 	def set_role(self, conn=None, role=None):
-		if role.strip() == self._payload[self._idx['role']]:
+		if role.strip() == self._payload['role']:
 			return True
 
 		cmd = 'SELECT gm.add_user_to_permission_group(%(usr)s::name, %(grp)s::name)'
 		args = {
-			'usr': self._payload[self._idx['db_user']],
+			'usr': self._payload['db_user'],
 			'grp': _map_gm_role2pg_group[role.strip()]
 		}
 		rows, idx = gmPG2.run_rw_queries (

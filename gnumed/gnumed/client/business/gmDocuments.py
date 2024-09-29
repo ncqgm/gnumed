@@ -318,7 +318,7 @@ ORDER BY
 
 	#--------------------------------------------------------
 	def __get_containing_document(self):
-		return cDocument(aPK_obj = self._payload[self._idx['pk_doc']])
+		return cDocument(aPK_obj = self._payload['pk_doc'])
 
 	containing_document = property(__get_containing_document)
 
@@ -412,23 +412,23 @@ insert into blobs.reviewed_doc_objs (
 
 	#--------------------------------------------------------
 	def set_as_active_photograph(self):
-		if self._payload[self._idx['type']] != 'patient photograph':
+		if self._payload['type'] != 'patient photograph':
 			return False
 		# set seq_idx to current max + 1
 		cmd = 'SELECT coalesce(max(seq_idx)+1, 1) FROM blobs.doc_obj WHERE fk_doc = %(doc_id)s'
 		rows, idx = gmPG2.run_ro_queries (
 			queries = [{
 				'cmd': cmd,
-				'args': {'doc_id': self._payload[self._idx['pk_doc']]}
+				'args': {'doc_id': self._payload['pk_doc']}
 			}]
 		)
-		self._payload[self._idx['seq_idx']] = rows[0][0]
+		self._payload['seq_idx'] = rows[0][0]
 		self._is_modified = True
 		return self.save_payload()
 
 	#--------------------------------------------------------
 	def reattach(self, pk_doc=None):
-		if pk_doc == self._payload[self._idx['pk_doc']]:
+		if pk_doc == self._payload['pk_doc']:
 			return True
 
 		cmd = """
@@ -447,7 +447,7 @@ insert into blobs.reviewed_doc_objs (
 		args = {
 			'pk_doc_target': pk_doc,
 			'pk_obj': self.pk_obj,
-			'xmin_doc_obj': self._payload[self._idx['xmin_doc_obj']]
+			'xmin_doc_obj': self._payload['xmin_doc_obj']
 		}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
 		if len(rows) == 0:
@@ -458,7 +458,7 @@ insert into blobs.reviewed_doc_objs (
 		# failed to update a row because the target fk_doc did
 		# not exist we would not get *any* rows in return - for
 		# which condition we also already checked
-		if rows[0]['fk_doc'] == self._payload[self._idx['pk_doc']]:
+		if rows[0]['fk_doc'] == self._payload['pk_doc']:
 			return False
 
 		self.refetch_payload()
@@ -480,18 +480,18 @@ insert into blobs.reviewed_doc_objs (
 	#--------------------------------------------------------
 	def format_single_line(self):
 		f_ext = ''
-		if self._payload[self._idx['filename']] is not None:
-			f_ext = os.path.splitext(self._payload[self._idx['filename']])[1].strip('.').strip()
+		if self._payload['filename'] is not None:
+			f_ext = os.path.splitext(self._payload['filename'])[1].strip('.').strip()
 		if f_ext != '':
 			f_ext = ' .' + f_ext.upper()
 		txt = _('part %s, %s%s%s of document %s from %s%s') % (
-			self._payload[self._idx['seq_idx']],
-			gmTools.size2str(self._payload[self._idx['size']]),
+			self._payload['seq_idx'],
+			gmTools.size2str(self._payload['size']),
 			f_ext,
-			gmTools.coalesce(self._payload[self._idx['obj_comment']], '', ' ("%s")'),
-			self._payload[self._idx['l10n_type']],
-			gmDateTime.pydt_strftime(self._payload[self._idx['date_generated']], '%Y %b %d'),
-			gmTools.coalesce(self._payload[self._idx['doc_comment']], '', ' ("%s")')
+			gmTools.coalesce(self._payload['obj_comment'], '', ' ("%s")'),
+			self._payload['l10n_type'],
+			gmDateTime.pydt_strftime(self._payload['date_generated'], '%Y %b %d'),
+			gmTools.coalesce(self._payload['doc_comment'], '', ' ("%s")')
 		)
 		return txt
 
@@ -502,33 +502,33 @@ insert into blobs.reviewed_doc_objs (
 
 		txt = _('%s document part                 [#%s]\n') % (
 			gmTools.bool2str (
-				boolean = self._payload[self._idx['reviewed']],
+				boolean = self._payload['reviewed'],
 				true_str = _('Reviewed'),
 				false_str = _('Unreviewed')
 			),
-			self._payload[self._idx['pk_obj']]
+			self._payload['pk_obj']
 		)
 		f_ext = ''
-		if self._payload[self._idx['filename']] is not None:
-			f_ext = os.path.splitext(self._payload[self._idx['filename']])[1].strip('.').strip()
+		if self._payload['filename'] is not None:
+			f_ext = os.path.splitext(self._payload['filename'])[1].strip('.').strip()
 		if f_ext != '':
 			f_ext = '.' + f_ext.upper() + ' '
 		txt += _(' Part %s: %s %s(%s Bytes)\n') % (
-			self._payload[self._idx['seq_idx']],
-			gmTools.size2str(self._payload[self._idx['size']]),
+			self._payload['seq_idx'],
+			gmTools.size2str(self._payload['size']),
 			f_ext,
-			self._payload[self._idx['size']]
+			self._payload['size']
 		)
-		if self._payload[self._idx['filename']] is not None:
-			path, fname = os.path.split(self._payload[self._idx['filename']])
+		if self._payload['filename'] is not None:
+			path, fname = os.path.split(self._payload['filename'])
 			if not path.endswith(os.path.sep):
 				if path != '':
 					path += os.path.sep
 			if path != '':
 				path = ' (%s)' % path
 			txt += _(' Filename: %s%s\n') % (fname, path)
-		if self._payload[self._idx['obj_comment']] is not None:
-			txt += '\n%s\n' % self._payload[self._idx['obj_comment']]
+		if self._payload['obj_comment'] is not None:
+			txt += '\n%s\n' % self._payload['obj_comment']
 		return txt
 
 	#--------------------------------------------------------
@@ -554,26 +554,26 @@ insert into blobs.reviewed_doc_objs (
 
 		# preserve original filename extension if available
 		suffix = ''
-		if self._payload[self._idx['filename']] is not None:
+		if self._payload['filename'] is not None:
 			tmp, suffix = os.path.splitext (
-				gmTools.fname_sanitize(self._payload[self._idx['filename']]).casefold()
+				gmTools.fname_sanitize(self._payload['filename']).casefold()
 			)
 		if not suffix:
 			suffix = '.dat'
 
-		fname_template = '%%s-part_%s' % self._payload[self._idx['seq_idx']]
+		fname_template = '%%s-part_%s' % self._payload['seq_idx']
 		if include_gnumed_tag:
 			fname_template += '-gm_doc'
 
 		if date_before_type:
 			date_type_part = '%s-%s' % (
-				gmDateTime.pydt_strftime(self._payload[self._idx['date_generated']], '%Y-%m-%d', 'utf-8', gmDateTime.acc_days),
-				self._payload[self._idx['l10n_type']].replace(' ', '_').replace('-', '_'),
+				gmDateTime.pydt_strftime(self._payload['date_generated'], '%Y-%m-%d', 'utf-8', gmDateTime.acc_days),
+				self._payload['l10n_type'].replace(' ', '_').replace('-', '_'),
 			)
 		else:
 			date_type_part = '%s-%s' % (
-				self._payload[self._idx['l10n_type']].replace(' ', '_').replace('-', '_'),
-				gmDateTime.pydt_strftime(self._payload[self._idx['date_generated']], '%Y-%m-%d', 'utf-8', gmDateTime.acc_days)
+				self._payload['l10n_type'].replace(' ', '_').replace('-', '_'),
+				gmDateTime.pydt_strftime(self._payload['date_generated'], '%Y-%m-%d', 'utf-8', gmDateTime.acc_days)
 			)
 
 		if name_first:
@@ -599,7 +599,7 @@ insert into blobs.reviewed_doc_objs (
 	# internal helpers
 	#--------------------------------------------------------
 	def __download_to_file(self, filename=None, aChunkSize=0, conn=None):
-		if self._payload[self._idx['size']] == 0:
+		if self._payload['size'] == 0:
 			_log.debug('part size 0, nothing to download')
 			return None
 
@@ -612,7 +612,7 @@ insert into blobs.reviewed_doc_objs (
 			},
 			filename = filename,
 			chunk_size = aChunkSize,
-			data_size = self._payload[self._idx['size']],
+			data_size = self._payload['size'],
 			conn = conn
 		)
 		if not success:
@@ -916,7 +916,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def format_single_line(self):
 
-		part_count = len(self._payload[self._idx['seq_idx_list']])
+		part_count = len(self._payload['seq_idx_list'])
 		if part_count == 0:
 			parts = _('no parts')
 		elif part_count == 1:
@@ -925,28 +925,28 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 			parts = _('%s parts') % part_count
 
 		detail = ''
-		if self._payload[self._idx['ext_ref']] is not None:
-			detail = self._payload[self._idx['ext_ref']]
-		if self._payload[self._idx['unit']] is not None:
+		if self._payload['ext_ref'] is not None:
+			detail = self._payload['ext_ref']
+		if self._payload['unit'] is not None:
 			template = _('%s of %s')
 			if detail == '':
 				detail = _('%s of %s') % (
-					self._payload[self._idx['unit']],
-					self._payload[self._idx['organization']]
+					self._payload['unit'],
+					self._payload['organization']
 				)
 			else:
 				detail += (' @ ' + template % (
-					self._payload[self._idx['unit']],
-					self._payload[self._idx['organization']]
+					self._payload['unit'],
+					self._payload['organization']
 				))
 		if detail != '':
 			detail = ' (%s)' % detail
 
 		return '%s %s (%s):%s%s' % (
-			gmDateTime.pydt_strftime(self._payload[self._idx['clin_when']], '%Y %b %d', accuracy = gmDateTime.acc_days),
-			self._payload[self._idx['l10n_type']],
+			gmDateTime.pydt_strftime(self._payload['clin_when'], '%Y %b %d', accuracy = gmDateTime.acc_days),
+			self._payload['l10n_type'],
 			parts,
-			gmTools.coalesce(self._payload[self._idx['comment']], '', ' "%s"'),
+			gmTools.coalesce(self._payload['comment'], '', ' "%s"'),
 			detail
 		)
 
@@ -955,7 +955,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		if single_line:
 			return self.format_single_line()
 
-		part_count = len(self._payload[self._idx['seq_idx_list']])
+		part_count = len(self._payload['seq_idx_list'])
 		if part_count == 0:
 			parts = _('no parts')
 		elif part_count == 1:
@@ -963,19 +963,19 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		else:
 			parts = _('%s parts') % part_count
 		org = ''
-		if self._payload[self._idx['unit']] is not None:
-			if self._payload[self._idx['unit_is_receiver']]:
+		if self._payload['unit'] is not None:
+			if self._payload['unit_is_receiver']:
 				org = _(' Receiver: %s @ %s\n') % (
-					self._payload[self._idx['unit']],
-					self._payload[self._idx['organization']]
+					self._payload['unit'],
+					self._payload['organization']
 				)
 			else:
 				org = _(' Sender: %s @ %s\n') % (
-					self._payload[self._idx['unit']],
-					self._payload[self._idx['organization']]
+					self._payload['unit'],
+					self._payload['organization']
 				)
 		stay = ''
-		if self._payload[self._idx['pk_hospital_stay']] is not None:
+		if self._payload['pk_hospital_stay'] is not None:
 			stay = _('Hospital stay') + ': %s\n' % self.hospital_stay.format (
 				left_margin = 0,
 				include_procedures = False,
@@ -993,34 +993,34 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 			'%s'
 			'%s'
 		) % (
-			self._payload[self._idx['l10n_type']],
+			self._payload['l10n_type'],
 			parts,
-			self._payload[self._idx['pk_doc']],
-			gmDateTime.pydt_strftime(self._payload[self._idx['clin_when']], format = '%Y %b %d', accuracy = gmDateTime.acc_days),
-			self._payload[self._idx['episode']],
-			gmTools.coalesce(self._payload[self._idx['health_issue']], '', _(' Health issue: %s\n')),
-			gmTools.coalesce(self._payload[self._idx['ext_ref']], '', _(' External reference: %s\n')),
+			self._payload['pk_doc'],
+			gmDateTime.pydt_strftime(self._payload['clin_when'], format = '%Y %b %d', accuracy = gmDateTime.acc_days),
+			self._payload['episode'],
+			gmTools.coalesce(self._payload['health_issue'], '', _(' Health issue: %s\n')),
+			gmTools.coalesce(self._payload['ext_ref'], '', _(' External reference: %s\n')),
 			org,
 			stay,
-			gmTools.coalesce(self._payload[self._idx['comment']], '', ' %s')
+			gmTools.coalesce(self._payload['comment'], '', ' %s')
 		)
 
 		return txt
 
 	#--------------------------------------------------------
 	def _get_hospital_stay(self):
-		if self._payload[self._idx['pk_hospital_stay']] is None:
+		if self._payload['pk_hospital_stay'] is None:
 			return None
 		from Gnumed.business import gmEMRStructItems
-		return gmEMRStructItems.cHospitalStay(self._payload[self._idx['pk_hospital_stay']])
+		return gmEMRStructItems.cHospitalStay(self._payload['pk_hospital_stay'])
 
 	hospital_stay = property(_get_hospital_stay)
 
 	#--------------------------------------------------------
 	def _get_org_unit(self):
-		if self._payload[self._idx['pk_org_unit']] is None:
+		if self._payload['pk_org_unit'] is None:
 			return None
-		return gmOrganization.cOrgUnit(self._payload[self._idx['pk_org_unit']])
+		return gmOrganization.cOrgUnit(self._payload['pk_org_unit'])
 
 	org_unit = property(_get_org_unit)
 
@@ -1155,15 +1155,15 @@ class cDocumentType(gmBusinessDBObject.cBusinessDBObject):
 		if translation.strip() == '':
 			return False
 
-		if translation.strip() == self._payload[self._idx['l10n_type']].strip():
+		if translation.strip() == self._payload['l10n_type'].strip():
 			return True
 
 		rows, idx = gmPG2.run_rw_queries (
 			queries = [
-				{'cmd': 'select i18n.i18n(%s)', 'args': [self._payload[self._idx['type']]]},
+				{'cmd': 'select i18n.i18n(%s)', 'args': [self._payload['type']]},
 				{'cmd': 'select i18n.upd_tx((select i18n.get_curr_lang()), %(orig)s, %(tx)s)',
 				 'args': {
-				 	'orig': self._payload[self._idx['type']],
+				 	'orig': self._payload['type'],
 					'tx': translation
 					}
 				}

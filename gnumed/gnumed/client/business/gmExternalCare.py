@@ -72,22 +72,22 @@ class cExternalCareItem(gmBusinessDBObject.cBusinessDBObject):
 		lines = []
 		lines.append(_('External care%s             #%s') % (
 			gmTools.bool2subst (
-				self._payload[self._idx['inactive']],
+				self._payload['inactive'],
 				' (%s)' % _('inactive'),
 				'',
 				' [ERROR: .inactive is NULL]'
 			),
-			self._payload[self._idx['pk_external_care']]
+			self._payload['pk_external_care']
 		))
 		if with_health_issue:
-			if self._payload[self._idx['pk_health_issue']] is None:
-				lines.append(' ' + _('Issue: %s') % self._payload[self._idx['issue']])
+			if self._payload['pk_health_issue'] is None:
+				lines.append(' ' + _('Issue: %s') % self._payload['issue'])
 			else:
-				lines.append(' ' + _('Health issue: %s') % self._payload[self._idx['issue']])
+				lines.append(' ' + _('Health issue: %s') % self._payload['issue'])
 				lines.append('  (' + _('also treated here') + ')')
-		if self._payload[self._idx['provider']] is not None:
-			lines.append(' ' + _('Provider: %s') % self._payload[self._idx['provider']])
-		lines.append(' ' + _('Location: %s@%s') % (self._payload[self._idx['unit']], self._payload[self._idx['organization']]))
+		if self._payload['provider'] is not None:
+			lines.append(' ' + _('Provider: %s') % self._payload['provider'])
+		lines.append(' ' + _('Location: %s@%s') % (self._payload['unit'], self._payload['organization']))
 		unit = self.org_unit
 		if with_address:
 			adr = unit.address
@@ -100,14 +100,14 @@ class cExternalCareItem(gmBusinessDBObject.cBusinessDBObject):
 					comm['url'],
 					gmTools.bool2subst(comm['is_confidential'], _(' (confidential)'), '', '')
 				))
-		if self._payload[self._idx['comment']] is not None:
+		if self._payload['comment'] is not None:
 			lines.append('')
-			lines.append(' ' + self._payload[self._idx['comment']])
+			lines.append(' ' + self._payload['comment'])
 
 		return lines
 	#--------------------------------------------------------
 	def _get_org_unit(self):
-		return gmOrganization.cOrgUnit(self._payload[self._idx['pk_org_unit']])
+		return gmOrganization.cOrgUnit(self._payload['pk_org_unit'])
 
 	org_unit = property(_get_org_unit)
 

@@ -227,17 +227,17 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 
 		if filename is None:
 			if use_sandbox:
-				sandbox_dir = gmTools.mk_sandbox_dir(prefix = 'gm2%s-' % self._payload[self._idx['engine']])
+				sandbox_dir = gmTools.mk_sandbox_dir(prefix = 'gm2%s-' % self._payload['engine'])
 			else:
 				sandbox_dir = None
-			if self._payload[self._idx['filename']] is None:
-				suffix = self.__class__._suffix4engine[self._payload[self._idx['engine']]]
+			if self._payload['filename'] is None:
+				suffix = self.__class__._suffix4engine[self._payload['engine']]
 			else:
-				suffix = os.path.splitext(self._payload[self._idx['filename']].strip())[1].strip()
+				suffix = os.path.splitext(self._payload['filename'].strip())[1].strip()
 				if suffix in ['', '.']:
-					suffix = self.__class__._suffix4engine[self._payload[self._idx['engine']]]
+					suffix = self.__class__._suffix4engine[self._payload['engine']]
 			filename = gmTools.get_unique_filename (
-				prefix = 'gm-%s-Template-' % self._payload[self._idx['engine']],
+				prefix = 'gm-%s-Template-' % self._payload['engine'],
 				suffix = suffix,
 				tmp_dir = sandbox_dir
 			)
@@ -270,7 +270,7 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 		gmPG2.file2bytea (
 			filename = filename,
 			query = 'update ref.paperwork_templates set data = %(data)s::bytea where pk = %(pk)s and xmin = %(xmin)s',
-			args = {'pk': self.pk_obj, 'xmin': self._payload[self._idx['xmin_paperwork_template']]}
+			args = {'pk': self.pk_obj, 'xmin': self._payload['xmin_paperwork_template']}
 		)
 		# adjust for xmin change
 		return self.refetch_payload()
@@ -297,7 +297,7 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 			_log.debug('cannot save form data to file')
 			return None
 
-		engine = form_engines[self._payload[self._idx['engine']]]
+		engine = form_engines[self._payload['engine']]
 		form = engine(template_file = fname)
 		form.template = self
 		return form

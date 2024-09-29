@@ -82,25 +82,25 @@ class cDynamicHint(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def format(self, include_sql=False):
 		txt = '%s               [#%s]\n' % (
-			gmTools.bool2subst(self._payload[self._idx['is_active']], _('Active clinical hint'), _('Inactive clinical hint')),
-			self._payload[self._idx['pk_auto_hint']]
+			gmTools.bool2subst(self._payload['is_active'], _('Active clinical hint'), _('Inactive clinical hint')),
+			self._payload['pk_auto_hint']
 		)
 		txt += '\n'
-		txt += self._payload[self._idx['title']]
+		txt += self._payload['title']
 		txt += '\n'
 		txt += '\n'
-		txt += _('Source: %s\n') % self._payload[self._idx['source']]
-		txt += _('Language: %s\n') % self._payload[self._idx['lang']]
+		txt += _('Source: %s\n') % self._payload['source']
+		txt += _('Language: %s\n') % self._payload['lang']
 		txt += '\n'
-		txt += gmTools.wrap(self._payload[self._idx['hint']], width = 50, initial_indent = ' ', subsequent_indent = ' ')
+		txt += gmTools.wrap(self._payload['hint'], width = 50, initial_indent = ' ', subsequent_indent = ' ')
 		txt += '\n'
 		txt += '\n'
-		if self._payload[self._idx['recommendation']] is not None:
-			txt += gmTools.wrap(self._payload[self._idx['recommendation']], width = 50, initial_indent = ' ', subsequent_indent = ' ')
+		if self._payload['recommendation'] is not None:
+			txt += gmTools.wrap(self._payload['recommendation'], width = 50, initial_indent = ' ', subsequent_indent = ' ')
 			txt += '\n'
 			txt += '\n'
 		txt += gmTools.wrap (
-			gmTools.coalesce(self._payload[self._idx['url']], ''),
+			gmTools.coalesce(self._payload['url'], ''),
 			width = 50,
 			initial_indent = ' ',
 			subsequent_indent = ' '
@@ -108,31 +108,31 @@ class cDynamicHint(gmBusinessDBObject.cBusinessDBObject):
 		txt += '\n'
 		if include_sql:
 			txt += '\n'
-			txt += gmTools.wrap(self._payload[self._idx['query']], width = 50, initial_indent = ' ', subsequent_indent = ' ')
+			txt += gmTools.wrap(self._payload['query'], width = 50, initial_indent = ' ', subsequent_indent = ' ')
 			txt += '\n'
-			if self._payload[self._idx['recommendation_query']] is not None:
+			if self._payload['recommendation_query'] is not None:
 				txt += '\n'
-				txt += gmTools.wrap(self._payload[self._idx['recommendation_query']], width = 50, initial_indent = ' ', subsequent_indent = ' ')
+				txt += gmTools.wrap(self._payload['recommendation_query'], width = 50, initial_indent = ' ', subsequent_indent = ' ')
 				txt += '\n'
-		if self._payload[self._idx['rationale4suppression']] is not None:
+		if self._payload['rationale4suppression'] is not None:
 			txt += '\n'
 			txt += _('Rationale for suppression:')
 			txt += '\n'
-			txt += gmTools.wrap(self._payload[self._idx['rationale4suppression']], width = 50, initial_indent = ' ', subsequent_indent = ' ')
+			txt += gmTools.wrap(self._payload['rationale4suppression'], width = 50, initial_indent = ' ', subsequent_indent = ' ')
 			txt += '\n'
 		return txt
 
 	#--------------------------------------------------------
 	def suppress(self, rationale=None, pk_encounter=None):
 		return suppress_dynamic_hint (
-			pk_hint = self._payload[self._idx['pk_auto_hint']],
+			pk_hint = self._payload['pk_auto_hint'],
 			pk_encounter = pk_encounter,
 			rationale = rationale
 		)
 	#--------------------------------------------------------
 	def invalidate_suppression(self, pk_encounter=None):
 		return invalidate_hint_suppression (
-			pk_hint = self._payload[self._idx['pk_auto_hint']],
+			pk_hint = self._payload['pk_auto_hint'],
 			pk_encounter = pk_encounter
 		)
 
@@ -269,34 +269,34 @@ class cSuppressedHint(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def format(self):
 		txt = '%s               [#%s]\n' % (
-			gmTools.bool2subst(self._payload[self._idx['is_active']], _('Suppressed active dynamic hint'), _('Suppressed inactive dynamic hint')),
-			self._payload[self._idx['pk_suppressed_hint']]
+			gmTools.bool2subst(self._payload['is_active'], _('Suppressed active dynamic hint'), _('Suppressed inactive dynamic hint')),
+			self._payload['pk_suppressed_hint']
 		)
 		txt += '\n'
-		txt += '%s\n\n' % self._payload[self._idx['title']]
-		txt += _('Suppressed by: %s\n') % self._payload[self._idx['suppressed_by']]
-		txt += _('Suppressed at: %s\n') % gmDateTime.pydt_strftime(self._payload[self._idx['suppressed_when']], '%Y %b %d')
-		txt += _('Hint #: %s\n') % self._payload[self._idx['pk_hint']]
-		txt += _('Patient #: %s\n') % self._payload[self._idx['pk_identity']]
-		txt += _('MD5 (currently): %s\n') % self._payload[self._idx['md5_hint']]
-		txt += _('MD5 (at suppression): %s\n') % self._payload[self._idx['md5_suppressed']]
-		txt += _('Source: %s\n') % self._payload[self._idx['source']]
-		txt += _('Language: %s\n') % self._payload[self._idx['lang']]
+		txt += '%s\n\n' % self._payload['title']
+		txt += _('Suppressed by: %s\n') % self._payload['suppressed_by']
+		txt += _('Suppressed at: %s\n') % gmDateTime.pydt_strftime(self._payload['suppressed_when'], '%Y %b %d')
+		txt += _('Hint #: %s\n') % self._payload['pk_hint']
+		txt += _('Patient #: %s\n') % self._payload['pk_identity']
+		txt += _('MD5 (currently): %s\n') % self._payload['md5_hint']
+		txt += _('MD5 (at suppression): %s\n') % self._payload['md5_suppressed']
+		txt += _('Source: %s\n') % self._payload['source']
+		txt += _('Language: %s\n') % self._payload['lang']
 		txt += '\n'
-		txt += '%s\n' % gmTools.wrap(self._payload[self._idx['hint']], width = 50, initial_indent = ' ', subsequent_indent = ' ')
+		txt += '%s\n' % gmTools.wrap(self._payload['hint'], width = 50, initial_indent = ' ', subsequent_indent = ' ')
 		txt += '\n'
-		if self._payload[self._idx['recommendation']] is not None:
+		if self._payload['recommendation'] is not None:
 			txt += '\n'
-			txt += '%s\n' % gmTools.wrap(self._payload[self._idx['recommendation']], width = 50, initial_indent = ' ', subsequent_indent = ' ')
+			txt += '%s\n' % gmTools.wrap(self._payload['recommendation'], width = 50, initial_indent = ' ', subsequent_indent = ' ')
 			txt += '\n'
 		txt += '%s\n' % gmTools.wrap (
-			gmTools.coalesce(self._payload[self._idx['url']], ''),
+			gmTools.coalesce(self._payload['url'], ''),
 			width = 50,
 			initial_indent = ' ',
 			subsequent_indent = ' '
 		)
 		txt += '\n'
-		txt += '%s\n' % gmTools.wrap(self._payload[self._idx['query']], width = 50, initial_indent = ' ', subsequent_indent = ' ')
+		txt += '%s\n' % gmTools.wrap(self._payload['query'], width = 50, initial_indent = ' ', subsequent_indent = ' ')
 		return txt
 
 #------------------------------------------------------------

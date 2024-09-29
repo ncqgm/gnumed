@@ -443,31 +443,31 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 	def format(self, *args, **kwargs):
 		lines = []
 		lines.append(_('%s with %s %s     #%s') % (
-			gmTools.bool2subst(self._payload[self._idx['is_live']], _('Live vaccine'), _('Inactive vaccine'), '<liveness error in DB>'),
-			len(self._payload[self._idx['indications']]),
-			gmTools.bool2subst(len(self._payload[self._idx['indications']]) == 1, _('indication'), _('indications'), _('indication(s)')),
-			self._payload[self._idx['pk_vaccine']]
+			gmTools.bool2subst(self._payload['is_live'], _('Live vaccine'), _('Inactive vaccine'), '<liveness error in DB>'),
+			len(self._payload['indications']),
+			gmTools.bool2subst(len(self._payload['indications']) == 1, _('indication'), _('indications'), _('indication(s)')),
+			self._payload['pk_vaccine']
 		))
 		lines.append(_(' Product: "%s"     #%s') % (
-			self._payload[self._idx['vaccine']],
-			self._payload[self._idx['pk_drug_product']]
+			self._payload['vaccine'],
+			self._payload['pk_drug_product']
 		))
 		lines.append(_('  %s%s%s%s') % (
-			self._payload[self._idx['l10n_preparation']],
-			gmTools.coalesce(gmTools.bool2subst(self._payload[self._idx['is_fake_vaccine']], _('fake product'), None, None), '', ', %s'),
-			gmTools.coalesce(self._payload[self._idx['atc_code']], '', ' [ATC:%s]'),
-			gmTools.coalesce(self._payload[self._idx['external_code']], '', ' [%s:%%s]' % self._payload[self._idx['external_code_type']])
+			self._payload['l10n_preparation'],
+			gmTools.coalesce(gmTools.bool2subst(self._payload['is_fake_vaccine'], _('fake product'), None, None), '', ', %s'),
+			gmTools.coalesce(self._payload['atc_code'], '', ' [ATC:%s]'),
+			gmTools.coalesce(self._payload['external_code'], '', ' [%s:%%s]' % self._payload['external_code_type'])
 		))
 		#lines.append(_(u' %sage %s - %s') % (
-		#	gmTools.coalesce(self._payload[self._idx['route_description']], u'', u'%s, '),		#route_abbreviation
+		#	gmTools.coalesce(self._payload['route_description'], u'', u'%s, '),		#route_abbreviation
 		lines.append(_(' Age %s - %s') % (
-			gmTools.coalesce(self._payload[self._idx['min_age']], '?'),
-			gmTools.coalesce(self._payload[self._idx['max_age']], '?')
+			gmTools.coalesce(self._payload['min_age'], '?'),
+			gmTools.coalesce(self._payload['max_age'], '?')
 		))
-		if self._payload[self._idx['comment']] is not None:
-			lines.extend([ ' %s' % l for l in self._payload[self._idx['comment']].split('\n')] )
+		if self._payload['comment'] is not None:
+			lines.extend([ ' %s' % l for l in self._payload['comment'].split('\n')] )
 		lines.append(_(' Indications'))
-		lines.extend( [ '  %s [ATC:%s]' % (i['l10n_indication'], i['atc_indication']) for i in self._payload[self._idx['indications']] ])
+		lines.extend( [ '  %s [ATC:%s]' % (i['l10n_indication'], i['atc_indication']) for i in self._payload['indications'] ])
 
 		return lines
 
@@ -475,14 +475,14 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 	# properties
 	#--------------------------------------------------------
 	def _get_product(self):
-		return gmMedication.cDrugProduct(aPK_obj = self._payload[self._idx['pk_drug_product']])
+		return gmMedication.cDrugProduct(aPK_obj = self._payload['pk_drug_product'])
 
 	product = property(_get_product)
 
 	#--------------------------------------------------------
 	def _get_is_in_use(self):
 		cmd = 'SELECT EXISTS(SELECT 1 FROM clin.vaccination WHERE fk_vaccine = %(pk)s)'
-		args = {'pk': self._payload[self._idx['pk_vaccine']]}
+		args = {'pk': self._payload['pk_vaccine']}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows[0][0]
 
@@ -601,22 +601,22 @@ class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 		lines = []
 
 		lines.append (' %s: %s [%s]%s' % (
-			self._payload[self._idx['date_given']].strftime(date_format),
-			self._payload[self._idx['vaccine']],
-			self._payload[self._idx['batch_no']],
-			gmTools.coalesce(self._payload[self._idx['site']], '', ' (%s)')
+			self._payload['date_given'].strftime(date_format),
+			self._payload['vaccine'],
+			self._payload['batch_no'],
+			gmTools.coalesce(self._payload['site'], '', ' (%s)')
 		))
 
 		if with_comment:
-			if self._payload[self._idx['comment']] is not None:
-				lines.append('   %s' % self._payload[self._idx['comment']])
+			if self._payload['comment'] is not None:
+				lines.append('   %s' % self._payload['comment'])
 
 		if with_reaction:
-			if self._payload[self._idx['reaction']] is not None:
-				lines.append('   %s' % self._payload[self._idx['reaction']])
+			if self._payload['reaction'] is not None:
+				lines.append('   %s' % self._payload['reaction'])
 
 		if with_indications:
-			lines.append('   %s' % ' / '.join([ i['l10n_indication'] for i in self._payload[self._idx['indications']] ]))
+			lines.append('   %s' % ' / '.join([ i['l10n_indication'] for i in self._payload['indications'] ]))
 
 		return lines
 
@@ -641,7 +641,7 @@ class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_vaccine(self):
-		return cVaccine(aPK_obj = self._payload[self._idx['pk_vaccine']])
+		return cVaccine(aPK_obj = self._payload['pk_vaccine'])
 
 	vaccine = property(_get_vaccine)
 

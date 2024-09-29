@@ -361,7 +361,7 @@ class cBusinessDBObject(object):
 		# fail which will then call __str__ in stack trace logging if --debug
 		# was given which in turn needs those instance variables
 		self.pk_obj:int|dict = -1
-		self._idx:dict[str, int|str] = {}
+#		self._idx:dict[str, int|str] = {}
 		self._payload:dict|'gmPG2.dbapi.extras.DictRow' = {}	# the cache for backend object values (mainly table fields)
 		self._is_modified:bool = False
 		self.original_payload:list = None
@@ -431,13 +431,13 @@ class cBusinessDBObject(object):
 		assert not faulty_pk, "[%s:??]: either 'pk_field' or 'pk_obj' must exist in <row> argument: %s" % (self.__class__.__name__, row)
 
 		self._payload = row['data']
-		try:
-			self._idx = row['idx']
-			assert len(row['idx']) == len(row['data']), "[%s:??]: 'idx'<->'data' field count mismatch: %s" % (self.__class__.__name__, row)
-
-		except KeyError:
-			k = list(self._payload.keys())
-			self._idx = dict(zip(k, k))
+#		try:
+#			self._idx = row['idx']
+#			assert len(row['idx']) == len(row['data']), "[%s:??]: 'idx'<->'data' field count mismatch: %s" % (self.__class__.__name__, row)
+#
+#		except KeyError:
+#			k = list(self._payload.keys())
+#			self._idx = dict(zip(k, k))
 		if 'pk_field' in row:
 			self.pk_obj = self._payload[row['pk_field']]
 		else:
@@ -715,7 +715,7 @@ class cBusinessDBObject(object):
 
 		self._payload = rows[0]
 		k = list(self._payload.keys())
-		self._idx = dict(zip(k, k))
+#		self._idx = dict(zip(k, k))
 		return True
 
 	#--------------------------------------------------------

@@ -179,13 +179,13 @@ class cGenericEMRItem(gmBusinessDBObject.cBusinessDBObject):
 	def format(self, eol=None):
 		lines = self.formatted_header
 		lines.append(gmTools.u_box_horiz_4dashes * 40)
-		lines.extend(self._payload[self._idx['narrative']].strip().split('\n'))
+		lines.extend(self._payload['narrative'].strip().split('\n'))
 		lines.append('')
 		lines.append(_('                        rev %s (%s) by %s in <%s>') % (
-			self._payload[self._idx['row_version']],
-			self._payload[self._idx['date_modified']],
-			self._payload[self._idx['modified_by']],
-			self._payload[self._idx['src_table']]
+			self._payload['row_version'],
+			self._payload['date_modified'],
+			self._payload['modified_by'],
+			self._payload['src_table']
 		))
 		if eol is None:
 			return lines
@@ -197,42 +197,42 @@ class cGenericEMRItem(gmBusinessDBObject.cBusinessDBObject):
 		lines.append(_('Chart entry (%s): %s       [#%s in %s]') % (
 			self.i18n_soap_cat,
 			self.item_type_str,
-			self._payload[self._idx['src_pk']],
-			self._payload[self._idx['src_table']]
+			self._payload['src_pk'],
+			self._payload['src_table']
 		))
 		lines.append(_(' Modified: %s by %s (%s rev %s)') % (
-			self._payload[self._idx['date_modified']],
-			self._payload[self._idx['modified_by']],
+			self._payload['date_modified'],
+			self._payload['modified_by'],
 			gmTools.u_arrow2right,
-			self._payload[self._idx['row_version']]
+			self._payload['row_version']
 		))
 		lines.append('')
-		if self._payload[self._idx['health_issue']] is None:
+		if self._payload['health_issue'] is None:
 			issue_info = gmTools.u_diameter
 		else:
 			issue_info = '%s%s' % (
-				self._payload[self._idx['health_issue']],
-				gmTools.bool2subst(self._payload[self._idx['issue_active']], ' (' + _('active') + ')', ' (' + _('inactive') + ')', '')
+				self._payload['health_issue'],
+				gmTools.bool2subst(self._payload['issue_active'], ' (' + _('active') + ')', ' (' + _('inactive') + ')', '')
 			)
 		lines.append(_('Health issue: %s') % issue_info)
-		if self._payload[self._idx['episode']] is None:
+		if self._payload['episode'] is None:
 			episode_info = gmTools.u_diameter
 		else:
 			episode_info = '%s%s' % (
-				self._payload[self._idx['episode']],
-				gmTools.bool2subst(self._payload[self._idx['episode_open']], ' (' +  _('open') + ')', ' (' +  _('closed') + ')', '')
+				self._payload['episode'],
+				gmTools.bool2subst(self._payload['episode_open'], ' (' +  _('open') + ')', ' (' +  _('closed') + ')', '')
 			)
 		lines.append(_('Episode: %s') % episode_info)
-		if self._payload[self._idx['encounter_started']] is None:
+		if self._payload['encounter_started'] is None:
 			enc_info = gmTools.u_diameter
 		else:
 			enc_info = '%s - %s (%s)' % (
-				gmDateTime.pydt_strftime(self._payload[self._idx['encounter_started']], '%Y %b %d  %H:%M'),
-				self._payload[self._idx['encounter_last_affirmed']].strftime('%H:%M'),
-				self._payload[self._idx['encounter_l10n_type']]
+				gmDateTime.pydt_strftime(self._payload['encounter_started'], '%Y %b %d  %H:%M'),
+				self._payload['encounter_last_affirmed'].strftime('%H:%M'),
+				self._payload['encounter_l10n_type']
 			)
 		lines.append(_('Encounter: %s') % enc_info)
-		lines.append(_('Event: %s') % self._payload[self._idx['clin_when']].strftime('%Y %b %d  %H:%M'))
+		lines.append(_('Event: %s') % self._payload['clin_when'].strftime('%Y %b %d  %H:%M'))
 		if eol is None:
 			return lines
 
@@ -243,25 +243,25 @@ class cGenericEMRItem(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def __get_item_type_str(self):
 		try:
-			return _MAP_generic_emr_item_table2type_str[self._payload[self._idx['src_table']]]
+			return _MAP_generic_emr_item_table2type_str[self._payload['src_table']]
 		except KeyError:
 			return '[%s:%s]' % (
-				self._payload[self._idx['src_table']],
-				self._payload[self._idx['src_pk']]
+				self._payload['src_table'],
+				self._payload['src_pk']
 			)
 
 	item_type_str = property(__get_item_type_str)
 
 	#--------------------------------------------------------
 	def __get_i18n_soap_cat(self):
-		return gmSoapDefs.soap_cat2l10n[self._payload[self._idx['soap_cat']]]
+		return gmSoapDefs.soap_cat2l10n[self._payload['soap_cat']]
 
 	i18n_soap_cat = property(__get_i18n_soap_cat)
 
 	#--------------------------------------------------------
 	def __get_specialized_item(self):
-		item_class = _MAP_generic_emr_item_table2class[self._payload[self._idx['src_table']]]
-		return item_class(aPK_obj = self._payload[self._idx['src_pk']])
+		item_class = _MAP_generic_emr_item_table2class[self._payload['src_table']]
+		return item_class(aPK_obj = self._payload['src_pk'])
 
 	specialized_item = property(__get_specialized_item)
 

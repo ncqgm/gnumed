@@ -72,35 +72,35 @@ class cBillable(gmBusinessDBObject.cBusinessDBObject):
 	def format(self):
 		txt = '%s                                    [#%s]\n\n' % (
 			gmTools.bool2subst (
-				self._payload[self._idx['active']],
+				self._payload['active'],
 				_('Active billable item'),
 				_('Inactive billable item')
 			),
-			self._payload[self._idx['pk_billable']]
+			self._payload['pk_billable']
 		)
 		txt += ' %s: %s\n' % (
-			self._payload[self._idx['billable_code']],
-			self._payload[self._idx['billable_description']]
+			self._payload['billable_code'],
+			self._payload['billable_description']
 		)
 		txt += _(' %(curr)s%(raw_val)s + %(perc_vat)s%% VAT = %(curr)s%(val_w_vat)s\n') % {
-			'curr': self._payload[self._idx['currency']],
-			'raw_val': self._payload[self._idx['raw_amount']],
-			'perc_vat': self._payload[self._idx['vat_multiplier']] * 100,
-			'val_w_vat': self._payload[self._idx['amount_with_vat']]
+			'curr': self._payload['currency'],
+			'raw_val': self._payload['raw_amount'],
+			'perc_vat': self._payload['vat_multiplier'] * 100,
+			'val_w_vat': self._payload['amount_with_vat']
 		}
 		txt += ' %s %s%s (%s)' % (
-			self._payload[self._idx['catalog_short']],
-			self._payload[self._idx['catalog_version']],
-			gmTools.coalesce(self._payload[self._idx['catalog_language']], '', ' - %s'),
-			self._payload[self._idx['catalog_long']]
+			self._payload['catalog_short'],
+			self._payload['catalog_version'],
+			gmTools.coalesce(self._payload['catalog_language'], '', ' - %s'),
+			self._payload['catalog_long']
 		)
-		txt += gmTools.coalesce(self._payload[self._idx['comment']], '', '\n %s')
+		txt += gmTools.coalesce(self._payload['comment'], '', '\n %s')
 
 		return txt
 	#--------------------------------------------------------
 	def _get_is_in_use(self):
 		cmd = 'SELECT EXISTS(SELECT 1 FROM bill.bill_item WHERE fk_billable = %(pk)s LIMIT 1)'
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self._payload[self._idx['pk_billable']]}}])
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self._payload['pk_billable']}}])
 		return rows[0][0]
 
 	is_in_use = property(_get_is_in_use)
@@ -222,26 +222,26 @@ class cBillItem(gmBusinessDBObject.cBusinessDBObject):
 	def format(self):
 		txt = '%s (%s %s%s)         [#%s]\n' % (
 			gmTools.bool2subst(
-				self._payload[self._idx['pk_bill']] is None,
+				self._payload['pk_bill'] is None,
 				_('Open item'),
 				_('Billed item'),
 			),
-			self._payload[self._idx['catalog_short']],
-			self._payload[self._idx['catalog_version']],
-			gmTools.coalesce(self._payload[self._idx['catalog_language']], '', ' - %s'),
-			self._payload[self._idx['pk_bill_item']]
+			self._payload['catalog_short'],
+			self._payload['catalog_version'],
+			gmTools.coalesce(self._payload['catalog_language'], '', ' - %s'),
+			self._payload['pk_bill_item']
 		)
 		txt += ' %s: %s\n' % (
-			self._payload[self._idx['billable_code']],
-			self._payload[self._idx['billable_description']]
+			self._payload['billable_code'],
+			self._payload['billable_description']
 		)
 		txt += gmTools.coalesce (
-			self._payload[self._idx['billable_comment']],
+			self._payload['billable_comment'],
 			'',
 			'  (%s)\n',
 		)
 		txt += gmTools.coalesce (
-			self._payload[self._idx['item_detail']],
+			self._payload['item_detail'],
 			'',
 			_(' Details: %s\n'),
 		)
@@ -249,25 +249,25 @@ class cBillItem(gmBusinessDBObject.cBusinessDBObject):
 		txt += '\n'
 		txt += _(' %s of units: %s\n') % (
 			gmTools.u_numero,
-			self._payload[self._idx['unit_count']]
+			self._payload['unit_count']
 		)
 		txt += _(' Amount per unit: %(curr)s%(val_p_unit)s (%(cat_curr)s%(cat_val)s per catalog)\n') % {
-			'curr': self._payload[self._idx['currency']],
-			'val_p_unit': self._payload[self._idx['net_amount_per_unit']],
-			'cat_curr': self._payload[self._idx['billable_currency']],
-			'cat_val': self._payload[self._idx['billable_amount']]
+			'curr': self._payload['currency'],
+			'val_p_unit': self._payload['net_amount_per_unit'],
+			'cat_curr': self._payload['billable_currency'],
+			'cat_val': self._payload['billable_amount']
 		}
-		txt += _(' Amount multiplier: %s\n') % self._payload[self._idx['amount_multiplier']]
+		txt += _(' Amount multiplier: %s\n') % self._payload['amount_multiplier']
 		txt += _(' VAT would be: %(perc_vat)s%% %(equals)s %(curr)s%(vat)s\n') % {
-			'perc_vat': self._payload[self._idx['vat_multiplier']] * 100,
+			'perc_vat': self._payload['vat_multiplier'] * 100,
 			'equals': gmTools.u_corresponds_to,
-			'curr': self._payload[self._idx['currency']],
-			'vat': self._payload[self._idx['vat']]
+			'curr': self._payload['currency'],
+			'vat': self._payload['vat']
 		}
 
 		txt += '\n'
 		txt += _(' Charge date: %s') % gmDateTime.pydt_strftime (
-			self._payload[self._idx['date_to_bill']],
+			self._payload['date_to_bill'],
 			'%Y %b %d',
 			accuracy = gmDateTime.acc_days
 		)
@@ -278,19 +278,19 @@ class cBillItem(gmBusinessDBObject.cBusinessDBObject):
 		return txt
 	#--------------------------------------------------------
 	def _get_billable(self):
-		return cBillable(aPK_obj = self._payload[self._idx['pk_billable']])
+		return cBillable(aPK_obj = self._payload['pk_billable'])
 
 	billable = property(_get_billable)
 	#--------------------------------------------------------
 	def _get_bill(self):
-		if self._payload[self._idx['pk_bill']] is None:
+		if self._payload['pk_bill'] is None:
 			return None
-		return cBill(aPK_obj = self._payload[self._idx['pk_bill']])
+		return cBill(aPK_obj = self._payload['pk_bill'])
 
 	bill = property(_get_bill)
 	#--------------------------------------------------------
 	def _get_is_in_use(self):
-		return self._payload[self._idx['pk_bill']] is not None
+		return self._payload['pk_bill'] is not None
 
 	is_in_use = property(_get_is_in_use)
 #------------------------------------------------------------
@@ -380,66 +380,66 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 	def format(self, include_receiver=True, include_doc=True):
 		txt = '%s                       [#%s]\n' % (
 			gmTools.bool2subst (
-				(self._payload[self._idx['close_date']] is None),
+				(self._payload['close_date'] is None),
 				_('Open bill'),
 				_('Closed bill')
 			),
-			self._payload[self._idx['pk_bill']]
+			self._payload['pk_bill']
 		)
-		txt += _(' Invoice ID: %s\n') % self._payload[self._idx['invoice_id']]
+		txt += _(' Invoice ID: %s\n') % self._payload['invoice_id']
 
-		if self._payload[self._idx['close_date']] is not None:
+		if self._payload['close_date'] is not None:
 			txt += _(' Closed: %s\n') % gmDateTime.pydt_strftime (
-				self._payload[self._idx['close_date']],
+				self._payload['close_date'],
 				'%Y %b %d',
 				accuracy = gmDateTime.acc_days
 			)
 
-		if self._payload[self._idx['comment']] is not None:
-			txt += _(' Comment: %s\n') % self._payload[self._idx['comment']]
+		if self._payload['comment'] is not None:
+			txt += _(' Comment: %s\n') % self._payload['comment']
 
 		txt += _(' Bill value: %(curr)s%(val)s\n') % {
-			'curr': self._payload[self._idx['currency']],
-			'val': self._payload[self._idx['total_amount']]
+			'curr': self._payload['currency'],
+			'val': self._payload['total_amount']
 		}
 
-		if self._payload[self._idx['apply_vat']] is None:
+		if self._payload['apply_vat'] is None:
 			txt += _(' VAT: undecided\n')
-		elif self._payload[self._idx['apply_vat']] is True:
+		elif self._payload['apply_vat'] is True:
 			txt += _(' VAT: %(perc_vat)s%% %(equals)s %(curr)s%(vat)s\n') % {
-				'perc_vat': self._payload[self._idx['percent_vat']],
+				'perc_vat': self._payload['percent_vat'],
 				'equals': gmTools.u_corresponds_to,
-				'curr': self._payload[self._idx['currency']],
-				'vat': self._payload[self._idx['total_vat']]
+				'curr': self._payload['currency'],
+				'vat': self._payload['total_vat']
 			}
 			txt += _(' Value + VAT: %(curr)s%(val)s\n') % {
-				'curr': self._payload[self._idx['currency']],
-				'val': self._payload[self._idx['total_amount_with_vat']]
+				'curr': self._payload['currency'],
+				'val': self._payload['total_amount_with_vat']
 			}
 		else:
 			txt += _(' VAT: does not apply\n')
 
-		if self._payload[self._idx['pk_bill_items']] is None:
+		if self._payload['pk_bill_items'] is None:
 			txt += _(' Items billed: 0\n')
 		else:
-			txt += _(' Items billed: %s\n') % len(self._payload[self._idx['pk_bill_items']])
+			txt += _(' Items billed: %s\n') % len(self._payload['pk_bill_items'])
 		if include_doc:
 			txt += _(' Invoice: %s\n') % (
 				gmTools.bool2subst (
-					self._payload[self._idx['pk_doc']] is None,
+					self._payload['pk_doc'] is None,
 					_('not available'),
-					'#%s' % self._payload[self._idx['pk_doc']]
+					'#%s' % self._payload['pk_doc']
 				)
 			)
-		txt += _(' Patient: #%s\n') % self._payload[self._idx['pk_patient']]
+		txt += _(' Patient: #%s\n') % self._payload['pk_patient']
 		if include_receiver:
 			txt += gmTools.coalesce (
-				self._payload[self._idx['pk_receiver_identity']],
+				self._payload['pk_receiver_identity'],
 				'',
 				_(' Receiver: #%s\n')
 			)
-			if self._payload[self._idx['pk_receiver_address']] is not None:
-				txt += '\n '.join(gmDemographicRecord.get_patient_address(pk_patient_address = self._payload[self._idx['pk_receiver_address']]).format())
+			if self._payload['pk_receiver_address'] is not None:
+				txt += '\n '.join(gmDemographicRecord.get_patient_address(pk_patient_address = self._payload['pk_receiver_address']).format())
 
 		return txt
 	#--------------------------------------------------------
@@ -448,35 +448,35 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 		# should check for item consistency first
 		conn = gmPG2.get_connection(readonly = False)
 		for item in items:
-			item['pk_bill'] = self._payload[self._idx['pk_bill']]
+			item['pk_bill'] = self._payload['pk_bill']
 			item.save(conn = conn)
 		conn.commit()
 		self.refetch_payload()		# make sure aggregates are re-filled from view
 	#--------------------------------------------------------
 	def _get_bill_items(self):
-		return [ cBillItem(aPK_obj = pk) for pk in self._payload[self._idx['pk_bill_items']] ]
+		return [ cBillItem(aPK_obj = pk) for pk in self._payload['pk_bill_items'] ]
 
 	bill_items = property(_get_bill_items)
 	#--------------------------------------------------------
 	def _get_invoice(self):
-		if self._payload[self._idx['pk_doc']] is None:
+		if self._payload['pk_doc'] is None:
 			return None
-		return gmDocuments.cDocument(aPK_obj = self._payload[self._idx['pk_doc']])
+		return gmDocuments.cDocument(aPK_obj = self._payload['pk_doc'])
 
 	invoice = property(_get_invoice)
 	#--------------------------------------------------------
 	def _get_address(self):
-		if self._payload[self._idx['pk_receiver_address']] is None:
+		if self._payload['pk_receiver_address'] is None:
 			return None
 		return gmDemographicRecord.get_address_from_patient_address_pk (
-			pk_patient_address = self._payload[self._idx['pk_receiver_address']]
+			pk_patient_address = self._payload['pk_receiver_address']
 		)
 
 	address = property(_get_address)
 	#--------------------------------------------------------
 	def _get_default_address(self):
 		return gmDemographicRecord.get_patient_address_by_type (
-			pk_patient = self._payload[self._idx['pk_patient']],
+			pk_patient = self._payload['pk_patient'],
 			adr_type = 'billing'
 		)
 
@@ -484,14 +484,14 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_home_address(self):
 		return gmDemographicRecord.get_patient_address_by_type (
-			pk_patient = self._payload[self._idx['pk_patient']],
+			pk_patient = self._payload['pk_patient'],
 			adr_type = 'home'
 		)
 
 	home_address = property(_get_home_address)
 	#--------------------------------------------------------
 	def set_missing_address_from_default(self):
-		if self._payload[self._idx['pk_receiver_address']] is not None:
+		if self._payload['pk_receiver_address'] is not None:
 			return True
 		adr = self.default_address
 		if adr is None:

@@ -61,17 +61,17 @@ class cOrg(gmBusinessDBObject.cBusinessDBObject):
 	]
 	#--------------------------------------------------------
 	def add_unit(self, unit=None):
-		return create_org_unit(pk_organization = self._payload[self._idx['pk_org']], unit = unit)
+		return create_org_unit(pk_organization = self._payload['pk_org'], unit = unit)
 	#--------------------------------------------------------
 	def format(self):
 		lines = []
-		lines.append(_('Organization #%s') % self._payload[self._idx['pk_org']])
+		lines.append(_('Organization #%s') % self._payload['pk_org'])
 		lines.append('')
 		lines.append(' %s "%s"' % (
-			self._payload[self._idx['l10n_category']],
-			self._payload[self._idx['organization']]
+			self._payload['l10n_category'],
+			self._payload['organization']
 		))
-		if self._payload[self._idx['is_praxis']]:
+		if self._payload['is_praxis']:
 			lines.append('')
 			lines.append(' ' + _('This is your praxis !'))
 		return '\n'.join(lines)
@@ -79,7 +79,7 @@ class cOrg(gmBusinessDBObject.cBusinessDBObject):
 	# properties
 	#--------------------------------------------------------
 	def _get_units(self):
-		return get_org_units(order_by = 'unit', org = self._payload[self._idx['pk_org']])
+		return get_org_units(order_by = 'unit', org = self._payload['pk_org'])
 
 	units = property(_get_units)
 
@@ -372,17 +372,17 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 		lines = []
 		lines.append(_('Unit%s: %s%s') % (
 			gmTools.bool2subst (
-				self._payload[self._idx['is_praxis_branch']],
+				self._payload['is_praxis_branch'],
 				_(' (of your praxis)'),
 				''
 			),
-			self._payload[self._idx['unit']],
-			gmTools.coalesce(self._payload[self._idx['l10n_unit_category']], '', ' (%s)')
+			self._payload['unit'],
+			gmTools.coalesce(self._payload['l10n_unit_category'], '', ' (%s)')
 		))
 		if with_org:
 			lines.append(_('Organization: %s (%s)') % (
-				self._payload[self._idx['organization']],
-				self._payload[self._idx['l10n_organization_category']]
+				self._payload['organization'],
+				self._payload['l10n_organization_category']
 			))
 		if with_address:
 			adr = self.address
@@ -401,9 +401,9 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 	# properties
 	#--------------------------------------------------------
 	def _get_address(self):
-		if self._payload[self._idx['pk_address']] is None:
+		if self._payload['pk_address'] is None:
 			return None
-		return gmDemographicRecord.cAddress(aPK_obj = self._payload[self._idx['pk_address']])
+		return gmDemographicRecord.cAddress(aPK_obj = self._payload['pk_address'])
 
 	def _set_address(self, address):
 		self['pk_address'] = address['pk_address']
@@ -413,7 +413,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_org(self):
-		return cOrg(aPK_obj = self._payload[self._idx['pk_org']])
+		return cOrg(aPK_obj = self._payload['pk_org'])
 
 	organization = property(_get_org)
 	org = property(_get_org)

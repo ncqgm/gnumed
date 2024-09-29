@@ -87,15 +87,15 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 	def __init__(self, aPK_obj=None, row=None, link_obj=None):
 		super(cExportItem, self).__init__(aPK_obj = aPK_obj, row = row, link_obj = link_obj)
 		# force auto-healing if need be
-		if self._payload[self._idx['pk_identity_raw_needs_update']]:
+		if self._payload['pk_identity_raw_needs_update']:
 			_log.warning (
 				'auto-healing export item [%s] from identity [%s] to [%s] because of document part [%s] seems necessary',
-				self._payload[self._idx['pk_export_item']],
-				self._payload[self._idx['pk_identity_raw']],
-				self._payload[self._idx['pk_identity']],
-				self._payload[self._idx['pk_doc_obj']]
+				self._payload['pk_export_item'],
+				self._payload['pk_identity_raw'],
+				self._payload['pk_identity'],
+				self._payload['pk_doc_obj']
 			)
-			if self._payload[self._idx['pk_doc_obj']] is None:
+			if self._payload['pk_doc_obj'] is None:
 				_log.error('however, .fk_doc_obj is NULL, which should not happen, leaving things alone for manual inspection')
 				return
 			# only flag ourselves as modified, do not actually
@@ -214,13 +214,13 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 	def display_via_mime(self, chunksize=0, block=None):
 
 		# document part
-		if self._payload[self._idx['pk_doc_obj']] is not None:
+		if self._payload['pk_doc_obj'] is not None:
 			return self.document_part.display_via_mime(chunksize = chunksize, block = block)
 
 		# DIR entry
-		if self._payload[self._idx['filename']].startswith('DIR::'):
+		if self._payload['filename'].startswith('DIR::'):
 			# FIXME: error handling with malformed entries
-			tag, node, path = self._payload[self._idx['filename']].split('::', 2)
+			tag, node, path = self._payload['filename'].split('::', 2)
 			if node != platform.node():
 				msg = _(
 					'This item points to a directory on the computer named:\n'
@@ -253,14 +253,14 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 
 		# preserve original filename extension if available
 		suffix = '.dat'
-		if self._payload[self._idx['filename']] is not None:
+		if self._payload['filename'] is not None:
 			tmp, suffix = os.path.splitext (
-				gmTools.fname_sanitize(self._payload[self._idx['filename']]).casefold()
+				gmTools.fname_sanitize(self._payload['filename']).casefold()
 			)
 			if suffix == '':
 				suffix = '.dat'
 		fname = gmTools.get_unique_filename (
-			prefix = '%s-gm-export_item%s-' % (self._payload[self._idx['list_position']], patient_part),
+			prefix = '%s-gm-export_item%s-' % (self._payload['list_position'], patient_part),
 			suffix = suffix,
 			tmp_dir = directory
 		)
@@ -275,7 +275,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		success = gmPG2.bytea2file (
 			data_query = {'cmd': _SQL, 'args': {'pk': self.pk_obj}},
 			filename = tmp_fname,
-			data_size = self._payload[self._idx['size']]
+			data_size = self._payload['size']
 		)
 		if not success:
 			return None
@@ -323,7 +323,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		True: success
 		False: failure (to save/convert/encrypt/remove unencrypted)
 		"""
-		if self._payload[self._idx['pk_doc_obj']] is None:
+		if self._payload['pk_doc_obj'] is None:
 			return None
 
 		part = self.document_part
@@ -336,7 +336,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 				name_first = False
 			)
 		path, name = os.path.split(filename)
-		filename = os.path.join(path, '%s-%s' % (self._payload[self._idx['list_position']], name))
+		filename = os.path.join(path, '%s-%s' % (self._payload['list_position'], name))
 		if convert2pdf:
 			target_mime = 'application/pdf'
 			target_ext = '.pdf'
@@ -384,26 +384,26 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		"""
 		# do not process malformed entries
 		try:
-			tag, node, local_fs_path = self._payload[self._idx['filename']].split('::', 2)
+			tag, node, local_fs_path = self._payload['filename'].split('::', 2)
 		except ValueError:
-			_log.exception('malformed DIRENTRY: [%s]', self._payload[self._idx['filename']])
+			_log.exception('malformed DIRENTRY: [%s]', self._payload['filename'])
 			return False
 		# source and target paths must not overlap
 		if directory is None:
 			directory = gmTools.mk_sandbox_dir(prefix = 'exp-')
 		if directory.startswith(local_fs_path):
-			_log.error('cannot dump DIRENTRY item [%s]: must not be subdirectory of target dir [%s]', self._payload[self._idx['filename']], directory)
+			_log.error('cannot dump DIRENTRY item [%s]: must not be subdirectory of target dir [%s]', self._payload['filename'], directory)
 			return False
 		if local_fs_path.startswith(directory):
-			_log.error('cannot dump DIRENTRY item [%s]: target dir [%s] must not be subdirectory of DIRENTRY', self._payload[self._idx['filename']], directory)
+			_log.error('cannot dump DIRENTRY item [%s]: target dir [%s] must not be subdirectory of DIRENTRY', self._payload['filename'], directory)
 			return False
 
-		_log.debug('dumping DIRENTRY item [%s] into [%s]', self._payload[self._idx['filename']], directory)
+		_log.debug('dumping DIRENTRY item [%s] into [%s]', self._payload['filename'], directory)
 		sandbox_dir = gmTools.mk_sandbox_dir()
 		_log.debug('sandbox: %s', sandbox_dir)
 		tmp = gmTools.copy_tree_content(local_fs_path, sandbox_dir)
 		if tmp is None:
-			_log.error('cannot dump DIRENTRY item [%s] into [%s]: copy error', self._payload[self._idx['filename']], sandbox_dir)
+			_log.error('cannot dump DIRENTRY item [%s] into [%s]: copy error', self._payload['filename'], sandbox_dir)
 			return False
 
 		gmTools.remove_file(os.path.join(tmp, DIRENTRY_README_NAME))
@@ -416,12 +416,12 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 				remove_unencrypted = True
 			)
 			if not encrypted:
-				_log.error('cannot dump DIRENTRY item [%s]: encryption problem in [%s]', self._payload[self._idx['filename']], sandbox_dir)
+				_log.error('cannot dump DIRENTRY item [%s]: encryption problem in [%s]', self._payload['filename'], sandbox_dir)
 				return False
 
 		tmp = gmTools.copy_tree_content(sandbox_dir, directory)
 		if tmp is None:
-			_log.debug('cannot dump DIRENTRY item [%s] into [%s]: copy error', self._payload[self._idx['filename']], directory)
+			_log.debug('cannot dump DIRENTRY item [%s] into [%s]: copy error', self._payload['filename'], directory)
 			return False
 
 		return directory
@@ -430,25 +430,25 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 	# properties
 	#--------------------------------------------------------
 	def _get_is_doc_part(self):
-		return self._payload[self._idx['pk_doc_obj']] is not None
+		return self._payload['pk_doc_obj'] is not None
 
 	is_document_part = property(_get_is_doc_part)
 
 	#--------------------------------------------------------
 	def _get_doc_part(self):
-		if self._payload[self._idx['pk_doc_obj']] is None:
+		if self._payload['pk_doc_obj'] is None:
 			return None
-		return gmDocuments.cDocumentPart(aPK_obj = self._payload[self._idx['pk_doc_obj']])
+		return gmDocuments.cDocumentPart(aPK_obj = self._payload['pk_doc_obj'])
 
 	document_part = property(_get_doc_part)
 
 	#--------------------------------------------------------
 	def _get_is_print_job(self):
-		return self._payload[self._idx['designation']] == PRINT_JOB_DESIGNATION
+		return self._payload['designation'] == PRINT_JOB_DESIGNATION
 
 	def _set_is_print_job(self, is_print_job):
 		desig = gmTools.bool2subst(is_print_job, PRINT_JOB_DESIGNATION, None, None)
-		if self._payload[self._idx['designation']] == desig:
+		if self._payload['designation'] == desig:
 			return
 		self['designation'] = desig
 		self.save()
@@ -458,12 +458,12 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _is_DIRENTRY(self):
 		"""Check whether this item looks like a DIRENTRY."""
-		if self._payload[self._idx['filename']] is None:
+		if self._payload['filename'] is None:
 			return False
-		if not self._payload[self._idx['filename']].startswith('DIR::'):
+		if not self._payload['filename'].startswith('DIR::'):
 			return False
-		if len(self._payload[self._idx['filename']].split('::', 2)) != 3:
-			_log.exception('DIRENTRY [%s]: malformed', self._payload[self._idx['filename']])
+		if len(self._payload['filename'].split('::', 2)) != 3:
+			_log.exception('DIRENTRY [%s]: malformed', self._payload['filename'])
 			return False
 		return True
 
@@ -475,11 +475,11 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		if not self.is_DIRENTRY:
 			return False
 
-		tag, node, local_fs_path = self._payload[self._idx['filename']].split('::', 2)
+		tag, node, local_fs_path = self._payload['filename'].split('::', 2)
 		if node == platform.node():
 			return True
 
-		_log.warning('DIRENTRY [%s]: not on this machine (%s)', self._payload[self._idx['filename']], platform.node())
+		_log.warning('DIRENTRY [%s]: not on this machine (%s)', self._payload['filename'], platform.node())
 		return False
 
 	is_local_DIRENTRY = property(_is_local_DIRENTRY)
@@ -490,10 +490,10 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		if not self.is_local_DIRENTRY:
 			return False
 
-		tag, node, local_fs_path = self._payload[self._idx['filename']].split('::', 2)
+		tag, node, local_fs_path = self._payload['filename'].split('::', 2)
 		# valid path ?
 		if not os.path.isdir(local_fs_path):
-			_log.warning('DIRENTRY [%s]: directory not found (old DIRENTRY ?)', self._payload[self._idx['filename']])
+			_log.warning('DIRENTRY [%s]: directory not found (old DIRENTRY ?)', self._payload['filename'])
 			return False
 		return True
 
@@ -505,11 +505,11 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			return None
 
 		try:
-			tag, node, local_fs_path = self._payload[self._idx['filename']].split('::', 2)
+			tag, node, local_fs_path = self._payload['filename'].split('::', 2)
 		except ValueError:
 			# should not happen because structure already checked in .is_DIRENTRY,
 			# better safe than sorry
-			_log.exception('DIRENTRY [%s]: malformed', self._payload[self._idx['filename']])
+			_log.exception('DIRENTRY [%s]: malformed', self._payload['filename'])
 			return None
 
 		return node
@@ -522,11 +522,11 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			return None
 
 		try:
-			tag, node, local_fs_path = self._payload[self._idx['filename']].split('::', 2)
+			tag, node, local_fs_path = self._payload['filename'].split('::', 2)
 		except ValueError:
 			# should not happen because structure already checked in .is_DIRENTRY,
 			# better safe than sorry
-			_log.exception('DIRENTRY [%s]: malformed', self._payload[self._idx['filename']])
+			_log.exception('DIRENTRY [%s]: malformed', self._payload['filename'])
 			return None
 
 		return local_fs_path
@@ -539,7 +539,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		if not self.is_valid_DIRENTRY:
 			return False
 
-		tag, node, local_fs_path = self._payload[self._idx['filename']].split('::', 2)
+		tag, node, local_fs_path = self._payload['filename'].split('::', 2)
 		found_DICOMDIR = False
 		for fs_entry in os.listdir(local_fs_path):
 			# found a subdir
@@ -560,7 +560,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _has_files_in_root(self):
 		"""True if there are files in the root directory."""
-		tag, node, local_fs_path = self._payload[self._idx['filename']].split('::', 2)
+		tag, node, local_fs_path = self._payload['filename'].split('::', 2)
 		for fs_entry in os.listdir(local_fs_path):
 			if os.path.isfile(fs_entry):
 				_log.debug('has files in top level: %s', local_fs_path)

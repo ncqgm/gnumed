@@ -272,7 +272,7 @@ class cSubstance(gmBusinessDBObject.cBusinessDBObject):
 	]
 	#--------------------------------------------------------
 	def format(self, left_margin=0):
-		if len(self._payload[self._idx['loincs']]) == 0:
+		if len(self._payload['loincs']) == 0:
 			loincs = ''
 		else:
 			loincs = """
@@ -286,14 +286,14 @@ class cSubstance(gmBusinessDBObject.cBusinessDBObject):
 						l['loinc'],
 						gmTools.coalesce(l['max_age_str'], '', ': ' + _('once within %s')),
 						gmTools.coalesce(l['comment'], '', ' (%s)')
-					) for l in self._payload[self._idx['loincs']] 
+					) for l in self._payload['loincs'] 
 				])
 			)
 		return (' ' * left_margin) + '%s: %s%s%s%s' % (
 			_('Substance'),
-			self._payload[self._idx['substance']],
-			gmTools.coalesce(self._payload[self._idx['atc']], '', ' [%s]'),
-			gmTools.coalesce(self._payload[self._idx['intake_instructions']], '', _('\n Instructions: %s')),
+			self._payload['substance'],
+			gmTools.coalesce(self._payload['atc'], '', ' [%s]'),
+			gmTools.coalesce(self._payload['intake_instructions'], '', _('\n Instructions: %s')),
 			loincs
 		)
 
@@ -303,11 +303,11 @@ class cSubstance(gmBusinessDBObject.cBusinessDBObject):
 		if not success:
 			return (success, data)
 
-		if self._payload[self._idx['atc']] is not None:
-			atc = self._payload[self._idx['atc']].strip()
+		if self._payload['atc'] is not None:
+			atc = self._payload['atc'].strip()
 			if atc != '':
 				gmATC.propagate_atc (
-					substance = self._payload[self._idx['substance']].strip(),
+					substance = self._payload['substance'].strip(),
 					atc = atc
 				)
 		return (success, data)
@@ -517,7 +517,7 @@ class cSubstanceDose(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def format(self, left_margin=0, include_loincs=False):
 		loincs = ''
-		if include_loincs and (len(self._payload[self._idx['loincs']]) > 0):
+		if include_loincs and (len(self._payload['loincs']) > 0):
 			loincs = """
 %s %s
 %s  %s""" 	% (
@@ -529,16 +529,16 @@ class cSubstanceDose(gmBusinessDBObject.cBusinessDBObject):
 						l['loinc'],
 						gmTools.coalesce(l['max_age_str'], '', ': ' + _('once within %s')),
 						gmTools.coalesce(l['comment'], '', ' (%s)')
-					) for l in self._payload[self._idx['loincs']] 
+					) for l in self._payload['loincs'] 
 				])
 			)
 		return (' ' * left_margin) + '%s: %s %s%s%s%s%s' % (
 			_('Substance dose'),
-			self._payload[self._idx['substance']],
-			self._payload[self._idx['amount']],
+			self._payload['substance'],
+			self._payload['amount'],
 			self.formatted_units,
-			gmTools.coalesce(self._payload[self._idx['atc_substance']], '', ' [%s]'),
-			gmTools.coalesce(self._payload[self._idx['intake_instructions']], '', '\n' + (' ' * left_margin) + ' ' + _('Instructions: %s')),
+			gmTools.coalesce(self._payload['atc_substance'], '', ' [%s]'),
+			gmTools.coalesce(self._payload['intake_instructions'], '', '\n' + (' ' * left_margin) + ' ' + _('Instructions: %s')),
 			loincs
 		)
 
@@ -585,8 +585,8 @@ class cSubstanceDose(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_formatted_units(self, short=True):
 		return format_units (
-			self._payload[self._idx['unit']],
-			gmTools.coalesce(self._payload[self._idx['dose_unit']], _('delivery unit')),
+			self._payload['unit'],
+			gmTools.coalesce(self._payload['dose_unit'], _('delivery unit')),
 			short = short,
 			none_str = ''
 		)
@@ -1342,38 +1342,38 @@ class cDrugComponent(gmBusinessDBObject.cBusinessDBObject):
 	def format(self, left_margin=0, include_loincs=False):
 		lines = []
 		lines.append('%s %s%s' % (
-			self._payload[self._idx['substance']],
-			self._payload[self._idx['amount']],
+			self._payload['substance'],
+			self._payload['amount'],
 			self.formatted_units
 		))
 		lines.append(_('Component of %s (%s)') % (
-			self._payload[self._idx['drug_product']],
-			self._payload[self._idx['l10n_preparation']]
+			self._payload['drug_product'],
+			self._payload['l10n_preparation']
 		))
-		if self._payload[self._idx['is_fake_product']]:
+		if self._payload['is_fake_product']:
 			lines.append(' ' + _('(not a real drug product)'))
 
-		if self._payload[self._idx['intake_instructions']] is not None:
-			lines.append(_('Instructions: %s') % self._payload[self._idx['intake_instructions']])
-		if self._payload[self._idx['atc_substance']] is not None:
-			lines.append(_('ATC (substance): %s') % self._payload[self._idx['atc_substance']])
-		if self._payload[self._idx['atc_drug']] is not None:
-			lines.append(_('ATC (drug): %s') % self._payload[self._idx['atc_drug']])
-		if self._payload[self._idx['external_code']] is not None:
+		if self._payload['intake_instructions'] is not None:
+			lines.append(_('Instructions: %s') % self._payload['intake_instructions'])
+		if self._payload['atc_substance'] is not None:
+			lines.append(_('ATC (substance): %s') % self._payload['atc_substance'])
+		if self._payload['atc_drug'] is not None:
+			lines.append(_('ATC (drug): %s') % self._payload['atc_drug'])
+		if self._payload['external_code'] is not None:
 			lines.append('%s: %s' % (
-				self._payload[self._idx['external_code_type']],
-				self._payload[self._idx['external_code']]
+				self._payload['external_code_type'],
+				self._payload['external_code']
 			))
 
 		if include_loincs:
-			if len(self._payload[self._idx['loincs']]) > 0:
+			if len(self._payload['loincs']) > 0:
 				lines.append(_('LOINCs to monitor:'))
 			lines.extend ([
 				' %s%s%s' % (
 					loinc['loinc'],
 					gmTools.coalesce(loinc['max_age_str'], '', ': ' + _('once within %s')),
 					gmTools.coalesce(loinc['comment'], '', ' (%s)')
-				) for loinc in self._payload[self._idx['loincs']]
+				) for loinc in self._payload['loincs']
 			])
 
 		return (' ' * left_margin) + ('\n' + (' ' * left_margin)).join(lines)
@@ -1397,34 +1397,34 @@ class cDrugComponent(gmBusinessDBObject.cBusinessDBObject):
 	# properties
 	#--------------------------------------------------------
 	def _get_containing_drug(self):
-		return cDrugProduct(aPK_obj = self._payload[self._idx['pk_drug_product']])
+		return cDrugProduct(aPK_obj = self._payload['pk_drug_product'])
 
 	containing_drug = property(_get_containing_drug)
 
 	#--------------------------------------------------------
 	def _get_is_in_use_by_patients(self):
-		return self._payload[self._idx['is_in_use']]
+		return self._payload['is_in_use']
 
 	is_in_use_by_patients = property(_get_is_in_use_by_patients)
 
 	#--------------------------------------------------------
 	def _get_substance_dose(self):
-		return cSubstanceDose(aPK_obj = self._payload[self._idx['pk_dose']])
+		return cSubstanceDose(aPK_obj = self._payload['pk_dose'])
 
 	substance_dose =  property(_get_substance_dose)
 
 	#--------------------------------------------------------
 	def _get_substance(self):
-		return cSubstance(aPK_obj = self._payload[self._idx['pk_substance']])
+		return cSubstance(aPK_obj = self._payload['pk_substance'])
 
 	substance =  property(_get_substance)
 
 	#--------------------------------------------------------
 	def _get_formatted_units(self, short=True):
 		return format_units (
-			self._payload[self._idx['unit']],
-			gmTools.coalesce(self._payload[self._idx['dose_unit']], _('delivery unit')),
-			self._payload[self._idx['l10n_preparation']],
+			self._payload['unit'],
+			gmTools.coalesce(self._payload['dose_unit'], _('delivery unit')),
+			self._payload['l10n_preparation'],
 			short = short,
 			none_str = ''
 		)
@@ -1609,17 +1609,17 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 	def format(self, left_margin=0, include_component_details=False):
 		lines = []
 		lines.append('%s (%s)' % (
-			self._payload[self._idx['drug_product']],
-			self._payload[self._idx['l10n_preparation']]
+			self._payload['drug_product'],
+			self._payload['l10n_preparation']
 			)
 		)
-		if self._payload[self._idx['atc']] is not None:
-			lines.append('ATC: %s' % self._payload[self._idx['atc']])
-		if self._payload[self._idx['external_code']] is not None:
-			lines.append('%s: %s' % (self._payload[self._idx['external_code_type']], self._payload[self._idx['external_code']]))
-		if len(self._payload[self._idx['components']]) > 0:
+		if self._payload['atc'] is not None:
+			lines.append('ATC: %s' % self._payload['atc'])
+		if self._payload['external_code'] is not None:
+			lines.append('%s: %s' % (self._payload['external_code_type'], self._payload['external_code']))
+		if len(self._payload['components']) > 0:
 			lines.append(_('Components:'))
-			for comp in self._payload[self._idx['components']]:
+			for comp in self._payload['components']:
 				lines.append(' %s %s %s' % (
 					comp['substance'],
 					comp['amount'],
@@ -1634,7 +1634,7 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 						gmTools.coalesce(l['comment'], '', ' (%s)')
 					) for l in comp['loincs'] ])
 
-		if self._payload[self._idx['is_fake_product']]:
+		if self._payload['is_fake_product']:
 			lines.append('')
 			lines.append(_('this is a fake drug product'))
 		if self.is_vaccine:
@@ -1649,12 +1649,12 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 		if not success:
 			return (success, data)
 
-		if self._payload[self._idx['atc']] is not None:
-			atc = self._payload[self._idx['atc']].strip()
+		if self._payload['atc'] is not None:
+			atc = self._payload['atc'].strip()
 			if atc != '':
 				gmATC.propagate_atc (
 					link_obj = conn,
-					substance = self._payload[self._idx['drug_product']].strip(),
+					substance = self._payload['drug_product'].strip(),
 					atc = atc
 				)
 
@@ -1666,9 +1666,9 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 			return False
 
 		pk_doses2keep = [ s['pk_dose'] for s in substance_doses ]
-		_log.debug('setting components of "%s" from doses: %s', self._payload[self._idx['drug_product']], pk_doses2keep)
+		_log.debug('setting components of "%s" from doses: %s', self._payload['drug_product'], pk_doses2keep)
 
-		args = {'pk_drug_product': self._payload[self._idx['pk_drug_product']]}
+		args = {'pk_drug_product': self._payload['pk_drug_product']}
 		queries = []
 		# INSERT those which are not there yet
 		cmd = """
@@ -1735,7 +1735,7 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 
 	#------------------------------------------------------------
 	def remove_component(self, pk_dose=None, pk_component=None):
-		if len(self._payload[self._idx['components']]) == 1:
+		if len(self._payload['components']) == 1:
 			_log.error('will not remove the only component of a drug')
 			return False
 
@@ -1783,10 +1783,10 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def delete_associated_vaccine(self):
-		if self._payload[self._idx['is_vaccine']] is False:
+		if self._payload['is_vaccine'] is False:
 			return True
 
-		args = {'pk_product': self._payload[self._idx['pk_drug_product']]}
+		args = {'pk_product': self._payload['pk_drug_product']}
 		cmd = """DELETE FROM ref.vaccine
 		WHERE
 			fk_drug_product = %(pk_product)s
@@ -1808,21 +1808,21 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 	# properties
 	#--------------------------------------------------------
 	def _get_external_code(self):
-		return self._payload[self._idx['external_code']]
+		return self._payload['external_code']
 
 	external_code = property(_get_external_code)
 
 	#--------------------------------------------------------
 	def _get_external_code_type(self):
 		# FIXME: maybe evaluate fk_data_source ?
-		return self._payload[self._idx['external_code_type']]
+		return self._payload['external_code_type']
 
 	external_code_type = property(_get_external_code_type)
 
 	#--------------------------------------------------------
 	def _get_components(self):
 		cmd = _SQL_get_drug_components % 'pk_drug_product = %(product)s'
-		args = {'drug_product': self._payload[self._idx['pk_drug_product']]}
+		args = {'drug_product': self._payload['pk_drug_product']}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ cDrugComponent(row = {'data': r, 'idx': idx, 'pk_field': 'pk_component'}) for r in rows ]
 
@@ -1830,7 +1830,7 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_components_as_doses(self):
-		pk_doses = [ c['pk_dose'] for c in self._payload[self._idx['components']] ]
+		pk_doses = [ c['pk_dose'] for c in self._payload['components'] ]
 		if len(pk_doses) == 0:
 			return []
 		cmd = _SQL_get_substance_dose % 'pk_dose = ANY(%(pks)s)'
@@ -1842,7 +1842,7 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_components_as_substances(self):
-		pk_substances = [ c['pk_substance'] for c in self._payload[self._idx['components']] ]
+		pk_substances = [ c['pk_substance'] for c in self._payload['components'] ]
 		if len(pk_substances) == 0:
 			return []
 		cmd = _SQL_get_substance % 'pk_substance = ANY(%(pks)s)'
@@ -1854,13 +1854,13 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_is_fake_product(self):
-		return self._payload[self._idx['is_fake_product']]
+		return self._payload['is_fake_product']
 
 	is_fake_product = property(_get_is_fake_product)
 
 	#--------------------------------------------------------
 	def _get_is_vaccine(self):
-		return self._payload[self._idx['is_vaccine']]
+		return self._payload['is_vaccine']
 
 	is_vaccine = property(_get_is_vaccine)
 
@@ -1882,7 +1882,7 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_is_in_use_as_vaccine(self):
-		if self._payload[self._idx['is_vaccine']] is False:
+		if self._payload['is_vaccine'] is False:
 			return False
 		cmd = 'SELECT EXISTS(SELECT 1 FROM clin.vaccination WHERE fk_vaccine = (select pk from ref.vaccine where fk_drug_product = %(pk)s))'
 		args = {'pk': self.pk_obj}
@@ -2099,7 +2099,7 @@ class cIntakeWithRegimen(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def format(self, left_margin=0, date_format='%Y %b %d', single_line=False, allergy=None, include_instructions=False, include_loincs=False, include_metadata:bool=False, terse:bool=False, eol=None):
 		# medication
-		if self._payload[self._idx['use_type']] is None:
+		if self._payload['use_type'] is None:
 			if single_line:
 				return '%s%s' % (
 					' ' * left_margin,
@@ -2115,7 +2115,7 @@ class cIntakeWithRegimen(gmBusinessDBObject.cBusinessDBObject):
 			)
 
 		# misuse
-		if self._payload[self._idx['use_type']] in [0, 1, 2, 3]:
+		if self._payload['use_type'] in [0, 1, 2, 3]:
 			if single_line:
 				return self.format_as_single_line_abuse(left_margin = left_margin, date_format = date_format)
 
@@ -2142,9 +2142,9 @@ class cIntakeWithRegimen(gmBusinessDBObject.cBusinessDBObject):
 	def format_as_single_line_abuse(self, left_margin=0, date_format='%Y %b %d'):
 		return '%s%s: %s (%s)' % (
 			' ' * left_margin,
-			self._payload[self._idx['substance']],
+			self._payload['substance'],
 			self.use_type_string,
-			gmDateTime.pydt_strftime(self._payload[self._idx['last_checked_when']], '%b %Y')
+			gmDateTime.pydt_strftime(self._payload['last_checked_when'], '%b %Y')
 		)
 
 	#--------------------------------------------------------
@@ -2436,9 +2436,9 @@ class cIntakeRegimen(gmBusinessDBObject.cBusinessDBObject):
 	def format_as_single_line_abuse(self, left_margin=0, date_format='%Y %b %d'):
 		return '%s%s: %s (%s)' % (
 			' ' * left_margin,
-			self._payload[self._idx['substance']],
+			self._payload['substance'],
 			self.use_type_string,
-			gmDateTime.pydt_strftime(self._payload[self._idx['modified_when']], '%b %Y')
+			gmDateTime.pydt_strftime(self._payload['modified_when'], '%b %Y')
 		)
 
 	#--------------------------------------------------------
@@ -2655,7 +2655,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	def format(self, left_margin=0, date_format='%Y %b %d', single_line=True, allergy=None, show_all_product_components=False, include_metadata=True, include_instructions=False, include_loincs=False, eol='\n'):
 
 		# medication
-		if self._payload[self._idx['use_type']] is None:
+		if self._payload['use_type'] is None:
 			if single_line:
 				return self.format_as_single_line(left_margin = left_margin, date_format = date_format)
 
@@ -2678,18 +2678,18 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	def format_as_single_line_abuse(self, left_margin=0, date_format='%Y %b %d'):
 		return '%s%s: %s (%s)' % (
 			' ' * left_margin,
-			self._payload[self._idx['substance']],
+			self._payload['substance'],
 			self.use_type_string,
-			gmDateTime.pydt_strftime(self._payload[self._idx['last_checked_when']], '%b %Y')
+			gmDateTime.pydt_strftime(self._payload['last_checked_when'], '%b %Y')
 		)
 
 	#--------------------------------------------------------
 	def format_as_single_line(self, left_margin=0, date_format='%Y %b %d'):
 		return '%s: %s (%s)' % (
 			' ' * left_margin,
-			self._payload[self._idx['substance']],
+			self._payload['substance'],
 			gmDateTime.pydt_strftime (
-				self._payload[self._idx['last_checked_when']],
+				self._payload['last_checked_when'],
 				format = date_format,
 				accuracy = gmDateTime.acc_days
 			)
@@ -2699,30 +2699,30 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	def format_as_multiple_lines_abuse(self, left_margin=0, date_format='%Y %b %d', include_metadata=True, eol='\n'):
 		lines = []
 		if include_metadata:
-			lines.append(_('Substance abuse entry                                              [#%s]') % self._payload[self._idx['pk_intake']])
+			lines.append(_('Substance abuse entry                                              [#%s]') % self._payload['pk_intake'])
 		lines.append(' ' + _('Substance: %s [#%s]%s') % (
-			self._payload[self._idx['substance']],
-			self._payload[self._idx['pk_substance']],
-			gmTools.coalesce(self._payload[self._idx['atc_substance']], '', ' ATC %s')
+			self._payload['substance'],
+			self._payload['pk_substance'],
+			gmTools.coalesce(self._payload['atc_substance'], '', ' ATC %s')
 		))
 		lines.append(' ' + _('Use type: %s') % self.use_type_string)
-		lines.append(' ' + _('Last checked: %s') % gmDateTime.pydt_strftime(self._payload[self._idx['last_checked_when']], '%Y %b %d'))
-		if self._payload[self._idx['discontinued']]:
+		lines.append(' ' + _('Last checked: %s') % gmDateTime.pydt_strftime(self._payload['last_checked_when'], '%Y %b %d'))
+		if self._payload['discontinued']:
 			lines.append(_(' Discontinued %s') % (
 				gmDateTime.pydt_strftime (
-					self._payload[self._idx['discontinued']],
+					self._payload['discontinued'],
 					format = date_format,
 					accuracy = gmDateTime.acc_days
 				)
 			))
-		if self._payload[self._idx['notes4provider']]:
-			lines.append(_(' Notes: %s') % self._payload[self._idx['notes4provider']])
+		if self._payload['notes4provider']:
+			lines.append(_(' Notes: %s') % self._payload['notes4provider'])
 		if include_metadata:
 			lines.append('')
 			lines.append(_('Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s.') % {
-				'row_ver': self._payload[self._idx['row_version']],
-				'mod_when': gmDateTime.pydt_strftime(self._payload[self._idx['modified_when']]),
-				'mod_by': self._payload[self._idx['modified_by']]
+				'row_ver': self._payload['row_version'],
+				'mod_when': gmDateTime.pydt_strftime(self._payload['modified_when']),
+				'mod_by': self._payload['modified_by']
 			})
 		if eol is None:
 			return lines
@@ -2734,7 +2734,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		lines = []
 		# header
 		lines.append(_('Substance intake [#%s]                     ') % (
-			self._payload[self._idx['pk_intake']]
+			self._payload['pk_intake']
 		))
 		# caveat
 		if allergy:
@@ -2749,37 +2749,37 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 			))
 			lines.append('')
 		# what
-		lines.append(' ' + _('Substance: %s   [#%s]') % (self._payload[self._idx['substance']], self._payload[self._idx['pk_substance']]))
-#		if self._payload[self._idx['l10n_preparation']]:
-#			lines.append(' ' + _('Preparation: %s') % self._payload[self._idx['l10n_preparation']])
-#		if self._payload[self._idx['amount']]:
+		lines.append(' ' + _('Substance: %s   [#%s]') % (self._payload['substance'], self._payload['pk_substance']))
+#		if self._payload['l10n_preparation']:
+#			lines.append(' ' + _('Preparation: %s') % self._payload['l10n_preparation'])
+#		if self._payload['amount']:
 #			lines.append(' ' + _('Amount per dose: %s %s') % (
-#				self._payload[self._idx['amount']],
+#				self._payload['amount'],
 #				self._get_formatted_units(short = False)
 #			))
 		# codes
-		if self._payload[self._idx['atc_substance']]:
-			lines.append(_(' ATC (substance): %s') % self._payload[self._idx['atc_substance']])
-		if include_loincs and self._payload[self._idx['loincs']]:
+		if self._payload['atc_substance']:
+			lines.append(_(' ATC (substance): %s') % self._payload['atc_substance'])
+		if include_loincs and self._payload['loincs']:
 			lines.append('%s %s' % (' ' * left_margin, _('LOINCs to monitor:')))
 			lines.extend(['%s%s%s%s' % (
 				' ' * (left_margin + 1),
 				l['loinc'],
 				gmTools.coalesce(l['max_age_str'], '', ': ' + _('once within %s')),
 				gmTools.coalesce(l['comment'], '', ' (%s)')
-			) for l in self._payload[self._idx['loincs']]
+			) for l in self._payload['loincs']
 		])
 		lines.append('')
 		lines.append('')
 #		# drug product
 #		product = self.containing_drug
 #		if product:
-#			lines.append(_(' Product name: %s   [#%s]') % (self._payload[self._idx['drug_product']], self._payload[self._idx['pk_drug_product']]))
-#			if self._payload[self._idx['atc_drug']]:
-#				lines.append(_(' ATC (drug): %s') % self._payload[self._idx['atc_drug']])
+#			lines.append(_(' Product name: %s   [#%s]') % (self._payload['drug_product'], self._payload['pk_drug_product']))
+#			if self._payload['atc_drug']:
+#				lines.append(_(' ATC (drug): %s') % self._payload['atc_drug'])
 #			if show_all_product_components and (len(product['components']) > 1):
 #				for comp in product['components']:
-#					if comp['pk_substance'] == self._payload[self._idx['substance']]:
+#					if comp['pk_substance'] == self._payload['substance']:
 #						continue
 #					lines.append('  ' + _('Other component: %s %s %s') % (
 #						comp['substance'],
@@ -2797,44 +2797,44 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 #						) for l in comp['loincs'] ])
 #			lines.append('')
 		# regimen
-#		if self._payload[self._idx['schedule']]:
-#			lines.append(_(' Regimen: %s') % self._payload[self._idx['schedule']])
-#		if self._payload[self._idx['planned_duration']] is None:
+#		if self._payload['schedule']:
+#			lines.append(_(' Regimen: %s') % self._payload['schedule'])
+#		if self._payload['planned_duration'] is None:
 #			duration = ''
 #		else:
-#			duration = ' %s %s' % (gmTools.u_arrow2right, gmDateTime.format_interval(self._payload[self._idx['planned_duration']], gmDateTime.acc_days))
+#			duration = ' %s %s' % (gmTools.u_arrow2right, gmDateTime.format_interval(self._payload['planned_duration'], gmDateTime.acc_days))
 #		lines.append(_(' Started %s%s') % (self.medically_formatted_start, duration))
 		lines.append(_(' Last checked %s') % gmDateTime.pydt_strftime (
-			self._payload[self._idx['last_checked_when']],
+			self._payload['last_checked_when'],
 			format = date_format,
 			accuracy = gmDateTime.acc_days
 		))
-#		if self._payload[self._idx['discontinued']]:
+#		if self._payload['discontinued']:
 #			lines.append(_(' Discontinued %s') % (
 #				gmDateTime.pydt_strftime (
-#					self._payload[self._idx['discontinued']],
+#					self._payload['discontinued'],
 #					format = date_format,
 #					accuracy = gmDateTime.acc_days
 #				)
 #			))
-#		if self._payload[self._idx['discontinue_reason']]:
-#			lines.append(_(' Reason: %s') % self._payload[self._idx['discontinue_reason']])
+#		if self._payload['discontinue_reason']:
+#			lines.append(_(' Reason: %s') % self._payload['discontinue_reason'])
 		lines.append('')
 		# further notes
-		lines.append(_(' Episode: %s')% self._payload[self._idx['episode']])
-		if self._payload[self._idx['health_issue']]:
-			lines.append(_(' Health issue: %s') % self._payload[self._idx['health_issue']])
-		if self._payload[self._idx['notes4provider']]:
-			lines.append(_(' Provider notes: %s') % self._payload[self._idx['notes4provider']])
-		if self._payload[self._idx['notes4patient']]:
-			lines.append(_(' Patient advice: %s') % self._payload[self._idx['notes4patient']])
-		if self._payload[self._idx['intake_instructions']]:
-			lines.append(' ' + _('Intake: %s') % self._payload[self._idx['intake_instructions']])
+		lines.append(_(' Episode: %s')% self._payload['episode'])
+		if self._payload['health_issue']:
+			lines.append(_(' Health issue: %s') % self._payload['health_issue'])
+		if self._payload['notes4provider']:
+			lines.append(_(' Provider notes: %s') % self._payload['notes4provider'])
+		if self._payload['notes4patient']:
+			lines.append(_(' Patient advice: %s') % self._payload['notes4patient'])
+		if self._payload['intake_instructions']:
+			lines.append(' ' + _('Intake: %s') % self._payload['intake_instructions'])
 		lines.append('')
 		lines.append(_('Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s.') % {
-			'row_ver': self._payload[self._idx['row_version']],
-			'mod_when': gmDateTime.pydt_strftime(self._payload[self._idx['modified_when']]),
-			'mod_by': self._payload[self._idx['modified_by']]
+			'row_ver': self._payload['row_version'],
+			'mod_when': gmDateTime.pydt_strftime(self._payload['modified_when']),
+			'mod_by': self._payload['modified_by']
 		})
 		if eol is None:
 			return lines
@@ -2844,21 +2844,21 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def turn_into_allergy(self, encounter_id=None, allergy_type='allergy'):
 		allg = gmAllergy.create_allergy (
-			allergene = self._payload[self._idx['substance']],
+			allergene = self._payload['substance'],
 			allg_type = allergy_type,
-			episode_id = self._payload[self._idx['pk_episode']],
+			episode_id = self._payload['pk_episode'],
 			encounter_id = encounter_id
 		)
-		allg['substance'] = self._payload[self._idx['substance']]
-		allg['reaction'] = self._payload[self._idx['discontinue_reason']]
+		allg['substance'] = self._payload['substance']
+		allg['reaction'] = self._payload['discontinue_reason']
 		allg['atc_code'] = gmTools.coalesce(self._payload['atc_substance'])
-		allg['generics'] = self._payload[self._idx['substance']]
+		allg['generics'] = self._payload['substance']
 		allg.save()
 		return allg
 
 	#--------------------------------------------------------
 	def delete(self):
-		return delete_substance_intake(pk_intake = self._payload[self._idx['pk_intake']])
+		return delete_substance_intake(pk_intake = self._payload['pk_intake'])
 
 	#--------------------------------------------------------
 	# properties
@@ -2880,7 +2880,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_regimens(self, ongoing_only=False):
 		return get_intake_regimens (
-			pk_intake = self._payload[self._idx['pk_intake']],
+			pk_intake = self._payload['pk_intake'],
 			ongoing_only = ongoing_only
 		)
 

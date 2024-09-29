@@ -82,12 +82,12 @@ class cIncomingData(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _format_patient_identification(self):
 		tmp = '%s %s %s' % (
-			gmTools.coalesce(self._payload[self._idx['lastnames']], '', 'last=%s'),
-			gmTools.coalesce(self._payload[self._idx['firstnames']], '', 'first=%s'),
-			gmTools.coalesce(self._payload[self._idx['gender']], '', 'gender=%s')
+			gmTools.coalesce(self._payload['lastnames'], '', 'last=%s'),
+			gmTools.coalesce(self._payload['firstnames'], '', 'first=%s'),
+			gmTools.coalesce(self._payload['gender'], '', 'gender=%s')
 		)
-		if self._payload[self._idx['dob']] is not None:
-			tmp += ' dob=%s' % gmDateTime.pydt_strftime(self._payload[self._idx['dob']], '%Y %b %d')
+		if self._payload['dob'] is not None:
+			tmp += ' dob=%s' % gmDateTime.pydt_strftime(self._payload['dob'], '%Y %b %d')
 		return tmp
 
 	patient_identification = property(_format_patient_identification)
@@ -119,10 +119,10 @@ class cIncomingData(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def save_to_file(self, aChunkSize=0, filename=None):
 
-		if self._payload[self._idx['data_size']] == 0:
+		if self._payload['data_size'] == 0:
 			return None
 
-		if self._payload[self._idx['data_size']] is None:
+		if self._payload['data_size'] is None:
 			return None
 
 		if filename is None:
@@ -135,7 +135,7 @@ class cIncomingData(gmBusinessDBObject.cBusinessDBObject):
 			},
 			filename = filename,
 			chunk_size = aChunkSize,
-			data_size = self._payload[self._idx['data_size']]
+			data_size = self._payload['data_size']
 		)
 
 		if not success:

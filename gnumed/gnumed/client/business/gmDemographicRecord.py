@@ -66,14 +66,14 @@ class cTagImage(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def export_image2file(self, aChunkSize=0, filename=None):
 
-		if self._payload[self._idx['size']] == 0:
+		if self._payload['size'] == 0:
 			return None
 
 		if filename is None:
 			suffix = None
 			# preserve original filename extension if available
-			if self._payload[self._idx['filename']] is not None:
-				name, suffix = os.path.splitext(self._payload[self._idx['filename']])
+			if self._payload['filename'] is not None:
+				name, suffix = os.path.splitext(self._payload['filename'])
 				suffix = suffix.strip()
 				if suffix == '':
 					suffix = None
@@ -90,7 +90,7 @@ class cTagImage(gmBusinessDBObject.cBusinessDBObject):
 			},
 			filename = filename,
 			chunk_size = aChunkSize,
-			data_size = self._payload[self._idx['size']]
+			data_size = self._payload['size']
 		)
 
 		if success:
@@ -193,14 +193,14 @@ class cPersonTag(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def export_image2file(self, aChunkSize=0, filename=None):
 
-		if self._payload[self._idx['image_size']] == 0:
+		if self._payload['image_size'] == 0:
 			return None
 
 		if filename is None:
 			suffix = None
 			# preserve original filename extension if available
-			if self._payload[self._idx['filename']] is not None:
-				name, suffix = os.path.splitext(self._payload[self._idx['filename']])
+			if self._payload['filename'] is not None:
+				name, suffix = os.path.splitext(self._payload['filename'])
 				suffix = suffix.strip()
 				if suffix == '':
 					suffix = None
@@ -213,11 +213,11 @@ class cPersonTag(gmBusinessDBObject.cBusinessDBObject):
 		exported = gmPG2.bytea2file (
 			data_query = {
 				'cmd': 'SELECT substring(image from %(start)s for %(size)s) FROM ref.tag_image WHERE pk = %(pk)s',
-				'args': {'pk': self._payload[self._idx['pk_tag_image']]}
+				'args': {'pk': self._payload['pk_tag_image']}
 			},
 			filename = filename,
 			chunk_size = aChunkSize,
-			data_size = self._payload[self._idx['image_size']]
+			data_size = self._payload['image_size']
 		)
 		if exported:
 			return filename
@@ -915,7 +915,7 @@ class cPatientAddress(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_address(self):
-		return cAddress(aPK_obj = self._payload[self._idx['pk_address']])
+		return cAddress(aPK_obj = self._payload['pk_address'])
 
 	address = property(_get_address)
 

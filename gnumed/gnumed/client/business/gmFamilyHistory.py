@@ -106,7 +106,7 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 	def add_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
 
-		if pk_code in self._payload[self._idx['pk_generic_codes']]:
+		if pk_code in self._payload['pk_generic_codes']:
 			return
 
 		cmd = """
@@ -123,7 +123,7 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 					fk_generic_code = %(code)s
 			)"""
 		args = {
-			'item': self._payload[self._idx['pk_family_history']],
+			'item': self._payload['pk_family_history'],
 			'code': pk_code
 		}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
@@ -134,7 +134,7 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
 		cmd = "DELETE FROM clin.lnk_code2fhx WHERE fk_item = %(item)s AND fk_generic_code = %(code)s"
 		args = {
-			'item': self._payload[self._idx['pk_family_history']],
+			'item': self._payload['pk_family_history'],
 			'code': pk_code
 		}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
@@ -156,17 +156,17 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 
 		line = '%s%s' % (
 			(' ' * left_margin),
-			self._payload[self._idx['l10n_relation']]
+			self._payload['l10n_relation']
 		)
-		if self._payload[self._idx['age_of_death']] is not None:
+		if self._payload['age_of_death'] is not None:
 			line += ' (%s %s)' % (
 				gmTools.u_latin_cross,
-				gmDateTime.format_interval_medically(self._payload[self._idx['age_of_death']])
+				gmDateTime.format_interval_medically(self._payload['age_of_death'])
 			)
-		line += ': %s' % self._payload[self._idx['condition']]
-		if self._payload[self._idx['age_noted']] is not None:
-			line += gmTools.coalesce(self._payload[self._idx['age_noted']], '', ' (@ %s)')
-		if self._payload[self._idx['contributed_to_death']]:
+		line += ': %s' % self._payload['condition']
+		if self._payload['age_noted'] is not None:
+			line += gmTools.coalesce(self._payload['age_noted'], '', ' (@ %s)')
+		if self._payload['contributed_to_death']:
 			line += ' %s %s' % (
 				gmTools.u_arrow2right,
 				gmTools.u_skull_and_crossbones
@@ -176,14 +176,14 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 			line += '\n%s  %s: %s' % (
 				(' ' * left_margin),
 				_('Episode'),
-				self._payload[self._idx['episode']]
+				self._payload['episode']
 			)
 
 		if include_comment:
-			if self._payload[self._idx['comment']] is not None:
+			if self._payload['comment'] is not None:
 				line += '\n%s  %s' % (
 					(' ' * left_margin),
-					self._payload[self._idx['comment']]
+					self._payload['comment']
 				)
 
 		if include_codes:
@@ -206,23 +206,23 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 	# properties
 	#--------------------------------------------------------
 	def _get_generic_codes(self):
-		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
+		if len(self._payload['pk_generic_codes']) == 0:
 			return []
 
 		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code = ANY(%(pks)s)'
-		args = {'pks': self._payload[self._idx['pk_generic_codes']]}
+		args = {'pks': self._payload['pk_generic_codes']}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
 
 	def _set_generic_codes(self, pk_codes):
 		queries = []
 		# remove all codes
-		if len(self._payload[self._idx['pk_generic_codes']]) > 0:
+		if len(self._payload['pk_generic_codes']) > 0:
 			queries.append ({
 				'cmd': 'DELETE FROM clin.lnk_code2fhx WHERE fk_item = %(fhx)s AND fk_generic_code = ANY(%(codes)s)',
 				'args': {
-					'fhx': self._payload[self._idx['pk_family_history']],
-					'codes': self._payload[self._idx['pk_generic_codes']]
+					'fhx': self._payload['pk_family_history'],
+					'codes': self._payload['pk_generic_codes']
 				}
 			})
 		# add new codes
@@ -230,7 +230,7 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 			queries.append ({
 				'cmd': 'INSERT INTO clin.lnk_code2fhx (fk_item, fk_generic_code) VALUES (%(fhx)s, %(pk_code)s)',
 				'args': {
-					'fhx': self._payload[self._idx['pk_family_history']],
+					'fhx': self._payload['pk_family_history'],
 					'pk_code': pk_code
 				}
 			})
