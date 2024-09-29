@@ -4,7 +4,7 @@
 .\\" SPDX-License-Identifier: GPL-2.0-or-later
 .\\" ========================================================
 
-.TH GNUmed 1 "%s" "Manual for GNUmed"
+.TH GNUmed 1 "%(today)s" "Manual for GNUmed"
 
 .SH NAME
 .B GNUmed
@@ -14,23 +14,7 @@ Use at your own risk. You have been warned.
 
 .SH SYNOPSIS
 .B gnumed
-.RB [--quiet|debug]
-.RB [--slave]
-.RB [--text-domain=TEXTDOMAIN]
-.RB [--log-file=FILE]
-.RB [--conf-file=FILE]
-.RB [--profile=FILE]
-.RB [--lang-gettext=LANGUAGE]
-.RB [--tool=TOOL]
-.RB [--override-schema-check]
-.RB [--skip-update-check]
-.RB [--local-import]
-.RB [--special=SPECIAL]
-.RB [--help]
-.RB [--version]
-.RB [-V]
-.RB [-h|?]
-
+%(options)s
 
 .SH DESCRIPTION
 .B GNUmed
@@ -44,9 +28,6 @@ with the same database at the same time.
 
 .SH OPTIONS
 .PP
-.TP
-.B \--quiet
-Be extra quiet and show only _real_ errors in the log.
 .TP
 .B \--debug
 Pre-set the [debug mode] checkbox in the login dialog
@@ -91,21 +72,7 @@ Run the named TOOL instead of a GUI.
 
 Currently implemented tools:
 
-	update_collations: Update collations version information in the database.
-
-	check_enc_epi_xref: Cross-check that foreign keys values in any given row of any table carrying both of fk_episode and fk_encounter do point to episodes and encounters, respectively, of the very same patient.
-
-	export_pat_emr_structure: Export the EMR structure (issues and episodes) of a patient into a text file.
-
-	check_mimetypes_in_archive: Show mimetypes and related information of all document parts in the archive.
-
-	read_all_rows_of_table: Check readability of all rows of a given table.
-
-	fingerprint_db: Create a fingerprint of a GNUmed database.
-
-	generate_man_page: Generate man page.
-
-	get_object_passphrases: Retrieve encrypted passphrases for a file previously encrypted by and exported from GNUmed.
+%(tools)s
 .TP
 .B \--override-schema-check
 Continue loading the client even if the database schema
@@ -187,7 +154,7 @@ options:
 
 .PP
 .TP
-.B client/system runtime interaction
+.B client/system interaction at runtime
 
 GNUmed uses scripts and configuration files to customize system interaction at runtime:
 
@@ -234,15 +201,15 @@ image/x-bmp = bmp
 
 .SH EXIT STATUS
 .TP
- > 0: some error occurred while the GUI client was run
+ > 0: an error occurred while running the GUI client
 .TP
    0: normal termination of the client
 .TP
- < 0: some error occurred while trying to run a console tool
+ < 0: an error occurred while trying to run a console tool
 .TP
-  -1: an unknown console tool was requested
+	  -1: an unknown console tool was requested
 .TP
-< -1: an error occurred while a console tool was run
+	< -1: an error occurred while running a known console tool
 .TP
 -999: hard abort of the client
 
@@ -269,7 +236,7 @@ Integration with BASH completions.
 .SH SEE ALSO
 .PP
 .TP
-.B https://www.gnumed.[de|org]
+.B https://www.gnumed.de
 Online documenation.
 .TP
 .B https://savannah.gnu.org/projects/gnumed
@@ -297,7 +264,7 @@ Use at your own risk. You have been warned. Take proper backups !
 
 #==========================================================
 # SPDX-License-Identifier: GPL-2.0-or-later
-__author__ = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
+__author__ = "H.Herb <hherb@gnumed.net>, K.Hilbert <karsten.hilbert@gmx.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL v2 or later (details at https://www.gnu.org)"
 
 
@@ -347,35 +314,34 @@ _cfg = None
 _old_sig_term = None
 _known_short_options = 'h?V'
 _known_long_options = [
+	'help',
+	'version',
 	'debug',
 	'slave',
 	'skip-update-check',
-	'profile=',
-	'text-domain=',
-	'log-file=',
-	'conf-file=',
-	'lang-gettext=',
 	'override-schema-check',
 	'local-import',
-	'help',
-	'version',
 	'hipaa',
-	'wxp=',
+	'log-file=',
+	'conf-file=',
 	'tool=',
+	'profile=',
+	'text-domain=',
+	'lang-gettext=',
 	'special=',
 	'tui'
 ]
 
-_known_tools = [
-	'check_enc_epi_xref',
-	'export_pat_emr_structure',
-	'check_mimetypes_in_archive',
-	'read_all_rows_of_table',
-	'fingerprint_db',
-	'generate_man_page',
-	'get_object_passphrases',
-	'update_collations'
-]
+_known_tools = {
+	'check_enc_epi_xref': 'Cross-check that foreign keys values in any given row of any table carrying both of fk_episode and fk_encounter do point to episodes and encounters, respectively, of the very same patient.',
+	'export_pat_emr_structure': 'Export the EMR structure (issues and episodes) of a patient into a text file.',
+	'check_mimetypes_in_archive': 'Show mimetypes and related information of all document parts in the archive.',
+	'read_all_rows_of_table': 'Check readability of all rows of a given table.',
+	'fingerprint_db': 'Create a fingerprint of a GNUmed database.',
+	'generate_man_page': 'Generate man page.',
+	'get_object_passphrases': 'Retrieve encrypted passphrases for a file previously encrypted by and exported from GNUmed.',
+	'update_collations': 'Update collations version information in the database.'
+}
 
 
 import_error_sermon = """
@@ -432,14 +398,14 @@ Cannot run GNUmed without any of them.
 #----------------------------------------------------------
 def _symlink_windows(source, link_name):
 	import ctypes
-	csl = ctypes.windll.kernel32.CreateSymbolicLinkW
-	csl.argtypes = (ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.c_uint32)
-	csl.restype = ctypes.c_ubyte
+	create_symlink_on_windows = ctypes.windll.kernel32.CreateSymbolicLinkW
+	create_symlink_on_windows.argtypes = (ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.c_uint32)
+	create_symlink_on_windows.restype = ctypes.c_ubyte
 	if os.path.isdir(source):
 		flags = 1
 	else:
 		flags = 0
-	ret_code = csl(link_name, source.replace('/', '\\'), flags)
+	ret_code = create_symlink_on_windows(link_name, source.replace('/', '\\'), flags)
 	if ret_code == 0:
 		raise ctypes.WinError()
 	return ret_code
@@ -798,7 +764,18 @@ def generate_man_page(fname=None):
 	if fname is None:
 		handle, fname = tempfile.mkstemp(text = True, suffix = '.1')
 	man_page_file = open(fname, mode = 'wt', encoding = 'utf8')
-	man_page_file.write(__doc__ % datetime.date.today().strftime('%x'))
+	opts = [ '.RB [-%s]' % o for o in  _known_short_options ]
+	for long_opt in _known_long_options:
+		if long_opt.endswith('='):
+			opts.append('.RB [--%s%s]' % (long_opt, long_opt.upper()[:-1]))
+			continue
+		opts.append('.RB [--%s]' % long_opt)
+	args = {
+		'today': datetime.date.today().strftime('%x'),
+		'tools': '\t\t\t\n\n'.join([ '%s: %s' % (tool, desc) for tool, desc in _known_tools.items() ]),
+		'options': '\n'.join(opts)
+	}
+	man_page_file.write(__doc__ % args)
 	man_page_file.close()
 	return fname
 
@@ -1094,7 +1071,7 @@ def run_tool():
 	if tool not in _known_tools:
 		_log.error('unknown tool requested: %s', tool)
 		print('GNUmed startup: Unknown tool [%s] requested.' % tool)
-		print('GNUmed startup: Known tools: %s' % _known_tools)
+		print('GNUmed startup: Known tools: %s' % list(_known_tools.keys()))
 		return -1
 
 	print('')
