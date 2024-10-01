@@ -714,7 +714,7 @@ class cBusinessDBObject(object):
 			raise AssertionError('[%s:%s]: %s instances !' % (self.__class__.__name__, self.pk_obj, len(rows)))
 
 		self._payload = rows[0]
-		k = list(self._payload.keys())
+#		k = list(self._payload.keys())
 #		self._idx = dict(zip(k, k))
 		return True
 
