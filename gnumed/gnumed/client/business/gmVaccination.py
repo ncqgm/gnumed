@@ -694,7 +694,7 @@ def format_vaccinations_by_indication_for_failsafe_output(pk_patient:int, max_wi
 	if not shots:
 		return []
 
-	shots_by_ind:dict[str, [cVaccination]] = {}
+	shots_by_ind:dict[str, list[cVaccination]] = {}
 	for shot in shots:
 		inds = shot['indications']
 		for ind in inds:

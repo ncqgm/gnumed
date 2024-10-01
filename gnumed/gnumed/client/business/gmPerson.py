@@ -1761,7 +1761,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		relative = cPerson(aPK_obj = id_new_relative)
 		# pre-fill with data from ourselves
 #		relative.copy_addresses(self)
-		relative.add_name( '**?**', self.get_names()['lastnames'])
+		relative.add_name( '**?**', self.active_name['lastnames'])
 		# and link the two
 		SQL = """
 			INSERT INTO dem.lnk_person2relative (
