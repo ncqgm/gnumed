@@ -149,10 +149,10 @@ def get_dynamic_hints(order_by=None, link_obj=None, return_pks=False):
 	else:
 		order_by = 'TRUE ORDER BY %s' % order_by
 	cmd = _SQL_get_dynamic_hints % order_by
-	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd}], get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd}])
 	if return_pks:
 		return [ r['pk_auto_hint'] for r in rows ]
-	return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_auto_hint'}) for r in rows ]
+	return [ cDynamicHint(row = {'data': r, 'pk_field': 'pk_auto_hint'}) for r in rows ]
 
 #------------------------------------------------------------
 def create_dynamic_hint(link_obj=None, query=None, title=None, hint=None, source=None):
@@ -179,7 +179,7 @@ def create_dynamic_hint(link_obj=None, query=None, title=None, hint=None, source
 		)
 		RETURNING pk
 	"""
-	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = True)
+	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True)
 	return cDynamicHint(aPK_obj = rows[0]['pk'], link_obj = link_obj)
 
 #------------------------------------------------------------
@@ -311,10 +311,10 @@ def get_suppressed_hints(pk_identity=None, order_by=None, return_pks=False):
 	else:
 		order_by = ' ORDER BY %s' % order_by
 	cmd = (_SQL_get_suppressed_hints % where) + order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if return_pks:
 		return [ r['pk_suppressed_hint'] for r in rows ]
-	return [ cSuppressedHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_suppressed_hint'}) for r in rows ]
+	return [ cSuppressedHint(row = {'data': r, 'pk_field': 'pk_suppressed_hint'}) for r in rows ]
 
 #------------------------------------------------------------
 def delete_suppressed_hint(pk_suppressed_hint=None):

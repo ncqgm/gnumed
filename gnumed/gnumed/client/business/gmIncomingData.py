@@ -173,11 +173,11 @@ def get_incoming_data(order_by=None, return_pks=False):
 	else:
 		order_by = 'true ORDER BY %s' % order_by
 	cmd = _SQL_get_incoming_data % order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	if return_pks:
 		return [ r['pk_incoming_data'] for r in rows ]
 
-	return [ cIncomingData(row = {'data': r, 'idx': idx, 'pk_field': 'pk_incoming_data'}) for r in rows ]
+	return [ cIncomingData(row = {'data': r, 'pk_field': 'pk_incoming_data'}) for r in rows ]
 
 #------------------------------------------------------------
 def create_incoming_data(data_type:str=None, filename:str=None, verify_import:bool=False) -> cIncomingData:
@@ -190,7 +190,7 @@ def create_incoming_data(data_type:str=None, filename:str=None, verify_import:bo
 	rows, idx = gmPG2.run_rw_queries (
 		link_obj = conn,
 		end_tx = False,
-		queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False
+		queries = [{'cmd': cmd, 'args': args}], return_data = True
 	)
 	pk = rows[0]['pk']
 	incoming = cIncomingData(aPK_obj = pk, link_obj = conn)

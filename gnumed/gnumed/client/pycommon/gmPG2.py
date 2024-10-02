@@ -857,8 +857,7 @@ def get_index_name(indexed_table=None, indexed_column=None, link_obj=None):
 	}
 	rows, idx = run_ro_queries (
 		link_obj = link_obj,
-		queries = [{'cmd': SQL_get_index_name, 'args': args}],
-		get_col_idx = False
+		queries = [{'cmd': SQL_get_index_name, 'args': args}]
 	)
 
 	return rows
@@ -877,8 +876,7 @@ def get_foreign_key_names(src_schema=None, src_table=None, src_column=None, targ
 
 	rows, idx = run_ro_queries (
 		link_obj = link_obj,
-		queries = [{'cmd': SQL_foreign_key_name, 'args': args}],
-		get_col_idx = False
+		queries = [{'cmd': SQL_foreign_key_name, 'args': args}]
 	)
 
 	return rows
@@ -1303,7 +1301,7 @@ def export_translations_from_database(filename=None):
 	tx_file.write('\\unset ON_ERROR_STOP\n\n')
 
 	cmd = 'SELECT lang, orig, trans FROM i18n.translations ORDER BY lang, orig'
-	rows, idx = run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
+	rows, idx = run_ro_queries(queries = [{'cmd': cmd}])
 	for row in rows:
 		line = "select i18n.upd_tx(E'%s', E'%s', E'%s');\n" % (
 			row['lang'].replace("'", "\\'"),
@@ -1406,7 +1404,7 @@ def get_database_translations(language=None, order_by=None):
 		)) AS translatable_strings
 		%s""" % order_by
 
-	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	if rows is None:
 		_log.error('no translatable strings found')
@@ -1517,7 +1515,7 @@ def lock_row(link_obj:_TLnkObj=None, table:str=None, pk:int=None, exclusive:bool
 		cmd = """SELECT pg_try_advisory_lock('%s'::regclass::oid::int, %s)""" % (table, pk)
 	else:
 		cmd = """SELECT pg_try_advisory_lock_shared('%s'::regclass::oid::int, %s)""" % (table, pk)
-	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd}], get_col_idx = False)
+	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd}])
 	if rows[0][0]:
 		return True
 
@@ -1535,7 +1533,7 @@ def unlock_row(link_obj:_TLnkObj=None, table:str=None, pk:int=None, exclusive:bo
 		cmd = "SELECT pg_advisory_unlock('%s'::regclass::oid::int, %s)" % (table, pk)
 	else:
 		cmd = "SELECT pg_advisory_unlock_shared('%s'::regclass::oid::int, %s)" % (table, pk)
-	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd}], get_col_idx = False)
+	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd}])
 	if rows[0][0]:
 		return True
 
@@ -1556,7 +1554,7 @@ def row_is_locked(table=None, pk=None) -> bool:
 				AND
 			locktype = 'advisory'
 	)""" % (table, pk)
-	rows, idx = run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
+	rows, idx = run_ro_queries(queries = [{'cmd': cmd}])
 	if rows[0][0]:
 		_log.debug('row is locked: [%s] [%s]', table, pk)
 		return True
@@ -2678,8 +2676,7 @@ def sanity_check_database_settings(hipaa:bool=True) -> tuple:
 	cmd = 'SELECT name, setting FROM pg_settings WHERE name = ANY(%(settings)s)'
 	rows, idx = run_ro_queries (
 		link_obj = conn,
-		queries = [{'cmd': cmd, 'args': {'settings': list(options2check)}}],
-		get_col_idx = False
+		queries = [{'cmd': cmd, 'args': {'settings': list(options2check)}}]
 	)
 	found_error = False
 	found_problem = False
@@ -2978,9 +2975,8 @@ if __name__ == "__main__":
 		conn = get_connection(readonly = True)
 		while True:
 			SQL = input('Enter SQL:')
-			data, idx = run_ro_queries(link_obj = conn, queries = [{'cmd': SQL}], return_data = True, get_col_idx = True, verbose = True)
+			data, idx = run_ro_queries(link_obj = conn, queries = [{'cmd': SQL}], return_data = True, verbose = True)
 			print(data)
-			print(idx)
 
 	#--------------------------------------------------------------------
 	def test_ro_queries():
@@ -2993,27 +2989,22 @@ if __name__ == "__main__":
 		#dsn = 'dbname=gnumed_v22 user=any-doc password=any-doc'
 		conn = get_connection(readonly = True)
 
-		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': 'SELECT version()'}], return_data=True, get_col_idx=True, verbose=True)
+		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': 'SELECT version()'}], return_data=True, verbose=True)
 		print(data)
-		print(idx)
-		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': 'SELECT 1'}], return_data=True, get_col_idx=True)
+		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': 'SELECT 1'}], return_data=True)
 		print(data)
-		print(idx)
 
 		curs = conn.cursor()
 
-		data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': 'SELECT version()'}], return_data=True, get_col_idx=True, verbose=True)
+		data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': 'SELECT version()'}], return_data=True, verbose=True)
 		print(data)
-		print(idx)
 
-		data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': 'SELECT 1'}], return_data=True, get_col_idx=True, verbose=True)
+		data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': 'SELECT 1'}], return_data=True, verbose=True)
 		print(data)
-		print(idx)
 
 		try:
-			data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': 'selec 1'}], return_data=True, get_col_idx=True, verbose=True)
+			data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': 'selec 1'}], return_data=True, verbose=True)
 			print(data)
-			print(idx)
 		except dbapi.ProgrammingError:
 			print('SUCCESS: run_ro_queries("selec 1") failed as expected')
 			typ, val = sys.exc_info()[:2]
@@ -3188,8 +3179,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	) AS foofoo
 ) AS foo"""
 		cmd = u"SELECT 'infinity'::timestamp with time zone"
-		rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		print(idx)
+		rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		print(rows)
 		print(rows[0])
 		print(rows[0][0])
@@ -3444,7 +3434,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 
 	#SQL = 'select 1 as one, 2 as two'
 	#SQL = 'SELECT pg_sleep(4)'
-	#rows, idx = run_ro_queries(queries = [{'cmd': SQL}], get_col_idx = True)
+	#rows, idx = run_ro_queries(queries = [{'cmd': SQL}])
 	#print(type(idx))
 	#print(type(rows))
 	#r = rows[0]

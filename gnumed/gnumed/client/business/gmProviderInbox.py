@@ -144,10 +144,10 @@ def get_reminders(pk_patient=None, order_by=None, return_pks=False):
 	)
 	_log.debug('SQL: %s', cmd)
 	_log.debug('args: %s', args)
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if return_pks:
 		return [ r['pk_inbox_message'] for r in rows ]
-	return [ cInboxMessage(row = {'data': r, 'idx': idx, 'pk_field': 'pk_inbox_message'}) for r in rows ]
+	return [ cInboxMessage(row = {'data': r, 'pk_field': 'pk_inbox_message'}) for r in rows ]
 
 #------------------------------------------------------------
 def get_overdue_messages(pk_patient=None, order_by=None, return_pks=False):
@@ -168,10 +168,10 @@ def get_overdue_messages(pk_patient=None, order_by=None, return_pks=False):
 	)
 	_log.debug('SQL: %s', cmd)
 	_log.debug('args: %s', args)
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if return_pks:
 		return [ r['pk_inbox_message'] for r in rows ]
-	return [ cInboxMessage(row = {'data': r, 'idx': idx, 'pk_field': 'pk_inbox_message'}) for r in rows ]
+	return [ cInboxMessage(row = {'data': r, 'pk_field': 'pk_inbox_message'}) for r in rows ]
 
 #------------------------------------------------------------
 def get_relevant_messages(pk_staff=None, pk_patient=None, include_without_provider=False, order_by=None, return_pks=False):
@@ -208,10 +208,10 @@ def get_relevant_messages(pk_staff=None, pk_patient=None, include_without_provid
 	)
 	_log.debug('SQL: %s', cmd)
 	_log.debug('args: %s', args)
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if return_pks:
 		return [ r['pk_inbox_message'] for r in rows ]
-	return [ cInboxMessage(row = {'data': r, 'idx': idx, 'pk_field': 'pk_inbox_message'}) for r in rows ]
+	return [ cInboxMessage(row = {'data': r, 'pk_field': 'pk_inbox_message'}) for r in rows ]
 
 #------------------------------------------------------------
 def get_inbox_messages(pk_staff=None, pk_patient=None, include_without_provider=False, exclude_expired=False, expired_only=False, overdue_only=False, unscheduled_only=False, exclude_unscheduled=False, order_by=None, return_pks=False):
@@ -255,10 +255,10 @@ def get_inbox_messages(pk_staff=None, pk_patient=None, include_without_provider=
 	)
 	_log.debug('SQL: %s', cmd)
 	_log.debug('args: %s', args)
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if return_pks:
 		return [ r['pk_inbox_message'] for r in rows ]
-	return [ cInboxMessage(row = {'data': r, 'idx': idx, 'pk_field': 'pk_inbox_message'}) for r in rows ]
+	return [ cInboxMessage(row = {'data': r, 'pk_field': 'pk_inbox_message'}) for r in rows ]
 
 #------------------------------------------------------------
 def create_inbox_message(message_type=None, subject=None, patient=None, staff=None, message_category='clinical'):
@@ -287,7 +287,7 @@ def create_inbox_message(message_type=None, subject=None, patient=None, staff=No
 		'type': pk_type,
 		'subject': subject
 	}
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 	return cInboxMessage(aPK_obj = rows[0]['pk'])
 
 #------------------------------------------------------------

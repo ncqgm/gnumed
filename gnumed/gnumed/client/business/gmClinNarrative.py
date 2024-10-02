@@ -136,8 +136,8 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 
 		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code = ANY(%(pks)s)'
 		args = {'pks': self._payload['pk_generic_codes']}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
 
 	def _set_generic_codes(self, pk_codes):
 		queries = []
@@ -252,7 +252,7 @@ def create_narrative_item(narrative=None, soap_cat=None, episode_id=None, encoun
 				narrative = %(narr)s
 		)
 		RETURNING pk"""
-	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True)
 	if len(rows) == 1:
 		# re-use same link_obj if given because when called from create_progress_note we won't yet see rows inside a new tx
 		return cNarrative(aPK_obj = rows[0]['pk'], link_obj = link_obj)
@@ -272,9 +272,9 @@ def create_narrative_item(narrative=None, soap_cat=None, episode_id=None, encoun
 				AND
 			narrative = %(narr)s
 	"""
-	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
 	if len(rows) == 1:
-		return cNarrative(row = {'pk_field': 'pk_narrative', 'data': rows[0], 'idx': idx})
+		return cNarrative(row = {'pk_field': 'pk_narrative', 'data': rows[0]})
 
 	raise Exception('retrieving known-to-exist narrative row returned 0 or >1 result: %s' % len(rows))
 
@@ -338,9 +338,9 @@ def get_narrative(since=None, until=None, encounters=None, episodes=None, issues
 		order_by
 	)
 
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
-	filtered_narrative = [ cNarrative(row = {'pk_field': 'pk_narrative', 'idx': idx, 'data': row}) for row in rows ]
+	filtered_narrative = [ cNarrative(row = {'pk_field': 'pk_narrative', 'data': row}) for row in rows ]
 
 	if since is not None:
 		filtered_narrative = [ narr for narr in filtered_narrative if narr['date'] >= since ]
@@ -477,7 +477,7 @@ def get_as_journal(since=None, until=None, encounters=None, episodes=None, issue
 		"""
 		cmd = cmd_journal + '\nUNION ALL\n' + cmd_hints + '\n' + order_by
 
-	journal_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	journal_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	return journal_rows
 
@@ -493,7 +493,7 @@ def search_text_across_emrs(search_term=None):
 		return []
 
 	cmd = 'SELECT * FROM clin.v_narrative4search WHERE narrative ~* %(term)s ORDER BY pk_patient LIMIT 1000'
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'term': search_term}}], get_col_idx = False)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'term': search_term}}])
 	return rows
 
 #============================================================

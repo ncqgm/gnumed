@@ -1069,7 +1069,7 @@ class cEMRJournalExporter:
 			WHERE pk_patient = %s
 			ORDER BY date, pk_episode, scr, src_table
 		"""
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [patient['pk_identity']]}], get_col_idx = True)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [patient['pk_identity']]}])
 
 		# write data
 		prev_date = ''

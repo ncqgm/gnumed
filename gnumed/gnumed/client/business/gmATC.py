@@ -105,7 +105,7 @@ def text2atc(text=None, fuzzy=False, link_obj=None):
 			ORDER BY atc_code
 		"""
 
-	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
 
 	_log.debug('term: %s => ATCs: %s (fuzzy: %s)', text, rows, fuzzy)
 
@@ -115,13 +115,13 @@ def text2atc(text=None, fuzzy=False, link_obj=None):
 def exists_as_atc(substance):
 	args = {'term': substance}
 	cmd = 'SELECT EXISTS (SELECT 1 FROM ref.atc WHERE lower(term) = lower(%(term)s))'
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	return rows[0][0]
 
 #============================================================
 def get_reference_atcs(order_by='atc, term, lang'):
 	cmd = 'SELECT * FROM ref.v_atc ORDER BY %s' % order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	return rows
 
 #============================================================

@@ -211,8 +211,8 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 
 		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code = ANY(%(pks)s)'
 		args = {'pks': self._payload['pk_generic_codes']}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
 
 	def _set_generic_codes(self, pk_codes):
 		queries = []
@@ -263,8 +263,9 @@ def get_family_history(order_by=None, patient=None):
 			order_by = 'ORDER BY %s' % order_by
 
 	cmd = _SQL_get_family_history % ' AND '.join(where_parts) + ' ' + order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-	return [ cFamilyHistory(row = {'data': r, 'idx': idx, 'pk_field': 'pk_family_history'}) for r in rows ]
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	return [ cFamilyHistory(row = {'data': r, 'pk_field': 'pk_family_history'}) for r in rows ]
+
 #------------------------------------------------------------
 def create_family_history(encounter=None, episode=None, condition=None, relation=None):
 
@@ -290,7 +291,7 @@ def create_family_history(encounter=None, episode=None, condition=None, relation
 		)
 		RETURNING pk
 	"""
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 
 	return cFamilyHistory(aPK_obj = rows[0]['pk'])
 #------------------------------------------------------------

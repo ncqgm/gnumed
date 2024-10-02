@@ -181,8 +181,8 @@ class cDocumentFolder:
 					reviewed IS FALSE
 			)
 			ORDER BY clin_when DESC"""
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		return [ cDocument(row = {'pk_field': 'pk_doc', 'idx': idx, 'data': r}) for r in rows ]
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return [ cDocument(row = {'pk_field': 'pk_doc', 'data': r}) for r in rows ]
 
 	#--------------------------------------------------------
 	def get_documents(self, doc_type=None, pk_episodes=None, encounter=None, order_by=None, exclude_unsigned=False, pk_types=None):
@@ -212,8 +212,8 @@ class cDocumentFolder:
 		if order_by is None:
 			order_by = 'ORDER BY clin_when'
 		cmd = "%s\n%s" % (_SQL_get_document_fields % ' AND '.join(where_parts), order_by)
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		return [ cDocument(row = {'pk_field': 'pk_doc', 'idx': idx, 'data': r}) for r in rows ]
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return [ cDocument(row = {'pk_field': 'pk_doc', 'data': r}) for r in rows ]
 
 	documents = property(get_documents)
 
@@ -238,8 +238,8 @@ class cDocumentFolder:
 			'pk_org_unit IN (SELECT DISTINCT ON (pk_org_unit) pk_org_unit FROM blobs.v_doc_med WHERE pk_patient = %(pat)s)'
 		)
 		args = {'pat': self.pk_patient}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		return [ gmOrganization.cOrgUnit(row = {'data': r, 'idx': idx, 'pk_field': 'pk_org_unit'}) for r in rows ]
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return [ gmOrganization.cOrgUnit(row = {'data': r, 'pk_field': 'pk_org_unit'}) for r in rows ]
 
 	all_document_org_units = property(_get_all_document_org_units)
 
@@ -449,7 +449,7 @@ insert into blobs.reviewed_doc_objs (
 			'pk_obj': self.pk_obj,
 			'xmin_doc_obj': self._payload['xmin_doc_obj']
 		}
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 		if len(rows) == 0:
 			return False
 		# The following should never hold true because the target
@@ -753,8 +753,8 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_parts(self):
 		cmd = _SQL_get_document_part_fields % "pk_doc = %s ORDER BY seq_idx"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}], get_col_idx = True)
-		return [ cDocumentPart(row = {'pk_field': 'pk_obj', 'idx': idx, 'data': r}) for r in rows ]
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
+		return [ cDocumentPart(row = {'pk_field': 'pk_obj', 'data': r}) for r in rows ]
 
 	parts = property(_get_parts)
 
@@ -1100,8 +1100,8 @@ def search_for_documents(patient_id=None, type_id=None, external_reference=None,
 		args['pk_types'] = pk_types
 
 	cmd = _SQL_get_document_fields % ' AND '.join(where_parts)
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-	return [ cDocument(row = {'data': r, 'idx': idx, 'pk_field': 'pk_doc'}) for r in rows ]
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	return [ cDocument(row = {'data': r, 'pk_field': 'pk_doc'}) for r in rows ]
 
 #------------------------------------------------------------
 def delete_document(document_id=None, encounter_id=None):
@@ -1179,12 +1179,11 @@ class cDocumentType(gmBusinessDBObject.cBusinessDBObject):
 #------------------------------------------------------------
 def get_document_types():
 	rows, idx = gmPG2.run_ro_queries (
-		queries = [{'cmd': "SELECT * FROM blobs.v_doc_type"}],
-		get_col_idx = True
+		queries = [{'cmd': "SELECT * FROM blobs.v_doc_type"}]
 	)
 	doc_types = []
 	for row in rows:
-		row_def = {'pk_field': 'pk_doc_type', 'idx': idx, 'data': row}
+		row_def = {'pk_field': 'pk_doc_type', 'data': row}
 		doc_types.append(cDocumentType(row = row_def))
 	return doc_types
 
@@ -1193,10 +1192,10 @@ def get_document_type_pk(document_type=None):
 	args = {'typ': document_type.strip()}
 
 	cmd = 'SELECT pk FROM blobs.doc_type WHERE name = %(typ)s'
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if len(rows) == 0:
 		cmd = 'SELECT pk FROM blobs.doc_type WHERE _(name) = %(typ)s'
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	if len(rows) == 0:
 		return None
@@ -1207,7 +1206,7 @@ def get_document_type_pk(document_type=None):
 def map_types2pk(document_types=None):
 	args = {'types': document_types}
 	cmd = 'SELECT pk_doc_type, coalesce(l10n_type, type) as desc FROM blobs.v_doc_type WHERE l10n_type = ANY(%(types)s) OR type = ANY(%(types)s)'
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	return rows
 
 #------------------------------------------------------------

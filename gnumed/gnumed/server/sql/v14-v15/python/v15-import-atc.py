@@ -98,7 +98,7 @@ INSERT INTO ref.atc (
 def run(conn=None):
 
 	gmPG2.run_rw_queries(link_obj = conn, queries = [{'cmd': SQL_CREATE_DATA_SOURCE}], end_tx = False)
-	rows, idx = gmPG2.run_ro_queries(link_obj = conn, queries = [{'cmd': SQL_GET_DATA_SOURCES}], get_col_idx = False)
+	rows, idx = gmPG2.run_ro_queries(link_obj = conn, queries = [{'cmd': SQL_GET_DATA_SOURCES}])
 	data_sources = rows[0]
 
 	data_fname = os.path.join('..', 'sql', 'v14-v15', 'data', 'atc_only-utf8.csv')

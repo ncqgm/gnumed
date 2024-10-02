@@ -197,7 +197,7 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 		definition.
 		"""
 		cmd = 'SELECT data FROM ref.paperwork_templates WHERE pk = %(pk)s'
-		rows, idx = gmPG2.run_ro_queries (queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj}}], get_col_idx = False)
+		rows, idx = gmPG2.run_ro_queries (queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj}}])
 		if len(rows) == 0:
 			raise gmExceptions.NoSuchBusinessObjectError('cannot retrieve data for template pk = %s' % self.pk_obj)
 
@@ -307,7 +307,7 @@ def get_form_template(name_long:str=None, external_version:str=None):
 	"""Load a form template from the backend based on name and version."""
 	cmd = 'select pk from ref.paperwork_templates where name_long = %(lname)s and external_version = %(ver)s'
 	args = {'lname': name_long, 'ver': external_version}
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if len(rows) == 0:
 		_log.error('cannot load form template [%s - %s]', name_long, external_version)
 		return None
@@ -330,14 +330,11 @@ def get_form_templates(engine=None, active_only=False, template_types=None, excl
 		args['excl_types'] = excluded_types
 		where_parts.append('template_type <> ALL(%(excl_types)s)')
 	cmd = "SELECT * FROM ref.v_paperwork_templates WHERE %s ORDER BY in_use desc, name_long" % '\nAND '.join(where_parts)
-	rows, idx = gmPG2.run_ro_queries (
-		queries = [{'cmd': cmd, 'args': args}],
-		get_col_idx = True
-	)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if return_pks:
 		return [ r['pk_paperwork_template'] for r in rows ]
 
-	templates = [ cFormTemplate(row = {'pk_field': 'pk_paperwork_template', 'data': r, 'idx': idx}) for r in rows ]
+	templates = [ cFormTemplate(row = {'pk_field': 'pk_paperwork_template', 'data': r}) for r in rows ]
 	return templates
 
 #------------------------------------------------------------
@@ -1963,7 +1960,7 @@ class cXSLTFormEngine(cFormEngine):
 				break
 
 		# retrieve data from backend
-		rows, idx  = gmPG2.run_ro_queries(queries = [{'cmd': self._SQL_query, 'args': sql_parameters}], get_col_idx = False)
+		rows, idx  = gmPG2.run_ro_queries(queries = [{'cmd': self._SQL_query, 'args': sql_parameters}])
 
 		__header = '<?xml version="1.0" encoding="UTF-8"?>\n'
 		__body = rows[0][0]

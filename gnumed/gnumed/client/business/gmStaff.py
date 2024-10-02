@@ -56,7 +56,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 		if (aPK_obj is None) and (row is None):
 			cmd = _SQL_get_staff_fields % "db_user = CURRENT_USER"
 			try:
-				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
+				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 			except Exception:
 				_log.exception('cannot instantiate staff instance')
 				gmLog2.log_stack_trace()
@@ -65,7 +65,6 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 				raise ValueError('no staff record for database account CURRENT_USER')
 			row = {
 				'pk_field': 'pk_staff',
-				'idx': idx,
 				'data': rows[0]
 			}
 			gmBusinessDBObject.cBusinessDBObject.__init__(self, row = row)
@@ -134,7 +133,6 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_rw_queries (
 			link_obj = conn,
 			queries = [{'cmd': cmd, 'args': args}],
-			get_col_idx = False,
 			return_data = True,
 			end_tx = True
 		)
@@ -169,11 +167,10 @@ def get_staff_list(active_only=False):
 		cmd = _SQL_get_staff_fields % 'is_active ORDER BY can_login DESC, short_alias ASC'
 	else:
 		cmd = _SQL_get_staff_fields % 'TRUE ORDER BY can_login DESC, is_active DESC, short_alias ASC'
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	staff_list = []
 	for row in rows:
 		obj_row = {
-			'idx': idx,
 			'data': row,
 			'pk_field': 'pk_staff'
 		}
@@ -384,11 +381,12 @@ if __name__ == '__main__':
 
 	#--------------------------------------------------------
 	def test_staff():
-		staff = cStaff()
-		print(staff)
+		print(get_staff_list())
+		#staff = cStaff()
+		#print(staff)
 		#print(staff.inbox)
 		#print(staff.inbox.messages)
-		print(staff.public_key_file)
+		#print(staff.public_key_file)
 
 	#--------------------------------------------------------
 	def test_current_provider():
@@ -421,9 +419,9 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	gmPG2.request_login_params(setup_pool = True, force_tui = True)
 
-	#test_staff()
+	test_staff()
 	#test_current_provider()
 	#test_trustee_pkeys()
-	test_set_pubkey()
+	#test_set_pubkey()
 
 #============================================================

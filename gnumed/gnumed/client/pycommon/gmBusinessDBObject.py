@@ -221,8 +221,8 @@ def get_XXX(order_by=None):
 		order_by = u'true ORDER BY %s' % order_by
 
 	cmd = _SQL_get_XXX % order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
-	return [ cXxxXxx(row = {'data': r, 'idx': idx, 'pk_field': 'pk_XXX'}) for r in rows ]
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	return [ cXxxXxx(row = {'data': r, 'pk_field': 'pk_XXX'}) for r in rows ]
 #------------------------------------------------------------
 def create_xxx(xxx1=None, xxx2=None):
 
@@ -243,11 +243,11 @@ def create_xxx(xxx1=None, xxx2=None):
 		RETURNING pk
 		--RETURNING *
 	"" "
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
-	#rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = True)
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	#rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 
 	return cXxxXxx(aPK_obj = rows[0]['pk'])
-	#return cXxxXxx(row = {'data': r, 'idx': idx, 'pk_field': 'pk_XXX'})
+	#return cXxxXxx(row = {'data': r, 'pk_field': 'pk_XXX'})
 
 #------------------------------------------------------------
 def delete_xxx(pk_XXX=None):
@@ -354,8 +354,8 @@ class cBusinessDBObject(object):
 					'pk_field': 'pk_XXX (the PK column name)',
 					'pk_obj': {'pk_col1': pk_col1_val, 'pk_col2': pk_col2_val}
 				}
-				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-				objects = [ cChildClass(row = {'data': r, 'idx': idx, 'pk_field': 'the PK column name'}) for r in rows ]
+				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+				objects = [ cChildClass(row = {'data': r, 'pk_field': 'the PK column name'}) for r in rows ]
 		"""
 		# initialize those "too early" because sanity checking descendants might
 		# fail which will then call __str__ in stack trace logging if --debug
@@ -414,14 +414,13 @@ class cBusinessDBObject(object):
 
 		Examples:
 
-				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-				objects = [ cChildClass(row = {'data': r, 'idx': idx, 'pk_field': 'the PK column name'}) for r in rows ]
+				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+				objects = [ cChildClass(row = {'data': r, 'pk_field': 'the PK column name'}) for r in rows ]
 
 		Copy/Paste:
 
 				row = {
 					'data': rows[0],
-					'idx': idx,
 					'pk_field': 'pk_XXX (the PK column name)',
 					'pk_obj': {'pk_col1': pk_col1_val, 'pk_col2': pk_col2_val}
 				}
@@ -621,7 +620,7 @@ class cBusinessDBObject(object):
 			# find by DB account
 			args = {'db_u': mod_by}
 			cmd = "SELECT pk FROM dem.staff WHERE db_user = %(db_u)s"
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 			if rows:
 				# logically, they are all the same provider, because they share the DB account
 				return rows[0]['pk']
@@ -632,7 +631,7 @@ class cBusinessDBObject(object):
 			# find by DB account
 			args = {'db_u': mod_by.lstrip('<').rstrip('>')}
 			cmd = "SELECT pk FROM dem.staff WHERE db_user = %(db_u)s"
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 			if rows:
 				# logically, they are all the same provider, because they share the DB account
 				return rows[0]['pk']
@@ -640,7 +639,7 @@ class cBusinessDBObject(object):
 		# .modified_by is probably dem.staff.short_alias
 		args = {'alias': mod_by}
 		cmd = "SELECT pk FROM dem.staff WHERE short_alias = %(alias)s"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		if rows:
 			# logically, they are all the same provider, because they share the DB account
 			return rows[0]['pk']
@@ -661,7 +660,7 @@ class cBusinessDBObject(object):
 
 	#--------------------------------------------------------
 	def _get_revision_history(self, query:str, args:dict, title:str) -> list[str]:
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': query, 'args': args}], get_col_idx = True)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': query, 'args': args}])
 		if not rows:
 			return ['%s (no versions)' % title]
 
@@ -703,8 +702,7 @@ class cBusinessDBObject(object):
 		queries = [{'cmd': self.__class__._cmd_fetch_payload, 'args': args}]
 		rows, tmp = gmPG2.run_ro_queries (
 			link_obj = link_obj,
-			queries = queries,
-			get_col_idx = False
+			queries = queries
 		)
 		if len(rows) == 0:
 			_log.error('[%s:%s]: no such instance' % (self.__class__.__name__, self.pk_obj))
@@ -754,8 +752,7 @@ class cBusinessDBObject(object):
 		rows, idx = gmPG2.run_rw_queries (
 			link_obj = conn,
 			queries = queries,
-			return_data = True,
-			get_col_idx = True
+			return_data = True
 		)
 
 		# success ?
@@ -826,10 +823,8 @@ if __name__ == '__main__':
 	gmI18N.install_domain()
 
 	db_row = {'bogus_pk': -1, 'bogus_field': 'bogus_data', 'bogus_date': datetime.datetime.now(), 'test': -1, 'bogus_binary': memoryview(b'123456789012345678901234567890123456789012345678901234567890')}
-	db_idx = {'bogus_pk': 0, 'bogus_field': 1, 'bogus_date': 2, 'test': 3, 'bogus_binary': 4}
 	row_data = {
 		'pk_field': 'bogus_pk',
-		#'idx': db_idx,
 		'data': db_row
 	}
 	obj = cTestObj(row = row_data)

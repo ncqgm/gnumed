@@ -328,7 +328,7 @@ class cClinicalRecord(object):
 			return self.__gender
 		cmd = 'SELECT gender, dob FROM dem.v_all_persons WHERE pk_identity = %(pat)s'
 		args = {'pat': self.pk_patient}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		self.__gender = rows[0]['gender']
 		self.__dob = rows[0]['dob']
 
@@ -343,7 +343,7 @@ class cClinicalRecord(object):
 			return self.__dob
 		cmd = 'SELECT gender, dob FROM dem.v_all_persons WHERE pk_identity = %(pat)s'
 		args = {'pat': self.pk_patient}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		self.__gender = rows[0]['gender']
 		self.__dob = rows[0]['dob']
 
@@ -356,7 +356,7 @@ class cClinicalRecord(object):
 	def _get_EDC(self):
 		cmd = 'SELECT edc FROM clin.patient WHERE fk_identity = %(pat)s'
 		args = {'pat': self.pk_patient}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		if len(rows) == 0:
 			return None
 		return rows[0]['edc']
@@ -371,7 +371,7 @@ class cClinicalRecord(object):
 			)
 			RETURNING pk"""
 		args = {'pat': self.pk_patient, 'edc': edc}
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False, return_data = True)
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 		if len(rows) == 0:
 			cmd = 'UPDATE clin.patient SET edc = %(edc)s WHERE fk_identity = %(pat)s'
 			gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
@@ -438,8 +438,8 @@ class cClinicalRecord(object):
 		where = 'pk_org_unit IN (SELECT DISTINCT pk_org_unit FROM clin.v_procedures_not_at_hospital WHERE pk_patient = %(pat)s)'
 		args = {'pat': self.pk_patient}
 		cmd = gmOrganization._SQL_get_org_unit % where
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		return [ gmOrganization.cOrgUnit(row = {'pk_field': 'pk_org_unit', 'data': r, 'idx': idx}) for r in rows ]
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return [ gmOrganization.cOrgUnit(row = {'pk_field': 'pk_org_unit', 'data': r}) for r in rows ]
 
 	#--------------------------------------------------------
 	# API: hospitalizations
@@ -479,15 +479,15 @@ class cClinicalRecord(object):
 			ORDER BY frequency DESC
 		""" % ' AND '.join(where_parts)
 
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		return rows
 	#--------------------------------------------------------
 	def get_attended_hospitals_as_org_units(self):
 		where = 'pk_org_unit IN (SELECT DISTINCT pk_org_unit FROM clin.v_hospital_stays WHERE pk_patient = %(pat)s)'
 		args = {'pat': self.pk_patient}
 		cmd = gmOrganization._SQL_get_org_unit % where
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		return [ gmOrganization.cOrgUnit(row = {'pk_field': 'pk_org_unit', 'data': r, 'idx': idx}) for r in rows ]
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return [ gmOrganization.cOrgUnit(row = {'pk_field': 'pk_org_unit', 'data': r}) for r in rows ]
 
 	#--------------------------------------------------------
 	# API: narrative
@@ -586,8 +586,8 @@ class cClinicalRecord(object):
 			WHERE %s
 			ORDER BY date, soap_rank
 		""" % ' AND '.join(where_parts)
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		return [ gmClinNarrative.cNarrative(row = {'pk_field': 'pk_narrative', 'idx': idx, 'data': row}) for row in rows ]
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return [ gmClinNarrative.cNarrative(row = {'pk_field': 'pk_narrative', 'data': row}) for row in rows ]
 
 	#--------------------------------------------------------
 	def search_narrative_simple(self, search_term=''):
@@ -661,8 +661,7 @@ class cClinicalRecord(object):
 		])
 
 		rows, idx = gmPG2.run_ro_queries (
-			queries = [{'cmd': union_query, 'args': {'pat': self.pk_patient}}],
-			get_col_idx = False
+			queries = [{'cmd': union_query, 'args': {'pat': self.pk_patient}}]
 		)
 
 		stats = dict (
@@ -696,7 +695,7 @@ class cClinicalRecord(object):
 
 		cmd = "SELECT dob FROM dem.v_all_persons WHERE pk_identity = %(pk)s"
 		args = {'pk': self.pk_patient}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		dob = rows[0]['dob']
 
 		stats = self.get_statistics()
@@ -902,10 +901,10 @@ class cClinicalRecord(object):
 				- list of health issues whose allergies are to be retrieved
         """
 		cmd = "SELECT * FROM clin.v_pat_allergies WHERE pk_patient=%s order by descriptor"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx = True)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
 		filtered_allergies = []
 		for r in rows:
-			filtered_allergies.append(gmAllergy.cAllergy(row = {'data': r, 'idx': idx, 'pk_field': 'pk_allergy'}))
+			filtered_allergies.append(gmAllergy.cAllergy(row = {'data': r, 'pk_field': 'pk_allergy'}))
 
 		# ok, let's constrain our list
 		if ID_list is not None:
@@ -1000,11 +999,11 @@ SELECT * FROM clin.v_pat_allergies
 WHERE
 	pk_patient = %%(pat)s
 	AND ( %s )""" % ' OR '.join(where_parts)
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		if len(rows) == 0:
 			return False
 
-		return gmAllergy.cAllergy(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_allergy'})
+		return gmAllergy.cAllergy(row = {'data': rows[0], 'pk_field': 'pk_allergy'})
 
 	#--------------------------------------------------------
 	def ensure_has_allergy_state(self) -> gmAllergy.cAllergyState:
@@ -1074,8 +1073,8 @@ WHERE
 			' AND '.join(where_parts),
 			order_by
 		)
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		return [ gmEMRStructItems.cEpisode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_episode'}) for r in rows ]
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return [ gmEMRStructItems.cEpisode(row = {'data': r, 'pk_field': 'pk_episode'}) for r in rows ]
 
 	episodes = property(get_episodes)
 	#------------------------------------------------------------------
@@ -1197,7 +1196,7 @@ WHERE
 		args = {'pat': self.pk_patient}
 
 		cmd = """SELECT pk_health_issue, pk_episode FROM clin.v_problem_list WHERE pk_patient = %(pat)s ORDER BY problem"""
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 		# Instantiate problem items
 		problems = []
@@ -1213,12 +1212,12 @@ WHERE
 		other_rows = []
 		if include_closed_episodes:
 			cmd = """SELECT pk_health_issue, pk_episode FROM clin.v_potential_problem_list WHERE pk_patient = %(pat)s and type = 'episode'"""
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 			other_rows.extend(rows)
 
 		if include_irrelevant_issues:
 			cmd = """SELECT pk_health_issue, pk_episode FROM clin.v_potential_problem_list WHERE pk_patient = %(pat)s and type = 'health issue'"""
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 			other_rows.extend(rows)
 
 		if len(other_rows) > 0:
@@ -1246,8 +1245,7 @@ WHERE
 	def get_candidate_diagnoses(self):
 		cmd = "SELECT * FROM clin.v_candidate_diagnoses WHERE pk_patient = %(pat)s"
 		rows, idx = gmPG2.run_ro_queries (
-			queries = [{'cmd': cmd, 'args': {'pat': self.pk_patient}}],
-			get_col_idx = False
+			queries = [{'cmd': cmd, 'args': {'pat': self.pk_patient}}]
 		)
 		return rows
 
@@ -1259,8 +1257,8 @@ WHERE
 	def get_health_issues(self, id_list = None):
 
 		cmd = "SELECT *, xmin_health_issue FROM clin.v_health_issues WHERE pk_patient = %(pat)s ORDER BY description"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pat': self.pk_patient}}], get_col_idx = True)
-		issues = [ gmEMRStructItems.cHealthIssue(row = {'idx': idx, 'data': r, 'pk_field': 'pk_health_issue'}) for r in rows ]
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pat': self.pk_patient}}])
+		issues = [ gmEMRStructItems.cHealthIssue(row = {'data': r, 'pk_field': 'pk_health_issue'}) for r in rows ]
 
 		if id_list is None:
 			return issues
@@ -1395,18 +1393,17 @@ WHERE
 					JOIN clin.v_pat_last_vacc4indication c_v_plv4i ON (c_v_shots.pk_vaccination = c_v_plv4i.pk_vaccination)
 			WHERE %s
 		""" % '\nAND '.join(where_parts)
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		# none found
 		if len(rows) == 0:
 			return {}
 
 		# turn them into vaccinations
-		# (idx is constant)
 		vaccs = {}
 		for shot_row in rows:
 			vaccs[shot_row['l10n_indication']] = (
 				shot_row['no_of_shots'],
-				gmVaccination.cVaccination(row = {'idx': idx, 'data': shot_row, 'pk_field': 'pk_vaccination'})
+				gmVaccination.cVaccination(row = {'data': shot_row, 'pk_field': 'pk_vaccination'})
 			)
 		return vaccs
 
@@ -1514,7 +1511,7 @@ WHERE
 				last_affirmed DESC
 			LIMIT 1
 		)"""
-		enc_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient, min_ttl]}], get_col_idx = True)
+		enc_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient, min_ttl]}])
 
 		# none found
 		if len(enc_rows) == 0:
@@ -1524,7 +1521,7 @@ WHERE
 		_log.debug('"very recent" encounter [%s] found and re-activated' % enc_rows[0]['pk_encounter'])
 
 		# attach to existing
-		self.current_encounter = gmEMRStructItems.cEncounter(row = {'data': enc_rows[0], 'idx': idx, 'pk_field': 'pk_encounter'})
+		self.current_encounter = gmEMRStructItems.cEncounter(row = {'data': enc_rows[0], 'pk_field': 'pk_encounter'})
 		return True
 
 	#------------------------------------------------------------------
@@ -1552,7 +1549,7 @@ WHERE
 				last_affirmed DESC
 			LIMIT 1
 		)"""
-		enc_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient, max_ttl, min_ttl]}], get_col_idx = True)
+		enc_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient, max_ttl, min_ttl]}])
 
 		# none found
 		if len(enc_rows) == 0:
@@ -1560,7 +1557,7 @@ WHERE
 			return None
 
 		_log.debug('"fairly recent" encounter [%s] found', enc_rows[0]['pk_encounter'])
-		return gmEMRStructItems.cEncounter(row = {'data': enc_rows[0], 'idx': idx, 'pk_field': 'pk_encounter'})
+		return gmEMRStructItems.cEncounter(row = {'data': enc_rows[0], 'pk_field': 'pk_encounter'})
 
 #	#------------------------------------------------------------------
 #	def __check_for_fairly_recent_encounter(self):
@@ -1588,7 +1585,7 @@ WHERE
 #				last_affirmed DESC
 #			LIMIT 1
 #		)"""
-#		enc_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient, max_ttl, min_ttl]}], get_col_idx = True)
+#		enc_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient, max_ttl, min_ttl]}])
 #
 #		# none found
 #		if len(enc_rows) == 0:
@@ -1788,8 +1785,8 @@ WHERE
 			order_by,
 			limit
 		)
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		encounters = [ gmEMRStructItems.cEncounter(row = {'data': r, 'idx': idx, 'pk_field': 'pk_encounter'}) for r in rows ]
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		encounters = [ gmEMRStructItems.cEncounter(row = {'data': r, 'pk_field': 'pk_encounter'}) for r in rows ]
 
 		# we've got the encounters, start filtering
 		filtered_encounters = []
@@ -1866,7 +1863,7 @@ SELECT MIN(earliest) FROM (
 
 	)
 ) AS candidates"""
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		return rows[0][0]
 
 	earliest_care_date = property(get_earliest_care_date)
@@ -1920,7 +1917,7 @@ SELECT MIN(earliest) FROM (
 			GROUP BY l10n_type
 			ORDER BY frequency DESC
 		""" % ' AND '.join(where_parts)
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		return rows
 
 	#------------------------------------------------------------------
@@ -1962,7 +1959,7 @@ SELECT MIN(earliest) FROM (
 				LIMIT 2
 			""" % ' AND '.join(where_parts)
 
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 		if len(rows) == 0:
 			return None
@@ -1974,13 +1971,13 @@ SELECT MIN(earliest) FROM (
 				# yes
 				return None
 			# no
-			return gmEMRStructItems.cEncounter(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_encounter'})
+			return gmEMRStructItems.cEncounter(row = {'data': rows[0], 'pk_field': 'pk_encounter'})
 
 		# more than one encounter
 		if rows[0]['pk_encounter'] == self.current_encounter['pk_encounter']:
-			return gmEMRStructItems.cEncounter(row = {'data': rows[1], 'idx': idx, 'pk_field': 'pk_encounter'})
+			return gmEMRStructItems.cEncounter(row = {'data': rows[1], 'pk_field': 'pk_encounter'})
 
-		return gmEMRStructItems.cEncounter(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_encounter'})
+		return gmEMRStructItems.cEncounter(row = {'data': rows[0], 'pk_field': 'pk_encounter'})
 
 	last_but_one_encounter = property(get_last_but_one_encounter)
 
@@ -2082,8 +2079,8 @@ SELECT MIN(earliest) FROM (
 				reviewed IS FALSE
 			%s""" % order_by
 		args = {'pat': self.pk_patient}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		return [ gmPathLab.cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return [ gmPathLab.cTestResult(row = {'pk_field': 'pk_test_result', 'data': r}) for r in rows ]
 
 	#------------------------------------------------------------------
 	# FIXME: use psyopg2 dbapi extension of named cursors - they are *server* side !
@@ -2124,8 +2121,8 @@ SELECT MIN(earliest) FROM (
 				%s""" % order_by
 
 		args = {'pat': self.pk_patient}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		return [ gmPathLab.cMeasurementType(row = {'pk_field': 'pk_test_type', 'idx': idx, 'data': r}) for r in rows ]
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return [ gmPathLab.cMeasurementType(row = {'pk_field': 'pk_test_type', 'data': r}) for r in rows ]
 
 	#------------------------------------------------------------------
 	def get_dates_for_results(self, tests=None, reverse_chronological=True):
@@ -2163,7 +2160,7 @@ SELECT MIN(earliest) FROM (
 			' AND '.join(where_parts),
 			gmTools.bool2subst(reverse_chronological, 'DESC', 'ASC', 'DESC')
 		)
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		return rows
 
 	#------------------------------------------------------------------
@@ -2200,7 +2197,7 @@ SELECT MIN(earliest) FROM (
 		)) AS grouped_union
 		ORDER BY rank, problem
 		""" % (where, where)
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		return rows
 
 	#------------------------------------------------------------------
@@ -2232,8 +2229,8 @@ SELECT MIN(earliest) FROM (
 			' AND '.join(where_parts),
 			gmTools.bool2subst(reverse_chronological, 'DESC', 'ASC', 'DESC')
 		)
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		tests = [ gmPathLab.cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		tests = [ gmPathLab.cTestResult(row = {'pk_field': 'pk_test_result', 'data': r}) for r in rows ]
 		return tests
 
 	#------------------------------------------------------------------
@@ -2270,8 +2267,8 @@ SELECT MIN(earliest) FROM (
 			)"""
 		args = {'pat': self.pk_patient}
 		cmd = gmOrganization._SQL_get_org_unit % where
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		return [ gmOrganization.cOrgUnit(row = {'pk_field': 'pk_org_unit', 'data': r, 'idx': idx}) for r in rows ]
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return [ gmOrganization.cOrgUnit(row = {'pk_field': 'pk_org_unit', 'data': r}) for r in rows ]
 
 	#------------------------------------------------------------------
 	def _get_best_gfr_or_crea(self):

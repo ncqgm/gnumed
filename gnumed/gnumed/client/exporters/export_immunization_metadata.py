@@ -35,8 +35,7 @@ Schedule "%s" (%s)
 cmd = "select * from clin.v_vaccine"
 vaccine_rows, idx = gmPG.run_ro_query (
 	link_obj = 'clinical',
-	aQuery = cmd,
-	get_col_idx = True
+	aQuery = cmd
 )
 # error
 if vaccine_rows is None:

@@ -53,8 +53,9 @@ def get_generic_linked_codes(order_by=None):
 		order_by = 'true ORDER BY %s' % order_by
 
 	cmd = _SQL_get_generic_linked_codes % order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
-	return [ cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	return [ cGenericLinkedCode(row = {'data': r, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
+
 #============================================================
 # this class represents a generic (non-qualified) code
 #------------------------------------------------------------
@@ -73,8 +74,8 @@ def get_generic_codes(order_by=None):
 		order_by = 'true ORDER BY %s' % order_by
 
 	cmd = _SQL_get_generic_code % order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
-	return [ cGenericCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_generic_code'}) for r in rows ]
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	return [ cGenericCode(row = {'data': r, 'pk_field': 'pk_generic_code'}) for r in rows ]
 
 #============================================================
 # module level functions
@@ -100,14 +101,14 @@ def get_coded_terms(coding_systems=None, languages=None, order_by=None):
 	if order_by is not None:
 		cmd += ' ORDER BY %s' % order_by
 
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	return rows
 
 #============================================================
 def get_data_sources(order_by='name_long, lang, version'):
 	cmd = 'SELECT * FROM ref.data_source ORDER BY %s' % order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	return rows
 
 #============================================================

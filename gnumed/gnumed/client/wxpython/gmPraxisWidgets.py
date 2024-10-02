@@ -71,7 +71,7 @@ def show_audit_trail(parent=None):
 	#-----------------------------------
 	def refresh(lctrl):
 		cmd = 'SELECT * FROM audit.v_audit_trail ORDER BY audit_when_ts'
-		rows, idx = gmPG2.run_ro_queries(link_obj = conn, queries = [{'cmd': cmd}], get_col_idx = False)
+		rows, idx = gmPG2.run_ro_queries(link_obj = conn, queries = [{'cmd': cmd}])
 		lctrl.set_string_items (
 			[ [
 				r['event_when'],

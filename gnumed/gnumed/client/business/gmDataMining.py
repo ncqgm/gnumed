@@ -107,7 +107,7 @@ def run_report_query(query=None, limit=None, pk_identity=None):
 
 	try:
 		# read-only for safety reasons
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': wrapped_query}], get_col_idx = True)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': wrapped_query}])
 	except Exception:
 		_log.exception('report query failed')
 		gmDispatcher.send('statustext', msg = _('The query failed.'), beep = True)
@@ -125,11 +125,10 @@ def run_report_query(query=None, limit=None, pk_identity=None):
 			rows.append([line])
 		return (False, 'query failed', cols, rows)
 
-	# swap (col_name, col_idx) to (col_idx, col_name)
-	# and sort them according to position-in-query
-	cols = [ (value, key) for key, value in idx.items() ]
-	cols.sort()
-	cols = [ pair[1] for pair in cols ]
+	if rows:
+		cols = list(rows[0].keys())
+	else:
+		cols = [_('No results.')]
 
 	return (True, None, cols, rows)
 

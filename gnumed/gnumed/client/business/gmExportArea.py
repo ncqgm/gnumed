@@ -120,7 +120,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 				fk_doc_obj = NULL
 			WHERE pk = %(pk)s"""
 		args = {'pk': self.pk_obj, 'data': data}
-		gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}], return_data = False, get_col_idx = False)
+		gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}], return_data = False)
 		# must update XMIN now ...
 		self.refetch_payload()
 		return True
@@ -589,11 +589,11 @@ def get_export_items(order_by=None, pk_identity=None, designation=None, return_p
 		order_by = 'pk_identity, list_position'
 	order_by = ' ORDER BY %s' % order_by
 	cmd = (_SQL_get_export_items % ' AND '.join(where_parts)) + order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if return_pks:
 		return [ r['pk_export_item'] for r in rows ]
 
-	return [ cExportItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_export_item'}) for r in rows ]
+	return [ cExportItem(row = {'data': r, 'pk_field': 'pk_export_item'}) for r in rows ]
 
 #------------------------------------------------------------
 def get_print_jobs(order_by=None, pk_identity=None):
@@ -630,7 +630,7 @@ def create_export_item(description=None, pk_identity=None, pk_doc_obj=None, file
 		)
 		RETURNING pk
 	"""
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 	return cExportItem(aPK_obj = rows[0]['pk'])
 
 #------------------------------------------------------------
@@ -847,12 +847,12 @@ class cExportArea(object):
 			'fname': path_item_data
 		}
 		SQL = _SQL_get_export_items % ' AND '.join(where_parts)
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}], get_col_idx = True)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
 		if len(rows) == 0:
 			return None
 
 		r = rows[0]
-		return cExportItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_export_item'})
+		return cExportItem(row = {'data': r, 'pk_field': 'pk_export_item'})
 
 	#--------------------------------------------------------
 	def add_file(self, filename=None, hint=None):
@@ -925,7 +925,7 @@ class cExportArea(object):
 	def document_part_item_exists(self, pk_part=None):
 		cmd = "SELECT EXISTS (SELECT 1 FROM clin.export_item WHERE fk_doc_obj = %(pk_obj)s)"
 		args = {'pk_obj': pk_part}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		return rows[0][0]
 
 	#--------------------------------------------------------
@@ -943,13 +943,13 @@ class cExportArea(object):
 			where_parts.append('pk_doc_obj IS NULL')
 
 		cmd = _SQL_get_export_items % ' AND '.join(where_parts)
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 		if len(rows) == 0:
 			return None
 
 		r = rows[0]
-		return cExportItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_export_item'})
+		return cExportItem(row = {'data': r, 'pk_field': 'pk_export_item'})
 
 	#--------------------------------------------------------
 	def remove_item(self, item):

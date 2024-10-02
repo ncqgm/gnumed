@@ -334,7 +334,7 @@ def get_generic_emr_items(encounters=None, episodes=None, issues=None, patient=N
 			_SQL_get_hints_as_generic_emr_items
 		) + '\n' + order_by
 
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if return_pks:
 		return [ {
 			'src_table': r['src_table'],
@@ -343,7 +343,6 @@ def get_generic_emr_items(encounters=None, episodes=None, issues=None, patient=N
 
 	return [ cGenericEMRItem(row = {
 		'data': r,
-		'idx': idx,
 		'pk_obj': {'src_table': r['src_table'], 'src_pk': r['src_pk']}
 	} ) for r in rows ]
 

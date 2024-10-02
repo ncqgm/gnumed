@@ -138,10 +138,11 @@ def get_external_care_items(order_by=None, pk_identity=None, pk_health_issue=Non
 		)
 
 	cmd = _SQL_get_external_care_items % where
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if return_pks:
 		return [ r['pk_external_care'] for r in rows ]
-	return [ cExternalCareItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_external_care'}) for r in rows ]
+
+	return [ cExternalCareItem(row = {'data': r, 'pk_field': 'pk_external_care'}) for r in rows ]
 
 #------------------------------------------------------------
 def create_external_care_item(pk_health_issue=None, issue=None, pk_org_unit=None, pk_encounter=None):
@@ -167,7 +168,7 @@ def create_external_care_item(pk_health_issue=None, issue=None, pk_org_unit=None
 			%(pk_org_unit)s
 		)
 		RETURNING pk"""
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 
 	return cExternalCareItem(aPK_obj = rows[0]['pk'])
 

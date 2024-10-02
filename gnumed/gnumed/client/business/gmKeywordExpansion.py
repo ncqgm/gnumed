@@ -165,10 +165,11 @@ def get_keyword_expansions(order_by=None, force_reload=False, return_pks=False):
 		order_by = 'true ORDER BY %s' % order_by
 
 	cmd = _SQL_get_keyword_expansions % order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	if return_pks:
 		return [ r['pk_expansion'] for r in rows ]
-	__keyword_expansions = [ cKeywordExpansion(row = {'data': r, 'idx': idx, 'pk_field': 'pk_expansion'}) for r in rows ]
+
+	__keyword_expansions = [ cKeywordExpansion(row = {'data': r, 'pk_field': 'pk_expansion'}) for r in rows ]
 	return __keyword_expansions
 
 #------------------------------------------------------------
@@ -184,12 +185,11 @@ def get_expansion(keyword=None, textual_only=True, binary_only=False):
 		where_parts.append('is_textual IS TRUE')
 
 	cmd = _SQL_get_keyword_expansions % ' AND '.join(where_parts)
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if len(rows) == 0:
 		return None
 
-	return cKeywordExpansion(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_expansion'})
+	return cKeywordExpansion(row = {'data': rows[0], 'pk_field': 'pk_expansion'})
 
 #------------------------------------------------------------
 def create_keyword_expansion(keyword=None, text=None, data_file=None, public=True):
@@ -232,7 +232,7 @@ def create_keyword_expansion(keyword=None, text=None, data_file=None, public=Tru
 			)
 			RETURNING pk
 		"""
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 	expansion = cKeywordExpansion(aPK_obj = rows[0]['pk'])
 	if data_file is not None:
 		expansion.update_data_from_file(filename = data_file)

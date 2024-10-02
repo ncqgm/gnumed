@@ -116,7 +116,7 @@ def get_all_options(order_by:str=None) -> list:
 	else:
 		order_by = 'ORDER BY %s' % order_by
 	cmd = 'SELECT * FROM cfg.v_cfg_options %s' % order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	return rows
 
 #------------------------------------------------------------------

@@ -120,10 +120,10 @@ def get_tag_images(order_by=None, return_pks=False):
 	else:
 		order_by = 'true ORDER BY %s' % order_by
 	cmd = _SQL_get_tag_image % order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	if return_pks:
 		return [ r['pk_tag_image'] for r in rows ]
-	return [ cTagImage(row = {'data': r, 'idx': idx, 'pk_field': 'pk_tag_image'}) for r in rows ]
+	return [ cTagImage(row = {'data': r, 'pk_field': 'pk_tag_image'}) for r in rows ]
 
 #------------------------------------------------------------
 def create_tag_image(description=None, link_obj=None):
@@ -143,8 +143,7 @@ def create_tag_image(description=None, link_obj=None):
 		link_obj = link_obj,
 		queries = [{'cmd': cmd, 'args': args}],
 		end_tx = True,
-		return_data = True,
-		get_col_idx = False
+		return_data = True
 	)
 
 	return cTagImage(aPK_obj = rows[0]['pk'])
@@ -253,7 +252,7 @@ def map_country2code(country=None):
 			UNION
 		SELECT code FROM dem.country WHERE lower(name) = lower(%(country)s)
 	"""
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'country': country}}], get_col_idx = False)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'country': country}}])
 	if len(rows) == 0:
 		return None
 	return rows[0][0]
@@ -340,7 +339,7 @@ def map_urb_zip_region2country(urb=None, zip=None, region=None):
 
 		) ORDER BY rank"""
 
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if len(rows) == 0:
 		_log.debug('zip [%s] / urb [%s] / region [%s] => ??', zip, urb, region)
 		return None
@@ -428,7 +427,7 @@ def map_urb_zip_country2region(urb=None, zip=None, country=None, country_code=No
 
 		) ORDER BY rank"""
 
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	if len(rows) == 0:
 		cmd = """
@@ -445,7 +444,7 @@ def map_urb_zip_country2region(urb=None, zip=None, country=None, country_code=No
 				OR
 			(code_country = %(country_code)s)
 		"""
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		if len(rows) == 1:
 			region = rows[0]
 			_log.debug('zip [%s] / urb [%s] / country [%s] (%s) => [%s]', zip, urb, country, country_code, region)
@@ -479,7 +478,7 @@ def map_region2code(region=None, country_code=None):
 		'country_code': country_code,
 		'region': region
 	}
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if len(rows) == 0:
 		return None
 	return rows[0][0]
@@ -521,7 +520,7 @@ def create_region(name=None, code=None, country=None):
 	args = {'code': code, 'country': country, 'name': name}
 
 	cmd = """SELECT EXISTS (SELECT 1 FROM dem.region WHERE name = %(name)s)"""
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	if rows[0][0]:
 		return
@@ -814,7 +813,7 @@ def create_address_type(address_type=None):
 	cmd = 'INSERT INTO dem.address_type (name) SELECT %(typ)s WHERE NOT EXISTS (SELECT 1 FROM dem.address_type WHERE name = %(typ)s OR _(name) = %(typ)s)'
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	cmd = 'SELECT id FROM dem.address_type WHERE name = %(typ)s OR _(name) = %(typ)s'
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	return rows[0][0]
 
 #------------------------------------------------------------
@@ -832,10 +831,10 @@ def get_addresses(order_by=None, return_pks=False):
 		order_by = 'ORDER BY %s' % order_by
 
 	cmd = "SELECT * FROM dem.v_address %s" % order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	if return_pks:
 		return [ r['pk_address'] for r in rows ]
-	return [ cAddress(row = {'data': r, 'idx': idx, 'pk_field': 'pk_address'}) for r in rows ]
+	return [ cAddress(row = {'data': r, 'pk_field': 'pk_address'}) for r in rows ]
 
 #------------------------------------------------------------
 def get_address_from_patient_address_pk(pk_patient_address=None):
@@ -848,17 +847,17 @@ def get_address_from_patient_address_pk(pk_patient_address=None):
 			)
 	"""
 	args = {'pk_pat_adr': pk_patient_address}
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if len(rows) == 0:
 		return None
 
-	return cAddress(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_address'})
+	return cAddress(row = {'data': rows[0], 'pk_field': 'pk_address'})
 
 #===================================================================
 def get_patient_address(pk_patient_address=None, return_pks=False):
 	cmd = 'SELECT pk_address, pk_identity FROM dem.v_pat_addresses WHERE pk_lnk_person_org_address = %(pk)s'
 	args = {'pk': pk_patient_address}
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if not rows:
 		return None
 
@@ -875,7 +874,7 @@ def get_patient_address(pk_patient_address=None, return_pks=False):
 def get_patient_address_by_type(pk_patient=None, adr_type=None):
 	cmd = 'SELECT pk_address, pk_identity FROM dem.v_pat_addresses WHERE pk_identity = %(pat)s AND (address_type = %(typ)s OR l10n_address_type = %(typ)s)'
 	args = {'pat': pk_patient, 'typ': adr_type}
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if len(rows) == 0:
 		return None
 
@@ -1036,12 +1035,12 @@ def create_comm_channel(comm_medium=None, url=None, is_confidential=False, pk_ch
 	cmd = "SELECT * FROM %s WHERE %s = currval(pg_get_serial_sequence('%s', 'pk'))" % (view, view_pk, tbl)
 	queries.append({'cmd': cmd})
 
-	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True, get_col_idx = True)
+	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True)
 
 	if pk_identity is not None:
-		return cCommChannel(row = {'pk_field': view_pk, 'data': rows[0], 'idx': idx})
+		return cCommChannel(row = {'pk_field': view_pk, 'data': rows[0]})
 
-	return channel_class(row = {'pk_field': view_pk, 'data': rows[0], 'idx': idx})
+	return channel_class(row = {'pk_field': view_pk, 'data': rows[0]})
 #-------------------------------------------------------------------
 def delete_comm_channel(pk=None, pk_patient=None, pk_org_unit=None):
 	if pk_patient is not None:
@@ -1058,7 +1057,7 @@ def delete_comm_channel(pk=None, pk_patient=None, pk_org_unit=None):
 #-------------------------------------------------------------------
 def get_comm_channel_types():
 	cmd = "SELECT pk, _(description) AS l10n_description, description FROM dem.enum_comm_types"
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	return rows
 #-------------------------------------------------------------------
 def delete_comm_channel_type(pk_channel_type=None):

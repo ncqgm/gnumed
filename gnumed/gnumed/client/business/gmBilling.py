@@ -119,10 +119,10 @@ def get_billables(active_only=True, order_by=None, return_pks=False):
 		where = 'true'
 
 	cmd = (_SQL_get_billable_fields % where) + order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	if return_pks:
 		return [ r['pk_billable'] for r in rows ]
-	return [ cBillable(row = {'data': r, 'idx': idx, 'pk_field': 'pk_billable'}) for r in rows ]
+	return [ cBillable(row = {'data': r, 'pk_field': 'pk_billable'}) for r in rows ]
 
 #------------------------------------------------------------
 def create_billable(code=None, term=None, data_source=None, return_existing=False):
@@ -147,7 +147,7 @@ def create_billable(code=None, term=None, data_source=None, return_existing=Fals
 				fk_data_source = %(data_src)s
 		)
 		RETURNING pk"""
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False, return_data = True)
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 	if len(rows) > 0:
 		return cBillable(aPK_obj = rows[0]['pk'])
 
@@ -163,8 +163,8 @@ def create_billable(code=None, term=None, data_source=None, return_existing=Fals
 				AND
 			pk_data_source = %(data_src)s
 	"""
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-	return cBillable(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_billable'})
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	return cBillable(row = {'data': rows[0], 'pk_field': 'pk_billable'})
 
 #------------------------------------------------------------
 def delete_billable(pk_billable=None):
@@ -300,10 +300,10 @@ def get_bill_items(pk_patient=None, non_invoiced_only=False, return_pks=False):
 	else:
 		cmd = _SQL_get_bill_item_fields % u"pk_patient = %(pat)s"
 	args = {'pat': pk_patient}
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if return_pks:
 		return [ r['pk_bill_item'] for r in rows ]
-	return [ cBillItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_bill_item'}) for r in rows ]
+	return [ cBillItem(row = {'data': r, 'pk_field': 'pk_bill_item'}) for r in rows ]
 
 #------------------------------------------------------------
 def create_bill_item(pk_encounter=None, pk_billable=None, pk_staff=None):
@@ -516,17 +516,17 @@ def get_bills(order_by=None, pk_patient=None, return_pks=False):
 		order_by = ' ORDER BY %s' % order_by
 
 	cmd = (_SQL_get_bill_fields % ' AND '.join(where_parts)) + order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if return_pks:
 		return [ r['pk_bill'] for r in rows ]
-	return [ cBill(row = {'data': r, 'idx': idx, 'pk_field': 'pk_bill'}) for r in rows ]
+	return [ cBill(row = {'data': r, 'pk_field': 'pk_bill'}) for r in rows ]
 
 #------------------------------------------------------------
 def get_bills4document(pk_document=None):
 	args = {'pk_doc': pk_document}
 	cmd = _SQL_get_bill_fields % 'pk_doc = %(pk_doc)s'
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-	return [ cBill(row = {'data': r, 'idx': idx, 'pk_field': 'pk_bill'}) for r in rows ]
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	return [ cBill(row = {'data': r, 'pk_field': 'pk_bill'}) for r in rows ]
 
 #------------------------------------------------------------
 def create_bill(conn=None, invoice_id=None):
@@ -537,7 +537,7 @@ def create_bill(conn=None, invoice_id=None):
 		VALUES (gm.nullify_empty_string(%(inv_id)s))
 		RETURNING pk
 	"""
-	rows, idx = gmPG2.run_rw_queries(link_obj = conn, queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+	rows, idx = gmPG2.run_rw_queries(link_obj = conn, queries = [{'cmd': cmd, 'args': args}], return_data = True)
 
 	return cBill(aPK_obj = rows[0]['pk'])
 

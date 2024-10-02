@@ -171,14 +171,14 @@ class cPatientSearcher_SQL:
 		for query in queries:
 			_log.debug("running %s" % query)
 			try:
-				rows, idx = gmPG2.run_ro_queries(queries = [query], get_col_idx=True)
+				rows, idx = gmPG2.run_ro_queries(queries = [query])
 			except Exception:
 				_log.exception('error running query')
 				continue
 			if len(rows) == 0:
 				continue
 			identities.extend (
-				[ gmPerson.cPerson(row = {'pk_field': 'pk_identity', 'data': row, 'idx': idx}) for row in rows ]
+				[ gmPerson.cPerson(row = {'pk_field': 'pk_identity', 'data': row}) for row in rows ]
 			)
 
 		pks = []

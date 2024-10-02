@@ -130,13 +130,13 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 						pk_patient = %(pat)s"""
 
 		queries = [{'cmd': cmd, 'args': {'enc': encounter, 'desc': name, 'pat': patient}}]
-		rows, idx = gmPG2.run_ro_queries(queries = queries,	get_col_idx = True)
+		rows, idx = gmPG2.run_ro_queries(queries = queries)
 
 		if len(rows) == 0:
 			raise gmExceptions.NoSuchBusinessObjectError('no health issue for [enc:%s::desc:%s::pat:%s]' % (encounter, name, patient))
 
 		pk = rows[0][0]
-		r = {'idx': idx, 'data': rows[0], 'pk_field': 'pk_health_issue'}
+		r = {'data': rows[0], 'pk_field': 'pk_health_issue'}
 
 		gmBusinessDBObject.cBusinessDBObject.__init__(self, row=r)
 
@@ -179,8 +179,8 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	def get_episodes(self) -> list['cEpisode']:
 		"""The episodes linked to this health issue."""
 		cmd = "SELECT * FROM clin.v_pat_episodes WHERE pk_health_issue = %(pk)s"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj}}], get_col_idx = True)
-		return [ cEpisode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_episode'})  for r in rows ]
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj}}])
+		return [ cEpisode(row = {'data': r, 'pk_field': 'pk_episode'})  for r in rows ]
 
 	episodes = property(get_episodes)
 
@@ -666,7 +666,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		) AS candidates
 		ORDER BY earliest NULLS LAST
 		LIMIT 1"""
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		if len(rows) == 0:
 			return None
 		return cEpisode(aPK_obj = rows[0]['pk_episode'])
@@ -684,7 +684,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 
 		# cheap query first: any episodes at all ?
 		cmd = "SELECT 1 FROM clin.episode WHERE fk_health_issue = %(pk_issue)s"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		if len(rows) == 0:
 			return None
 
@@ -740,7 +740,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			latest DESC
 		LIMIT 1
 		"""
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		if len(rows) == 0:
 			# there were no episodes for this issue
 			return None
@@ -988,8 +988,8 @@ FROM (
 
 		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code = ANY(%(pks)s)'
 		args = {'pks': self._payload['pk_generic_codes']}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
 
 	def _set_generic_codes(self, pk_codes):
 		queries = []
@@ -1138,13 +1138,12 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 			rows, idx = gmPG2.run_ro_queries (
 				link_obj = link_obj,
 				queries = [{'cmd': cmd, 'args': args}],
-				get_col_idx=True
 			)
 
 			if len(rows) == 0:
 				raise gmExceptions.NoSuchBusinessObjectError('no episode for [%s:%s:%s:%s]' % (id_patient, name, health_issue, encounter))
 
-			r = {'idx': idx, 'data': rows[0], 'pk_field': 'pk_episode'}
+			r = {'data': rows[0], 'pk_field': 'pk_episode'}
 			gmBusinessDBObject.cBusinessDBObject.__init__(self, row=r)
 
 		else:
@@ -1704,8 +1703,8 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 
 		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code = ANY(%(pks)s)'
 		args = {'pks': self._payload['pk_generic_codes']}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
 
 	def _set_generic_codes(self, pk_codes):
 		queries = []
@@ -1750,7 +1749,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 			'pat': self._payload['pk_patient'],
 			'epi': self._payload['pk_episode']
 		}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		return rows[0][0]
 
 	has_narrative = property(_get_has_narrative)
@@ -1781,8 +1780,8 @@ def create_episode(pk_health_issue=None, episode_name=None, is_open=False, allow
 	cmd = "INSERT INTO clin.episode (fk_health_issue, description, is_open, fk_encounter) VALUES (%s, %s, %s::boolean, %s)"
 	queries.append({'cmd': cmd, 'args': [pk_health_issue, episode_name, is_open, encounter]})
 	queries.append({'cmd': cEpisode._cmd_fetch_payload % "currval('clin.episode_pk_seq')"})
-	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, return_data=True, get_col_idx=True)
-	return cEpisode(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_episode'})
+	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, return_data=True)
+	return cEpisode(row = {'data': rows[0], 'pk_field': 'pk_episode'})
 
 #-----------------------------------------------------------
 def delete_episode(episode=None):
@@ -1920,7 +1919,7 @@ def get_best_guess_clinical_end_date_for_episode(pk_episode=None):
 		'cmd': _SQL_best_guess_clinical_end_date_for_episode,
 		'args': {'pk': pk_episode}
 	}
-	rows, idx = gmPG2.run_ro_queries(queries = [query], get_col_idx = False)
+	rows, idx = gmPG2.run_ro_queries(queries = [query])
 	return rows[0][0]
 
 #-----------------------------------------------------------
@@ -2373,8 +2372,8 @@ limit 1
 			args['excluded'] = exclude
 		else:
 			cmd = cmd % ''
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		return [ cEpisode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_episode'})  for r in rows ]
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return [ cEpisode(row = {'data': r, 'pk_field': 'pk_episode'})  for r in rows ]
 
 	episodes = property(get_episodes)
 
@@ -2939,8 +2938,8 @@ limit 1
 
 		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code = ANY(%(pks)s)'
 		args = {'pks': self._payload['pk_generic_codes_rfe']}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
 
 	def _set_generic_codes_rfe(self, pk_codes):
 		queries = []
@@ -2977,8 +2976,8 @@ limit 1
 
 		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code = ANY(%(pks)s)'
 		args = {'pks': self._payload['pk_generic_codes_aoe']}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
 
 	def _set_generic_codes_aoe(self, pk_codes):
 		queries = []
@@ -3092,7 +3091,7 @@ def create_encounter(fk_patient=None, enc_type=None):
 	praxis = gmPraxis.gmCurrentPraxisBranch()
 	args = {'pat': fk_patient, 'typ': enc_type, 'prax': praxis['pk_org_unit']}
 	queries.append({'cmd': cmd, 'args': args})
-	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True, get_col_idx = False)
+	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True)
 	encounter = cEncounter(aPK_obj = rows[0]['pk'])
 
 	return encounter
@@ -3221,7 +3220,7 @@ def get_most_commonly_used_encounter_type():
 		ORDER BY type_count DESC
 		LIMIT 1
 	"""
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	if len(rows) == 0:
 		return None
 	return rows[0]['fk_type']
@@ -3237,7 +3236,7 @@ def get_encounter_types():
 		ORDER BY
 			l10n_description
 	"""
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	return rows
 
 #-----------------------------------------------------------
@@ -3379,8 +3378,8 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 			"""
 			args = {'item': self._payload['pk_episode']}
 
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
 
 	generic_codes = property(_get_generic_codes)
 
@@ -3495,10 +3494,10 @@ def get_latest_patient_hospital_stay(patient=None):
 		'cmd': cmd,
 		'args': {'pat': patient}
 	}]
-	rows, idx = gmPG2.run_ro_queries(queries = queries, get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(queries = queries)
 	if len(rows) == 0:
 		return None
-	return cHospitalStay(row = {'idx': idx, 'data': rows[0], 'pk_field': 'pk_hospital_stay'})
+	return cHospitalStay(row = {'data': rows[0], 'pk_field': 'pk_hospital_stay'})
 
 #-----------------------------------------------------------
 def get_patient_hospital_stays(patient=None, ongoing_only=False, return_pks=False):
@@ -3509,10 +3508,10 @@ def get_patient_hospital_stays(patient=None, ongoing_only=False, return_pks=Fals
 		cmd = _SQL_get_hospital_stays % "pk_patient = %(pat)s ORDER BY admission"
 
 	queries = [{'cmd': cmd, 'args': args}]
-	rows, idx = gmPG2.run_ro_queries(queries = queries, get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(queries = queries)
 	if return_pks:
 		return [ r['pk_hospital_stay'] for r in rows ]
-	return [ cHospitalStay(row = {'idx': idx, 'data': r, 'pk_field': 'pk_hospital_stay'})  for r in rows ]
+	return [ cHospitalStay(row = {'data': r, 'pk_field': 'pk_hospital_stay'})  for r in rows ]
 
 #-----------------------------------------------------------
 def create_hospital_stay(encounter=None, episode=None, fk_org_unit=None):
@@ -3704,8 +3703,8 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 
 		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code = ANY(%(pks)s)'
 		args = {'pks': self._payload['pk_generic_codes']}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
 
 	def _set_generic_codes(self, pk_codes):
 		queries = []
@@ -3741,19 +3740,19 @@ def get_performed_procedures(patient=None, return_pks=False):
 		'cmd': 'SELECT * FROM clin.v_procedures WHERE pk_patient = %(pat)s ORDER BY clin_when',
 		'args': {'pat': patient}
 	}]
-	rows, idx = gmPG2.run_ro_queries(queries = queries, get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(queries = queries)
 	if return_pks:
 		return [ r['pk_procedure'] for r in rows ]
-	return [ cPerformedProcedure(row = {'idx': idx, 'data': r, 'pk_field': 'pk_procedure'})  for r in rows ]
+	return [ cPerformedProcedure(row = {'data': r, 'pk_field': 'pk_procedure'})  for r in rows ]
 
 #-----------------------------------------------------------
 def get_procedures4document(pk_document=None, return_pks=False):
 	args = {'pk_doc': pk_document}
 	cmd = _SQL_get_procedures % 'pk_doc = %(pk_doc)s'
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if return_pks:
 		return [ r['pk_procedure'] for r in rows ]
-	return [ cPerformedProcedure(row = {'idx': idx, 'data': r, 'pk_field': 'pk_procedure'})  for r in rows ]
+	return [ cPerformedProcedure(row = {'data': r, 'pk_field': 'pk_procedure'})  for r in rows ]
 
 #-----------------------------------------------------------
 def get_latest_performed_procedure(patient=None):
@@ -3761,10 +3760,10 @@ def get_latest_performed_procedure(patient=None):
 		'cmd': 'select * FROM clin.v_procedures WHERE pk_patient = %(pat)s ORDER BY clin_when DESC LIMIT 1',
 		'args': {'pat': patient}
 	}]
-	rows, idx = gmPG2.run_ro_queries(queries = queries, get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(queries = queries)
 	if len(rows) == 0:
 		return None
-	return cPerformedProcedure(row = {'idx': idx, 'data': rows[0], 'pk_field': 'pk_procedure'})
+	return cPerformedProcedure(row = {'data': rows[0], 'pk_field': 'pk_procedure'})
 
 #-----------------------------------------------------------
 def create_performed_procedure(encounter=None, episode=None, location=None, hospital_stay=None, procedure=None):

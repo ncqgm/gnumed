@@ -33,7 +33,7 @@ WHERE NOT EXISTS (
 		{'cmd': cmd1, 'args': args},
 		{'cmd': cmd2, 'args': args}
 	]
-	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, get_col_idx = False, return_data = True)
+	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, return_data = True)
 	return rows[0][0]
 
 #============================================================
@@ -95,7 +95,7 @@ def org_exists(organization:str=None, category=None, link_obj=None) -> cOrg:
 		cat_part = 'fk_category = %(cat)s'
 
 	cmd = 'SELECT pk FROM dem.org WHERE description = %%(desc)s AND %s' % cat_part
-	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
 	if len(rows) > 0:
 		return cOrg(aPK_obj = rows[0][0])
 
@@ -116,7 +116,7 @@ def create_org(organization=None, category=None, link_obj=None):
 		cat_part = '%(cat)s'
 
 	cmd = 'INSERT INTO dem.org (description, fk_category) VALUES (%%(desc)s, %s) RETURNING pk' % cat_part
-	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], get_col_idx = False, return_data = True)
+	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True)
 
 	return cOrg(aPK_obj = rows[0][0], link_obj = link_obj)
 
@@ -131,7 +131,7 @@ def delete_org(organization=None):
 				SELECT 1 FROM dem.org_unit WHERE fk_org = %(pk)s
 			)
 	"""
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
 
 #------------------------------------------------------------
@@ -143,10 +143,10 @@ def get_orgs(order_by=None, return_pks=False):
 		order_by = 'ORDER BY %s' % order_by
 
 	cmd = _SQL_get_org % ('TRUE %s' % order_by)
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	if return_pks:
 		return [ r['pk_org'] for r in rows ]
-	return [ cOrg(row = {'data': r, 'idx': idx, 'pk_field': 'pk_org'}) for r in rows ]
+	return [ cOrg(row = {'data': r, 'pk_field': 'pk_org'}) for r in rows ]
 
 #============================================================
 # organizational units API
@@ -198,12 +198,11 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 						AND
 					comm_type = %(medium)s
 			"""
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 		return [ gmDemographicRecord.cOrgCommChannel(row = {
 					'pk_field': 'pk_lnk_org_unit2comm',
-					'data': r,
-					'idx': idx
+					'data': r
 				}) for r in rows
 			]
 
@@ -436,8 +435,8 @@ def create_org_unit(pk_organization:str=None, unit:str=None, link_obj=None) -> c
 		{'cmd': cmd1, 'args': args},
 		{'cmd': cmd2, 'args': args}
 	]
-	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, get_col_idx = True, return_data = True)
-	return cOrgUnit(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_org_unit'})
+	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, return_data = True)
+	return cOrgUnit(row = {'data': rows[0], 'pk_field': 'pk_org_unit'})
 
 #------------------------------------------------------------
 def delete_org_unit(unit:int=None) -> bool:
@@ -469,7 +468,7 @@ def delete_org_unit(unit:int=None) -> bool:
 			#--			SELECT 1 FROM dem.lnk_org_unit2ext_id where fk_org_unit = %(pk)s
 			#--		)
 	try:
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	except gmPG2.dbapi.errors.ForeignKeyViolation:
 		_log.exception('error deleting org unit')
 		return False
@@ -490,11 +489,11 @@ def get_org_units(order_by:str=None, org:int=None, return_pks:bool=False) -> lis
 
 	args = {'org': org}
 	cmd = (_SQL_get_org_unit % where_part) + order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if return_pks:
 		return [ r['pk_org_unit'] for r in rows ]
 
-	return [ cOrgUnit(row = {'data': r, 'idx': idx, 'pk_field': 'pk_org_unit'}) for r in rows ]
+	return [ cOrgUnit(row = {'data': r, 'pk_field': 'pk_org_unit'}) for r in rows ]
 
 #======================================================================
 # main

@@ -62,7 +62,7 @@ def format_loinc(loinc):
 def loinc2data(loinc):
 	cmd = 'SELECT * FROM ref.loinc WHERE code = %(loinc)s'
 	args = {'loinc': loinc}
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if len(rows) == 0:
 		return None
 	return rows[0]
@@ -100,7 +100,7 @@ SELECT coalesce (
 	)
 )"""
 	args = {'loinc': loinc}
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	if rows[0][0] is None:
 		return []
