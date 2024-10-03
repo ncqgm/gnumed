@@ -1002,7 +1002,7 @@ class database:
 			new_query = plausibility_queries[(idx*2) + 1]
 
 			try:
-				rows, idx = gmPG2.run_ro_queries (
+				rows = gmPG2.run_ro_queries (
 					link_obj = template_conn,
 					queries = [{'cmd': old_query}]
 				)
@@ -1015,7 +1015,7 @@ class database:
 				continue
 
 			try:
-				rows, idx = gmPG2.run_ro_queries (
+				rows = gmPG2.run_ro_queries (
 					link_obj = target_conn,
 					queries = [{'cmd': new_query}]
 				)
@@ -1058,7 +1058,7 @@ class database:
 		conn.cookie = u'holy auth check connection'
 
 		cmd = u"select setting from pg_settings where name = 'hba_file'"
-		rows, idx = gmPG2.run_ro_queries(link_obj = conn, queries = [{'cmd': cmd}])
+		rows = gmPG2.run_ro_queries(link_obj = conn, queries = [{'cmd': cmd}])
 		conn.close()
 		if len(rows) == 0:
 			_log.info(u'cannot check pg_hba.conf for authentication information - not detectable in pg_settings')
@@ -1284,12 +1284,12 @@ class database:
 
 		cmd = u"select gm.transfer_users('%s'::text)" % self.template_db
 		try:
-			rows, idx = gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}], end_tx = True, return_data = True)
+			rows = gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}], end_tx = True, return_data = True)
 		except gmPG2.dbapi.ProgrammingError:
 			# maybe an old database
 			_log.info(u'problem running gm.transfer_users(), trying gm_transfer_users()')
 			cmd = u"select gm_transfer_users('%s'::text)" % self.template_db
-			rows, idx = gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}], end_tx = True, return_data = True)
+			rows = gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}], end_tx = True, return_data = True)
 
 		if rows[0][0]:
 			_log.info(u'users properly transferred from [%s] to [%s]' % (self.template_db, self.name))

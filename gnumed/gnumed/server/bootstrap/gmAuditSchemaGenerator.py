@@ -362,7 +362,7 @@ def create_audit_ddl(aCursor):
 	# of interitance (such as with clin.clin_root_item) to find
 	# the actual leaf table to audit
 	cmd = u"select schema, table_name from audit.audited_tables"
-	rows, idx = gmPG2.run_ro_queries(link_obj = aCursor, queries = [{'cmd': cmd}])
+	rows = gmPG2.run_ro_queries(link_obj = aCursor, queries = [{'cmd': cmd}])
 	if len(rows) == 0:
 		_log.info('no tables to audit')
 		return None

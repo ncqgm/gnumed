@@ -105,7 +105,7 @@ def text2atc(text=None, fuzzy=False, link_obj=None):
 			ORDER BY atc_code
 		"""
 
-	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
 
 	_log.debug('term: %s => ATCs: %s (fuzzy: %s)', text, rows, fuzzy)
 
@@ -115,13 +115,13 @@ def text2atc(text=None, fuzzy=False, link_obj=None):
 def exists_as_atc(substance):
 	args = {'term': substance}
 	cmd = 'SELECT EXISTS (SELECT 1 FROM ref.atc WHERE lower(term) = lower(%(term)s))'
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	return rows[0][0]
 
 #============================================================
 def get_reference_atcs(order_by='atc, term, lang'):
 	cmd = 'SELECT * FROM ref.v_atc ORDER BY %s' % order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	return rows
 
 #============================================================
@@ -149,7 +149,7 @@ def atc_import(cfg_fname=None, conn=None):
 
 	# find or create data source record
 	cmd = u"select pk from ref.data_source where name_short = %(name_short)s and version = %(ver)s"
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if len(rows) > 0:
 		data_src_pk = rows[0][0]
 		_log.debug('ATC data source record existed, pk is #%s, refreshing fields', data_src_pk)
@@ -163,7 +163,7 @@ def atc_import(cfg_fname=None, conn=None):
 			WHERE
 				pk = %(pk)s
 		"""
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	else:
 		_log.debug('ATC data source record not found, creating')
 		# create
@@ -175,7 +175,7 @@ def atc_import(cfg_fname=None, conn=None):
 			%(lang)s,
 			%(url)s
 		) returning pk"""
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 		data_src_pk = rows[0][0]
 		_log.debug('ATC data source record created, pk is #%s', data_src_pk)
 

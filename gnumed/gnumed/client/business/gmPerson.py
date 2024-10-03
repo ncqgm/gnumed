@@ -82,7 +82,7 @@ def external_id_exists(pk_issuer:int, value:str) -> int:
 	"""
 	cmd = 'SELECT COUNT(*) FROM dem.lnk_identity2ext_id WHERE fk_origin = %(issuer)s AND external_id = %(val)s'
 	args = {'issuer': pk_issuer, 'val': value}
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	return rows[0][0]
 
 #============================================================
@@ -117,7 +117,7 @@ def get_potential_person_dupes(lastnames:str, dob:pyDT.datetime, firstnames:str=
 		cmd = """SELECT COUNT(*) FROM dem.v_active_persons WHERE %s""" % ' AND '.join(where_parts)
 	else:
 		cmd = """SELECT COUNT(*) FROM dem.v_all_persons WHERE %s""" % ' AND '.join(where_parts)
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	return rows[0][0]
 
 #============================================================
@@ -150,7 +150,7 @@ def get_person_duplicates(lastnames:str, firstnames:str, dob:pyDT.datetime, gend
 		)
 	}
 	cmd = 'SELECT dem.get_person_duplicates(%(dob)s, %(last)s, %(first)s, %(gender)s, %(cmt)s)'
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	return rows[0][0]
 
 #============================================================
@@ -199,7 +199,7 @@ class cDTO_person(object):
 			where_snippets.append('gender = %(sex)s')
 			args['sex'] = self.gender
 		cmd = 'SELECT COUNT(*) FROM dem.v_person_names WHERE %s' % ' AND '.join(where_snippets)
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 		return rows[0][0] == 1
 
@@ -222,7 +222,7 @@ class cDTO_person(object):
 			where_snippets.append('gender = %(sex)s')
 			args['sex'] = self.gender
 		cmd = 'SELECT COUNT(*) FROM dem.v_person_names WHERE %s' % ' AND '.join(where_snippets)
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 		return rows[0][0] > 0
 
@@ -275,7 +275,7 @@ class cDTO_person(object):
 		)
 
 		try:
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+			rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		except Exception:
 			_log.error('cannot get candidate identities for dto "%s"' % self)
 			_log.exception('query %s' % cmd)
@@ -632,7 +632,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	def _get_staff_id(self) -> int:
 		cmd = "SELECT pk FROM dem.staff WHERE fk_identity = %(pk)s"
 		args = {'pk': self._payload['pk_identity']}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		if rows:
 			return rows[0][0]
 		return None
@@ -685,7 +685,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			WHERE %s
 			ORDER BY active_name DESC, lastnames, firstnames
 		""" % ' AND '.join(where_parts)
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		if rows:
 			return [ cPersonName(row = {'data': r, 'pk_field': 'pk_name'}) for r in rows ]
 
@@ -754,7 +754,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		"""
 		if self._payload['preferred'] == nickname:
 			return True
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': "SELECT dem.set_nickname(%s, %s)", 'args': [self.ID, nickname]}])
+		rows = gmPG2.run_rw_queries(queries = [{'cmd': "SELECT dem.set_nickname(%s, %s)", 'args': [self.ID, nickname]}])
 		# setting nickname doesn't change dem.identity, so other fields
 		# of dem.v_active_persons do not get changed as a consequence of
 		# setting the nickname, hence locally setting nickname matches
@@ -771,7 +771,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			order_by = 'ORDER BY %s' % order_by
 
 		cmd = gmDemographicRecord._SQL_get_person_tags % ('pk_identity = %%(pat)s %s' % order_by)
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pat': self.ID}}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pat': self.ID}}])
 
 		return [ gmDemographicRecord.cPersonTag(row = {'data': r, 'pk_field': 'pk_identity_tag'}) for r in rows ]
 
@@ -786,7 +786,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 		# already exists ?
 		cmd = "SELECT pk FROM dem.identity_tag WHERE fk_tag = %(tag)s AND fk_identity = %(identity)s"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		if len(rows) > 0:
 			return gmDemographicRecord.cPersonTag(aPK_obj = rows[0]['pk'])
 
@@ -801,7 +801,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			)
 			RETURNING pk
 		"""
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 		return gmDemographicRecord.cPersonTag(aPK_obj = rows[0]['pk'])
 
 	#--------------------------------------------------------
@@ -853,7 +853,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			'issuer': issuer,
 			'pk_type': pk_type
 		}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 		# create new ID if not found
 		if len(rows) == 0:
@@ -882,7 +882,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 					%(pat)s
 				)"""
 
-			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+			rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 		# or update comment of existing ID
 		else:
@@ -893,7 +893,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 					comment = '%s%s' % (gmTools.coalesce(row['comment'], '', '%s // '), comment.strip)
 					cmd = "update dem.lnk_identity2ext_id set comment = %(comment)s where id=%(pk)s"
 					args = {'comment': comment, 'pk': row['pk_id']}
-					rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+					rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	#--------------------------------------------------------
 	def update_external_id(self, pk_id=None, type=None, value=None, issuer=None, comment=None):
@@ -910,7 +910,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 				id = %(pk)s
 		"""
 		args = {'pk': pk_id, 'value': value, 'type': type, 'issuer': issuer, 'comment': comment}
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	#--------------------------------------------------------
 	def get_external_ids(self, id_type=None, issuer:str=None):
@@ -924,7 +924,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			args['issuer'] = issuer.strip()
 
 		cmd = "SELECT * FROM dem.v_external_ids4identity WHERE %s" % ' AND '.join(where_parts)
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		return rows
 
 	external_ids = property(get_external_ids)
@@ -1235,7 +1235,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	def get_waiting_list_entry(self):
 		cmd = """SELECT * FROM clin.v_waiting_list WHERE pk_identity = %(pat)s"""
 		args = {'pat': self.ID}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		return rows
 
 	waiting_list_entries = property(get_waiting_list_entry)
@@ -1554,7 +1554,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		args = {'act': activities, 'pat_id': self.pk_obj, 'job': occupation}
 
 		cmd = "select activities from dem.v_person_jobs where pk_identity = %(pat_id)s and l10n_occupation = _(%(job)s)"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 		queries = []
 		if len(rows) == 0:
@@ -1569,7 +1569,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 					'args': args
 				})
 
-		rows, idx = gmPG2.run_rw_queries(queries = queries)
+		rows = gmPG2.run_rw_queries(queries = queries)
 
 		return True
 	#--------------------------------------------------------
@@ -1578,14 +1578,14 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			return True
 		occupation = occupation.strip()
 		cmd = "delete from dem.lnk_job2person where fk_identity=%(pk)s and fk_occupation in (select id from dem.occupation where _(name) = _(%(job)s))"
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj, 'job': occupation}}])
+		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj, 'job': occupation}}])
 		return True
 	#--------------------------------------------------------
 	# comms API
 	#--------------------------------------------------------
 	def get_comm_channels(self, comm_medium=None):
 		cmd = "select * from dem.v_person_comms where pk_identity = %s"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
 
 		filtered = rows
 
@@ -1637,7 +1637,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			cmd = cmd + " AND address_type = %(typ)s"
 			args['typ'] = address_type
 
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		return [
 			gmDemographicRecord.cPatientAddress(aPK_obj = {
 				'pk_adr': r['pk_address'],
@@ -1668,7 +1668,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		# already linked ?
 		cmd = "SELECT id_address FROM dem.lnk_person_org_address WHERE id_identity = %(pat)s AND id_address = %(adr)s"
 		args = {'pat': self.pk_obj, 'adr': address['pk_address']}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		# no, link to person
 		if not rows:
 			args = {'pk_person': self.pk_obj, 'adr': address['pk_address'], 'type': id_type}
@@ -1676,7 +1676,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 				INSERT INTO dem.lnk_person_org_address(id_identity, id_address)
 				VALUES (%(pk_person)s, %(adr)s)
 				RETURNING id_address"""
-			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+			rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 		pk_data = {
 			'pk_adr': rows[0]['id_address'],
 			'pk_pat': self.pk_obj
@@ -1748,10 +1748,10 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 						AND
 					d_rt.inverse = d_lp2r.id_relation_type
 				)"""
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj}}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj}}])
 		if len(rows) == 0:
 			return []
-		return [(row[0], cPerson(row = {'data': row[1:], 'idx':idx, 'pk_field': 'pk_identity'})) for row in rows]
+		return [(row[0], cPerson(row = {'data': row[1:], 'pk_field': 'pk_identity'})) for row in rows]
 
 	#--------------------------------------------------------
 	def link_new_relative(self, rel_type:str='parent') -> bool:
@@ -1837,7 +1837,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			return False
 
 		cmd = 'select dem.dob_is_in_range(%(dob)s, %(min)s, %(max)s)'
-		rows, idx = gmPG2.run_ro_queries (
+		rows = gmPG2.run_ro_queries (
 			queries = [{
 				'cmd': cmd,
 				'args': {'dob': self['dob'], 'min': min_distance, 'max': max_distance}
@@ -1909,7 +1909,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	#----------------------------------------------------------------------
 	def get_last_encounter(self):
 		cmd = 'select * from clin.v_most_recent_encounters where pk_patient=%s'
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self._payload['pk_identity']]}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self._payload['pk_identity']]}])
 		if rows:
 			return rows[0]
 
@@ -1953,7 +1953,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 		cmd = "SELECT * FROM dem.v_all_persons WHERE pk_identity = (SELECT pk_identity FROM dem.v_staff WHERE pk_staff = %(pk_staff)s)"
 		args = {'pk_staff': self._payload['pk_primary_provider']}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		if len(rows) == 0:
 			return None
 
@@ -1992,7 +1992,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 def identity_is_patient(pk_identity:int) -> bool:
 	cmd = 'SELECT 1 FROM clin.patient WHERE fk_identity = %(pk_pat)s'
 	args = {'pk_pat': pk_identity}
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if rows:
 		return True
 
@@ -2416,7 +2416,7 @@ def create_name(pk_person, firstnames, lastnames, active=False) -> cPersonName:
 		'cmd': "select dem.add_name(%s, %s, %s, %s)",
 		'args': [pk_person, firstnames, lastnames, active]
 	}]
-	rows, idx = gmPG2.run_rw_queries(queries=queries, return_data=True)
+	rows = gmPG2.run_rw_queries(queries=queries, return_data=True)
 	name = cPersonName(aPK_obj = rows[0][0])
 	return name
 
@@ -2432,7 +2432,7 @@ INSERT INTO dem.names (
 ) RETURNING id_identity"""
 #	cmd2 = u"select dem.add_name(currval('dem.identity_pk_seq')::integer, coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, 'xxxDEFAULTxxx'), True)"
 	try:
-		rows, idx = gmPG2.run_rw_queries (
+		rows = gmPG2.run_rw_queries (
 			queries = [
 				{'cmd': cmd1, 'args': [gender, dob, comment]},
 				{'cmd': cmd2, 'args': [lastnames, firstnames]}
@@ -2459,7 +2459,7 @@ def disable_identity(pk_identity):
 #============================================================
 def create_dummy_identity():
 	cmd = "INSERT INTO dem.identity(gender) VALUES (NULL::text) RETURNING pk"
-	rows, idx = gmPG2.run_rw_queries (
+	rows = gmPG2.run_rw_queries (
 		queries = [{'cmd': cmd}],
 		return_data = True
 	)
@@ -2469,7 +2469,7 @@ def create_dummy_identity():
 def identity_exists(pk_identity):
 	cmd = 'SELECT EXISTS(SELECT 1 FROM dem.identity where pk = %(pk)s)'
 	args = {'pk': pk_identity}
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	return rows[0][0]
 
 #============================================================
@@ -2518,7 +2518,7 @@ def get_gender_list() -> list:
 
 	if __gender_list is None:
 		cmd = "SELECT tag, l10n_tag, label, l10n_label, sort_weight FROM dem.v_gender_labels ORDER BY sort_weight DESC"
-		__gender_list, tmp = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+		__gender_list = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 		_log.debug('genders in database: %s' % __gender_list)
 
 	return __gender_list
@@ -2608,7 +2608,7 @@ def map_firstnames2gender(firstnames=None):
 	if firstnames is None:
 		return None
 
-	rows, idx = gmPG2.run_ro_queries(queries = [{
+	rows = gmPG2.run_ro_queries(queries = [{
 		'cmd': "SELECT gender FROM dem.name_gender_map WHERE name ILIKE %(fn)s LIMIT 1",
 		'args': {'fn': firstnames}
 	}])
@@ -2620,7 +2620,7 @@ def map_firstnames2gender(firstnames=None):
 #============================================================
 def get_person_IDs():
 	cmd = 'SELECT pk FROM dem.identity'
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	return [ r[0] for r in rows ]
 
 #============================================================

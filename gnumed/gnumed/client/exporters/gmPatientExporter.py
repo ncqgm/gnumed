@@ -950,7 +950,7 @@ class cEMRJournalExporter:
 			WHERE pk_patient = %(pat)s
 			ORDER BY modified_when
 		"""
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pat': patient['pk_identity']}}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pat': patient['pk_identity']}}])
 
 		f.write ((gmTools.u_box_horiz_single * 100) + '\n')
 		f.write ('%16.16s %s %9.9s %s %1.1s %s %s \n' % (
@@ -1069,7 +1069,7 @@ class cEMRJournalExporter:
 			WHERE pk_patient = %s
 			ORDER BY date, pk_episode, scr, src_table
 		"""
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [patient['pk_identity']]}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [patient['pk_identity']]}])
 
 		# write data
 		prev_date = ''
@@ -1214,7 +1214,7 @@ class cMedistarSOAPExporter:
 		# get data
 		cmd = "select narrative from clin.v_emr_journal where pk_patient=%s and pk_encounter=%s and soap_cat=%s"
 		for soap_cat in soap_cats:
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': (self.__pat['pk_identity'], encounter['pk_encounter'], soap_cat)}])
+			rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': (self.__pat['pk_identity'], encounter['pk_encounter'], soap_cat)}])
 			target.write('*MD%s*\r\n' % gmSoapDefs.soap_cat2l10n[soap_cat])
 			for row in rows:
 				text = row[0]

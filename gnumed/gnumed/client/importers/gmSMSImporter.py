@@ -44,7 +44,7 @@ def run_importer():
 #	cmd1 = u"select dem.add_external_id_type(%(desc)s, %(org)s)"
 #	args1 = {'desc': external_id_type, 'org': u'gmSMSImporter.py'}
 #	cmd2 = u'select pk from dem.enum_ext_id_types where name = %(desc)s'
-#	rows, idx = gmPG2.run_rw_queries (
+#	rows = gmPG2.run_rw_queries (
 #		queries = [
 #			{'cmd': cmd1, 'args': args1},
 #			{'cmd': cmd2, 'args': args1}
@@ -61,7 +61,7 @@ def run_importer():
 #	fk_origin = %(src)s"""
 #	args = {'id': gsm, 'src': ext_id_pk}
 
-#	rows, idx = gmPG2.run_ro_queries (
+#	rows = gmPG2.run_ro_queries (
 #		queries = [{'cmd': cmd, 'args': args}],
 #		return_data = True
 #	)

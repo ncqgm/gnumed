@@ -144,7 +144,7 @@ def get_reminders(pk_patient=None, order_by=None, return_pks=False):
 	)
 	_log.debug('SQL: %s', cmd)
 	_log.debug('args: %s', args)
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if return_pks:
 		return [ r['pk_inbox_message'] for r in rows ]
 	return [ cInboxMessage(row = {'data': r, 'pk_field': 'pk_inbox_message'}) for r in rows ]
@@ -168,7 +168,7 @@ def get_overdue_messages(pk_patient=None, order_by=None, return_pks=False):
 	)
 	_log.debug('SQL: %s', cmd)
 	_log.debug('args: %s', args)
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if return_pks:
 		return [ r['pk_inbox_message'] for r in rows ]
 	return [ cInboxMessage(row = {'data': r, 'pk_field': 'pk_inbox_message'}) for r in rows ]
@@ -208,7 +208,7 @@ def get_relevant_messages(pk_staff=None, pk_patient=None, include_without_provid
 	)
 	_log.debug('SQL: %s', cmd)
 	_log.debug('args: %s', args)
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if return_pks:
 		return [ r['pk_inbox_message'] for r in rows ]
 	return [ cInboxMessage(row = {'data': r, 'pk_field': 'pk_inbox_message'}) for r in rows ]
@@ -255,7 +255,7 @@ def get_inbox_messages(pk_staff=None, pk_patient=None, include_without_provider=
 	)
 	_log.debug('SQL: %s', cmd)
 	_log.debug('args: %s', args)
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if return_pks:
 		return [ r['pk_inbox_message'] for r in rows ]
 	return [ cInboxMessage(row = {'data': r, 'pk_field': 'pk_inbox_message'}) for r in rows ]
@@ -287,7 +287,7 @@ def create_inbox_message(message_type=None, subject=None, patient=None, staff=No
 		'type': pk_type,
 		'subject': subject
 	}
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 	return cInboxMessage(aPK_obj = rows[0]['pk'])
 
 #------------------------------------------------------------
@@ -308,10 +308,10 @@ def create_inbox_item_type(message_type=None, category='clinical'):
 			(SELECT pk FROM dem.inbox_item_category WHERE _(description) = %(cat)s),
 			(SELECT pk FROM dem.inbox_item_category WHERE description = %(cat)s)
 		) AS pk"""
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		if rows[0]['pk'] is None:
 			cmd = "INSERT INTO dem.inbox_item_category (description) VALUES (%(cat)s) RETURNING pk"
-			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+			rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 			pk_cat = rows[0]['pk']
 		else:
 			pk_cat = rows[0]['pk']
@@ -322,7 +322,7 @@ def create_inbox_item_type(message_type=None, category='clinical'):
 		(SELECT pk FROM dem.inbox_item_type where fk_inbox_item_category = %(pk_cat)s AND _(description) = %(type)s),
 		(SELECT pk FROM dem.inbox_item_type where fk_inbox_item_category = %(pk_cat)s AND description = %(type)s)
 	) AS pk"""
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if rows[0]['pk'] is None:
 		cmd = """
 			INSERT INTO dem.inbox_item_type (
@@ -334,7 +334,7 @@ def create_inbox_item_type(message_type=None, category='clinical'):
 				%(type)s,
 				TRUE
 			) RETURNING pk"""
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 
 	return rows[0]['pk']
 

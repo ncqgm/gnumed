@@ -165,7 +165,7 @@ def get_keyword_expansions(order_by=None, force_reload=False, return_pks=False):
 		order_by = 'true ORDER BY %s' % order_by
 
 	cmd = _SQL_get_keyword_expansions % order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	if return_pks:
 		return [ r['pk_expansion'] for r in rows ]
 
@@ -185,7 +185,7 @@ def get_expansion(keyword=None, textual_only=True, binary_only=False):
 		where_parts.append('is_textual IS TRUE')
 
 	cmd = _SQL_get_keyword_expansions % ' AND '.join(where_parts)
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if len(rows) == 0:
 		return None
 
@@ -204,7 +204,7 @@ def create_keyword_expansion(keyword=None, text=None, data_file=None, public=Tru
 	# already exists ?
 	cmd = "SELECT 1 FROM ref.v_your_keyword_expansions WHERE public_expansion IS %(public)s AND keyword = %(kwd)s"
 	args = {'kwd': keyword, 'public': public}
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if len(rows) != 0:
 		# can't create duplicate
 		return False
@@ -232,7 +232,7 @@ def create_keyword_expansion(keyword=None, text=None, data_file=None, public=Tru
 			)
 			RETURNING pk
 		"""
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 	expansion = cKeywordExpansion(aPK_obj = rows[0]['pk'])
 	if data_file is not None:
 		expansion.update_data_from_file(filename = data_file)
@@ -268,7 +268,7 @@ def get_textual_expansion_keywords():
 		return __textual_expansion_keywords
 
 	cmd = """SELECT keyword, public_expansion, private_expansion, owner FROM ref.v_keyword_expansions WHERE is_textual IS TRUE"""
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	__textual_expansion_keywords = rows
 
 	_log.info('retrieved %s textual expansion keywords', len(__textual_expansion_keywords))
@@ -290,7 +290,7 @@ def expand_keyword(keyword = None):
 		return 'Hai, play !  Versucht das ! (Keks dazu ?)  :-)'
 
 	cmd = """SELECT expansion FROM ref.v_your_keyword_expansions WHERE keyword = %(kwd)s"""
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword}}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword}}])
 
 	if len(rows) == 0:
 		return None

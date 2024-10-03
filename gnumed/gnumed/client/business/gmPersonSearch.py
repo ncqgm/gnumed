@@ -171,7 +171,7 @@ class cPatientSearcher_SQL:
 		for query in queries:
 			_log.debug("running %s" % query)
 			try:
-				rows, idx = gmPG2.run_ro_queries(queries = [query])
+				rows = gmPG2.run_ro_queries(queries = [query])
 			except Exception:
 				_log.exception('error running query')
 				continue

@@ -113,7 +113,7 @@ class cIncomingData(gmBusinessDBObject.cBusinessDBObject):
 
 		SQL = 'SELECT (md5(data) = %(local_md5)s) AS verified FROM clin.incoming_data WHERE pk = %(pk)s'
 		args = {'pk': self.pk_obj, 'local_md5': gmTools.file2md5(filename = fname)}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
 		return rows[0]['verified']
 
 	#--------------------------------------------------------
@@ -173,7 +173,7 @@ def get_incoming_data(order_by=None, return_pks=False):
 	else:
 		order_by = 'true ORDER BY %s' % order_by
 	cmd = _SQL_get_incoming_data % order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	if return_pks:
 		return [ r['pk_incoming_data'] for r in rows ]
 
@@ -187,7 +187,7 @@ def create_incoming_data(data_type:str=None, filename:str=None, verify_import:bo
 		INSERT INTO clin.incoming_data (type, data)
 		VALUES (%(typ)s, 'new data'::bytea)
 		RETURNING pk"""
-	rows, idx = gmPG2.run_rw_queries (
+	rows = gmPG2.run_rw_queries (
 		link_obj = conn,
 		end_tx = False,
 		queries = [{'cmd': cmd, 'args': args}], return_data = True
@@ -215,7 +215,7 @@ def data_exists(filename:str) -> bool:
 	local_md5 = gmTools.file2md5(filename = filename)
 	SQL = 'SELECT EXISTS(SELECT 1 FROM clin.incoming_data WHERE md5(data) = %(local_md5)s) AS data_exists'
 	args = {'local_md5': local_md5}
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
 	return rows[0]['data_exists']
 
 #============================================================

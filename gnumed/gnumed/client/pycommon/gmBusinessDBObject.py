@@ -221,7 +221,7 @@ def get_XXX(order_by=None):
 		order_by = u'true ORDER BY %s' % order_by
 
 	cmd = _SQL_get_XXX % order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	return [ cXxxXxx(row = {'data': r, 'pk_field': 'pk_XXX'}) for r in rows ]
 #------------------------------------------------------------
 def create_xxx(xxx1=None, xxx2=None):
@@ -243,8 +243,7 @@ def create_xxx(xxx1=None, xxx2=None):
 		RETURNING pk
 		--RETURNING *
 	"" "
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
-	#rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 
 	return cXxxXxx(aPK_obj = rows[0]['pk'])
 	#return cXxxXxx(row = {'data': r, 'pk_field': 'pk_XXX'})
@@ -350,11 +349,10 @@ class cBusinessDBObject(object):
 
 				row = {
 					'data': rows[0],
-					'idx': idx,
 					'pk_field': 'pk_XXX (the PK column name)',
 					'pk_obj': {'pk_col1': pk_col1_val, 'pk_col2': pk_col2_val}
 				}
-				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+				rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 				objects = [ cChildClass(row = {'data': r, 'pk_field': 'the PK column name'}) for r in rows ]
 		"""
 		# initialize those "too early" because sanity checking descendants might
@@ -401,9 +399,8 @@ class cBusinessDBObject(object):
 		"""Creates a new clinical item instance given its fields.
 
 		Args:
-			row: EITHER {'idx': ..., 'data': ..., 'pk_field': ...}
+			row: EITHER {'data': ..., 'pk_field': ...}
 
-			* idx: a dict mapping field names to list position inside row['data']
 			* data: the field values in a list (as returned by cursor.fetchone() in the DB-API)
 			* pk_field: the name of the primary key field
 
@@ -414,7 +411,7 @@ class cBusinessDBObject(object):
 
 		Examples:
 
-				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+				rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 				objects = [ cChildClass(row = {'data': r, 'pk_field': 'the PK column name'}) for r in rows ]
 
 		Copy/Paste:
@@ -620,7 +617,7 @@ class cBusinessDBObject(object):
 			# find by DB account
 			args = {'db_u': mod_by}
 			cmd = "SELECT pk FROM dem.staff WHERE db_user = %(db_u)s"
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+			rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 			if rows:
 				# logically, they are all the same provider, because they share the DB account
 				return rows[0]['pk']
@@ -631,7 +628,7 @@ class cBusinessDBObject(object):
 			# find by DB account
 			args = {'db_u': mod_by.lstrip('<').rstrip('>')}
 			cmd = "SELECT pk FROM dem.staff WHERE db_user = %(db_u)s"
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+			rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 			if rows:
 				# logically, they are all the same provider, because they share the DB account
 				return rows[0]['pk']
@@ -639,7 +636,7 @@ class cBusinessDBObject(object):
 		# .modified_by is probably dem.staff.short_alias
 		args = {'alias': mod_by}
 		cmd = "SELECT pk FROM dem.staff WHERE short_alias = %(alias)s"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		if rows:
 			# logically, they are all the same provider, because they share the DB account
 			return rows[0]['pk']
@@ -660,7 +657,7 @@ class cBusinessDBObject(object):
 
 	#--------------------------------------------------------
 	def _get_revision_history(self, query:str, args:dict, title:str) -> list[str]:
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': query, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': query, 'args': args}])
 		if not rows:
 			return ['%s (no versions)' % title]
 
@@ -700,7 +697,7 @@ class cBusinessDBObject(object):
 		else:
 			args:list = [self.pk_obj]		# type: ignore [no-redef]
 		queries = [{'cmd': self.__class__._cmd_fetch_payload, 'args': args}]
-		rows, tmp = gmPG2.run_ro_queries (
+		rows = gmPG2.run_ro_queries (
 			link_obj = link_obj,
 			queries = queries
 		)
@@ -712,8 +709,6 @@ class cBusinessDBObject(object):
 			raise AssertionError('[%s:%s]: %s instances !' % (self.__class__.__name__, self.pk_obj, len(rows)))
 
 		self._payload = rows[0]
-#		k = list(self._payload.keys())
-#		self._idx = dict(zip(k, k))
 		return True
 
 	#--------------------------------------------------------
@@ -749,7 +744,7 @@ class cBusinessDBObject(object):
 		queries = []
 		for query in self.__class__._cmds_store_payload:
 			queries.append({'cmd': query, 'args': args})
-		rows, idx = gmPG2.run_rw_queries (
+		rows = gmPG2.run_rw_queries (
 			link_obj = conn,
 			queries = queries,
 			return_data = True

@@ -33,7 +33,7 @@ Schedule "%s" (%s)
 
 # retrieve vaccines
 cmd = "select * from clin.v_vaccine"
-vaccine_rows, idx = gmPG.run_ro_query (
+vaccine_rows = gmPG.run_ro_query (
 	link_obj = 'clinical',
 	aQuery = cmd
 )
@@ -84,7 +84,7 @@ else:
 
 # retrieve schedules
 cmd = "select * from clin.v_vacc_regimes"
-schedule_rows, idx = gmPG.run_ro_query (
+schedule_rows = gmPG.run_ro_query (
 	'clinical',
 	cmd,
 	True

@@ -483,7 +483,7 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 	def _get_is_in_use(self):
 		cmd = 'SELECT EXISTS(SELECT 1 FROM clin.vaccination WHERE fk_vaccine = %(pk)s)'
 		args = {'pk': self._payload['pk_vaccine']}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		return rows[0][0]
 
 	is_in_use = property(_get_is_in_use)
@@ -512,7 +512,7 @@ def create_vaccine(pk_drug_product=None, product_name=None, indications=None, is
 		pk_drug_product = vacc_prod['pk_drug_product']
 	cmd = 'INSERT INTO ref.vaccine (fk_drug_product, is_live) values (%(pk_drug_product)s, %(live)s) RETURNING pk'
 	queries = [{'cmd': cmd, 'args': {'pk_drug_product': pk_drug_product, 'live': is_live}}]
-	rows, idx = gmPG2.run_rw_queries(link_obj = conn, queries = queries, return_data = True, end_tx = True)
+	rows = gmPG2.run_rw_queries(link_obj = conn, queries = queries, return_data = True, end_tx = True)
 	conn.close()
 	return cVaccine(aPK_obj = rows[0]['pk'])
 
@@ -538,7 +538,7 @@ def get_vaccines(order_by=None, return_pks=False):
 	else:
 		cmd = _SQL_get_vaccine_fields % ('TRUE\nORDER BY %s' % order_by)
 
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	if return_pks:
 		return [ r['pk_vaccine'] for r in rows ]
 	return [ cVaccine(row = {'data': r, 'pk_field': 'pk_vaccine'}) for r in rows ]
@@ -681,7 +681,7 @@ def get_vaccinations(pk_identity=None, pk_episodes=None, pk_health_issues=None, 
 		_SQL_get_vaccination_fields % WHERE,
 		ORDER_BY
 	)
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
 	if return_pks:
 		return [ r['pk_vaccination'] for r in rows ]
 
@@ -746,7 +746,7 @@ def create_vaccination(encounter=None, episode=None, vaccine=None, batch_no=None
 		'vacc': vaccine,
 		'batch': batch_no
 	}
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 	return cVaccination(aPK_obj = rows[0][0])
 
 #------------------------------------------------------------

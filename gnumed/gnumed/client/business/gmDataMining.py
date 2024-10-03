@@ -31,7 +31,7 @@ _log = logging.getLogger('gm.reports')
 
 #============================================================
 def report_exists(name=None):
-	rows, idx = gmPG2.run_ro_queries(queries = [{
+	rows = gmPG2.run_ro_queries(queries = [{
 		'cmd': 'SELECT EXISTS(SELECT 1 FROM cfg.report_query WHERE label = %(name)s)',
 		'args': {'name': name}
 	}])
@@ -48,7 +48,7 @@ def save_report_definition(name=None, query=None, overwrite=False):
 		{'cmd': 'DELETE FROM cfg.report_query WHERE label = %(name)s', 'args': args},
 		{'cmd': 'INSERT INTO cfg.report_query (label, cmd) VALUES (%(name)s, %(query)s)', 'args': args}
 	]
-	rows, idx = gmPG2.run_rw_queries(queries = queries)
+	gmPG2.run_rw_queries(queries = queries)
 	return True
 
 #--------------------------------------------------------
@@ -57,7 +57,7 @@ def delete_report_definition(name=None):
 		'cmd': 'DELETE FROM cfg.report_query WHERE label = %(name)s',
 		'args': {'name': name}
 	}]
-	rows, idx = gmPG2.run_rw_queries(queries=queries)
+	rows = gmPG2.run_rw_queries(queries=queries)
 	return True
 
 #--------------------------------------------------------
@@ -107,7 +107,7 @@ def run_report_query(query=None, limit=None, pk_identity=None):
 
 	try:
 		# read-only for safety reasons
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': wrapped_query}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': wrapped_query}])
 	except Exception:
 		_log.exception('report query failed')
 		gmDispatcher.send('statustext', msg = _('The query failed.'), beep = True)

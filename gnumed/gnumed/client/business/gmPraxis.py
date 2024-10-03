@@ -278,7 +278,7 @@ def get_praxis_branches(order_by=None, return_pks=False):
 		order_by = 'true ORDER BY %s' % order_by
 
 	cmd = _SQL_get_praxis_branches % order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	if return_pks:
 		return [ r['pk_praxis_branch'] for r in rows ]
 	return [ cPraxisBranch(row = {'data': r, 'pk_field': 'pk_praxis_branch'}) for r in rows ]
@@ -287,7 +287,7 @@ def get_praxis_branches(order_by=None, return_pks=False):
 def get_praxis_branch_by_org_unit(pk_org_unit=None):
 	cmd = _SQL_get_praxis_branches % 'pk_org_unit = %(pk_ou)s'
 	args = {'pk_ou': pk_org_unit}
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if len(rows) == 0:
 		return None
 	return cPraxisBranch(row = {'data': rows[0], 'pk_field': 'pk_praxis_branch'})
@@ -307,7 +307,7 @@ def create_praxis_branch(pk_org_unit=None):
 		{'cmd': cmd1, 'args': args},
 		{'cmd': cmd2, 'args': args}
 	]
-	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True)
+	rows = gmPG2.run_rw_queries(queries = queries, return_data = True)
 	return cPraxisBranch(row = {'data': rows[0], 'pk_field': 'pk_praxis_branch'})
 
 #------------------------------------------------------------
@@ -326,7 +326,7 @@ def create_praxis_branches(pk_org_units=None):
 	args = {'fk_units': pk_org_units}
 	cmd = """SELECT * from dem.v_praxis_branches WHERE pk_org_unit = ANY(%(fk_units)s)"""
 	queries.append({'cmd': cmd, 'args': args})
-	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True)
+	rows = gmPG2.run_rw_queries(queries = queries, return_data = True)
 	return [ cPraxisBranch(row = {'data': r, 'pk_field': 'pk_praxis_branch'}) for r in rows ]
 
 #------------------------------------------------------------
@@ -343,7 +343,7 @@ def delete_praxis_branch(pk_praxis_branch=None):
 def delete_praxis_branches(pk_praxis_branches=None, except_pk_praxis_branches=None):
 	if pk_praxis_branches is None:
 		cmd = 'SELECT pk from dem.praxis_branch'
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 		pks_to_lock = [ r[0] for r in rows ]
 	else:
 		pks_to_lock = pk_praxis_branches[:]
@@ -479,7 +479,7 @@ where
 			ORDER BY
 				list_position
 		"""
-		rows, idx = gmPG2.run_ro_queries (
+		rows = gmPG2.run_ro_queries (
 			queries = [{'cmd': cmd}]
 		)
 		return rows
@@ -516,7 +516,7 @@ where
 
 	#--------------------------------------------------------
 	def _get_db_logon_banner(self):
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': 'select _(message) from cfg.db_logon_banner'}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': 'select _(message) from cfg.db_logon_banner'}])
 		if len(rows) == 0:
 			return ''
 		return gmTools.coalesce(rows[0][0], '').strip()
@@ -530,7 +530,7 @@ where
 				'cmd': 'insert into cfg.db_logon_banner (message) values (%(msg)s)',
 				'args': {'msg': banner.strip()}
 			})
-		rows, idx = gmPG2.run_rw_queries(queries = queries, end_tx = True)
+		rows = gmPG2.run_rw_queries(queries = queries, end_tx = True)
 
 	db_logon_banner = property(_get_db_logon_banner, _set_db_logon_banner)
 
@@ -572,7 +572,7 @@ where
 
 	def _get_workplaces(self):
 		cmd = 'SELECT DISTINCT workplace FROM cfg.cfg_item WHERE workplace IS NOT NULL ORDER BY workplace'
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 		return [ r['workplace'] for r in rows ]
 
 	workplaces = property(_get_workplaces, _set_workplaces)

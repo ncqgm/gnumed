@@ -100,7 +100,7 @@ class cBillable(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_is_in_use(self):
 		cmd = 'SELECT EXISTS(SELECT 1 FROM bill.bill_item WHERE fk_billable = %(pk)s LIMIT 1)'
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self._payload['pk_billable']}}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self._payload['pk_billable']}}])
 		return rows[0][0]
 
 	is_in_use = property(_get_is_in_use)
@@ -119,7 +119,7 @@ def get_billables(active_only=True, order_by=None, return_pks=False):
 		where = 'true'
 
 	cmd = (_SQL_get_billable_fields % where) + order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	if return_pks:
 		return [ r['pk_billable'] for r in rows ]
 	return [ cBillable(row = {'data': r, 'pk_field': 'pk_billable'}) for r in rows ]
@@ -147,7 +147,7 @@ def create_billable(code=None, term=None, data_source=None, return_existing=Fals
 				fk_data_source = %(data_src)s
 		)
 		RETURNING pk"""
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 	if len(rows) > 0:
 		return cBillable(aPK_obj = rows[0]['pk'])
 
@@ -163,7 +163,7 @@ def create_billable(code=None, term=None, data_source=None, return_existing=Fals
 				AND
 			pk_data_source = %(data_src)s
 	"""
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	return cBillable(row = {'data': rows[0], 'pk_field': 'pk_billable'})
 
 #------------------------------------------------------------
@@ -300,7 +300,7 @@ def get_bill_items(pk_patient=None, non_invoiced_only=False, return_pks=False):
 	else:
 		cmd = _SQL_get_bill_item_fields % u"pk_patient = %(pat)s"
 	args = {'pat': pk_patient}
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if return_pks:
 		return [ r['pk_bill_item'] for r in rows ]
 	return [ cBillItem(row = {'data': r, 'pk_field': 'pk_bill_item'}) for r in rows ]
@@ -331,7 +331,7 @@ def create_bill_item(pk_encounter=None, pk_billable=None, pk_staff=None):
 		'curr': billable['currency'],
 		'billable': pk_billable
 	}
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 	return cBillItem(aPK_obj = rows[0][0])
 
 #------------------------------------------------------------
@@ -516,7 +516,7 @@ def get_bills(order_by=None, pk_patient=None, return_pks=False):
 		order_by = ' ORDER BY %s' % order_by
 
 	cmd = (_SQL_get_bill_fields % ' AND '.join(where_parts)) + order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if return_pks:
 		return [ r['pk_bill'] for r in rows ]
 	return [ cBill(row = {'data': r, 'pk_field': 'pk_bill'}) for r in rows ]
@@ -525,7 +525,7 @@ def get_bills(order_by=None, pk_patient=None, return_pks=False):
 def get_bills4document(pk_document=None):
 	args = {'pk_doc': pk_document}
 	cmd = _SQL_get_bill_fields % 'pk_doc = %(pk_doc)s'
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	return [ cBill(row = {'data': r, 'pk_field': 'pk_bill'}) for r in rows ]
 
 #------------------------------------------------------------
@@ -537,7 +537,7 @@ def create_bill(conn=None, invoice_id=None):
 		VALUES (gm.nullify_empty_string(%(inv_id)s))
 		RETURNING pk
 	"""
-	rows, idx = gmPG2.run_rw_queries(link_obj = conn, queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	rows = gmPG2.run_rw_queries(link_obj = conn, queries = [{'cmd': cmd, 'args': args}], return_data = True)
 
 	return cBill(aPK_obj = rows[0]['pk'])
 
@@ -610,7 +610,7 @@ def generate_invoice_id(template=None, pk_patient=None, person=None, date_format
 	search_term = u'^\s*%s\s*$' % gmPG2.sanitize_pg_regex(expression = candidate_invoice_id).replace(u'#counter#', '\d+')
 	cmd = u'SELECT invoice_id FROM bill.bill WHERE invoice_id ~* %(search_term)s UNION ALL SELECT invoice_id FROM audit.log_bill WHERE invoice_id ~* %(search_term)s'
 	args = {'search_term': search_term}
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if len(rows) == 0:
 		return candidate_invoice_id.replace(u'#counter#', u'1')
 
@@ -664,7 +664,7 @@ def lock_invoice_id(invoice_id):
 	token = __generate_invoice_id_lock_token(invoice_id)
 	cmd = "SELECT pg_try_advisory_lock(%s)" % token
 	try:
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	except gmPG2.dbapi.ProgrammingError:
 		_log.exception('cannot lock invoice ID: [%s] (%s)', invoice_id, token)
 		return False
@@ -681,7 +681,7 @@ def unlock_invoice_id(invoice_id):
 	token = __generate_invoice_id_lock_token(invoice_id)
 	cmd = u"SELECT pg_advisory_unlock(%s)" % token
 	try:
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	except gmPG2.dbapi.ProgrammingError:
 		_log.exception('cannot unlock invoice ID: [%s] (%s)', invoice_id, token)
 		return False

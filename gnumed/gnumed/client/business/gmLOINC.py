@@ -62,7 +62,7 @@ def format_loinc(loinc):
 def loinc2data(loinc):
 	cmd = 'SELECT * FROM ref.loinc WHERE code = %(loinc)s'
 	args = {'loinc': loinc}
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if len(rows) == 0:
 		return None
 	return rows[0]
@@ -100,7 +100,7 @@ SELECT coalesce (
 	)
 )"""
 	args = {'loinc': loinc}
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	if rows[0][0] is None:
 		return []
@@ -236,7 +236,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 		{'args': args, 'cmd': """SELECT pk FROM ref.data_source WHERE name_short = %(name_short)s AND version = %(ver)s"""}
 	]
 	curs = conn.cursor()
-	rows, idx = gmPG2.run_rw_queries(link_obj = curs, queries = queries, return_data = True)
+	rows = gmPG2.run_rw_queries(link_obj = curs, queries = queries, return_data = True)
 	data_src_pk = rows[0][0]
 	curs.close()
 	_log.debug('data source record created or updated, pk is #%s', data_src_pk)

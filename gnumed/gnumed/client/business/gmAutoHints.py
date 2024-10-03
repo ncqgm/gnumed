@@ -149,7 +149,7 @@ def get_dynamic_hints(order_by=None, link_obj=None, return_pks=False):
 	else:
 		order_by = 'TRUE ORDER BY %s' % order_by
 	cmd = _SQL_get_dynamic_hints % order_by
-	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd}])
+	rows = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd}])
 	if return_pks:
 		return [ r['pk_auto_hint'] for r in rows ]
 	return [ cDynamicHint(row = {'data': r, 'pk_field': 'pk_auto_hint'}) for r in rows ]
@@ -179,7 +179,7 @@ def create_dynamic_hint(link_obj=None, query=None, title=None, hint=None, source
 		)
 		RETURNING pk
 	"""
-	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	rows = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True)
 	return cDynamicHint(aPK_obj = rows[0]['pk'], link_obj = link_obj)
 
 #------------------------------------------------------------
@@ -217,7 +217,7 @@ def get_hints_for_patient(pk_identity=None, pk_encounter=None):
 			# for invalidation of suppression
 		applying_rows.append(row)
 
-	return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_auto_hint'}) for r in applying_rows ]
+	return [ cDynamicHint(row = {'data': r, 'pk_field': 'pk_auto_hint'}) for r in applying_rows ]
 
 #------------------------------------------------------------
 def suppress_dynamic_hint(pk_hint=None, rationale=None, pk_encounter=None):
@@ -311,7 +311,7 @@ def get_suppressed_hints(pk_identity=None, order_by=None, return_pks=False):
 	else:
 		order_by = ' ORDER BY %s' % order_by
 	cmd = (_SQL_get_suppressed_hints % where) + order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if return_pks:
 		return [ r['pk_suppressed_hint'] for r in rows ]
 	return [ cSuppressedHint(row = {'data': r, 'pk_field': 'pk_suppressed_hint'}) for r in rows ]

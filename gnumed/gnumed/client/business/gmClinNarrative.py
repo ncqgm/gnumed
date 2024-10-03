@@ -113,7 +113,7 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 			'item': self._payload['pk_narrative'],
 			'code': pk_code
 		}
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return
 
 	#--------------------------------------------------------
@@ -124,7 +124,7 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 			'item': self._payload['pk_narrative'],
 			'code': pk_code
 		}
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
 
 	#--------------------------------------------------------
@@ -136,7 +136,7 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 
 		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code = ANY(%(pks)s)'
 		args = {'pks': self._payload['pk_generic_codes']}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
 
 	def _set_generic_codes(self, pk_codes):
@@ -162,7 +162,7 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 		if len(queries) == 0:
 			return
 		# run it all in one transaction
-		rows, idx = gmPG2.run_rw_queries(queries = queries)
+		rows = gmPG2.run_rw_queries(queries = queries)
 		return
 
 	generic_codes = property(_get_generic_codes, _set_generic_codes)
@@ -252,7 +252,7 @@ def create_narrative_item(narrative=None, soap_cat=None, episode_id=None, encoun
 				narrative = %(narr)s
 		)
 		RETURNING pk"""
-	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	rows = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True)
 	if len(rows) == 1:
 		# re-use same link_obj if given because when called from create_progress_note we won't yet see rows inside a new tx
 		return cNarrative(aPK_obj = rows[0]['pk'], link_obj = link_obj)
@@ -272,7 +272,7 @@ def create_narrative_item(narrative=None, soap_cat=None, episode_id=None, encoun
 				AND
 			narrative = %(narr)s
 	"""
-	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
 	if len(rows) == 1:
 		return cNarrative(row = {'pk_field': 'pk_narrative', 'data': rows[0]})
 
@@ -282,7 +282,7 @@ def create_narrative_item(narrative=None, soap_cat=None, episode_id=None, encoun
 def delete_clin_narrative(narrative=None):
 	"""Deletes a clin.clin_narrative row by it's PK."""
 	cmd = "DELETE FROM clin.clin_narrative WHERE pk=%s"
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [narrative]}])
+	rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [narrative]}])
 	return True
 
 #------------------------------------------------------------
@@ -338,7 +338,7 @@ def get_narrative(since=None, until=None, encounters=None, episodes=None, issues
 		order_by
 	)
 
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	filtered_narrative = [ cNarrative(row = {'pk_field': 'pk_narrative', 'data': row}) for row in rows ]
 
@@ -477,7 +477,7 @@ def get_as_journal(since=None, until=None, encounters=None, episodes=None, issue
 		"""
 		cmd = cmd_journal + '\nUNION ALL\n' + cmd_hints + '\n' + order_by
 
-	journal_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	journal_rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	return journal_rows
 
@@ -493,7 +493,7 @@ def search_text_across_emrs(search_term=None):
 		return []
 
 	cmd = 'SELECT * FROM clin.v_narrative4search WHERE narrative ~* %(term)s ORDER BY pk_patient LIMIT 1000'
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'term': search_term}}])
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'term': search_term}}])
 	return rows
 
 #============================================================

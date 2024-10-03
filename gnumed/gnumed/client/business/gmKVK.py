@@ -160,7 +160,7 @@ class cDTO_CCRdr(gmPerson.cDTO_person):
 				),
 				'kk': EXTERNAL_ID_ISSUER_TEMPLATE % (self.raw_data['KostentraegerName'], self.raw_data['Kostentraegerkennung'])
 			}
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+			rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 			# weed out duplicates
 			name_candidate_ids = [ o.ID for o in old_idents ]
@@ -386,7 +386,7 @@ select pk_identity from dem.v_external_ids4identity where
 			'name': EXTERNAL_ID_TYPE_VK_INSUREE_NUMBER,
 			'kk': EXTERNAL_ID_ISSUER_TEMPLATE % (self.insurance_company, self.insurance_number)
 		}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 		# weed out duplicates
 		new_idents = []
@@ -523,7 +523,7 @@ select pk_identity from dem.v_external_ids4identity where
 			'name': EXTERNAL_ID_TYPE_VK_INSUREE_NUMBER,
 			'kk': EXTERNAL_ID_ISSUER_TEMPLATE % (self.insurance_company, self.insurance_number)
 		}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 		# weed out duplicates
 		new_idents = []

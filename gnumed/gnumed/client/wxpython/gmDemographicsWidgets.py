@@ -682,7 +682,7 @@ class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 				SELECT tag, l10n_label, sort_weight
 				from dem.v_gender_labels
 				order by sort_weight desc"""
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+			rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 			cGenderSelectionPhraseWheel._gender_map = {}
 			for gender in rows:
 				cGenderSelectionPhraseWheel._gender_map[gender['tag']] = {
@@ -854,7 +854,7 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl, 
 		pk_curr_type = self._PRW_type.GetData()
 		if pk_curr_type is None:
 			return True
-		rows, idx = gmPG2.run_ro_queries(queries = [{
+		rows = gmPG2.run_ro_queries(queries = [{
 			'cmd': "SELECT issuer FROM dem.enum_ext_id_types WHERE pk = %s",
 			'args': [pk_curr_type]
 		}])
