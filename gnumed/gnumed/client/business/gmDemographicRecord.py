@@ -708,7 +708,7 @@ def delete_address(pk_address=None):
 				SELECT 1 FROM dem.lnk_person_org_address WHERE id_address = %(pk)s LIMIT 1
 			))
 		"""
-	 gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': pk_address}}])
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': pk_address}}])
 	return True
 
 #------------------------------------------------------------
