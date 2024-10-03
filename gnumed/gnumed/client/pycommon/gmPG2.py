@@ -2258,8 +2258,8 @@ def run_ro_queries (
 	#queries:Sequence[Mapping[str, str | list | dict]]=None,
 	queries:_TQueries=None,
 	verbose:bool=False,
-	return_data:bool=True,
-	get_col_idx:bool=False
+	return_data:bool=True
+	#,get_col_idx:bool=False
 ) -> tuple[list[dbapi.extras.DictRow], dict[str, int] | None]:
 	"""Run read-only queries.
 
@@ -2272,7 +2272,6 @@ def run_ro_queries (
 				...
 			]
 		return_data: attempt to fetch data produced by the last query and return that
-		get_col_idx: return column index for row data from psycopg2
 
 	Returns:
 		A tuple holding (data rows, column index in row data as per DB-API)
@@ -2349,7 +2348,7 @@ def run_ro_queries (
 	if verbose:
 		_log.debug('last query returned [%s (%s)] rows', curs.rowcount, len(data))
 		_log.debug('cursor description: %s', curs.description)
-	col_idx = get_col_indices(curs) if get_col_idx else None
+#	col_idx = get_col_indices(curs) if get_col_idx else None
 	__safely_close_cursor_and_rollback_close_conn (
 		close_cursor = curs_close,
 		# rollback just-in-case so we can see data committed meanwhile if
@@ -2359,7 +2358,8 @@ def run_ro_queries (
 		rollback_tx = readonly_rollback_just_in_case,
 		close_conn = False			# do not close connection, RO connections are pooled
 	)
-	return (data, col_idx)
+#	return (data, col_idx)
+	return (data, None)
 
 #------------------------------------------------------------------------
 def __log_notices(notices_accessor=None):
@@ -2397,7 +2397,7 @@ def run_rw_queries (
 	queries:_TQueries=None,
 	end_tx:bool=False,
 	return_data:bool=None,
-	get_col_idx:bool=False,
+	#get_col_idx:bool=False,
 	verbose:bool=False
 ) -> tuple[list[dbapi.extras.DictRow], dict[str, int] | None]:
 	"""Convenience function for running read-write queries.
@@ -2439,18 +2439,10 @@ def run_rw_queries (
 		    the last query selected
 		* if false, it returns None instead
 
-		get_col_idx:
-
-		* True: the returned tuple will include a dictionary
-		    mapping field names to column positions
-		* False: the returned tuple includes None instead of a field mapping dictionary
-
 	Returns:
 
 		* (None, None) if last query did not return rows
 		* ("fetchall() result", <index>) if last query returned any rows and "return_data" was True
-
-		* for *index* see "get_col_idx"
 	"""
 	assert queries is not None, '<queries> must not be None'
 	assert isinstance(link_obj, (dbapi._psycopg.connection, dbapi._psycopg.cursor, type(None))), '<link_obj> must be None, a cursor, or a connection, but [%s] is of type (%s)' % (link_obj, type(link_obj))
@@ -2529,13 +2521,14 @@ def run_rw_queries (
 		)
 		raise
 
-	col_idx = None
-	if get_col_idx:
-		col_idx = get_col_indices(curs)
+#	col_idx = None
+#	if get_col_idx:
+#		col_idx = get_col_indices(curs)
 	curs_close()
 	tx_commit()
 	conn_close()
-	return (data, col_idx)
+#	return (data, col_idx)
+	return (data, None)
 
 # =======================================================================
 # connection handling API
