@@ -2014,24 +2014,27 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		# select intakes
 		emr = self.pat.emr
 		from Gnumed.wxpython import gmSubstanceIntakeWidgets
+		#intakes2export = gmSubstanceIntakeWidgets.manage_substance_intakes(emr = emr)
 		intakes2export = gmSubstanceIntakeWidgets.manage_substance_intakes(emr = emr)
 		if intakes2export is None:
 			return ''
 		if len(intakes2export) == 0:
 			return ''
 
-		# make them unique:
-		unique_intakes = {}
-		for intake in intakes2export:
-			if intake['pk_drug_product'] is None:
-				unique_intakes[intake['pk_substance']] = intake
-			else:
-				unique_intakes[intake['drug_product']] = intake
-		del intakes2export
-		unique_intakes = unique_intakes.values()
+#		# make them unique:
+#		unique_intakes = {}
+#		for intake in intakes2export:
+#			if intake['pk_drug_product'] is None:
+#				unique_intakes[intake['pk_substance']] = intake
+#			else:
+#				unique_intakes[intake['drug_product']] = intake
+#		del intakes2export
+#		unique_intakes = unique_intakes.values()
 
 		# create data files / datamatrix code files
-		self.__create_amts_datamatrix_files(intakes = unique_intakes)
+#		self.__create_amts_datamatrix_files(intakes = unique_intakes)
+		print(self.__create_amts_datamatrix_files(intakes = intakes2export))
+		return ''
 
 		# create AMTS-LaTeX per intake
 		intake_as_latex_rows = []
@@ -3341,9 +3344,12 @@ if __name__ == '__main__':
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain('gnumed')
+	from Gnumed.pycommon import gmPG2
+	from Gnumed.pycommon import gmLog2
+	gmLog2.print_logfile_name()
 
 	#--------------------------------------------------------
-	def test_placeholders():
+	def __test_placeholders():
 		handler = gmPlaceholderHandler()
 		handler.debug = True
 
@@ -3743,14 +3749,15 @@ if __name__ == '__main__':
 			#u'$<bill_scan2pay::fmt=txt::>$',
 			#u'$<bill_scan2pay::fmt=qr::>$',
 			#'$<yes_no::msg=do you want to select yes or no or something else ?  Look at the title//yes=it was yes//no=oh no!::>$'
-			'$<data_snippet::autograph-ncq//path=<%s>//image/jpg//.jpg::250>$',
+			#'$<data_snippet::autograph-ncq//path=<%s>//image/jpg//.jpg::250>$',
+			'$<current_meds_AMTS::::>$'
 		]
 
-		from Gnumed.pycommon import gmPG2
-		from Gnumed.pycommon import gmConnectionPool
-		l, creds = gmPG2.request_login_params()
-		pool = gmConnectionPool.gmConnectionPool()
-		pool.credentials = creds
+#		from Gnumed.pycommon import gmPG2
+#		from Gnumed.pycommon import gmConnectionPool
+#		l, creds = gmPG2.request_login_params()
+#		pool = gmConnectionPool.gmConnectionPool()
+#		pool.credentials = creds
 
 		handler = gmPlaceholderHandler()
 		handler.debug = True
@@ -3865,12 +3872,14 @@ if __name__ == '__main__':
 #		print(one, two, four, legacy)
 
 	#--------------------------------------------------------
-	test_parse_ph_options()
+	gmPG2.request_login_params(setup_pool = True, force_tui = True)
+
+	#test_parse_ph_options()
 	#sys.exit()
 
-	#app = wx.App()
+	app = wx.App()
 
-	#test_placeholders()
+	test_placeholder()
 	#test_new_variant_placeholders()
 	#test_scripting()
 	#test_placeholder_regex()

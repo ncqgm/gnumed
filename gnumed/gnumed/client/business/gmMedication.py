@@ -2194,6 +2194,12 @@ class cIntakeWithRegimen(gmBusinessDBObject.cBusinessDBObject):
 		return lines
 
 	#--------------------------------------------------------
+	def _get_as_amts_data(self, strict=True):
+		return format_intake_with_regimen_as_amts_data(intake = self, strict = strict)
+
+	as_amts_data = property(_get_as_amts_data)
+
+	#--------------------------------------------------------
 	def _get_use_type_string(self):
 		return use_type2str(self._payload['use_type'])
 
@@ -3149,6 +3155,36 @@ def format_substance_intake_as_amts_latex(intake=None, strict=True):
 
 	return table_row
 
+
+#------------------------------------------------------------
+def format_intake_with_regimen_as_amts_data(intake=None, strict=True):
+	"""
+	<M a="Handelsname" fd="freie Formangabe" t="freies Dosierschema" dud="freie Dosiereinheit (Stück Tab)" r="reason" i="info">
+		<W w="Metformin" s="500 mg"/>
+		<W ...>
+	</M>
+	"""
+	if not strict:
+		pass
+		# relax length checks
+
+	M_fields = []
+	M_fields.append('a="%s"' % intake['substance'])
+	M_fields.append('fd="Tabl.o.ä."')
+	if intake['schedule']:
+		M_fields.append('t="%s"' % intake['schedule'])
+	#M_fields.append(u'dud="%s"' % intake['dose unit, like Stück'])
+	M_fields.append('r="%s"' % intake['episode'])
+	if intake['notes4patient']:
+		M_fields.append('i="%s"' % intake['notes4patient'].replace('\n', '//').strip('/'))
+	M_line = '<M %s>' % ' '.join(M_fields)
+	W_lines = ['<W w="%s" s="%s %s"/>' % (
+		intake['substance'],
+		intake['amount'],
+		format_units(intake['unit'], short = True)
+	)]
+	return M_line + ''.join(W_lines) + '</M>'
+
 #------------------------------------------------------------
 def format_substance_intake_as_amts_data(intake=None, strict=True):
 	"""
@@ -3162,8 +3198,10 @@ def format_substance_intake_as_amts_data(intake=None, strict=True):
 		# relax length checks
 
 	M_fields = []
-	M_fields.append('a="%s"' % intake['drug_product'])
-	M_fields.append('fd="%s"' % intake['l10n_preparation'])
+	#M_fields.append('a="%s"' % intake['drug_product'])
+	M_fields.append('a="%s"' % intake['substance'])
+	#M_fields.append('fd="%s"' % intake['l10n_preparation'])
+	M_fields.append('fd="EINHEIT"')
 	if intake['schedule'] is not None:
 		M_fields.append('t="%s"' % intake['schedule'])
 	#M_fields.append(u'dud="%s"' % intake['dose unit, like Stück'])
@@ -4271,7 +4309,8 @@ if __name__ == "__main__":
 	#--------------------------------------------------------
 	def test_format_substance_intake_as_amts_data():
 		#print format_substance_intake_as_amts_data(cSubstanceIntakeEntry(1))
-		print(cSubstanceIntakeEntry(1).as_amts_data)
+		#print(cSubstanceIntakeEntry(1).as_amts_data)
+		print(get_intakes_with_regimens()[0].as_amts_data)
 
 	#--------------------------------------------------------
 	def test_delete_intake():
@@ -4573,7 +4612,7 @@ if __name__ == "__main__":
 	#test_format_units()
 
 	gmPG2.request_login_params(setup_pool = True)
-	test_format_medication_list()
+	#test_format_medication_list()
 	#test_format_regimen_like_as_multiple_lines()
 	#test_format_regimen_like_as_single_line()
 	#test_get_substances()
@@ -4592,4 +4631,4 @@ if __name__ == "__main__":
 
 	# AMTS
 	#test_generate_amts_data_template_definition_file()
-	#test_format_substance_intake_as_amts_data()
+	test_format_substance_intake_as_amts_data()
