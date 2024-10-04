@@ -457,7 +457,7 @@ class cExportAreaSaveAsDlg(wxgExportAreaSaveAsDlg.wxgExportAreaSaveAsDlg):
 			self.__patient.description_gender
 		)
 		self._LBL_header.Label = msg
-		self._LBL_directory.Label = os.path.join(gmTools.gmPaths().user_work_dir, self.__patient.subdir_name) + os.sep
+		self._LBL_directory.Label = os.path.join(gmTools.gmPaths().user_work_dir, 'patients', self.__patient.subdir_name) + os.sep
 		self.__update_ui_state()
 
 	#--------------------------------------------------------
