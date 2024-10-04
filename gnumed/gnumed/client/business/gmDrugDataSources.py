@@ -1355,7 +1355,7 @@ if __name__ == "__main__":
 		gmPerson.set_active_patient(patient = gmPerson.cPerson(aPK_obj = 12))
 		fd = cFreeDiamsInterface()
 		fd.patient = gmPerson.gmCurrentPatient()
-		fd.check_interactions(substances = fd.patient.emr.get_current_medications())
+		fd.check_interactions(substance_intakes = fd.patient.emr.get_current_medications())
 
 	#--------------------------------------------------------
 	# MMI/Gelbe Liste

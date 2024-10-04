@@ -1337,10 +1337,8 @@ WHERE
 				encounter = pk_enc
 			)
 		return gmMedication.create_substance_intake (
-			pk_component = pk_component,
 			pk_encounter = pk_enc,
-			pk_episode = pk_episode,
-			pk_drug_product = pk_drug_product
+			pk_episode = pk_episode
 		)
 
 	#--------------------------------------------------------
