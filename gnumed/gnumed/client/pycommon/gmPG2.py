@@ -295,12 +295,15 @@ _TQuerySQL = str | PG_SQL.Composed
 _TQueryArgsAsList = Sequence[Any]
 _TQueryArgsAsDict = Mapping[str, Any]
 _TQueryArgs = _TQueryArgsAsList | _TQueryArgsAsDict
-_TQueries = Sequence [
+__TQueries = Sequence [
 	Mapping [
 		str,
 		Union[_TQuerySQL, _TQueryArgs]
 	]
 ]
+_TQueries = list[dict[
+	str, _TQuerySQL | _TQueryArgsAsList | _TQueryArgsAsDict
+]]
 
 # =======================================================================
 # login API
@@ -2259,8 +2262,7 @@ def run_ro_queries (
 	queries:_TQueries=None,
 	verbose:bool=False,
 	return_data:bool=True
-	#,get_col_idx:bool=False
-) -> tuple[list[dbapi.extras.DictRow], dict[str, int] | None]:
+) -> list[dbapi.extras.DictRow] | None:
 	"""Run read-only queries.
 
 	Args:
@@ -2395,9 +2397,8 @@ def run_rw_queries (
 	queries:_TQueries=None,
 	end_tx:bool=False,
 	return_data:bool=None,
-	#get_col_idx:bool=False,
 	verbose:bool=False
-) -> tuple[list[dbapi.extras.DictRow], dict[str, int] | None]:
+) -> list[dbapi.extras.DictRow] | None:
 	"""Convenience function for running read-write queries.
 
 	Typically (part of) a transaction.
