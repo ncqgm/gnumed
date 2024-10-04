@@ -922,6 +922,11 @@ which need to live at a known location."""
 	old_dot_gmd_dir = os.path.expanduser(os.path.join(paths.home_dir, '.gnumed'))
 	readme = '[%s]: This directory is not used by GNUmed anymore.' % old_dot_gmd_dir
 	gmTools.create_directory_description_file(directory = old_dot_gmd_dir, readme = readme)
+	# directory for patient specific subdirs for storing data
+	pats_dir = os.path.expanduser(os.path.join(paths.user_work_dir, 'patients'))
+	gmTools.mkdir(pats_dir)
+	readme = '\t[%s]\n\nIn this directory GNUmed will create subdirectories for patient data export.\n\nIt should be cleaned up from time to time.' % pats_dir
+	gmTools.create_directory_description_file(directory = pats_dir, readme = readme)
 
 	__migrate_old_user_gnumed_conf()
 	# symlink log file into temporary directory for easier debugging (everything in one place)

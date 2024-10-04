@@ -51,6 +51,7 @@ IMPROVED: hints: gracefully handle failing dynamic hints
 IMPROVED: document archive: add image/text preview
 IMPROVED: PACS: host default
 IMPROVED: PACS: show new patients following a DICOM import
+IMPROVED: safe patient data into gnumed/patients/ instead of gnumed/
 
 FIX: CLI: --wxp= not needed anymore
 FIX: CLI: --ui= not needed anymore
