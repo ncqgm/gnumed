@@ -671,7 +671,7 @@ def delete_document_part(part_pk=None, encounter_pk=None):
 			(SELECT 1 FROM clin.export_item where fk_doc_obj = %(pk)s)
 	"""
 	args = {'pk': part_pk, 'enc': encounter_pk}
-	rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return
 
 #============================================================

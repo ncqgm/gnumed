@@ -2342,14 +2342,12 @@ def run_ro_queries (
 			rollback_tx = readonly_rollback_just_in_case,
 			close_conn = False			# do not close connection, RO connections are pooled
 		)
-		#return (None, None)
 		return None
 
 	data = curs.fetchall()
 	if verbose:
 		_log.debug('last query returned [%s (%s)] rows', curs.rowcount, len(data))
 		_log.debug('cursor description: %s', curs.description)
-#	col_idx = get_col_indices(curs) if get_col_idx else None
 	__safely_close_cursor_and_rollback_close_conn (
 		close_cursor = curs_close,
 		# rollback just-in-case so we can see data committed meanwhile if
@@ -2359,8 +2357,6 @@ def run_ro_queries (
 		rollback_tx = readonly_rollback_just_in_case,
 		close_conn = False			# do not close connection, RO connections are pooled
 	)
-#	return (data, col_idx)
-#	return (data, None)
 	return data
 
 #------------------------------------------------------------------------
@@ -2443,8 +2439,8 @@ def run_rw_queries (
 
 	Returns:
 
-		* (None, None) if last query did not return rows
-		* ("fetchall() result", <index>) if last query returned any rows and "return_data" was True
+		* None if last query did not return rows
+		* "fetchall() result" if last query returned any rows and "return_data" was True
 	"""
 	assert queries is not None, '<queries> must not be None'
 	assert isinstance(link_obj, (dbapi._psycopg.connection, dbapi._psycopg.cursor, type(None))), '<link_obj> must be None, a cursor, or a connection, but [%s] is of type (%s)' % (link_obj, type(link_obj))
@@ -2524,14 +2520,9 @@ def run_rw_queries (
 		)
 		raise
 
-#	col_idx = None
-#	if get_col_idx:
-#		col_idx = get_col_indices(curs)
 	curs_close()
 	tx_commit()
 	conn_close()
-#	return (data, col_idx)
-#	return (data, None)
 	return data
 
 # =======================================================================

@@ -244,7 +244,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			'item': self._payload['pk_health_issue'],
 			'code': pk_code
 		}
-		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
 
 	#--------------------------------------------------------
@@ -255,7 +255,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			'item': self._payload['pk_health_issue'],
 			'code': pk_code
 		}
-		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
 
 	#--------------------------------------------------------
@@ -1014,7 +1014,7 @@ FROM (
 		if len(queries) == 0:
 			return
 		# run it all in one transaction
-		rows = gmPG2.run_rw_queries(queries = queries)
+		gmPG2.run_rw_queries(queries = queries)
 		return
 
 	generic_codes = property(_get_generic_codes, _set_generic_codes)
@@ -1223,7 +1223,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 			'item': self._payload['pk_episode'],
 			'code': pk_code
 		}
-		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return
 
 	#--------------------------------------------------------
@@ -1234,7 +1234,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 			'item': self._payload['pk_episode'],
 			'code': pk_code
 		}
-		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
 
 	#--------------------------------------------------------
@@ -1729,7 +1729,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		if len(queries) == 0:
 			return
 		# run it all in one transaction
-		rows = gmPG2.run_rw_queries(queries = queries)
+		gmPG2.run_rw_queries(queries = queries)
 		return
 
 	generic_codes = property(_get_generic_codes, _set_generic_codes)
@@ -2135,7 +2135,7 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 				fk_encounter = %(enc)s AND
 				fk_episode = %(src)s
 			"""
-		rows = gmPG2.run_rw_queries(queries = [{
+		gmPG2.run_rw_queries(queries = [{
 			'cmd': cmd,
 			'args': {
 				'trg': target_episode['pk_episode'],
@@ -2155,7 +2155,7 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 			'src': self.pk_obj,
 			'trg': pk_target_encounter
 		}
-		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
 
 #	conn = gmPG2.get_connection()
@@ -2390,7 +2390,7 @@ limit 1
 			'item': self._payload['pk_encounter'],
 			'code': pk_code
 		}
-		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
 
 	#--------------------------------------------------------
@@ -2406,7 +2406,7 @@ limit 1
 			'item': self._payload['pk_encounter'],
 			'code': pk_code
 		}
-		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
 
 	#--------------------------------------------------------
@@ -2964,7 +2964,7 @@ limit 1
 		if len(queries) == 0:
 			return
 		# run it all in one transaction
-		rows = gmPG2.run_rw_queries(queries = queries)
+		gmPG2.run_rw_queries(queries = queries)
 		self.refetch_payload()
 		return
 
@@ -3002,7 +3002,7 @@ limit 1
 		if len(queries) == 0:
 			return
 		# run it all in one transaction
-		rows = gmPG2.run_rw_queries(queries = queries)
+		gmPG2.run_rw_queries(queries = queries)
 		self.refetch_payload()
 		return
 
@@ -3132,7 +3132,7 @@ def delete_encounter(pk_encounter):
 	cmd = """DELETE FROM clin.encounter WHERE pk = %(enc)s"""
 	args = {'enc': pk_encounter}
 	try:
-		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	except gmPG2.PG_ERROR_EXCEPTION as exc:
 		_log.exception('cannot delete encounter [%s]', pk_encounter)
 		gmPG2.log_pg_exception_details(exc)
@@ -3658,7 +3658,7 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 			'issue': self._payload['pk_procedure'],
 			'code': pk_code
 		}
-		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
 
 	#--------------------------------------------------------
@@ -3669,7 +3669,7 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 			'issue': self._payload['pk_procedure'],
 			'code': pk_code
 		}
-		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
 
 	#--------------------------------------------------------
@@ -3729,7 +3729,7 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 		if len(queries) == 0:
 			return
 		# run it all in one transaction
-		rows = gmPG2.run_rw_queries(queries = queries)
+		gmPG2.run_rw_queries(queries = queries)
 		return
 
 	generic_codes = property(_get_generic_codes, _set_generic_codes)

@@ -195,7 +195,6 @@ def get_hints_for_patient(pk_identity=None, pk_encounter=None):
 	curs = conn.cursor()
 	curs.callproc('clin.get_hints_for_patient', [pk_identity])
 	rows = curs.fetchall()
-	idx = gmPG2.get_col_indices(curs)
 	curs.close()
 	conn.rollback()
 

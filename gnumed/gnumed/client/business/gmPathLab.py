@@ -228,7 +228,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 			'tp': self._payload['pk_test_panel'],
 			'code': pk_code
 		}
-		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
 
 	#--------------------------------------------------------
@@ -239,7 +239,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 			'tp': self._payload['pk_test_panel'],
 			'code': pk_code
 		}
-		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
 
 	#--------------------------------------------------------
@@ -394,7 +394,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 		if len(queries) == 0:
 			return
 		# run it all in one transaction
-		rows = gmPG2.run_rw_queries(queries = queries)
+		gmPG2.run_rw_queries(queries = queries)
 		return
 
 	generic_codes = property(_get_generic_codes, _set_generic_codes)

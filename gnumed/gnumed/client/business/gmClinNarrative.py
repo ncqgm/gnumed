@@ -113,7 +113,7 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 			'item': self._payload['pk_narrative'],
 			'code': pk_code
 		}
-		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return
 
 	#--------------------------------------------------------
@@ -124,7 +124,7 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 			'item': self._payload['pk_narrative'],
 			'code': pk_code
 		}
-		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
 
 	#--------------------------------------------------------
@@ -162,7 +162,7 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 		if len(queries) == 0:
 			return
 		# run it all in one transaction
-		rows = gmPG2.run_rw_queries(queries = queries)
+		gmPG2.run_rw_queries(queries = queries)
 		return
 
 	generic_codes = property(_get_generic_codes, _set_generic_codes)
@@ -282,7 +282,7 @@ def create_narrative_item(narrative=None, soap_cat=None, episode_id=None, encoun
 def delete_clin_narrative(narrative=None):
 	"""Deletes a clin.clin_narrative row by it's PK."""
 	cmd = "DELETE FROM clin.clin_narrative WHERE pk=%s"
-	rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [narrative]}])
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [narrative]}])
 	return True
 
 #------------------------------------------------------------

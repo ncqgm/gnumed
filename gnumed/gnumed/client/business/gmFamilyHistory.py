@@ -126,7 +126,7 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 			'item': self._payload['pk_family_history'],
 			'code': pk_code
 		}
-		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return
 
 	#--------------------------------------------------------
@@ -137,7 +137,7 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 			'item': self._payload['pk_family_history'],
 			'code': pk_code
 		}
-		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
 
 	#--------------------------------------------------------
@@ -237,7 +237,7 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 		if len(queries) == 0:
 			return
 		# run it all in one transaction
-		rows = gmPG2.run_rw_queries(queries = queries)
+		gmPG2.run_rw_queries(queries = queries)
 		return
 
 	generic_codes = property(_get_generic_codes, _set_generic_codes)

@@ -754,7 +754,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		"""
 		if self._payload['preferred'] == nickname:
 			return True
-		rows = gmPG2.run_rw_queries(queries = [{'cmd': "SELECT dem.set_nickname(%s, %s)", 'args': [self.ID, nickname]}])
+		gmPG2.run_rw_queries(queries = [{'cmd': "SELECT dem.set_nickname(%s, %s)", 'args': [self.ID, nickname]}])
 		# setting nickname doesn't change dem.identity, so other fields
 		# of dem.v_active_persons do not get changed as a consequence of
 		# setting the nickname, hence locally setting nickname matches
@@ -910,7 +910,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 				id = %(pk)s
 		"""
 		args = {'pk': pk_id, 'value': value, 'type': type, 'issuer': issuer, 'comment': comment}
-		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	#--------------------------------------------------------
 	def get_external_ids(self, id_type=None, issuer:str=None):
@@ -1578,7 +1578,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			return True
 		occupation = occupation.strip()
 		cmd = "delete from dem.lnk_job2person where fk_identity=%(pk)s and fk_occupation in (select id from dem.occupation where _(name) = _(%(job)s))"
-		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj, 'job': occupation}}])
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj, 'job': occupation}}])
 		return True
 	#--------------------------------------------------------
 	# comms API

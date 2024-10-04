@@ -530,7 +530,7 @@ where
 				'cmd': 'insert into cfg.db_logon_banner (message) values (%(msg)s)',
 				'args': {'msg': banner.strip()}
 			})
-		rows = gmPG2.run_rw_queries(queries = queries, end_tx = True)
+		gmPG2.run_rw_queries(queries = queries, end_tx = True)
 
 	db_logon_banner = property(_get_db_logon_banner, _set_db_logon_banner)
 

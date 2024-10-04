@@ -202,7 +202,7 @@ def create_staff(conn=None, db_account=None, password=None, identity=None, short
 
 	created = False
 	try:
-		rows = gmPG2.run_rw_queries(link_obj = conn, queries = queries, end_tx = True)
+		gmPG2.run_rw_queries(link_obj = conn, queries = queries, end_tx = True)
 		created = True
 	except gmPG2.dbapi.IntegrityError as e:
 		if e.pgcode != gmPG2.PG_error_codes.UNIQUE_VIOLATION:
@@ -225,7 +225,7 @@ def delete_staff(conn=None, pk_staff=None):
 	deleted = False
 	queries = [{'cmd': 'DELETE FROM dem.staff WHERE pk = %(pk)s', 'args': {'pk': pk_staff}}]
 	try:
-		rows = gmPG2.run_rw_queries(link_obj = conn, queries = queries, end_tx = True)
+		gmPG2.run_rw_queries(link_obj = conn, queries = queries, end_tx = True)
 		deleted = True
 	except gmPG2.dbapi.IntegrityError as e:
 		if e.pgcode != gmPG2.PG_error_codes.FOREIGN_KEY_VIOLATION:		# 23503  foreign_key_violation
@@ -266,7 +266,7 @@ def deactivate_staff(conn=None, pk_staff=None):
 	staff['is_active'] = False
 	staff.save_payload(conn = conn)				# FIXME: error handling
 	# 2) disable database account login
-	rows = gmPG2.run_rw_queries (
+	gmPG2.run_rw_queries (
 		link_obj = conn,
 		queries = [{'cmd': 'select gm.disable_user(%s)', 'args': [staff['db_user']]}],
 		end_tx = True

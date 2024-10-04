@@ -57,7 +57,7 @@ def delete_report_definition(name=None):
 		'cmd': 'DELETE FROM cfg.report_query WHERE label = %(name)s',
 		'args': {'name': name}
 	}]
-	rows = gmPG2.run_rw_queries(queries=queries)
+	gmPG2.run_rw_queries(queries=queries)
 	return True
 
 #--------------------------------------------------------

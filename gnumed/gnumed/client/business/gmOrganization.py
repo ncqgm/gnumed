@@ -131,7 +131,7 @@ def delete_org(organization=None):
 				SELECT 1 FROM dem.org_unit WHERE fk_org = %(pk)s
 			)
 	"""
-	rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
 
 #------------------------------------------------------------
@@ -341,7 +341,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 				pk = %(pk)s
 		"""
 		args = {'pk': pk_id, 'value': value, 'type': type, 'issuer': issuer, 'comment': comment}
-		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	#--------------------------------------------------------
 	def delete_external_id(self, pk_ext_id=None):
@@ -468,7 +468,7 @@ def delete_org_unit(unit:int=None) -> bool:
 			#--			SELECT 1 FROM dem.lnk_org_unit2ext_id where fk_org_unit = %(pk)s
 			#--		)
 	try:
-		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	except gmPG2.dbapi.errors.ForeignKeyViolation:
 		_log.exception('error deleting org unit')
 		return False
