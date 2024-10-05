@@ -2033,14 +2033,13 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		# create data files / datamatrix code files
 #		self.__create_amts_datamatrix_files(intakes = unique_intakes)
-		print(self.__create_amts_datamatrix_files(intakes = intakes2export))
-		return ''
-
 		# create AMTS-LaTeX per intake
 		intake_as_latex_rows = []
-		for intake in unique_intakes:
+		#for intake in unique_intakes:
+		for intake in intakes2export:
 			intake_as_latex_rows.append(intake._get_as_amts_latex(strict = strict))
-		del unique_intakes
+		#del unique_intakes
+		del intakes2export
 
 		# append allergy information
 		# - state
