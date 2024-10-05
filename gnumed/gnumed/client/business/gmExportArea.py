@@ -1570,7 +1570,7 @@ def store_passphrase_of_file(filename:str=None, passphrase:str=None, hash_type:s
 	if comment is None:
 		comment = {}
 	comment['__filename__'] = filename
-	return store_object_passphrase (
+	return store_object_passphrase_asymmetric (
 		obj = f,
 		passphrase = passphrase,
 		hash_type = hash_type,
@@ -1578,7 +1578,70 @@ def store_passphrase_of_file(filename:str=None, passphrase:str=None, hash_type:s
 	)
 
 #---------------------------------------------------------------------------
-def store_object_passphrase(obj=None, passphrase:str=None, hash_type:str='md5', owner=None, comment:dict=None) -> bool:
+def store_object_passphrase_symmetric(obj=None, passphrase:str=None, hash_type:str='md5', comment:dict=None, symmetric_passphrase:str=None) -> bool:
+	"""Store in the database the (encrypted) passphrase for an object.
+
+	The passphrase is stored encrypted with the symmetric_passphrase.
+
+	THE USER NEEDS TO MAKE SURE THE symmetric_passphrase IS
+	SAFELY KEPT ELSEWHERE !
+
+	Args:
+		obj: an instance supporting the (binary) read protocol
+		passphrase: the passphrase to store
+		hash_type: the hash to use, defaults to 'md5'
+		comment: a structured comment on the object
+		symmetric_passhprase: when using symmetric encryption, the passphrase to use
+
+	Returns:
+		True/False based on success
+	"""
+	assert obj, '<obj> must not be None'
+	assert passphrase, '<passphrase> must not be None'
+	assert symmetric_passphrase, '<symmetric_passphrase> must not be None'
+
+	if len(symmetric_passphrase) < 5:
+		_log.error('cannot escrow object passphrase, symmetric passphrase < 5 characters')
+		return False
+
+	if hash_type not in hashlib.algorithms_available:
+		_log.error('hash type [%s] not available amongst %s', hash_type, hashlib.algorithms_available)
+		return False
+
+	hashor = hashlib.new(hash_type, usedforsecurity = False)
+	chunk_size = 5 * 1024 * 1024
+	data = obj.read(chunk_size)
+	while data:
+		hashor.update(data)
+		data = obj.read(chunk_size)
+	hash_val = hashor.hexdigest()
+	encrypted_phrase = gmCrypto.encrypt_data_with_7z (
+		data = passphrase,
+		passphrase = symmetric_passphrase,
+		verbose = _cfg.get(option = 'debug')
+	)
+	if not comment:
+		comment = {}
+	comment['__encryption_method__'] = '7z::symmetric::gzip'
+	SQL = """INSERT INTO gm.obj_export_passphrase (
+		hash_type, hash, phrase, description
+	) VALUES (
+		%(hash_type)s,
+		%(hash)s,
+		%(phrase)s,
+		%(desc)s
+	)"""
+	args = {
+		'hash_type': hash_type,
+		'hash': hash_val,
+		'phrase': encrypted_phrase,
+		'desc': comment
+	}
+	gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}])
+	return True
+
+#---------------------------------------------------------------------------
+def store_object_passphrase_asymmetric(obj=None, passphrase:str=None, hash_type:str='md5', owner:gmStaff.cStaff=None, comment:dict=None) -> bool:
 	"""Store in the database the (encrypted) passphrase for an object.
 
 	The passphrase is stored encrypted with the public key of
@@ -1632,6 +1695,9 @@ def store_object_passphrase(obj=None, passphrase:str=None, hash_type:str='md5', 
 		comment = '[%s]::%s' % (hash_type, hash_val),
 		verbose = _cfg.get(option = 'debug')
 	)
+	if not comment:
+		comment = {}
+	comment['__encryption_method__'] = 'pgp::asymmetric')
 	SQL = """INSERT INTO gm.obj_export_passphrase (
 		hash_type, hash, phrase, description
 	) VALUES (
