@@ -1269,13 +1269,14 @@ class database:
 		return True
 
 	#--------------------------------------------------------------
-	def transfer_users(self):
+	def transfer_users(self) -> bool:
 		print_msg("==> [%s]: transferring users ..." % self.name)
 		do_user_transfer = cfg_get(self.section, 'transfer users')
 		if do_user_transfer is None:
 			_log.info(u'user transfer not defined')
 			print_msg("    ... skipped (unconfigured)")
 			return True
+
 		do_user_transfer = int(do_user_transfer)
 		if not do_user_transfer:
 			_log.info(u'configured to not transfer users')
@@ -1290,16 +1291,28 @@ class database:
 			_log.info(u'problem running gm.transfer_users(), trying gm_transfer_users()')
 			cmd = u"select gm_transfer_users('%s'::text)" % self.template_db
 			rows = gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}], end_tx = True, return_data = True)
-
 		if rows[0][0]:
 			_log.info(u'users properly transferred from [%s] to [%s]' % (self.template_db, self.name))
 			return True
+
 		_log.error(u'error transferring user from [%s] to [%s]' % (self.template_db, self.name))
 		print_msg("    ... failed")
 		return False
 
 	#--------------------------------------------------------------
-	def bootstrap_auditing(self):
+	def ensure_some_security_settings(self) -> bool:
+		print_msg("==> [%s]: setting up security settings ..." % self.name)
+		SQL = 'REVOKE create ON SCHEMA public FROM public;'
+		gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': SQL}])
+		if gmPG2.function_exists(link_obj = self.conn, schema = 'gm', function = 'adjust_view_options'):
+			SQL = 'SELECT gm.adjust_view_options();'
+			gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': SQL}])
+		else:
+			print_msg('    ... skipped (unavailable as yet)')
+		return True
+
+	#--------------------------------------------------------------
+	def setup_auditing(self) -> bool:
 		print_msg("==> [%s]: setting up auditing ..." % self.name)
 		# get audit trail configuration
 		tmp = cfg_get(self.section, 'audit disable')
@@ -1313,18 +1326,18 @@ class database:
 		tmp = cfg_get(self.section, 'audit trail parent table')
 		if tmp is None:
 			return None
-		aud_gen.audit_trail_parent_table = tmp
 
+		aud_gen.audit_trail_parent_table = tmp
 		tmp = cfg_get(self.section, 'audit trail table prefix')
 		if tmp is None:
 			return None
-		aud_gen.audit_trail_table_prefix = tmp
 
+		aud_gen.audit_trail_table_prefix = tmp
 		tmp = cfg_get(self.section, 'audit fields table')
 		if tmp is None:
 			return None
-		aud_gen.audit_fields_table = tmp
 
+		aud_gen.audit_fields_table = tmp
 		# create auditing schema
 		curs = self.conn.cursor()
 		audit_schema = gmAuditSchemaGenerator.create_audit_ddl(curs)
@@ -1332,13 +1345,13 @@ class database:
 		if audit_schema is None:
 			_log.error(u'cannot generate audit trail schema for GNUmed database [%s]' % self.name)
 			return None
+
 		# write schema to file
 		tmpfile = os.path.join(tempfile.gettempdir(), 'audit-trail-schema.sql')
 		f = io.open(tmpfile, mode = 'wt', encoding = 'utf8')
 		for line in audit_schema:
 			f.write(u'%s;\n' % line)
 		f.close()
-
 		# import auditing schema
 		psql = gmPsql.Psql(self.conn)
 		if psql.run(tmpfile) != 0:
@@ -1355,7 +1368,7 @@ class database:
 		return True
 
 	#--------------------------------------------------------------
-	def bootstrap_notifications(self):
+	def setup_notifications(self):
 
 		# setup clin.clin_root_item child tables FK's
 		print_msg("==> [%s]: setting up encounter/episode FKs and IDXs ..." % self.name)
@@ -1557,6 +1570,7 @@ def bootstrap_bundles():
 		if not bundle.bootstrap():
 			return None
 	return True
+
 #--------------------------------------------------------------
 def import_data():
 	for db_key in _bootstrapped_dbs.keys():
@@ -1564,22 +1578,35 @@ def import_data():
 		if not db.import_data():
 			return None
 	return True
+
 #--------------------------------------------------------------
-def bootstrap_auditing():
-	"""bootstrap auditing in all bootstrapped databases"""
+def setup_auditing():
+	"""Setting up auditing in all bootstrapped databases"""
 	for db_key in _bootstrapped_dbs.keys():
 		db = _bootstrapped_dbs[db_key]
-		if not db.bootstrap_auditing():
+		if not db.setup_auditing():
 			return None
 	return True
+
 #--------------------------------------------------------------
-def bootstrap_notifications():
-	"""bootstrap notification in all bootstrapped databases"""
+def setup_notifications():
+	"""Setting up notifications in all bootstrapped databases"""
 	for db_key in _bootstrapped_dbs.keys():
 		db = _bootstrapped_dbs[db_key]
-		if not db.bootstrap_notifications():
+		if not db.setup_notifications():
 			return None
 	return True
+
+#--------------------------------------------------------------
+def ensure_some_security_settings():
+	"""Making sure some settings related to security are the way they should be."""
+	for db_key in _bootstrapped_dbs.keys():
+		db = _bootstrapped_dbs[db_key]
+		if not db.ensure_some_security_settings():
+			return None
+
+	return True
+
 #------------------------------------------------------------------
 def _run_query(aCurs, aQuery, args=None):
 	# FIXME: use gmPG2.run_rw_query()
@@ -1599,7 +1626,7 @@ def _run_query(aCurs, aQuery, args=None):
 	return True
 
 #------------------------------------------------------------------
-def ask_for_confirmation():
+def ask_for_confirmation_to_proceed():
 	bundles = cfg_get("installation", "bundles")
 	if bundles is None:
 		return True
@@ -1768,7 +1795,6 @@ def handle_cfg():
 	become_pg_demon_user()
 
 	global _interactive
-
 	if _interactive is None:
 		tmp = cfg_get("installation", "interactive")
 		if tmp == "no":
@@ -1780,18 +1806,20 @@ def handle_cfg():
 	if tmp == "yes":
 		global _keep_temp_files
 		_keep_temp_files = True
-
-	if not ask_for_confirmation():
+	if not ask_for_confirmation_to_proceed():
 		exit_with_msg("Bootstrapping aborted by user.")
 
 	if not bootstrap_bundles():
 		exit_with_msg("Cannot bootstrap bundles.")
 
-	if not bootstrap_auditing():
-		exit_with_msg("Cannot bootstrap audit trail.")
+	if not setup_auditing():
+		exit_with_msg("Cannot set up audit trail.")
 
-	if not bootstrap_notifications():
-		exit_with_msg("Cannot bootstrap notification tables.")
+	if not setup_notifications():
+		exit_with_msg("Cannot set up notifications from tables.")
+
+	if not ensure_some_security_settings():
+		exit_with_msg("Cannot ensure security settings")
 
 	if not import_data():
 		exit_with_msg("Bootstrapping failed: unable to import data")
@@ -1876,9 +1904,6 @@ def main():
 
 	if not db.check_data_plausibility():
 		exit_with_msg("Bootstrapping failed: plausibility checks inconsistent")
-
-#	if not db.import_data():
-#		exit_with_msg("Bootstrapping failed: unable to import data")
 
 	db.check_holy_auth_line()
 
