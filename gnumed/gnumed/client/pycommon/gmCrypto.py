@@ -839,6 +839,55 @@ def is_encrypted_pdf(filename:str=None, verbose:bool=False) -> bool:
 	return None
 
 #===========================================================================
+def encrypt_data_with_7z(data, passphrase:str=None, verbose:bool=False) -> str:
+	"""Encrypt input data symmetrically with 7zip.
+
+	Args:
+		data: the data to encrypt
+		passphrase: minimum of 5 characters
+		comment: a comment on the file to be put into a sidecar file, will also be encrypted
+
+	Returns:
+		Encrypted data or None.
+	"""
+	assert (passphrase is not None), '<passphrase> must not be None'
+	if len(passphrase) < 5:
+		_log.error('<passphrase> must be at least 5 characters/signs/digits')
+		return None
+
+	gmLog2.add_word2hide(passphrase)
+	_log.debug('attempting 7z AES encryption')
+	for cmd in ['7z', '7z.exe']:
+		found, binary = gmShellAPI.detect_external_binary(binary = cmd)
+		if found:
+			break
+	if not found:
+		_log.warning('no 7z binary found')
+		return None
+
+	args = [
+		binary,
+		'a',		# create archive
+		'-si',		# read data from STDIN
+		'-so',		# write to STDOUT
+		'-bb3',		# log level
+		'-mx0',		# compression level
+		'-an',		# do not parse archive name, if any
+		'-tgzip',	# force data type to gzip (for streaming)
+		"-p%s" % passphrase
+	]
+	encrypted, exit_code, stdout = gmShellAPI.run_process (
+		cmd_line = args,
+		input_data = data,
+		encoding = 'utf8',
+		verbose = verbose
+	)
+	if not encrypted:
+		return None
+
+	return stdout
+
+#===========================================================================
 def encrypt_data_with_gpg(data, recipient_key_files:List[str], comment:str=None, verbose:bool=False) -> str:
 	"""Encrypt data with public key(s).
 
@@ -991,6 +1040,14 @@ if __name__ == '__main__':
 		))
 
 	#-----------------------------------------------------------------------
+	def test_encrypt_data_with_7z():
+		print(encrypt_data_with_7z (
+			data = 'abcdefghijk',
+			verbose = True,
+			passphrase = '123456'
+		))
+
+	#-----------------------------------------------------------------------
 	# encryption
 	#test_aes_encrypt()
 	#test_encrypt_pdf()
@@ -1005,4 +1062,5 @@ if __name__ == '__main__':
 
 	#test_pdf_is_encrypted()
 	#test_decrypt_pdf()
-	test_encrypt_data_with_gpg()
+	#test_encrypt_data_with_gpg()
+	test_encrypt_data_with_7z()
