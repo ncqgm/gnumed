@@ -2006,48 +2006,30 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 	#--------------------------------------------------------
 	def _get_variant_current_meds_AMTS_enhanced(self, data=None):
-		return self._get_variant_current_meds_AMTS(data=data, strict=False)
+		return self._get_variant_current_meds_AMTS(data = data, strict = False)
 
 	#--------------------------------------------------------
-	def _get_variant_current_meds_AMTS(self, data=None, strict=True):
-
+	def _get_variant_current_meds_AMTS(self, data=None, strict:bool=True) -> str:
 		# select intakes
 		emr = self.pat.emr
 		from Gnumed.wxpython import gmSubstanceIntakeWidgets
-		#intakes2export = gmSubstanceIntakeWidgets.manage_substance_intakes(emr = emr)
 		intakes2export = gmSubstanceIntakeWidgets.manage_substance_intakes(emr = emr)
-		if intakes2export is None:
+		if not intakes2export:
 			return ''
-		if len(intakes2export) == 0:
-			return ''
-
-#		# make them unique:
-#		unique_intakes = {}
-#		for intake in intakes2export:
-#			if intake['pk_drug_product'] is None:
-#				unique_intakes[intake['pk_substance']] = intake
-#			else:
-#				unique_intakes[intake['drug_product']] = intake
-#		del intakes2export
-#		unique_intakes = unique_intakes.values()
 
 		# create data files / datamatrix code files
-#		self.__create_amts_datamatrix_files(intakes = unique_intakes)
+		self.__create_amts_datamatrix_files(intakes = intakes2export)
 		# create AMTS-LaTeX per intake
 		intake_as_latex_rows = []
-		#for intake in unique_intakes:
 		for intake in intakes2export:
 			intake_as_latex_rows.append(intake._get_as_amts_latex(strict = strict))
-		#del unique_intakes
 		del intakes2export
-
 		# append allergy information
 		# - state
 		intake_as_latex_rows.extend(emr.allergy_state._get_as_amts_latex(strict = strict))
 		# - allergies
 		for allg in emr.get_allergies():
 			intake_as_latex_rows.append(allg._get_as_amts_latex(strict = strict))
-
 		# insert \newpage after each group of 15 rows
 		table_rows = intake_as_latex_rows[:15]
 		if len(intake_as_latex_rows) > 15:
@@ -2056,19 +2038,16 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if len(intake_as_latex_rows) > 30:
 			table_rows.append('\\newpage')
 			table_rows.extend(intake_as_latex_rows[30:45])
-
 		if strict:
 			return '\n'.join(table_rows)
 
 		# allow two more pages in enhanced mode
 		if len(intake_as_latex_rows) > 45:
 			table_rows.append('\\newpage')
-			table_rows.extend(intake_as_latex_rows[30:45])
-
+			table_rows.extend(intake_as_latex_rows[45:60])
 		if len(intake_as_latex_rows) > 60:
 			table_rows.append('\\newpage')
-			table_rows.extend(intake_as_latex_rows[30:45])
-
+			table_rows.extend(intake_as_latex_rows[60:75])
 		return '\n'.join(table_rows)
 
 	#--------------------------------------------------------
@@ -3859,9 +3838,6 @@ if __name__ == '__main__':
 		print('kwds defined:')
 		for key in opts:
 			print(' ', key, '-->', opts[key])
-
-
-
 
 #		one, two, four, legacy = handler._parse_ph_options (
 #			option_defs = {'__legacy_options__': None, 'opt1': 1, 'opt2': 'two', 'opt4': 'vier'},
