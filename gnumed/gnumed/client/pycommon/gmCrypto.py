@@ -18,7 +18,6 @@ import os
 import logging
 import tempfile
 import shutil
-from typing import List
 
 
 # GNUmed libs
@@ -455,7 +454,6 @@ def encrypt_file_symmetric_gpg(filename=None, comment=None, verbose=False, passp
 		'--display-charset', 'utf-8',
 		'--batch',
 		'--no-greeting',
-		'--enable-progress-filter',
 		'--symmetric',
 		'--cipher-algo', 'AES256',
 		'--armor',
@@ -733,7 +731,7 @@ def encrypt_file(filename:str=None, receiver_key_ids:list=None, passphrase:str=N
 	return None
 
 #---------------------------------------------------------------------------
-def encrypt_directory_content(directory:str=None, receiver_key_ids:list=None, passphrase:str=None, comment:str=None, verbose:bool=False, remove_unencrypted:bool=True, convert2pdf:bool=False, store_passphrase_cb=None) -> bool:
+def encrypt_directory_content(directory:str=None, receiver_key_ids:list=None, passphrase:str=None, comment:str=None, verbose:bool=False, remove_unencrypted:bool=True, convert2pdf:bool=False, store_passphrase_cb=None, passphrase_password:str=None) -> bool:
 	"""Encrypt the content of a directory, file by file, symmetrically or asymmetrically.
 
 	Asymmetric encryption will only be attempted if receiver_key_ids are given.
@@ -748,6 +746,7 @@ def encrypt_directory_content(directory:str=None, receiver_key_ids:list=None, pa
 			- success: the PDF is encrypted (and the non-PDF source file is removed)
 			- failure: the source file is encrypted
 		store_passphrase_cb: function to call to store passphrases for encrypted files (filename, passphrase, comment)
+		passphrase_password: password to symmetrically encrypt passphrase for safekeeping in GNUmed if not pubkeys available
 
 	Returns:
 		True (success) or False.
@@ -786,7 +785,7 @@ def encrypt_directory_content(directory:str=None, receiver_key_ids:list=None, pa
 		if fname_encrypted is None:
 			return False
 
-		store_passphrase_cb(filename = fname_encrypted, passphrase = passphrase, comment = comment)
+		store_passphrase_cb(filename = fname_encrypted, passphrase = passphrase, comment = comment, symmetric_password = passphrase_password)
 	return True
 
 #---------------------------------------------------------------------------
@@ -845,12 +844,13 @@ def encrypt_data_with_7z(data, passphrase:str=None, verbose:bool=False) -> str:
 	Args:
 		data: the data to encrypt
 		passphrase: minimum of 5 characters
-		comment: a comment on the file to be put into a sidecar file, will also be encrypted
 
 	Returns:
 		Encrypted data or None.
 	"""
-	assert (passphrase is not None), '<passphrase> must not be None'
+	assert data, '<data> must be defined'
+	assert passphrase, '<passphrase> must be defined'
+
 	if len(passphrase) < 5:
 		_log.error('<passphrase> must be at least 5 characters/signs/digits')
 		return None
@@ -870,16 +870,23 @@ def encrypt_data_with_7z(data, passphrase:str=None, verbose:bool=False) -> str:
 		'a',		# create archive
 		'-si',		# read data from STDIN
 		'-so',		# write to STDOUT
-		'-bb3',		# log level
+		'-bd',		# no progress indicator
 		'-mx0',		# compression level
-		'-an',		# do not parse archive name, if any
+		'-an',		# do not parse archive name
 		'-tgzip',	# force data type to gzip (for streaming)
 		"-p%s" % passphrase
 	]
+	if verbose:
+		args.append('-bb3')		# log level
+		args.append('-bt')		# timings
+	if isinstance(data, str):
+		encoding = 'utf-8'
+	else:
+		encoding = None
 	encrypted, exit_code, stdout = gmShellAPI.run_process (
 		cmd_line = args,
 		input_data = data,
-		encoding = 'utf8',
+		encoding = encoding,
 		verbose = verbose
 	)
 	if not encrypted:
@@ -887,8 +894,83 @@ def encrypt_data_with_7z(data, passphrase:str=None, verbose:bool=False) -> str:
 
 	return stdout
 
-#===========================================================================
-def encrypt_data_with_gpg(data, recipient_key_files:List[str], comment:str=None, verbose:bool=False) -> str:
+#---------------------------------------------------------------------------
+def encrypt_data_with_gpg_symmetrically(data, passphrase:str=None, comment:str=None, verbose:bool=False) -> str:
+	"""Encrypt input data symmetrically with gpg.
+
+	Args:
+		data: the data to encrypt
+		passphrase: minimum of 5 characters
+		comment: a comment to be attached to the (ASCII-armored) encrypted output
+
+	Returns:
+		ASCII-armored encrypted data or None on failure.
+	"""
+	assert data, '<data> must be defined'
+	assert passphrase, '<passphrase> must be defined'
+
+	if len(passphrase) < 5:
+		_log.error('<passphrase> must be at least 5 characters/signs/digits')
+		return None
+
+	gmLog2.add_word2hide(passphrase)
+	_log.debug('attempting GPG AES encryption')
+	for cmd in ['gpg2', 'gpg', 'gpg2.exe', 'gpg.exe']:
+		found, binary = gmShellAPI.detect_external_binary(binary = cmd)
+		if found:
+			break
+	if not found:
+		_log.warning('no gpg binary found')
+		return None
+
+	gpg = [
+		binary,
+		'--utf8-strings',
+		'--display-charset', 'utf-8',
+		'--symmetric',					# encrypt
+		'--cipher-algo', 'AES256',
+		'--armor',
+		'--no-greeting',
+		'--no-tty',						# there simply IS no TTY
+		'--batch',						# required by passphrase file
+		'--pinentry-mode', 'loopback'	# required by passphrase file
+
+	]
+	if comment and comment.strip():
+		gpg.extend(['--comment', comment.strip()])
+	if verbose:
+		gpg.extend ([
+			'--verbose', '--verbose',
+			'--debug-level', '8',
+			'--debug', 'packet,mpi,crypto,filter,iobuf,memory,cache,memstat,trust,hashing,clock,lookup,extprog',
+			##'--debug-all',						# will log passphrase
+			##'--debug, 'ipc',						# will log passphrase
+			##'--debug-level', 'guru',				# will log passphrase
+			##'--debug-level', '9',					# will log passphrase
+		])
+	if isinstance(data, str):
+		encoding = 'utf-8'
+	else:
+		encoding = None
+	pwd_file = tempfile.NamedTemporaryFile(mode = 'w+t', encoding = 'utf8', delete = False)
+	pwd_fname = pwd_file.name
+	gpg.append('--passphrase-file')
+	gpg.append(pwd_fname)
+	pwd_file.write(passphrase)
+	pwd_file.close()
+	success, exit_code, stdout = gmShellAPI.run_process (
+		cmd_line = gpg,
+		input_data = data,
+		verbose = verbose,
+		encoding = encoding
+	)
+	if not success:
+		return None
+
+	return stdout
+
+#---------------------------------------------------------------------------
+def encrypt_data_with_gpg(data, recipient_key_files:list[str], comment:str=None, verbose:bool=False) -> str:
 	"""Encrypt data with public key(s).
 
 	Requires GPG to be installed.
@@ -896,6 +978,7 @@ def encrypt_data_with_gpg(data, recipient_key_files:List[str], comment:str=None,
 	Args:
 		data: data to be encrypted, assumed to be UTF-8 if a string, otherwise treated as binary
 		recipient_key_files: files with public keys to encrypt to
+		comment: a comment to be attached to the (ASCII-armored) encrypted output
 
 	Returns:
 		ASCII-armored encrypted data or None on failure.
@@ -918,7 +1001,8 @@ def encrypt_data_with_gpg(data, recipient_key_files:List[str], comment:str=None,
 		'--encrypt',
 		'--armor',
 		'--no-greeting',
-		'--enable-progress-filter'
+		'--no-tty',						# there simply IS no TTY
+		'--batch'						# no interaction with user
 	]
 	for pk_file in recipient_key_files:
 		gpg.extend(['--recipient-file', pk_file])
@@ -948,6 +1032,59 @@ def encrypt_data_with_gpg(data, recipient_key_files:List[str], comment:str=None,
 		return None
 
 	return stdout
+
+#===========================================================================
+def encrypt_data(data, recipient_key_files:list[str], comment:str=None, verbose:bool=False, retry_symmetric:bool=False, symmetric_key:str=None) -> str:
+	"""Encrypt data.
+
+	Args:
+		data: data to be encrypted, assumed to be UTF-8 if a string, otherwise treated as binary
+		recipient_key_files: files with public keys to encrypt to
+		comment: a comment to attach to the encrypted data, if possible
+		retry_symmetric: try symmetric if asymmetric fails despite having recipients
+		symmetric_key: if there is no recipients defined by public key use this key to *symmetrically* encrypt
+
+	Returns:
+		a dictionary {'data': the encrypted data, 'method': a tag defining the method used} or None
+	"""
+	assert recipient_key_files or symmetric_key, 'either <recipient_key_files> or <symmetric_key> must be defined'
+
+	if recipient_key_files:
+		enc_data = encrypt_data_with_gpg (
+			data = data,
+			recipient_key_files = recipient_key_files,
+			comment = comment,
+			verbose = verbose
+		)
+		if enc_data:
+			return {'data': enc_data, 'method': 'gpg::asymmetric'}
+
+		_log.error('cannot asymmetrically encrypt data')
+		if not retry_symmetric:
+			return None
+
+	if not symmetric_key:
+		_log.error('cannot symmetrically encrypt data')
+		return None
+
+	enc_data = encrypt_data_with_gpg_symmetrically (
+		data = data,
+		comment = comment,
+		passphrase = symmetric_key,
+		verbose = verbose
+	)
+	if enc_data:
+		return {'data': enc_data, 'method': 'gpg::symmetric'}
+
+	enc_data = encrypt_data_with_7z (
+		data,
+		passphrase = symmetric_key,
+		verbose = verbose
+	)
+	if enc_data:
+		return {'data': enc_data, 'method': '7z::symmetric::gzip'}
+
+	return None
 
 #===========================================================================
 # file anonymization methods
@@ -1040,11 +1177,31 @@ if __name__ == '__main__':
 		))
 
 	#-----------------------------------------------------------------------
+	def test_encrypt_data_with_gpg_symmetrically():
+		print(encrypt_data_with_gpg_symmetrically (
+			data = sys.argv[2],
+			comment = 'GNUmed testing',
+			passphrase = '123456',
+			verbose = True
+		))
+
+	#-----------------------------------------------------------------------
 	def test_encrypt_data_with_7z():
 		print(encrypt_data_with_7z (
 			data = 'abcdefghijk',
 			verbose = True,
 			passphrase = '123456'
+		))
+
+	#-----------------------------------------------------------------------
+	def test_encrypt_data():
+		print(encrypt_data (
+			data = 'abcdefghijk',
+			recipient_key_files = [],
+			verbose = True,
+			symmetric_key = '123456',
+			comment = 'GNUmed testing',
+			retry_symmetric = True
 		))
 
 	#-----------------------------------------------------------------------
@@ -1063,4 +1220,6 @@ if __name__ == '__main__':
 	#test_pdf_is_encrypted()
 	#test_decrypt_pdf()
 	#test_encrypt_data_with_gpg()
-	test_encrypt_data_with_7z()
+	#test_encrypt_data_with_7z()
+	#test_encrypt_data_with_gpg_symmetrically()
+	test_encrypt_data()

@@ -958,7 +958,7 @@ class cExportArea(object):
 		return delete_export_item(pk_export_item = item['pk_export_item'])
 
 	#--------------------------------------------------------
-	def dump_items_to_disk(self, base_dir:str=None, items:list=None, passphrase:str=None, convert2pdf:bool=False) -> str:
+	def dump_items_to_disk(self, base_dir:str=None, items:list=None, passphrase:str=None, convert2pdf:bool=False, passphrase_password:str=None) -> str:
 		"""Dump export area items to disk.
 
 		Args:
@@ -966,6 +966,7 @@ class cExportArea(object):
 			items: which items to dump, defaults to all items
 			passphrase: used to symmetrically encrypt dumped files, if set
 			convert2pdf: attempt to convert items into PDF before dumping them
+			passphrase_password: encrypt passphrase with this password for safekeeping in GNUmed if no pubkeys available
 
 		Returns:
 			The base_dir into which items were dumped, or None.
@@ -986,12 +987,12 @@ class cExportArea(object):
 				return None
 
 			if passphrase:
-				store_passphrase_of_file(filename = saved_fname, passphrase = passphrase, hash_type = 'sha256')
+				store_passphrase_of_file(filename = saved_fname, passphrase = passphrase, symmetric_password = passphrase_password)
 
 		return base_dir
 
 	#--------------------------------------------------------
-	def dump_items_to_disk_as_zip(self, base_dir:str=None, items:list=None, passphrase:str=None) -> str:
+	def dump_items_to_disk_as_zip(self, base_dir:str=None, items:list=None, passphrase:str=None, passphrase_password:str=None) -> str:
 		"""Dump items to disk into a zip archive.
 
 			Calls dump_items_to_disk().
@@ -1000,6 +1001,7 @@ class cExportArea(object):
 			base_dir: directory into which to dump the items, defaults to a new sandbox directory
 			items: which items to dump, defaults to all items
 			passphrase: used to symmetrically encrypt dumped files, if set
+			passphrase_password: encrypt passphrase with this password for safekeeping in GNUmed if no pubkeys available
 
 		Returns:
 			Zip archive name, or None.
@@ -1019,7 +1021,7 @@ class cExportArea(object):
 				verbose = _cfg.get(option = 'debug')
 			)
 			if zip_file:
-				store_passphrase_of_file(filename = zip_file, passphrase = passphrase, hash_type = 'sha256')
+				store_passphrase_of_file(filename = zip_file, passphrase = passphrase, symmetric_password = passphrase_password)
 			else:
 				_log.error('cannot zip+encrypt export area items dump')
 			return zip_file
@@ -1035,13 +1037,14 @@ class cExportArea(object):
 		return zip_file
 
 	#--------------------------------------------------------
-	def export(self, base_dir=None, items=None, passphrase=None):
+	def export(self, base_dir:str=None, items:list=None, passphrase:str=None, passphrase_password:str=None) -> bool|str:
 		"""Export items as structured patient media.
 
 		Args:
 			base_dir: directory into which to store the export, defaults to a new sandbox directory based on patient name
 			items: which items to dump, defaults to all items
 			passphrase: used to symmetrically encrypt dumped files, if set
+			passphrase_password: password to encrypt passphrase with for safekeeping, if no public keys available for that
 
 		Returns:
 			Base_dir name, else None or False on failure.
@@ -1165,6 +1168,7 @@ class cExportArea(object):
 				comment = None,
 				verbose = _cfg.get(option = 'debug'),
 				remove_unencrypted = True,
+				passphrase_password = passphrase_password,
 				store_passphrase_cb = store_passphrase_of_file_callback
 			)
 			if not encrypted:
@@ -1199,34 +1203,34 @@ class cExportArea(object):
 		return target_dir
 
 	#--------------------------------------------------------
-	def export_as_zip(self, base_dir=None, items=None, passphrase=None):
+	def export_as_zip(self, base_dir:str=None, items:list=None, passphrase:str=None, passphrase_password:str=None) -> str:
 		_log.debug('target dir: %s', base_dir)
 		export_dir = self.export(base_dir = base_dir, items = items)
 		if export_dir is None:
 			_log.debug('cannot export items')
 			return None
 
-		if passphrase:
-			zip_file = gmCrypto.create_encrypted_zip_archive_from_dir (
+		if not passphrase:
+			zip_file = gmCrypto.create_zip_archive_from_dir (
 				export_dir,
 				comment = _('GNUmed Patient Media'),
 				overwrite = True,
-				passphrase = passphrase,
 				verbose = _cfg.get(option = 'debug')
 			)
-			if zip_file:
-				store_passphrase_of_file(filename = zip_file, passphrase = passphrase, hash_type = 'sha256')
-			else:
+			if not zip_file:
 				_log.debug('cannot create zip archive')
 			return zip_file
 
-		zip_file = gmCrypto.create_zip_archive_from_dir (
+		zip_file = gmCrypto.create_encrypted_zip_archive_from_dir (
 			export_dir,
 			comment = _('GNUmed Patient Media'),
 			overwrite = True,
+			passphrase = passphrase,
 			verbose = _cfg.get(option = 'debug')
 		)
-		if not zip_file:
+		if zip_file:
+			store_passphrase_of_file(filename = zip_file, passphrase = passphrase, symmetric_password = passphrase_password)
+		else:
 			_log.debug('cannot create zip archive')
 		return zip_file
 
@@ -1550,16 +1554,17 @@ class cExportArea(object):
 #===========================================================================
 # passphrase escrow
 #---------------------------------------------------------------------------
-def store_passphrase_of_file_callback(filename:str=None, passphrase:str=None, comment:dict=None):
+def store_passphrase_of_file_callback(filename:str=None, passphrase:str=None, comment:dict=None, symmetric_password:str=None):
 	return store_passphrase_of_file (
 		filename = filename,
 		passphrase = passphrase,
 		hash_type = 'sha256',
-		comment = comment
+		comment = comment,
+		symmetric_password = symmetric_password
 	)
 
 #---------------------------------------------------------------------------
-def store_passphrase_of_file(filename:str=None, passphrase:str=None, hash_type:str='md5', comment:dict=None) -> bool:
+def store_passphrase_of_file(filename:str=None, passphrase:str=None, hash_type:str='sha256', comment:dict=None, symmetric_password:str=None) -> bool:
 	"""Call store_object_passphrase on a given file."""
 	try:
 		f = open(filename, 'rb')
@@ -1570,103 +1575,18 @@ def store_passphrase_of_file(filename:str=None, passphrase:str=None, hash_type:s
 	if comment is None:
 		comment = {}
 	comment['__filename__'] = filename
-	return store_object_passphrase_asymmetric (
+	return store_object_passphrase (
 		obj = f,
 		passphrase = passphrase,
 		hash_type = hash_type,
-		comment = comment
+		comment = comment,
+		symmetric_password = symmetric_password
 	)
 
 #---------------------------------------------------------------------------
-def store_object_passphrase_symmetric(obj=None, passphrase:str=None, hash_type:str='md5', comment:dict=None, symmetric_passphrase:str=None) -> bool:
-	"""Store in the database the (encrypted) passphrase for an object.
-
-	The passphrase is stored encrypted with the symmetric_passphrase.
-
-	THE USER NEEDS TO MAKE SURE THE symmetric_passphrase IS
-	SAFELY KEPT ELSEWHERE !
-
-	Args:
-		obj: an instance supporting the (binary) read protocol
-		passphrase: the passphrase to store
-		hash_type: the hash to use, defaults to 'md5'
-		comment: a structured comment on the object
-		symmetric_passhprase: when using symmetric encryption, the passphrase to use
-
-	Returns:
-		True/False based on success
-	"""
-	assert obj, '<obj> must not be None'
-	assert passphrase, '<passphrase> must not be None'
-	assert symmetric_passphrase, '<symmetric_passphrase> must not be None'
-
-	if len(symmetric_passphrase) < 5:
-		_log.error('cannot escrow object passphrase, symmetric passphrase < 5 characters')
-		return False
-
-	if hash_type not in hashlib.algorithms_available:
-		_log.error('hash type [%s] not available amongst %s', hash_type, hashlib.algorithms_available)
-		return False
-
-	hashor = hashlib.new(hash_type, usedforsecurity = False)
-	chunk_size = 5 * 1024 * 1024
-	data = obj.read(chunk_size)
-	while data:
-		hashor.update(data)
-		data = obj.read(chunk_size)
-	hash_val = hashor.hexdigest()
-	encrypted_phrase = gmCrypto.encrypt_data_with_7z (
-		data = passphrase,
-		passphrase = symmetric_passphrase,
-		verbose = _cfg.get(option = 'debug')
-	)
-	if not comment:
-		comment = {}
-	comment['__encryption_method__'] = '7z::symmetric::gzip'
-	SQL = """INSERT INTO gm.obj_export_passphrase (
-		hash_type, hash, phrase, description
-	) VALUES (
-		%(hash_type)s,
-		%(hash)s,
-		%(phrase)s,
-		%(desc)s
-	)"""
-	args = {
-		'hash_type': hash_type,
-		'hash': hash_val,
-		'phrase': encrypted_phrase,
-		'desc': comment
-	}
-	gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}])
-	return True
-
-#---------------------------------------------------------------------------
-def store_object_passphrase_asymmetric(obj=None, passphrase:str=None, hash_type:str='md5', owner:gmStaff.cStaff=None, comment:dict=None) -> bool:
-	"""Store in the database the (encrypted) passphrase for an object.
-
-	The passphrase is stored encrypted with the public key of
-	the owner as well as with any public key configured as a
-	passphrase trustee.
-
-	Args:
-		obj: an instance supporting the (binary) read protocol
-		passphrase: the passphrase to store
-		hash_type: the hash to use, defaults to 'md5'
-		owner: staff member to encrypt passphrase to (by public key), defaults to current provider
-		comment: a structured comment on the object
-
-	Returns:
-		True/False based on success
-	"""
-	assert obj, '<obj> must not be None'
-	assert passphrase, '<passphrase> must not be None'
-
-	if hash_type not in hashlib.algorithms_available:
-		_log.error('hash type [%s] not available amongst %s', hash_type, hashlib.algorithms_available)
-		return False
-
+def get_passphrase_trustees_pubkey_files(owner:gmStaff.cStaff=None) -> list[str]:
 	pubkey_files = []
-	if owner is None:
+	if not owner:
 		owner = gmStaff.gmCurrentProvider()
 	owner_key_file = owner.public_key_file
 	if owner_key_file:
@@ -1677,10 +1597,56 @@ def store_object_passphrase_asymmetric(obj=None, passphrase:str=None, hash_type:
 	if trustee_key_files:
 		pubkey_files.extend(trustee_key_files)
 	else:
-		_log.warning('there are no trustee public keys configured for passphrase escrow')
+		_log.warning('there are no trustee public keys configured')
 	if not pubkey_files:
-		_log.error('cannot escrow passphrase, neither owner nor trustee public keys available')
+		_log.warning('neither owner nor trustee public keys available')
+	return pubkey_files
+
+#---------------------------------------------------------------------------
+def store_object_passphrase (
+	obj=None,
+	passphrase:str=None,
+	hash_type:str='sha256',
+	owner:gmStaff.cStaff=None,
+	comment:dict=None,
+	symmetric_password:str=None
+) -> bool:
+	"""Store in the database the (encrypted) passphrase for an object.
+
+	The passphrase is stored encrypted with the public key
+	of the owner as well as with any public key configured
+	as a passphrase trustee, or else symmetrically encrypted
+	with passphrase_password.
+
+	Args:
+		obj: an instance supporting the (binary) read protocol
+		passphrase: the passphrase to store
+		hash_type: the hash to use, defaults to '256'
+		owner: staff member to encrypt passphrase to (by public key), defaults to current provider
+		comment: a structured comment on the object, a hint regarding the encryption method is added
+		symmetric_password: when there is no public keys available, use this - if set - for symmetric encryption of the passphrase
+
+	Returns:
+		True/False based on success
+	"""
+	assert obj, '<obj> must not be None'
+	assert passphrase, '<passphrase> must not be None'
+
+	if hash_type not in hashlib.algorithms_available:
+		_log.error('hash type [%s] not available amongst %s', hash_type, hashlib.algorithms_available)
 		return False
+
+	if not comment:
+		comment = {}
+	pubkey_files = get_passphrase_trustees_pubkey_files(owner = owner)
+	if pubkey_files:
+		comment['__encryption_method__'] = 'pgp::asymmetric'
+	else:
+		_log.error('cannot escrow passphrase asymmetrically')
+		if not symmetric_password:
+			_log.error('cannot escrow passphrase symmetrically either')
+			return False
+		comment['__encryption_method__'] = '7z::symmetric::gzip'
 
 	hashor = hashlib.new(hash_type, usedforsecurity = False)
 	chunk_size = 5 * 1024 * 1024
@@ -1689,15 +1655,13 @@ def store_object_passphrase_asymmetric(obj=None, passphrase:str=None, hash_type:
 		hashor.update(data)
 		data = obj.read(chunk_size)
 	hash_val = hashor.hexdigest()
-	encrypted_phrase = gmCrypto.encrypt_data_with_gpg (
+	encrypted_phrase = gmCrypto.encrypt_data (
 		data = passphrase,
 		recipient_key_files = pubkey_files,
 		comment = '[%s]::%s' % (hash_type, hash_val),
-		verbose = _cfg.get(option = 'debug')
+		verbose = _cfg.get(option = 'debug'),
+		passphrase_password = symmetric_password
 	)
-	if not comment:
-		comment = {}
-	comment['__encryption_method__'] = 'pgp::asymmetric')
 	SQL = """INSERT INTO gm.obj_export_passphrase (
 		hash_type, hash, phrase, description
 	) VALUES (
@@ -1716,7 +1680,8 @@ def store_object_passphrase_asymmetric(obj=None, passphrase:str=None, hash_type:
 	return True
 
 #---------------------------------------------------------------------------
-def save_file_passphrases_into_files() -> list[str]: # | None:
+#---------------------------------------------------------------------------
+def save_file_passphrases_into_files() -> list[str] | None:
 	try:
 		hash_val = input('Please enter the file hash: ')
 	except KeyboardInterrupt:
