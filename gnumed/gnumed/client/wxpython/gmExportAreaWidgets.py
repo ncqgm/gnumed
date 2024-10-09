@@ -1162,14 +1162,14 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		)
 		while True:
 			pp_pwd = wx.GetPasswordFromUser(message = msg, caption = msg_title)
-			pp_pwd = data_pwd.rstrip()		# minimal weakness check
-			if len(pp_pwd) > 4:
+			pp_pwd = pp_pwd.rstrip()
+			if len(pp_pwd) > 4:				# minimal weakness check
 				break
 			retry = gmGuiHelpers.gm_show_question(title = msg_title, question = q)
 			if not retry:
 				return None					# user changed her mind
 
-		gmLog2.add_word2hide(data_pwd)		# confidentiality
+		gmLog2.add_word2hide(pp_pwd)		# confidentiality
 		# reget password
 		msg = _(
 			'Once more enter master passphrase for encryption of data passphrases.\n'
@@ -1300,14 +1300,14 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		if items is None:
 			return
 
-		data_pwd = self.__get_data_password('Encrypting items')
+		data_pwd = self.__get_data_password(_('Encrypting items'))
 		if data_pwd is None:
 			_log.debug('user aborted by not providing the same password twice')
 			gmDispatcher.send(signal = 'statustext', msg = _('Password not provided twice. Aborting.'))
 			return None
 
 			if not gmExportArea.get_passphrase_trustees_pubkey_files():
-				passphrase_pwd = self.__get_passphrase_password(msg_title)
+				passphrase_pwd = self.__get_passphrase_password(_('Encrypting items'))
 				if not passphrase_pwd:
 					_log.debug('user aborted by not providing the same passphrase password twice')
 					gmDispatcher.send(signal = 'statustext', msg = _('Passphrase password not provided twice. Aborting.'))
