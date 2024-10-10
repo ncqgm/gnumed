@@ -1172,7 +1172,7 @@ class cExportArea(object):
 				store_passphrase_cb = store_passphrase_of_file_callback
 			)
 			if not encrypted:
-				_log.errror('cannot encrypt data in sandbox dir')
+				_log.error('cannot encrypt data in sandbox dir')
 				return False
 
 		# 3) add never-to-be-encrypted data
@@ -1660,7 +1660,7 @@ def store_object_passphrase (
 		recipient_key_files = pubkey_files,
 		comment = '[%s]::%s' % (hash_type, hash_val),
 		verbose = _cfg.get(option = 'debug'),
-		passphrase_password = symmetric_password
+		symmetric_password = symmetric_password
 	)
 	SQL = """INSERT INTO gm.obj_export_passphrase (
 		hash_type, hash, phrase, description

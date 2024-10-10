@@ -26,7 +26,7 @@ import logging
 import datetime as pydt
 import hashlib
 import shutil
-from typing import Mapping, Sequence, Any, Union, Collection
+from typing import Sequence, Collection
 
 
 # GNUmed
@@ -302,9 +302,9 @@ _TLnkObj = dbapi.extras.DictConnection | dbapi.extras.DictCursor | None
 #	]
 #]
 _TQueries = Sequence[
-	dict[str, Collection]
+	dict[str, str] | dict[str, PG_SQL.Composed] | dict[str, Collection]
 ]
-#	dict[str, str] | dict[str, PG_SQL.Composed] | dict[dict, Mapping] | dict[str, list]
+#	 | dict[dict, Mapping] | dict[str, list]
 
 # =======================================================================
 # login API
