@@ -13,7 +13,7 @@ __license__ = "GPL v2 or later (details at https://www.gnu.org)"
 
 
 _DISABLE_CONNECTION_POOL = False		# set to True to disable the connection pool for debugging (= always return new connection)
-_VERBOSE_PG_LOG = False				# set to True to force-enable verbose connections
+_VERBOSE_PG_LOG = False					# set to True to force-enable verbose connections
 
 # standard library imports
 import os
@@ -27,45 +27,49 @@ import datetime as pydt
 
 
 # 3rd party library imports
-import psycopg2 as dbapi
-
-if not (float(dbapi.apilevel) >= 2.0):
-	raise ImportError('gmPG2: supported DB-API level too low')
-
-if not (dbapi.threadsafety == 2):
-	raise ImportError('gmPG2: lacking minimum thread safety in psycopg2')
-
-if not (dbapi.paramstyle == 'pyformat'):
-	raise ImportError('gmPG2: lacking pyformat (%%(<name>)s style) placeholder support in psycopg2')
-
-try:
-	dbapi.__version__.index('dt')
-except ValueError:
-	raise ImportError('gmPG2: lacking datetime support in psycopg2')
-
-try:
-	dbapi.__version__.index('ext')
-except ValueError:
-	raise ImportError('gmPG2: lacking extensions support in psycopg2')
-
-try:
-	dbapi.__version__.index('pq3')
-except ValueError:
-	raise ImportError('gmPG2: lacking v3 backend protocol support in psycopg2')
-
-
+import psycopg2
 import psycopg2.extensions
 import psycopg2.extras
+import psycopg2.errors
 import psycopg2.errorcodes as PG_error_codes
 
 
 # GNUmed module imports
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmBorg
 from Gnumed.pycommon import gmLog2
+from Gnumed.pycommon import gmBorg
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
+
+# globals
+_log = logging.getLogger('gm.db_pool')
+
+_log.info('psycopg2 module version: %s' % psycopg2.__version__)
+_log.info('PostgreSQL via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (psycopg2, psycopg2.apilevel, psycopg2.threadsafety, psycopg2.paramstyle))
+_log.info('libpq version (compiled in): %s', psycopg2.__libpq_version__)
+_log.info('libpq version (loaded now) : %s', psycopg2.extensions.libpq_version())
+#if '2.8' in psycopg2.__version__:
+#	_log.info('psycopg2 v2.8 detected, disabling connection pooling for the time being')
+#	_DISABLE_CONNECTION_POOL = True
+
+if not (float(psycopg2.apilevel) >= 2.0):
+	raise ImportError('gmPG2: supported DB-API level too low')
+
+if psycopg2.threadsafety != 2:
+	raise ImportError('gmPG2: lacking minimum thread safety in psycopg2')
+
+if psycopg2.paramstyle != 'pyformat':
+	raise ImportError('gmPG2: lacking pyformat (%%(<name>)s style) placeholder support in psycopg2')
+
+if 'dt' not in psycopg2.__version__:
+	raise ImportError('gmPG2: lacking datetime support in psycopg2')
+
+if 'ext' not in psycopg2.__version__:
+	raise ImportError('gmPG2: lacking extensions support in psycopg2')
+
+if 'pq3' not in psycopg2.__version__:
+	raise ImportError('gmPG2: lacking v3 backend protocol support in psycopg2')
 
 
 # CONSTANTS
@@ -80,18 +84,7 @@ WHERE
 	name !~ '^Etc/'
 """
 
-
-# globals
-_log = logging.getLogger('gm.db_pool')
-_log.info('psycopg2 module version: %s' % dbapi.__version__)
-_log.info('PostgreSQL via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
-_log.info('libpq version (compiled in): %s', psycopg2.__libpq_version__)
-_log.info('libpq version (loaded now) : %s', psycopg2.extensions.libpq_version())
-#if '2.8' in dbapi.__version__:
-#	_log.info('psycopg2 v2.8 detected, disabling connection pooling for the time being')
-#	_DISABLE_CONNECTION_POOL = True
-
-
+dbapi = psycopg2						# for external use
 postgresql_version = None
 
 _timestamp_template = "cast('%s' as timestamp with time zone)"		# MUST NOT be uniocde or else getquoted will not work (true in py3 ?)
@@ -315,8 +308,8 @@ class gmConnectionPool(gmBorg.cBorg):
 			)
 		if readonly and pooled:
 			# monkey patch close() for pooled RO connections
-			conn.original_close = conn.close
-			conn.close = _raise_exception_on_pooled_ro_conn_close
+			conn.original_close = conn.close								# type: ignore [attr-defined]
+			conn.close = _raise_exception_on_pooled_ro_conn_close			# type: ignore [assignment]
 		# set connection properties
 		# - client encoding
 		encoding = 'UTF8'
@@ -362,8 +355,8 @@ class gmConnectionPool(gmBorg.cBorg):
 		creds_kwargs = creds2use.generate_credentials_kwargs(connection_name = connection_name)
 		try:
 			# DictConnection now _is_ a real dictionary
-			conn = dbapi.connect(connection_factory = psycopg2.extras.DictConnection, **creds_kwargs)
-		except dbapi.OperationalError as e:
+			conn = psycopg2.connect(connection_factory = psycopg2.extras.DictConnection, **creds_kwargs)
+		except psycopg2.OperationalError as e:
 			_log.error('failed to establish connection [%s]', creds2use.formatted_credentials)
 			t, v, tb = sys.exc_info()
 			try:
@@ -594,7 +587,7 @@ class gmConnectionPool(gmBorg.cBorg):
 		curs = conn.cursor()
 		try:
 			curs.execute(cmd, args)
-		except dbapi.DataError:
+		except psycopg2.DataError:
 			_log.warning('timezone [%s] is not settable', timezone)
 			return False
 
@@ -643,7 +636,7 @@ class gmConnectionPool(gmBorg.cBorg):
 				continue
 			_log.debug('closing open database connection, pool key: %s', pool_key)
 			log_conn_state(conn)
-			conn.original_close()
+			conn.original_close()									# type: ignore [attr-defined]
 			del conn
 		self.__creds = creds
 
@@ -687,12 +680,12 @@ class gmConnectionPool(gmBorg.cBorg):
 #------------------------------------------------------------
 def exception_is_connection_loss(exc: Exception) -> bool:
 	"""Checks whether exception represents connection loss."""
-	if not isinstance(exc, dbapi.Error):
+	if not isinstance(exc, psycopg2.Error):
 		# not a PG/psycopg2 exception
 		return False
 
 	try:
-		if isinstance(exc, dbapi.errors.AdminShutdown):
+		if isinstance(exc, psycopg2.errors.AdminShutdown):
 			_log.debug('indicates connection loss due to admin shutdown')
 			return True
 
@@ -740,7 +733,7 @@ def exception_is_connection_loss(exc: Exception) -> bool:
 #------------------------------------------------------------
 def log_pg_exception_details(exc: Exception) -> bool:
 	"""Logs details from a database exception."""
-	if not isinstance(exc, dbapi.Error):
+	if not isinstance(exc, psycopg2.Error):
 		return False
 
 	_log.error(type(exc))
@@ -778,7 +771,7 @@ def log_pg_settings(curs) -> bool:
 	# config settings
 	try:
 		curs.execute('SELECT * FROM pg_settings')
-	except dbapi.Error:
+	except psycopg2.Error:
 		_log.exception('cannot retrieve PG settings ("SELECT ... FROM pg_settings" failed)')
 		return False
 
@@ -825,7 +818,7 @@ def log_pg_settings(curs) -> bool:
 	# database collation
 	try:
 		curs.execute('SELECT *, pg_database_collation_actual_version(oid), pg_encoding_to_char(encoding) FROM pg_database WHERE datname = current_database()')
-	except dbapi.Error:
+	except psycopg2.Error:
 		_log.exception('cannot log actual collation version (probably PG < 15)')
 		curs.execute('SELECT * FROM pg_database WHERE datname = current_database()')
 	config = curs.fetchall()
@@ -902,7 +895,7 @@ Query
 	gmLog2.log_multiline(logging.DEBUG, message = 'Link state:', line_prefix = '', text = txt)
 
 #--------------------------------------------------
-def log_conn_state(conn:dbapi.extras.DictConnection) -> None:
+def log_conn_state(conn:psycopg2.extras.DictConnection) -> None:
 	"""Log details about a DB-API connection."""
 	tx_status = conn.get_transaction_status()
 	if tx_status in [ psycopg2.extensions.TRANSACTION_STATUS_INERROR, psycopg2.extensions.TRANSACTION_STATUS_UNKNOWN ]:
@@ -965,7 +958,7 @@ def _raise_exception_on_pooled_ro_conn_close():
 	raise TypeError('close() called on read-only connection')
 
 #========================================================================
-class cAuthenticationError(dbapi.OperationalError):
+class cAuthenticationError(psycopg2.OperationalError):
 
 	def __init__(self, creds=None, prev_val=None):
 		self.creds = creds

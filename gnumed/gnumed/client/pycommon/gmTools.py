@@ -25,6 +25,7 @@ import datetime as pydt
 import re as regex
 import xml.sax.saxutils as xml_tools
 from typing import Any
+from types import ModuleType
 # old:
 import pickle, zlib
 # docutils
@@ -433,7 +434,7 @@ class gmPaths(gmBorg.cBorg):
 
 	It will take into account the application name.
 	"""
-	def __init__(self, app_name:str=None, wx=None):
+	def __init__(self, app_name:str=None, wx:ModuleType=None):
 		"""Setup paths.
 
 		Args:
@@ -446,7 +447,7 @@ class gmPaths(gmBorg.cBorg):
 			if self.__wx:
 				return
 
-		self.__wx = wx
+		self.__wx:ModuleType = wx
 		self.init_paths(app_name = app_name)
 		self.already_inited:bool = True
 

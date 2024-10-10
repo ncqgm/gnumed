@@ -574,7 +574,7 @@ def __get_schema_structure_by_gm_func(link_obj=None) -> str:
 		rows = run_ro_queries(link_obj=link_obj, queries = [{'cmd': SQL}])
 		return rows[0][0]
 
-	except dbapi.errors.AmbiguousFunction as exc:			# type: ignore [attr-defined] # pylint: disable=no-member
+	except dbapi.errors.AmbiguousFunction as exc:			# type-x: ignore [attr-defined] # pylint: disable=no-member
 		if hasattr(exc, 'diag') and 'gm.concat_table_structure_v19_and_up()' in exc.diag.context:
 			_log.error('gm.concat_table_structure_v19_and_up() failed')
 			return None
@@ -638,7 +638,7 @@ def __get_schema_hash_by_gm_func(link_obj=None, version=None) -> str:
 		_log.debug('hash: %s', rows[0]['md5'])
 		return rows[0]['md5']
 
-	except dbapi.errors.AmbiguousFunction as exc:			# type: ignore [attr-defined] # pylint: disable=no-member
+	except dbapi.errors.AmbiguousFunction as exc:			# type-x: ignore [attr-defined] # pylint: disable=no-member
 		if hasattr(exc, 'diag') and 'gm.concat_table_structure_v19_and_up()' in exc.diag.context:
 			_log.error('gm.concat_table_structure_v19_and_up() failed')
 			return None
@@ -1006,12 +1006,12 @@ def revalidate_constraints(link_obj:_TLnkObj=None) -> str | bool:
 	try:
 		try:
 			run_rw_queries(link_obj = link_obj, queries = [{'cmd': SQL}])
-		except dbapi.errors.UndefinedFunction as exc:						# type: ignore [attr-defined] # pylint: disable=no-member
+		except dbapi.errors.UndefinedFunction as exc:						# type-x: ignore [attr-defined] # pylint: disable=no-member
 			if 'gm.revalidate_all_constraints() does not exist' in exc.pgerror:
 				_log.error('gm.revalidate_all_constraints() does not exist')
 				return None
 
-		except dbapi.errors.InvalidSchemaName as exc:						# type: ignore [attr-defined] # pylint: disable=no-member
+		except dbapi.errors.InvalidSchemaName as exc:						# type-x: ignore [attr-defined] # pylint: disable=no-member
 			if 'schema "gm" does not exist' in exc.pgerror:
 				_log.error('schema "gm" does not exist, cannot run gm.revalidate_all_constraints()')
 				return None
@@ -1077,7 +1077,7 @@ def sanity_check_database_default_collation_version(conn=None) -> bool:
 	SQL = 'SELECT *, pg_database_collation_actual_version(oid) FROM pg_database WHERE datname = current_database()'
 	try:
 		rows = run_ro_queries(link_obj = conn, queries = [{'cmd': SQL}])
-	except dbapi.errors.UndefinedFunction as pg_exc:			# type: ignore [attr-defined] # pylint: disable=no-member
+	except dbapi.errors.UndefinedFunction as pg_exc:			# type-x: ignore [attr-defined] # pylint: disable=no-member
 		_log.exception('cannot verify collation version, likely PG < 15')
 		gmConnectionPool.log_pg_exception_details(pg_exc)
 		return True
@@ -1162,7 +1162,7 @@ def sanity_check_collation_versions(conn=None) -> bool:
 	"""
 	try:
 		rows = run_ro_queries(link_obj = conn, queries = [{'cmd': SQL}])
-	except dbapi.errors.UndefinedFunction as pg_exc:				# type: ignore [attr-defined] # pylint: disable=no-member
+	except dbapi.errors.UndefinedFunction as pg_exc:				# type-x: ignore [attr-defined] # pylint: disable=no-member
 		_log.exception('cannot verify collation versions, likely PG < 15')
 		gmConnectionPool.log_pg_exception_details(pg_exc)
 		return True
@@ -1211,12 +1211,12 @@ def refresh_collations_version_information(conn=None, use_the_source_luke=False)
 	try:
 		try:
 			run_rw_queries(link_obj = conn, queries = [{'cmd': SQL}])
-		except dbapi.errors.UndefinedFunction as exc:						# type: ignore [attr-defined] # pylint: disable=no-member
+		except dbapi.errors.UndefinedFunction as exc:						# type-x: ignore [attr-defined] # pylint: disable=no-member
 			if 'gm.update_pg_collations() does not exist' in exc.pgerror:
 				_log.error('gm.update_pg_collations() does not exist')
 				return None
 
-		except dbapi.errors.InvalidSchemaName as exc:						# type: ignore [attr-defined] # pylint: disable=no-member
+		except dbapi.errors.InvalidSchemaName as exc:						# type-x: ignore [attr-defined] # pylint: disable=no-member
 			if 'schema "gm" does not exist' in exc.pgerror:
 				_log.error('schema "gm" does not exist, cannot run gm.update_pg_collations()')
 				return None
