@@ -1766,9 +1766,15 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			INSERT INTO dem.lnk_person2relative (
 				id_identity, id_relative, id_relation_type
 			) VALUES (
-				%s, %s, (SELECT id FROM dem.relation_types WHERE description = %s)
+				%(pk_pat)s,
+				%(pk_relative)s,
+				(SELECT id FROM dem.relation_types WHERE description = %(relation)s)
 			)"""
-		args = [self.ID, id_new_relative, rel_type]
+		args = {
+			'pk_pat': self.ID,
+			'pk_relative': id_new_relative,
+			'relation': rel_type
+		}
 		gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}])
 		return True
 
@@ -2413,8 +2419,13 @@ class cMatchProvider_Provider(gmMatchProvider.cMatchProvider_SQL2):
 #============================================================
 def create_name(pk_person, firstnames, lastnames, active=False) -> cPersonName:
 	queries = [{
-		'cmd': "select dem.add_name(%s, %s, %s, %s)",
-		'args': [pk_person, firstnames, lastnames, active]
+		'cmd': "select dem.add_name(%(pk_pat)s, %(fnames)s, %(lnames)s, %(active)s)",
+		'args': {
+			'pk_pat': pk_person,
+			'fnames': firstnames,
+			'lnames': lastnames,
+			'active': active
+		}
 	}]
 	rows = gmPG2.run_rw_queries(queries=queries, return_data=True)
 	name = cPersonName(aPK_obj = rows[0][0])
