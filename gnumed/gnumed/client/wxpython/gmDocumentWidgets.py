@@ -51,6 +51,7 @@ from Gnumed.business import gmDICOM
 from Gnumed.business import gmProviderInbox
 from Gnumed.business import gmOrganization
 
+
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmPhraseWheel
@@ -60,8 +61,37 @@ from Gnumed.wxpython import gmListWidgets
 
 _log = logging.getLogger('gm.ui')
 
-
 default_chunksize = 1 * 1024 * 1024		# 1 MB
+
+#============================================================
+def generate_failsafe_documents_list(pk_patient=None, max_width:int=80, eol:str=None) -> str|list:
+	if not pk_patient:
+		pk_patient = gmPerson.gmCurrentPatient().ID
+	from Gnumed.wxpython.gmFormWidgets import generate_failsafe_form_wrapper
+	lines, footer = generate_failsafe_form_wrapper (
+		pk_patient = pk_patient,
+		title = _('List of Documents -- %s') % gmDateTime.pydt_now_here().strftime('%Y %b %d'),
+		max_width = max_width
+	)
+	lines.extend(gmDocuments.generate_failsafe_document_list_entries (
+		pk_patient = pk_patient,
+		max_width = max_width,
+		eol = None
+	))
+	lines.append('')
+	lines.extend(footer)
+	if eol:
+		return eol.join(lines)
+
+	return lines
+
+#------------------------------------------------------------
+def save_failsafe_documents_list(pk_patient=None, max_width:int=80, filename:str=None) -> str:
+	if not filename:
+		filename = gmTools.get_unique_filename()
+	with open(filename, 'w', encoding = 'utf8') as docs_file:
+		docs_file.write(generate_failsafe_documents_list(pk_patient = pk_patient, max_width = max_width, eol = '\n'))
+	return filename
 
 #============================================================
 def manage_document_descriptions(parent=None, document=None):
@@ -1512,6 +1542,13 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		item = self.__doc_context_menu.Append(-1, _('Manage descriptions'))
 		self.Bind(wx.EVT_MENU, self.__manage_document_descriptions, item)
 
+		# --- root context menu ---
+		self.__root_context_menu = wx.Menu(title = _('Archive Actions:'))
+		item = self.__root_context_menu.Append(-1, _('Show as listing'))
+		self.Bind(wx.EVT_MENU, self.__show_documents_list, item)
+		item = self.__root_context_menu.Append(-1, _('Put listing into export area'))
+		self.Bind(wx.EVT_MENU, self.__export_documents_list, item)
+
 		# document / description
 #		self.__desc_menu = wx.Menu()
 #		item = self.__doc_context_menu.Append(-1, _('Descriptions ...'), self.__desc_menu)
@@ -2003,21 +2040,16 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 	#--------------------------------------------------------
 	def _on_tree_item_context_menu(self, evt):
-
 		self.__curr_node_data = self.GetItemData(evt.Item)
-
 		# exclude pseudo root node
 		if self.__curr_node_data is None:
-			return None
-
+			self.__handle_root_context()
 		# documents
 		if isinstance(self.__curr_node_data, gmDocuments.cDocument):
 			self.__handle_doc_context()
-
 		# parts
 		if isinstance(self.__curr_node_data, gmDocuments.cDocumentPart):
 			self.__handle_part_context()
-
 		del self.__curr_node_data
 		evt.Skip()
 
@@ -2087,6 +2119,10 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			child_node, cookie = self.GetNextChild(start_node, cookie)
 
 		return
+
+	#--------------------------------------------------------
+	def __handle_root_context(self):
+		self.PopupMenu(self.__root_context_menu, wx.DefaultPosition)
 
 	#--------------------------------------------------------
 	def __handle_doc_context(self):
@@ -2352,6 +2388,17 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		return True
 
 	#--------------------------------------------------------
+	# root level context menu handlers
+	#--------------------------------------------------------
+	def __show_documents_list(self, evt):
+		manage_documents(single_selection = False)
+
+	#--------------------------------------------------------
+	def __export_documents_list(self, evt):
+		docs_file = save_failsafe_documents_list()
+		gmPerson.gmCurrentPatient().export_area.add_file(filename = docs_file, hint = _('Patient documents list'))
+
+	#--------------------------------------------------------
 	# document level context menu handlers
 	#--------------------------------------------------------
 	def __select_encounter(self, evt):
@@ -2363,10 +2410,12 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			return
 		self.__curr_node_data['pk_encounter'] = enc['pk_encounter']
 		self.__curr_node_data.save()
+
 	#--------------------------------------------------------
 	def __edit_encounter_details(self, evt):
 		enc = gmEMRStructItems.cEncounter(aPK_obj = self.__curr_node_data['pk_encounter'])
 		gmEncounterWidgets.edit_encounter(parent = self, encounter = enc)
+
 	#--------------------------------------------------------
 	def __process_doc(self, action=None, l10n_action=None):
 
@@ -4088,6 +4137,8 @@ if __name__ == '__main__':
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 
+	from Gnumed.pycommon import gmPG2
+
 	#from Gnumed.wxpython import gmGuiTest
 
 	#----------------------------------------------------------------
@@ -4105,5 +4156,15 @@ if __name__ == '__main__':
 		#gmGuiTest.test_widget(cScanIdxDocsPnl, patient = 12)
 
 	#----------------------------------------------------------------
+	def test_failsafe_list():
+		print(generate_failsafe_documents_list(pk_patient = 12, eol = '\n'))
+
+	#----------------------------------------------------------------
 	#test_document_prw()
-	test_plugin()
+	#test_plugin()
+
+	gmPG2.request_login_params(setup_pool = True)
+	gmStaff.set_current_provider_to_logged_on_user()
+	gmPraxis.activate_first_praxis_branch()
+
+	test_failsafe_list()

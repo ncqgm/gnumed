@@ -895,7 +895,7 @@ class cExportArea(object):
 		return all_ok
 
 	#--------------------------------------------------------
-	def add_documents(self, documents=None):
+	def add_documents(self, documents:list=None) -> None:
 		for doc in documents:
 			doc_tag = _('%s (%s)%s') % (
 				doc['l10n_type'],

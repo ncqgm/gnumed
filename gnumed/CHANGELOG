@@ -24,6 +24,7 @@ NEW: tool: update_collations
 NEW: forms: failsafe medication list
 NEW: forms: failsafe vaccination history
 NEW: forms: failsafe lab results list
+NEW: documents: failsafe documents list
 
 IMPROVED: GUI: show current patient in window titles
 IMPROVED: placeholder: $current_provider_name$

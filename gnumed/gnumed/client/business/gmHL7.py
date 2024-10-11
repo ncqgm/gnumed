@@ -1176,7 +1176,7 @@ def __import_single_PID_hl7_file(filename, emr=None):
 	hl7_docs = folder.get_documents (
 		doc_type = 'HL7 data',
 		pk_episodes = [epi['pk_episode']],
-		order_by = 'ORDER BY clin_when DESC'
+		order_by = 'clin_when DESC'
 	)
 	if len(hl7_docs) > 0:
 		# there should only ever be one unless the user manually creates more,

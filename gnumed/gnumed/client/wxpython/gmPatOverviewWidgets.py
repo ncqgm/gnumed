@@ -434,7 +434,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			list_data.append(doc)
 
 		# other, signed docs second
-		docs = doc_folder.get_documents(order_by = 'ORDER BY clin_when DESC', exclude_unsigned = True)
+		docs = doc_folder.get_documents(order_by = 'clin_when DESC', exclude_unsigned = True)
 		for doc in docs[:5]:
 			list_items.append('%s %s' % (
 				gmDateTime.pydt_strftime(doc['clin_when'], format = '%m/%Y', accuracy = gmDateTime.acc_months),

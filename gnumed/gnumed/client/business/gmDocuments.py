@@ -30,220 +30,6 @@ DOCUMENT_TYPE_VISUAL_PROGRESS_NOTE = 'visual progress note'
 DOCUMENT_TYPE_PRESCRIPTION = 'prescription'
 
 #============================================================
-class cDocumentFolder:
-	"""Represents a folder with medical documents for a single patient."""
-
-	def __init__(self, aPKey = None):
-		"""Fails if
-
-		- patient referenced by aPKey does not exist
-		"""
-		self.pk_patient = aPKey			# == identity.pk == primary key
-		if not self._pkey_exists():
-			raise gmExceptions.ConstructorError("No patient with PK [%s] in database." % aPKey)
-
-		# register backend notification interests
-		# (keep this last so we won't hang on threads when
-		#  failing this constructor for other reasons ...)
-#		if not self._register_interests():
-#			raise gmExceptions.ConstructorError, "cannot register signal interests"
-
-		_log.debug('instantiated document folder for patient [%s]' % self.pk_patient)
-	#--------------------------------------------------------
-	def cleanup(self):
-		pass
-	#--------------------------------------------------------
-	# internal helper
-	#--------------------------------------------------------
-	def _pkey_exists(self):
-		"""Does this primary key (= patient) exist ?
-
-		- true/false/None
-		"""
-		# patient in demographic database ?
-		rows = gmPG2.run_ro_queries(queries = [
-			{'cmd': "select exists(select pk from dem.identity where pk = %s)", 'args': [self.pk_patient]}
-		])
-		if not rows[0][0]:
-			_log.error("patient [%s] not in demographic database" % self.pk_patient)
-			return None
-		return True
-	#--------------------------------------------------------
-	# API
-	#--------------------------------------------------------
-	def get_latest_freediams_prescription(self):
-		cmd = """
-			SELECT pk_doc
-			FROM blobs.v_doc_med
-			WHERE
-				pk_patient = %(pat)s
-					AND
-				type = %(typ)s
-					AND
-				ext_ref = %(ref)s
-			ORDER BY
-				clin_when DESC
-			LIMIT 1
-		"""
-		args = {
-			'pat': self.pk_patient,
-			'typ': DOCUMENT_TYPE_PRESCRIPTION,
-			'ref': 'FreeDiams'
-		}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
-		if len(rows) == 0:
-			_log.info('no FreeDiams prescription available for patient [%s]' % self.pk_patient)
-			return None
-		prescription = cDocument(aPK_obj = rows[0][0])
-		return prescription
-
-	#--------------------------------------------------------
-	def get_latest_mugshot(self):
-		cmd = "SELECT pk_obj FROM blobs.v_latest_mugshot WHERE pk_patient = %s"
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
-		if len(rows) == 0:
-			_log.info('no mugshots available for patient [%s]' % self.pk_patient)
-			return None
-		return cDocumentPart(aPK_obj = rows[0][0])
-
-	latest_mugshot = property(get_latest_mugshot)
-
-	#--------------------------------------------------------
-	def get_mugshot_list(self, latest_only=True):
-		if latest_only:
-			cmd = "select pk_doc, pk_obj from blobs.v_latest_mugshot where pk_patient=%s"
-		else:
-			cmd = """
-				select
-					vdm.pk_doc as pk_doc,
-					dobj.pk as pk_obj
-				from
-					blobs.v_doc_med vdm
-					blobs.doc_obj dobj
-				where
-					vdm.pk_type = (select pk from blobs.doc_type where name = 'patient photograph')
-					and vdm.pk_patient = %s
-					and dobj.fk_doc = vdm.pk_doc
-			"""
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
-		return rows
-
-	#--------------------------------------------------------
-	def get_doc_list(self, doc_type=None):
-		"""return flat list of document IDs"""
-
-		args = {
-			'ID': self.pk_patient,
-			'TYP': doc_type
-		}
-
-		cmd = """
-			select vdm.pk_doc
-			from blobs.v_doc_med vdm
-			where
-				vdm.pk_patient = %%(ID)s
-				%s
-			order by vdm.clin_when"""
-
-		if doc_type is None:
-			cmd = cmd % ''
-		else:
-			try:
-				int(doc_type)
-				cmd = cmd % 'and vdm.pk_type = %(TYP)s'
-			except (TypeError, ValueError):
-				cmd = cmd % 'and vdm.pk_type = (select pk from blobs.doc_type where name = %(TYP)s)'
-
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
-		doc_ids = []
-		for row in rows:
-			doc_ids.append(row[0])
-		return doc_ids
-
-	#--------------------------------------------------------
-	def get_visual_progress_notes(self, episodes=None, encounter=None):
-		return self.get_documents (
-			doc_type = DOCUMENT_TYPE_VISUAL_PROGRESS_NOTE,
-			pk_episodes = episodes,
-			encounter = encounter
-		)
-
-	#--------------------------------------------------------
-	def get_unsigned_documents(self):
-		args = {'pat': self.pk_patient}
-		cmd = _SQL_get_document_fields % """
-			pk_doc = ANY (
-				SELECT DISTINCT ON (b_vo.pk_doc) b_vo.pk_doc
-				FROM blobs.v_obj4doc_no_data b_vo
-				WHERE
-					pk_patient = %(pat)s
-						AND
-					reviewed IS FALSE
-			)
-			ORDER BY clin_when DESC"""
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
-		return [ cDocument(row = {'pk_field': 'pk_doc', 'data': r}) for r in rows ]
-
-	#--------------------------------------------------------
-	def get_documents(self, doc_type=None, pk_episodes=None, encounter=None, order_by=None, exclude_unsigned=False, pk_types=None):
-		"""Return list of documents."""
-		args = {
-			'pat': self.pk_patient,
-			'type': doc_type,
-			'enc': encounter
-		}
-		where_parts = ['pk_patient = %(pat)s']
-		if doc_type is not None:
-			try:
-				int(doc_type)
-				where_parts.append('pk_type = %(type)s')
-			except (TypeError, ValueError):
-				where_parts.append('pk_type = (SELECT pk FROM blobs.doc_type WHERE name = %(type)s)')
-		if pk_types:
-			where_parts.append('pk_type = ANY(%(pk_types)s)')
-			args['pk_types'] = pk_types
-		if pk_episodes:
-			where_parts.append('pk_episode = ANY(%(epis)s)')
-			args['epis'] = pk_episodes
-		if encounter is not None:
-			where_parts.append('pk_encounter = %(enc)s')
-		if exclude_unsigned:
-			where_parts.append('pk_doc = ANY(SELECT b_vo.pk_doc FROM blobs.v_obj4doc_no_data b_vo WHERE b_vo.pk_patient = %(pat)s AND b_vo.reviewed IS TRUE)')
-		if order_by is None:
-			order_by = 'ORDER BY clin_when'
-		cmd = "%s\n%s" % (_SQL_get_document_fields % ' AND '.join(where_parts), order_by)
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
-		return [ cDocument(row = {'pk_field': 'pk_doc', 'data': r}) for r in rows ]
-
-	documents = property(get_documents)
-
-	#--------------------------------------------------------
-	def add_document(self, document_type=None, encounter=None, episode=None, link_obj=None):
-		return create_document(link_obj = link_obj, document_type = document_type, encounter = encounter, episode = episode)
-
-	#--------------------------------------------------------
-	def add_prescription(self, encounter=None, episode=None, link_obj=None):
-		return self.add_document (
-			link_obj = link_obj,
-			document_type = create_document_type (
-				document_type = DOCUMENT_TYPE_PRESCRIPTION
-			)['pk_doc_type'],
-			encounter = encounter,
-			episode = episode
-		)
-
-	#--------------------------------------------------------
-	def _get_all_document_org_units(self):
-		cmd = gmOrganization._SQL_get_org_unit % (
-			'pk_org_unit IN (SELECT DISTINCT ON (pk_org_unit) pk_org_unit FROM blobs.v_doc_med WHERE pk_patient = %(pat)s)'
-		)
-		args = {'pat': self.pk_patient}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
-		return [ gmOrganization.cOrgUnit(row = {'data': r, 'pk_field': 'pk_org_unit'}) for r in rows ]
-
-	all_document_org_units = property(_get_all_document_org_units)
-
-#============================================================
 _SQL_get_document_part_fields = "select * from blobs.v_obj4doc_no_data where %s"
 
 class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
@@ -1008,6 +794,13 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		return txt
 
 	#--------------------------------------------------------
+	def format_for_failsafe_output(self, max_width:int=80) -> list[str]:
+		lines = [ '%s: %s' % (self._payload['clin_when'].strftime('%Y %B %d'), self._payload['l10n_type']) ]
+		if self._payload['unit'] and not self._payload['unit_is_receiver']:
+			lines.append('  ' + _('From: %s @ %s') % (self._payload['unit'], self._payload['organization']))
+		return lines
+
+	#--------------------------------------------------------
 	def _get_hospital_stay(self):
 		if self._payload['pk_hospital_stay'] is None:
 			return None
@@ -1135,6 +928,234 @@ where
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	return True
+
+#------------------------------------------------------------
+def generate_failsafe_document_list_entries(pk_patient:int=None, max_width:int=80, eol:str=None) -> str|list:
+	lines = []
+	doc_folder = cDocumentFolder(aPKey = pk_patient)
+	docs = doc_folder.get_documents(order_by = 'clin_when DESC, l10n_type')
+	for doc in docs:
+		lines.append('')
+		lines.extend(doc.format_for_failsafe_output(max_width = max_width))
+	if not eol:
+		return lines
+
+	return eol.join(lines)
+
+#============================================================
+class cDocumentFolder:
+	"""Represents a folder with medical documents for a single patient."""
+
+	def __init__(self, aPKey = None):
+		"""Fails if
+
+		- patient referenced by aPKey does not exist
+		"""
+		self.pk_patient = aPKey			# == identity.pk == primary key
+		if not self._pkey_exists():
+			raise gmExceptions.ConstructorError("No patient with PK [%s] in database." % aPKey)
+
+		# register backend notification interests
+		# (keep this last so we won't hang on threads when
+		#  failing this constructor for other reasons ...)
+#		if not self._register_interests():
+#			raise gmExceptions.ConstructorError, "cannot register signal interests"
+
+		_log.debug('instantiated document folder for patient [%s]' % self.pk_patient)
+	#--------------------------------------------------------
+	def cleanup(self):
+		pass
+	#--------------------------------------------------------
+	# internal helper
+	#--------------------------------------------------------
+	def _pkey_exists(self):
+		"""Does this primary key (= patient) exist ?
+
+		- true/false/None
+		"""
+		# patient in demographic database ?
+		rows = gmPG2.run_ro_queries(queries = [
+			{'cmd': "select exists(select pk from dem.identity where pk = %s)", 'args': [self.pk_patient]}
+		])
+		if not rows[0][0]:
+			_log.error("patient [%s] not in demographic database" % self.pk_patient)
+			return None
+		return True
+	#--------------------------------------------------------
+	# API
+	#--------------------------------------------------------
+	def get_latest_freediams_prescription(self):
+		cmd = """
+			SELECT pk_doc
+			FROM blobs.v_doc_med
+			WHERE
+				pk_patient = %(pat)s
+					AND
+				type = %(typ)s
+					AND
+				ext_ref = %(ref)s
+			ORDER BY
+				clin_when DESC
+			LIMIT 1
+		"""
+		args = {
+			'pat': self.pk_patient,
+			'typ': DOCUMENT_TYPE_PRESCRIPTION,
+			'ref': 'FreeDiams'
+		}
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		if len(rows) == 0:
+			_log.info('no FreeDiams prescription available for patient [%s]' % self.pk_patient)
+			return None
+		prescription = cDocument(aPK_obj = rows[0][0])
+		return prescription
+
+	#--------------------------------------------------------
+	def get_latest_mugshot(self):
+		cmd = "SELECT pk_obj FROM blobs.v_latest_mugshot WHERE pk_patient = %s"
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
+		if len(rows) == 0:
+			_log.info('no mugshots available for patient [%s]' % self.pk_patient)
+			return None
+		return cDocumentPart(aPK_obj = rows[0][0])
+
+	latest_mugshot = property(get_latest_mugshot)
+
+	#--------------------------------------------------------
+	def get_mugshot_list(self, latest_only=True):
+		if latest_only:
+			cmd = "select pk_doc, pk_obj from blobs.v_latest_mugshot where pk_patient=%s"
+		else:
+			cmd = """
+				select
+					vdm.pk_doc as pk_doc,
+					dobj.pk as pk_obj
+				from
+					blobs.v_doc_med vdm
+					blobs.doc_obj dobj
+				where
+					vdm.pk_type = (select pk from blobs.doc_type where name = 'patient photograph')
+					and vdm.pk_patient = %s
+					and dobj.fk_doc = vdm.pk_doc
+			"""
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
+		return rows
+
+	#--------------------------------------------------------
+	def get_doc_list(self, doc_type=None):
+		"""return flat list of document IDs"""
+
+		args = {
+			'ID': self.pk_patient,
+			'TYP': doc_type
+		}
+
+		cmd = """
+			select vdm.pk_doc
+			from blobs.v_doc_med vdm
+			where
+				vdm.pk_patient = %%(ID)s
+				%s
+			order by vdm.clin_when"""
+
+		if doc_type is None:
+			cmd = cmd % ''
+		else:
+			try:
+				int(doc_type)
+				cmd = cmd % 'and vdm.pk_type = %(TYP)s'
+			except (TypeError, ValueError):
+				cmd = cmd % 'and vdm.pk_type = (select pk from blobs.doc_type where name = %(TYP)s)'
+
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		doc_ids = []
+		for row in rows:
+			doc_ids.append(row[0])
+		return doc_ids
+
+	#--------------------------------------------------------
+	def get_visual_progress_notes(self, episodes=None, encounter=None):
+		return self.get_documents (
+			doc_type = DOCUMENT_TYPE_VISUAL_PROGRESS_NOTE,
+			pk_episodes = episodes,
+			encounter = encounter
+		)
+
+	#--------------------------------------------------------
+	def get_unsigned_documents(self):
+		args = {'pat': self.pk_patient}
+		cmd = _SQL_get_document_fields % """
+			pk_doc = ANY (
+				SELECT DISTINCT ON (b_vo.pk_doc) b_vo.pk_doc
+				FROM blobs.v_obj4doc_no_data b_vo
+				WHERE
+					pk_patient = %(pat)s
+						AND
+					reviewed IS FALSE
+			)
+			ORDER BY clin_when DESC"""
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return [ cDocument(row = {'pk_field': 'pk_doc', 'data': r}) for r in rows ]
+
+	#--------------------------------------------------------
+	def get_documents(self, doc_type:str|int=None, pk_episodes:list[int]=None, encounter:int=None, order_by:str=None, exclude_unsigned:bool=False, pk_types:list[int]=None) -> list[cDocument]:
+		"""Return list of documents."""
+		args = {
+			'pat': self.pk_patient,
+			'type': doc_type,
+			'enc': encounter
+		}
+		where_parts = ['pk_patient = %(pat)s']
+		if doc_type is not None:
+			try:
+				int(doc_type)
+				where_parts.append('pk_type = %(type)s')
+			except (TypeError, ValueError):
+				where_parts.append('pk_type = (SELECT pk FROM blobs.doc_type WHERE name = %(type)s)')
+		if pk_types:
+			where_parts.append('pk_type = ANY(%(pk_types)s)')
+			args['pk_types'] = pk_types
+		if pk_episodes:
+			where_parts.append('pk_episode = ANY(%(epis)s)')
+			args['epis'] = pk_episodes
+		if encounter is not None:
+			where_parts.append('pk_encounter = %(enc)s')
+		if exclude_unsigned:
+			where_parts.append('pk_doc = ANY(SELECT b_vo.pk_doc FROM blobs.v_obj4doc_no_data b_vo WHERE b_vo.pk_patient = %(pat)s AND b_vo.reviewed IS TRUE)')
+		if not order_by:
+			order_by = 'clin_when'
+		order_by_clause = 'ORDER BY %s' % order_by
+		cmd = "%s\n%s" % (_SQL_get_document_fields % ' AND '.join(where_parts), order_by_clause)
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return [ cDocument(row = {'pk_field': 'pk_doc', 'data': r}) for r in rows ]
+
+	documents = property(get_documents)
+
+	#--------------------------------------------------------
+	def add_document(self, document_type=None, encounter=None, episode=None, link_obj=None):
+		return create_document(link_obj = link_obj, document_type = document_type, encounter = encounter, episode = episode)
+
+	#--------------------------------------------------------
+	def add_prescription(self, encounter=None, episode=None, link_obj=None):
+		return self.add_document (
+			link_obj = link_obj,
+			document_type = create_document_type (
+				document_type = DOCUMENT_TYPE_PRESCRIPTION
+			)['pk_doc_type'],
+			encounter = encounter,
+			episode = episode
+		)
+
+	#--------------------------------------------------------
+	def _get_all_document_org_units(self):
+		cmd = gmOrganization._SQL_get_org_unit % (
+			'pk_org_unit IN (SELECT DISTINCT ON (pk_org_unit) pk_org_unit FROM blobs.v_doc_med WHERE pk_patient = %(pat)s)'
+		)
+		args = {'pat': self.pk_patient}
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return [ gmOrganization.cOrgUnit(row = {'data': r, 'pk_field': 'pk_org_unit'}) for r in rows ]
+
+	all_document_org_units = property(_get_all_document_org_units)
 
 #============================================================
 class cDocumentType(gmBusinessDBObject.cBusinessDBObject):
@@ -1352,14 +1373,15 @@ if __name__ == '__main__':
 		#photo = doc_folder.get_latest_mugshot()
 		#print type(photo), photo
 
-		docs = doc_folder.get_documents(pk_types = [16])
+		docs = doc_folder.get_documents()#pk_types = [16])
 		for doc in docs:
 			#print type(doc), doc
 			#print doc.parts
 			#print doc.format_single_line()
 			print('--------------------------')
 			#print(doc.format(single_line = True))
-			print(doc.format())
+			#print(doc.format())
+			print(doc.format_for_failsafe_output())
 			#print(doc['pk_type'])
 
 	#--------------------------------------------------------
@@ -1434,10 +1456,10 @@ if __name__ == '__main__':
 
 	#test_doc_types()
 	#test_adding_doc_part()
-	#test_get_documents()
+	test_get_documents()
 	#test_get_useful_filename()
 	#test_part_metainfo_formatter()
 	#test_check_mimetypes_in_archive()
-	test_save_to_file()
+	#test_save_to_file()
 
 #	print get_ext_ref()
