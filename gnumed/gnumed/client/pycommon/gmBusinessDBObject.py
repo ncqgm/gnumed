@@ -330,20 +330,18 @@ class cBusinessDBObject(object):
 		Args:
 			aPK_obj: retrieve data from backend
 
-			* a simple value
-				the primary key WHERE condition must be a simple column
+			* an scalar value
+				the ._cmd_fetch_payload WHERE condition must be a simple column: "... WHERE pk_col = %s"
 			* a dictionary of values
-				the primary key WHERE condition must be a
-				subselect consuming the dict and producing
-				the single-value primary key
+				the ._cmd_fetch_payload WHERE condition must consume the
+				dictionary and produce a unique row
 
 			row: must hold the fields
 
-			* idx: a dict mapping field names to position
-			* data: the field values in a list (as returned by cursor.fetchone() in the DB-API)
-			* pk_field: the name of the primary key field
+			* data: list of column values for the row selected by ._cmd_fetch_payload (as returned by cursor.fetchone() in the DB-API)
+			* pk_field: the name of the primary key column
 				OR
-			* pk_obj: a dictionary suitable for passed to cursor.execute
+			* pk_obj: a dictionary suitable for being passed to cursor.execute
 			    and holding the primary key values, used for composite PKs
 			* for example:
 
@@ -352,6 +350,7 @@ class cBusinessDBObject(object):
 					'pk_field': 'pk_XXX (the PK column name)',
 					'pk_obj': {'pk_col1': pk_col1_val, 'pk_col2': pk_col2_val}
 				}
+
 				rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 				objects = [ cChildClass(row = {'data': r, 'pk_field': 'the PK column name'}) for r in rows ]
 		"""
@@ -371,7 +370,7 @@ class cBusinessDBObject(object):
 		if aPK_obj is not None:
 			self.__init_from_pk(aPK_obj = aPK_obj, link_obj = link_obj)
 		else:
-			self._init_from_row_data(row = row)
+			self.__init_from_row_data(row = row)
 		self._is_modified = False
 
 	#--------------------------------------------------------
@@ -395,19 +394,19 @@ class cBusinessDBObject(object):
 		raise gmExceptions.ConstructorError("[%s:%s]: error loading instance" % (self.__class__.__name__, self.pk_obj))
 
 	#--------------------------------------------------------
-	def _init_from_row_data(self, row:dict|gmPG2.dbapi.extras.DictRow=None):
+	def __init_from_row_data(self, row:dict|gmPG2.dbapi.extras.DictRow=None):
 		"""Creates a new clinical item instance given its fields.
 
 		Args:
 			row: EITHER {'data': ..., 'pk_field': ...}
 
-			* data: the field values in a list (as returned by cursor.fetchone() in the DB-API)
-			* pk_field: the name of the primary key field
+				* data: list of column values for the row selected by the PK (as returned by cursor.fetchone() in the DB-API)
+				* pk_field: the name of the primary key column
 
 			OR
 
-			* pk_obj: a dictionary suitable for passing to cursor.execute(),
-			  holding the primary key values; used for composite PKs
+				* pk_obj: a dictionary suitable for passing to cursor.execute(),
+				  holding the primary key values; used for composite PKs
 
 		Examples:
 
@@ -419,7 +418,7 @@ class cBusinessDBObject(object):
 				row = {
 					'data': rows[0],
 					'pk_field': 'pk_XXX (the PK column name)',
-					'pk_obj': {'pk_col1': pk_col1_val, 'pk_col2': pk_col2_val}
+					#'pk_obj': {'pk_col1': pk_col1_val, 'pk_col2': pk_col2_val}
 				}
 		"""
 		assert ('data' in row), "[%s:??]: 'data' missing from <row> argument: %s" % (self.__class__.__name__, row)
@@ -427,13 +426,6 @@ class cBusinessDBObject(object):
 		assert not faulty_pk, "[%s:??]: either 'pk_field' or 'pk_obj' must exist in <row> argument: %s" % (self.__class__.__name__, row)
 
 		self._payload = row['data']
-#		try:
-#			self._idx = row['idx']
-#			assert len(row['idx']) == len(row['data']), "[%s:??]: 'idx'<->'data' field count mismatch: %s" % (self.__class__.__name__, row)
-#
-#		except KeyError:
-#			k = list(self._payload.keys())
-#			self._idx = dict(zip(k, k))
 		if 'pk_field' in row:
 			self.pk_obj = self._payload[row['pk_field']]
 		else:
