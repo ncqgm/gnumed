@@ -422,7 +422,6 @@ def create_allergy(allergene:str=None, allg_type=None, episode_id:int=None, enco
 				AND
 			allergene = %(allergene)s
 	"""
-	#args = {'enc': encounter_id, 'substance': substance}
 	args = {'enc': encounter_id, 'allergene': allergene}
 	rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
 	if rows:
@@ -433,13 +432,26 @@ def create_allergy(allergene:str=None, allg_type=None, episode_id:int=None, enco
 	queries = []
 	if isinstance(allg_type, int):
 		SQL = """
-			insert into clin.allergy (fk_type, fk_encounter, fk_episode, allergene, substance)
-			values (%s, %s, %s, %s, %s)"""
+			INSERT INTO clin.allergy (fk_type, fk_encounter, fk_episode, allergene, substance)
+			VALUES (%(allg_type)s, %(enc)s, %(epi)s, %(allergene)s, %(subst)s)"""
 	else:
 		SQL = """
 			insert into clin.allergy (fk_type, fk_encounter, fk_episode,  allergene, substance)
-			values ((select pk from clin._enum_allergy_type where value = %s), %s, %s, %s, %s)"""
-	queries.append({'cmd': SQL, 'args': [allg_type, encounter_id, episode_id, allergene, allergene]})
+			VALUES (
+				(select pk from clin._enum_allergy_type where value = %(allg_type)s),
+				%(enc)s,
+				%(epi)s,
+				%(allergene)s,
+				%(subst)s
+			)"""
+	args = {
+		'allg_type': allg_type,
+		'enc': encounter_id,
+		'epi': episode_id,
+		'allergene': allergene,
+		'subst': allergene
+	}
+	queries.append({'cmd': SQL, 'args': args})
 	SQL = "select currval('clin.allergy_id_seq')"
 	queries.append({'cmd': SQL})
 	rows = gmPG2.run_rw_queries(queries = queries, return_data = True)
