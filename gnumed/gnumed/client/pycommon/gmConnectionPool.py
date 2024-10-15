@@ -45,7 +45,7 @@ from Gnumed.pycommon import gmDateTime
 # globals
 _log = logging.getLogger('gm.db_pool')
 
-_log.info('psycopg2 module version: %s' % psycopg2.__version__)
+_log.info('psycopg2 module version: %s' % psycopg2.__version__)				# type: ignore [attr-defined]
 _log.info('PostgreSQL via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % (psycopg2, psycopg2.apilevel, psycopg2.threadsafety, psycopg2.paramstyle))
 _log.info('libpq version (compiled in): %s', psycopg2.__libpq_version__)
 _log.info('libpq version (loaded now) : %s', psycopg2.extensions.libpq_version())
@@ -62,13 +62,13 @@ if psycopg2.threadsafety != 2:
 if psycopg2.paramstyle != 'pyformat':
 	raise ImportError('gmPG2: lacking pyformat (%%(<name>)s style) placeholder support in psycopg2')
 
-if 'dt' not in psycopg2.__version__:
+if 'dt' not in psycopg2.__version__:				# type: ignore [attr-defined]
 	raise ImportError('gmPG2: lacking datetime support in psycopg2')
 
-if 'ext' not in psycopg2.__version__:
+if 'ext' not in psycopg2.__version__:				# type: ignore [attr-defined]
 	raise ImportError('gmPG2: lacking extensions support in psycopg2')
 
-if 'pq3' not in psycopg2.__version__:
+if 'pq3' not in psycopg2.__version__:				# type: ignore [attr-defined]
 	raise ImportError('gmPG2: lacking v3 backend protocol support in psycopg2')
 
 
