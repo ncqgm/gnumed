@@ -96,7 +96,7 @@ class cSubstanceOrDosePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp = gmMedication.cSubstanceDoseMatchProvider()
 		mp.setThresholds(2, 3, 5)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTip(_('The substance the patient is taking\n\n.You can enter/select a substance with or without a strength.'))
+		self.SetToolTip(_('The substance the patient is taking.\n\nYou can enter/select a substance with or without a strength.'))
 		self.matcher = mp
 		self.selection_only = False
 		self.phrase_separators = None

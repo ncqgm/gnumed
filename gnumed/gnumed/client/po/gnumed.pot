@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-22 16:43+0200\n"
+"POT-Creation-Date: 2024-10-13 13:52+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2314,6 +2314,10 @@ msgid "Find All Events"
 msgstr ""
 
 msgid "The selected value contains invalid characters and can't be saved"
+msgstr ""
+
+#, python-format
+msgid "binary data: %s%s (total: %s bytes)"
 msgstr ""
 
 #, python-format
@@ -8656,6 +8660,9 @@ msgstr ""
 msgid "The query failed."
 msgstr ""
 
+msgid "No results."
+msgstr ""
+
 #, python-format
 msgid ""
 "Cannot add GNUmed user.\n"
@@ -9340,6 +9347,10 @@ msgstr ""
 
 #, python-format
 msgid " External reference: %s\n"
+msgstr ""
+
+#, python-format
+msgid "From: %s @ %s"
 msgstr ""
 
 msgid "Cannot run [arriba] !"
@@ -11214,6 +11225,9 @@ msgstr ""
 
 #, python-format
 msgid "Vaccination history -- %s"
+msgstr ""
+
+msgid "Printing vaccination history"
 msgstr ""
 
 msgid "Pretty vaccination history form failed. Generating failsafe version."
@@ -15186,6 +15200,9 @@ msgstr ""
 msgid "Password not provided twice. Aborting."
 msgstr ""
 
+msgid "Passphrase password not provided twice. Aborting."
+msgstr ""
+
 msgid "Error exporting entries."
 msgstr ""
 
@@ -15193,7 +15210,10 @@ msgid "Error creating zip file."
 msgstr ""
 
 msgid ""
-"Enter passphrase to protect the data with.\n"
+"No public keys available for encrypted\n"
+"storage of the data passphrase.\n"
+"\n"
+"Enter master passphrase for encryption of data passphrases.\n"
 "\n"
 "(minimum length: 5, trailing blanks will be stripped)"
 msgstr ""
@@ -15207,17 +15227,31 @@ msgid ""
 msgstr ""
 
 msgid ""
-"Once more enter passphrase to protect the data with.\n"
+"Once more enter master passphrase for encryption of data passphrases.\n"
 "\n"
 "(this will protect you from typos)\n"
 "\n"
-"Abort by leaving empty."
+"Abort by leaving empty.\n"
 msgstr ""
 
 msgid ""
 "Passphrases do not match.\n"
 "\n"
 "Retry, or abort with an empty passphrase."
+msgstr ""
+
+msgid ""
+"Enter passphrase to protect the data with.\n"
+"\n"
+"(minimum length: 5, trailing blanks will be stripped)"
+msgstr ""
+
+msgid ""
+"Once more enter passphrase to protect the data with.\n"
+"\n"
+"(this will protect you from typos)\n"
+"\n"
+"Abort by leaving empty."
 msgstr ""
 
 msgid "Export area empty. Nothing to do."
@@ -15240,6 +15274,9 @@ msgid "Burning documents"
 msgstr ""
 
 msgid "Select items for encryption."
+msgstr ""
+
+msgid "Encrypting items"
 msgstr ""
 
 msgid "Select items for PDF."
@@ -15441,6 +15478,10 @@ msgid "This praxis"
 msgstr ""
 
 msgid "Bill receiver"
+msgstr ""
+
+#, python-format
+msgid "List of Documents -- %s"
 msgstr ""
 
 msgid ""
@@ -15770,6 +15811,15 @@ msgstr ""
 msgid "Manage descriptions"
 msgstr ""
 
+msgid "Archive Actions:"
+msgstr ""
+
+msgid "Show as listing"
+msgstr ""
+
+msgid "Put listing into export area"
+msgstr ""
+
 #, python-format
 msgid "part %2s"
 msgstr ""
@@ -15870,6 +15920,9 @@ msgstr ""
 
 #, python-format
 msgid "Successfully saved document part as [%s]."
+msgstr ""
+
+msgid "Patient documents list"
 msgstr ""
 
 #, python-format

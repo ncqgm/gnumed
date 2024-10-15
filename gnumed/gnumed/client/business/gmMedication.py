@@ -4018,7 +4018,7 @@ def format_regimen_start_medically(regimen_like:cIntakeWithRegimen|cIntakeRegime
 	if regimen_like['started'] > now:
 		starts_in = regimen_like['started'] - now
 		if terse:
-			return _('%s%s (%s+%s)') % (
+			return '%s%s (%s+%s)' % (
 				gmDateTime.pydt_strftime(regimen_like['started'], '%Y %b %d', 'utf8', gmDateTime.acc_days),
 				comment_mark,
 				gmTools.u_almost_equal_to,
@@ -4038,7 +4038,7 @@ def format_regimen_start_medically(regimen_like:cIntakeWithRegimen|cIntakeRegime
 	three_months = pydt.timedelta(weeks = 13, days = 3)
 	if started_ago < three_months:
 		if terse:
-			return _('%s%s (%s-%s,%s)') % (
+			return '%s%s (%s-%s,%s)' % (
 				gmDateTime.pydt_strftime(regimen_like['started'], format = '%b %d', accuracy = gmDateTime.acc_days),
 				comment_mark,
 				gmTools.u_almost_equal_to,
@@ -4058,7 +4058,7 @@ def format_regimen_start_medically(regimen_like:cIntakeWithRegimen|cIntakeRegime
 	five_years = pydt.timedelta(weeks = 265)
 	if started_ago < five_years:
 		if terse:
-			return _('%s%s (%s-%s,%s)') % (
+			return '%s%s (%s-%s,%s)' % (
 				gmDateTime.pydt_strftime(regimen_like['started'], format = '%Y %b', accuracy = gmDateTime.acc_months),
 				comment_mark,
 				gmTools.u_almost_equal_to,
@@ -4076,7 +4076,7 @@ def format_regimen_start_medically(regimen_like:cIntakeWithRegimen|cIntakeRegime
 		)
 
 	if terse:
-		return _('%s%s (%s-%s,%s)') % (
+		return '%s%s (%s-%s,%s)' % (
 			gmDateTime.pydt_strftime(regimen_like['started'], '%Y', 'utf8', gmDateTime.acc_years),
 			comment_mark,
 			gmTools.u_almost_equal_to,

@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-22 16:42+0200\n"
-"PO-Revision-Date: 2024-09-22 17:19+0200\n"
+"POT-Creation-Date: 2024-10-13 13:52+0200\n"
+"PO-Revision-Date: 2024-10-13 14:22+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -2523,6 +2523,10 @@ msgid "The selected value contains invalid characters and can't be saved"
 msgstr ""
 "Der ausgewählte Wert enthält ungültige Zeichen und kann nicht gespeichert "
 "werden"
+
+#, python-format
+msgid "binary data: %s%s (total: %s bytes)"
+msgstr "Binärdaten: %s%s (%s Bytes insgesamt)"
 
 #, python-format
 msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
@@ -9753,6 +9757,9 @@ msgstr "und lassen Sie die Suche erneut laufen."
 msgid "The query failed."
 msgstr "Die Abfrage schlug fehl."
 
+msgid "No results."
+msgstr "Keine Ergebnisse."
+
 #, python-format
 msgid ""
 "Cannot add GNUmed user.\n"
@@ -10468,6 +10475,10 @@ msgstr " Grunderkrankung: %s\n"
 msgid " External reference: %s\n"
 msgstr " Externe Referenz: %s\n"
 
+#, python-format
+msgid "From: %s @ %s"
+msgstr "Von: %s @ %s"
+
 msgid "Cannot run [arriba] !"
 msgstr "Kann [arriba] nicht ausführen !"
 
@@ -10557,7 +10568,7 @@ msgid "Active billable item"
 msgstr "Aktive Gebührenordnungsposition"
 
 msgid "Inactive billable item"
-msgstr "Inaktive GNr."
+msgstr "Inaktive GONr."
 
 #, python-format
 msgid " %(curr)s%(raw_val)s + %(perc_vat)s%% VAT = %(curr)s%(val_w_vat)s\n"
@@ -12561,6 +12572,9 @@ msgstr ""
 #, python-format
 msgid "Vaccination history -- %s"
 msgstr "Impfstand -- %s"
+
+msgid "Printing vaccination history"
+msgstr "Impfstand drucken"
 
 msgid "Pretty vaccination history form failed. Generating failsafe version."
 msgstr "Fehlerhafte Vorlage \"Impfhistorie\". Erzeuge Notfallversion."
@@ -17222,6 +17236,10 @@ msgstr "<gm-fax_doc(.bat) nicht gefunden>"
 msgid "Password not provided twice. Aborting."
 msgstr "Passort nicht zweimal eingegeben. Abbruch."
 
+msgid "Passphrase password not provided twice. Aborting."
+msgstr ""
+"Passwort für Datenverschlüsselungspasswort nicht zweimal eingegeben. Abbruch."
+
 msgid "Error exporting entries."
 msgstr "Fehler beim Exportieren der Einträge."
 
@@ -17229,13 +17247,19 @@ msgid "Error creating zip file."
 msgstr "Fehler beim Erzeugen des Ziparchivs."
 
 msgid ""
-"Enter passphrase to protect the data with.\n"
+"No public keys available for encrypted\n"
+"storage of the data passphrase.\n"
+"\n"
+"Enter master passphrase for encryption of data passphrases.\n"
 "\n"
 "(minimum length: 5, trailing blanks will be stripped)"
 msgstr ""
-"Geben Sie das Passwort (Phrase) zum Schutz der Daten ein.\n"
+"Keine öffentlichen Schlüssel zum Schützen\n"
+"des Datenpassworts verfügbar.\n"
 "\n"
-"(mindestens 5 Zeichen, anhängende Leerzeichen werden abgeschnitten)"
+"Geben Sie das Hauptpasswort zum Schützen des Datenpassworts ein.\n"
+"\n"
+"(mindestens 5 Buchstaben, anhängende Leerzeichen werden entfernt)"
 
 msgid ""
 "Insufficient passphrase.\n"
@@ -17251,6 +17275,37 @@ msgstr ""
 "Neuer Versuch ?"
 
 msgid ""
+"Once more enter master passphrase for encryption of data passphrases.\n"
+"\n"
+"(this will protect you from typos)\n"
+"\n"
+"Abort by leaving empty.\n"
+msgstr ""
+"Geben Sie das Hauptpasswort zum Schutz von Datenpassworten erneut ein.\n"
+"\n"
+"(Dadurch werden Vertipper entdeckt.)\n"
+"\n"
+"Abbrechen durch Leerlassen.\n"
+
+msgid ""
+"Passphrases do not match.\n"
+"\n"
+"Retry, or abort with an empty passphrase."
+msgstr ""
+"Passworte (Phrasen) stimmen nicht überein.\n"
+"\n"
+"Erneut eingeben - oder Abbruch durch leeres Passwort."
+
+msgid ""
+"Enter passphrase to protect the data with.\n"
+"\n"
+"(minimum length: 5, trailing blanks will be stripped)"
+msgstr ""
+"Geben Sie das Passwort (Phrase) zum Schutz der Daten ein.\n"
+"\n"
+"(mindestens 5 Zeichen, anhängende Leerzeichen werden abgeschnitten)"
+
+msgid ""
 "Once more enter passphrase to protect the data with.\n"
 "\n"
 "(this will protect you from typos)\n"
@@ -17262,15 +17317,6 @@ msgstr ""
 "(Dadurch werden Vertipper entdeckt.)\n"
 "\n"
 "Abbrechen durch Leerlassen."
-
-msgid ""
-"Passphrases do not match.\n"
-"\n"
-"Retry, or abort with an empty passphrase."
-msgstr ""
-"Passworte (Phrasen) stimmen nicht überein.\n"
-"\n"
-"Erneut eingeben - oder Abbruch durch leeres Passwort."
 
 msgid "Export area empty. Nothing to do."
 msgstr "Sammelmappe leer. Nichts zu tun."
@@ -17296,6 +17342,9 @@ msgstr "Dokumente brennen"
 
 msgid "Select items for encryption."
 msgstr "Zu verschlüsselnde Einträge wählen."
+
+msgid "Encrypting items"
+msgstr "Einträge verschlüsseln"
 
 msgid "Select items for PDF."
 msgstr "Einträge für PDF wählen."
@@ -17522,6 +17571,10 @@ msgstr "Diese Praxis"
 
 msgid "Bill receiver"
 msgstr "Rechnungsempfänger"
+
+#, python-format
+msgid "List of Documents -- %s"
+msgstr "Liste von Dokumente -- %s"
 
 msgid ""
 "Are you sure you want to delete this\n"
@@ -17896,6 +17949,15 @@ msgstr "Zugehörige Konsultation wählen"
 msgid "Manage descriptions"
 msgstr "Beschreibungen verwalten"
 
+msgid "Archive Actions:"
+msgstr "Archiv-Aktionen"
+
+msgid "Show as listing"
+msgstr "In einer Liste zeigen"
+
+msgid "Put listing into export area"
+msgstr "Liste in Sammelmappe legen"
+
 #, python-format
 msgid "part %2s"
 msgstr "Teil %2s"
@@ -18022,6 +18084,9 @@ msgstr "Dokumententeil speichern in Verzeichnis ..."
 #, python-format
 msgid "Successfully saved document part as [%s]."
 msgstr "Dokumententeil unter [%s] gespeichert."
+
+msgid "Patient documents list"
+msgstr "Liste der Dokumente des Patienten"
 
 #, python-format
 msgid ""
@@ -19407,7 +19472,7 @@ msgid "Admin connection"
 msgstr "Admin-Verbindung"
 
 msgid "Test connecting to the database as admin."
-msgstr ""
+msgstr "Datenbankverbindung als Admin testen."
 
 msgid "Lock/unlock patient search"
 msgstr "Patientensuche sperren/entsperren"
@@ -20367,7 +20432,7 @@ msgid "Test for connecting as database admin (owner)."
 msgstr "Teste Verbindung als Datenbank-Admin (Besitzer)."
 
 msgid "Successfully connected as database owner."
-msgstr ""
+msgstr "Erfolgreiche Verbindung als Datenbankinhaber."
 
 msgid "Error reloading hook script."
 msgstr "Fehler beim Neuladen des Hook-Skripts."
