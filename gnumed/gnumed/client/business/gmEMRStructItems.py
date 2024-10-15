@@ -2368,7 +2368,7 @@ limit 1
 			) %s"""
 		args = {'enc': self.pk_obj}
 		if exclude is not None:
-			cmd = cmd % 'AND pk_episode <> ALL(%(loincs)s)'
+			cmd = cmd % 'AND pk_episode <> ALL(%(excluded)s)'
 			args['excluded'] = exclude
 		else:
 			cmd = cmd % ''
@@ -2797,9 +2797,11 @@ limit 1
 	def format(self, episodes=None, with_soap=False, left_margin=0, patient=None, issues=None, with_docs=True, with_tests=True, fancy_header=True, with_vaccinations=True, with_co_encountlet_hints=False, with_rfe_aoe=False, with_family_history=True, by_episode=False, return_list=False):
 		"""Format an encounter.
 
-		with_co_encountlet_hints:
-			- whether to include which *other* episodes were discussed during this encounter
-			- (only makes sense if episodes != None)
+		Args:
+			episode: which episodes, touched upon by this encounter, to include information for
+			with_co_encountlet_hints:
+				- whether to include which *other* episodes were discussed during this encounter
+				- (only makes sense if episodes is not None, since that would preclude information)
 		"""
 		lines = self.format_header (
 			fancy_header = fancy_header,
