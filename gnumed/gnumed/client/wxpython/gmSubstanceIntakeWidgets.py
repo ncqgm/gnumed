@@ -271,7 +271,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 				for egfr in egfrs:
 					if egfr.numeric_value is None:
 						continue
-					tt_lines.append(egfr.format (
+					tt_lines.extend(egfr.format (
 						left_margin = 0,
 						width = 50,
 						with_formula = False,
