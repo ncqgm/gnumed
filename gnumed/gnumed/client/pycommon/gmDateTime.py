@@ -558,7 +558,7 @@ def format_interval(interval=None, accuracy_wanted=None, none_string=None, verbo
 	return formatted_intv.strip()
 
 #---------------------------------------------------------------------------
-def format_interval_medically(interval:pyDT.timedelta=None, terse:bool=False, approximation_prefix:str=None):
+def format_interval_medically(interval:pyDT.timedelta=None, terse:bool=False, approximation_prefix:str=None, zero_duration_strings:list[str]=None):
 	"""Formats an interval.
 
 		This isn't mathematically correct but close enough for display.
@@ -567,8 +567,19 @@ def format_interval_medically(interval:pyDT.timedelta=None, terse:bool=False, ap
 		interval: the interval to format
 		terse: output terse formatting or not
 		approximation_mark: an approxiation mark to apply in the formatting, if any
+		zero_duration_strings: a list of two strings, terse and verbose form, to return if a zero duration interval is to be formatted
 	"""
-	assert interval, '<interval> must be given'
+	assert interval is not None, '<interval> must be given'
+
+	if interval.total_seconds() == 0:
+		if not zero_duration_strings:
+			zero_duration_strings = [
+				_('zero_duration_symbol::\u2300').removeprefix('zero_duration_symbol::'),
+				_('zero_duration_text::no duration').removeprefix('zero_duration_text::')
+			]
+		if terse:
+			return zero_duration_strings[0]
+		return zero_duration_strings[1]
 
 	spacer = '' if terse else ' '
 	prefix = approximation_prefix if approximation_prefix else ''
@@ -2144,6 +2155,11 @@ if __name__ == '__main__':
 	#-----------------------------------------------------------------------
 	def test_format_interval_medically():
 
+		now = pydt_now_here()
+		print(format_interval_medically(now - now, terse = False))
+		print(format_interval_medically(now - now, terse = True))
+		return
+
 		intervals = [
 			pyDT.timedelta(seconds = 1),
 			pyDT.timedelta(seconds = 5),
@@ -2419,6 +2435,6 @@ if __name__ == '__main__':
 	#test_pydt_strftime()
 	#test_calculate_apparent_age()
 	#test_is_leap_year()
-	test__numbers_only()
+	#test__numbers_only()
 
 #===========================================================================
