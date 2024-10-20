@@ -158,7 +158,7 @@ def delete_intake_with_regimen(parent=None, intake=None):
 	edit_first = dlg.ShowModal()
 	dlg.DestroyLater()
 	if edit_first == wx.ID_CANCEL:
-		return
+		return False
 
 	if edit_first == wx.ID_YES:
 		edit_intake_with_regimen(parent = parent, intake_with_regimen = intake)
@@ -169,12 +169,12 @@ def delete_intake_with_regimen(parent=None, intake=None):
 	else:
 		delete_it = True
 	if not delete_it:
-		return
+		return False
 
 	conn = gmPG2.get_connection(readonly = False)
-	result = gmMedication.delete_intake_with_regimen(pk_intake = intake['pk_intake'], pk_intake_regimen = intake['pk_intake_regimen'], link_obj = conn)
+	gmMedication.delete_intake_with_regimen(pk_intake = intake['pk_intake'], pk_intake_regimen = intake['pk_intake_regimen'], link_obj = conn)
 	conn.commit()
-	return result
+	return True
 
 #============================================================
 from Gnumed.wxGladeWidgets import wxgSubstanceIntakeEAPnl

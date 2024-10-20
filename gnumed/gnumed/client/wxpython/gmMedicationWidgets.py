@@ -436,7 +436,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		if kwds['pk_identity'] != pat.ID:
 			return True
 
-		if kwds['table'] == 'clin.intake':
+		if kwds['table'] in ['clin.intake', 'clin.intake_regimen']:
 			self._schedule_data_reget()
 		elif kwds['table'] == 'clin.test_result':
 			self._on_test_result_mod()

@@ -2286,15 +2286,14 @@ def delete_intake_with_regimen(pk_intake_regimen:int, pk_intake:int=None, link_o
 
 	If that had been the only regimen, also delete the intake itself, IF the PK for that is known.
 	"""
-	result = delete_intake_regimen(pk_intake_regimen = pk_intake_regimen, link_obj = link_obj)
+	delete_intake_regimen(pk_intake_regimen = pk_intake_regimen, link_obj = link_obj)
 	if not pk_intake:
-		return result
+		return True
 
 	other_regimen4intake = get_intake_regimens(pk_intake = pk_intake, ongoing_only = False, as_instance = False, link_obj = link_obj)
-	if other_regimen4intake:
-		return result
-
-	return delete_substance_intake(pk_intake = pk_intake, delete_regimen = False, link_obj = link_obj)
+	if not other_regimen4intake:
+		delete_substance_intake(pk_intake = pk_intake, delete_regimen = False, link_obj = link_obj)
+	return True
 
 #------------------------------------------------------------
 def create_intake_with_regimen (
@@ -2641,6 +2640,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		'last_checked_when',
 		'notes4patient',
 		'notes4provider',
+		'notes4us',
 		'use_type',
 		'pk_episode',
 		'pk_encounter'
