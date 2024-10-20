@@ -412,8 +412,8 @@ class cXSaneScanner:
 
 		# our closest bet, might contain umlauts
 		enc = gmI18N.get_encoding()
-		fread = io.open(self._gm_custom_xsanerc, mode = "rt", encoding = enc)
-		fwrite = io.open(session_xsanerc, mode = "wt", encoding = enc)
+		fread = open(self._gm_custom_xsanerc, mode = "rt", encoding = enc)
+		fwrite = open(session_xsanerc, mode = "wt", encoding = enc)
 
 		paths = gmTools.gmPaths()
 		val_dict = {

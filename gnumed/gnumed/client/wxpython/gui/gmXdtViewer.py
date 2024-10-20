@@ -98,7 +98,7 @@ class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
 			_log.warning('xDT file [%s] does not define an encoding, assuming [%s]' % (filename, encoding))
 
 		try:
-			xdt_file = io.open(filename, mode = 'rt', encoding = encoding, errors = 'replace')
+			xdt_file = open(filename, mode = 'rt', encoding = encoding, errors = 'replace')
 		except IOError:
 			gmGuiHelpers.gm_show_error (
 				_('Cannot access xDT file\n\n'

@@ -1068,7 +1068,7 @@ class database:
 		_log.info(u'hba file: %s', hba_file)
 
 		try:
-			f = io.open(hba_file, mode = 'rt').close()
+			f = open(hba_file, mode = 'rt').close()
 		except Exception:
 			_log.exception(u'cannot check pg_hba.conf for authentication information - not readable')
 			return
@@ -1348,7 +1348,7 @@ class database:
 
 		# write schema to file
 		tmpfile = os.path.join(tempfile.gettempdir(), 'audit-trail-schema.sql')
-		f = io.open(tmpfile, mode = 'wt', encoding = 'utf8')
+		f = open(tmpfile, mode = 'wt', encoding = 'utf8')
 		for line in audit_schema:
 			f.write(u'%s;\n' % line)
 		f.close()

@@ -187,7 +187,7 @@ def _print_files_by_gsprint_exe(filenames=None, verbose=False):
 		suffix = '.cfg'
 	).encode(sys.getfilesystemencoding())
 	for filename in filenames:
-		conf_file = io.open(conf_filename, mode = 'wt', encoding = 'utf8')
+		conf_file = open(conf_filename, mode = 'wt', encoding = 'utf8')
 		conf_file.write('-color\n')
 		conf_file.write('-query\n')			# printer setup dialog
 		conf_file.write('-all\n')			# all pages

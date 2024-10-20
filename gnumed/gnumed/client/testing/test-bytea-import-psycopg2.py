@@ -14,7 +14,7 @@ dsn = "dbname=gnumed_v9 user=any-doc password=any-doc"
 fname = sys.argv[1]
 encodings = 'win1250 win1252 latin1 iso-8859-15 sql_ascii latin9'.split()
 
-log = io.open('test-bytea-import-psycopg2.log', mode = 'wt', encoding = 'utf8')
+log = open('test-bytea-import-psycopg2.log', mode = 'wt', encoding = 'utf8')
 
 log.write('running on:\n')
 log.write(sys.version + '\n')

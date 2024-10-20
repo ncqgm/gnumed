@@ -115,7 +115,7 @@ class cArriba(object):
 		fname_status = gmTools.get_unique_filename(prefix = 'arriba2gm_status-', suffix = '.xml')
 		self.xml_result = gmTools.get_unique_filename(prefix = 'arriba2gm_result-', suffix = '.xml')
 		self.pdf_result = gmTools.get_unique_filename(prefix = 'arriba2gm_result-', suffix = '.pdf')
-		xml_file = io.open(fname_cfg, mode = 'wt', encoding = 'utf8', errors = 'replace')
+		xml_file = open(fname_cfg, mode = 'wt', encoding = 'utf8', errors = 'replace')
 		xml_file.write (xml % (
 			pat_xml,
 			fname_status,

@@ -450,7 +450,7 @@ def create_timeline_file(patient=None, filename=None, include_documents=False, i
 	else:
 		timeline_fname = filename
 	_log.debug('exporting EMR as timeline into [%s]', timeline_fname)
-	timeline = io.open(timeline_fname, mode = 'wt', encoding = 'utf8', errors = 'xmlcharrefreplace')
+	timeline = open(timeline_fname, mode = 'wt', encoding = 'utf8', errors = 'xmlcharrefreplace')
 
 	if patient['dob'] is None:
 		lifespan_start = format_pydt(now.replace(year = now.year - 100))
@@ -645,7 +645,7 @@ def create_fake_timeline_file(patient=None, filename=None):
 		timeline_fname = filename
 
 	_log.debug('creating dummy timeline in [%s]', timeline_fname)
-	timeline = io.open(timeline_fname, mode = 'wt', encoding = 'utf8', errors = 'xmlcharrefreplace')
+	timeline = open(timeline_fname, mode = 'wt', encoding = 'utf8', errors = 'xmlcharrefreplace')
 
 	timeline.write(__fake_timeline_start)
 

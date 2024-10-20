@@ -42,7 +42,7 @@ queries = [
 
 fname = u'gm_db-%s-fingerprint.log' % database
 #==============================================================
-#outfile = io.open(fname, mode = 'wt', encoding = 'utf8')
+#outfile = open(fname, mode = 'wt', encoding = 'utf8')
 
 #outfile.write(u"Fingerprinting GNUmed database ...\n")
 #outfile.write(u"\n")

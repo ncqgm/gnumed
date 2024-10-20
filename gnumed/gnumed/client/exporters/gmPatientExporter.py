@@ -926,7 +926,7 @@ class cEMRJournalExporter:
 		if filename is None:
 			filename = gmTools.get_unique_filename(prefix = 'gm-emr_by_mod_time-', suffix = '.txt')
 
-		f = io.open(filename, mode = 'w+t', encoding = 'utf8', errors = 'replace')
+		f = open(filename, mode = 'w+t', encoding = 'utf8', errors = 'replace')
 
 		self.__narrative_wrap_len = 80
 
@@ -999,7 +999,7 @@ class cEMRJournalExporter:
 		if filename is None:
 			filename = gmTools.get_unique_filename(prefix = 'gm-emr_journal-', suffix = '.txt')
 
-		f = io.open(filename, mode = 'w+t', encoding = 'utf8', errors = 'replace')
+		f = open(filename, mode = 'w+t', encoding = 'utf8', errors = 'replace')
 		self.__export_by_encounter(target = f, patient = patient)
 		f.close()
 		return filename
@@ -1180,7 +1180,7 @@ class cMedistarSOAPExporter:
 				self.__pat.get_formatted_dob(format = '%Y-%m-%d')
 			)
 
-		f = io.open(filename, mode = 'w+t', encoding = 'cp437', errors='replace')
+		f = open(filename, mode = 'w+t', encoding = 'cp437', errors='replace')
 		status = self.__export(target = f, encounter = encounter, soap_cats = soap_cats)
 		f.close()
 

@@ -122,15 +122,15 @@ def split_LOINCDBTXT(input_fname=None, data_fname=None, license_fname=None):
 		data_fname = gmTools.get_unique_filename(prefix = 'loinc_data-', suffix = '.csv')
 	_log.debug('LOINC data: %s', data_fname)
 
-	loinc_file = io.open(input_fname, mode = 'rt', encoding = file_encoding, errors = 'replace')
-	out_file = io.open(license_fname, mode = 'wt', encoding = 'utf8', errors = 'replace')
+	loinc_file = open(input_fname, mode = 'rt', encoding = file_encoding, errors = 'replace')
+	out_file = open(license_fname, mode = 'wt', encoding = 'utf8', errors = 'replace')
 
 	for line in loinc_file:
 
 		if license_delimiter in line:
 			out_file.write(line)
 			out_file.close()
-			out_file = io.open(data_fname, mode = 'wt', encoding = 'utf8', errors = 'replace')
+			out_file = open(data_fname, mode = 'wt', encoding = 'utf8', errors = 'replace')
 			continue
 
 		out_file.write(line)
@@ -142,7 +142,7 @@ def split_LOINCDBTXT(input_fname=None, data_fname=None, license_fname=None):
 #============================================================
 def map_field_names(data_fname='loinc_data.csv'):
 
-	csv_file = io.open(data_fname, mode = 'rt', encoding = 'utf-8-sig', errors = 'replace')
+	csv_file = open(data_fname, mode = 'rt', encoding = 'utf-8-sig', errors = 'replace')
 	first_line = csv_file.readline()
 	sniffer = csv.Sniffer()
 	if sniffer.has_header(first_line):
@@ -151,7 +151,7 @@ def map_field_names(data_fname='loinc_data.csv'):
 #============================================================
 def get_version(license_fname='loinc_license.txt'):
 
-	in_file = io.open(license_fname, mode = 'rt', encoding = 'utf-8-sig', errors = 'replace')
+	in_file = open(license_fname, mode = 'rt', encoding = 'utf-8-sig', errors = 'replace')
 
 	version = None
 	for line in in_file:
@@ -182,7 +182,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 	_log.debug('staging table emptied')
 
 	# import data from csv file into staging table
-	csv_file = io.open(data_fname, mode = 'rt', encoding = 'utf-8-sig', errors = 'replace')
+	csv_file = open(data_fname, mode = 'rt', encoding = 'utf-8-sig', errors = 'replace')
 	loinc_reader = gmTools.unicode_csv_reader(csv_file, delimiter = "\t", quotechar = '"')
 	curs = conn.cursor()
 	cmd = """INSERT INTO staging.loinc_staging values (%s%%s)""" % ('%s, ' * (len(loinc_fields) - 1))
@@ -198,7 +198,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 	_log.debug('staging table loaded')
 
 	# create data source record
-	in_file = io.open(license_fname, mode = 'rt', encoding = 'utf-8-sig', errors = 'replace')
+	in_file = open(license_fname, mode = 'rt', encoding = 'utf-8-sig', errors = 'replace')
 	desc = in_file.read()
 	in_file.close()
 	args = {'ver': version, 'desc': desc, 'url': origin_url, 'name_long': name_long, 'name_short': name_short, 'lang': lang}

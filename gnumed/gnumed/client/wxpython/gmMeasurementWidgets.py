@@ -199,7 +199,7 @@ def browse_incoming(parent=None):
 		filename = staged_item.save_to_file()
 		if filename is None:
 			filename = gmTools.get_unique_filename()
-		tmp_file = io.open(filename, mode = 'at', encoding = 'utf8')
+		tmp_file = open(filename, mode = 'at', encoding = 'utf8')
 		tmp_file.write('\n')
 		tmp_file.write('-' * 80)
 		tmp_file.write('\n')

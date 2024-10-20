@@ -557,7 +557,7 @@ default_placeholder_end = '>$'
 def show_placeholders():
 
 	fname = gmTools.get_unique_filename(prefix = 'gm-placeholders-', suffix = '.txt')
-	ph_file = io.open(fname, mode = 'wt', encoding = 'utf8', errors = 'replace')
+	ph_file = open(fname, mode = 'wt', encoding = 'utf8', errors = 'replace')
 
 	ph_file.write('Here you can find some more documentation on placeholder use:\n')
 	ph_file.write('\n https://www.gnumed.de/bin/view/Gnumed/GmManualLettersForms\n\n\n')

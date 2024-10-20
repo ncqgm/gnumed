@@ -3808,7 +3808,7 @@ def export_emr_structure(patient=None, filename=None):
 	if filename is None:
 		filename = gmTools.get_unique_filename(prefix = 'gm-emr_struct-%s-' % patient.subdir_name, suffix = '.txt')
 
-	f = io.open(filename, 'w+', encoding = 'utf8')
+	f = open(filename, 'w+', encoding = 'utf8')
 
 	f.write('patient [%s]\n' % patient.description_gender)
 	emr = patient.emr
@@ -3877,7 +3877,7 @@ def check_fk_encounter_fk_episode_x_ref():
 	for t in tables_linking2both:
 
 		table_file_name = 'x-check_enc_epi_xref-%s.log' % t
-		table_file = io.open(table_file_name, 'w+', encoding = 'utf8')
+		table_file = open(table_file_name, 'w+', encoding = 'utf8')
 
 		# get PK column
 		args = {'table': t}

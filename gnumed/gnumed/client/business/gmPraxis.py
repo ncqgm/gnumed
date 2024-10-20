@@ -191,7 +191,7 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 			prefix = 'gm-praxis-',
 			suffix = '.vcf'
 		)
-		vcf_file = io.open(vcf_fname, mode = 'wt', encoding = 'utf8')
+		vcf_file = open(vcf_fname, mode = 'wt', encoding = 'utf8')
 		vcf_file.write('\n'.join(vcf_fields))
 		vcf_file.write('\n')
 		vcf_file.close()
@@ -206,7 +206,7 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 				prefix = 'gm-praxis-',
 				suffix = '.mcf'
 			)
-		with io.open(filename, mode = 'wt', encoding = 'utf8') as mecard_file:
+		with open(filename, mode = 'wt', encoding = 'utf8') as mecard_file:
 			mecard_file.write(self.MECARD)
 		return filename
 

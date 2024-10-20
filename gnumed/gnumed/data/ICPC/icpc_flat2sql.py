@@ -265,10 +265,10 @@ def init_record():
 		u'see_also': NULL
 	}
 #================================================================================
-outfile = io.open('v15-ref-icpc2_de-data.sql', mode = 'wt', encoding = 'utf8')
+outfile = open('v15-ref-icpc2_de-data.sql', mode = 'wt', encoding = 'utf8')
 outfile.write(SQL_SCRIPT_START)
 
-infile = io.open(fname, mode = 'rt', encoding = 'utf8')
+infile = open(fname, mode = 'rt', encoding = 'utf8')
 
 current_record = None
 for line in infile:

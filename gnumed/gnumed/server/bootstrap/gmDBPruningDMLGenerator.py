@@ -30,11 +30,11 @@ _log.info(__version__)
 def generate_pruning_dml(filename=None):
 
 	# FIXME: encoding may need configuration
-	backup_file = io.open(filename, mode = 'rt', encoding = 'utf8')
+	backup_file = open(filename, mode = 'rt', encoding = 'utf8')
 	backup_path, name = os.path.split(filename)
 	name, ext = os.path.splitext(name)
 	dml_name = os.path.join(backup_path, '%s-prune_tables.sql' % name)
-	dml_file = io.open(dml_name, mode = 'wt', encoding = 'utf8')
+	dml_file = open(dml_name, mode = 'wt', encoding = 'utf8')
 
 	prev_table = None
 	idx = 1

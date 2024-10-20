@@ -2706,7 +2706,7 @@ class gmTopLevelFrame(wx.Frame):
 		from Gnumed.exporters import gmPatientExporter
 		exporter = gmPatientExporter.cEmrExport(patient = pat)
 		fname = gmTools.get_unique_filename(prefix = 'gm-exp-', suffix = '.txt')
-		output_file = io.open(fname, mode = 'wt', encoding = 'utf8', errors = 'replace')
+		output_file = open(fname, mode = 'wt', encoding = 'utf8', errors = 'replace')
 		exporter.set_output_file(output_file)
 		exporter.dump_constraints()
 		exporter.dump_demographic_record(True)

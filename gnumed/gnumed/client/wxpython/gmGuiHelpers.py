@@ -356,13 +356,13 @@ def clipboard2file(check_for_filename=False):
 		wx.TheClipboard.Close()
 		if check_for_filename:
 			try:
-				io.open(clipboard_text_content).close()
+				open(clipboard_text_content).close()
 				return clipboard_text_content
 
 			except IOError:
 				_log.exception('clipboard does not seem to hold filename: %s', clipboard_text_content)
 		fname = gmTools.get_unique_filename(prefix = 'gm-clipboard-', suffix = '.txt')
-		target_file = io.open(fname, mode = 'wt', encoding = 'utf8')
+		target_file = open(fname, mode = 'wt', encoding = 'utf8')
 		target_file.write(clipboard_text_content)
 		target_file.close()
 		return fname

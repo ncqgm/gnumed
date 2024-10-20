@@ -168,8 +168,8 @@ def set_option_in_INI_file(filename=None, group=None, option=None, value=None, e
 	sink = tempfile.NamedTemporaryFile(suffix = '.cfg', delete = True)
 	sink_name = sink.name
 	sink.close()	# close it so it gets deleted so we can safely open it again
-	src = io.open(filename, mode = 'rt', encoding = encoding)
-	sink = io.open(sink_name, mode = 'wt', encoding = encoding)
+	src = open(filename, mode = 'rt', encoding = encoding)
+	sink = open(sink_name, mode = 'wt', encoding = encoding)
 
 	# is value a list ?
 	if isinstance(value, type([])):
@@ -371,7 +371,7 @@ class gmCfgData(gmBorg.cBorg):
 		cfg_file = None
 		if file is not None:
 			try:
-				cfg_file = io.open(file, mode = 'rt', encoding = encoding)
+				cfg_file = open(file, mode = 'rt', encoding = encoding)
 			except IOError:
 				_log.error('cannot open [%s], keeping as dummy source', file)
 

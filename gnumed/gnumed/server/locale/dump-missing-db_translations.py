@@ -40,7 +40,7 @@ if __name__ == '__main__':
 		print "nothing to translate"
 		sys.exit(0)
 	# write strings to file
-	dump = io.open('gnumed-db_translation.sql', mode = 'wt', encoding = 'utf8')
+	dump = open('gnumed-db_translation.sql', mode = 'wt', encoding = 'utf8')
 	dump.write(u'set default_transaction_read_only to off\n\n')
 	dump.write(u'\\unset ON_ERROR_STOP\n\n')
 	for row in rows:

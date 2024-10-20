@@ -31,7 +31,7 @@ PATIENTS_IN_dob_format = '%d/%m/%Y'
 #============================================================
 def read_persons_from_pracsoft_file(filename=None, encoding='ascii'):
 
-	pats_file = io.open(filename, mode = 'rt', encoding = encoding)
+	pats_file = open(filename, mode = 'rt', encoding = encoding)
 	dtos = []
 
 	for line in pats_file:

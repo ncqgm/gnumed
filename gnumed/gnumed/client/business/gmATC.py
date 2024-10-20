@@ -180,7 +180,7 @@ def atc_import(cfg_fname=None, conn=None):
 		_log.debug('ATC data source record created, pk is #%s', data_src_pk)
 
 	# import data
-	csv_file = io.open(data_fname, mode = 'rt', encoding = 'utf-8-sig', errors = 'replace')
+	csv_file = open(data_fname, mode = 'rt', encoding = 'utf-8-sig', errors = 'replace')
 	atc_reader = gmTools.unicode_csv_reader(csv_file, delimiter = ",", quotechar = '"')
 
 	# clean out staging area

@@ -33,7 +33,7 @@ conn = gmPG2.get_connection()
 
 rows = gmPG2.run_ro_queries(link_obj=conn, queries=[{'cmd': cmd, 'args': {'pat': sys.argv[1]}}])
 
-f = io.open('emr-%s-narrative-dump.txt' % sys.argv[1], mode = 'wt', encoding = 'utf8', errors = 'strict')
+f = open('emr-%s-narrative-dump.txt' % sys.argv[1], mode = 'wt', encoding = 'utf8', errors = 'strict')
 
 for row in rows:
 	f.write('%s: %s (%s)\n'.encode('utf8') % (row['soap_cat'], row['narrative'], row['src_table']))

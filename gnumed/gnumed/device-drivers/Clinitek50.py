@@ -208,7 +208,7 @@ if __name__ == '__main__':
 	# try to init device
 	dev = cClinitek50(0)
 	err_cnt = 0
-	urin_file = io.open('clinitek50.dat', mode = 'wt', encoding = 'utf8')
+	urin_file = open('clinitek50.dat', mode = 'wt', encoding = 'utf8')
 	while 1:
 		packet = dev.get_record()
 		if packet == -1:

@@ -259,7 +259,7 @@ def import_hook_module(reimport=False):
 
 	if not os.access(HOOK_SCRIPT_FULL_NAME, os.F_OK):
 		_log.warning('creating default hook script')
-		f = io.open(HOOK_SCRIPT_FULL_NAME, mode = 'wt', encoding = 'utf8')
+		f = open(HOOK_SCRIPT_FULL_NAME, mode = 'wt', encoding = 'utf8')
 		f.write("""
 # known hooks:
 #  %s

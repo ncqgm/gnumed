@@ -154,7 +154,7 @@ class cGelbeListeCSVFile(object):
 
 		_log.debug('reading Gelbe Liste/MMI drug data from [%s]', self.filename)
 
-		self.csv_file = io.open(filename, mode = 'rt', encoding = cGelbeListeCSVFile.default_encoding)
+		self.csv_file = open(filename, mode = 'rt', encoding = cGelbeListeCSVFile.default_encoding)
 
 		self.csv_lines = gmTools.unicode_csv_reader (
 			self.csv_file,
@@ -255,7 +255,7 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 			}
 
 		try:
-			version_file = io.open(self.data_date_filename, mode = 'rt', encoding = 'utf8')
+			version_file = open(self.data_date_filename, mode = 'rt', encoding = 'utf8')
 		except Exception:
 			_log.error('problem querying the MMI drug database for version information')
 			_log.exception('cannot open MMI drug database version file [%s]', self.data_date_filename)
@@ -411,7 +411,7 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 		if drug_ids_list < 2:
 			return
 
-		bdt_file = io.open(self.interactions_filename, mode = 'wt', encoding = cGelbeListeWindowsInterface.default_encoding)
+		bdt_file = open(self.interactions_filename, mode = 'wt', encoding = cGelbeListeWindowsInterface.default_encoding)
 
 		for pzn in drug_ids_list:
 			pzn = pzn.strip()
@@ -800,7 +800,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 </FreeDiams>
 """
 
-		xml_file = io.open(self.__fd2gm_filename, mode = 'wt', encoding = 'utf8')
+		xml_file = open(self.__fd2gm_filename, mode = 'wt', encoding = 'utf8')
 		xml_file.write(xml % '\n\t\t'.join(drug_snippets))
 		xml_file.close()
 
@@ -815,7 +815,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		else:
 			mode = 'select-only'
 
-		xml_file = io.open(self.__gm2fd_filename, mode = 'wt', encoding = 'utf8')
+		xml_file = open(self.__gm2fd_filename, mode = 'wt', encoding = 'utf8')
 
 		xml = """<?xml version="1.0" encoding="UTF-8"?>
 
@@ -1237,7 +1237,7 @@ class cIfapInterface(cDrugDataSourceInterface):
 	def print_transfer_file(self, filename=None):
 
 		try:
-			csv_file = io.open(filename, mode = 'rt', encoding = 'latin1')						# FIXME: encoding correct ?
+			csv_file = open(filename, mode = 'rt', encoding = 'latin1')						# FIXME: encoding correct ?
 		except Exception:
 			_log.exception('cannot access [%s]', filename)
 			csv_file = None

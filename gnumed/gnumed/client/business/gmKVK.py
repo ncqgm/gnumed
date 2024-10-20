@@ -208,7 +208,7 @@ class cDTO_CCRdr(gmPerson.cDTO_person):
 	def __load_vk_file(self):
 
 		_log.debug('loading eGK/KVK/PKVK data from [%s]', self.filename)
-		vk_file = io.open(self.filename, mode = 'rt', encoding = 'utf-8-sig')
+		vk_file = open(self.filename, mode = 'rt', encoding = 'utf-8-sig')
 		self.raw_data = json.load(vk_file)
 		vk_file.close()
 
@@ -441,7 +441,7 @@ select pk_identity from dem.v_external_ids4identity where
 
 		_log.debug('parsing eGK data in [%s]', self.filename)
 
-		egk_file = io.open(self.filename, mode = 'rt', encoding = 'utf-8-sig')
+		egk_file = open(self.filename, mode = 'rt', encoding = 'utf-8-sig')
 
 		card_type_seen = False
 		for line in egk_file:
@@ -576,7 +576,7 @@ select pk_identity from dem.v_external_ids4identity where
 
 		_log.debug('parsing KVK data in [%s]', self.filename)
 
-		kvk_file = io.open(self.filename, mode = 'rt', encoding = 'utf-8-sig')
+		kvk_file = open(self.filename, mode = 'rt', encoding = 'utf-8-sig')
 
 		card_type_seen = False
 		for line in kvk_file:
@@ -625,7 +625,7 @@ select pk_identity from dem.v_external_ids4identity where
 #============================================================
 def detect_card_type(card_file=None):
 
-	kvk_file = io.open(card_file, mode = 'rt', encoding = 'utf-8-sig')
+	kvk_file = open(card_file, mode = 'rt', encoding = 'utf-8-sig')
 	for line in kvk_file:
 		line = line.replace('\n', '').replace('\r', '')
 		tag, content = line.split(':', 1)

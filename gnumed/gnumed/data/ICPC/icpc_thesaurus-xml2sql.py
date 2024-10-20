@@ -47,10 +47,10 @@ SQL_INSERT = u"""INSERT INTO ref.icpc_thesaurus (synonym, fk_code) VALUES (
 );
 """
 #================================================================================
-outfile = io.open('v15-ref-icpc2_de-thesaurus.sql', mode = 'wt', encoding = 'utf8')
+outfile = open('v15-ref-icpc2_de-thesaurus.sql', mode = 'wt', encoding = 'utf8')
 outfile.write(SQL_SCRIPT_START)
 
-infile = io.open(fname, mode = 'rt', encoding = 'cp1252')
+infile = open(fname, mode = 'rt', encoding = 'cp1252')
 
 for line in infile:
 

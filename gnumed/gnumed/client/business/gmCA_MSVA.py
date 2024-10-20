@@ -105,7 +105,7 @@ def read_persons_from_msva_file(filename=None, encoding=None):
 	if encoding is None:
 		encoding = MSVA_encoding
 
-	pats_file = io.open(filename, mode = 'rt', encoding = encoding)
+	pats_file = open(filename, mode = 'rt', encoding = encoding)
 
 	dtos = []
 

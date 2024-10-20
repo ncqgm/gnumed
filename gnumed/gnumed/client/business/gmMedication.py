@@ -3252,7 +3252,7 @@ $<amts_intakes_as_data::::9999999>$
 		suffix = '.txt',
 		tmp_dir = work_dir
 	)
-	amts_template = io.open(amts_fname, mode = 'wt', encoding = 'utf8')
+	amts_template = open(amts_fname, mode = 'wt', encoding = 'utf8')
 	amts_template.write('[form]\n')
 	amts_template.write('template = $template$\n')
 	amts_template.write(''.join(amts_lines))
@@ -3286,7 +3286,7 @@ $<amts_intakes_as_data_enhanced::::9999999>$
 		suffix = '.txt',
 		tmp_dir = work_dir
 	)
-	amts_template = io.open(amts_fname, mode = 'wt', encoding = 'utf8')
+	amts_template = open(amts_fname, mode = 'wt', encoding = 'utf8')
 	amts_template.write('[form]\n')
 	amts_template.write('template = $template$\n')
 	amts_template.write(''.join(amts_lines))
@@ -3411,7 +3411,7 @@ def generate_amts_data_template_definition_file_v2_0(work_dir=None, strict=True)
 		suffix = '.txt',
 		tmp_dir = work_dir
 	)
-	amts_template = io.open(amts_fname, mode = 'wt', encoding = 'utf8')
+	amts_template = open(amts_fname, mode = 'wt', encoding = 'utf8')
 	amts_template.write('[form]\n')
 	amts_template.write('template = $template$\n')
 	amts_template.write('|'.join(amts_fields))
@@ -3464,7 +3464,7 @@ def __generate_enhanced_amts_data_template_definition_file_v2_0(work_dir=None):
 		suffix = '.txt',
 		tmp_dir = work_dir
 	)
-	amts_template = io.open(amts_fname, mode = 'wt', encoding = 'utf8')
+	amts_template = open(amts_fname, mode = 'wt', encoding = 'utf8')
 	amts_template.write('[form]\n')
 	amts_template.write('template = $template$\n')
 	amts_template.write('|'.join(amts_fields))

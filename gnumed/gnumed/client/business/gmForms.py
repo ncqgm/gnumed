@@ -843,8 +843,8 @@ class cAbiWordForm(cFormEngine):
 			ext = r'.abw'
 		self.instance_filename = r'%s-instance%s' % (path, ext)
 
-		template_file = io.open(self.template_filename, mode = 'rt', encoding = 'utf-8-sig')
-		instance_file = io.open(self.instance_filename, mode = 'wt', encoding = 'utf8')
+		template_file = open(self.template_filename, mode = 'rt', encoding = 'utf-8-sig')
+		instance_file = open(self.instance_filename, mode = 'wt', encoding = 'utf8')
 
 		if self.template:
 			# pylint: disable=unsubscriptable-object
@@ -952,7 +952,7 @@ class cTextForm(cFormEngine):
 		# file containing the actual template plus metadata
 		self.form_definition_filename = self.template_filename
 		_log.debug('form definition file: [%s]', self.form_definition_filename)
-		cfg_file = io.open(self.form_definition_filename, mode = 'rt', encoding = 'utf-8-sig')
+		cfg_file = open(self.form_definition_filename, mode = 'rt', encoding = 'utf-8-sig')
 		self.form_definition = gmCfgINI.parse_INI_stream(stream = cfg_file)
 		cfg_file.close()
 
@@ -966,7 +966,7 @@ class cTextForm(cFormEngine):
 			tmp_dir = self.__sandbox_dir
 		)
 		_log.debug('template file: [%s]', self.template_filename)
-		f = io.open(self.template_filename, mode = 'wt', encoding = 'utf8')
+		f = open(self.template_filename, mode = 'wt', encoding = 'utf8')
 		f.write(template_text)
 		f.close()
 
@@ -1018,8 +1018,8 @@ class cTextForm(cFormEngine):
 		_log.debug('[%s] -> [%s]', input_filename, output_filename)
 		_log.debug('searching for placeholders with pattern: %s', placeholder_regex)
 
-		template_file = io.open(input_filename, mode = 'rt', encoding = 'utf-8-sig')
-		instance_file = io.open(output_filename, mode = 'wt', encoding = 'utf8')
+		template_file = open(input_filename, mode = 'rt', encoding = 'utf-8-sig')
+		instance_file = open(output_filename, mode = 'wt', encoding = 'utf8')
 
 		for line in template_file:
 			# empty lines
@@ -1201,8 +1201,8 @@ class cLaTeXForm(cFormEngine):
 		_log.debug('[%s] -> [%s]', input_filename, output_filename)
 		_log.debug('searching for placeholders with pattern: %s', placeholder_regex)
 
-		template_file = io.open(input_filename, mode = 'rt', encoding = 'utf-8-sig')
-		instance_file = io.open(output_filename, mode = 'wt', encoding = 'utf8')
+		template_file = open(input_filename, mode = 'rt', encoding = 'utf-8-sig')
+		instance_file = open(output_filename, mode = 'wt', encoding = 'utf8')
 
 		for line in template_file:
 			# empty lines
@@ -1400,8 +1400,8 @@ class cXeTeXForm(cFormEngine):
 
 		found_placeholders = False
 
-		template_file = io.open(input_filename, mode = 'rt', encoding = 'utf-8-sig')
-		instance_file = io.open(output_filename, mode = 'wt', encoding = 'utf8')
+		template_file = open(input_filename, mode = 'rt', encoding = 'utf-8-sig')
+		instance_file = open(output_filename, mode = 'wt', encoding = 'utf8')
 
 		for line in template_file:
 
@@ -1560,6 +1560,8 @@ if (gmd_log_verbose == 1) {
 	show all
 	print "-- <show variables all> at startup ----"
 	show variables all
+	print "-- <show colornames> at startup ----"
+	show colornames
 }
 
 
@@ -1653,7 +1655,7 @@ class cGnuplotForm(cFormEngine):
 			suffix = '.gpl',
 			tmp_dir = gmTools.fname_dir(self.__data_filename)
 		)
-		wrapper_script = io.open(wrapper_filename, mode = 'wt', encoding = 'utf8')
+		wrapper_script = open(wrapper_filename, mode = 'wt', encoding = 'utf8')
 		wrapper_script.write(_GNUPLOT_WRAPPER_SCRIPT % (
 			gmTools.bool2subst(_cfg.get(option = 'debug'), '1', '0', '0'),
 			self.__data_filename,
@@ -1756,8 +1758,8 @@ class cPDFForm(cFormEngine):
 
 		# parse dumped FDF file for "/V (...)" records
 		# and replace placeholders therein
-		fdf_dumped_file = io.open(self.fdf_dumped_filename, mode = 'rt', encoding = 'utf-8-sig')
-		fdf_replaced_file = io.open(self.fdf_replaced_filename, mode = 'wt', encoding = 'utf8')
+		fdf_dumped_file = open(self.fdf_dumped_filename, mode = 'rt', encoding = 'utf-8-sig')
+		fdf_replaced_file = open(self.fdf_replaced_filename, mode = 'wt', encoding = 'utf8')
 
 		string_value_regex = r'\s*/V\s*\(.+\)\s*$'
 		for line in fdf_dumped_file:
@@ -1985,7 +1987,7 @@ class cXSLTFormEngine(cFormEngine):
 		fname = gmTools.get_unique_filename(prefix = 'gm_XSLT_form-', suffix = '.html')
 		#html_file = os.open(fname, 'wb')
 		#html_file.write(self._FormData.encode('UTF-8'))
-		html_file = io.open(fname, mode = 'wt', encoding = 'utf8', errors = 'strict')		# or 'replace' ?
+		html_file = open(fname, mode = 'wt', encoding = 'utf8', errors = 'strict')		# or 'replace' ?
 		html_file.write(self._FormData)
 		html_file.close()
 

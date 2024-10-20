@@ -2578,7 +2578,7 @@ if __name__ == "__main__":
 #	print ''
 
 	#dump = record.get_missing_vaccinations()
-	#f = io.open('vaccs.lst', 'wb')
+	#f = open('vaccs.lst', 'wb')
 	#if dump is not None:
 	#	print "=== due ==="
 	#	f.write(u"=== due ===\n")

@@ -420,7 +420,7 @@ if __name__ == "__main__" :
 		print("error creating schema")
 		sys.exit(-1)
 
-	f = io.open('audit-trail-schema.sql', mode = 'wb', encoding = 'utf8')
+	f = open('audit-trail-schema.sql', mode = 'wb', encoding = 'utf8')
 	for line in schema:
 		f.write("%s;\n" % line)
 	f.close()

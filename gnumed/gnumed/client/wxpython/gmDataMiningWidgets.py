@@ -489,7 +489,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		if choice != wx.ID_OK:
 			return
 
-		csv_file = io.open(csv_name, mode = 'wt', encoding = 'utf8')
+		csv_file = open(csv_name, mode = 'wt', encoding = 'utf8')
 		csv_file.write('#-------------------------------------------------------------------------------------\n')
 		csv_file.write('# GNUmed SQL report results\n')
 		csv_file.write('#\n')
