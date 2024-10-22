@@ -530,7 +530,7 @@ def encrypt_file_symmetric_7z(filename:str=None, passphrase:str=None, comment:st
 		_log.warning('no 7z binary found, trying gpg')
 		return None
 
-	if comment is not None:
+	if comment:
 		archive_path, archive_name = os.path.split(os.path.abspath(filename))
 		comment_filename = gmTools.get_unique_filename (
 			prefix = '%s.7z.comment-' % archive_name,
@@ -540,9 +540,11 @@ def encrypt_file_symmetric_7z(filename:str=None, passphrase:str=None, comment:st
 		with open(comment_filename, mode = 'wt', encoding = 'utf8', errors = 'replace') as comment_file:
 			comment_file.write(comment)
 	else:
-		comment_filename = ''
+		comment_filename = None
 	filename_encrypted = '%s.7z' % filename
-	args = [binary, 'a', '-bb3', '-mx0', "-p%s" % passphrase, filename_encrypted, filename, comment_filename]
+	args = [binary, 'a', '-bb3', '-mx0', "-p%s" % passphrase, filename_encrypted, filename]
+	if comment_filename:
+		args.append(comment_filename)
 	encrypted, exit_code, stdout = gmShellAPI.run_process(cmd_line = args, encoding = 'utf8', verbose = verbose)
 	gmTools.remove_file(comment_filename)
 	if not encrypted:
