@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-13 13:52+0200\n"
+"POT-Creation-Date: 2024-10-22 14:50+0200\n"
 "PO-Revision-Date: 2024-10-13 14:22+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
@@ -2728,6 +2728,12 @@ msgstr "0 Minuten"
 msgid "0 seconds"
 msgstr "0 Sekunden"
 
+msgid "zero_duration_symbol::\\u2300"
+msgstr ""
+
+msgid "zero_duration_text::no duration"
+msgstr ""
+
 msgid "y::year_abbreviation"
 msgstr "J::year_abbreviation"
 
@@ -4266,7 +4272,7 @@ msgstr "Eine Zusammenfassung des aktuellen Stands dieser Grunderkrankung."
 
 msgid "Check if this is an active, ongoing problem."
 msgstr ""
-"Setzen Sie ein Häkchen, wenn es sich um eine aktive, andauernde "
+"Setzen Sie ein Häkchen, wenn es sich um eine aktive, laufende "
 "Grunderkrankung handelt."
 
 msgid "Check if this is a clinically relevant problem."
@@ -5019,7 +5025,7 @@ msgid "Note"
 msgstr "Notiz"
 
 msgid "Ongoing"
-msgstr "Andauernd"
+msgstr "Laufend"
 
 msgid "+"
 msgstr "+"
@@ -5038,7 +5044,7 @@ msgid ""
 msgstr ""
 "Bis wann dauerte diese Maßnahme ?\n"
 "\n"
-"Bei andauernden oder Maßnahmen ohne signifikante Dauer leer lassen."
+"Bei laufenden oder Maßnahmen ohne signifikante Dauer leer lassen."
 
 msgid "Select if procedure is ongoing (say, desensibilization)."
 msgstr "Markieren, wenn die Maßnahme andauert (z.B. Desensibilisierung)."
@@ -9231,16 +9237,8 @@ msgid "today%s (%s)"
 msgstr "heute%s (%s)"
 
 #, python-format
-msgid "%s%s (%s+%s)"
-msgstr ""
-
-#, python-format
 msgid "%s%s%s (in %s%s)"
 msgstr "%s%s%s (in %s%s)"
-
-#, python-format
-msgid "%s%s (%s-%s,%s)"
-msgstr ""
 
 #, python-format
 msgid "%s%s%s (%s%s ago, in %s)"
@@ -11136,7 +11134,7 @@ msgid "Episodes: %s (most recent: %s%s%s)"
 msgstr "Episoden: %s (zuletzt: %s%s%s)"
 
 msgid "ongoing"
-msgstr "andauernd"
+msgstr "laufend"
 
 msgid "No encounters found for this health issue."
 msgstr "Keine Kontakte zu dieser Grunderkrankung gefunden."
@@ -11270,7 +11268,7 @@ msgid "Encounter: %s%s%s"
 msgstr "Konsultation: %s%s%s"
 
 msgid " (ongoing)"
-msgstr " (andauernd)"
+msgstr " (laufend)"
 
 msgid "Comment: "
 msgstr "Kommentar: "
@@ -13649,9 +13647,9 @@ msgid "The substance the patient is taking."
 msgstr "Der Wirkstoff, den der Patient einnimmt."
 
 msgid ""
-"The substance the patient is taking\n"
+"The substance the patient is taking.\n"
 "\n"
-".You can enter/select a substance with or without a strength."
+"You can enter/select a substance with or without a strength."
 msgstr ""
 
 msgid "A drug product."
@@ -17274,12 +17272,16 @@ msgstr ""
 "\n"
 "Neuer Versuch ?"
 
+#, fuzzy
 msgid ""
 "Once more enter master passphrase for encryption of data passphrases.\n"
 "\n"
 "(this will protect you from typos)\n"
 "\n"
 "Abort by leaving empty.\n"
+"\n"
+"Make sure to safely remember the master passphrase. It can NOT be retrieved "
+"if lost."
 msgstr ""
 "Geben Sie das Hauptpasswort zum Schutz von Datenpassworten erneut ein.\n"
 "\n"
@@ -20088,7 +20090,7 @@ msgid ""
 "\n"
 "Enter maximum episode dormancy in DAYS:"
 msgstr ""
-"Es kann stets nur eine offene (andauernde) Episode\n"
+"Es kann stets nur eine offene (laufende) Episode\n"
 "pro Grunderkrankung geben.\n"
 "\n"
 "Beim Aktivieren einer Episode prüft GNUmed, ob für\n"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-13 13:52+0200\n"
+"POT-Creation-Date: 2024-10-22 14:50+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2487,6 +2487,12 @@ msgid "0 minutes"
 msgstr ""
 
 msgid "0 seconds"
+msgstr ""
+
+msgid "zero_duration_symbol::\\u2300"
+msgstr ""
+
+msgid "zero_duration_text::no duration"
 msgstr ""
 
 msgid "y::year_abbreviation"
@@ -8171,15 +8177,7 @@ msgid "today%s (%s)"
 msgstr ""
 
 #, python-format
-msgid "%s%s (%s+%s)"
-msgstr ""
-
-#, python-format
 msgid "%s%s%s (in %s%s)"
-msgstr ""
-
-#, python-format
-msgid "%s%s (%s-%s,%s)"
 msgstr ""
 
 #, python-format
@@ -12179,9 +12177,9 @@ msgid "The substance the patient is taking."
 msgstr ""
 
 msgid ""
-"The substance the patient is taking\n"
+"The substance the patient is taking.\n"
 "\n"
-".You can enter/select a substance with or without a strength."
+"You can enter/select a substance with or without a strength."
 msgstr ""
 
 msgid "A drug product."
@@ -15232,6 +15230,9 @@ msgid ""
 "(this will protect you from typos)\n"
 "\n"
 "Abort by leaving empty.\n"
+"\n"
+"Make sure to safely remember the master passphrase. It can NOT be retrieved "
+"if lost."
 msgstr ""
 
 msgid ""
