@@ -568,7 +568,8 @@ def convert_file_to_text(filename:str=None, verbose:bool=False) -> str:
 def convert_file(filename=None, target_mime=None, target_filename=None, target_extension=None, verbose=False, max_pages:int=25):
 	"""Convert file from one format into another.
 
-		target_mime: a mime type
+	Args:
+		target_mime: mime type to convert file into
 	"""
 	assert (target_mime is not None), '<target_mime> must not be None'
 	assert (filename is not None), '<filename> must not be None'
