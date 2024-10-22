@@ -282,16 +282,21 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 
 		tmp_fname = gmMimeLib.adjust_extension_by_mimetype(tmp_fname)
 		if convert2pdf:
-			tmp_fname = gmMimeLib.convert_file(filename = tmp_fname, target_mime = 'application/pdf', target_extension = '.pdf')
-		if filename is None:
-			target_fname = self.get_useful_filename(directory = directory)
-		else:
-			target_fname = filename
-		if passphrase is None:
+			pdf_fname = gmMimeLib.convert_file(filename = tmp_fname, target_mime = 'application/pdf', target_extension = '.pdf')
+			if pdf_fname:
+				tmp_fname = pdf_fname
+			else:
+				return None
+
+		if not passphrase:
+			if filename:
+				target_fname = filename
+			else:
+				target_fname = self.get_useful_filename(directory = directory)
 			if not gmTools.rename_file(tmp_fname, target_fname, overwrite = True, allow_symlink = True):
 				return None
 
-			if filename is None:
+			if not filename:
 				return gmMimeLib.adjust_extension_by_mimetype(target_fname)
 
 			return target_fname

@@ -1077,6 +1077,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 	#--------------------------------------------------------
 	def __export_as_files(self, msg_title, base_dir=None, encrypt=False, with_metadata=False, items=None, convert2pdf=False):
 		data_pwd = None
+		passphrase_pwd = None
 		if encrypt:
 			data_pwd = self.__get_data_password(msg_title)
 			if data_pwd is None:
@@ -1113,6 +1114,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 	def __export_as_zip(self, msg_title, encrypt=True, items=None):
 		# get password
 		zip_pwd = None
+		passphrase_pwd = None
 		if encrypt:
 			zip_pwd = self.__get_data_password(msg_title)
 			if zip_pwd is None:
@@ -1176,7 +1178,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			'\n'
 			'(this will protect you from typos)\n'
 			'\n'
-			'Abort by leaving empty.\n',
+			'Abort by leaving empty.\n'
 			'\n'
 			'Make sure to safely remember the master passphrase. It can NOT be retrieved if lost.'
 		)
@@ -1300,6 +1302,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		if items is None:
 			return
 
+		passphrase_pwd = None
 		data_pwd = self.__get_data_password(_('Encrypting items'))
 		if data_pwd is None:
 			_log.debug('user aborted by not providing the same password twice')
