@@ -7,7 +7,6 @@ __licence__ = "GPL"
 
 import logging
 import sys
-import io
 import re as regex
 import shutil
 import tempfile

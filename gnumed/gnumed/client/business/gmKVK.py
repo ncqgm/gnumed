@@ -13,7 +13,6 @@ __license__ = "GPL v2 or later"
 import sys
 import os
 import os.path
-import io
 import time
 import glob
 import datetime as pyDT

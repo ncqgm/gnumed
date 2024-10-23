@@ -49,7 +49,6 @@ import getpass
 import glob
 import re as regex
 import tempfile
-import io
 import logging
 import faulthandler
 

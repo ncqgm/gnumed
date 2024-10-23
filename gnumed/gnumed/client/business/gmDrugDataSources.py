@@ -9,7 +9,6 @@ __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 import sys
 import csv
 import os
-import io
 import logging
 import subprocess
 import re as regex

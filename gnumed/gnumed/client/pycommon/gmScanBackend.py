@@ -14,10 +14,8 @@ import os.path
 import os
 import time
 import shutil
-import io
 import glob
 import logging
-#import stat
 
 
 # GNUmed

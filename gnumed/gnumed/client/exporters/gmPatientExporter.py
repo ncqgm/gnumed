@@ -11,7 +11,6 @@ __license__ = 'GPL v2 or later'
 import os.path
 import sys
 import time
-import io
 import logging
 import shutil
 

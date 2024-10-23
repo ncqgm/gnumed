@@ -19,7 +19,6 @@ import shutil
 import random
 import platform
 import subprocess
-import io
 import codecs
 #, libxml2, libxslt
 

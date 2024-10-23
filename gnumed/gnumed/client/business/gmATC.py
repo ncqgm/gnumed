@@ -11,7 +11,6 @@ __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later"
 
 import sys
-import io
 import logging
 import os.path
 import re as regex

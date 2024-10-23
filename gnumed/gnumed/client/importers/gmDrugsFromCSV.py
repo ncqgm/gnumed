@@ -1,7 +1,6 @@
 # creates SQL to imports a list of mono-component drugs from a CSV file
 
 import sys
-import io
 
 
 # GNUmed

@@ -1,7 +1,6 @@
 # -*- coding: utf8 -*-
 
 import sys
-import io
 
 fname = sys.argv[1]
 

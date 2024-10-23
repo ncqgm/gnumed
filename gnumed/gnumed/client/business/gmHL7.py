@@ -7,7 +7,6 @@ __license__ = "GPL v2 or later"
 
 import sys
 import os
-import io
 import logging
 import time
 import shutil

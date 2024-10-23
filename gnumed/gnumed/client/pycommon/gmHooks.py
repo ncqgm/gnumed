@@ -25,7 +25,6 @@ import os
 import sys
 import stat
 import logging
-import io
 
 
 # GNUmed libs

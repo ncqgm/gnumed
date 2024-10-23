@@ -7,7 +7,6 @@ __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
 import logging
-import io
 import urllib.parse
 
 

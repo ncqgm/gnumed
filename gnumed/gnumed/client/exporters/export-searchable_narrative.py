@@ -4,7 +4,6 @@ __author__ = "Karsten Hilbert"
 __license__ = 'GPL v2 or later'
 
 import sys
-import io
 
 sys.path.insert(0, '../../')
 

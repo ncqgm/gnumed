@@ -9,7 +9,6 @@ license: GPL v2 or later
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
-import io
 import logging
 import csv
 import re as regex

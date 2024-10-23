@@ -12,7 +12,6 @@
 
 import sys
 import psycopg2
-#import io
 
 from Gnumed.pycommon import gmPG2
 

@@ -27,7 +27,6 @@ __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
 import logging
-import io
 import uuid
 import re as regex
 import datetime as pydt

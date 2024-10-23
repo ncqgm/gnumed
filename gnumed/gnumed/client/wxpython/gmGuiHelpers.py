@@ -10,7 +10,6 @@ __license__ = "GPL v2 or later (details at https://www.gnu.org)"
 
 import logging
 import sys
-import io
 import time
 import datetime as pyDT
 

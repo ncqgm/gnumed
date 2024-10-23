@@ -19,7 +19,6 @@ __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 # std lib
 import sys
-import io
 import subprocess
 import logging
 

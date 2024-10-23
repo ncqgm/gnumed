@@ -9,7 +9,6 @@ __license__ = 'GPL v2 or later (details at https://www.gnu.org)'
 
 import sys
 import logging
-import io
 import os
 
 

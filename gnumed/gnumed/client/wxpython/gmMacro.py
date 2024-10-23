@@ -10,7 +10,6 @@ import sys
 import random
 import logging
 import os
-import io
 import datetime
 import urllib.parse
 import codecs

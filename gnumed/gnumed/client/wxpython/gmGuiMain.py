@@ -26,7 +26,6 @@ import logging
 import urllib.request
 import subprocess
 import glob
-import io
 
 _log = logging.getLogger('gm.main')
 
