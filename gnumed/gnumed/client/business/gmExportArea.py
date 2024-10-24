@@ -1639,7 +1639,7 @@ def store_passphrase_of_file(filename:str=None, passphrase:str=None, hash_type:s
 
 	if comment is None:
 		comment = {}
-	comment['__filename__'] = filename
+	comment['__filename__'] = gmTools.fname_from_path(filename)
 	return store_object_passphrase (
 		obj = f,
 		passphrase = passphrase,
@@ -1756,31 +1756,50 @@ def save_file_passphrases_into_files() -> list[str] | None:
 	return save_object_passphrase_to_file(hash_val)
 
 #---------------------------------------------------------------------------
-def save_object_passphrase_to_file(hash:str=None) -> list[str]:
+def save_object_passphrase_to_file(hash_value:str=None) -> list[str]:
 	"""Save encrypted passphrases known for a hash into files.
 
 	Args:
-		hash: the hash to look up passphrases for
+		hash_value: the hash to look up passphrases for
 
 	Returns
 		List of files containing encrypted passphrases, or None.
 	"""
 	SQL = 'SELECT * FROM gm.obj_export_passphrase WHERE hash = %(hash)s'
-	args = {'hash': hash}
+	args = {'hash': hash_value}
 	rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
 	if not rows:
 		return None
 
+	sermon = _(
+		'In order to decrypt the object passphrase you will need\n'
+		'access to the secret GPG key or the master passphrase,\n'
+		'depending on the encryption method used.\n'
+		'\n'
+		'Note that GNUmed does not itself store the master\n'
+		'passphrase in any way, shape, or form.\n'
+	)
 	phrase_files = []
 	for row in rows:
-		phrasefile_name = '%s-%s-passphrase.txt.asc' % (row['hash'], row['hash_type'])
+		phrasefile_name = '%s-%s-passphrase.txt' % (row['hash'], row['hash_type'])
 		with open(phrasefile_name, mode = 'wt', encoding = 'utf8') as phrasefile:
-			phrasefile.write('hash method [%s]\n' % row['hash_type'])
-			phrasefile.write('hash value [%s]\n' % row['hash'])
-			if row['description']:
-				phrasefile.write('description: %s\n' % row['description'])
+			phrasefile.write('Searched database for hash value: %s\n' % hash_value)
 			phrasefile.write('\n')
+			phrasefile.write('Entry found:\n')
+			phrasefile.write(' hash method [%s]\n' % row['hash_type'])
+			phrasefile.write(' hash value [%s]\n' % row['hash'])
+			if row['description']:
+				phrasefile.write('\n')
+				phrasefile.write(' Associated description:\n')
+				for key in row['description']:
+					phrasefile.write('  %s [%s]\n' % (key, row['description'][key]))
+			phrasefile.write('\n')
+			phrasefile.write(_('Encrypted object passphrase:\n'))
+			phrasefile.write('#********** 8< ****************************************#\n')
 			phrasefile.write(row['phrase'])
+			phrasefile.write('#********** 8< ****************************************#\n')
+			phrasefile.write('\n')
+			phrasefile.write(sermon)
 			phrasefile.write('\n')
 		phrase_files.append(phrasefile_name)
 	return phrase_files
@@ -1877,7 +1896,7 @@ if __name__ == '__main__':
 
 	#---------------------------------------
 	def test_save_object_passphrase_to_file():
-		print(save_object_passphrase_to_file(hash = sys.argv[2]))
+		print(save_object_passphrase_to_file(hash_value = sys.argv[2]))
 
 	#---------------------------------------
 	#test_export_items()
