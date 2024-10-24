@@ -546,7 +546,8 @@ def encrypt_file_symmetric_7z(filename:str=None, passphrase:str=None, comment:st
 	if comment_filename:
 		args.append(comment_filename)
 	encrypted, exit_code, stdout = gmShellAPI.run_process(cmd_line = args, encoding = 'utf8', verbose = verbose)
-	gmTools.remove_file(comment_filename)
+	if comment_filename:
+		gmTools.remove_file(comment_filename)
 	if not encrypted:
 		return None
 
