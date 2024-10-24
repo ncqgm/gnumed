@@ -270,10 +270,44 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 	# helpers
 	#--------------------------------------------------------
 	def __save_normal_item(self, filename:str=None, directory:str=None, passphrase:str=None, convert2pdf:bool=False) -> str:
-		_SQL = 'SELECT substring(data FROM %(start)s FOR %(size)s) FROM clin.export_item WHERE pk = %(pk)s'
+		"""Saves item to disk where item is a "normal" row in the export area.
+
+		Item must not be a DIRENTRY nor a link pointing to a
+		document part in the archive.
+
+		Always eventually use the return value as the
+		canonical filename for further processing and do not
+		rely on <filename> being returned as-is. This may be
+		due to <filename> not carrying a path (in which case
+		<directory> is used), or the exported file being
+		converted to PDF and/or encrypted which may change
+		the file extension.
+
+		Args:
+			filename: a target filename, or rather, a template for same
+			directory: target directory, when filename is not given, or does not include a path
+
+		Returns:
+			The ultimate name of the file, saved, converted, and encrypted, as instructed.
+		"""
+		#_log.debug('<filename> %s', filename)
+		#_log.debug('<directory> %s', directory)
 		tmp_fname = gmTools.get_unique_filename()
+		_log.debug('temporary dump file: %s', tmp_fname)
+		# make sure output file eventually ends up in dir-of-<filename> or in <directory>
+		target_path = None
+		if filename:
+			target_path = gmTools.fname_dir(filename)
+		if not target_path:
+			target_path = directory
+		if not target_path:
+			target_path = gmTools.fname_dir(tmp_fname)
+		if target_path.strip() == '':
+			target_path = None
+		_log.debug('target path: %s', target_path)
+		SQL = 'SELECT substring(data FROM %(start)s FOR %(size)s) FROM clin.export_item WHERE pk = %(pk)s'
 		success = gmPG2.bytea2file (
-			data_query = {'cmd': _SQL, 'args': {'pk': self.pk_obj}},
+			data_query = {'cmd': SQL, 'args': {'pk': self.pk_obj}},
 			filename = tmp_fname,
 			data_size = self._payload['size']
 		)
@@ -281,24 +315,31 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			return None
 
 		tmp_fname = gmMimeLib.adjust_extension_by_mimetype(tmp_fname)
+		#_log.debug('extension-adjusted temporary dump file: %s', tmp_fname)
 		if convert2pdf:
 			pdf_fname = gmMimeLib.convert_file(filename = tmp_fname, target_mime = 'application/pdf', target_extension = '.pdf')
-			if pdf_fname:
-				tmp_fname = pdf_fname
-			else:
+			if not pdf_fname:
 				return None
+
+			tmp_fname = pdf_fname
+			_log.debug('converted to pdf: %s', tmp_fname)
 
 		if not passphrase:
 			if filename:
-				target_fname = filename
+				target_fname = os.path.join(target_path, gmTools.fname_from_path(filename))
+				#_log.debug('target filename from passed in name: %s', target_fname)
 			else:
-				target_fname = self.get_useful_filename(directory = directory)
+				target_fname = self.get_useful_filename(directory = target_path)
+				#_log.debug('generated target filename: %s', target_fname)
 			if not gmTools.rename_file(tmp_fname, target_fname, overwrite = True, allow_symlink = True):
 				return None
 
-			if not filename:
-				return gmMimeLib.adjust_extension_by_mimetype(target_fname)
-
+			ext = None
+			if filename:
+				ext = gmTools.fname_extension(filename)
+			if not ext:			# either empty or filename not passed in
+				target_fname = gmMimeLib.adjust_extension_by_mimetype(target_fname)
+				_log.debug('extension-adjusted target file: %s', target_fname)
 			return target_fname
 
 		enc_fname = gmCrypto.encrypt_file (
@@ -308,6 +349,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			remove_unencrypted = True,
 			convert2pdf = False	# already done, if desired
 		)
+		#_log.debug('encrypted file: %s', enc_fname)
 		removed = gmTools.remove_file(tmp_fname)
 		if enc_fname is None:
 			_log.error('cannot encrypt or, possibly, convert')
@@ -318,7 +360,13 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			gmTools.remove_file(enc_fname)
 			return None
 
-		return enc_fname
+		target_fname = os.path.join(target_path, gmTools.fname_from_path(enc_fname))
+		if not gmTools.rename_file(enc_fname, target_fname, overwrite = True, allow_symlink = True):
+			gmTools.remove_file(enc_fname)
+			return None
+
+		_log.debug('generated target filename: %s', target_fname)
+		return target_fname
 
 	#--------------------------------------------------------
 	def __save_doc_obj(self, filename=None, directory=None, passphrase=None, convert2pdf:bool=False):
@@ -332,7 +380,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			return None
 
 		part = self.document_part
-		if filename is None:
+		if not filename:
 			filename = part.get_useful_filename (
 				make_unique = False,
 				directory = directory,
@@ -372,12 +420,24 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 			_log.error('cannot encrypt')
 			return False
 
-		if removed:
+		if not removed:
+			_log.error('cannot remove unencrypted file')
+			gmTools.remove_file(enc_filename)
+			return None
+
+		if not filename:
 			return enc_filename
 
-		_log.error('cannot remove unencrypted file')
-		gmTools.remove_file(enc_filename)
-		return False
+		# make sure encrypted file ends up in dir-of-filename
+		target_fname = os.path.join (
+			gmTools.fname_dir(filename),
+			gmTools.fname_from_path(enc_filename)
+		)
+		if not gmTools.rename_file(enc_filename, target_fname, overwrite = True, allow_symlink = True):
+			gmTools.remove_file(enc_filename)
+			return None
+
+		return target_fname
 
 	#--------------------------------------------------------
 	def __save_direntry(self, directory=None, passphrase=None):
