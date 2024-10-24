@@ -1727,6 +1727,7 @@ def store_object_passphrase (
 		verbose = _cfg.get(option = 'debug'),
 		symmetric_password = symmetric_password
 	)
+	comment['__encryption_method__'] = encrypted_phrase['method']
 	SQL = """INSERT INTO gm.obj_export_passphrase (
 		hash_type, hash, phrase, description
 	) VALUES (
@@ -1738,7 +1739,7 @@ def store_object_passphrase (
 	args = {
 		'hash_type': hash_type,
 		'hash': hash_val,
-		'phrase': encrypted_phrase,
+		'phrase': encrypted_phrase['data'],
 		'desc': comment
 	}
 	gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}])
@@ -1774,12 +1775,13 @@ def save_object_passphrase_to_file(hash:str=None) -> list[str]:
 	for row in rows:
 		phrasefile_name = '%s-%s-passphrase.txt.asc' % (row['hash'], row['hash_type'])
 		with open(phrasefile_name, mode = 'wt', encoding = 'utf8') as phrasefile:
-			phrasefile.write('%s: %s\n' % (row['hash_type'], row['hash']))
+			phrasefile.write('hash method [%s]\n' % row['hash_type'])
+			phrasefile.write('hash value [%s]\n' % row['hash'])
 			if row['description']:
-				phrasefile.write('%s' % row['description'])
-				phrasefile.write('\n')
+				phrasefile.write('description: %s\n' % row['description'])
 			phrasefile.write('\n')
 			phrasefile.write(row['phrase'])
+			phrasefile.write('\n')
 		phrase_files.append(phrasefile_name)
 	return phrase_files
 
