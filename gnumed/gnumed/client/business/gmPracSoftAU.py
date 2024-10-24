@@ -16,7 +16,9 @@ __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 
 # stdlib
-import sys, io, time, datetime as pyDT
+import sys
+import time
+import datetime as pyDT
 
 
 # GNUmed modules

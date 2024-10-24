@@ -13,7 +13,7 @@ TODO:
 #=============================================================================
 __author__ = "S.Hilbert, K.Hilbert"
 
-import os, os.path, io, logging
+import os, os.path, logging
 
 
 import wx
