@@ -607,7 +607,7 @@ def format_interval_medically(interval:pyDT.timedelta=None, terse:bool=False, ap
 
 	# more than 30 days / 1 month ?
 	if interval.days > 30:
-		months, days = divmod(interval.days, 30.33)
+		months, days = divmod(interval.days, 30.33)					# type: ignore [assigment]
 		weeks, days = divmod(days, 7)
 		result = '%s%s%s%s' % (
 			prefix,
