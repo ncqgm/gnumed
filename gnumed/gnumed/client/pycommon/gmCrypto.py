@@ -1079,13 +1079,13 @@ def encrypt_data(data, recipient_key_files:list[str], comment:str=None, verbose:
 	if enc_data:
 		return {'data': enc_data, 'method': 'gpg::symmetric'}
 
-	enc_data = encrypt_data_with_7z (
-		data,
-		passphrase = symmetric_password,
-		verbose = verbose
-	)
-	if enc_data:
-		return {'data': enc_data, 'method': '7z::symmetric::gzip'}
+#	enc_data = encrypt_data_with_7z (
+#		data,
+#		passphrase = symmetric_password,
+#		verbose = verbose
+#	)
+#	if enc_data:
+#		return {'data': enc_data, 'method': '7z::symmetric::gzip'}
 
 	return None
 
@@ -1190,11 +1190,13 @@ if __name__ == '__main__':
 
 	#-----------------------------------------------------------------------
 	def test_encrypt_data_with_7z():
-		print(encrypt_data_with_7z (
+		enc = encrypt_data_with_7z (
 			data = 'abcdefghijk',
 			verbose = True,
-			passphrase = '123456'
-		))
+			passphrase = '12345'
+		)
+		print(type(enc))
+		print(enc)
 
 	#-----------------------------------------------------------------------
 	def test_encrypt_data():
@@ -1223,6 +1225,6 @@ if __name__ == '__main__':
 	#test_pdf_is_encrypted()
 	#test_decrypt_pdf()
 	#test_encrypt_data_with_gpg()
-	#test_encrypt_data_with_7z()
+	test_encrypt_data_with_7z()
 	#test_encrypt_data_with_gpg_symmetrically()
-	test_encrypt_data()
+	#test_encrypt_data()
