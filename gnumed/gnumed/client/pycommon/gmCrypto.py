@@ -734,7 +734,7 @@ def encrypt_file(filename:str=None, receiver_key_ids:list=None, passphrase:str=N
 	return None
 
 #---------------------------------------------------------------------------
-def encrypt_directory_content(directory:str=None, receiver_key_ids:list=None, passphrase:str=None, comment:str=None, verbose:bool=False, remove_unencrypted:bool=True, convert2pdf:bool=False, store_passphrase_cb=None, passphrase_password:str=None) -> bool:
+def encrypt_directory_content(directory:str=None, receiver_key_ids:list=None, passphrase:str=None, comment:str=None, verbose:bool=False, remove_unencrypted:bool=True, convert2pdf:bool=False, store_passphrase_cb=None, master_passphrase:str=None) -> bool:
 	"""Encrypt the content of a directory, file by file, symmetrically or asymmetrically.
 
 	Asymmetric encryption will only be attempted if receiver_key_ids are given.
@@ -749,7 +749,7 @@ def encrypt_directory_content(directory:str=None, receiver_key_ids:list=None, pa
 			- success: the PDF is encrypted (and the non-PDF source file is removed)
 			- failure: the source file is encrypted
 		store_passphrase_cb: function to call to store passphrases for encrypted files (filename, passphrase, comment)
-		passphrase_password: password to symmetrically encrypt passphrase for safekeeping in GNUmed if not pubkeys available
+		master_passphrase: password to symmetrically encrypt passphrase for safekeeping in GNUmed if no public keys available
 
 	Returns:
 		True (success) or False.
@@ -788,7 +788,7 @@ def encrypt_directory_content(directory:str=None, receiver_key_ids:list=None, pa
 		if fname_encrypted is None:
 			return False
 
-		store_passphrase_cb(filename = fname_encrypted, passphrase = passphrase, comment = comment, symmetric_password = passphrase_password)
+		store_passphrase_cb(filename = fname_encrypted, passphrase = passphrase, comment = comment, master_passphrase = master_passphrase)
 	return True
 
 #---------------------------------------------------------------------------
@@ -1037,7 +1037,7 @@ def encrypt_data_with_gpg(data, recipient_key_files:list[str], comment:str=None,
 	return stdout
 
 #===========================================================================
-def encrypt_data(data, recipient_key_files:list[str], comment:str=None, verbose:bool=False, retry_symmetric:bool=False, symmetric_password:str=None) -> dict[str, str] | None:
+def encrypt_data(data, recipient_key_files:list[str], comment:str=None, verbose:bool=False, retry_symmetric:bool=False, master_passphrase:str=None) -> dict[str, str] | None:
 	"""Encrypt data.
 
 	Args:
@@ -1045,12 +1045,12 @@ def encrypt_data(data, recipient_key_files:list[str], comment:str=None, verbose:
 		recipient_key_files: files with public keys to encrypt to
 		comment: a comment to attach to the encrypted data, if possible
 		retry_symmetric: try symmetric if asymmetric fails despite having recipients
-		symmetric_password: if there is no recipients defined by public key use this key to *symmetrically* encrypt
+		master_passphrase: if there is no recipients defined by public key use this key to *symmetrically* encrypt
 
 	Returns:
 		a dictionary {'data': the encrypted data, 'method': a tag defining the method used} or None
 	"""
-	assert recipient_key_files or symmetric_password, 'either <recipient_key_files> or <symmetric_password> must be defined'
+	assert recipient_key_files or master_passphrase, 'either <recipient_key_files> or <master_passphrase> must be defined'
 
 	if recipient_key_files:
 		enc_data = encrypt_data_with_gpg (
@@ -1066,14 +1066,14 @@ def encrypt_data(data, recipient_key_files:list[str], comment:str=None, verbose:
 		if not retry_symmetric:
 			return None
 
-	if not symmetric_password:
+	if not master_passphrase:
 		_log.error('cannot symmetrically encrypt data')
 		return None
 
 	enc_data = encrypt_data_with_gpg_symmetrically (
 		data = data,
 		comment = comment,
-		passphrase = symmetric_password,
+		passphrase = master_passphrase,
 		verbose = verbose
 	)
 	if enc_data:
@@ -1081,7 +1081,7 @@ def encrypt_data(data, recipient_key_files:list[str], comment:str=None, verbose:
 
 #	enc_data = encrypt_data_with_7z (
 #		data,
-#		passphrase = symmetric_password,
+#		passphrase = master_passphrase,
 #		verbose = verbose
 #	)
 #	if enc_data:
@@ -1204,7 +1204,7 @@ if __name__ == '__main__':
 			data = 'abcdefghijk',
 			recipient_key_files = [],
 			verbose = True,
-			symmetric_password = '123456',
+			master_passphrase = '123456',
 			comment = 'GNUmed testing',
 			retry_symmetric = True
 		))

@@ -137,7 +137,7 @@ def manage_paperwork_passphrases(parent=None, single_selection:bool=True):
 
 	#------------------------------------------------------------
 	def refresh(lctrl):
-		dbo_conn = gmAuthWidgets.get_dbowner_connection(procedure = _('Show list of document passphrases.'))
+		dbo_conn = gmAuthWidgets.get_dbowner_connection(procedure = _('Show list of paperwork passphrases.'))
 		if not dbo_conn:
 			phrases = []
 		else:
@@ -1137,29 +1137,29 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 
 	#--------------------------------------------------------
 	def __export_as_files(self, msg_title, base_dir=None, encrypt=False, with_metadata=False, items=None, convert2pdf=False):
-		data_pwd = None
-		passphrase_pwd = None
+		obj_passphrase = None
+		master_passphrase = None
 		if encrypt:
-			data_pwd = self.__get_data_password(msg_title)
-			if data_pwd is None:
+			obj_passphrase = self.__get_data_password(msg_title)
+			if obj_passphrase is None:
 				_log.debug('user aborted by not providing the same password twice')
 				gmDispatcher.send(signal = 'statustext', msg = _('Password not provided twice. Aborting.'))
 				return None
 
 			if not gmExportArea.get_passphrase_trustees_pubkey_files():
-				passphrase_pwd = self.__get_passphrase_password(msg_title)
-				if not passphrase_pwd:
-					_log.debug('user aborted by not providing the same passphrase password twice')
-					gmDispatcher.send(signal = 'statustext', msg = _('Passphrase password not provided twice. Aborting.'))
+				master_passphrase = self.__get_master_passphrase(msg_title)
+				if not master_passphrase:
+					_log.debug('user aborted by not providing the same master passphrase twice')
+					gmDispatcher.send(signal = 'statustext', msg = _('Master passphrase not provided twice. Aborting.'))
 					return None
 
 		wx.BeginBusyCursor()
 		try:
 			exp_area = gmPerson.gmCurrentPatient().export_area
 			if with_metadata:
-				export_dir = exp_area.export(base_dir = base_dir, items = items, passphrase = data_pwd, passphrase_password = passphrase_pwd)
+				export_dir = exp_area.export(base_dir = base_dir, items = items, passphrase = obj_passphrase, master_passphrase = master_passphrase)
 			else:
-				export_dir = exp_area.dump_items_to_disk(base_dir = base_dir, items = items, passphrase = data_pwd, convert2pdf = convert2pdf, passphrase_password = passphrase_pwd)
+				export_dir = exp_area.dump_items_to_disk(base_dir = base_dir, items = items, passphrase = obj_passphrase, convert2pdf = convert2pdf, master_passphrase = master_passphrase)
 		finally:
 			wx.EndBusyCursor()
 		if export_dir is None:
@@ -1175,7 +1175,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 	def __export_as_zip(self, msg_title, encrypt=True, items=None):
 		# get password
 		zip_pwd = None
-		passphrase_pwd = None
+		master_passphrase = None
 		if encrypt:
 			zip_pwd = self.__get_data_password(msg_title)
 			if zip_pwd is None:
@@ -1184,10 +1184,10 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 				return None
 
 			if not gmExportArea.get_passphrase_trustees_pubkey_files():
-				passphrase_pwd = self.__get_passphrase_password(msg_title)
-				if not passphrase_pwd:
-					_log.debug('user aborted by not providing the same passphrase password twice')
-					gmDispatcher.send(signal = 'statustext', msg = _('Passphrase password not provided twice. Aborting.'))
+				master_passphrase = self.__get_master_passphrase(msg_title)
+				if not master_passphrase:
+					_log.debug('user aborted by not providing the same master passphrase twice')
+					gmDispatcher.send(signal = 'statustext', msg = _('Master passphrase not provided twice. Aborting.'))
 					return None
 
 		# create archive
@@ -1195,7 +1195,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		zip_file = None
 		try:
 			exp_area = gmPerson.gmCurrentPatient().export_area
-			zip_file = exp_area.export_as_zip(passphrase = zip_pwd, items = items, passphrase_password = passphrase_pwd)
+			zip_file = exp_area.export_as_zip(passphrase = zip_pwd, items = items, master_passphrase = master_passphrase)
 		except Exception:
 			_log.exception('cannot create zip file')
 		wx.EndBusyCursor()
@@ -1207,12 +1207,11 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		return zip_file
 
 	#--------------------------------------------------------
-	def __get_passphrase_password(self, msg_title:str) -> str:
+	def __get_master_passphrase(self, msg_title:str) -> str:
 		msg = _(
-			'No public keys available for encrypted\n'
-			'storage of the data passphrase.\n'
+			'No public keys available for safekeeping of paperwork passphrases.\n'
 			'\n'
-			'Enter master passphrase for encryption of data passphrases.\n'
+			'Enter master passphrase for encryption thereof.\n'
 			'\n'
 			'(minimum length: 5, trailing blanks will be stripped)'
 		)
@@ -1224,24 +1223,24 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			'Enter another passphrase ?'
 		)
 		while True:
-			pp_pwd = wx.GetPasswordFromUser(message = msg, caption = msg_title)
-			pp_pwd = pp_pwd.rstrip()
-			if len(pp_pwd) > 4:				# minimal weakness check
+			master_pwd = wx.GetPasswordFromUser(message = msg, caption = msg_title)
+			master_pwd = master_pwd.rstrip()
+			if len(master_pwd) > 4:				# minimal weakness check
 				break
 			retry = gmGuiHelpers.gm_show_question(title = msg_title, question = q)
 			if not retry:
 				return None					# user changed her mind
 
-		gmLog2.add_word2hide(pp_pwd)		# confidentiality
+		gmLog2.add_word2hide(master_pwd)		# confidentiality
 		# reget password
 		msg = _(
-			'Once more enter master passphrase for encryption of data passphrases.\n'
+			'Once more enter master passphrase for safekeeping of paperwork passphrases.\n'
 			'\n'
 			'(this will protect you from typos)\n'
 			'\n'
 			'Abort by leaving empty.\n'
 			'\n'
-			'Make sure to safely remember the master passphrase. It can NOT be retrieved if lost.'
+			'Make sure to safely remember the master passphrase. It is NOT stored in GNUmed at all.'
 		)
 		err = _(
 			'Passphrases do not match.\n'
@@ -1249,20 +1248,20 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			'Retry, or abort with an empty passphrase.'
 		)
 		while True:
-			pp_pwd4comparison = wx.GetPasswordFromUser(message = msg, caption = msg_title)
-			pp_pwd4comparison = pp_pwd4comparison.rstrip()
-			if pp_pwd4comparison == '':
+			master_pwd4comparison = wx.GetPasswordFromUser(message = msg, caption = msg_title)
+			master_pwd4comparison = master_pwd4comparison.rstrip()
+			if master_pwd4comparison == '':
 				return None					# user changed her mind ...
 
-			if pp_pwd == pp_pwd4comparison:
+			if master_pwd == master_pwd4comparison:
 				break
 			gmGuiHelpers.gm_show_error(error = err, title = msg_title)
-		return pp_pwd
+		return master_pwd
 
 	#--------------------------------------------------------
 	def __get_data_password(self, msg_title:str) -> str:
 		msg = _(
-			'Enter passphrase to protect the data with.\n'
+			'Enter passphrase to protect the object with.\n'
 			'\n'
 			'(minimum length: 5, trailing blanks will be stripped)'
 		)
@@ -1274,18 +1273,18 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			'Enter another passphrase ?'
 		)
 		while True:
-			data_pwd = wx.GetPasswordFromUser(message = msg, caption = msg_title)
-			data_pwd = data_pwd.rstrip()	# minimal weakness check
-			if len(data_pwd) > 4:
+			obj_passphrase = wx.GetPasswordFromUser(message = msg, caption = msg_title)
+			obj_passphrase = obj_passphrase.rstrip()	# minimal weakness check
+			if len(obj_passphrase) > 4:
 				break
 			retry = gmGuiHelpers.gm_show_question(title = msg_title, question = q)
 			if not retry:
 				return None					# user changed her mind
 
-		gmLog2.add_word2hide(data_pwd)		# confidentiality
+		gmLog2.add_word2hide(obj_passphrase)		# confidentiality
 		# reget password
 		msg = _(
-			'Once more enter passphrase to protect the data with.\n'
+			'Once more enter passphrase to protect the object with.\n'
 			'\n'
 			'(this will protect you from typos)\n'
 			'\n'
@@ -1297,16 +1296,16 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			'Retry, or abort with an empty passphrase.'
 		)
 		while True:
-			data_pwd4comparison = wx.GetPasswordFromUser(message = msg, caption = msg_title)
-			data_pwd4comparison = data_pwd4comparison.rstrip()
-			if data_pwd4comparison == '':
+			obj_passphrase4comparison = wx.GetPasswordFromUser(message = msg, caption = msg_title)
+			obj_passphrase4comparison = obj_passphrase4comparison.rstrip()
+			if obj_passphrase4comparison == '':
 				# user changed her mind ...
 				return None
 
-			if data_pwd == data_pwd4comparison:
+			if obj_passphrase == obj_passphrase4comparison:
 				break
 			gmGuiHelpers.gm_show_error(error = err, title = msg_title)
-		return data_pwd
+		return obj_passphrase
 
 	#--------------------------------------------------------
 	def __get_items_to_work_on(self, msg_title):
@@ -1363,18 +1362,18 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		if items is None:
 			return
 
-		passphrase_pwd = None
-		data_pwd = self.__get_data_password(_('Encrypting items'))
-		if data_pwd is None:
+		master_passphrase = None
+		obj_passphrase = self.__get_data_password(_('Encrypting items'))
+		if obj_passphrase is None:
 			_log.debug('user aborted by not providing the same password twice')
 			gmDispatcher.send(signal = 'statustext', msg = _('Password not provided twice. Aborting.'))
 			return None
 
 			if not gmExportArea.get_passphrase_trustees_pubkey_files():
-				passphrase_pwd = self.__get_passphrase_password(_('Encrypting items'))
-				if not passphrase_pwd:
-					_log.debug('user aborted by not providing the same passphrase password twice')
-					gmDispatcher.send(signal = 'statustext', msg = _('Passphrase password not provided twice. Aborting.'))
+				master_passphrase = self.__get_master_passphrase(_('Encrypting items'))
+				if not master_passphrase:
+					_log.debug('user aborted by not providing the same master passphrase twice')
+					gmDispatcher.send(signal = 'statustext', msg = _('Master passphrase not provided twice. Aborting.'))
 					return None
 
 		wx.BeginBusyCursor()
@@ -1385,11 +1384,11 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 				wx.EndBusyCursor()
 				return False
 
-			fname = item.save_to_file(passphrase = data_pwd, convert2pdf = False)
+			fname = item.save_to_file(passphrase = obj_passphrase, convert2pdf = False)
 			if fname is not None:
 				converted_item_files[fname] = item
 				continue
-			fname = item.save_to_file(passphrase = data_pwd, convert2pdf = True)
+			fname = item.save_to_file(passphrase = obj_passphrase, convert2pdf = True)
 			if fname is not None:
 				converted_item_files[fname] = item
 				continue
@@ -1399,7 +1398,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 
 		for fname in converted_item_files:
 			if item.update_data_from_file(filename = fname, convert_document_part = True):
-				gmExportArea.store_passphrase_of_file(filename = fname, passphrase = data_pwd, symmetric_password = passphrase_pwd)
+				gmExportArea.store_passphrase_of_file(filename = fname, passphrase = obj_passphrase, master_passphrase = master_passphrase)
 				continue
 			_log.error('error updating item data')
 			wx.EndBusyCursor()

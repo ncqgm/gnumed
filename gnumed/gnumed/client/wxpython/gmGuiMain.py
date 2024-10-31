@@ -646,8 +646,8 @@ class gmTopLevelFrame(wx.Frame):
 		menu_paperwork.AppendSeparator()
 		item = menu_paperwork.Append(-1, _('List placeholders'), _('Show list of all placeholders.'))
 		self.Bind(wx.EVT_MENU, self.__on_show_placeholders, item)
-		item = menu_paperwork.Append(-1, _('List passphrases'), _('Show list of document passphrases'))
-		self.Bind(wx.EVT_MENU, self.__on_show_document_passwords, item)
+		item = menu_paperwork.Append(-1, _('List passphrases'), _('Show list of paperwork passphrases'))
+		self.Bind(wx.EVT_MENU, self.__on_show_paperwork_passphrases, item)
 #		item = menu_paperwork.Append(-1, _('Select receiver'), _('Select a letter receiver for testing.'))
 #		self.Bind(wx.EVT_MENU, self.__on_test_receiver_selection, item)
 		self.mainmenu.Append(menu_paperwork, _('&Correspondence'))
@@ -1058,7 +1058,7 @@ class gmTopLevelFrame(wx.Frame):
 		show_placeholders()
 
 	#----------------------------------------------
-	def __on_show_document_passwords(self, evt):
+	def __on_show_paperwork_passphrases(self, evt):
 		gmExportAreaWidgets.manage_paperwork_passphrases(parent = self)
 
 	#----------------------------------------------
