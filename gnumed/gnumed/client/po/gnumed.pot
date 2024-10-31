@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-22 14:50+0200\n"
+"POT-Creation-Date: 2024-10-31 18:48+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -8416,6 +8416,18 @@ msgstr ""
 msgid "GNUmed patient data excerpt"
 msgstr ""
 
+msgid ""
+"In order to decrypt the paperwork passphrase you will need\n"
+"access to the secret GPG key or the master passphrase,\n"
+"depending on the encryption method used.\n"
+"\n"
+"Note that GNUmed does not itself store the master\n"
+"passphrase in any way, shape, or form.\n"
+msgstr ""
+
+msgid "Encrypted paperwork passphrase:\n"
+msgstr ""
+
 #, python-format
 msgid "error with placeholder [%s]"
 msgstr ""
@@ -14127,57 +14139,46 @@ msgstr ""
 msgid "Find next [%s] (<CTRL-N>)"
 msgstr ""
 
-msgid "&All rows"
+msgid "as &text"
 msgstr ""
 
-msgid "All rows as &CSV"
+msgid "as &CSV"
 msgstr ""
 
-msgid "&Tooltips of all rows"
+msgid "as t&ooltips"
 msgstr ""
 
-msgid "&Data of all rows"
+msgid "as &data"
 msgstr ""
 
-msgid "&Selected rows"
+msgid "&all rows ..."
 msgstr ""
 
-msgid "&Selected rows as CSV"
+msgid "&selected row(s) ..."
 msgstr ""
 
-msgid "&Tooltips of selected rows"
+msgid "as &one-liner"
 msgstr ""
 
-msgid "&Data of selected rows"
+msgid "as &multi-liner (per field)"
 msgstr ""
 
-msgid "Tooltips of selected rows"
+msgid "as &tooltip"
 msgstr ""
 
-msgid "Data (formatted as text) of selected rows"
+msgid "as &data (text)"
 msgstr ""
 
-msgid "Content (as one line each) of selected rows"
+msgid "from &field"
 msgstr ""
 
-msgid "Tooltip of current row"
+msgid "as &one-liner(s)"
 msgstr ""
 
-msgid "Data (formatted as text) of current row"
+msgid "as &tooltip(s)"
 msgstr ""
 
-msgid "Content (as one line) of current row"
-msgstr ""
-
-msgid "Content (one line per column) of current row"
-msgstr ""
-
-#, python-format
-msgid "Column &%s (current row): \"%s\" [#%s]"
-msgstr ""
-
-#, python-format
-msgid "Column &%s (current row): %s"
+msgid "&activated row ..."
 msgstr ""
 
 msgid "Screen&shot ..."
@@ -14189,17 +14190,11 @@ msgstr ""
 msgid "Copy to &clipboard..."
 msgstr ""
 
-msgid "Append (&+) to clipboard..."
-msgstr ""
-
 #, python-format
 msgid ""
 "%s list items are selected.\n"
 "\n"
 "Really delete all %s items ?"
-msgstr ""
-
-msgid "Enter the search term:"
 msgstr ""
 
 msgid "List search"
@@ -14934,6 +14929,15 @@ msgstr ""
 msgid "Imported files into export area."
 msgstr ""
 
+msgid "Show list of paperwork passphrases."
+msgstr ""
+
+msgid "Paperwork passphrases"
+msgstr ""
+
+msgid "Hash"
+msgstr ""
+
 msgid "Clearing out a directory"
 msgstr ""
 
@@ -15198,7 +15202,7 @@ msgstr ""
 msgid "Password not provided twice. Aborting."
 msgstr ""
 
-msgid "Passphrase password not provided twice. Aborting."
+msgid "Master passphrase not provided twice. Aborting."
 msgstr ""
 
 msgid "Error exporting entries."
@@ -15208,10 +15212,9 @@ msgid "Error creating zip file."
 msgstr ""
 
 msgid ""
-"No public keys available for encrypted\n"
-"storage of the data passphrase.\n"
+"No public keys available for safekeeping of paperwork passphrases.\n"
 "\n"
-"Enter master passphrase for encryption of data passphrases.\n"
+"Enter master passphrase for encryption thereof.\n"
 "\n"
 "(minimum length: 5, trailing blanks will be stripped)"
 msgstr ""
@@ -15225,14 +15228,14 @@ msgid ""
 msgstr ""
 
 msgid ""
-"Once more enter master passphrase for encryption of data passphrases.\n"
+"Once more enter master passphrase for safekeeping of paperwork passphrases.\n"
 "\n"
 "(this will protect you from typos)\n"
 "\n"
 "Abort by leaving empty.\n"
 "\n"
-"Make sure to safely remember the master passphrase. It can NOT be retrieved "
-"if lost."
+"Make sure to safely remember the master passphrase. It is NOT stored in "
+"GNUmed at all."
 msgstr ""
 
 msgid ""
@@ -15242,13 +15245,13 @@ msgid ""
 msgstr ""
 
 msgid ""
-"Enter passphrase to protect the data with.\n"
+"Enter passphrase to protect the object with.\n"
 "\n"
 "(minimum length: 5, trailing blanks will be stripped)"
 msgstr ""
 
 msgid ""
-"Once more enter passphrase to protect the data with.\n"
+"Once more enter passphrase to protect the object with.\n"
 "\n"
 "(this will protect you from typos)\n"
 "\n"
@@ -15334,6 +15337,15 @@ msgid "Importing LOINC reference data failed."
 msgstr ""
 
 msgid "Select a LOINC (Logical Observation Identifiers Names and Codes)."
+msgstr ""
+
+msgid ""
+"GNUmed generic document template\n"
+"\n"
+"Some context data has been added below for your copy/paste convenience.\n"
+"\n"
+"Before entering text you should switch the \"paragraph type\"\n"
+"from \"Pre-formatted Text\" to \"Standard\".\n"
 msgstr ""
 
 #, python-format
@@ -16968,28 +16980,34 @@ msgstr ""
 msgid "&EMR"
 msgstr ""
 
-msgid "&Write letter (template)"
+msgid "Document from &template"
 msgstr ""
 
-msgid "Write a template-based letter for the current patient."
+msgid "Create document/form for current patient from template."
 msgstr ""
 
-msgid "&Write letter (generic)"
+msgid "&Generic document"
 msgstr ""
 
-msgid "Write a generic letter for the current patient."
+msgid "Write free-form document for current patient."
 msgstr ""
 
 msgid "Screenshot -> export area"
 msgstr ""
 
-msgid "Put a screenshot into the patient export area."
+msgid "Put screenshot into patient export area."
 msgstr ""
 
-msgid "List Placeholders"
+msgid "List placeholders"
 msgstr ""
 
-msgid "Show a list of all placeholders."
+msgid "Show list of all placeholders."
+msgstr ""
+
+msgid "List passphrases"
+msgstr ""
+
+msgid "Show list of paperwork passphrases"
 msgstr ""
 
 msgid "&Correspondence"

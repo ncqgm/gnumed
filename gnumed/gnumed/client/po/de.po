@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-22 14:50+0200\n"
-"PO-Revision-Date: 2024-10-13 14:22+0200\n"
+"POT-Creation-Date: 2024-10-31 18:48+0100\n"
+"PO-Revision-Date: 2024-10-31 18:51+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -2732,7 +2732,7 @@ msgid "zero_duration_symbol::\\u2300"
 msgstr ""
 
 msgid "zero_duration_text::no duration"
-msgstr ""
+msgstr "zero_duration_text::keine Dauer"
 
 msgid "y::year_abbreviation"
 msgstr "J::year_abbreviation"
@@ -9484,6 +9484,24 @@ msgstr "Patientendaten durchblättern"
 msgid "GNUmed patient data excerpt"
 msgstr "Auszug aus Patientendaten (GNUmed)"
 
+msgid ""
+"In order to decrypt the paperwork passphrase you will need\n"
+"access to the secret GPG key or the master passphrase,\n"
+"depending on the encryption method used.\n"
+"\n"
+"Note that GNUmed does not itself store the master\n"
+"passphrase in any way, shape, or form.\n"
+msgstr ""
+"Um das Dokumentenpasswort zu entschlüsseln, benötigen Sie\n"
+"den geheimen GPG-Schlüssel oder das Generalpasswort,\n"
+"je nach Verschlüsselungsart.\n"
+"\n"
+"Hinweis: GNUmed speichert das Generalpasswort auf\n"
+"keine Weise selbst.\n"
+
+msgid "Encrypted paperwork passphrase:\n"
+msgstr "Verschlüsseltes Dokumentenpasswort:\n"
+
 #, python-format
 msgid "error with placeholder [%s]"
 msgstr "ungültiger Platzhalter [%s]"
@@ -12230,7 +12248,7 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"Sie haben keine Zugriff auf diesen Teil von GNUmed.\n"
+"Sie haben keinen Zugriff auf diesen Teil von GNUmed.\n"
 "\n"
 "%s"
 
@@ -13651,6 +13669,9 @@ msgid ""
 "\n"
 "You can enter/select a substance with or without a strength."
 msgstr ""
+"Der eingenommene Wirkstoff.\n"
+"\n"
+"Sie können einen Wirkstoff mit oder ohne Stärke wählen bzw eingeben."
 
 msgid "A drug product."
 msgstr "Ein Medikament."
@@ -15951,58 +15972,47 @@ msgstr "Finden (<STRG-F>)"
 msgid "Find next [%s] (<CTRL-N>)"
 msgstr "Finde nächste [%s] (<STRG-N>)"
 
-msgid "&All rows"
-msgstr "&Alle Einträge"
+msgid "as &text"
+msgstr "als &Text"
 
-msgid "All rows as &CSV"
-msgstr "Alle Einträge als &CSV"
+msgid "as &CSV"
+msgstr "als &CSV"
 
-msgid "&Tooltips of all rows"
-msgstr "&Tooltips aller Einträge"
+msgid "as t&ooltips"
+msgstr "als T&ooltip"
 
-msgid "&Data of all rows"
-msgstr "&Daten aller Einträge"
+msgid "as &data"
+msgstr "als &Daten"
 
-msgid "&Selected rows"
-msgstr "&Markierte Einträge"
+msgid "&all rows ..."
+msgstr "&Alle Einträge ..."
 
-msgid "&Selected rows as CSV"
-msgstr "&Markierte Einträge als CSV"
+msgid "&selected row(s) ..."
+msgstr "&Markierte Einträge ..."
 
-msgid "&Tooltips of selected rows"
-msgstr "&Tooltips der markierten Einträge"
+msgid "as &one-liner"
+msgstr "als &Einzeiler"
 
-msgid "&Data of selected rows"
-msgstr "&Daten der markierten Einträge"
+msgid "as &multi-liner (per field)"
+msgstr "als &Mehrzeiler (je Feld)"
 
-msgid "Tooltips of selected rows"
-msgstr "Tooltips der markierten Einträge"
+msgid "as &tooltip"
+msgstr "als T&ooltip"
 
-msgid "Data (formatted as text) of selected rows"
-msgstr "Zeilendaten (als Text) der markierten Einträge"
+msgid "as &data (text)"
+msgstr "als &Daten (Text)"
 
-msgid "Content (as one line each) of selected rows"
-msgstr "Inhalte (als Einzeiler) der markierten Einträge"
+msgid "from &field"
+msgstr "aus &Feld"
 
-msgid "Tooltip of current row"
-msgstr "Tooltip des aktuellen Eintrags"
+msgid "as &one-liner(s)"
+msgstr "als &Einzeiler"
 
-msgid "Data (formatted as text) of current row"
-msgstr "Zeilendaten (als Text) des aktuellen Eintrags"
+msgid "as &tooltip(s)"
+msgstr "als T&ooltip(s)"
 
-msgid "Content (as one line) of current row"
-msgstr "Zeileninhalt (als Einzeiler) des aktuellen Eintrags"
-
-msgid "Content (one line per column) of current row"
-msgstr "Zeileninhalt (pro Spalte eine Zeile) des aktuellen Eintrags"
-
-#, python-format
-msgid "Column &%s (current row): \"%s\" [#%s]"
-msgstr "Spalte &%s (aktueller Eintrag): \"%s\" [#%s]"
-
-#, python-format
-msgid "Column &%s (current row): %s"
-msgstr "Spalte &%s (aktueller Eintrag): %s"
+msgid "&activated row ..."
+msgstr "&aktivierte Zeile ..."
 
 msgid "Screen&shot ..."
 msgstr "Bildschirm&photo ..."
@@ -16013,9 +16023,6 @@ msgstr "Speichern in &Datei …"
 msgid "Copy to &clipboard..."
 msgstr "In &Zwischenablage kopieren..."
 
-msgid "Append (&+) to clipboard..."
-msgstr "An Zwischenablage anhängen (&+)..."
-
 #, python-format
 msgid ""
 "%s list items are selected.\n"
@@ -16025,9 +16032,6 @@ msgstr ""
 "Es sind %s Listeneinträge markiert.\n"
 "\n"
 "Wirklich alle %s Einträge löschen ?"
-
-msgid "Enter the search term:"
-msgstr "Suchbegriff eingeben:"
 
 msgid "List search"
 msgstr "Listensuche"
@@ -16920,6 +16924,15 @@ msgstr "Dateien löschen"
 msgid "Imported files into export area."
 msgstr "Dateien in Sammelmappe gelegt."
 
+msgid "Show list of paperwork passphrases."
+msgstr "Zeige Liste der Dokumentenpassworte"
+
+msgid "Paperwork passphrases"
+msgstr "Schriftstückpassworte"
+
+msgid "Hash"
+msgstr "Prüfsumme"
+
 msgid "Clearing out a directory"
 msgstr "Verzeichnis leeren"
 
@@ -17234,9 +17247,8 @@ msgstr "<gm-fax_doc(.bat) nicht gefunden>"
 msgid "Password not provided twice. Aborting."
 msgstr "Passort nicht zweimal eingegeben. Abbruch."
 
-msgid "Passphrase password not provided twice. Aborting."
-msgstr ""
-"Passwort für Datenverschlüsselungspasswort nicht zweimal eingegeben. Abbruch."
+msgid "Master passphrase not provided twice. Aborting."
+msgstr "Generalpasswort nicht zweimal eingegeben. Abbruch."
 
 msgid "Error exporting entries."
 msgstr "Fehler beim Exportieren der Einträge."
@@ -17245,17 +17257,16 @@ msgid "Error creating zip file."
 msgstr "Fehler beim Erzeugen des Ziparchivs."
 
 msgid ""
-"No public keys available for encrypted\n"
-"storage of the data passphrase.\n"
+"No public keys available for safekeeping of paperwork passphrases.\n"
 "\n"
-"Enter master passphrase for encryption of data passphrases.\n"
+"Enter master passphrase for encryption thereof.\n"
 "\n"
 "(minimum length: 5, trailing blanks will be stripped)"
 msgstr ""
 "Keine öffentlichen Schlüssel zum Schützen\n"
-"des Datenpassworts verfügbar.\n"
+"von Dokumentenpassworten verfügbar.\n"
 "\n"
-"Geben Sie das Hauptpasswort zum Schützen des Datenpassworts ein.\n"
+"Geben Sie das Generalpasswort zum Schützen von Dokumentenpassworten ein.\n"
 "\n"
 "(mindestens 5 Buchstaben, anhängende Leerzeichen werden entfernt)"
 
@@ -17272,22 +17283,25 @@ msgstr ""
 "\n"
 "Neuer Versuch ?"
 
-#, fuzzy
 msgid ""
-"Once more enter master passphrase for encryption of data passphrases.\n"
+"Once more enter master passphrase for safekeeping of paperwork passphrases.\n"
 "\n"
 "(this will protect you from typos)\n"
 "\n"
 "Abort by leaving empty.\n"
 "\n"
-"Make sure to safely remember the master passphrase. It can NOT be retrieved "
-"if lost."
+"Make sure to safely remember the master passphrase. It is NOT stored in "
+"GNUmed at all."
 msgstr ""
-"Geben Sie das Hauptpasswort zum Schutz von Datenpassworten erneut ein.\n"
+"Geben Sie das Generalpasswort zum Schutz von Dokumentenpassworten erneut "
+"ein.\n"
 "\n"
 "(Dadurch werden Vertipper entdeckt.)\n"
 "\n"
 "Abbrechen durch Leerlassen.\n"
+"\n"
+"Bewahren Sie das Generalpasswort sicher auf. Es wird in GNUmed NICHT "
+"gespeichert."
 
 msgid ""
 "Passphrases do not match.\n"
@@ -17299,22 +17313,22 @@ msgstr ""
 "Erneut eingeben - oder Abbruch durch leeres Passwort."
 
 msgid ""
-"Enter passphrase to protect the data with.\n"
+"Enter passphrase to protect the object with.\n"
 "\n"
 "(minimum length: 5, trailing blanks will be stripped)"
 msgstr ""
-"Geben Sie das Passwort (Phrase) zum Schutz der Daten ein.\n"
+"Geben Sie das Passwort zum Schutz von Dokumenten ein.\n"
 "\n"
 "(mindestens 5 Zeichen, anhängende Leerzeichen werden abgeschnitten)"
 
 msgid ""
-"Once more enter passphrase to protect the data with.\n"
+"Once more enter passphrase to protect the object with.\n"
 "\n"
 "(this will protect you from typos)\n"
 "\n"
 "Abort by leaving empty."
 msgstr ""
-"Geben Sie das Passwort zum Schutz der Daten erneut ein.\n"
+"Geben Sie das Passwort zum Schutz von Dokumenten erneut ein.\n"
 "\n"
 "(Dadurch werden Vertipper entdeckt.)\n"
 "\n"
@@ -17407,6 +17421,21 @@ msgstr "Importieren der LOINC-Referenzdaten schlug fehl."
 msgid "Select a LOINC (Logical Observation Identifiers Names and Codes)."
 msgstr "Einen LOINC (Logical Observation Identifiers Names and Codes) wählen."
 
+msgid ""
+"GNUmed generic document template\n"
+"\n"
+"Some context data has been added below for your copy/paste convenience.\n"
+"\n"
+"Before entering text you should switch the \"paragraph type\"\n"
+"from \"Pre-formatted Text\" to \"Standard\".\n"
+msgstr ""
+"GNUmeds allgemeine Dokumentenvorlage\n"
+"\n"
+"Einige Kontextangaben zum Kopieren und Einfügen sind unten aufgelistet.\n"
+"\n"
+"Vor dem Eingeben von Text sollten Sie die Typ des Textkörpers\n"
+"von \"vorformatiert\" auf \"Standard\" setzen.\n"
+
 #, python-format
 msgid "Today: %s"
 msgstr "Heute: %s"
@@ -17475,7 +17504,7 @@ msgstr "Geboren: %s (%s)"
 
 #, python-format
 msgid "(GNUmed v%s failsafe form -- https://www.gnumed.de)"
-msgstr "(GNUmed Notformular -- https://www.gnumed.de)"
+msgstr "(GNUmed v%s Notformular -- https://www.gnumed.de)"
 
 msgid "No document template selected."
 msgstr "Keine Druckvorlage ausgewählt."
@@ -18557,7 +18586,8 @@ msgid ""
 "\n"
 "stored in the Orthanc DICOM server ?"
 msgstr ""
-"Wirklich %s DICOM-Studien so verändern, daß als neue Patientennummer\n"
+"Wirklich %s DICOM-Studien so verändern, daß als neue "
+"Patientenidentifikation\n"
 "\n"
 " [%s]\n"
 "\n"
@@ -19235,29 +19265,35 @@ msgstr "In Sammelmappe legen als ..."
 msgid "&EMR"
 msgstr "&Karteikarte"
 
-msgid "&Write letter (template)"
-msgstr "&Brief schreiben (Vorlage)"
+msgid "Document from &template"
+msgstr "Dokument aus &Vorlage"
 
-msgid "Write a template-based letter for the current patient."
-msgstr "Einen Brief nach Vorlage für den aktiven Patienten schreiben."
+msgid "Create document/form for current patient from template."
+msgstr "Dokument/Formular für aktiven Patienten aus einer Vorlage erzeugen."
 
-msgid "&Write letter (generic)"
-msgstr "&Brief schreiben (allgemein)"
+msgid "&Generic document"
+msgstr "&Unspezifisches Dokument"
 
-msgid "Write a generic letter for the current patient."
-msgstr "Einen allgemeinen Brief für den aktiven Patienten schreiben."
+msgid "Write free-form document for current patient."
+msgstr "Einen Brief ohne Vorlage für den aktiven Patienten schreiben."
 
 msgid "Screenshot -> export area"
 msgstr "Bildschirmfoto -> Sammelmappe"
 
-msgid "Put a screenshot into the patient export area."
-msgstr "Ein Bildschirmfoto aufnehmen und in die Sammelmappe legen."
+msgid "Put screenshot into patient export area."
+msgstr "Ein Bildschirmfoto in die Sammelmappe des aktiven Patienten legen."
 
-msgid "List Placeholders"
+msgid "List placeholders"
 msgstr "Platzhalter zeigen"
 
-msgid "Show a list of all placeholders."
+msgid "Show list of all placeholders."
 msgstr "Eine Liste aller Platzhalter anzeigen."
+
+msgid "List passphrases"
+msgstr "Passworte zeigen"
+
+msgid "Show list of paperwork passphrases"
+msgstr "Eine Liste aller Dokumentenpassworte zeigen."
 
 msgid "&Correspondence"
 msgstr "&Schriftverkehr"
@@ -23486,6 +23522,65 @@ msgstr "Abbrechen"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
+#~ msgid "&Tooltips of all rows"
+#~ msgstr "&Tooltips aller Einträge"
+
+#~ msgid "&Data of all rows"
+#~ msgstr "&Daten aller Einträge"
+
+#~ msgid "&Selected rows as CSV"
+#~ msgstr "&Markierte Einträge als CSV"
+
+#~ msgid "&Tooltips of selected rows"
+#~ msgstr "&Tooltips der markierten Einträge"
+
+#~ msgid "&Data of selected rows"
+#~ msgstr "&Daten der markierten Einträge"
+
+#~ msgid "Tooltips of selected rows"
+#~ msgstr "Tooltips der markierten Einträge"
+
+#~ msgid "Data (formatted as text) of selected rows"
+#~ msgstr "Zeilendaten (als Text) der markierten Einträge"
+
+#~ msgid "Content (as one line each) of selected rows"
+#~ msgstr "Inhalte (als Einzeiler) der markierten Einträge"
+
+#~ msgid "Tooltip of current row"
+#~ msgstr "Tooltip des aktuellen Eintrags"
+
+#~ msgid "Data (formatted as text) of current row"
+#~ msgstr "Zeilendaten (als Text) des aktuellen Eintrags"
+
+#~ msgid "Content (as one line) of current row"
+#~ msgstr "Zeileninhalt (als Einzeiler) des aktuellen Eintrags"
+
+#~ msgid "Content (one line per column) of current row"
+#~ msgstr "Zeileninhalt (pro Spalte eine Zeile) des aktuellen Eintrags"
+
+#, python-format
+#~ msgid "Column &%s (current row): \"%s\" [#%s]"
+#~ msgstr "Spalte &%s (aktueller Eintrag): \"%s\" [#%s]"
+
+#, python-format
+#~ msgid "Column &%s (current row): %s"
+#~ msgstr "Spalte &%s (aktueller Eintrag): %s"
+
+#~ msgid "Append (&+) to clipboard..."
+#~ msgstr "An Zwischenablage anhängen (&+)..."
+
+#~ msgid "Enter the search term:"
+#~ msgstr "Suchbegriff eingeben:"
+
+#~ msgid "&Write letter (template)"
+#~ msgstr "&Brief schreiben (Vorlage)"
+
+#~ msgid "Write a template-based letter for the current patient."
+#~ msgstr "Einen Brief nach Vorlage für den aktiven Patienten schreiben."
+
+#~ msgid "&Write letter (generic)"
+#~ msgstr "&Brief schreiben (allgemein)"
+
 #~ msgid "&L"
 #~ msgstr "&L"
 
@@ -23626,9 +23721,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Comment / Identification:"
 #~ msgstr "Kommentar / Identifikation:"
-
-#~ msgid "Load from &file"
-#~ msgstr "aus &Datei laden"
 
 #~ msgid "Load a &file"
 #~ msgstr "&Datei laden"
@@ -25627,9 +25719,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ msgid "Document list for this patient."
 #~ msgstr "Dokumentenliste dieses Patienten."
 
-#~ msgid "Showing documents."
-#~ msgstr "Zeige Dokumente"
-
 #~ msgid "GNUmed patient: %s (generic PACS ID)"
 #~ msgstr "GNUmed-Patient: %s (generische PACS ID)"
 
@@ -25749,9 +25838,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "health issue"
 #~ msgstr "Grunderkrankung"
-
-#~ msgid "Row tooltip"
-#~ msgstr "Tooltip des Eintrags"
 
 #~ msgid "&Entry time"
 #~ msgstr "&Ereigniszeit"
