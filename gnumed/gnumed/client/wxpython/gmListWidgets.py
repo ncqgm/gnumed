@@ -2350,6 +2350,19 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 		if self.ItemCount == 0:
 			return
 
+		# generate data for access from menu item handlers
+		col_headers = []
+		self._rclicked_row_idx = item_idx
+		self._rclicked_row_data = self.get_item_data(item_idx = self._rclicked_row_idx)
+		self._rclicked_row_cells = []
+		self._rclicked_row_cells_w_hdr = []
+		for col_idx in range(self.ColumnCount):
+			cell_content = self.GetItem(self._rclicked_row_idx, col_idx).Text.strip()
+			col_header = self.GetColumn(col_idx).Text.strip()
+			col_headers.append(col_header)
+			self._rclicked_row_cells.append(cell_content)
+			self._rclicked_row_cells_w_hdr.append('%s: %s' % (col_header, cell_content))
+		# build context menu
 		items = self.selected_items
 		if self.__is_single_selection:
 			if items is None:
@@ -2364,10 +2377,7 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 			title = _('List Item Actions (selected: 1 entry)')
 		else:
 			title = _('List Item Actions (selected: %s entries)') % no_of_selected_items
-
-		# build context menu
 		self._context_menu = wx.Menu(title = title)
-
 		needs_separator = False
 		if self.__new_callback is not None:
 			menu_item = self._context_menu.Append(-1, _('Add (<INS>)'))
@@ -2383,7 +2393,6 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 			needs_separator = True
 		if needs_separator:
 			self._context_menu.AppendSeparator()
-
 		menu_item = self._context_menu.Append(-1, _('Find (<CTRL-F>)'))
 		self.Bind(wx.EVT_MENU, self._on_show_search_dialog, menu_item)
 		if self.__search_term is not None:
@@ -2391,177 +2400,88 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 				menu_item = self._context_menu.Append(-1, _('Find next [%s] (<CTRL-N>)') % self.__search_term)
 				self.Bind(wx.EVT_MENU, self._on_search_match, menu_item)
 		self._context_menu.AppendSeparator()
-
-		col_headers = []
-		self._rclicked_row_idx = item_idx
-		self._rclicked_row_data = self.get_item_data(item_idx = self._rclicked_row_idx)
-		self._rclicked_row_cells = []
-		self._rclicked_row_cells_w_hdr = []
-		for col_idx in range(self.ColumnCount):
-			cell_content = self.GetItem(self._rclicked_row_idx, col_idx).Text.strip()
-			col_header = self.GetColumn(col_idx).Text.strip()
-			col_headers.append(col_header)
-			self._rclicked_row_cells.append(cell_content)
-			self._rclicked_row_cells_w_hdr.append('%s: %s' % (col_header, cell_content))
-
 		# save to file
-		save_menu = wx.Menu()
-		# save / all rows
-		menu_item = save_menu.Append(-1, _('&All rows'))
+		# - all rows
+		save_all_menu = wx.Menu()
+		menu_item = save_all_menu.Append(-1, _('as &text'))
 		self.Bind(wx.EVT_MENU, self._all_rows2file, menu_item)
-		menu_item = save_menu.Append(-1, _('All rows as &CSV'))
+		menu_item = save_all_menu.Append(-1, _('as &CSV'))
 		self.Bind(wx.EVT_MENU, self._all_rows2csv, menu_item)
-		menu_item = save_menu.Append(-1, _('&Tooltips of all rows'))
+		menu_item = save_all_menu.Append(-1, _('as t&ooltips'))
 		self.Bind(wx.EVT_MENU, self._all_row_tooltips2file, menu_item)
-		menu_item = save_menu.Append(-1, _('&Data of all rows'))
+		menu_item = save_all_menu.Append(-1, _('as &data'))
 		self.Bind(wx.EVT_MENU, self._all_row_data2file, menu_item)
-		# save / selected rows (if >1)
-		if no_of_selected_items > 1:
-			save_menu.AppendSeparator()
-			menu_item = save_menu.Append(-1, _('&Selected rows'))
+		save_menu = wx.Menu()
+		save_menu.Append(-1, _('&all rows ...'), save_all_menu)
+		# - selected rows if any
+		if no_of_selected_items > 0:
+			save_selected_menu = wx.Menu()
+			menu_item = save_selected_menu.Append(-1, _('as &text'))
 			self.Bind(wx.EVT_MENU, self._selected_rows2file, menu_item)
-			menu_item = save_menu.Append(-1, _('&Selected rows as CSV'))
+			menu_item = save_selected_menu.Append(-1, _('as &CSV'))
 			self.Bind(wx.EVT_MENU, self._selected_rows2csv, menu_item)
-			menu_item = save_menu.Append(-1, _('&Tooltips of selected rows'))
+			menu_item = save_selected_menu.Append(-1, _('as t&ooltips'))
 			self.Bind(wx.EVT_MENU, self._selected_row_tooltips2file, menu_item)
-			menu_item = save_menu.Append(-1, _('&Data of selected rows'))
+			menu_item = save_selected_menu.Append(-1, _('as &data'))
 			self.Bind(wx.EVT_MENU, self._selected_row_data2file, menu_item)
-
+			save_menu.Append(-1, _('&selected row(s) ...'), save_selected_menu)
 		# put into clipboard
-		clip_menu = wx.Menu()
-		# clipboard / selected rows (if >1)
-		if no_of_selected_items > 1:
-			# row tooltips
-			menu_item = clip_menu.Append(-1, _('Tooltips of selected rows'))
-			self.Bind(wx.EVT_MENU, self._tooltips2clipboard, menu_item)
-			# row data as formatted text if available
-			menu_item = clip_menu.Append(-1, _('Data (formatted as text) of selected rows'))
-			self.Bind(wx.EVT_MENU, self._datas2clipboard, menu_item)
-			# all fields of the list row as one line of text
-			menu_item = clip_menu.Append(-1, _('Content (as one line each) of selected rows'))
-			self.Bind(wx.EVT_MENU, self._rows2clipboard, menu_item)
-			clip_menu.AppendSeparator()
-		# clipboard / the right-clicked row
-		# row tooltip
-		menu_item = clip_menu.Append(-1, _('Tooltip of current row'))
-		self.Bind(wx.EVT_MENU, self._tooltip2clipboard, menu_item)
-		# row data as formatted text if available
-		if hasattr(self._rclicked_row_data, 'format'):
-			menu_item = clip_menu.Append(-1, _('Data (formatted as text) of current row'))
-			self.Bind(wx.EVT_MENU, self._data2clipboard, menu_item)
-		# all fields of the list row as one line of text
-		menu_item = clip_menu.Append(-1, _('Content (as one line) of current row'))
+		# - right-clicked/MENU-keyed row
+		clip_activated_menu = wx.Menu()
+		menu_item = clip_activated_menu.Append(-1, _('as &one-liner'))
 		self.Bind(wx.EVT_MENU, self._row2clipboard, menu_item)
-		# all fields of the list row as multiple lines of text
-		menu_item = clip_menu.Append(-1, _('Content (one line per column) of current row'))
+		menu_item = clip_activated_menu.Append(-1, _('as &multi-liner (per field)'))
 		self.Bind(wx.EVT_MENU, self._row_list2clipboard, menu_item)
-		# each field of the list row as text with and without header
-		clip_menu.AppendSeparator()
-		for col_idx in range(self.ColumnCount):
-			col_content = self._rclicked_row_cells[col_idx].strip()
-			# skip empty field
-			if col_content == '':
-				continue
-			col_header = col_headers[col_idx]
-			if col_header == '':
-				# skip one-character fields without header,
-				# actually, no, because in ideographic languages
-				# one character may mean a lot
-				#if len(col_content) == 1:
-				#	continue
-				# without column header
-				menu_item = clip_menu.Append(-1, _('Column &%s (current row): "%s" [#%s]') % (col_idx+1, shorten_text(col_content, 35), col_idx))
-				self.Bind(wx.EVT_MENU, self._col2clipboard, menu_item)
-			else:
-				col_menu = wx.Menu()
-				# with full column header
-				menu_item = col_menu.Append(-1, '"%s: %s" [#%s]' % (shorten_text(col_header, 8), shorten_text(col_content, 35), col_idx))
-				self.Bind(wx.EVT_MENU, self._col_w_hdr2clipboard, menu_item)
-				# without column header
-				menu_item = col_menu.Append(-1, '"%s" [#%s]' % (shorten_text(col_content, 35), col_idx))
-				self.Bind(wx.EVT_MENU, self._col2clipboard, menu_item)
-				clip_menu.Append(-1, _('Column &%s (current row): %s') % (col_idx+1, col_header), col_menu)
-
-		# append to topmost clipboard item
-		clip_add_menu = wx.Menu()
-		# clipboard - add / selected rows (if >1)
-		if no_of_selected_items > 1:
-			# row tooltips
-			menu_item = clip_add_menu.Append(-1, _('Tooltips of selected rows'))
-			self.Bind(wx.EVT_MENU, self._add_tooltips2clipboard, menu_item)
-			# row data as formatted text if available
-			menu_item = clip_add_menu.Append(-1, _('Data (formatted as text) of selected rows'))
-			self.Bind(wx.EVT_MENU, self._add_datas2clipboard, menu_item)
-			# all fields of the list row as one line of text
-			menu_item = clip_add_menu.Append(-1, _('Content (as one line each) of selected rows'))
-			self.Bind(wx.EVT_MENU, self._add_rows2clipboard, menu_item)
-			clip_add_menu.AppendSeparator()
-		# clipboard - add / the right-clicked row
-		# row tooltip
-		menu_item = clip_add_menu.Append(-1, _('Tooltip of current row'))
-		self.Bind(wx.EVT_MENU, self._add_tooltip2clipboard, menu_item)
-		# row data as formatted text if available
+		menu_item = clip_activated_menu.Append(-1, _('as &tooltip'))
+		self.Bind(wx.EVT_MENU, self._tooltip2clipboard, menu_item)
 		if hasattr(self._rclicked_row_data, 'format'):
-			menu_item = clip_add_menu.Append(-1, _('Data (formatted as text) of current row'))
-			self.Bind(wx.EVT_MENU, self._add_data2clipboard, menu_item)
-		# all fields of the list row as one line of text
-		menu_item = clip_add_menu.Append(-1, _('Content (as one line) of current row'))
-		self.Bind(wx.EVT_MENU, self._add_row2clipboard, menu_item)
-		# all fields of the list row as multiple lines of text
-		menu_item = clip_add_menu.Append(-1, _('Content (one line per column) of current row'))
-		self.Bind(wx.EVT_MENU, self._add_row_list2clipboard, menu_item)
-		# each field of the list row as text with and without header
-		clip_add_menu.AppendSeparator()
+			menu_item = clip_activated_menu.Append(-1, _('as &data (text)'))
+			self.Bind(wx.EVT_MENU, self._data2clipboard, menu_item)
+		clip_cols_menu = wx.Menu()
 		for col_idx in range(self.ColumnCount):
 			col_content = self._rclicked_row_cells[col_idx].strip()
-			# skip empty field
 			if col_content == '':
 				continue
+			txt = '&%s: "%s" [#%s]' % (
+				col_idx+1,
+				shorten_text(col_content, 35),
+				col_idx
+			)
+			menu_item = clip_cols_menu.Append(-1, txt)
+			self.Bind(wx.EVT_MENU, self._col2clipboard, menu_item)
 			col_header = col_headers[col_idx]
-			if col_header == '':
-				# without column header
-				menu_item = clip_add_menu.Append(-1, _('Column &%s (current row): "%s" [#%s]') % (col_idx+1, shorten_text(col_content, 35), col_idx))
-				self.Bind(wx.EVT_MENU, self._add_col2clipboard, menu_item)
-			else:
-				col_add_menu = wx.Menu()
-				# with full column header
-				menu_item = col_add_menu.Append(-1, '"%s: %s" [#%s]' % (shorten_text(col_header, 8), shorten_text(col_content, 35), col_idx))
-				self.Bind(wx.EVT_MENU, self._add_col_w_hdr2clipboard, menu_item)
-				# without column header
-				menu_item = col_add_menu.Append(-1, '"%s" [#%s]' % (shorten_text(col_content, 35), col_idx))
-				self.Bind(wx.EVT_MENU, self._add_col2clipboard, menu_item)
-				clip_add_menu.Append(-1, _('Column &%s (current row): %s') % (col_idx+1, col_header), col_add_menu)
-
+			if col_header:
+				txt = '%s: "%s: %s" [#%s]' % (
+					col_idx+1,
+					shorten_text(col_header, 8),
+					shorten_text(col_content, 35),
+					col_idx
+				)
+				menu_item = clip_cols_menu.Append(-1, txt)
+				self.Bind(wx.EVT_MENU, self._col_w_hdr2clipboard, menu_item)
+		clip_activated_menu.Append(-1, _('from &field'), clip_cols_menu)
+		# - selected rows
+		if no_of_selected_items > 0:
+			clip_selected_menu = wx.Menu()
+			menu_item = clip_selected_menu.Append(-1, _('as &one-liner(s)'))
+			self.Bind(wx.EVT_MENU, self._rows2clipboard, menu_item)
+			menu_item = clip_selected_menu.Append(-1, _('as &tooltip(s)'))
+			self.Bind(wx.EVT_MENU, self._tooltips2clipboard, menu_item)
+			menu_item = clip_selected_menu.Append(-1, _('as &data (text)'))
+			self.Bind(wx.EVT_MENU, self._datas2clipboard, menu_item)
+		clip_menu = wx.Menu()
+		clip_menu.Append(-1, _('&activated row ...'), clip_activated_menu)
+		clip_menu.Append(-1, _('&selected row(s) ...'), clip_selected_menu)
 		# screenshot menu
 		screenshot_menu = wx.Menu()
-		# screenshot / save to file
 		menu_item = screenshot_menu.Append(-1, _('&Save'))
 		self.Bind(wx.EVT_MENU, self._visible_rows_screenshot2file, menu_item)
-		# screenshot / into export area
 		menu_item = screenshot_menu.Append(-1, _('E&xport area'))
 		self.Bind(wx.EVT_MENU, self._visible_rows_screenshot2export_area, menu_item)
-
-		# 3) copy item to export area
-		# put into file
-		# current row
-		# - fields as one line
-		# - fields as list
-		# - data formatted
-		# - tooltip
-		# selected rows
-		# - fields as lines each
-		# - all data formatted
-		# - all tooltips
-		# - as CSV
-		# send signal
-
-		# show menu
-		#self._context_menu.Append(-1, _('Copy to e&xport area...'), exp_menu)
+		# primary popup
 		self._context_menu.Append(-1, _('Screen&shot ...'), screenshot_menu)
 		self._context_menu.Append(-1, _('Save to &file...'), save_menu)
 		self._context_menu.Append(-1, _('Copy to &clipboard...'), clip_menu)
-		self._context_menu.Append(-1, _('Append (&+) to clipboard...'), clip_add_menu)
-
 		if self.__extend_popup_menu_callback is not None:
 			self._context_menu.AppendSeparator()
 			self.__extend_popup_menu_callback(menu = self._context_menu)
@@ -2623,7 +2543,7 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 			#print "prev search term:", self.__search_term
 			default = self.__search_term
 		search_term = wx.GetTextFromUser (
-			_('Enter the search term:'),
+			_('Enter search term:'),
 			_('List search'),
 			default_value = default
 		)
