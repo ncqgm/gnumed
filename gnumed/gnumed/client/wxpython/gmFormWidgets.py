@@ -52,13 +52,15 @@ _ID_FORM_DISPOSAL_ARCHIVE_ONLY = range(4)
 #============================================================
 # generic form generation and handling convenience functions
 #------------------------------------------------------------
-__ODT_FILE_PREAMBLE = """GNUmed generic document template
+__ODT_FILE_PREAMBLE = _("""GNUmed generic document template
 
 Some context data has been added below for your copy/paste convenience.
 
-Before entering text you should switch the "paragraph type" from "Pre-formatted Text" to "Standard".
-=============================================================================
-"""
+Before entering text you should switch the "paragraph type"
+from "Pre-formatted Text" to "Standard".
+""")
+__ODT_FILE_PREAMBLE += '============================================================================='
+
 def print_generic_document(parent=None, jobtype:str=None, episode=None):
 	"""Call LibreOffice Writer with a generated (fake) ODT file.
 
@@ -77,7 +79,7 @@ def print_generic_document(parent=None, jobtype:str=None, episode=None):
 
 			/home/$USER/some/dir/some-file.odt
 
-		does.
+		will do fine.
 	"""
 	sandbox = os.path.join(gmTools.gmPaths().user_tmp_dir, 'libreoffice')
 	gmTools.mkdir(sandbox)
