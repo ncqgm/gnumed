@@ -124,6 +124,7 @@ from Gnumed.wxpython import gmLOINCWidgets
 from Gnumed.wxpython import gmVisualProgressNoteWidgets
 from Gnumed.wxpython import gmHospitalStayWidgets
 from Gnumed.wxpython import gmProcedureWidgets
+from Gnumed.wxpython import gmExportAreaWidgets
 
 
 _cfg = gmCfgINI.gmCfgData()
@@ -636,15 +637,17 @@ class gmTopLevelFrame(wx.Frame):
 
 		# -- menu "Paperwork" ---------------------
 		menu_paperwork = wx.Menu()
-		item = menu_paperwork.Append(-1, _('&Write letter (template)'), _('Write a template-based letter for the current patient.'))
+		item = menu_paperwork.Append(-1, _('Document from &template'), _('Create document/form for current patient from template.'))
 		self.Bind(wx.EVT_MENU, self.__on_new_letter, item)
-		item = menu_paperwork.Append(-1, _('&Write letter (generic)'), _('Write a generic letter for the current patient.'))
+		item = menu_paperwork.Append(-1, _('&Generic document'), _('Write free-form document for current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_new_generic_letter, item)
-		item = menu_paperwork.Append(-1, _('Screenshot -> export area'), _('Put a screenshot into the patient export area.'))
+		item = menu_paperwork.Append(-1, _('Screenshot -> export area'), _('Put screenshot into patient export area.'))
 		self.Bind(wx.EVT_MENU, self.__on_save_screenshot_into_export_area, item)
 		menu_paperwork.AppendSeparator()
-		item = menu_paperwork.Append(-1, _('List Placeholders'), _('Show a list of all placeholders.'))
+		item = menu_paperwork.Append(-1, _('List placeholders'), _('Show list of all placeholders.'))
 		self.Bind(wx.EVT_MENU, self.__on_show_placeholders, item)
+		item = menu_paperwork.Append(-1, _('List passphrases'), _('Show list of document passphrases'))
+		self.Bind(wx.EVT_MENU, self.__on_show_document_passwords, item)
 #		item = menu_paperwork.Append(-1, _('Select receiver'), _('Select a letter receiver for testing.'))
 #		self.Bind(wx.EVT_MENU, self.__on_test_receiver_selection, item)
 		self.mainmenu.Append(menu_paperwork, _('&Correspondence'))
@@ -1053,6 +1056,10 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_show_placeholders(self, evt):
 		from Gnumed.wxpython.gmMacro import show_placeholders
 		show_placeholders()
+
+	#----------------------------------------------
+	def __on_show_document_passwords(self, evt):
+		gmExportAreaWidgets.manage_paperwork_passphrases(parent = self)
 
 	#----------------------------------------------
 	def __on_save_screenshot_into_export_area(self, evt):

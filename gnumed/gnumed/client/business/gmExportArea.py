@@ -1747,6 +1747,32 @@ def store_object_passphrase (
 
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
+def get_object_passphrases(hash_value:str=None, order_by:str=None, link_obj=None) -> list[str] | None:
+	"""Retrieve encrypted passphrases.
+
+	Args:
+		hash_value: the hash to look up passphrases for, if given
+
+	Returns
+		List of rows containing encrypted passphrases, or None.
+	"""
+	WHERE_PARTS = []
+	args = {}
+	if hash_value:
+		WHERE_PARTS.append('hash = %(hash)s')
+		args['hash'] = hash_value
+	SQL = 'SELECT * FROM gm.obj_export_passphrase'
+	if WHERE_PARTS:
+		SQL += ' WHERE %s' % ' AND '.join(WHERE_PARTS)
+	if order_by:
+		SQL += ' ORDER BY %s' % order_by
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}], link_obj = link_obj)
+	if not rows:
+		return None
+
+	return rows
+
+#---------------------------------------------------------------------------
 def save_file_passphrases_into_files() -> list[str] | None:
 	try:
 		hash_val = input('Please enter the file hash: ')
@@ -1756,7 +1782,7 @@ def save_file_passphrases_into_files() -> list[str] | None:
 	return save_object_passphrase_to_file(hash_val)
 
 #---------------------------------------------------------------------------
-def save_object_passphrase_to_file(hash_value:str=None) -> list[str]:
+def save_object_passphrase_to_file(hash_value:str=None) -> list[str] | None:
 	"""Save encrypted passphrases known for a hash into files.
 
 	Args:
@@ -1765,9 +1791,7 @@ def save_object_passphrase_to_file(hash_value:str=None) -> list[str]:
 	Returns
 		List of files containing encrypted passphrases, or None.
 	"""
-	SQL = 'SELECT * FROM gm.obj_export_passphrase WHERE hash = %(hash)s'
-	args = {'hash': hash_value}
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+	rows = get_object_passphrases(hash_value = hash_value)
 	if not rows:
 		return None
 

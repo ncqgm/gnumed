@@ -36,6 +36,8 @@ from Gnumed.business import gmPraxis
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmDocumentWidgets
+from Gnumed.wxpython import gmListWidgets
+from Gnumed.wxpython import gmAuthWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -112,6 +114,65 @@ def add_files_to_export_area(parent=None, filenames=None, hint=None, unlock_pati
 #----------------------
 gmDispatcher.connect(signal = 'add_file_to_export_area', receiver = _add_file_to_export_area)
 gmDispatcher.connect(signal = 'add_files_to_export_area', receiver = _add_files_to_export_area)
+
+#============================================================
+def manage_paperwork_passphrases(parent=None, single_selection:bool=True):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+#	#--------------------------------------------------------
+#	def edit(document=None):
+#		return
+#		#return edit_substance(parent = parent, substance = substance, single_entry = (substance is not None))
+
+#	#--------------------------------------------------------
+#	def delete(document):
+#		return
+#		if substance.is_in_use_by_patients:
+#			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete this substance. It is in use.'), beep = True)
+#			return False
+#
+#		return gmMedication.delete_x_substance(substance = substance['pk'])
+
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		dbo_conn = gmAuthWidgets.get_dbowner_connection(procedure = _('Show list of document passphrases.'))
+		if not dbo_conn:
+			phrases = []
+		else:
+			phrases = gmExportArea.get_object_passphrases(link_obj = dbo_conn)
+		items = [ [
+			p['hash'],
+			p['hash_type'],
+			str(p['description'])
+		] for p in phrases ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(phrases)
+
+	#--------------------------------------------------------
+	def decrypt_passphrase(passphrase_row):
+		if not passphrase_row:
+			return
+
+		print('saving passphrase', passphrase_row)
+		# save to file
+		# get master passphrase or trustee public keys
+		# decrypt file
+		# display decrypted file
+
+	#------------------------------------------------------------
+	return gmListWidgets.get_choices_from_list (
+		parent = parent,
+		caption = _('Paperwork passphrases'),
+		columns = [_('Hash'), _('Type'), _('Comment')],
+		single_selection = single_selection,
+		#new_callback = edit,
+		#edit_callback = edit,
+		#delete_callback = delete,
+		refresh_callback = refresh
+		#,left_extra_button = (_('Decrypt'), _('Decrypt selected passphrase.'), decrypt_passphrase)
+	)
 
 #============================================================
 from Gnumed.wxGladeWidgets import wxgExportAreaExportToMediaDlg
