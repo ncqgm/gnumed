@@ -850,11 +850,11 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		for intake in intakes:
 			drug = intake.containing_drug
 			if drug and len(drug['components']) > 1:
-				if intake['drug_product'] in multi_products_already_seen:
+				if intake['product'] in multi_products_already_seen:
 					continue
-				multi_products_already_seen.append(intake['drug_product'])
+				multi_products_already_seen.append(intake['product'])
 				list_items.append(_('%s %s%s') % (
-					intake['drug_product'],
+					intake['product'],
 					drug['l10n_preparation'],
 					gmTools.coalesce(intake['schedule'], '', ': %s')
 				))

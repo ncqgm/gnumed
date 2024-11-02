@@ -2182,13 +2182,13 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			fields_dict = intake.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style)
 			fields_dict['medically_formatted_start'] = self._escape(intake.medically_formatted_start)
 			if intake['pk_drug_product'] is None:
-				fields_dict['drug_product'] = self._escape(_('generic %s') % fields_dict['substance'])
+				fields_dict['product'] = self._escape(_('generic %s') % fields_dict['substance'])
 				fields_dict['contains'] = self._escape('%s %s%s' % (fields_dict['substance'], fields_dict['amount'], fields_dict['unit']))
-				intakes2show[fields_dict['drug_product']] = fields_dict
+				intakes2show[fields_dict['product']] = fields_dict
 			else:
 				comps = [ c.split('::') for c in intake.containing_drug['components'] ]
 				fields_dict['contains'] = self._escape('; '.join([ '%s %s%s' % (c[0], c[1], c[2]) for c in comps ]))
-				intakes2show[intake['drug_product']] = fields_dict		# this will make multi-component drugs unique
+				intakes2show[intake['product']] = fields_dict		# this will make multi-component drugs unique
 
 		intakes2dispense = {}
 		for product, intake in intakes2show.items():

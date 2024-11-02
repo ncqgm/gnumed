@@ -1596,7 +1596,7 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 		"""
 	]
 	_updatable_fields = [
-		'drug_product',
+		'product',
 		'preparation',
 		'atc',
 		'is_fake_product',
@@ -1653,10 +1653,9 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 			if atc != '':
 				gmATC.propagate_atc (
 					link_obj = conn,
-					substance = self._payload['drug_product'].strip(),
+					substance = self._payload['product'].strip(),
 					atc = atc
 				)
-
 		return (success, data)
 
 	#--------------------------------------------------------
@@ -1665,8 +1664,7 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 			return False
 
 		pk_doses2keep = [ s['pk_dose'] for s in substance_doses ]
-		_log.debug('setting components of "%s" from doses: %s', self._payload['drug_product'], pk_doses2keep)
-
+		_log.debug('setting components of "%s" from doses: %s', self._payload['product'], pk_doses2keep)
 		args = {'pk_drug_product': self._payload['pk_drug_product']}
 		queries = []
 		# INSERT those which are not there yet
@@ -1700,7 +1698,6 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 		queries.append({'cmd': cmd, 'args': args})
 		gmPG2.run_rw_queries(link_obj = link_obj, queries = queries)
 		self.refetch_payload(link_obj = link_obj)
-
 		return True
 
 	#--------------------------------------------------------
@@ -1820,9 +1817,9 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_components(self):
-		cmd = _SQL_get_drug_components % 'pk_drug_product = %(product)s'
-		args = {'drug_product': self._payload['pk_drug_product']}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		SQL = _SQL_get_drug_components % 'pk_drug_product = %(pk_product)s'
+		args = {'pk_product': self._payload['pk_drug_product']}
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
 		return [ cDrugComponent(row = {'data': r, 'pk_field': 'pk_component'}) for r in rows ]
 
 	components = property(_get_components)
@@ -1865,17 +1862,18 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_is_in_use_by_patients(self):
-		cmd = """
-			SELECT EXISTS (
-				SELECT 1 FROM clin.substance_intake WHERE
-					fk_drug_component IN (
-						SELECT pk FROM ref.lnk_dose2drug WHERE fk_drug_product = %(pk)s
-					)
-				LIMIT 1
-			)"""
-		args = {'pk': self.pk_obj}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
-		return rows[0][0]
+#		SQL = """
+#			SELECT EXISTS (
+#				SELECT 1 FROM clin.substance_intake WHERE
+#					fk_drug_component IN (
+#						SELECT pk FROM ref.lnk_dose2drug WHERE fk_drug_product = %(pk)s
+#					)
+#				LIMIT 1
+#			)"""
+#		args = {'pk': self.pk_obj}
+#		rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+#		return rows[0][0]
+		return self.is_in_use_as_vaccine
 
 	is_in_use_by_patients = property(_get_is_in_use_by_patients)
 
@@ -1883,9 +1881,10 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 	def _get_is_in_use_as_vaccine(self):
 		if self._payload['is_vaccine'] is False:
 			return False
-		cmd = 'SELECT EXISTS(SELECT 1 FROM clin.vaccination WHERE fk_vaccine = (select pk from ref.vaccine where fk_drug_product = %(pk)s))'
+
+		SQL = 'SELECT EXISTS(SELECT 1 FROM clin.vaccination WHERE fk_vaccine = (SELECT pk FROM ref.vaccine WHERE fk_drug_product = %(pk)s))'
 		args = {'pk': self.pk_obj}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
 		return rows[0][0]
 
 	is_in_use_as_vaccine = property(_get_is_in_use_as_vaccine)

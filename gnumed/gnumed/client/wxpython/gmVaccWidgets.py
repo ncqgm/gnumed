@@ -437,8 +437,6 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 
 	#----------------------------------------------------------------
 	def _save_as_new(self):
-
-		# save the data as a new instance
 		vaccine = gmVaccination.create_vaccine (
 			pk_drug_product = self._PRW_drug_product.GetData(),
 			product_name = self._PRW_drug_product.GetValue().strip(),
@@ -475,7 +473,7 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 	def _save_as_update(self):
 
 		drug = self.data.product
-		drug['drug_product'] = self._PRW_drug_product.GetValue().strip()
+		drug['product'] = self._PRW_drug_product.GetValue().strip()
 		drug['is_fake_product'] = self._CHBOX_fake.GetValue()
 		val = self._PRW_atc.GetData()
 		if val is not None:

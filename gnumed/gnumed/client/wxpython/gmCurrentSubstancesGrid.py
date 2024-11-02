@@ -356,7 +356,7 @@ def update_substance_intake_list_from_prescription(parent=None, prescribed_drugs
 		columns = [_('Newly prescribed drugs')],
 		columns_right = [_('Add to medication list')]
 	)
-	choices = [ ('%s %s (%s)' % (d['drug_product'], d['l10n_preparation'], '; '.join(d['components']))) for d in new_drugs ]
+	choices = [ ('%s %s (%s)' % (d['product'], d['l10n_preparation'], '; '.join(d['components']))) for d in new_drugs ]
 	picker.set_choices (
 		choices = choices,
 		data = new_drugs

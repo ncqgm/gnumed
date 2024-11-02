@@ -415,7 +415,6 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 
 	_cmds_store_payload = [
 		"""UPDATE ref.vaccine SET
-				--id_route = %(pk_route)s,
 				is_live = %(is_live)s,
 				min_age = %(min_age)s,
 				max_age = %(max_age)s,
@@ -431,7 +430,6 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 	]
 
 	_updatable_fields = [
-		#'pk_route',
 		'is_live',
 		'min_age',
 		'max_age',
@@ -443,7 +441,7 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 	def format(self, *args, **kwargs):
 		lines = []
 		lines.append(_('%s with %s %s     #%s') % (
-			gmTools.bool2subst(self._payload['is_live'], _('Live vaccine'), _('Inactive vaccine'), '<liveness error in DB>'),
+			gmTools.bool2subst(self._payload['is_live'], _('Vaccine (live)'), _('Vaccine'), '<liveness error in DB>'),
 			len(self._payload['indications']),
 			gmTools.bool2subst(len(self._payload['indications']) == 1, _('indication'), _('indications'), _('indication(s)')),
 			self._payload['pk_vaccine']
@@ -955,8 +953,8 @@ if __name__ == '__main__':
 	#test_due_vacc()
 	#test_due_booster()
 
-	#test_get_vaccines()
+	test_get_vaccines()
 	#test_get_vaccinations()
-	test_format_vaccs_failsafe()
+	#test_format_vaccs_failsafe()
 	#test_create_generic_vaccine_sql()
 	#test_write_generic_vaccine_sql(sys.argv[2], sys.argv[3])
