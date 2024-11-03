@@ -1649,15 +1649,23 @@ def store_passphrase_of_file(filename:str=None, passphrase:str=None, hash_type:s
 	)
 
 #---------------------------------------------------------------------------
-def get_passphrase_trustees_pubkey_files(owner:gmStaff.cStaff=None) -> list[str]:
+def get_passphrase_trustees_pubkey_files(passphrase_owner:gmStaff.cStaff|gmStaff.gmCurrentProvider=None) -> list[str]:
+	"""Retrieve public keys of passphrase trustees as files.
+
+	Args:
+		passphrase_owner: staff member to encrypt passphrase to (by public key), defaults to current provider
+
+	Returns:
+		Possibly empty list of public keys.
+	"""
 	pubkey_files = []
-	if not owner:
-		owner = gmStaff.gmCurrentProvider()
-	owner_key_file = owner.public_key_file
+	if not passphrase_owner:
+		passphrase_owner = gmStaff.gmCurrentProvider()
+	owner_key_file = passphrase_owner.public_key_file
 	if owner_key_file:
 		pubkey_files.append(owner_key_file)
 	else:
-		_log.warning('no public key for owner [%s]', owner)
+		_log.warning('no public key for owner [%s]', passphrase_owner)
 	trustee_key_files = gmStaff.get_public_keys_of_passphrase_trustees(as_files = True)
 	if trustee_key_files:
 		pubkey_files.extend(trustee_key_files)
@@ -1672,7 +1680,7 @@ def store_object_passphrase (
 	obj=None,
 	passphrase:str=None,
 	hash_type:str='sha256',
-	owner:gmStaff.cStaff=None,
+	passphrase_owner:gmStaff.cStaff|gmStaff.gmCurrentProvider=None,
 	comment:dict=None,
 	master_passphrase:str=None
 ) -> bool:
@@ -1687,7 +1695,7 @@ def store_object_passphrase (
 		obj: an instance supporting the (binary) read protocol
 		passphrase: the passphrase to store
 		hash_type: the hash to use, defaults to '256'
-		owner: staff member to encrypt passphrase to (by public key), defaults to current provider
+		passphrase_owner: staff member to encrypt passphrase to (by public key), defaults to current provider
 		comment: a structured comment on the object, a hint regarding the encryption method is added
 		master_passphrase: when there is no public keys available, use this - if set - for symmetric encryption of the passphrase
 
@@ -1703,7 +1711,7 @@ def store_object_passphrase (
 
 	if not comment:
 		comment = {}
-	pubkey_files = get_passphrase_trustees_pubkey_files(owner = owner)
+	pubkey_files = get_passphrase_trustees_pubkey_files(passphrase_owner = passphrase_owner)
 	if pubkey_files:
 		comment['__encryption_method__'] = 'pgp::asymmetric'
 	else:
@@ -1711,7 +1719,6 @@ def store_object_passphrase (
 		if not master_passphrase:
 			_log.error('cannot escrow passphrase symmetrically either')
 			return False
-		comment['__encryption_method__'] = '7z::symmetric::gzip'
 
 	hashor = hashlib.new(hash_type, usedforsecurity = False)
 	chunk_size = 5 * 1024 * 1024
