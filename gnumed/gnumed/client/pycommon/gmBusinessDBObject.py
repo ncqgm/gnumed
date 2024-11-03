@@ -359,7 +359,7 @@ class cBusinessDBObject(object):
 		# was given which in turn needs those instance variables
 		self.pk_obj:int|dict = -1
 #		self._idx:dict[str, int|str] = {}
-		self._payload:dict|'gmPG2.dbapi.extras.DictRow' = {}	# the cache for backend object values (mainly table fields)
+		self._payload:dict|gmPG2._TRow = {}	# the cache for backend object values (mainly table fields)
 		self._is_modified:bool = False
 		self.original_payload:list = None
 		# only now check child classes
@@ -394,7 +394,7 @@ class cBusinessDBObject(object):
 		raise gmExceptions.ConstructorError("[%s:%s]: error loading instance" % (self.__class__.__name__, self.pk_obj))
 
 	#--------------------------------------------------------
-	def __init_from_row_data(self, row:dict|gmPG2.dbapi.extras.DictRow=None):
+	def __init_from_row_data(self, row:dict|gmPG2._TRow=None):
 		"""Creates a new clinical item instance given its fields.
 
 		Args:

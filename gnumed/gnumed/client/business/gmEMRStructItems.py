@@ -218,12 +218,14 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def get_open_episode(self) -> 'cEpisode':
-		cmd = "select pk from clin.episode where fk_health_issue = %s and is_open IS True LIMIT 1"
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
+		SQL = "select pk FROM clin.episode WHERE fk_health_issue = %(pk_issue)s AND is_open IS True LIMIT 1"
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': {'pk_issue': self.pk_obj}}])
 		if rows:
 			return cEpisode(aPK_obj = rows[0][0])
 
 		return None
+
+	open_episode = property(get_open_episode)
 
 	#--------------------------------------------------------
 	def age_noted_human_readable(self):
@@ -562,9 +564,6 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		return gmExternalCare.get_external_care_items(pk_health_issue = self.pk_obj, order_by = order_by)
 
 	external_care = property(_get_external_care)
-
-	#--------------------------------------------------------
-	open_episode = property(get_open_episode)
 
 	#--------------------------------------------------------
 	def _get_first_episode(self):

@@ -1754,7 +1754,7 @@ def store_object_passphrase (
 
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
-def get_object_passphrases(hash_value:str=None, order_by:str=None, link_obj=None) -> list[str] | None:
+def get_object_passphrases(hash_value:str=None, order_by:str=None, link_obj=None) -> list[gmPG2._TRow] | None:
 	"""Retrieve encrypted passphrases.
 
 	Args:

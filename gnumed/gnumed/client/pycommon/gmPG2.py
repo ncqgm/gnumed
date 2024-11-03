@@ -290,6 +290,7 @@ __LLAP = '_\\//'
 
 
 _TLnkObj = dbapi.extras.DictConnection | dbapi.extras.DictCursor | None
+_TRow = dbapi.extras.DictRow
 
 #_TQuerySQL = str | PG_SQL.Composed
 #_TQueryArgsAsList = list
@@ -679,7 +680,7 @@ def get_schema_hash(link_obj:_TLnkObj=None, version=None) -> str:
 	return md5_db
 
 #------------------------------------------------------------------------
-def get_schema_revision_history(link_obj:_TLnkObj=None) -> list[dbapi.extras.DictRow]:
+def get_schema_revision_history(link_obj:_TLnkObj=None) -> list[_TRow]:
 	if table_exists(link_obj = link_obj, schema = 'gm', table = 'schema_revision'):
 		cmd = """
 			SELECT
@@ -2259,11 +2260,10 @@ def __safely_close_cursor_and_rollback_close_conn(close_cursor=None, rollback_tx
 #------------------------------------------------------------------------
 def run_ro_queries (
 	link_obj:_TLnkObj=None,
-	#queries:Sequence[Mapping[str, str | list | dict]]=None,
 	queries:_TQueries=None,
 	verbose:bool=False,
 	return_data:bool=True
-) -> list[dbapi.extras.DictRow] | None:
+) -> list[_TRow] | None:
 	"""Run read-only queries.
 
 	Args:
@@ -2394,12 +2394,11 @@ def __perhaps_reraise_as_permissions_error(pg_exc, curs):
 #------------------------------------------------------------------------
 def run_rw_queries (
 	link_obj:_TLnkObj=None,
-#	queries:Sequence[Mapping[str, str | list | dict]]=None,
 	queries:_TQueries=None,
 	end_tx:bool=False,
 	return_data:bool=None,
 	verbose:bool=False
-) -> list[dbapi.extras.DictRow] | None:
+) -> list[_TRow] | None:
 	"""Convenience function for running read-write queries.
 
 	Typically (part of) a transaction.
