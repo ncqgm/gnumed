@@ -242,6 +242,54 @@ def generate_renal_insufficiency_urls(search_term:str=None) -> list:
 	_log.debug('renal insufficiency URLs: %s', urls)
 	return urls
 
+#------------------------------------------------------------
+URL_liver = 'https://www.ncbi.nlm.nih.gov/books/NBK547852/'
+#URL_liver__search_template = 'https://www.ncbi.nlm.nih.gov/books/n/livertox/%s/'
+URL_liver__search_template = 'https://duckduckgo.com?q=site:nih.gov+livertox+%s'
+
+def generate_liver_information_urls(search_term:str=None) -> list:
+	if search_term is None:
+		return [URL_liver]
+
+	if isinstance(search_term, str):
+		if search_term.strip() == '':
+			return [URL_liver]
+
+	atcs = []
+	names = []
+	if isinstance(search_term, cSubstance):
+		names.append(search_term['substance'])
+#		if search_term['atc']:
+#			atcs.append(search_term['atc'])
+	elif isinstance(search_term, cSubstanceDose):
+		names.append(search_term['substance'])
+#		if search_term['atc_substance']:
+#			atcs.append(search_term['atc_substance'])
+	elif isinstance(search_term, cSubstanceIntakeEntry):
+		names.append(search_term['substance'])
+#		if search_term['atc_substance']:
+#			atcs.append(search_term['atc_substance'])
+	elif isinstance(search_term, cIntakeWithRegimen):
+		names.append(search_term['substance'])
+#		if search_term['atc_substance']:
+#			atcs.append(search_term['atc_substance'])
+	elif isinstance(search_term, cIntakeRegimen):
+		names.append(search_term['substance'])
+#		if search_term['atc_substance']:
+#			atcs.append(search_term['atc_substance'])
+	else:
+		names.append('%s' % search_term)
+#		atcs.extend(gmATC.text2atc(text = '%s' % search_term, fuzzy = True))
+	terms = []
+	for name in names:
+		terms.append(name)
+		if name.endswith('e'):
+			terms.append(name[:-1])
+#	terms.extend(atcs)
+	urls = [ URL_liver__search_template % t for t in terms ]
+	_log.debug('liver information URLs: %s', urls)
+	return urls
+
 #============================================================
 #============================================================
 # plain substances
@@ -4437,6 +4485,10 @@ if __name__ == "__main__":
 		generate_renal_insufficiency_urls(search_term = 'Metoprolol')
 
 	#--------------------------------------------------------
+	def test_generate_liver_information_urls():
+		print(generate_liver_information_urls(search_term = 'Metoprolol'))
+
+	#--------------------------------------------------------
 	def test_generate_amts_data_template_definition_file(work_dir=None, strict=True):
 		print('file:', generate_amts_data_template_definition_file(strict = True))
 
@@ -4606,9 +4658,11 @@ if __name__ == "__main__":
 	# generic
 	#test_URLs()
 	#test_generate_renal_insufficiency_urls()
+	test_generate_liver_information_urls()
 	#test_interaction_check()
 	#test_format_units()
 
+	sys.exit()
 	gmPG2.request_login_params(setup_pool = True)
 	#test_format_medication_list()
 	#test_format_regimen_like_as_multiple_lines()
@@ -4629,4 +4683,4 @@ if __name__ == "__main__":
 
 	# AMTS
 	#test_generate_amts_data_template_definition_file()
-	test_format_substance_intake_as_amts_data()
+	#test_format_substance_intake_as_amts_data()
