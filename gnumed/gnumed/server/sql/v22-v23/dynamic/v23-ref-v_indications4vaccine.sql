@@ -66,8 +66,6 @@ create view ref.v_indications4vaccine as
 			) as indication_row
 		) as indications,
 
-		r_v.id_route
-			as pk_route,
 		r_v.fk_drug_product
 			as pk_drug_product,
 		r_dp.fk_data_source

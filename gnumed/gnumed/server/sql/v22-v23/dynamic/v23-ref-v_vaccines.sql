@@ -17,7 +17,16 @@ create view ref.v_vaccines as
 		r_v.pk
 			as pk_vaccine,
 
-		r_dp.description
+		coalesce (
+			r_dp.description,
+			(
+				select string_agg(_(r_vi_2.target), '/')
+				from ref.lnk_indic2vaccine r_li2v_2
+					inner join ref.vacc_indication r_vi_2 on (r_li2v_2.fk_indication = r_vi_2.pk)
+				where
+					r_li2v_2.fk_vaccine = r_v.pk
+			) || _(' [generic]')
+		)
 			as vaccine,
 		r_dp.preparation
 			as preparation,
@@ -36,29 +45,23 @@ create view ref.v_vaccines as
 		ARRAY (
 			select row_to_json(indication_row) from (
 				select
-					_(r_s.atc || '-target', 'en')
+					r_vi.target
 						as indication,
-					case
-						when _(r_s.atc || '-target') = (r_s.atc || '-target') then _(r_s.atc || '-target', 'en')
-						else _(r_s.atc || '-target')
-					end
+					_(r_vi.target)
 						as l10n_indication,
-					r_s.atc
+					r_vi.atc
 						as atc_indication
 				from
-					ref.lnk_dose2drug r_ld2d
-						inner join ref.dose r_d on (r_d.pk = r_ld2d.fk_dose)
-							inner join ref.substance r_s on (r_d.fk_substance = r_s.pk)
+					ref.lnk_indic2vaccine r_li2v
+						inner join ref.vacc_indication r_vi on (r_li2v.fk_indication = r_vi.pk)
 				where
-					r_ld2d.fk_drug_product = r_dp.pk
+					r_li2v.fk_vaccine = r_v.pk
 			) as indication_row
 		) as indications,
 
 		r_dp.external_code,
 		r_dp.external_code_type,
 
-		r_v.id_route
-			as pk_route,
 		r_v.fk_drug_product
 			as pk_drug_product,
 
@@ -70,7 +73,7 @@ create view ref.v_vaccines as
 
 	from
 		ref.vaccine r_v
-			join ref.drug_product r_dp on (r_v.fk_drug_product = r_dp.pk)
+			left join ref.drug_product r_dp on (r_v.fk_drug_product = r_dp.pk)
 ;
 
 comment on view ref.v_vaccines is

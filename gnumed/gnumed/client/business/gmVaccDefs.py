@@ -31,6 +31,70 @@ else:
 _log = logging.getLogger('gm.vacc')
 
 #============================================================
+__VACCINATION__SINGLE_TARGET_ATCS = {
+	# -- non-viral -------------------------------
+	'anthrax (bacillus anthracis)': {'atc': 'J07AC01'},
+	'brucellosis (brucella)': {'atc': 'J07AD01'},
+	'cholera (vibrio cholerae)': {'atc': 'J07AE0'},
+	'diphtheria (corynebacterium diphtheriae)': {'atc': 'J07AF01'},
+	'HiB (hemophilus influenzae B)': {'atc': 'J07AG01'},
+	'MenA (meningococcus A)': {'atc': 'J07AH01'},
+	'MenB (meningococcus B)': {'atc': 'J07AH06'},
+	'MenC (meningococcus C)': {'atc': 'J07AH07'},
+	'MenY (meningococcus Y)': {'atc': 'J07AH0Y'},
+	'MenW (meningococcus W)': {'atc': 'J07AH0W'},
+	'pertussis (bordetella pertussis)': {'atc': 'J07AJ0'},
+	'plague (yersinia pestis)': {'atc': 'J07AK01'},
+	'pneumococcal infection (streptococcus pneumoniae)': {'atc': 'J07AL0'},
+	'tetanus (clostridium tetani)': {'atc': 'J07AM01'},
+	'tuberculosis (mycobacterium tuberculosis)': {'atc': 'J07AN01'},
+	'typhoid (salmonella typhi)': {'atc': 'J07AP0'},
+	'parathypoid (salmonella typhi)': {'atc': 'J07AP1'},
+	'typhus exanthematicus (rickettsia prowazekii)': {'atc': 'J07AR01'},
+	'Q fever (coxiella burnetii)': {'atc': 'J07AXQF'},
+	# -- viral ------------------------------------------------
+	'tick-borne meningoencephalitis (flavivirus)': {'atc': 'J07BA01'},
+	'japanese B encephalitis (flavivirus)': {'atc': 'J07BA0J'},
+	'influenza (seasonal, H3N2, H1N1)': {'atc': 'J07BB0'},
+	'hepatitis B (HBV)': {'atc': 'J07BC01'},
+	'hepatitis A (HAV)': {'atc': 'J07BC02'},
+	'measles (morbillivirus hominis)': {'atc': 'J07BD01'},
+	'mumps (Mumps orthorubolavirus)': {'atc': 'J07BE01'},
+	'chickenpox, shingles (varicella zoster virus)': {'atc': 'J07BK0'},
+	'rubella (rubivirus rubellae)': {'atc': 'J07BJ01'},
+	'poliomyelitis (polio virus)': {'atc': 'J07BF0'},
+	'rabies (rabies lyssavirus)': {'atc': 'J07BG01'},
+	'rotavirus': {'atc': 'J07BH0'},
+	'yellow fever (yellow fever virus)': {'atc': 'J07BL01'},
+	'smallpox, mpox (variola virus)': {'atc': 'J07BX01'},
+	'dengue fever (flavivirus)': {'atc': 'J07BX04'},
+	'RSV (human respiratory syncytial virus)': {'atc': 'J07BX05'},
+	'HPV (generic)': {'atc': 'J07BM0'},
+	'HPV (6,11,16,18)': {'atc': 'J07BM01'},
+	'HPV (16,18)': {'atc': 'J07BM02'},
+	'HPV (6,11,16,18,31,33,45,52,58)': {'atc': 'J07BM03'},
+	'CoViD-2019 (SARS-CoV-2)': {'atc': 'J07BX03'}
+}
+
+#------------------------------------------------------------
+__SQL_v23_insert_vaccination_target = """-- v23: single-target vaccination indication "%(target)s"
+INSERT INTO ref.vacc_indication (target, atc)
+SELECT '%(target)s', '%(atc)s' WHERE NOT EXISTS (
+	SELECT 1 FROM ref.vacc_indication
+	WHERE target = '%(target)s' OR atc = '%(atc)s'
+);
+"""
+
+def v23_generate_vaccination_targets_SQL():
+	lines = []
+	for target, data in __VACCINATION__SINGLE_TARGET_ATCS.items():
+		lines.append(__SQL_v23_insert_vaccination_target % {
+			'target': target,
+			'atc': data['atc']
+		})
+	return '\n'.join(lines)
+
+#============================================================
 _VACCINE_SUBSTANCES = {
 
 	# bacterial
@@ -848,6 +912,9 @@ J07CA08,,Haemophilus influenzae B und Hepatitis B,,Standarddosis: 1 Einzeldosis 
 	},
 """
 
+
+
+
 #============================================================
 # main - unit testing
 #------------------------------------------------------------
@@ -864,6 +931,10 @@ if __name__ == '__main__':
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 
+	def print_targets():
+		for ind in _VACCINATION_TARGETS:
+			print(ind, _VACCINATION_TARGETS[ind])
+
 	def print_substs():
 		for moniker in _VACCINE_SUBSTANCES:
 			subst = _VACCINE_SUBSTANCES[moniker]
@@ -871,7 +942,7 @@ if __name__ == '__main__':
 			print(' substance:', subst['name'])
 			print(' target:', subst['target'])
 
-
+	#-----------------------------------------------------
 	def print_vaccs():
 		for key in _GENERIC_VACCINES:
 			vacc = _GENERIC_VACCINES[key]
@@ -882,5 +953,11 @@ if __name__ == '__main__':
 				print(' contains: %s (ATC %s)' % (subst['name'], atc))
 				print('  protects against: "%s" [%s]' % (_(subst['target']).lstrip('%s-target::' % atc), subst['target']))
 
+	#-----------------------------------------------------
+	def test_v23_generate_vaccination_targets_SQL():
+		print(v23_generate_vaccination_targets_SQL())
 
-	print_vaccs()
+	#-----------------------------------------------------
+	test_v23_generate_vaccination_targets_SQL()
+	#print_targets()
+	#print_vaccs()
