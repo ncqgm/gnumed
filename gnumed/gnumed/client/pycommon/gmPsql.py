@@ -157,6 +157,9 @@ class Psql:
 									self.conn.commit()
 									curs.close()
 									return 1
+						for notice in self.conn.notices:
+							_log.debug(notice.replace('\n', '/').replace('\n', '/'))
+						del self.conn.notices[:]
 
 					self.conn.commit()
 					curs.close()
