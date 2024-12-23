@@ -956,9 +956,11 @@ class database:
 			print_msg("    ... skipped (no checks defined)")
 			return True
 
-		no_of_queries, remainder = divmod(len(plausibility_queries), 2)
+		# sanity check
+		actual_queries = [ q for q in plausibility_queries if not q.startswith('--') ]
+		no_of_queries, remainder = divmod(len(actual_queries), 2)
 		if remainder != 0:
-			_log.error(u'odd number of plausibility queries defined, aborting')
+			_log.error('odd number of plausibility queries defined, aborting')
 			print_msg("    ... failed (configuration error)")
 			return False
 
@@ -981,60 +983,62 @@ class database:
 		target_conn.cookie = 'check_data_plausibility: target'
 
 		all_tests_successful = True
-
-		for idx in range(no_of_queries):
-			check_def = plausibility_queries[idx*2]
-			if check_def.startswith('--'):
-				_log.debug(u'skipped: %s', check_def)
+		def_of_check = None
+		SQL__old_db = None
+		SQL__new_db = None
+		for line in plausibility_queries:
+			if line.startswith('--'):
+				_log.debug(line)
 				continue
-
-			tag = u'?'
-			old_query = u'?'
+			# have we found a *first-of-two* non-'--' line ?
+			if not def_of_check:
+				def_of_check = line
+				continue
+			# we have found a second non-'--' line
+			SQL__new_db = line
+			tag_of_check = '?'
 			try:
-				tag, old_query = check_def.split('::::')
+				tag_of_check, SQL__old_db = def_of_check.split('::::')
 			except:
-				_log.exception(u'error in plausibility check, aborting')
-				_log.error(u'check definition: %s', check_def)
+				_log.exception('error in plausibility check, aborting')
+				_log.erorr('old DB: [%s]', def_of_check)
+				_log.error('new DB: [%s]', SQL__new_db)
 				print_msg("    ... failed (check definition error)")
 				all_tests_successful = False
+				def_of_check = None
 				continue
-			new_query = plausibility_queries[(idx*2) + 1]
-
+			# run checks in old/new DB
 			try:
-				rows = gmPG2.run_ro_queries (
-					link_obj = template_conn,
-					queries = [{'cmd': old_query}]
-				)
-				old_val = rows[0][0]
+				rows = gmPG2.run_ro_queries (link_obj = template_conn, queries = [{'cmd': SQL__old_db}])
+				val_in_old_db = rows[0][0]
 			except:
-				_log.exception(u'error in plausibility check [%s] (old), aborting' % tag)
-				_log.error(u'SQL: %s', old_query)
+				_log.exception('error in plausibility check [%s] (old DB), aborting' % tag_of_check)
+				_log.error('SQL: %s', SQL__old_db)
 				print_msg("    ... failed (SQL error)")
 				all_tests_successful = False
+				def_of_check = None
 				continue
-
 			try:
-				rows = gmPG2.run_ro_queries (
-					link_obj = target_conn,
-					queries = [{'cmd': new_query}]
-				)
-				new_val = rows[0][0]
+				rows = gmPG2.run_ro_queries(link_obj = target_conn,	queries = [{'cmd': SQL__new_db}])
+				val_in_new_db = rows[0][0]
 			except:
-				_log.exception(u'error in plausibility check [%s] (new), aborting' % tag)
-				_log.error(u'SQL: %s', new_query)
+				_log.exception('error in plausibility check [%s] (new DB), aborting' % tag_of_check)
+				_log.error('SQL: %s', SQL__new_db)
 				print_msg("    ... failed (SQL error)")
 				all_tests_successful = False
+				def_of_check = None
 				continue
-
-			if new_val != old_val:
-				_log.error(u'plausibility check [%s] failed, expected: %s (in old DB), found: %s (in new DB)' % (tag, old_val, new_val))
-				_log.error(u'SQL (old DB): %s', old_query)
-				_log.error(u'SQL (new DB): %s', new_query)
-				print_msg("    ... failed (data error, check [%s])" % tag)
+			# evaluate
+			if val_in_new_db != val_in_old_db:
+				_log.error('plausibility check [%s] failed, expected: [%s] (from old DB), found: [%s] (in new DB)', tag_of_check, val_in_old_db, val_in_new_db)
+				_log.error('SQL (old DB): %s', old_query)
+				_log.error('SQL (new DB): %s', new_query)
+				print_msg("    ... failed (data error, check [%s])" % tag_of_check)
 				all_tests_successful = False
+				def_of_check = None
 				continue
-
-			_log.info(u'plausibility check [%s] succeeded' % tag)
+			def_of_check = None
+			_log.info(u'plausibility check [%s] succeeded' % tag_of_check)
 
 		template_conn.close()
 		target_conn.close()
