@@ -1384,11 +1384,11 @@ WHERE
 		cmd = """
 			SELECT
 				c_v_shots.*,
-				c_v_plv4i.l10n_indication,
-				c_v_plv4i.no_of_shots
+				c_v_lv4i.l10n_indication,
+				c_v_lv4i.no_of_shots
 			FROM
 				clin.v_vaccinations c_v_shots
-					JOIN clin.v_pat_last_vacc4indication c_v_plv4i ON (c_v_shots.pk_vaccination = c_v_plv4i.pk_vaccination)
+					JOIN clin.v_last_vaccination4indication c_v_lv4i ON (c_v_shots.pk_vaccination = c_v_lv4i.pk_vaccination)
 			WHERE %s
 		""" % '\nAND '.join(where_parts)
 		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])

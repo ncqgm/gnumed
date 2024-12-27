@@ -58,10 +58,6 @@ def regenerate_generic_vaccines():
 
 	wx.BeginBusyCursor()
 	_cfg = gmCfgINI.gmCfgData()
-	sql_script = gmVaccination.write_generic_vaccine_sql (
-		'client-%s' % _cfg.get(option = 'client_version'),
-		include_indications_mapping = False
-	)
 	_log.debug('regenerating generic vaccines, SQL script: %s', sql_script)
 	if not gmPG2.run_sql_script(sql_script, conn = dbo_conn):
 		wx.EndBusyCursor()

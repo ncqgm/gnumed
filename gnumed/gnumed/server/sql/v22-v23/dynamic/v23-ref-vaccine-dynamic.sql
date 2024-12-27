@@ -27,16 +27,6 @@ create unique index idx_uniq__ref__vaccine__fk_drug_product on ref.vaccine(fk_dr
 comment on column ref.vaccine.atc is 'ATC for the vaccine, if any.';
 
 -- --------------------------------------------------------------
--- .id_route
---alter table ref.vaccine
---	drop column if exists id_route cascade;
---
---drop index if exists ref.idx_c_vaccine_id_route cascade;
---
---alter table audit.log_vaccine
---	drop column if exists id_route cascade;
-
--- --------------------------------------------------------------
 -- check atc vs fk_drug_product
 alter table ref.vaccine
 	drop constraint if exists chk__either_fk_drug_product_or_atc cascade;

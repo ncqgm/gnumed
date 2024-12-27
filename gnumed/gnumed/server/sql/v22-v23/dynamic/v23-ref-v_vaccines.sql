@@ -17,16 +17,7 @@ create view ref.v_vaccines as
 		r_v.pk
 			as pk_vaccine,
 
-		coalesce (
-			r_dp.description,
-			(
-				select string_agg(_(r_vi_2.target), '/')
-				from ref.lnk_indic2vaccine r_li2v_2
-					inner join ref.vacc_indication r_vi_2 on (r_li2v_2.fk_indication = r_vi_2.pk)
-				where
-					r_li2v_2.fk_vaccine = r_v.pk
-			) || _(' [generic]')
-		)
+		r_dp.description
 			as vaccine,
 		r_dp.preparation
 			as preparation,
