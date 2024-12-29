@@ -1204,13 +1204,8 @@ def bool2str(boolean=None, true_str='True', false_str='False'):
 	)
 
 #---------------------------------------------------------------------------
-def xor(val1, val2, undefined_values:list=None) -> bool:
-	"""Test values for not both being in xors list.
-
-	In this context _undefined_ means for a value to be
-	contained in <undefined_values>.
-
-	_Defined_ is to mean the opposite.
+def xor(val1, val2, mutually_exclusive_values:list=None, check_defined:bool=False) -> bool:
+	"""Test values for not BOTH being in list of mutually exclusive values.
 
 	This can be used to assert mutually exclusive function
 	inputs (say, a patient name and a patient PK for a search
@@ -1219,20 +1214,18 @@ def xor(val1, val2, undefined_values:list=None) -> bool:
 	Args:
 		val1: value to check
 		val2: value to check
-		undefined_values: in which *either* one *or* the other value must not be contained
+		mutually_exclusive_values: in which *either* one *or* the other value must not be contained
 
 	Returns:
 		True if only one of the values is defined.
 		False if both values are undefined or defined.
 	"""
-	if undefined_values is None:
-		undefined_values = [None]
-	if (val1 in undefined_values) and (val2 in undefined_values):
-		# none of the values is defined
+	if mutually_exclusive_values is None:
+		mutually_exclusive_values = [None]
+	if (val1 in mutually_exclusive_values) and (val2 in mutually_exclusive_values):
 		return False
 
-	if (val1 not in undefined_values) and (val2 not in undefined_values):
-		# both values are defined
+	if (val1 not in mutually_exclusive_values) and (val2 not in mutually_exclusive_values):
 		return False
 
 	return True
