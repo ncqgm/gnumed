@@ -140,22 +140,19 @@ def manage_vaccines(parent=None):
 	def refresh(lctrl):
 		vaccines = gmVaccination.get_vaccines(order_by = 'vaccine')
 		items = [ [
-			'%s' % v['pk_drug_product'],
-			'%s%s' % (
+			gmTools.coalesce (
 				v['vaccine'],
-				gmTools.bool2subst (
-					v['is_fake_vaccine'],
-					' (%s)' % _('fake'),
-					''
-				)
+				_('%s [generic]') % '/'.join([ ind['l10n_indication'] for ind in v['indications'] ])
 			),
-			v['l10n_preparation'],
-			gmTools.coalesce(v['atc_code'], ''),
 			'%s - %s' % (
-				gmTools.coalesce(v['min_age'], '?'),
-				gmTools.coalesce(v['max_age'], '?'),
+				gmDateTime.format_interval(interval = v['min_age'], accuracy_wanted = gmDateTime.acc_months, none_string = ''),
+				gmDateTime.format_interval(interval = v['max_age'], accuracy_wanted = gmDateTime.acc_months, none_string = '')
 			),
-			gmTools.coalesce(v['comment'], '')
+			gmTools.coalesce(v['comment'], ''),
+			'%s%s' % (
+				v['pk_vaccine'],
+				gmTools.coalesce(v['pk_drug_product'], '', '::%s')
+			)
 		] for v in vaccines ]
 		lctrl.set_string_items(items)
 		lctrl.set_data(vaccines)
@@ -164,7 +161,7 @@ def manage_vaccines(parent=None):
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
 		caption = _('Showing vaccine details'),
-		columns = [ '#', _('Vaccine'), _('Preparation'), _('ATC'), _('Age range'), _('Comment') ],
+		columns = [ _('Vaccine'), _('Age range'), _('Comment'), '#' ],
 		single_selection = True,
 		refresh_callback = refresh,
 		edit_callback = edit,
@@ -1099,28 +1096,33 @@ if __name__ == "__main__":
 	if sys.argv[1] != 'test':
 		sys.exit()
 
+	#------------------------------------------------------------------
 	def test_failsafe_vacc_hx():
 		print(save_failsafe_vaccination_history())
 
-	gmPG2.request_login_params(setup_pool = True, force_tui = True)
-	gmPraxis.activate_first_praxis_branch()
-	#gmStaff.set_current_provider_to_logged_on_user()
-	gmPerson.set_active_patient(patient = 12)
-	test_failsafe_vacc_hx()
-	sys.exit()
+	#------------------------------------------------------------------
+	def test_manage_vaccines():
+		from Gnumed.wxpython import gmGuiTest
+		frame = gmGuiTest.setup_widget_test_env(patient = 12)
+		gmStaff.set_current_provider_to_logged_on_user()
+		wx.CallLater(2000, manage_vaccines, parent = frame)
+		wx.GetApp().MainLoop()
 
-	from Gnumed.wxpython import gmGuiTest
+	#------------------------------------------------------------------
+	test_manage_vaccines()
 
-	#----------------------------------------
-	#pat = gmPerson.cPerson(12)
-	#gmGuiTest.test_widget(cCurrentSubstancesGrid, patient = 12)
-
-	main_frame = gmGuiTest.setup_widget_test_env(patient = 12)
-	#print(generate_failsafe_medication_list(patient = gmPerson.gmCurrentPatient(), max_width = 80, eol = '\n'))
-	gmStaff.set_current_provider_to_logged_on_user()
-	vaccs_hx = save_failsafe_vaccination_history(max_width = 80)
-	gmMimeLib.call_editor_on_file(filename = vaccs_hx, block = True)
-
-	app = wx.PyWidgetTester(size = (600, 600))
-	#app.SetWidget(cXxxPhraseWheel, -1)
-	app.MainLoop()
+#	gmPG2.request_login_params(setup_pool = True, force_tui = True)
+#	gmPraxis.activate_first_praxis_branch()
+#	gmStaff.set_current_provider_to_logged_on_user()
+#	gmPerson.set_active_patient(patient = 12)
+#
+#	#test_failsafe_vacc_hx()
+#	#sys.exit()
+#
+#	#pat = gmPerson.cPerson(12)
+#	#gmGuiTest.test_widget(cCurrentSubstancesGrid, patient = 12)
+#	main_frame = gmGuiTest.setup_widget_test_env(patient = 12)
+#	#print(generate_failsafe_medication_list(patient = gmPerson.gmCurrentPatient(), max_width = 80, eol = '\n'))
+#	gmStaff.set_current_provider_to_logged_on_user()
+#	vaccs_hx = save_failsafe_vaccination_history(max_width = 80)
+#	gmMimeLib.call_editor_on_file(filename = vaccs_hx, block = True)

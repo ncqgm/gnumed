@@ -82,9 +82,9 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 				gmTools.coalesce(self._payload['atc_code'], '', ' [ATC:%s]'),
 				gmTools.coalesce(self._payload['external_code'], '', ' [%s:%%s]' % self._payload['external_code_type'])
 			))
-		lines.append(_(' Age: %s - %s') % (
-			gmTools.coalesce(self._payload['min_age'], '?'),
-			gmTools.coalesce(self._payload['max_age'], '?')
+		lines.append(_(' Age range: %s - %s') % (
+			gmDateTime.format_interval(interval = self._payload['min_age'], accuracy_wanted = gmDateTime.acc_months, none_string = ''),
+			gmDateTime.format_interval(interval = self._payload['max_age'], accuracy_wanted = gmDateTime.acc_months, none_string = '')
 		))
 		if self._payload['comment'] is not None:
 			lines.extend([ ' %s' % l for l in self._payload['comment'].split('\n')] )
