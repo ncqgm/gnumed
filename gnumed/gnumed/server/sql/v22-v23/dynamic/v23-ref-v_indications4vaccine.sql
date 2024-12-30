@@ -34,8 +34,6 @@ create view ref.v_indications4vaccine as
 			as l10n_preparation,
 		r_dp.atc_code
 			as atc_product,
-		r_dp.is_fake
-			as is_fake_vaccine,
 		r_dp.external_code,
 		r_dp.external_code_type,
 

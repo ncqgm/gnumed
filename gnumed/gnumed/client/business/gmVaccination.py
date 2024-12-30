@@ -77,9 +77,8 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 		lines.append(_(' Targets:'))
 		lines.extend([ '  %s [ATC:%s]' % (i['l10n_indication'], i['atc_indication']) for i in self._payload['indications'] ])
 		if self._payload['pk_drug_product']:
-			lines.append(_(' %s%s%s%s') % (
+			lines.append(' %s%s%s' % (
 				self._payload['l10n_preparation'],
-				gmTools.coalesce(gmTools.bool2subst(self._payload['is_fake_vaccine'], _('fake product'), None, None), '', ', %s'),
 				gmTools.coalesce(self._payload['atc_code'], '', ' [ATC:%s]'),
 				gmTools.coalesce(self._payload['external_code'], '', ' [%s:%%s]' % self._payload['external_code_type'])
 			))

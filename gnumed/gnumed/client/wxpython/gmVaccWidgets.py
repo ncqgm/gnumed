@@ -139,7 +139,6 @@ def manage_vaccines(parent=None):
 	#------------------------------------------------------------
 	def refresh(lctrl):
 		vaccines = gmVaccination.get_vaccines(order_by = 'vaccine')
-
 		items = [ [
 			'%s' % v['pk_drug_product'],
 			'%s%s' % (
@@ -451,7 +450,6 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 		vaccine.save()
 
 		drug = vaccine.product
-		drug['is_fake_product'] = self._CHBOX_fake.GetValue()
 		val = self._PRW_atc.GetData()
 		if val is not None:
 			if val != 'J07':
@@ -470,7 +468,6 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 
 		drug = self.data.product
 		drug['product'] = self._PRW_drug_product.GetValue().strip()
-		drug['is_fake_product'] = self._CHBOX_fake.GetValue()
 		val = self._PRW_atc.GetData()
 		if val is not None:
 			if val != 'J07':
@@ -494,7 +491,6 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 	def _refresh_as_new(self):
 		self._PRW_drug_product.SetText(value = '', data = None, suppress_smarts = True)
 		self._CHBOX_live.SetValue(False)
-		self._CHBOX_fake.SetValue(False)
 		self._PRW_atc.SetText(value = '', data = None, suppress_smarts = True)
 		self._PRW_age_min.SetText(value = '', data = None, suppress_smarts = True)
 		self._PRW_age_max.SetText(value = '', data = None, suppress_smarts = True)

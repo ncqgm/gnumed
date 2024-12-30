@@ -25,8 +25,6 @@ create view ref.v_vaccines as
 			as l10n_preparation,
 		r_dp.atc_code
 			as atc_code,
-		r_dp.is_fake
-			as is_fake_vaccine,
 
 		r_v.is_live,
 		r_v.min_age,
