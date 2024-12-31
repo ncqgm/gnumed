@@ -23,8 +23,8 @@ create view ref.v_vaccines as
 			as preparation,
 		_(r_dp.preparation)
 			as l10n_preparation,
-		r_dp.atc_code
-			as atc_code,
+		coalesce(r_v.atc, r_dp.atc_code)
+			as atc,
 
 		r_v.is_live,
 		r_v.min_age,
@@ -39,7 +39,9 @@ create view ref.v_vaccines as
 					_(r_vi.target)
 						as l10n_indication,
 					r_vi.atc
-						as atc_indication
+						as atc_indication,
+					r_vi.pk
+						as pk_indication
 				from
 					ref.lnk_indic2vaccine r_li2v
 						inner join ref.vacc_indication r_vi on (r_li2v.fk_indication = r_vi.pk)

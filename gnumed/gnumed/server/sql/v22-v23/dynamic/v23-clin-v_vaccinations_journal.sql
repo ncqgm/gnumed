@@ -34,32 +34,14 @@ select
 		|| coalesce(' (' || c_vacc.site || ')', '')
 		|| coalesce(E'\n' || _('Reaction') || ': ' || c_vacc.reaction, '')
 		|| coalesce(E'\n' || _('Comment') || ': ' || c_vacc.narrative, '')
-		|| coalesce (
-			(
-				E'\n' || _('Indications') || ': '
-				|| (select
-						string_agg(_(r_vi.target) || ' [ATC:' || r_vi.atc || ']', ' / ')
-					from
-				 		ref.lnk_indic2vaccine r_li2v
-							inner join ref.vacc_indication r_vi on (r_li2v.fk_indication = r_vi.pk)
-					where
-						r_li2v.fk_vaccine = c_vacc.fk_vaccine
-					)
-
---				|| array_to_string ((
---					select
---						array_agg(_(r_vi.atc || '-target'))
---		 			from
---								ref.lnk_dose2drug r_ld2d
---									inner join ref.dose r_d on (r_d.pk = r_ld2d.fk_dose)
---										inner join ref.substance r_s on (r_d.fk_substance = r_s.pk)
---					where
---						r_ld2d.fk_drug_product = r_dp.pk
---					),
---					' / '
---				)
-			),
-			''
+		|| 	E'\n' || _('Indications') || ': '
+		|| (select
+				string_agg(_(r_vi.target) || ' [ATC:' || r_vi.atc || ']', ' / ')
+			from
+				ref.lnk_indic2vaccine r_li2v
+					inner join ref.vacc_indication r_vi on (r_li2v.fk_indication = r_vi.pk)
+			where
+				r_li2v.fk_vaccine = c_vacc.fk_vaccine
 		)
 	)
 		as narrative,

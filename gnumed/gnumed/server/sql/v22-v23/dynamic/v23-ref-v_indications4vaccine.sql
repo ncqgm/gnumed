@@ -34,6 +34,8 @@ create view ref.v_indications4vaccine as
 			as l10n_preparation,
 		r_dp.atc_code
 			as atc_product,
+		r_v.atc
+			as atc_vaccine,
 		r_dp.external_code,
 		r_dp.external_code_type,
 
