@@ -608,6 +608,10 @@ def gm_show_error(error:str=None, title:str=None):
 	dlg.DestroyLater()
 
 #-------------------------------------------------------------------------
+def inform(info:str=None, title:str=None):
+	return gm_show_info(info = info, title = title)
+
+#-------------------------------------------------------------------------
 def gm_show_info(info:str=None, title:str=None):
 	if not info:
 		info = _('programmer forgot to specify info message')
@@ -633,6 +637,14 @@ def gm_show_warning(warning:str=None, title:str=None):
 	dlg = wx.MessageDialog(parent = None, message = warning, caption = title, style = style)
 	dlg.ShowModal()
 	dlg.DestroyLater()
+
+#-------------------------------------------------------------------------
+def ask(question:str=None, title:str=None, cancel_button:bool=False) -> bool | None:
+	return gm_show_question (
+		question = question,
+		title = title,
+		cancel_button = cancel_button
+	)
 
 #-------------------------------------------------------------------------
 def gm_show_question(question:str=None, title:str=None, cancel_button:bool=False) -> bool | None:
