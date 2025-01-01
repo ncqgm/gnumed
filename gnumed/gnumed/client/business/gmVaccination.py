@@ -44,7 +44,8 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 				min_age = %(min_age)s,
 				max_age = %(max_age)s,
 				comment = gm.nullify_empty_string(%(comment)s),
-				fk_drug_product = %(pk_drug_product)s
+				fk_drug_product = %(pk_drug_product)s,
+				atc = %(atc_vaccine)s
 			WHERE
 				pk = %(pk_vaccine)s
 					AND
@@ -58,7 +59,8 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 		'min_age',
 		'max_age',
 		'comment',
-		'pk_drug_product'
+		'pk_drug_product',
+		'atc_vaccine'
 	]
 
 	#--------------------------------------------------------
@@ -73,13 +75,17 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 				gmTools.coalesce(self._payload['pk_drug_product'], '', '#%s')
 			))
 		else:
-			lines.append(_('Generic vaccine [#%s]%s') % (self._payload['pk_vaccine'], live))
+			lines.append(_('Generic vaccine%s [#%s]%s') % (
+				gmTools.coalesce(self._payload['atc_vaccine'], '', ' "ATC:%s"'),
+				self._payload['pk_vaccine'],
+				live
+			))
 		lines.append(_(' Targets:'))
 		lines.extend([ '  %s [ATC:%s]' % (i['l10n_indication'], i['atc_indication']) for i in self._payload['indications'] ])
 		if self._payload['pk_drug_product']:
 			lines.append(' %s%s%s' % (
 				self._payload['l10n_preparation'],
-				gmTools.coalesce(self._payload['atc_code'], '', ' [ATC:%s]'),
+				gmTools.coalesce(self._payload['atc_product'], '', ' [ATC:%s]'),
 				gmTools.coalesce(self._payload['external_code'], '', ' [%s:%%s]' % self._payload['external_code_type'])
 			))
 		lines.append(_(' Age range: %s - %s') % (
@@ -109,6 +115,36 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 		return rows[0][0]
 
 	is_in_use = property(_get_is_in_use)
+
+	#--------------------------------------------------------
+	# indications handling
+	#--------------------------------------------------------
+	@staticmethod
+	def atcs2indication_pks(atcs:list[str]=None) -> list[int]:
+		query = {
+			'cmd': 'SELECT pk FROM ref.vacc_indication WHERE atc = ANY(%(atcs)s)',
+			'args': {'atcs': atcs}
+		}
+		rows = gmPG2.run_ro_queries(queries = [query])
+		if len(atcs) != len(rows):		# all mapped ?
+			_log.error('cannot map all ATCs to vaccine indications')
+			_log.error('ATCs: %s', atcs)
+			return None
+
+		return [ r['pk'] for r in rows ]
+
+	#--------------------------------------------------------
+	@staticmethod
+	def targets2indication_pks(targets:list[str]=None) -> list[int]:
+		query = {
+			'cmd': 'SELECT pk FROM ref.vacc_indication WHERE atc = ANY(%(targets)s)',
+			'args': {'targets': targets}
+		}
+		rows = gmPG2.run_ro_queries(queries = [query])
+		if len(targets) != len(rows):
+			return None
+
+		return [ r['pk'] for r in rows ]
 
 	#--------------------------------------------------------
 	def add_indication(self, pk_indication:int=None, atc:str=None, indication:str=None):
@@ -160,6 +196,28 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 		SQL = 'DELETE FROM ref.lnk_indic2vaccine WHERE fk_vaccine = %(pk_vacc)s'
 		gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}])
 
+	#--------------------------------------------------------
+	def set_indications(self, pk_indications:list[int]=None) -> bool:
+		if not pk_indications:
+			return False
+
+		if set(pk_indications) == set([ ind['pk_indication'] for ind in self._payload['indications'] ]):
+			# already the same
+			return True
+
+		queries = [{
+			'cmd': 'DELETE FROM ref.lnk_indic2vaccine WHERE fk_vaccine = %(pk_vacc)s',
+			'args': {'pk_vacc': self._payload['pk_vaccine']}
+		}]
+		for pk_ind in set(pk_indications):		# remove dupes
+			queries.append ({
+				'cmd': 'INSERT INTO ref.lnk_indic2vaccine (fk_indication, fk_vaccine) VALUES (%(pk_ind)s, %(pk_vacc)s)',
+				'args': {'pk_ind': pk_ind, 'pk_vacc': self._payload['pk_vaccine']}
+			})
+		gmPG2.run_rw_queries(queries = queries)
+		self.refetch_payload()
+		return True
+
 #------------------------------------------------------------
 def create_vaccine_dummy_dose(link_obj=None) -> int:
 	# brands require a component, so:
@@ -189,7 +247,7 @@ def create_vaccine_dummy_dose(link_obj=None) -> int:
 		'unit': 'dose',
 		'dose_unit': 'shot'
 	}
-	rows = gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}])
+	rows = gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}], link_obj = link_obj, return_data = True)
 	return rows[0]['pk']
 
 #------------------------------------------------------------
@@ -199,14 +257,15 @@ def create_vaccine(pk_drug_product=None, product_name=None, is_live=None):
 	assert (is_live is not None), '<is_live> must not be <None>'
 
 	conn = gmPG2.get_connection(readonly = False)
+	dose = create_vaccine_dummy_dose(link_obj = conn)
 	if not pk_drug_product:
 		if product_name:
-			_log.debug('creating vaccine drug product [%s %s]', product_name, prep)
+			_log.debug('creating vaccine drug product [%s]', product_name)
 			vacc_prod = gmMedication.create_drug_product (
 				product_name = product_name,
 				preparation = 'vaccine',
 				return_existing = True,
-				doses = [create_vaccine_dummy_dose(link_obj = conn)],
+				pk_doses = [dose],
 				link_obj = conn
 			)
 			pk_drug_product = vacc_prod['pk_drug_product']
@@ -223,16 +282,28 @@ def create_vaccine(pk_drug_product=None, product_name=None, is_live=None):
 	return cVaccine(aPK_obj = rows[0]['pk'], link_obj = conn)
 
 #------------------------------------------------------------
-def delete_vaccine(vaccine=None):
-
-	cmd = 'DELETE FROM ref.vaccine WHERE pk = %(pk)s'
-	args = {'pk': vaccine}
-
+def delete_vaccine(pk_vaccine:int=None, also_delete_product:bool=False) -> bool:
+	args = {'pk_vacc': pk_vaccine, 'pk_drug': None}
+	if also_delete_product:
+		SQL = 'SELECT fk_drug_product FROM ref.vaccine WHERE pk = %(pk_vacc)s'
+		q = {'cmd': SQL, 'args': args}
+		rows = gmPG2.run_ro_queries(queries = [q])
+		if rows:
+			args['pk_drug'] = rows[0]['fk_drug_product']
+	queries = []
+	SQL = 'DELETE FROM ref.lnk_indic2vaccine WHERE fk_vaccine = %(pk_vacc)s'
+	queries.append({'cmd': SQL, 'args': args})
+	SQL = 'DELETE FROM ref.vaccine WHERE pk = %(pk_vacc)s'
+	queries.append({'cmd': SQL, 'args': args})
+	if args['pk_drug']:
+		SQL = 'DELETE FROM ref.lnk_dose2drug WHERE fk_drug_product = %(pk_drug)s'
+		queries.append({'cmd': SQL, 'args': args})
+		SQL = 'DELETE FROM ref.drug_product WHERE pk = %(pk_drug)s'
+		queries.append({'cmd': SQL, 'args': args})
 	try:
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = queries)
 	except gmPG2.dbapi.IntegrityError:
-		_log.exception(
-		'cannot delete vaccine [%s]', vaccine)
+		_log.exception('cannot delete vaccine [%s]', vaccine)
 		return False
 
 	return True
@@ -249,6 +320,14 @@ def get_vaccines(order_by=None, return_pks=False):
 	if return_pks:
 		return [ r['pk_vaccine'] for r in rows ]
 	return [ cVaccine(row = {'data': r, 'pk_field': 'pk_vaccine'}) for r in rows ]
+
+#------------------------------------------------------------
+def get_vaccination_indications(order_by=None):
+	SQL = 'SELECT * from ref.vacc_indication'
+	if order_by:
+		SQL += ' ORDER BY %s' % order_by
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL}])
+	return rows
 
 #============================================================
 # vaccination related classes
@@ -642,6 +721,10 @@ if __name__ == '__main__':
 		print('\n'.join(format_vaccinations_by_indication_for_failsafe_output(pk_patient = 12)))
 
 	#--------------------------------------------------------
+	def test_create_vaccine_dummy_dose():
+		print(create_vaccine_dummy_dose())
+
+	#--------------------------------------------------------
 	gmPG2.request_login_params(setup_pool = True)
 	#test_vaccination_course()
 	#test_put_patient_on_schedule()
@@ -652,4 +735,5 @@ if __name__ == '__main__':
 
 	#test_get_vaccines()
 	#test_get_vaccinations()
-	test_format_vaccs_failsafe()
+	#test_format_vaccs_failsafe()
+	test_create_vaccine_dummy_dose()

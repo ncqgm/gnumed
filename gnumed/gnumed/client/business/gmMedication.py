@@ -1707,11 +1707,14 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 		return (success, data)
 
 	#--------------------------------------------------------
-	def set_substance_doses_as_components(self, substance_doses=None, link_obj=None):
-		if self.is_in_use_by_patients:
+	def set_substance_doses_as_components(self, substance_doses:list=None, pk_substance_doses:list[int]=None, link_obj=None):
+		if self.is_in_use:
 			return False
 
-		pk_doses2keep = [ s['pk_dose'] for s in substance_doses ]
+		if pk_substance_doses:
+			pk_doses2keep = pk_substance_doses
+		else:
+			pk_doses2keep = [ s['pk_dose'] for s in substance_doses ]
 		_log.debug('setting components of "%s" from doses: %s', self._payload['product'], pk_doses2keep)
 		args = {'pk_drug_product': self._payload['pk_drug_product']}
 		queries = []
@@ -1909,21 +1912,11 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 	is_vaccine = property(_get_is_vaccine)
 
 	#--------------------------------------------------------
-	def _get_is_in_use_by_patients(self):
-#		SQL = """
-#			SELECT EXISTS (
-#				SELECT 1 FROM clin.substance_intake WHERE
-#					fk_drug_component IN (
-#						SELECT pk FROM ref.lnk_dose2drug WHERE fk_drug_product = %(pk)s
-#					)
-#				LIMIT 1
-#			)"""
-#		args = {'pk': self.pk_obj}
-#		rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
-#		return rows[0][0]
+	def _get_is_in_use(self):
+		# as of v23 drug products are not linked to intakes
 		return self.is_in_use_as_vaccine
 
-	is_in_use_by_patients = property(_get_is_in_use_by_patients)
+	is_in_use = property(_get_is_in_use)
 
 	#--------------------------------------------------------
 	def _get_is_in_use_as_vaccine(self):
@@ -1964,7 +1957,7 @@ def get_drug_by_atc(atc=None, preparation=None, link_obj=None):
 	return cDrugProduct(row = {'data': rows[0], 'pk_field': 'pk_drug_product'}, link_obj = link_obj)
 
 #------------------------------------------------------------
-def create_drug_product(product_name=None, preparation=None, return_existing=False, link_obj=None, doses=None):
+def create_drug_product(product_name=None, preparation=None, return_existing=False, link_obj=None, doses=None, pk_doses:list[int]=None):
 	if preparation is None:
 		preparation = _('units')
 	if preparation.strip() == '':
@@ -1985,8 +1978,12 @@ def create_drug_product(product_name=None, preparation=None, return_existing=Fal
 	args = {'prod_name': product_name, 'prep': preparation}
 	rows = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True)
 	product = cDrugProduct(aPK_obj = rows[0]['pk'], link_obj = link_obj)
-	if doses is not None:
-		product.set_substance_doses_as_components(substance_doses = doses, link_obj = link_obj)
+	if doses or pk_doses:
+		product.set_substance_doses_as_components (
+			link_obj = link_obj,
+			substance_doses = doses,
+			pk_substance_doses = pk_doses
+		)
 	conn_commit()
 	conn_close()
 	return product
@@ -2019,35 +2016,25 @@ def create_drug_product_by_atc(atc=None, product_name=None, preparation=None, re
 	return drug
 
 #------------------------------------------------------------
-def delete_drug_product(pk_drug_product=None):
+def delete_drug_product(pk_drug_product:int=None) -> bool:
 	args = {'pk': pk_drug_product}
+	# check in-use
+	SQL = 'SELECT EXISTS(SELECT 1 FROM clin.vaccination WHERE fk_vaccine = (SELECT pk FROM ref.vaccine WHERE fk_drug_product = %(pk)s))'
+	args = {'pk': self.pk_obj}
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+	if rows and rows[0][0]:
+		_log.error('cannot delete drug product [%s], it is used as a vaccine')
+		return False
+
 	queries = []
 	# delete components
-	cmd = """
-		DELETE FROM ref.lnk_dose2drug
-		WHERE
-			fk_drug_product = %(pk)s
-				AND
-			NOT EXISTS (
-				SELECT 1
-				FROM clin.v_intakes
-				WHERE pk_drug_product = %(pk)s
-				LIMIT 1
-			)"""
-	queries.append({'cmd': cmd, 'args': args})
+	SQL = 'DELETE FROM ref.lnk_dose2drug WHERE fk_drug_product = %(pk)s'
+	queries.append({'cmd': SQL, 'args': args})
 	# delete drug
-	cmd = """
-		DELETE FROM ref.drug_product
-		WHERE
-			pk = %(pk)s
-				AND
-			NOT EXISTS (
-				SELECT 1 FROM clin.v_intakes
-				WHERE pk_drug_product = %(pk)s
-				LIMIT 1
-			)"""
-	queries.append({'cmd': cmd, 'args': args})
+	SQL = 'DELETE FROM ref.drug_product WHERE pk = %(pk)s'
+	queries.append({'cmd': SQL, 'args': args})
 	gmPG2.run_rw_queries(queries = queries)
+	return True
 
 #============================================================
 # intakes, denormalized by regimen,

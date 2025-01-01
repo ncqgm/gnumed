@@ -18,69 +18,78 @@ class wxgItemPickerDlg(wx.Dialog):
 		# begin wxGlade: wxgItemPickerDlg.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_DIALOG_STYLE | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX | wx.RESIZE_BORDER
 		wx.Dialog.__init__(self, *args, **kwds)
-		self.SetSize((735, 350))
+		self.SetSize((735, 354))
+
+		__szr_main = wx.BoxSizer(wx.VERTICAL)
+
 		self._LBL_msg = wx.StaticText(self, wx.ID_ANY, _("label_1"))
+		__szr_main.Add(self._LBL_msg, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
+
+		__szr_lists = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_main.Add(__szr_lists, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
+
 		from Gnumed.wxpython.gmListWidgets import cReportListCtrl
 		self._LCTRL_left = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_HRULES | wx.LC_REPORT | wx.LC_VRULES)
-		self._BTN_left2right = wx.Button(self, wx.ID_ANY, _(u"\u2192"), style=wx.BU_EXACTFIT)
-		self._BTN_right2left = wx.Button(self, wx.ID_ANY, _(u"\u2190"), style=wx.BU_EXACTFIT)
-		self._LCTRL_right = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_HRULES | wx.LC_REPORT | wx.LC_VRULES)
-		self._BTN_ok = wx.Button(self, wx.ID_OK, "")
-		self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, "")
-		self._BTN_extra = wx.Button(self, wx.ID_ANY, _("Extra"), style=wx.BU_EXACTFIT)
+		__szr_lists.Add(self._LCTRL_left, 1, wx.EXPAND, 0)
 
-		self.__set_properties()
-		self.__do_layout()
+		__szr_move_buttons = wx.BoxSizer(wx.VERTICAL)
+		__szr_lists.Add(__szr_move_buttons, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 5)
 
-		self.Bind(wx.EVT_LIST_ITEM_DESELECTED, self._on_left_list_item_deselected, self._LCTRL_left)
-		self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._on_left_list_item_selected, self._LCTRL_left)
-		self.Bind(wx.EVT_BUTTON, self._on_button_left2right_pressed, self._BTN_left2right)
-		self.Bind(wx.EVT_BUTTON, self._on_button_right2left_pressed, self._BTN_right2left)
-		self.Bind(wx.EVT_LIST_ITEM_DESELECTED, self._on_right_list_item_deselected, self._LCTRL_right)
-		self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._on_right_list_item_selected, self._LCTRL_right)
-		self.Bind(wx.EVT_BUTTON, self._on_extra_button_pressed, self._BTN_extra)
-		# end wxGlade
+		__szr_move_buttons.Add((20, 20), 2, wx.EXPAND, 0)
 
-	def __set_properties(self):
-		# begin wxGlade: wxgItemPickerDlg.__set_properties
-		self.SetSize((735, 350))
-		self._BTN_left2right.SetFont(wx.Font(16, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
+		self._BTN_left2right = wx.Button(self, wx.ID_ANY, _(u"→"), style=wx.BU_EXACTFIT)
+		self._BTN_left2right.SetFont(wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, 0, ""))
 		self._BTN_left2right.SetToolTip(_("Move selected items from left to right."))
 		self._BTN_left2right.Enable(False)
-		self._BTN_right2left.SetFont(wx.Font(16, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
+		__szr_move_buttons.Add(self._BTN_left2right, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
+
+		__szr_move_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+
+		self._BTN_right2left = wx.Button(self, wx.ID_ANY, _(u"←"), style=wx.BU_EXACTFIT)
+		self._BTN_right2left.SetFont(wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, 0, ""))
 		self._BTN_right2left.SetToolTip(_("Move selected items from right to left."))
 		self._BTN_right2left.Enable(False)
+		__szr_move_buttons.Add(self._BTN_right2left, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
+
+		__szr_move_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+
+		self._LCTRL_right = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_HRULES | wx.LC_REPORT | wx.LC_VRULES)
+		__szr_lists.Add(self._LCTRL_right, 1, wx.EXPAND, 0)
+
+		__szr_action_buttons = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_main.Add(__szr_action_buttons, 0, wx.ALL | wx.EXPAND, 3)
+
+		__szr_action_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+
+		self._BTN_ok = wx.Button(self, wx.ID_OK, "")
+		__szr_action_buttons.Add(self._BTN_ok, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		__szr_action_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+
+		self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, "")
 		self._BTN_cancel.SetToolTip(_("Cancel picking items."))
+		__szr_action_buttons.Add(self._BTN_cancel, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		__szr_action_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+
+		self._BTN_extra = wx.Button(self, wx.ID_ANY, _("Extra"), style=wx.BU_EXACTFIT)
 		self._BTN_extra.Enable(False)
 		self._BTN_extra.Hide()
-		# end wxGlade
-
-	def __do_layout(self):
-		# begin wxGlade: wxgItemPickerDlg.__do_layout
-		__szr_main = wx.BoxSizer(wx.VERTICAL)
-		__szr_action_buttons = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_lists = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_move_buttons = wx.BoxSizer(wx.VERTICAL)
-		__szr_main.Add(self._LBL_msg, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
-		__szr_lists.Add(self._LCTRL_left, 1, wx.EXPAND, 0)
-		__szr_move_buttons.Add((20, 20), 2, wx.EXPAND, 0)
-		__szr_move_buttons.Add(self._BTN_left2right, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
-		__szr_move_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-		__szr_move_buttons.Add(self._BTN_right2left, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
-		__szr_move_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-		__szr_lists.Add(__szr_move_buttons, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 5)
-		__szr_lists.Add(self._LCTRL_right, 1, wx.EXPAND, 0)
-		__szr_main.Add(__szr_lists, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
-		__szr_action_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-		__szr_action_buttons.Add(self._BTN_ok, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_action_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-		__szr_action_buttons.Add(self._BTN_cancel, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_action_buttons.Add((20, 20), 1, wx.EXPAND, 0)
 		__szr_action_buttons.Add(self._BTN_extra, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_action_buttons.Add((20, 20), 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__szr_main.Add(__szr_action_buttons, 0, wx.ALL | wx.EXPAND, 3)
+
+		__szr_action_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+
 		self.SetSizer(__szr_main)
+
 		self.Layout()
+
+		self._LCTRL_left.Bind(wx.EVT_LIST_ITEM_DESELECTED, self._on_left_list_item_deselected)
+		self._LCTRL_left.Bind(wx.EVT_LIST_ITEM_SELECTED, self._on_left_list_item_selected)
+		self._BTN_left2right.Bind(wx.EVT_BUTTON, self._on_button_left2right_pressed)
+		self._BTN_right2left.Bind(wx.EVT_BUTTON, self._on_button_right2left_pressed)
+		self._LCTRL_right.Bind(wx.EVT_LIST_ITEM_DESELECTED, self._on_right_list_item_deselected)
+		self._LCTRL_right.Bind(wx.EVT_LIST_ITEM_SELECTED, self._on_right_list_item_selected)
+		self._BTN_extra.Bind(wx.EVT_BUTTON, self._on_extra_button_pressed)
 		# end wxGlade
 
 	def _on_left_list_item_deselected(self, event):  # wxGlade: wxgItemPickerDlg.<event_handler>

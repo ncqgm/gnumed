@@ -883,7 +883,7 @@ class cDrugComponentPhraseWheel(gmPhraseWheel.cPhraseWheel):
 def edit_drug_product(parent=None, drug_product=None, single_entry=False):
 
 	if drug_product is not None:
-		if drug_product.is_in_use_by_patients:
+		if drug_product.is_in_use:
 			gmGuiHelpers.gm_show_info (
 				title = _('Editing drug'),
 				info = _(
@@ -1020,7 +1020,7 @@ def manage_drug_products(parent=None, ignore_OK_button=False):
 def manage_components_of_drug_product(parent=None, product=None):
 
 	if product is not None:
-		if product.is_in_use_by_patients:
+		if product.is_in_use:
 			gmGuiHelpers.gm_show_info (
 				title = _('Managing components of a drug'),
 				info = _(
@@ -1120,7 +1120,7 @@ class cDrugProductEAPnl(wxgDrugProductEAPnl.wxgDrugProductEAPnl, gmEditArea.cGen
 	def _valid_for_save(self):
 
 		if self.data is not None:
-			if self.data.is_in_use_by_patients:
+			if self.data.is_in_use:
 				self.StatusText = _('Cannot edit drug product. It is in use.')
 				return False
 
@@ -1301,11 +1301,11 @@ class cDrugProductPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp.setThresholds(2, 3, 4)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.SetToolTip(_(
-			'The product name of the drug.\n'
+			'Product name of the drug.\n'
 			'\n'
 			'Note: a product name will need to be linked to\n'
 			'one or more components before it can be used,\n'
-			'except in the case of fake (generic) vaccines.'
+			'except in the case of vaccines.'
 		))
 		self.matcher = mp
 		self.selection_only = False
@@ -1317,7 +1317,7 @@ class cDrugProductPhraseWheel(gmPhraseWheel.cPhraseWheel):
 def edit_single_component_generic_drug(parent=None, drug=None, single_entry=False, fields=None, return_drug=False):
 
 #	if drug is not None:
-#		if drug.is_in_use_by_patients:
+#		if drug.is_in_use:
 #			gmGuiHelpers.gm_show_info (
 #				title = _('Editing single-component generic drug'),
 #				info = _(
