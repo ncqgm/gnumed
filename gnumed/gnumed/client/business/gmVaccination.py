@@ -734,6 +734,6 @@ if __name__ == '__main__':
 	#test_due_booster()
 
 	#test_get_vaccines()
-	#test_get_vaccinations()
+	test_get_vaccinations()
 	#test_format_vaccs_failsafe()
-	test_create_vaccine_dummy_dose()
+	#test_create_vaccine_dummy_dose()

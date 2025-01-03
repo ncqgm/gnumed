@@ -149,6 +149,7 @@ def manage_vaccines(parent=None):
 	def get_tooltip(vaccine):
 		if vaccine is None:
 			return None
+
 		return '\n'.join(vaccine.format())
 
 	#------------------------------------------------------------
@@ -289,7 +290,7 @@ SELECT data, list_label, field_label FROM (
 					AS data,
 				r_vi4v.vaccine || ' ('
 				||	(SELECT string_agg(l10n_inds.ind_desc::text, ', ') FROM (
-						SELECT unnest(r_vi4v.indications)->>'l10n_indication' AS ind_desc
+						SELECT unnest(r_vi4v.all_indications)->>'l10n_indication' AS ind_desc
 					) AS l10n_inds)
 				|| ')'
 					AS list_label,
@@ -308,7 +309,7 @@ SELECT data, list_label, field_label FROM (
 					AS data,
 				r_vi4v.vaccine || ' ('
 				||	(SELECT string_agg(l10n_inds.ind_desc::text, ', ') FROM (
-						SELECT unnest(r_vi4v.indications)->>'l10n_indication' AS ind_desc
+						SELECT unnest(r_vi4v.all_indications)->>'l10n_indication' AS ind_desc
 					) AS l10n_inds)
 				|| ')'
 					AS list_label,
@@ -739,7 +740,7 @@ def edit_vaccination(parent=None, vaccination=None, single_entry=True):
 	return False
 
 #----------------------------------------------------------------------
-def manage_vaccinations(parent=None, latest_only=False, expand_indications=False):
+def manage_vaccinations(parent=None, latest_only:bool=False, expand_indications=False):
 
 	pat = gmPerson.gmCurrentPatient()
 	emr = pat.emr
@@ -820,7 +821,7 @@ def manage_vaccinations(parent=None, latest_only=False, expand_indications=False
 		items = []
 		data = []
 		if latest_only:
-			latest_vaccs = emr.get_latest_vaccinations()
+			latest_vaccs = emr.latest_vaccinations
 			for indication in sorted(latest_vaccs):
 				no_of_shots4ind, latest_vacc4ind = latest_vaccs[indication]
 				items.append ([
@@ -975,11 +976,11 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl, gmEditArea.cGenericEditAreaMixin):
 		vaccine = self._PRW_vaccine.GetData(as_instance = True)
 		if vaccine is None:
 			return
+
 		lines = []
 		emr = gmPerson.gmCurrentPatient().emr
-		latest_vaccs = emr.get_latest_vaccinations (
-			atc_indications = [ i['atc_indication'] for i in vaccine['indications'] ]
-		)
+		atcs = [ i['atc_indication'] for i in vaccine['indications'] ]
+		latest_vaccs = emr.get_latest_vaccinations(atc_indications = atcs)
 		for l10n_ind in [ i['l10n_indication'] for i in vaccine['indications'] ]:
 			try:
 				no_of_shots4ind, latest_vacc4ind = latest_vaccs[l10n_ind]
@@ -987,7 +988,6 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl, gmEditArea.cGenericEditAreaMixin):
 				lines.append(_('%s  (most recent shot of %s: %s ago)') % (l10n_ind, no_of_shots4ind, ago))
 			except KeyError:
 				lines.append(_('%s  (no previous vaccination recorded)') % l10n_ind)
-
 		self._TCTRL_indications.SetValue(_('Protects against:\n ') + '\n '.join(lines))
 
 	#----------------------------------------------------------------
@@ -1023,48 +1023,38 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl, gmEditArea.cGenericEditAreaMixin):
 
 		vaccine = self._PRW_vaccine.GetData()
 		data = self.__save_new_from_vaccine(vaccine = vaccine)
-
 		# must be done very late or else the property access
 		# will refresh the display such that later field
 		# access will return empty values
 		self.data = data
-
 		return True
 
 	#----------------------------------------------------------------
 	def __save_new_from_vaccine(self, vaccine=None):
-
 		emr = gmPerson.gmCurrentPatient().emr
-
 		data = emr.add_vaccination (
 			episode = self._PRW_episode.GetData(can_create = True, is_open = False),
 			vaccine = vaccine,
 			batch_no = self._PRW_batch.GetValue().strip()
 		)
-
 		if self._CHBOX_anamnestic.GetValue() is True:
 			data['soap_cat'] = 's'
 		else:
 			data['soap_cat'] = 'p'
-
 		data['date_given'] = self._PRW_date_given.GetData()
 		data['site'] = self._PRW_site.GetValue().strip()
 		data['pk_provider'] = self._PRW_provider.GetData()
 		data['reaction'] = self._PRW_reaction.GetValue().strip()
 		data['comment'] = self._TCTRL_comment.GetValue().strip()
-
 		data.save()
-
 		return data
 
 	#----------------------------------------------------------------
 	def _save_as_update(self):
-
 		if self._CHBOX_anamnestic.GetValue() is True:
 			self.data['soap_cat'] = 's'
 		else:
 			self.data['soap_cat'] = 'p'
-
 		self.data['date_given'] = self._PRW_date_given.GetData()
 		self.data['pk_vaccine'] = self._PRW_vaccine.GetData()
 		self.data['batch_no'] = self._PRW_batch.GetValue().strip()
@@ -1073,9 +1063,7 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl, gmEditArea.cGenericEditAreaMixin):
 		self.data['pk_provider'] = self._PRW_provider.GetData()
 		self.data['reaction'] = self._PRW_reaction.GetValue().strip()
 		self.data['comment'] = self._TCTRL_comment.GetValue().strip()
-
 		self.data.save()
-
 		return True
 
 	#----------------------------------------------------------------
