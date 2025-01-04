@@ -350,7 +350,7 @@ class cEmrExport:
         """
         txt = ''
         txt += left_margin*' ' + _('Vaccination') + ': \n'
-        txt += self.dump_item_fields((left_margin+3), vaccination, ['l10n_indication', 'vaccine', 'batch_no', 'site', 'narrative'])           
+        txt += self.dump_item_fields((left_margin+3), vaccination, ['l10n_indication', 'vaccine', 'batch_no', 'site', 'narrative'])
         return txt
     #--------------------------------------------------------
     def get_lab_result_output(self, lab_result, left_margin = 0):

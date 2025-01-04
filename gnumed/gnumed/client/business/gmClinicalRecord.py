@@ -803,10 +803,12 @@ class cClinicalRecord(object):
 				ind,
 				gmTools.u_sum,
 				ind_count,
-				#gmDateTime.pydt_strftime(vacc['date_given'], '%b %Y'),
 				since,
 				age_given,
-				vacc['vaccine'],
+				gmTools.coalesce (
+					vacc['vaccine'],
+					_('generic: %s') % '/'.join([ ind['l10n_indication'] for ind in vacc['indications'] ])
+				),
 				gmTools.u_left_double_angle_quote,
 				vacc['batch_no'],
 				gmTools.u_right_double_angle_quote
