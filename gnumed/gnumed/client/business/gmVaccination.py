@@ -512,7 +512,6 @@ def format_vaccinations_by_indication_for_failsafe_output(pk_patient:int, max_wi
 
 #------------------------------------------------------------
 def create_vaccination(encounter=None, episode=None, vaccine=None, batch_no=None):
-
 	cmd = """
 		INSERT INTO clin.vaccination (
 			fk_encounter,
@@ -543,7 +542,6 @@ def delete_vaccination(vaccination=None):
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 #------------------------------------------------------------
-
 def format_latest_vaccinations(output_format='latex', emr=None):
 
 	_log.debug('formatting latest vaccinations into [%s]', output_format)
@@ -558,22 +556,24 @@ def format_latest_vaccinations(output_format='latex', emr=None):
 	return msg
 
 #------------------------------------------------------------
-
 def __format_latest_vaccinations_latex(vaccinations=None):
 
-	if len(vaccinations) == 0:
-		return '\\noindent %s' % _('No vaccinations recorded.')
+	if not vaccinations:
+		return '\\noindent %s' % gmTools.tex_escape_string(_('No vaccinations recorded.'))
 
-	tex =  '\\noindent %s {\\tiny (%s)\\par}\n' % (_('Latest vaccinations'), _('per target condition'))
+	tex =  '\\noindent %s {\\tiny (%s)\\par}\n' % (
+		gmTools.tex_escape_string(_('Latest vaccinations')),
+		gmTools.tex_escape_string(_('per target condition'))
+	)
 	tex += '\n'
 	tex += '\\noindent \\begin{tabular}{|l|l|l|l|l|l|}\n'
 	tex += '\\hline\n'
 	tex += '%s & %s & {\\footnotesize %s} & {\\footnotesize %s} & {\\footnotesize %s\\footnotemark} & {\\footnotesize $\\Sigma$\\footnotemark}\\\\\n' % (
-		_('Target'),
-		_('Last given'),
-		_('Vaccine'),
-		_('Lot \#'),
-		_('SoaP')
+		gmTools.tex_escape_string(_('Target')),
+		gmTools.tex_escape_string(_('Last given')),
+		gmTools.tex_escape_string(_('Vaccine')),
+		gmTools.tex_escape_string(_('Lot #')),
+		gmTools.tex_escape_string(_('SoaP'))
 	)
 	tex += '\\hline\n'
 	tex += '\n'
@@ -583,32 +583,40 @@ def __format_latest_vaccinations_latex(vaccinations=None):
 	tex += '\\end{tabular}\n'
 	tex += '\n'
 	tex += '\\addtocounter{footnote}{-1}\n'
-	tex += '\\footnotetext{%s}\n' % _('SoaP -- "S"ubjective: vaccination was remembered by patient. "P"lan: vaccination was administered in the practice or copied from trustworthy records.')
+	tex += '\\footnotetext{%s}\n' % gmTools.tex_escape_string (
+		_('SoaP -- "S"ubjective: Reported. "P"lan: Administered here/taken from trustworthy records.')
+	)
 	tex += '\\addtocounter{footnote}{1}\n'
-	tex += '\\footnotetext{$\\Sigma$ -- %s}\n' % _('Total number of vaccinations recorded for the corresponding target condition.')
+	tex += '\\footnotetext{$\\Sigma$ -- %s}\n' % gmTools.tex_escape_string (
+		_('Total number of vaccinations recorded for the corresponding target condition.')
+	)
 	tex += '\n'
-
 	row_template = '%s & %s & {\\scriptsize %s} & {\\scriptsize %s} & {\\scriptsize %s} & {\\scriptsize %s}\\\\\n'
 	lines = ''
 	targets = sorted(vaccinations)
 	for target in targets:
 		target_count, vacc = vaccinations[target]
 		lines += row_template % (
-			target,
-			gmDateTime.pydt_strftime(vacc['date_given'], '%Y %b %d'),
-			vacc['vaccine'],
-			gmTools.tex_escape_string(vacc['batch_no'].strip()),
+			gmTools.tex_escape_string(target),
+			gmTools.tex_escape_string(gmDateTime.pydt_strftime(vacc['date_given'], '%Y %b %d')),
+			gmTools.tex_escape_string(gmTools.coalesce(vacc['vaccine'], _('generic'))),
+			gmTools.tex_escape_string(vacc['batch_no']),
 			vacc['soap_cat'].upper(),
 			target_count
 		)
-		if vacc['site'] is not None:
-			lines += ' & \\multicolumn{5}{l|}{\\scriptsize %s: %s\\par}\\\\\n' % (_('Injection site'), vacc['site'].strip())
-		if vacc['reaction'] is not None:
-			lines += ' & \\multicolumn{5}{l|}{\\scriptsize %s: %s\\par}\\\\\n' % (_('Reaction'), vacc['reaction'].strip())
-		if vacc['comment'] is not None:
-			lines += ' & \\multicolumn{5}{l|}{\\scriptsize %s: %s\\par}\\\\\n' % (_('Comment'), vacc['comment'].strip())
+		if vacc['site']:
+			tag = gmTools.tex_escape_string(_('Injection site'))
+			site = gmTools.tex_escape_string(vacc['site'])
+			lines += ' & \\multicolumn{5}{l|}{\\scriptsize %s: %s\\par}\\\\\n' % (tag, site)
+		if vacc['reaction']:
+			tag = gmTools.tex_escape_string(_('Reaction'))
+			reaction = gmTools.tex_escape_string(vacc['reaction'])
+			lines += ' & \\multicolumn{5}{l|}{\\scriptsize %s: %s\\par}\\\\\n' % (tag, reaction)
+		if vacc['comment']:
+			tag = gmTools.tex_escape_string(_('Comment'))
+			cmt = gmTools.tex_escape_string(vacc['comment'])
+			lines += ' & \\multicolumn{5}{l|}{\\scriptsize %s: %s\\par}\\\\\n' % (tag, cmt)
 		lines += '\\hline\n'
-
 	return tex % lines
 
 #============================================================
@@ -725,6 +733,16 @@ if __name__ == '__main__':
 		print(create_vaccine_dummy_dose())
 
 	#--------------------------------------------------------
+	def test_format_latest_vaccinations():
+		from Gnumed.business import gmPraxis
+		gmPraxis.activate_first_praxis_branch()
+		from Gnumed.business import gmClinicalRecord
+		emr = gmClinicalRecord.cClinicalRecord(12)
+		shots = emr.latest_vaccinations
+		#shots = get_vaccinations(pk_identity = 12, return_pks = False)
+		print(__format_latest_vaccinations_latex(vaccinations = shots))
+
+	#--------------------------------------------------------
 	gmPG2.request_login_params(setup_pool = True)
 	#test_vaccination_course()
 	#test_put_patient_on_schedule()
@@ -734,6 +752,7 @@ if __name__ == '__main__':
 	#test_due_booster()
 
 	#test_get_vaccines()
-	test_get_vaccinations()
+	#test_get_vaccinations()
+	test_format_latest_vaccinations()
 	#test_format_vaccs_failsafe()
 	#test_create_vaccine_dummy_dose()
