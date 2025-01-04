@@ -255,82 +255,80 @@ class cVaccinePhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, *args, **kwargs):
 
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-
-		# consider ATCs in ref.drug_product and ref.vacc_indication
-		query = """
-SELECT data, list_label, field_label FROM (
-
+		query = """-- vaccine PRW query
+SELECT data, list_label, field_label
+FROM (
 	SELECT DISTINCT ON (data)
 		data,
 		list_label,
 		field_label
-	FROM ((
-			-- fragment -> vaccine
-			SELECT
-				r_v_v.pk_vaccine
-					AS data,
-				r_v_v.vaccine || ' ('
-				||	(SELECT string_agg(l10n_inds.ind_desc::text, ', ') FROM (
-						SELECT unnest(r_v_v.indications)->>'l10n_indication' AS ind_desc
-					) AS l10n_inds)
-				|| ')'
-					AS list_label,
-				r_v_v.vaccine
-					AS field_label
-			FROM
-				ref.v_vaccines r_v_v
-			WHERE
-				r_v_v.vaccine %(fragment_condition)s
-
-		) union all (
-
-			-- fragment -> localized indication -> vaccines
-			SELECT
-				 r_vi4v.pk_vaccine
-					AS data,
-				r_vi4v.vaccine || ' ('
-				||	(SELECT string_agg(l10n_inds.ind_desc::text, ', ') FROM (
-						SELECT unnest(r_vi4v.all_indications)->>'l10n_indication' AS ind_desc
-					) AS l10n_inds)
-				|| ')'
-					AS list_label,
-				r_vi4v.vaccine
-					AS field_label
-			FROM
-				ref.v_indications4vaccine r_vi4v
-			WHERE
-				 r_vi4v.l10n_indication %(fragment_condition)s
-
-		) union all (
-
-			-- fragment -> indication -> vaccines
-			SELECT
-				r_vi4v.pk_vaccine
-					AS data,
-				r_vi4v.vaccine || ' ('
-				||	(SELECT string_agg(l10n_inds.ind_desc::text, ', ') FROM (
-						SELECT unnest(r_vi4v.all_indications)->>'l10n_indication' AS ind_desc
-					) AS l10n_inds)
-				|| ')'
-					AS list_label,
-				r_vi4v.vaccine
-					AS field_label
-			FROM
-				ref.v_indications4vaccine r_vi4v
-			WHERE
-				r_vi4v.indication %(fragment_condition)s
+	FROM (
+			(	-- search fragment in vaccine names
+				SELECT
+					r_v_v.pk_vaccine
+						AS data,
+					r_v_v.vaccine || ' ('
+					||	(SELECT string_agg(l10n_inds.ind_desc::text, ', ') FROM (
+							SELECT unnest(r_v_v.indications)->>'l10n_indication' AS ind_desc
+						) AS l10n_inds)
+					|| ')'
+						AS list_label,
+					r_v_v.vaccine
+						AS field_label
+				FROM
+					ref.v_vaccines r_v_v
+				WHERE
+					r_v_v.vaccine %(fragment_condition)s
+			) UNION ALL (
+				-- search fragment in localized indications and map to vaccine
+				SELECT
+					 r_vi4v.pk_vaccine
+						AS data,
+					coalesce(r_vi4v.vaccine, 'generic') || ' ('
+					||	(SELECT string_agg(l10n_inds.ind_desc::text, ', ') FROM (
+							SELECT unnest(r_vi4v.all_indications)->>'l10n_indication' AS ind_desc
+						) AS l10n_inds)
+					|| ')'
+						AS list_label,
+					coalesce(r_vi4v.vaccine, 'generic') || ' ('
+					||	(SELECT string_agg(l10n_inds.ind_desc::text, ', ') FROM (
+							SELECT unnest(r_vi4v.all_indications)->>'l10n_indication' AS ind_desc
+						) AS l10n_inds)
+					|| ')'
+						AS field_label
+				FROM
+					ref.v_indications4vaccine r_vi4v
+				WHERE
+					 r_vi4v.l10n_indication %(fragment_condition)s
+			) UNION ALL (
+				-- search fragment in non-localized indications and map to vaccines
+				SELECT
+					r_vi4v.pk_vaccine
+						AS data,
+					coalesce(r_vi4v.vaccine, 'generic') || ' ('
+					||	(SELECT string_agg(l10n_inds.ind_desc::text, ', ') FROM (
+							SELECT unnest(r_vi4v.all_indications)->>'l10n_indication' AS ind_desc
+						) AS l10n_inds)
+					|| ')'
+						AS list_label,
+					coalesce(r_vi4v.vaccine, 'generic') || ' ('
+					||	(SELECT string_agg(l10n_inds.ind_desc::text, ', ') FROM (
+							SELECT unnest(r_vi4v.all_indications)->>'l10n_indication' AS ind_desc
+						) AS l10n_inds)
+					|| ')'
+						AS field_label
+				FROM
+					ref.v_indications4vaccine r_vi4v
+				WHERE
+					r_vi4v.indication %(fragment_condition)s
 		)
-	) AS distinct_total
-
+	) AS DISTINCTed_total
 ) AS total
-
 ORDER by list_label
-LIMIT 25
-"""
+LIMIT 25"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
 		mp.setThresholds(1, 2, 3)
 		self.matcher = mp
-
 		self.selection_only = True
 	#------------------------------------------------------------------
 	def _data2instance(self, link_obj=None):
@@ -1175,8 +1173,27 @@ if __name__ == "__main__":
 		wx.GetApp().MainLoop()
 
 	#------------------------------------------------------------------
+	def test_manage_vaccinations():
+		from Gnumed.wxpython import gmGuiTest
+		frame = gmGuiTest.setup_widget_test_env(patient = 12)
+		gmStaff.set_current_provider_to_logged_on_user()
+		wx.CallLater(2000, manage_vaccinations, parent = frame)
+		wx.GetApp().MainLoop()
+		#manage_vaccinations(parent=None, latest_only=False, expand_indications=False)
+
+	#------------------------------------------------------------------
+	def test_cVaccinePhraseWheel():
+		from Gnumed.wxpython import gmGuiTest
+		frame = gmGuiTest.setup_widget_test_env(patient = 12)
+		gmStaff.set_current_provider_to_logged_on_user()
+		wx.CallLater(2000, cVaccinePhraseWheel, parent = frame)
+		wx.GetApp().MainLoop()
+
+	#------------------------------------------------------------------
 	gmLog2.print_logfile_name()
-	test_manage_vaccines()
+	#test_manage_vaccines()
+	#test_manage_vaccinations()
+	test_cVaccinePhraseWheel()
 
 #	gmPG2.request_login_params(setup_pool = True, force_tui = True)
 #	gmPraxis.activate_first_praxis_branch()
