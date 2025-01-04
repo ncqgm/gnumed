@@ -566,7 +566,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 				label = _('not str()able')
 			if len(label) > 150:
 				label = label[:150] + gmTools.u_ellipsis
-			row_num = self._LCTRL_result.InsertItem(sys.maxsize, label = label)
+			row_num = self._LCTRL_result.InsertItem(sys.maxsize, label)
 			for col_idx in range(1, len(row)):
 				try:
 					label = str(gmTools.coalesce(row[col_idx], '')).replace('\n', '<LF>').replace('\r', '<CR>')[:250]

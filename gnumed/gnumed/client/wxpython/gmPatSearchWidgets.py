@@ -215,30 +215,30 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 			return False
 
 		for person in persons:
-			row_num = self._LCTRL_persons.InsertItem(pos, label = gmTools.coalesce(person['title'], person['lastnames'], '%s, %%s' % person['lastnames']))
-			self._LCTRL_persons.SetItem(index = row_num, column = 1, label = person['firstnames'])
-			self._LCTRL_persons.SetItem(index = row_num, column = 2, label = person.get_formatted_dob(format = '%Y %b %d'))
-			self._LCTRL_persons.SetItem(index = row_num, column = 3, label = gmTools.coalesce(person['l10n_gender'], '?'))
+			row_num = self._LCTRL_persons.InsertItem(pos, gmTools.coalesce(person['title'], person['lastnames'], '%s, %%s' % person['lastnames']))
+			self._LCTRL_persons.SetItem(row_num, 1, person['firstnames'])
+			self._LCTRL_persons.SetItem(row_num, 2, person.get_formatted_dob(format = '%Y %b %d'))
+			self._LCTRL_persons.SetItem(row_num, 3, gmTools.coalesce(person['l10n_gender'], '?'))
 
 			label = ''
 			if person.is_patient:
 				enc = person.get_last_encounter()
 				if enc is not None:
 					label = '%s (%s)' % (gmDateTime.pydt_strftime(enc['started'], '%Y %b %d'), enc['l10n_type'])
-			self._LCTRL_persons.SetItem(index = row_num, column = 4, label = label)
+			self._LCTRL_persons.SetItem(row_num, 4, label)
 
 			parts = []
 			if person['preferred'] is not None:
 				parts.append(person['preferred'])
 			if person['comment'] is not None:
 				parts.append(person['comment'])
-			self._LCTRL_persons.SetItem(index = row_num, column = 5, label = ' / '.join(parts))
+			self._LCTRL_persons.SetItem(row_num, 5, ' / '.join(parts))
 
 			try:
-				self._LCTRL_persons.SetItem(index = row_num, column = 6, label = person['match_type'])
+				self._LCTRL_persons.SetItem(row_num, 6, person['match_type'])
 			except KeyError:
 				_log.warning('cannot set match_type field')
-				self._LCTRL_persons.SetItem(index = row_num, column = 6, label = '??')
+				self._LCTRL_persons.SetItem(row_num, 6, '??')
 
 		for col in range(len(self.__cols)):
 			self._LCTRL_persons.SetColumnWidth(col, wx.LIST_AUTOSIZE)
@@ -307,18 +307,18 @@ class cSelectPersonDTOFromListDlg(wxgSelectPersonDTOFromListDlg.wxgSelectPersonD
 			return False
 
 		for rec in dtos:
-			row_num = self._LCTRL_persons.InsertItem(pos, label = rec['source'])
+			row_num = self._LCTRL_persons.InsertItem(pos, rec['source'])
 			dto = rec['dto']
-			self._LCTRL_persons.SetItem(index = row_num, column = 1, label = dto.lastnames)
-			self._LCTRL_persons.SetItem(index = row_num, column = 2, label = dto.firstnames)
+			self._LCTRL_persons.SetItem(row_num, 1, dto.lastnames)
+			self._LCTRL_persons.SetItem(row_num, 2, dto.firstnames)
 			if dto.dob is None:
-				self._LCTRL_persons.SetItem(index = row_num, column = 3, label = '')
+				self._LCTRL_persons.SetItem(row_num, 3, '')
 			else:
 				if dto.dob_is_estimated:
-					self._LCTRL_persons.SetItem(index = row_num, column = 3, label = gmTools.u_almost_equal_to + gmDateTime.pydt_strftime(dto.dob, '%Y %b %d'))
+					self._LCTRL_persons.SetItem(row_num, 3, gmTools.u_almost_equal_to + gmDateTime.pydt_strftime(dto.dob, '%Y %b %d'))
 				else:
-					self._LCTRL_persons.SetItem(index = row_num, column = 3, label = gmDateTime.pydt_strftime(dto.dob, '%Y %b %d'))
-			self._LCTRL_persons.SetItem(index = row_num, column = 4, label = gmTools.coalesce(dto.gender, ''))
+					self._LCTRL_persons.SetItem(row_num, 3, gmDateTime.pydt_strftime(dto.dob, '%Y %b %d'))
+			self._LCTRL_persons.SetItem(row_num, 4, gmTools.coalesce(dto.gender, ''))
 
 		for col in range(len(self.__cols)):
 			self._LCTRL_persons.SetColumnWidth(col, wx.LIST_AUTOSIZE)

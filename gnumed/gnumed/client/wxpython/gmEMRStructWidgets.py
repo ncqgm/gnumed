@@ -741,18 +741,18 @@ class cIssueListSelectorDlg(gmListWidgets.cGenericListSelectorDlg):
 
 		for issue in issues:
 			if issue['is_confidential']:
-				row_num = self._LCTRL_items.InsertItem(sys.maxsize, label = _('confidential'))
+				row_num = self._LCTRL_items.InsertItem(sys.maxsize, _('confidential'))
 				self._LCTRL_items.SetItemTextColour(row_num, wx.Colour('RED'))
 			else:
-				row_num = self._LCTRL_items.InsertItem(sys.maxsize, label = '')
+				row_num = self._LCTRL_items.InsertItem(sys.maxsize, '')
 
-			self._LCTRL_items.SetItem(index = row_num, column = 1, label = issue['description'])
+			self._LCTRL_items.SetItem(row_num, 1, issue['description'])
 			if issue['clinically_relevant']:
-				self._LCTRL_items.SetItem(index = row_num, column = 2, label = _('relevant'))
+				self._LCTRL_items.SetItem(row_num, 2, _('relevant'))
 			if issue['is_active']:
-				self._LCTRL_items.SetItem(index = row_num, column = 3, label = _('active'))
+				self._LCTRL_items.SetItem(row_num, 3, _('active'))
 			if issue['is_cause_of_death']:
-				self._LCTRL_items.SetItem(index = row_num, column = 4, label = _('fatal'))
+				self._LCTRL_items.SetItem(row_num, 4, _('fatal'))
 
 		self._LCTRL_items.set_column_widths()
 		self._LCTRL_items.set_data(data = issues)
