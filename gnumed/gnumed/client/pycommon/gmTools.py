@@ -1601,7 +1601,7 @@ def xml_escape_string(text=None):
 	return xml_tools.escape(text)
 
 #---------------------------------------------------------------------------
-def tex_escape_string(text:str=None, replace_known_unicode:bool=True, replace_eol:bool=False, keep_visual_eol:bool=False) -> str:
+def tex_escape_string(text:str=None, replace_known_unicode:bool=True, replace_eol:bool=False, keep_visual_eol:bool=False, strip_whitespace:bool=True) -> str:
 	"""Check for special TeX characters and transform them.
 
 	Args:
@@ -1614,8 +1614,10 @@ def tex_escape_string(text:str=None, replace_known_unicode:bool=True, replace_eo
 			at this point as well as the visual formatting
 			is preserved in the LaTeX source (think multi-
 			row table cells)
+		strip_whitespace: whether to remove surrounding whitespace
 
 	Returns:
+		A hopefully properly escaped string palatable to LaTeX.
 	"""
 	# must happen first
 	text = text.replace('{', '-----{{{{{-----')
@@ -1644,6 +1646,9 @@ def tex_escape_string(text:str=None, replace_known_unicode:bool=True, replace_eo
 		# this should NOT be replaced for Xe(La)Tex
 		text = text.replace(u_euro, '\\euro{}')		# requires \usepackage[official]{eurosym} in LaTeX source
 		text = text.replace(u_sum, '$\\Sigma$')
+
+	if strip_whitespace:
+		return text.strip()
 
 	return text
 
