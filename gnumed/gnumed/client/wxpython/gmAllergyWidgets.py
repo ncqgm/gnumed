@@ -357,14 +357,14 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 			emr.allergy_state = gmAllergy.ALLERGY_STATE_SOME
 
 			for allergy in allergies:
-				row_idx = self._LCTRL_allergies.InsertItem(no_of_allergies, label = allergy['l10n_type'])
+				row_idx = self._LCTRL_allergies.InsertItem(no_of_allergies, allergy['l10n_type'])
 				if allergy['definite']:
 					label = _('definite')
 				else:
 					label = ''
-				self._LCTRL_allergies.SetItem(index = row_idx, column = 1, label = label)
-				self._LCTRL_allergies.SetItem(index = row_idx, column = 2, label = allergy['descriptor'])
-				self._LCTRL_allergies.SetItem(index = row_idx, column = 3, label = gmTools.coalesce(allergy['reaction'], ''))
+				self._LCTRL_allergies.SetItem(row_idx, 1, label)
+				self._LCTRL_allergies.SetItem(row_idx, 2, allergy['descriptor'])
+				self._LCTRL_allergies.SetItem(row_idx, 3, gmTools.coalesce(allergy['reaction'], ''))
 			self._LCTRL_allergies.set_data(data=allergies)
 
 			self._LCTRL_allergies.Enable(True)

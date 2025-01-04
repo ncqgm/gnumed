@@ -110,8 +110,8 @@ class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
 		# parse and display file
 		self._LCTRL_xdt.DeleteAllItems()
 
-		self._LCTRL_xdt.InsertItem(index=0, label=_('name of xDT file'))
-		self._LCTRL_xdt.SetItem(index=0, column=1, label=filename)
+		self._LCTRL_xdt.InsertItem(0, _('name of xDT file'))
+		self._LCTRL_xdt.SetItem(0, 1, filename)
 
 		idx = 1
 		for line in xdt_file:
@@ -129,10 +129,10 @@ class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
 			except KeyError:
 				right = content
 
-			self._LCTRL_xdt.InsertItem(index=idx, label=left)
-			self._LCTRL_xdt.SetItem(index=idx, column=1, label=right)
-			self._LCTRL_xdt.SetItem(index=idx, column=2, label=field)
-			self._LCTRL_xdt.SetItem(index=idx, column=3, label=content)
+			self._LCTRL_xdt.InsertItem(idx, left)
+			self._LCTRL_xdt.SetItem(idx, 1, right)
+			self._LCTRL_xdt.SetItem(idx, 2, field)
+			self._LCTRL_xdt.SetItem(idx, 3, content)
 			idx += 1
 
 		xdt_file.close()

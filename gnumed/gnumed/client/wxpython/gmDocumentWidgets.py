@@ -486,12 +486,12 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 		pos = len(doc_types) + 1
 
 		for doc_type in doc_types:
-			row_num = self._LCTRL_doc_type.InsertItem(pos, label = doc_type['type'])
-			self._LCTRL_doc_type.SetItem(index = row_num, column = 1, label = doc_type['l10n_type'])
+			row_num = self._LCTRL_doc_type.InsertItem(pos, doc_type['type'])
+			self._LCTRL_doc_type.SetItem(row_num, 1, doc_type['l10n_type'])
 			if doc_type['is_user_defined']:
-				self._LCTRL_doc_type.SetItem(index = row_num, column = 2, label = ' X ')
+				self._LCTRL_doc_type.SetItem(row_num, 2, ' X ')
 			if doc_type['is_in_use']:
-				self._LCTRL_doc_type.SetItem(index = row_num, column = 3, label = ' X ')
+				self._LCTRL_doc_type.SetItem(row_num, 3, ' X ')
 
 		if len(doc_types) > 0:
 			self._LCTRL_doc_type.set_data(data = doc_types)
@@ -814,25 +814,25 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 				reviews_by_others.append(rev)
 		# display them
 		if review_by_responsible_doc is not None:
-			row_num = self._LCTRL_existing_reviews.InsertItem(sys.maxsize, label=review_by_responsible_doc[0])
+			row_num = self._LCTRL_existing_reviews.InsertItem(sys.maxsize, review_by_responsible_doc[0])
 			self._LCTRL_existing_reviews.SetItemTextColour(row_num, wx.BLUE)
-			self._LCTRL_existing_reviews.SetItem(index = row_num, column=0, label=review_by_responsible_doc[0])
-			self._LCTRL_existing_reviews.SetItem(index = row_num, column=1, label=review_by_responsible_doc[1].strftime('%x %H:%M'))
+			self._LCTRL_existing_reviews.SetItem(row_num, 0, review_by_responsible_doc[0])
+			self._LCTRL_existing_reviews.SetItem(row_num, 1, review_by_responsible_doc[1].strftime('%x %H:%M'))
 			if review_by_responsible_doc['is_technically_abnormal']:
-				self._LCTRL_existing_reviews.SetItem(index = row_num, column=2, label='X')
+				self._LCTRL_existing_reviews.SetItem(row_num, 2, 'X')
 			if review_by_responsible_doc['clinically_relevant']:
-				self._LCTRL_existing_reviews.SetItem(index = row_num, column=3, label='X')
-			self._LCTRL_existing_reviews.SetItem(index = row_num, column=4, label=review_by_responsible_doc[6])
+				self._LCTRL_existing_reviews.SetItem(row_num, 3, 'X')
+			self._LCTRL_existing_reviews.SetItem(row_num, 4, review_by_responsible_doc[6])
 			row_num += 1
 		for rev in reviews_by_others:
-			row_num = self._LCTRL_existing_reviews.InsertItem(sys.maxsize, label=rev[0])
-			self._LCTRL_existing_reviews.SetItem(index = row_num, column=0, label=rev[0])
-			self._LCTRL_existing_reviews.SetItem(index = row_num, column=1, label=rev[1].strftime('%x %H:%M'))
+			row_num = self._LCTRL_existing_reviews.InsertItem(sys.maxsize, rev[0])
+			self._LCTRL_existing_reviews.SetItem(row_num, 0, rev[0])
+			self._LCTRL_existing_reviews.SetItem(row_num, 1, rev[1].strftime('%x %H:%M'))
 			if rev['is_technically_abnormal']:
-				self._LCTRL_existing_reviews.SetItem(index = row_num, column=2, label='X')
+				self._LCTRL_existing_reviews.SetItem(row_num, 2, 'X')
 			if rev['clinically_relevant']:
-				self._LCTRL_existing_reviews.SetItem(index = row_num, column=3, label='X')
-			self._LCTRL_existing_reviews.SetItem(index = row_num, column=4, label=rev[6])
+				self._LCTRL_existing_reviews.SetItem(row_num, 3, 'X')
+			self._LCTRL_existing_reviews.SetItem(row_num, 4, rev[6])
 		return True
 
 	#--------------------------------------------------------

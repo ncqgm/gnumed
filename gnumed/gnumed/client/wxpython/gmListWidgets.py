@@ -2053,21 +2053,21 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 			# item is a single string
 			# (typical special case: items=rows are a list-of-strings)
 			if isinstance(item, str):
-				self.InsertItem(index = sys.maxsize, label = item.replace('\r\n', ' [CRLF] ').replace('\n', ' [LF] '))
+				self.InsertItem(sys.maxsize, item.replace('\r\n', ' [CRLF] ').replace('\n', ' [LF] '))
 				continue
 			# item is something else, either ...
 			try:
 				# ... an iterable
 				col_val = str(item[0])
-				row_num = self.InsertItem(index = sys.maxsize, label = col_val)
+				row_num = self.InsertItem(sys.maxsize, col_val)
 				for col_num in range(1, min(self.GetColumnCount(), len(item))):
 					col_val = str(item[col_num]).replace('\r\n', ' [CRLF] ').replace('\n', ' [LF] ')
-					self.SetItem(index = row_num, column = col_num, label = col_val)
+					self.SetItem(row_num, col_num, col_val)
 			except (TypeError, KeyError, IndexError):
 				# ... an *empty* iterable [IndexError]
 				# ... or not iterable (None, int, instance, dict [KeyError] ...)
 				col_val = str(item).replace('\r\n', ' [CRLF] ').replace('\n', ' [LF] ')
-				self.InsertItem(index = sys.maxsize, label = col_val)
+				self.InsertItem(sys.maxsize, col_val)
 
 		if reshow:
 			if self.ItemCount > 0:

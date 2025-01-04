@@ -89,7 +89,8 @@ class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 		self.__data = items
 		pos = len(items) + 1
 		for item in items:
-			self.InsertItem(pos, label = item['list_label'])
+			#self.InsertItem(pos, label = item['list_label'])
+			self.InsertItem(pos, item['list_label'])
 	#--------------------------------------------------------
 	def GetSelectedItemData(self):
 		sel_idx = self.GetFirstSelected()

@@ -85,13 +85,13 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		staff_list = gmStaff.get_staff_list()
 		pos = len(staff_list) + 1
 		for staff in staff_list:
-			row_num = self._LCTRL_staff.InsertItem(pos, label=staff['short_alias'])
-			self._LCTRL_staff.SetItem(index = row_num, column = 1, label = staff['db_user'])
-			self._LCTRL_staff.SetItem(index = row_num, column = 2, label = staff['l10n_role'])
+			row_num = self._LCTRL_staff.InsertItem(pos, staff['short_alias'])
+			self._LCTRL_staff.SetItem(row_num, 1, staff['db_user'])
+			self._LCTRL_staff.SetItem(row_num, 2, staff['l10n_role'])
 			title = gmTools.coalesce(staff['title'], '')
-			self._LCTRL_staff.SetItem(index = row_num, column = 3, label = '%s %s, %s' % (title, staff['lastnames'], staff['firstnames']))
-			self._LCTRL_staff.SetItem(index = row_num, column = 4, label = gmTools.coalesce(staff['comment'], ''))
-			self._LCTRL_staff.SetItem(index = row_num, column = 5, label = '%s / %s' % (lbl_active[bool(staff['is_active'])], lbl_login[bool(staff['can_login'])]))
+			self._LCTRL_staff.SetItem(row_num, 3, '%s %s, %s' % (title, staff['lastnames'], staff['firstnames']))
+			self._LCTRL_staff.SetItem(row_num, 4, gmTools.coalesce(staff['comment'], ''))
+			self._LCTRL_staff.SetItem(row_num, 5, '%s / %s' % (lbl_active[bool(staff['is_active'])], lbl_login[bool(staff['can_login'])]))
 			# color
 			if staff['is_active'] and staff['can_login']:
 				#self._LCTRL_staff.SetItemTextColour(row_num, wx.Colour('BLUE'))
