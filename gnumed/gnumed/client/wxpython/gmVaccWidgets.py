@@ -940,7 +940,23 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl, gmEditArea.cGenericEditAreaMixin):
 		# adjust phrasewheels etc
 		self._PRW_vaccine.add_callback_on_lose_focus(self._on_PRW_vaccine_lost_focus)
 		self._PRW_provider.selection_only = False
-		self._PRW_reaction.add_callback_on_lose_focus(self._on_PRW_reaction_lost_focus)
+		url = gmCfgDB.get4user (
+			option = 'external.urls.report_vaccine_ADR',
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
+		)
+		if url:
+			url = url.strip()
+		if not url:
+			url = gmCfgDB.get4user (
+				option = 'external.urls.report_ADR',
+				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
+			)
+			if url:
+				url = url.strip()
+		if url:
+			self._HL_report_ADR.SetURL(url)
+		else:
+			self._HL_report_ADR.Disable()
 
 	#----------------------------------------------------------------
 	def _on_PRW_vaccine_lost_focus(self):
@@ -960,13 +976,6 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl, gmEditArea.cGenericEditAreaMixin):
 				self._PRW_batch.set_context(context = 'pk_vaccine', val = vaccine['pk_vaccine'])
 
 		self.__refresh_indications()
-
-	#----------------------------------------------------------------
-	def _on_PRW_reaction_lost_focus(self):
-		if self._PRW_reaction.GetValue().strip() == '':
-			self._BTN_report.Enable(False)
-		else:
-			self._BTN_report.Enable(True)
 
 	#----------------------------------------------------------------
 	def __refresh_indications(self):
@@ -1075,7 +1084,6 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl, gmEditArea.cGenericEditAreaMixin):
 		self._PRW_site.SetValue('')
 		self._PRW_provider.SetData(data = None)
 		self._PRW_reaction.SetText(value = '', data = None, suppress_smarts = True)
-		self._BTN_report.Enable(False)
 		self._TCTRL_comment.SetValue('')
 
 		self.__refresh_indications()
@@ -1096,10 +1104,6 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl, gmEditArea.cGenericEditAreaMixin):
 		self._PRW_site.SetValue(gmTools.coalesce(self.data['site'], ''))
 		self._PRW_provider.SetData(self.data['pk_provider'])
 		self._PRW_reaction.SetValue(gmTools.coalesce(self.data['reaction'], ''))
-		if self.data['reaction'] is None:
-			self._BTN_report.Enable(False)
-		else:
-			self._BTN_report.Enable(True)
 		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], ''))
 
 		self.__refresh_indications()
@@ -1119,7 +1123,6 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl, gmEditArea.cGenericEditAreaMixin):
 		self._PRW_site.SetValue(gmTools.coalesce(self.data['site'], ''))
 		self._PRW_provider.SetData(self.data['pk_provider'])
 		self._PRW_reaction.SetValue('')
-		self._BTN_report.Enable(False)
 		self._TCTRL_comment.SetValue('')
 
 		self.__refresh_indications()
@@ -1128,20 +1131,6 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl, gmEditArea.cGenericEditAreaMixin):
 
 	#----------------------------------------------------------------
 	# event handlers
-	#----------------------------------------------------------------
-	def _on_report_button_pressed(self, event):
-		event.Skip()
-		url = gmCfgDB.get4user (
-			option = 'external.urls.report_vaccine_ADR',
-			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
-		)
-		if url.strip() == '':
-			url = gmCfgDB.get4user (
-				option = 'external.urls.report_ADR',
-				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
-			)
-		gmNetworkTools.open_url_in_browser(url = url)
-
 	#----------------------------------------------------------------
 	def _on_add_vaccine_button_pressed(self, event):
 		edit_vaccine(parent = self, vaccine = None, single_entry = False)
@@ -1192,8 +1181,8 @@ if __name__ == "__main__":
 	#------------------------------------------------------------------
 	gmLog2.print_logfile_name()
 	#test_manage_vaccines()
-	#test_manage_vaccinations()
-	test_cVaccinePhraseWheel()
+	test_manage_vaccinations()
+	#test_cVaccinePhraseWheel()
 
 #	gmPG2.request_login_params(setup_pool = True, force_tui = True)
 #	gmPraxis.activate_first_praxis_branch()

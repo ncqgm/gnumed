@@ -7,6 +7,7 @@ import wx
 
 # begin wxGlade: dependencies
 import gettext
+import wx.adv
 # end wxGlade
 
 # begin wxGlade: extracode
@@ -41,8 +42,9 @@ class wxgVaccinationEAPnl(wx.ScrolledWindow):
 		self._CHBOX_anamnestic.SetToolTip(_("Check this if - within the SOAP classification - you want to mark the entry as Subjective rather than Plan."))
 		__szr_date_details.Add(self._CHBOX_anamnestic, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
-		__lbl_vaccine = wx.StaticText(self, wx.ID_ANY, _("Vaccine ..."))
+		__lbl_vaccine = wx.StaticText(self, wx.ID_ANY, _("Vaccine"))
 		__lbl_vaccine.SetForegroundColour(wx.Colour(255, 127, 0))
+		__lbl_vaccine.SetToolTip(_("The vaccine given, if known.\n\nIf not, select a suitable generic vaccine entry."))
 		_gszr_main.Add(__lbl_vaccine, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
 		__szr_vaccine_details = wx.BoxSizer(wx.HORIZONTAL)
@@ -50,14 +52,14 @@ class wxgVaccinationEAPnl(wx.ScrolledWindow):
 
 		from Gnumed.wxpython.gmVaccWidgets import cVaccinePhraseWheel
 		self._PRW_vaccine = cVaccinePhraseWheel(self, wx.ID_ANY, "")
-		self._PRW_vaccine.SetToolTip(_("The vaccine used, if known.\n\nIf unknown check off the indications which were vaccinated against."))
 		__szr_vaccine_details.Add(self._PRW_vaccine, 1, wx.EXPAND | wx.RIGHT, 5)
 
 		self._BTN_add_vaccine = wx.Button(self, wx.ID_ANY, _(" + "), style=wx.BU_EXACTFIT)
 		self._BTN_add_vaccine.SetToolTip(_("Add a vaccine to GNUmed."))
 		__szr_vaccine_details.Add(self._BTN_add_vaccine, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
-		_gszr_main.Add((20, 20), 1, wx.EXPAND, 0)
+		__lbl_indications = wx.StaticText(self, wx.ID_ANY, _("Target\nindications"))
+		_gszr_main.Add(__lbl_indications, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
 		_SZR_indications = wx.BoxSizer(wx.VERTICAL)
 		_gszr_main.Add(_SZR_indications, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
@@ -97,20 +99,13 @@ class wxgVaccinationEAPnl(wx.ScrolledWindow):
 		self._PRW_provider.SetToolTip(_("The provider who administered the vaccine, if known."))
 		_gszr_main.Add(self._PRW_provider, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 
-		__lbl_reaction = wx.StaticText(self, wx.ID_ANY, _("Reaction"))
-		_gszr_main.Add(__lbl_reaction, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-
-		sizer_1 = wx.BoxSizer(wx.HORIZONTAL)
-		_gszr_main.Add(sizer_1, 1, wx.EXPAND, 0)
+		self._HL_report_ADR = wx.adv.HyperlinkCtrl(self, wx.ID_ANY, _("Reaction"), "", style=wx.adv.HL_DEFAULT_STYLE)
+		self._HL_report_ADR.SetToolTip(_("Report Adverse Drug Reaction."))
+		_gszr_main.Add(self._HL_report_ADR, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
 		self._PRW_reaction = cPhraseWheel(self, wx.ID_ANY, "")
 		self._PRW_reaction.SetToolTip(_("Record any adverse reactions to this vaccine."))
-		sizer_1.Add(self._PRW_reaction, 1, wx.EXPAND | wx.RIGHT, 5)
-
-		self._BTN_report = wx.Button(self, wx.ID_ANY, _("ADR"), style=wx.BU_EXACTFIT)
-		self._BTN_report.SetToolTip(_("Report this event as an adverse drug reaction."))
-		self._BTN_report.Enable(False)
-		sizer_1.Add(self._BTN_report, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		_gszr_main.Add(self._PRW_reaction, 1, wx.EXPAND, 5)
 
 		__lbl_comment = wx.StaticText(self, wx.ID_ANY, _("Comment"))
 		_gszr_main.Add(__lbl_comment, 0, wx.ALIGN_CENTER_VERTICAL, 0)
@@ -126,16 +121,11 @@ class wxgVaccinationEAPnl(wx.ScrolledWindow):
 
 		self.Layout()
 
-		self.Bind(wx.EVT_BUTTON, self._on_add_vaccine_button_pressed, self._BTN_add_vaccine)
-		self.Bind(wx.EVT_BUTTON, self._on_report_button_pressed, self._BTN_report)
+		self._BTN_add_vaccine.Bind(wx.EVT_BUTTON, self._on_add_vaccine_button_pressed)
 		# end wxGlade
 
 	def _on_add_vaccine_button_pressed(self, event):  # wxGlade: wxgVaccinationEAPnl.<event_handler>
 		print("Event handler '_on_add_vaccine_button_pressed' not implemented!")
-		event.Skip()
-
-	def _on_report_button_pressed(self, event):  # wxGlade: wxgVaccinationEAPnl.<event_handler>
-		print("Event handler '_on_report_button_pressed' not implemented!")
 		event.Skip()
 
 # end of class wxgVaccinationEAPnl
