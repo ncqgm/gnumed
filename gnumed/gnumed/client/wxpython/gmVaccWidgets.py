@@ -766,16 +766,17 @@ def manage_vaccinations(parent=None, latest_only:bool=False, expand_indications=
 		if vaccination is None:
 			subject = _('vaccination recall')
 		else:
-			subject = _('vaccination recall (%s)') % vaccination['vaccine']
-
+			if vaccination['vaccine']:
+				subject = _('vaccination recall (%s)') % vaccination['vaccine']
+			else:
+				subject = _('vaccination recall')
 		recall = gmProviderInbox.create_inbox_message (
 			message_type = _('Vaccination'),
 			subject = subject,
 			patient = pat.ID,
 			staff = None
 		)
-
-		if vaccination is not None:
+		if vaccination:
 			recall['data'] = _('Existing vaccination:\n\n%s') % '\n'.join(vaccination.format(
 				with_indications = True,
 				with_comment = True,
@@ -783,14 +784,12 @@ def manage_vaccinations(parent=None, latest_only:bool=False, expand_indications=
 				date_format = '%Y %b %d'
 			))
 			recall.save()
-
 		from Gnumed.wxpython import gmProviderInboxWidgets
 		gmProviderInboxWidgets.edit_inbox_message (
 			parent = parent,
 			message = recall,
 			single_entry = False
 		)
-
 		return False
 
 	#------------------------------------------------------------
@@ -829,7 +828,7 @@ def manage_vaccinations(parent=None, latest_only:bool=False, expand_indications=
 						no_of_shots4ind,
 						gmDateTime.format_interval_medically(gmDateTime.pydt_now_here() - latest_vacc4ind['date_given'])
 					),
-					latest_vacc4ind['vaccine'],
+					gmTools.coalesce(latest_vacc4ind['vaccine'], _('generic')),
 					latest_vacc4ind['batch_no'],
 					gmTools.coalesce(latest_vacc4ind['site'], ''),
 					gmTools.coalesce(latest_vacc4ind['reaction'], ''),
@@ -855,7 +854,7 @@ def manage_vaccinations(parent=None, latest_only:bool=False, expand_indications=
 								gmDateTime.pydt_strftime(shot['date_given'], '%Y %b %d'),
 								gmDateTime.format_interval_medically(gmDateTime.pydt_now_here() - shot['date_given'])
 							),
-							shot['vaccine'],
+							gmTools.coalesce(shot['vaccine'], _('generic')),
 							shot['batch_no'],
 							gmTools.coalesce(shot['site'], ''),
 							gmTools.coalesce(shot['reaction'], ''),
@@ -866,7 +865,7 @@ def manage_vaccinations(parent=None, latest_only:bool=False, expand_indications=
 			else:
 				items = [ [
 					gmDateTime.pydt_strftime(s['date_given'], '%Y %b %d'),
-					s['vaccine'],
+					gmTools.coalesce(s['vaccine'], _('generic')),
 					', '.join([ i['l10n_indication'] for i in s['indications'] ]),
 					s['batch_no'],
 					gmTools.coalesce(s['site'], ''),
@@ -1028,8 +1027,8 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl, gmEditArea.cGenericEditAreaMixin):
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 
-		vaccine = self._PRW_vaccine.GetData()
-		data = self.__save_new_from_vaccine(vaccine = vaccine)
+		pk_vaccine = self._PRW_vaccine.GetData()
+		data = self.__save_new_from_vaccine(pk_vaccine = pk_vaccine)
 		# must be done very late or else the property access
 		# will refresh the display such that later field
 		# access will return empty values
@@ -1037,11 +1036,11 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl, gmEditArea.cGenericEditAreaMixin):
 		return True
 
 	#----------------------------------------------------------------
-	def __save_new_from_vaccine(self, vaccine=None):
+	def __save_new_from_vaccine(self, pk_vaccine=None):
 		emr = gmPerson.gmCurrentPatient().emr
 		data = emr.add_vaccination (
 			episode = self._PRW_episode.GetData(can_create = True, is_open = False),
-			vaccine = vaccine,
+			pk_vaccine = pk_vaccine,
 			batch_no = self._PRW_batch.GetValue().strip()
 		)
 		if self._CHBOX_anamnestic.GetValue() is True:

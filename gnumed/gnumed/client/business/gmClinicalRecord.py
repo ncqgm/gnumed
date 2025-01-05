@@ -1355,11 +1355,11 @@ WHERE
 	#--------------------------------------------------------
 	# API: vaccinations
 	#--------------------------------------------------------
-	def add_vaccination(self, episode=None, vaccine=None, batch_no=None):
+	def add_vaccination(self, episode=None, pk_vaccine=None, batch_no=None):
 		return gmVaccination.create_vaccination (
 			encounter = self.current_encounter['pk_encounter'],
 			episode = episode,
-			vaccine = vaccine,
+			pk_vaccine = pk_vaccine,
 			batch_no = batch_no
 		)
 

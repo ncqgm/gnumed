@@ -511,7 +511,7 @@ def format_vaccinations_by_indication_for_failsafe_output(pk_patient:int, max_wi
 	return lines
 
 #------------------------------------------------------------
-def create_vaccination(encounter=None, episode=None, vaccine=None, batch_no=None):
+def create_vaccination(encounter:int=None, episode:int=None, pk_vaccine:int=None, batch_no:str=None):
 	cmd = """
 		INSERT INTO clin.vaccination (
 			fk_encounter,
@@ -521,14 +521,14 @@ def create_vaccination(encounter=None, episode=None, vaccine=None, batch_no=None
 		) VALUES (
 			%(enc)s,
 			%(epi)s,
-			%(vacc)s,
+			%(pk_vacc)s,
 			%(batch)s
 		) RETURNING pk;
 	"""
 	args = {
 		'enc': encounter,
 		'epi': episode,
-		'vacc': vaccine,
+		'pk_vacc': pk_vaccine,
 		'batch': batch_no
 	}
 	rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
@@ -743,6 +743,15 @@ if __name__ == '__main__':
 		print(__format_latest_vaccinations_latex(vaccinations = shots))
 
 	#--------------------------------------------------------
+	def test_create_vaccination():
+		print(create_vaccination (
+			encounter = 1,
+			episode = 1,
+			pk_vaccine = 204,
+			batch_no = 'testing create_vaccination()'
+		))
+
+	#--------------------------------------------------------
 	gmPG2.request_login_params(setup_pool = True)
 	#test_vaccination_course()
 	#test_put_patient_on_schedule()
@@ -753,6 +762,7 @@ if __name__ == '__main__':
 
 	#test_get_vaccines()
 	#test_get_vaccinations()
-	test_format_latest_vaccinations()
+	#test_format_latest_vaccinations()
 	#test_format_vaccs_failsafe()
 	#test_create_vaccine_dummy_dose()
+	test_create_vaccination()
