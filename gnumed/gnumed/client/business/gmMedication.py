@@ -255,37 +255,24 @@ def generate_liver_information_urls(search_term:str=None) -> list:
 		if search_term.strip() == '':
 			return [URL_liver]
 
-	atcs = []
 	names = []
 	if isinstance(search_term, cSubstance):
 		names.append(search_term['substance'])
-#		if search_term['atc']:
-#			atcs.append(search_term['atc'])
 	elif isinstance(search_term, cSubstanceDose):
 		names.append(search_term['substance'])
-#		if search_term['atc_substance']:
-#			atcs.append(search_term['atc_substance'])
 	elif isinstance(search_term, cSubstanceIntakeEntry):
 		names.append(search_term['substance'])
-#		if search_term['atc_substance']:
-#			atcs.append(search_term['atc_substance'])
 	elif isinstance(search_term, cIntakeWithRegimen):
 		names.append(search_term['substance'])
-#		if search_term['atc_substance']:
-#			atcs.append(search_term['atc_substance'])
 	elif isinstance(search_term, cIntakeRegimen):
 		names.append(search_term['substance'])
-#		if search_term['atc_substance']:
-#			atcs.append(search_term['atc_substance'])
 	else:
 		names.append('%s' % search_term)
-#		atcs.extend(gmATC.text2atc(text = '%s' % search_term, fuzzy = True))
 	terms = []
 	for name in names:
 		terms.append(name)
 		if name.endswith('e'):
 			terms.append(name[:-1])
-#	terms.extend(atcs)
 	urls = [ URL_liver__search_template % t for t in terms ]
 	_log.debug('liver information URLs: %s', urls)
 	return urls
