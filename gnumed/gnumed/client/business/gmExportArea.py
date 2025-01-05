@@ -1112,7 +1112,7 @@ class cExportArea(object):
 			master_passphrase: password to encrypt passphrase with for safekeeping, if no public keys available for that
 
 		Returns:
-			Base_dir name, else None or False on failure.
+			Base_dir name, None (nothing to do), False (failure).
 		"""
 		if items is None:
 			items = self.items
