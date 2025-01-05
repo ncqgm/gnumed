@@ -30,380 +30,6 @@ URL_vaccination_plan = 'http://www.rki.de/DE/Content/Infekt/EpidBull/Archiv/2017
 URL_vaccine_adr_german_default = 'https://nebenwirkungen.pei.de'
 
 #============================================================
-_SQL_create_substance4vaccine = """-- in case <%(substance_tag)s> already exists: add ATC
-UPDATE ref.substance SET atc = '%(atc)s' WHERE lower(description) = lower('%(desc)s') AND atc IS NULL;
-
-INSERT INTO ref.substance (description, atc)
-	SELECT
-		'%(desc)s',
-		'%(atc)s'
-	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.substance WHERE
-			atc = '%(atc)s'
-				AND
-			description = '%(desc)s'
-	);
-
--- generic English
-SELECT i18n.upd_tx('en', '%(orig)s', '%(trans)s');
--- user language, if any, fails if not set
-SELECT i18n.upd_tx('%(orig)s', '%(trans)s');"""
-
-_SQL_map_indication2substance = """-- old-style "%(v21_ind)s" => "%(desc)s"
-INSERT INTO staging.lnk_vacc_ind2subst_dose (fk_indication, fk_dose, is_live)
-	SELECT
-		(SELECT id FROM ref.vacc_indication WHERE description = '%(v21_ind)s'),
-		(SELECT pk_dose FROM ref.v_substance_doses WHERE
-			amount = 1
-				AND
-			unit = 'dose'
-				AND
-			dose_unit = 'shot'
-				AND
-			substance = '%(desc)s'
-		),
-		%(is_live)s
-	WHERE EXISTS (
-		SELECT 1 FROM ref.vacc_indication WHERE description = '%(v21_ind)s'
-	);"""
-
-_SQL_create_vacc_product = """-- --------------------------------------------------------------
--- in case <%(prod_name)s> exists: add ATC
-UPDATE ref.drug_product SET atc_code = '%(atc_prod)s' WHERE
-	atc_code IS NULL
-		AND
-	description = '%(prod_name)s'
-		AND
-	preparation = '%(prep)s'
-		AND
-	is_fake IS TRUE;
-
-INSERT INTO ref.drug_product (description, preparation, is_fake, atc_code)
-	SELECT
-		'%(prod_name)s',
-		'%(prep)s',
-		TRUE,
-		'%(atc_prod)s'
-	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.drug_product WHERE
-			description = '%(prod_name)s'
-				AND
-			preparation = '%(prep)s'
-				AND
-			is_fake = TRUE
-				AND
-			atc_code = '%(atc_prod)s'
-	);"""
-
-_SQL_create_vaccine = """-- add vaccine if necessary
-INSERT INTO ref.vaccine (is_live, fk_drug_product)
-	SELECT
-		%(is_live)s,
-		(SELECT pk FROM ref.drug_product WHERE
-			description = '%(prod_name)s'
-				AND
-			preparation = '%(prep)s'
-				AND
-			is_fake = TRUE
-				AND
-			atc_code = '%(atc_prod)s'
-		)
-	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.vaccine WHERE
-			is_live IS %(is_live)s
-				AND
-			fk_drug_product = (
-				SELECT pk FROM ref.drug_product WHERE
-					description = '%(prod_name)s'
-						AND
-					preparation = '%(prep)s'
-						AND
-					is_fake = TRUE
-						AND
-					atc_code = '%(atc_prod)s'
-			)
-	);"""
-
-_SQL_create_vacc_subst_dose = """-- create dose, assumes substance exists
-INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
-	SELECT
-		(SELECT pk FROM ref.substance WHERE atc = '%(atc_subst)s' AND description = '%(name_subst)s' LIMIT 1),
-		1,
-		'dose',
-		'shot'
-	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = '%(atc_subst)s' AND description = '%(name_subst)s' LIMIT 1)
-				AND
-			amount = 1
-				AND
-			unit = 'dose'
-				AND
-			dose_unit IS NOT DISTINCT FROM 'shot'
-	);"""
-
-_SQL_link_dose2vacc_prod = """-- link dose to product
-INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
-	SELECT
-		(SELECT pk from ref.dose WHERE
-			fk_substance = (SELECT pk FROM ref.substance WHERE atc = '%(atc_subst)s' AND description = '%(name_subst)s' LIMIT 1)
-				AND
-			amount = 1
-				AND
-			unit = 'dose'
-				AND
-			dose_unit IS NOT DISTINCT FROM 'shot'
-		),
-		(SELECT pk FROM ref.drug_product WHERE
-			description = '%(prod_name)s'
-				AND
-			preparation = '%(prep)s'
-				AND
-			is_fake = TRUE
-				AND
-			atc_code = '%(atc_prod)s'
-		)
-	WHERE NOT EXISTS (
-		SELECT 1 FROM ref.lnk_dose2drug WHERE
-			fk_dose = (
-				SELECT PK from ref.dose WHERE
-					fk_substance = (SELECT pk FROM ref.substance WHERE atc = '%(atc_subst)s' AND description = '%(name_subst)s' LIMIT 1)
-						AND
-					amount = 1
-						AND
-					unit = 'dose'
-						AND
-					dose_unit IS NOT DISTINCT FROM 'shot'
-			)
-				AND
-			fk_drug_product = (
-				SELECT pk FROM ref.drug_product WHERE
-					description = '%(prod_name)s'
-						AND
-					preparation = '%(prep)s'
-						AND
-					is_fake = TRUE
-						AND
-					atc_code = '%(atc_prod)s'
-			)
-	);"""
-
-_SQL_create_indications_mapping_table = """-- set up helper table for conversion of vaccines from using
--- linked indications to using linked substances,
--- to be dropped after converting vaccines
-DROP TABLE IF EXISTS staging.lnk_vacc_ind2subst_dose CASCADE;
-
-CREATE UNLOGGED TABLE staging.lnk_vacc_ind2subst_dose (
-	fk_indication INTEGER
-		NOT NULL
-		REFERENCES ref.vacc_indication(id)
-			ON UPDATE CASCADE
-			ON DELETE RESTRICT,
-	fk_dose INTEGER
-		NOT NULL
-		REFERENCES ref.dose(pk)
-			ON UPDATE CASCADE
-			ON DELETE RESTRICT,
-	is_live
-		BOOLEAN
-		NOT NULL
-		DEFAULT false,
-	UNIQUE(fk_indication, fk_dose),
-	UNIQUE(fk_indication, is_live)
-);
-
-
-DROP VIEW IF EXISTS staging.v_lnk_vacc_ind2subst_dose CASCADE;
-
-CREATE VIEW staging.v_lnk_vacc_ind2subst_dose AS
-SELECT
-	s_lvi2sd.is_live
-		as mapping_is_for_live_vaccines,
-	r_vi.id
-		as pk_indication,
-	r_vi.description
-		as indication,
-	r_vi.atcs_single_indication,
-	r_vi.atcs_combi_indication,
-	r_d.pk
-		as pk_dose,
-	r_d.amount,
-	r_d.unit,
-	r_d.dose_unit,
-	r_s.pk
-		as pk_substance,
-	r_s.description
-		as substance,
-	r_s.atc
-		as atc_substance
-FROM
-	staging.lnk_vacc_ind2subst_dose s_lvi2sd
-		inner join ref.vacc_indication r_vi on (r_vi.id = s_lvi2sd.fk_indication)
-		inner join ref.dose r_d on (r_d.pk = s_lvi2sd.fk_dose)
-			inner join ref.substance r_s on (r_s.pk = r_d.fk_substance)
-;"""
-
-_SQL_create_generic_vaccines_script = """-- ==============================================================
--- GNUmed database schema change script
---
--- License: GPL v2 or later
--- Author: karsten.hilbert@gmx.net
---
--- THIS IS A GENERATED FILE. DO NOT EDIT.
---
--- ==============================================================
-\set ON_ERROR_STOP 1
---set default_transaction_read_only to off;
-
--- --------------------------------------------------------------
--- indications mapping helper table
--- --------------------------------------------------------------
-%s
-
--- --------------------------------------------------------------
--- generic vaccine "substances" (= indications)
--- --------------------------------------------------------------
-%s
-
--- --------------------------------------------------------------
--- generic vaccines
--- --------------------------------------------------------------
--- new-style vaccines are not linked to indications, so drop
--- trigger asserting that condition,
-DROP FUNCTION IF EXISTS clin.trf_sanity_check_vaccine_has_indications() CASCADE;
-
-
--- need to disable trigger before running
-ALTER TABLE ref.drug_product
-	DISABLE TRIGGER tr_assert_product_has_components
-;
-
-%s
-
--- want to re-enable trigger as now all inserted
--- vaccines satisfy the conditions
-ALTER TABLE ref.drug_product
-	ENABLE TRIGGER tr_assert_product_has_components
-;
-
--- --------------------------------------------------------------
--- indications mapping data
--- --------------------------------------------------------------
--- map old style
---		(clin|ref).vacc_indication.description
--- to new style
---		ref.v_substance_doses.substance
-
-%s
-
--- --------------------------------------------------------------
-select gm.log_script_insertion('v%s-ref-create_generic_vaccines.sql', '%s');
-"""
-
-#============================================================
-def write_generic_vaccine_sql(version, include_indications_mapping=False, filename=None):
-	if filename is None:
-		filename = gmTools.get_unique_filename(suffix = '.sql')
-	_log.debug('writing SQL for creating generic vaccines to: %s', filename)
-	sql_file = open(filename, mode = 'wt', encoding = 'utf8')
-	sql_file.write(create_generic_vaccine_sql (
-		version,
-		include_indications_mapping = include_indications_mapping
-	))
-	sql_file.close()
-	return filename
-
-#------------------------------------------------------------
-def create_generic_vaccine_sql(version, include_indications_mapping=False):
-
-	_log.debug('including indications mapping table with generic vaccines creation SQL: %s', include_indications_mapping)
-
-	from Gnumed.business import gmVaccDefs
-
-	sql_create_substances = []
-	sql_populate_ind2subst_map = []
-	sql_create_vaccines = []
-
-	for substance_tag in gmVaccDefs._VACCINE_SUBSTANCES:
-		subst = gmVaccDefs._VACCINE_SUBSTANCES[substance_tag]
-		args = {
-			'substance_tag': substance_tag,
-			'atc': subst['atc4target'],
-			'desc': subst['name'],
-			'orig': subst['target'].split('::')[0],
-			'trans': subst['target'].split('::')[-1]
-		}
-		sql_create_substances.append(_SQL_create_substance4vaccine % args)
-		try:
-			for v21_ind in subst['v21_indications']:
-				args['v21_ind'] = v21_ind
-				args['is_live'] = 'false'
-				sql_populate_ind2subst_map.append(_SQL_map_indication2substance % args)
-		except KeyError:
-			pass
-		try:
-			for v21_ind in subst['v21_indications_live']:
-				args['v21_ind'] = v21_ind
-				args['is_live'] = 'true'
-				sql_populate_ind2subst_map.append(_SQL_map_indication2substance % args)
-		except KeyError:
-			pass
-		args = {}
-
-	for key in gmVaccDefs._GENERIC_VACCINES:
-		vaccine_def = gmVaccDefs._GENERIC_VACCINES[key]
-		# create product
-		args = {
-			'atc_prod': vaccine_def['atc'],
-			'prod_name': vaccine_def['name'],
-			# generic vaccines always have the English preparation
-			'prep': 'vaccine',
-			'is_live': vaccine_def['live']
-		}
-		sql_create_vaccines.append(_SQL_create_vacc_product % args)
-		# create doses
-		for ingredient_tag in vaccine_def['ingredients']:
-			vacc_subst_def = gmVaccDefs._VACCINE_SUBSTANCES[ingredient_tag]
-			args['atc_subst'] = vacc_subst_def['atc4target']
-			args['name_subst'] = vacc_subst_def['name']
-			# substance already created, only need to create dose
-			sql_create_vaccines.append(_SQL_create_vacc_subst_dose % args)
-			# link dose to product
-			sql_create_vaccines.append(_SQL_link_dose2vacc_prod % args)
-			# the following does not work because there are mixed vaccines
-			# any live ingredients included ?
-#			if vacc_subst_def.has_key('v21_indications_live'):
-#				if vaccine_def['live'] is False:
-#					print vaccine_def
-#					raise Exception('vaccine def says "NOT live" but ingredients DO map to <v21_indications_LIVE>')
-#			if vacc_subst_def.has_key('v21_indications'):
-#				if vaccine_def['live'] is True:
-#					print vaccine_def
-#					raise Exception('vaccine def says "live" but ingredients do NOT map to v21_indications_LIVE')
-
-		# create vaccine
-		sql_create_vaccines.append(_SQL_create_vaccine % args)
-
-	# join
-	sql = _SQL_create_generic_vaccines_script % (
-		gmTools.bool2subst (
-			include_indications_mapping,
-			_SQL_create_indications_mapping_table,
-			'-- indications mapping table not included'
-		),
-		'\n\n'.join(sql_create_substances),
-		'\n\n'.join(sql_create_vaccines),
-		gmTools.bool2subst (
-			include_indications_mapping,
-			'\n\n'.join(sql_populate_ind2subst_map),
-			'-- indications mapping table not populated'
-		),
-		version,
-		version
-	)
-	return sql
-
-#============================================================
 # vaccine related code
 #------------------------------------------------------------
 _SQL_get_vaccine_fields = """SELECT * FROM ref.v_vaccines WHERE %s"""
@@ -412,14 +38,14 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one vaccine."""
 
 	_cmd_fetch_payload = _SQL_get_vaccine_fields % "pk_vaccine = %s"
-
 	_cmds_store_payload = [
 		"""UPDATE ref.vaccine SET
 				is_live = %(is_live)s,
 				min_age = %(min_age)s,
 				max_age = %(max_age)s,
 				comment = gm.nullify_empty_string(%(comment)s),
-				fk_drug_product = %(pk_drug_product)s
+				fk_drug_product = %(pk_drug_product)s,
+				atc = %(atc_vaccine)s
 			WHERE
 				pk = %(pk_vaccine)s
 					AND
@@ -428,52 +54,56 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 				xmin as xmin_vaccine
 		"""
 	]
-
 	_updatable_fields = [
 		'is_live',
 		'min_age',
 		'max_age',
 		'comment',
-		'pk_drug_product'
+		'pk_drug_product',
+		'atc_vaccine'
 	]
 
 	#--------------------------------------------------------
 	def format(self, *args, **kwargs):
 		lines = []
-		lines.append(_('%s with %s %s     #%s') % (
-			gmTools.bool2subst(self._payload['is_live'], _('Vaccine (live)'), _('Vaccine'), '<liveness error in DB>'),
-			len(self._payload['indications']),
-			gmTools.bool2subst(len(self._payload['indications']) == 1, _('indication'), _('indications'), _('indication(s)')),
-			self._payload['pk_vaccine']
-		))
-		lines.append(_(' Product: "%s"     #%s') % (
-			self._payload['vaccine'],
-			self._payload['pk_drug_product']
-		))
-		lines.append(_('  %s%s%s%s') % (
-			self._payload['l10n_preparation'],
-			gmTools.coalesce(gmTools.bool2subst(self._payload['is_fake_vaccine'], _('fake product'), None, None), '', ', %s'),
-			gmTools.coalesce(self._payload['atc_code'], '', ' [ATC:%s]'),
-			gmTools.coalesce(self._payload['external_code'], '', ' [%s:%%s]' % self._payload['external_code_type'])
-		))
-		#lines.append(_(u' %sage %s - %s') % (
-		#	gmTools.coalesce(self._payload['route_description'], u'', u'%s, '),		#route_abbreviation
-		lines.append(_(' Age %s - %s') % (
-			gmTools.coalesce(self._payload['min_age'], '?'),
-			gmTools.coalesce(self._payload['max_age'], '?')
+		live = gmTools.bool2subst(self._payload['is_live'], _(' (live)'), '', ' <liveness error in DB>')
+		if self._payload['pk_drug_product']:
+			lines.append(_('"%s" [#%s]%s -- #%s') % (
+				self._payload['vaccine'],
+				self._payload['pk_vaccine'],
+				live,
+				gmTools.coalesce(self._payload['pk_drug_product'], '', '#%s')
+			))
+		else:
+			lines.append(_('Generic vaccine%s [#%s]%s') % (
+				gmTools.coalesce(self._payload['atc_vaccine'], '', ' "ATC:%s"'),
+				self._payload['pk_vaccine'],
+				live
+			))
+		lines.append(_(' Targets:'))
+		lines.extend([ '  %s [ATC:%s]' % (i['l10n_indication'], i['atc_indication']) for i in self._payload['indications'] ])
+		if self._payload['pk_drug_product']:
+			lines.append(' %s%s%s' % (
+				self._payload['l10n_preparation'],
+				gmTools.coalesce(self._payload['atc_product'], '', ' [ATC:%s]'),
+				gmTools.coalesce(self._payload['external_code'], '', ' [%s:%%s]' % self._payload['external_code_type'])
+			))
+		lines.append(_(' Age range: %s - %s') % (
+			gmDateTime.format_interval(interval = self._payload['min_age'], accuracy_wanted = gmDateTime.acc_months, none_string = ''),
+			gmDateTime.format_interval(interval = self._payload['max_age'], accuracy_wanted = gmDateTime.acc_months, none_string = '')
 		))
 		if self._payload['comment'] is not None:
 			lines.extend([ ' %s' % l for l in self._payload['comment'].split('\n')] )
-		lines.append(_(' Indications'))
-		lines.extend( [ '  %s [ATC:%s]' % (i['l10n_indication'], i['atc_indication']) for i in self._payload['indications'] ])
-
 		return lines
 
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
 	def _get_product(self):
-		return gmMedication.cDrugProduct(aPK_obj = self._payload['pk_drug_product'])
+		if self._payload['pk_drug_product']:
+			return gmMedication.cDrugProduct(aPK_obj = self._payload['pk_drug_product'])
+
+		return None
 
 	product = property(_get_product)
 
@@ -486,42 +116,192 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 
 	is_in_use = property(_get_is_in_use)
 
-#------------------------------------------------------------
-def create_vaccine(pk_drug_product=None, product_name=None, indications=None, is_live=None):
+	#--------------------------------------------------------
+	# indications handling
+	#--------------------------------------------------------
+	@staticmethod
+	def atcs2indication_pks(atcs:list[str]=None) -> list[int]:
+		query = {
+			'cmd': 'SELECT pk FROM ref.vacc_indication WHERE atc = ANY(%(atcs)s)',
+			'args': {'atcs': atcs}
+		}
+		rows = gmPG2.run_ro_queries(queries = [query])
+		if len(atcs) != len(rows):		# all mapped ?
+			_log.error('cannot map all ATCs to vaccine indications')
+			_log.error('ATCs: %s', atcs)
+			return None
 
+		return [ r['pk'] for r in rows ]
+
+	#--------------------------------------------------------
+	@staticmethod
+	def targets2indication_pks(targets:list[str]=None) -> list[int]:
+		query = {
+			'cmd': 'SELECT pk FROM ref.vacc_indication WHERE atc = ANY(%(targets)s)',
+			'args': {'targets': targets}
+		}
+		rows = gmPG2.run_ro_queries(queries = [query])
+		if len(targets) != len(rows):
+			return None
+
+		return [ r['pk'] for r in rows ]
+
+	#--------------------------------------------------------
+	def add_indication(self, pk_indication:int=None, atc:str=None, indication:str=None):
+		if not pk_indication:
+			args = {
+				'atc': atc,
+				'indication': indication
+			}
+			if atc:
+				SQL = 'SELECT pk FROM ref.vacc_indication WHERE atc = %(atc)s'
+			elif indication:
+				SQL = 'SELECT pk FROM ref.vacc_indication WHERE target = %(indication)s'
+			else:
+				_log.error('neither <pk_indication>, nor <atc>, nor <indication> given')
+				return False
+
+			rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+			if not rows:
+				_log.error('indication [%s: %s] does not exist', atc, indication)
+				return False
+
+			pk_indication = rows[0]['pk']
+
+		args = {
+			'pk_ind': pk_indication,
+			'pk_vacc': self._payload['pk_vaccine']
+		}
+		SQL = """
+		INSERT INTO ref.lnk_indic2vaccine (fk_indication, fk_vaccine)
+			SELECT %(pk_ind)s, %(pk_vacc)s WHERE NOT EXISTS (
+				SELECT 1 FROM ref.lnk_indic2vaccine WHERE fk_indication %(pk_ind)s = AND fk_vaccine = %(pk_vacc)s
+			)
+		"""
+		gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}])
+		return True
+
+	#--------------------------------------------------------
+	def remove_indication(self, pk_indication:int=None):
+		args = {
+			'pk_ind': pk_indication,
+			'pk_vacc': self._payload['pk_vaccine']
+		}
+		SQL = 'DELETE FROM ref.lnk_indic2vaccine WHERE fk_indication %(pk_ind)s = AND fk_vaccine = %(pk_vacc)s'
+		gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}])
+
+	#--------------------------------------------------------
+	def remove_indications(self):
+		args = {'pk_vacc': self._payload['pk_vaccine']}
+		SQL = 'DELETE FROM ref.lnk_indic2vaccine WHERE fk_vaccine = %(pk_vacc)s'
+		gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}])
+
+	#--------------------------------------------------------
+	def set_indications(self, pk_indications:list[int]=None) -> bool:
+		if not pk_indications:
+			return False
+
+		if set(pk_indications) == set([ ind['pk_indication'] for ind in self._payload['indications'] ]):
+			# already the same
+			return True
+
+		queries = [{
+			'cmd': 'DELETE FROM ref.lnk_indic2vaccine WHERE fk_vaccine = %(pk_vacc)s',
+			'args': {'pk_vacc': self._payload['pk_vaccine']}
+		}]
+		for pk_ind in set(pk_indications):		# remove dupes
+			queries.append ({
+				'cmd': 'INSERT INTO ref.lnk_indic2vaccine (fk_indication, fk_vaccine) VALUES (%(pk_ind)s, %(pk_vacc)s)',
+				'args': {'pk_ind': pk_ind, 'pk_vacc': self._payload['pk_vaccine']}
+			})
+		gmPG2.run_rw_queries(queries = queries)
+		self.refetch_payload()
+		return True
+
+#------------------------------------------------------------
+def create_vaccine_dummy_dose(link_obj=None) -> int:
+	# brands require a component, so:
+	SQL = """-- INSERT dummy vaccine substance
+	INSERT INTO ref.substance (description, atc)
+		SELECT %(subst)s, %(atc)s
+		WHERE NOT EXISTS (
+			SELECT 1 FROM ref.substance WHERE description = %(subst)s AND atc = %(atc)s
+		);
+	-- INSERT dummy vaccine dose
+	INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
+		SELECT
+			(SELECT pk FROM ref.substance WHERE description = %(subst)s AND atc = %(atc)s),
+			1, %(unit)s, %(dose_unit)s
+		WHERE NOT EXISTS (
+			SELECT 1 FROM ref.dose WHERE fk_substance = (
+				SELECT pk FROM ref.substance WHERE description = %(subst)s AND atc = %(atc)s
+			)
+		);
+	SELECT pk FROM ref.dose WHERE fk_substance = (
+		SELECT pk FROM ref.substance WHERE description = %(subst)s AND atc = %(atc)s
+	);
+	"""
+	args = {
+		'subst': 'vaccine',
+		'atc': 'J07',
+		'unit': 'dose',
+		'dose_unit': 'shot'
+	}
+	rows = gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}], link_obj = link_obj, return_data = True)
+	return rows[0]['pk']
+
+#------------------------------------------------------------
+def create_vaccine(pk_drug_product=None, product_name=None, is_live=None):
+	# force caller to make a decision, which is hoped
+	# to bubble up towards the end user ;-)
 	assert (is_live is not None), '<is_live> must not be <None>'
 
 	conn = gmPG2.get_connection(readonly = False)
-	if pk_drug_product is None:
-		#prep = _('vaccine')
-		prep = 'vaccine'
-		_log.debug('creating vaccine drug product [%s %s]', product_name, prep)
-		vacc_prod = gmMedication.create_drug_product (
-			product_name = product_name,
-			preparation = prep,
-			return_existing = True,
-			# indications are ref.dose rows
-			doses = indications,
-			link_obj = conn
-		)
-		#conn.commit()
-		vacc_prod['atc'] = 'J07'
-		vacc_prod.save(conn = conn)
-		pk_drug_product = vacc_prod['pk_drug_product']
-	cmd = 'INSERT INTO ref.vaccine (fk_drug_product, is_live) values (%(pk_drug_product)s, %(live)s) RETURNING pk'
-	queries = [{'cmd': cmd, 'args': {'pk_drug_product': pk_drug_product, 'live': is_live}}]
+	dose = create_vaccine_dummy_dose(link_obj = conn)
+	if not pk_drug_product:
+		if product_name:
+			_log.debug('creating vaccine drug product [%s]', product_name)
+			vacc_prod = gmMedication.create_drug_product (
+				product_name = product_name,
+				preparation = 'vaccine',
+				return_existing = True,
+				pk_doses = [dose],
+				link_obj = conn
+			)
+			pk_drug_product = vacc_prod['pk_drug_product']
+	if pk_drug_product:
+		SQL = 'INSERT INTO ref.vaccine (fk_drug_product, is_live) values (%(pk_drug_product)s, %(live)s) RETURNING pk'
+	else:
+		SQL = 'INSERT INTO ref.vaccine (is_live) values (%(live)s) RETURNING pk'
+	args = {
+		'pk_drug_product': pk_drug_product,
+		'live': is_live
+	}
+	queries = [{'cmd': SQL, 'args': args}]
 	rows = gmPG2.run_rw_queries(link_obj = conn, queries = queries, return_data = True, end_tx = True)
-	conn.close()
-	return cVaccine(aPK_obj = rows[0]['pk'])
+	return cVaccine(aPK_obj = rows[0]['pk'], link_obj = conn)
 
 #------------------------------------------------------------
-def delete_vaccine(vaccine=None):
-
-	cmd = 'DELETE FROM ref.vaccine WHERE pk = %(pk)s'
-	args = {'pk': vaccine}
-
+def delete_vaccine(pk_vaccine:int=None, also_delete_product:bool=False) -> bool:
+	args = {'pk_vacc': pk_vaccine, 'pk_drug': None}
+	if also_delete_product:
+		SQL = 'SELECT fk_drug_product FROM ref.vaccine WHERE pk = %(pk_vacc)s'
+		q = {'cmd': SQL, 'args': args}
+		rows = gmPG2.run_ro_queries(queries = [q])
+		if rows:
+			args['pk_drug'] = rows[0]['fk_drug_product']
+	queries = []
+	SQL = 'DELETE FROM ref.lnk_indic2vaccine WHERE fk_vaccine = %(pk_vacc)s'
+	queries.append({'cmd': SQL, 'args': args})
+	SQL = 'DELETE FROM ref.vaccine WHERE pk = %(pk_vacc)s'
+	queries.append({'cmd': SQL, 'args': args})
+	if args['pk_drug']:
+		SQL = 'DELETE FROM ref.lnk_dose2drug WHERE fk_drug_product = %(pk_drug)s'
+		queries.append({'cmd': SQL, 'args': args})
+		SQL = 'DELETE FROM ref.drug_product WHERE pk = %(pk_drug)s'
+		queries.append({'cmd': SQL, 'args': args})
 	try:
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = queries)
 	except gmPG2.dbapi.IntegrityError:
 		_log.exception('cannot delete vaccine [%s]', vaccine)
 		return False
@@ -540,6 +320,14 @@ def get_vaccines(order_by=None, return_pks=False):
 	if return_pks:
 		return [ r['pk_vaccine'] for r in rows ]
 	return [ cVaccine(row = {'data': r, 'pk_field': 'pk_vaccine'}) for r in rows ]
+
+#------------------------------------------------------------
+def get_vaccination_indications(order_by=None):
+	SQL = 'SELECT * from ref.vacc_indication'
+	if order_by:
+		SQL += ' ORDER BY %s' % order_by
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL}])
+	return rows
 
 #============================================================
 # vaccination related classes
@@ -723,8 +511,7 @@ def format_vaccinations_by_indication_for_failsafe_output(pk_patient:int, max_wi
 	return lines
 
 #------------------------------------------------------------
-def create_vaccination(encounter=None, episode=None, vaccine=None, batch_no=None):
-
+def create_vaccination(encounter:int=None, episode:int=None, pk_vaccine:int=None, batch_no:str=None):
 	cmd = """
 		INSERT INTO clin.vaccination (
 			fk_encounter,
@@ -734,14 +521,14 @@ def create_vaccination(encounter=None, episode=None, vaccine=None, batch_no=None
 		) VALUES (
 			%(enc)s,
 			%(epi)s,
-			%(vacc)s,
+			%(pk_vacc)s,
 			%(batch)s
 		) RETURNING pk;
 	"""
 	args = {
 		'enc': encounter,
 		'epi': episode,
-		'vacc': vaccine,
+		'pk_vacc': pk_vaccine,
 		'batch': batch_no
 	}
 	rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
@@ -755,7 +542,6 @@ def delete_vaccination(vaccination=None):
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 #------------------------------------------------------------
-
 def format_latest_vaccinations(output_format='latex', emr=None):
 
 	_log.debug('formatting latest vaccinations into [%s]', output_format)
@@ -770,22 +556,24 @@ def format_latest_vaccinations(output_format='latex', emr=None):
 	return msg
 
 #------------------------------------------------------------
-
 def __format_latest_vaccinations_latex(vaccinations=None):
 
-	if len(vaccinations) == 0:
-		return '\\noindent %s' % _('No vaccinations recorded.')
+	if not vaccinations:
+		return '\\noindent %s' % gmTools.tex_escape_string(_('No vaccinations recorded.'))
 
-	tex =  '\\noindent %s {\\tiny (%s)\\par}\n' % (_('Latest vaccinations'), _('per target condition'))
+	tex =  '\\noindent %s {\\tiny (%s)\\par}\n' % (
+		gmTools.tex_escape_string(_('Latest vaccinations')),
+		gmTools.tex_escape_string(_('per target condition'))
+	)
 	tex += '\n'
 	tex += '\\noindent \\begin{tabular}{|l|l|l|l|l|l|}\n'
 	tex += '\\hline\n'
 	tex += '%s & %s & {\\footnotesize %s} & {\\footnotesize %s} & {\\footnotesize %s\\footnotemark} & {\\footnotesize $\\Sigma$\\footnotemark}\\\\\n' % (
-		_('Target'),
-		_('Last given'),
-		_('Vaccine'),
-		_('Lot \#'),
-		_('SoaP')
+		gmTools.tex_escape_string(_('Target')),
+		gmTools.tex_escape_string(_('Last given')),
+		gmTools.tex_escape_string(_('Vaccine')),
+		gmTools.tex_escape_string(_('Lot #')),
+		gmTools.tex_escape_string(_('SoaP'))
 	)
 	tex += '\\hline\n'
 	tex += '\n'
@@ -795,32 +583,40 @@ def __format_latest_vaccinations_latex(vaccinations=None):
 	tex += '\\end{tabular}\n'
 	tex += '\n'
 	tex += '\\addtocounter{footnote}{-1}\n'
-	tex += '\\footnotetext{%s}\n' % _('SoaP -- "S"ubjective: vaccination was remembered by patient. "P"lan: vaccination was administered in the practice or copied from trustworthy records.')
+	tex += '\\footnotetext{%s}\n' % gmTools.tex_escape_string (
+		_('SoaP -- "S"ubjective: Reported. "P"lan: Administered here/taken from trustworthy records.')
+	)
 	tex += '\\addtocounter{footnote}{1}\n'
-	tex += '\\footnotetext{$\\Sigma$ -- %s}\n' % _('Total number of vaccinations recorded for the corresponding target condition.')
+	tex += '\\footnotetext{$\\Sigma$ -- %s}\n' % gmTools.tex_escape_string (
+		_('Total number of vaccinations recorded for the corresponding target condition.')
+	)
 	tex += '\n'
-
 	row_template = '%s & %s & {\\scriptsize %s} & {\\scriptsize %s} & {\\scriptsize %s} & {\\scriptsize %s}\\\\\n'
 	lines = ''
 	targets = sorted(vaccinations)
 	for target in targets:
 		target_count, vacc = vaccinations[target]
 		lines += row_template % (
-			target,
-			gmDateTime.pydt_strftime(vacc['date_given'], '%Y %b %d'),
-			vacc['vaccine'],
-			gmTools.tex_escape_string(vacc['batch_no'].strip()),
+			gmTools.tex_escape_string(target),
+			gmTools.tex_escape_string(gmDateTime.pydt_strftime(vacc['date_given'], '%Y %b %d')),
+			gmTools.tex_escape_string(gmTools.coalesce(vacc['vaccine'], _('generic'))),
+			gmTools.tex_escape_string(vacc['batch_no']),
 			vacc['soap_cat'].upper(),
 			target_count
 		)
-		if vacc['site'] is not None:
-			lines += ' & \\multicolumn{5}{l|}{\\scriptsize %s: %s\\par}\\\\\n' % (_('Injection site'), vacc['site'].strip())
-		if vacc['reaction'] is not None:
-			lines += ' & \\multicolumn{5}{l|}{\\scriptsize %s: %s\\par}\\\\\n' % (_('Reaction'), vacc['reaction'].strip())
-		if vacc['comment'] is not None:
-			lines += ' & \\multicolumn{5}{l|}{\\scriptsize %s: %s\\par}\\\\\n' % (_('Comment'), vacc['comment'].strip())
+		if vacc['site']:
+			tag = gmTools.tex_escape_string(_('Injection site'))
+			site = gmTools.tex_escape_string(vacc['site'])
+			lines += ' & \\multicolumn{5}{l|}{\\scriptsize %s: %s\\par}\\\\\n' % (tag, site)
+		if vacc['reaction']:
+			tag = gmTools.tex_escape_string(_('Reaction'))
+			reaction = gmTools.tex_escape_string(vacc['reaction'])
+			lines += ' & \\multicolumn{5}{l|}{\\scriptsize %s: %s\\par}\\\\\n' % (tag, reaction)
+		if vacc['comment']:
+			tag = gmTools.tex_escape_string(_('Comment'))
+			cmt = gmTools.tex_escape_string(vacc['comment'])
+			lines += ' & \\multicolumn{5}{l|}{\\scriptsize %s: %s\\par}\\\\\n' % (tag, cmt)
 		lines += '\\hline\n'
-
 	return tex % lines
 
 #============================================================
@@ -918,7 +714,6 @@ if __name__ == '__main__':
 	def test_get_vaccines():
 		for vaccine in get_vaccines():
 			print('--------------------------------')
-			#print u'%s' % vaccine
 			print('\n'.join(vaccine.format()))
 
 	#--------------------------------------------------------
@@ -926,23 +721,35 @@ if __name__ == '__main__':
 		#v1 = get_vaccinations(return_pks = True, order_by = 'date_given')
 		#print(v1)
 		for v in get_vaccinations(order_by = 'date_given, vaccine'):
-			print('\n'.join(v.format_for_failsafe_output()))
-
-	#--------------------------------------------------------
-	def test_create_generic_vaccine_sql():
-		print(create_generic_vaccine_sql('22.0'))
-
-	#--------------------------------------------------------
-	def test_write_generic_vaccine_sql(version, filename):
-		print(write_generic_vaccine_sql (
-			version,
-			include_indications_mapping = True,
-			filename = filename
-		))
+			print('\n'.join(v.format()))
+			#print('\n'.join(v.format_for_failsafe_output()))
 
 	#--------------------------------------------------------
 	def test_format_vaccs_failsafe():
 		print('\n'.join(format_vaccinations_by_indication_for_failsafe_output(pk_patient = 12)))
+
+	#--------------------------------------------------------
+	def test_create_vaccine_dummy_dose():
+		print(create_vaccine_dummy_dose())
+
+	#--------------------------------------------------------
+	def test_format_latest_vaccinations():
+		from Gnumed.business import gmPraxis
+		gmPraxis.activate_first_praxis_branch()
+		from Gnumed.business import gmClinicalRecord
+		emr = gmClinicalRecord.cClinicalRecord(12)
+		shots = emr.latest_vaccinations
+		#shots = get_vaccinations(pk_identity = 12, return_pks = False)
+		print(__format_latest_vaccinations_latex(vaccinations = shots))
+
+	#--------------------------------------------------------
+	def test_create_vaccination():
+		print(create_vaccination (
+			encounter = 1,
+			episode = 1,
+			pk_vaccine = 204,
+			batch_no = 'testing create_vaccination()'
+		))
 
 	#--------------------------------------------------------
 	gmPG2.request_login_params(setup_pool = True)
@@ -953,8 +760,9 @@ if __name__ == '__main__':
 	#test_due_vacc()
 	#test_due_booster()
 
-	test_get_vaccines()
+	#test_get_vaccines()
 	#test_get_vaccinations()
+	#test_format_latest_vaccinations()
 	#test_format_vaccs_failsafe()
-	#test_create_generic_vaccine_sql()
-	#test_write_generic_vaccine_sql(sys.argv[2], sys.argv[3])
+	#test_create_vaccine_dummy_dose()
+	test_create_vaccination()

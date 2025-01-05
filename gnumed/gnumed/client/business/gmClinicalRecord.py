@@ -803,10 +803,12 @@ class cClinicalRecord(object):
 				ind,
 				gmTools.u_sum,
 				ind_count,
-				#gmDateTime.pydt_strftime(vacc['date_given'], '%b %Y'),
 				since,
 				age_given,
-				vacc['vaccine'],
+				gmTools.coalesce (
+					vacc['vaccine'],
+					_('generic: %s') % '/'.join([ ind['l10n_indication'] for ind in vacc['indications'] ])
+				),
 				gmTools.u_left_double_angle_quote,
 				vacc['batch_no'],
 				gmTools.u_right_double_angle_quote
@@ -1353,50 +1355,50 @@ WHERE
 	#--------------------------------------------------------
 	# API: vaccinations
 	#--------------------------------------------------------
-	def add_vaccination(self, episode=None, vaccine=None, batch_no=None):
+	def add_vaccination(self, episode=None, pk_vaccine=None, batch_no=None):
 		return gmVaccination.create_vaccination (
 			encounter = self.current_encounter['pk_encounter'],
 			episode = episode,
-			vaccine = vaccine,
+			pk_vaccine = pk_vaccine,
 			batch_no = batch_no
 		)
 
 	#--------------------------------------------------------
-	def get_latest_vaccinations(self, episodes=None, issues=None, atc_indications=None):
-		"""Returns latest given vaccination for each vaccinated indication.
+	def get_latest_vaccinations(self, episodes:list=None, issues:list=None, atc_indications:list=None) -> dict:
+		"""Retrieve latest given vaccination for each vaccinated indication.
 
-		as a dict {'l10n_indication': cVaccination instance}
+		Note that this will produce duplicate vaccination
+		instances on combi-indication vaccines.
 
-		Note that this will produce duplicate vaccination instances on combi-indication vaccines !
+		Returns:
+			dict: {'l10n_indication': cVaccination instance}
 		"""
 		args = {'pat': self.pk_patient}
 		where_parts = ['c_v_shots.pk_patient = %(pat)s']
-		if (episodes is not None) and (len(episodes) > 0):
+		if episodes:
 			where_parts.append('c_v_shots.pk_episode = ANY(%(epis)s)')
 			args['epis'] = episodes
-		if (issues is not None) and (len(issues) > 0):
+		if issues:
 			where_parts.append('c_v_shots.pk_episode = ANY(SELECT pk FROM clin.episode WHERE fk_health_issue = ANY(%(issues)s))')
 			args['issues'] = issues
-		if (atc_indications is not None) and (len(atc_indications) > 0):
-			where_parts.append('c_v_plv4i.atc_indication = ANY(%(atc_inds)s)')
+		if atc_indications:
+			where_parts.append('c_v_lv4i.atc_indication = ANY(%(atc_inds)s)')
 			args['atc_inds'] = atc_indications
 		# find the shots
-		cmd = """
+		SQL = """
 			SELECT
 				c_v_shots.*,
-				c_v_plv4i.l10n_indication,
-				c_v_plv4i.no_of_shots
+				c_v_lv4i.l10n_indication,
+				c_v_lv4i.no_of_shots
 			FROM
 				clin.v_vaccinations c_v_shots
-					JOIN clin.v_pat_last_vacc4indication c_v_plv4i ON (c_v_shots.pk_vaccination = c_v_plv4i.pk_vaccination)
+					JOIN clin.v_last_vaccination4indication c_v_lv4i ON (c_v_shots.pk_vaccination = c_v_lv4i.pk_vaccination)
 			WHERE %s
 		""" % '\nAND '.join(where_parts)
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
-		# none found
-		if len(rows) == 0:
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+		if not rows:
 			return {}
 
-		# turn them into vaccinations
 		vaccs = {}
 		for shot_row in rows:
 			vaccs[shot_row['l10n_indication']] = (
@@ -1404,6 +1406,8 @@ WHERE
 				gmVaccination.cVaccination(row = {'data': shot_row, 'pk_field': 'pk_vaccination'})
 			)
 		return vaccs
+
+	latest_vaccinations = property(get_latest_vaccinations)
 
 	#--------------------------------------------------------
 	def get_vaccinations(self, order_by=None, episodes=None, issues=None, encounters=None):

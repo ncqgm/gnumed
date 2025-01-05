@@ -16,61 +16,51 @@ create view ref.v_vaccines as
 	select
 		r_v.pk
 			as pk_vaccine,
-
 		r_dp.description
 			as vaccine,
 		r_dp.preparation
 			as preparation,
 		_(r_dp.preparation)
 			as l10n_preparation,
-		r_dp.atc_code
-			as atc_code,
-		r_dp.is_fake
-			as is_fake_vaccine,
-
 		r_v.is_live,
 		r_v.min_age,
 		r_v.max_age,
 		r_v.comment,
+		r_v.atc
+			as atc_vaccine,
+		r_dp.atc_code
+			as atc_product,
+		r_dp.external_code,
+		r_dp.external_code_type,
 
 		ARRAY (
 			select row_to_json(indication_row) from (
 				select
-					_(r_s.atc || '-target', 'en')
+					r_vi.target
 						as indication,
-					case
-						when _(r_s.atc || '-target') = (r_s.atc || '-target') then _(r_s.atc || '-target', 'en')
-						else _(r_s.atc || '-target')
-					end
+					_(r_vi.target)
 						as l10n_indication,
-					r_s.atc
-						as atc_indication
+					r_vi.atc
+						as atc_indication,
+					r_vi.pk
+						as pk_indication
 				from
-					ref.lnk_dose2drug r_ld2d
-						inner join ref.dose r_d on (r_d.pk = r_ld2d.fk_dose)
-							inner join ref.substance r_s on (r_d.fk_substance = r_s.pk)
+					ref.lnk_indic2vaccine r_li2v
+						inner join ref.vacc_indication r_vi on (r_li2v.fk_indication = r_vi.pk)
 				where
-					r_ld2d.fk_drug_product = r_dp.pk
+					r_li2v.fk_vaccine = r_v.pk
 			) as indication_row
 		) as indications,
 
-		r_dp.external_code,
-		r_dp.external_code_type,
-
-		r_v.id_route
-			as pk_route,
-		r_v.fk_drug_product
+		r_dp.pk
 			as pk_drug_product,
-
 		r_dp.fk_data_source
 			as pk_data_source,
-
 		r_v.xmin
 			as xmin_vaccine
-
 	from
 		ref.vaccine r_v
-			join ref.drug_product r_dp on (r_v.fk_drug_product = r_dp.pk)
+			left join ref.drug_product r_dp on (r_v.fk_drug_product = r_dp.pk)
 ;
 
 comment on view ref.v_vaccines is

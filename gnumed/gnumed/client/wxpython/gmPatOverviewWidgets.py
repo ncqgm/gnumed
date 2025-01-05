@@ -707,7 +707,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			data[sort_key] = [label, proc]
 		del procs
 
-		vaccs = emr.get_latest_vaccinations()
+		vaccs = emr.latest_vaccinations
 		for ind, tmp in vaccs.items():
 			no_of_shots, vacc = tmp
 			sort_key = '%s::%s::%s' % (gmDateTime.pydt_strftime(vacc['date_given'], format = date_format4sorting), vacc['pk_vaccination'], ind)

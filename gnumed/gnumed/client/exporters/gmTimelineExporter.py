@@ -388,7 +388,7 @@ def __format_vaccination_as_timeline_xml(vacc):
 	return __xml_vaccination_template % (
 		format_pydt(vacc['date_given']),
 		format_pydt(vacc['date_given']),
-		gmTools.xml_escape_string(vacc['vaccine']),
+		gmTools.xml_escape_string(gmTools.coalesce(vacc['vaccine'], _('generic'))),
 		_('Vaccinations'),
 		gmTools.xml_escape_string('\n'.join(vacc.format (
 			with_indications = True,
