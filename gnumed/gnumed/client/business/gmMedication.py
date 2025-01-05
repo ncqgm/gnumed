@@ -247,7 +247,7 @@ URL_liver = 'https://www.ncbi.nlm.nih.gov/books/NBK547852/'
 #URL_liver__search_template = 'https://www.ncbi.nlm.nih.gov/books/n/livertox/%s/'
 URL_liver__search_template = 'https://duckduckgo.com?q=site:nih.gov+livertox+%s'
 
-def generate_liver_information_urls(search_term:str=None) -> list:
+def generate_liver_information_urls(search_term:str=None) -> list[str]:
 	if search_term is None:
 		return [URL_liver]
 
@@ -3012,7 +3012,7 @@ def substance_intake_exists(pk_identity:int=None, pk_substance:int=None, substan
 	assert not ((pk_substance is not None) and (substance is not None)), 'only one of <pk_substance> or <substance> may be given'
 
 	where_parts = []
-	args = {}
+	args:dict[str, int|str] = {}
 	if pk_identity:
 		args['pk_pat'] = pk_identity
 		where_parts.append('fk_encounter IN (SELECT pk FROM clin.encounter WHERE fk_patient = %(pk_pat)s)')
