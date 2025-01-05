@@ -73,7 +73,7 @@ from
 	clin.vaccination c_shot
 		join clin.encounter c_enc on (c_enc.pk = c_shot.fk_encounter)
 		join ref.vaccine r_v on (r_v.pk = c_shot.fk_vaccine)
-			join ref.drug_product r_dp on (r_v.fk_drug_product = r_dp.pk)
+			left join ref.drug_product r_dp on (r_v.fk_drug_product = r_dp.pk)
 
 ;
 

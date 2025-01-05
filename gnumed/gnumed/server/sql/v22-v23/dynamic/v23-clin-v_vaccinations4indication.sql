@@ -64,7 +64,7 @@ from
 		join ref.vaccine r_v on (r_v.pk = c_shot.fk_vaccine)
 			join ref.lnk_indic2vaccine r_li2v on (r_li2v.fk_vaccine = r_v.pk)
 				inner join ref.vacc_indication r_vi on (r_vi.pk = r_li2v.fk_indication)
-			join ref.drug_product r_dp on (r_dp.pk = r_v.fk_drug_product)
+			left join ref.drug_product r_dp on (r_dp.pk = r_v.fk_drug_product)
 ;
 
 comment on view clin.v_vaccinations4indication is
