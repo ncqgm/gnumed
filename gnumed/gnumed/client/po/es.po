@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-22 16:43+0200\n"
+"POT-Creation-Date: 2025-01-05 20:20+0100\n"
 "PO-Revision-Date: 2016-02-24 18:28+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -2495,6 +2495,10 @@ msgid "The selected value contains invalid characters and can't be saved"
 msgstr ""
 
 #, python-format
+msgid "binary data: %s%s (total: %s bytes)"
+msgstr ""
+
+#, python-format
 msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
 msgstr "[%s:%s]: fila no actualizada (nada devuelto), ¿ fila en uso ?"
 
@@ -2703,6 +2707,12 @@ msgstr "minutos"
 #, fuzzy
 msgid "0 seconds"
 msgstr "segundos"
+
+msgid "zero_duration_symbol::\\u2300"
+msgstr ""
+
+msgid "zero_duration_text::no duration"
+msgstr ""
 
 msgid "y::year_abbreviation"
 msgstr "a::year_abbreviation"
@@ -4867,13 +4877,14 @@ msgstr ""
 "Compruebe esto si - dentro de la clasificación del SOAP - usted quiere "
 "marcar la entrada como subjetiva más que procedimiento."
 
-msgid "Vaccine ..."
-msgstr "Vacuna ..."
+msgid "Vaccine"
+msgstr "Vacuna"
 
+#, fuzzy
 msgid ""
-"The vaccine used, if known.\n"
+"The vaccine given, if known.\n"
 "\n"
-"If unknown check off the indications which were vaccinated against."
+"If not, select a suitable generic vaccine entry."
 msgstr ""
 "La vacuna usada, si es conocida.\n"
 "\n"
@@ -4884,6 +4895,12 @@ msgstr " + "
 
 msgid "Add a vaccine to GNUmed."
 msgstr "Añadir una vacuna a GNUmed."
+
+#, fuzzy
+msgid ""
+"Target\n"
+"indications"
+msgstr "Indicaciones"
 
 msgid "Batch №"
 msgstr "Lote Nº"
@@ -4919,14 +4936,12 @@ msgstr "El proveedor que administró la vacuna, si se conoce."
 msgid "Reaction"
 msgstr "Reacción"
 
+#, fuzzy
+msgid "Report Adverse Drug Reaction."
+msgstr "Informe de una reacción adversa a un medicamento."
+
 msgid "Record any adverse reactions to this vaccine."
 msgstr "Registre cualquier reacción adversa a esta vacuna."
-
-msgid "ADR"
-msgstr "Efectos secundarios por drogas"
-
-msgid "Report this event as an adverse drug reaction."
-msgstr "Divulgue este acontecimiento como reacción adversa a la vacuna."
 
 msgid "Any comment you may wish to relate to this vaccination."
 msgstr "Cualquier comentario que quiera hacer en relación con esta vacunación."
@@ -6065,20 +6080,20 @@ msgstr "label_1"
 msgid "→"
 msgstr "→"
 
-msgid "←"
-msgstr "←"
-
-msgid "Extra"
-msgstr "Extra"
-
 msgid "Move selected items from left to right."
 msgstr "Desplaza los elementos seleccionados de izquierda a derecha."
+
+msgid "←"
+msgstr "←"
 
 msgid "Move selected items from right to left."
 msgstr "Desplaza los elementos seleccionados de derecha a izquierda."
 
 msgid "Cancel picking items."
 msgstr "Cancele elección de ítems."
+
+msgid "Extra"
+msgstr "Extra"
 
 msgid ""
 "Select the items you want to work on.\n"
@@ -6281,30 +6296,25 @@ msgstr "Agrega el ítem cargable seleccionado al paciente."
 msgid "Remove selected LOINC from test panel."
 msgstr "Remover el paciente seleccionado de la lista de espera."
 
-msgid "Fake"
-msgstr "Falso"
-
 msgid "Live"
 msgstr "Vivo"
-
-#, fuzzy
-msgid "Whether this is an actual product or a generic, fake vaccine."
-msgstr "Acaso es una marca real o una vacuna genérica, falsa."
-
-msgid ""
-"The route by which this vaccine is to be administered.\n"
-"\n"
-"Typically one of i.m., s.c., or orally."
-msgstr ""
-"La ruta a través de la cual la vacuna es administrada.\n"
-"\n"
-"Típicamente i.m., s.c. u oral."
 
 msgid "Check if this is a live attenuated vaccine."
 msgstr "Marcar si es una vacuna viva atenuada."
 
+msgid ""
+"Pick\n"
+"&targets"
+msgstr ""
+
+msgid "ATC"
+msgstr "ATQ"
+
 msgid "The ATC for this vaccine."
 msgstr "Clasificación ATQ (Anatómica, Terapéutica, Química) para esta vacuna."
+
+msgid "Age range"
+msgstr "Rango de edad"
 
 msgid "The minimum age at which this vaccine should be given."
 msgstr "Edad mínima a la que se puede proporcionar esta vacuna."
@@ -6314,22 +6324,6 @@ msgstr "Edad máxima a la que se puede proporcionar esta vacuna."
 
 msgid "Any comment you may wish to relate to this vaccine."
 msgstr "Cualquier comentario que quiera hacer acerca de esta vacuna."
-
-msgid "Route"
-msgstr "Ruta"
-
-msgid ""
-"Protects\n"
-"from"
-msgstr ""
-"Protege\n"
-"contra"
-
-msgid "ATC"
-msgstr "ATQ"
-
-msgid "Age range"
-msgstr "Rango de edad"
 
 msgid "&Nicotine"
 msgstr "&Nicotina"
@@ -9383,15 +9377,7 @@ msgid "today%s (%s)"
 msgstr "hoy (%s)"
 
 #, fuzzy, python-format
-msgid "%s%s (%s+%s)"
-msgstr "%s%7s (%s):%s (%s)"
-
-#, fuzzy, python-format
 msgid "%s%s%s (in %s%s)"
-msgstr "%s%s%s (%s atrás, %s)"
-
-#, fuzzy, python-format
-msgid "%s%s (%s-%s,%s)"
 msgstr "%s%s%s (%s atrás, %s)"
 
 #, fuzzy, python-format
@@ -9642,6 +9628,18 @@ msgstr "Reviso datos del paciente"
 msgid "GNUmed patient data excerpt"
 msgstr "Exportación de datos del paciente"
 
+msgid ""
+"In order to decrypt the paperwork passphrase you will need\n"
+"access to the secret GPG key or the master passphrase,\n"
+"depending on the encryption method used.\n"
+"\n"
+"Note that GNUmed does not itself store the master\n"
+"passphrase in any way, shape, or form.\n"
+msgstr ""
+
+msgid "Encrypted paperwork passphrase:\n"
+msgstr ""
+
 #, python-format
 msgid "error with placeholder [%s]"
 msgstr "error con marcador de posición [%s]"
@@ -9880,6 +9878,10 @@ msgstr "Vacunaciones"
 msgid "%s ago"
 msgstr "%s atrás"
 
+#, fuzzy, python-format
+msgid "generic: %s"
+msgstr "genérico %s"
+
 msgid "External care"
 msgstr "Cuidado externo"
 
@@ -9916,6 +9918,10 @@ msgstr "y vuelva a correr la búsqueda."
 
 msgid "The query failed."
 msgstr "La busqueda falló."
+
+#, fuzzy
+msgid "No results."
+msgstr "Encontrados %s resultados."
 
 #, python-format
 msgid ""
@@ -10644,6 +10650,10 @@ msgstr " Problema de salud: %s\n"
 msgid " External reference: %s\n"
 msgstr " Referencia externa: %s\n"
 
+#, fuzzy, python-format
+msgid "From: %s @ %s"
+msgstr "desde: %s %s (%s)"
+
 msgid "Cannot run [arriba] !"
 msgstr "No se puede ejecutar [arriba] !"
 
@@ -10848,49 +10858,24 @@ msgstr "copia de prescripción impresa"
 msgid "prescription data"
 msgstr "datos de prescripción"
 
+msgid " (live)"
+msgstr ""
+
 #, fuzzy, python-format
-msgid "%s with %s %s     #%s"
+msgid "\"%s\" [#%s]%s -- #%s"
 msgstr "%s %s %s%s"
 
-#, fuzzy
-msgid "Live vaccine"
-msgstr "La vacuna"
+#, fuzzy, python-format
+msgid "Generic vaccine%s [#%s]%s"
+msgstr "vacuna"
 
 #, fuzzy
-msgid "Inactive vaccine"
-msgstr "La vacuna"
-
-#, fuzzy
-msgid "indication"
-msgstr "Indicación"
-
-#, fuzzy
-msgid "indications"
-msgstr "Indicaciones"
-
-#, fuzzy
-msgid "indication(s)"
-msgstr "Indicaciones"
+msgid " Targets:"
+msgstr "Objetivo"
 
 #, fuzzy, python-format
-msgid " Product: \"%s\"     #%s"
-msgstr " Marca comercial: %%s [#%s]\n"
-
-#, fuzzy, python-format
-msgid "  %s%s%s%s"
-msgstr "%s %s %s%s"
-
-#, fuzzy
-msgid "fake product"
-msgstr "Marca falsa"
-
-#, fuzzy, python-format
-msgid " Age %s - %s"
+msgid " Age range: %s - %s"
 msgstr "en %s"
-
-#, fuzzy
-msgid " Indications"
-msgstr "Indicaciones"
 
 #, fuzzy, python-format
 msgid "Indications: %s"
@@ -10917,19 +10902,17 @@ msgstr "condición por objetivo"
 msgid "Last given"
 msgstr "Último dado"
 
-msgid "Vaccine"
-msgstr "Vacuna"
-
-msgid "Lot \\#"
+#, fuzzy
+msgid "Lot #"
 msgstr "Lote \\#"
 
 msgid "SoaP"
 msgstr "SoaP"
 
+#, fuzzy
 msgid ""
-"SoaP -- \"S\"ubjective: vaccination was remembered by patient. \"P\"lan: "
-"vaccination was administered in the practice or copied from trustworthy "
-"records."
+"SoaP -- \"S\"ubjective: Reported. \"P\"lan: Administered here/taken from "
+"trustworthy records."
 msgstr ""
 "SoaP -- \"S\"ubjetivo: vacunación fues recordada por el patcente. \"P\"lan: "
 "vacunación fue adminiserada en la consulta o copiada desde fuentes "
@@ -10940,6 +10923,9 @@ msgid ""
 msgstr ""
 "Número total de vacunaciones registradas para la condición correspondiente "
 "al objetivo."
+
+msgid "generic"
+msgstr "genérico"
 
 msgid "Injection site"
 msgstr "Sitio de la inyección"
@@ -10961,365 +10947,6 @@ msgstr " (de su consulta)"
 #, python-format
 msgid "Organization: %s (%s)"
 msgstr "Organización: %s (%s)"
-
-msgid "J07AC01-target::anthrax"
-msgstr "J07AC01-target::ántrax"
-
-msgid "J07AD01-target::brucellosis"
-msgstr "J07AD01-target::brucelosis"
-
-msgid "J07AE0-target::cholera"
-msgstr "J07AE0-target::cólera"
-
-msgid "J07AF01-target::diphtheria"
-msgstr "J07AF01-target::difteria"
-
-msgid "J07AG01-target::HiB"
-msgstr "J07AG01-target::HiB"
-
-msgid "J07AH01-target::meningococcus A"
-msgstr "J07AH01-target::meningococo A"
-
-msgid "J07AH06-target::meningococcus B"
-msgstr "J07AH06-target::meningococo B"
-
-msgid "J07AH07-target::meningococcus C"
-msgstr "J07AH07-target::meningococo C"
-
-msgid "J07AH0Y-target::meningococcus Y"
-msgstr "J07AH0Y-target::meningococo Y"
-
-msgid "J07AH0W-target::meningococcus W"
-msgstr "J07AH0W-target::meningococo W"
-
-msgid "J07AJ0-target::pertussis"
-msgstr "J07AJ0-target::entropión"
-
-msgid "J07AK01-target::plague"
-msgstr "J07AK01-target::peste"
-
-msgid "J07AL0-target::pneumococcus"
-msgstr "J07AL0-target::neumococo"
-
-msgid "J07AM01-target::tetanus"
-msgstr "J07AM01-target::tétano"
-
-msgid "J07AN01-target::tbc"
-msgstr "J07AN01-target::tbc"
-
-msgid "J07AP0-target::typhoid"
-msgstr "J07AP0-target::tifoidea"
-
-msgid "J07AP1-target::typhoid, paratyphus"
-msgstr "J07AP1-target::tifoidea, paratifus"
-
-msgid "J07AR01-target::typhus exanthematicus"
-msgstr "J07AR01-target::tifus exantemático"
-
-msgid "J07AXQF-target::Q fever"
-msgstr "J07AXQF-target::fiebre Q"
-
-#, fuzzy
-msgid "J07BX03-target::CoViD-2019"
-msgstr "J07BM03-target::VPH"
-
-msgid "J07BA01-target::tick-borne encephalitis"
-msgstr "J07BA01-target::encefalitis por garrapatas"
-
-msgid "J07BA0J-target::japanese encephalitis"
-msgstr "J07BA0J-target::encefalitis japonesa"
-
-msgid "J07BB0-target::influenza"
-msgstr "J07BB0-target::influenza"
-
-msgid "J07BC01-target::hepatitis B"
-msgstr "J07BC01-target::hepatitis B"
-
-msgid "J07BC0-target::hepatitis A"
-msgstr "J07BC0-target::hepatitis A"
-
-msgid "J07BD01-target::measles"
-msgstr "J07BD01-target::sarampión"
-
-msgid "J07BE01-target::mumps"
-msgstr "J07BE01-target::paperas"
-
-msgid "J07BF0-target::poliomyelitis"
-msgstr "J07BF0-target::poliomielitis"
-
-msgid "J07BG01-target::rabies"
-msgstr "J07BG01-target::rabia"
-
-msgid "J07BH0-target::rotavirus diarrhea"
-msgstr "J07BH0-target::diarrea por rotavirus"
-
-msgid "J07BJ01-target::rubella"
-msgstr "J07BJ01-target::rubéola"
-
-msgid "J07BK0-target::varicella (chickenpox)"
-msgstr "J07BK0-target::varicela"
-
-msgid "J07BK0-target::zoster (shingles)"
-msgstr "J07BK0-target::zóster (herpes)"
-
-msgid "J07BL01-target::yellow fever"
-msgstr "J07BL01-target::fiebre amarilla"
-
-msgid "J07BM0-target::HPV"
-msgstr "J07BM0-target::VPH"
-
-msgid "J07BM01-target::HPV"
-msgstr "J07BM01-target::VPH"
-
-msgid "J07BM02-target::HPV"
-msgstr "J07BM02-target::VPH"
-
-msgid "J07BM03-target::HPV"
-msgstr "J07BM03-target::VPH"
-
-msgid "J07BX01-target::variola (smallpox)"
-msgstr "J07BX01-target::viruela"
-
-#, fuzzy
-msgid "generic anthrax vaccine"
-msgstr "Guardando vacuna"
-
-#, fuzzy
-msgid "generic brucellosis vaccine"
-msgstr "La vacuna"
-
-#, fuzzy
-msgid "generic cholera vaccine"
-msgstr "La vacuna"
-
-#, fuzzy
-msgid "generic cholera vaccine, live"
-msgstr "Ingrese vacuna proporcionada"
-
-#, fuzzy
-msgid "generic diphtheria vaccine"
-msgstr "Edita vacuna"
-
-#, fuzzy
-msgid "generic HiB vaccine"
-msgstr "La vacuna"
-
-#, fuzzy
-msgid "generic meningococcus A vaccine"
-msgstr "Borrando vacuna"
-
-#, fuzzy
-msgid "generic meningococcus B vaccine"
-msgstr "Borrando vacuna"
-
-#, fuzzy
-msgid "generic meningococcus C vaccine"
-msgstr "Borrando vacuna"
-
-#, fuzzy
-msgid "generic pertussis vaccine"
-msgstr "esta es una vacuna"
-
-#, fuzzy
-msgid "generic plague vaccine"
-msgstr "Guardando vacuna"
-
-#, fuzzy
-msgid "generic pneumococcus vaccine"
-msgstr "Borrando vacuna"
-
-#, fuzzy
-msgid "generic tetanus vaccine"
-msgstr "Borrando vacuna"
-
-#, fuzzy
-msgid "generic Tbc vaccine"
-msgstr "La vacuna"
-
-#, fuzzy
-msgid "generic typhoid vaccine"
-msgstr "La vacuna"
-
-#, fuzzy
-msgid "generic typhoid vaccine, live"
-msgstr "La vacuna"
-
-#, fuzzy
-msgid "generic typhoid/paratyphus vaccine"
-msgstr "La vacuna"
-
-#, fuzzy
-msgid "generic typhus exanthematicus vaccine"
-msgstr "esta es una vacuna"
-
-#, fuzzy
-msgid "generic Q fever vaccine"
-msgstr "Borrando vacuna"
-
-#, fuzzy
-msgid "generic tick-borne encephalitis vaccine"
-msgstr "Recree vacunas genéricas falsas."
-
-#, fuzzy
-msgid "generic CoViD-2019 vaccine"
-msgstr "La vacuna"
-
-#, fuzzy
-msgid "generic japanese encephalitis vaccine"
-msgstr "Recree vacunas genéricas falsas."
-
-msgid "generic japanese encephalitis vaccine, live"
-msgstr "vacuna genércia viva atenuada contra la encefalitis japonesa"
-
-#, fuzzy
-msgid "generic influenza vaccine"
-msgstr "Borrando vacuna"
-
-#, fuzzy
-msgid "generic influenza vaccine, live"
-msgstr "Borrando vacuna"
-
-#, fuzzy
-msgid "generic hepatitis A vaccine"
-msgstr "esta es una vacuna"
-
-#, fuzzy
-msgid "generic hepatitis B vaccine"
-msgstr "esta es una vacuna"
-
-#, fuzzy
-msgid "generic measles vaccine, live"
-msgstr "Ingrese vacuna proporcionada"
-
-#, fuzzy
-msgid "generic mumps vaccine, live"
-msgstr "Ingrese vacuna proporcionada"
-
-#, fuzzy
-msgid "generic poliomyelitis vaccine"
-msgstr "Borrando vacuna"
-
-#, fuzzy
-msgid "generic poliomyelitis vaccine, live"
-msgstr "Borrando vacuna"
-
-#, fuzzy
-msgid "generic rabies vaccine"
-msgstr "La vacuna"
-
-#, fuzzy
-msgid "generic rotavirus vaccine, live"
-msgstr "Ingrese vacuna proporcionada"
-
-#, fuzzy
-msgid "generic rubella vaccine, live"
-msgstr "Ingrese vacuna proporcionada"
-
-#, fuzzy
-msgid "generic varicella vaccine, live"
-msgstr "Ingrese vacuna proporcionada"
-
-#, fuzzy
-msgid "generic zoster vaccine, live"
-msgstr "Ingrese vacuna proporcionada"
-
-#, fuzzy
-msgid "generic yellow fever vaccine"
-msgstr "Borrando vacuna"
-
-#, fuzzy
-msgid "generic HPV vaccine"
-msgstr "vacuna"
-
-#, fuzzy
-msgid "generic variola vaccine, live"
-msgstr "Ingrese vacuna proporcionada"
-
-#, fuzzy
-msgid "generic meningococcus AC vaccine"
-msgstr "Borrando vacuna"
-
-#, fuzzy
-msgid "generic meningococcus ACYW135 vaccine"
-msgstr "Borrando vacuna"
-
-msgid "generic measles-mumps vaccine, live"
-msgstr "vacuna genérica viva atenuada contra sarampión-paperas"
-
-#, fuzzy
-msgid "generic MMR vaccine, live"
-msgstr "Ingrese vacuna proporcionada"
-
-#, fuzzy
-msgid "generic MMRV vaccine, live"
-msgstr "Ingrese vacuna proporcionada"
-
-msgid "generic measles-rubella vaccine, live"
-msgstr "vacuna genérica viva atenuada contra sarampión-rubéola"
-
-#, fuzzy
-msgid "generic mumps-rubella vaccine, live"
-msgstr "La vacuna"
-
-#, fuzzy
-msgid "generic cholera-typhoid vaccine"
-msgstr "Borrando vacuna"
-
-#, fuzzy
-msgid "generic typhoid-hepA vaccine"
-msgstr "La vacuna"
-
-#, fuzzy
-msgid "generic Td vaccine"
-msgstr "vacuna"
-
-#, fuzzy
-msgid "generic TdPol vaccine"
-msgstr "La vacuna"
-
-#, fuzzy
-msgid "generic DTPol vaccine"
-msgstr "La vacuna"
-
-#, fuzzy
-msgid "generic Td-HepB vaccine"
-msgstr "La vacuna"
-
-#, fuzzy
-msgid "generic Td-rubella vaccine"
-msgstr "La vacuna"
-
-#, fuzzy
-msgid "generic TdaPPol vaccine"
-msgstr "La vacuna"
-
-#, fuzzy
-msgid "generic TdaP-HepB vaccine"
-msgstr "La vacuna"
-
-#, fuzzy
-msgid "generic TdaP vaccine"
-msgstr "La vacuna"
-
-#, fuzzy
-msgid "generic DTaPPol-Hib vaccine"
-msgstr "La vacuna"
-
-#, fuzzy
-msgid "generic TdaP-Hib-HepB vaccine"
-msgstr "La vacuna"
-
-#, fuzzy
-msgid "generic TdaPPol-HepB vaccine"
-msgstr "La vacuna"
-
-#, fuzzy
-msgid "generic TdaPPol-HiB-HepB vaccine"
-msgstr "La vacuna"
-
-#, fuzzy
-msgid "generic TdaPPol-HiB-HepB-MenAC vaccine"
-msgstr "La vacuna"
 
 msgid "A: Sign"
 msgstr "A:Signo"
@@ -12729,8 +12356,46 @@ msgstr "Agrego nueva vacuna"
 msgid "Editing vaccine"
 msgstr "Edita vacuna"
 
-msgid "fake"
-msgstr "falso"
+#, fuzzy
+msgid "Removing vaccine"
+msgstr "Guardando vacuna"
+
+#, fuzzy, python-format
+msgid ""
+"Cannot remove vaccine\n"
+"\n"
+" %s [#%s]\n"
+"\n"
+"It is in use documenting a vaccination."
+msgstr ""
+"No puedo borrar vacuna\n"
+"\n"
+" %s - %s (#%s)\n"
+"\n"
+"Probablemente documentada en una vacunación."
+
+#, fuzzy
+msgid "generic vaccine"
+msgstr "vacuna"
+
+#, fuzzy, python-format
+msgid ""
+"Also delete the drug product\n"
+"\n"
+" \"%s\"\n"
+"\n"
+"associated with this vaccine ?"
+msgstr "No puedo borrar tipo de medición [%s (%s)] porque está en uso."
+
+#, fuzzy, python-format
+msgid ""
+"Cannot remove vaccine and/or drug product\n"
+"\n"
+" %s [#%s]"
+msgstr ""
+"No puedo cargar paciente desde archivo BDT\n"
+"\n"
+" [%s]"
 
 #, fuzzy
 msgid "Showing vaccine details"
@@ -12747,32 +12412,51 @@ msgstr "Edito marca de medicamento"
 msgid "Enter or select the batch/lot number of the vaccine used."
 msgstr "Ingrese o seleccione el número de  lote de las vacunas usadas."
 
-msgid "Saving vaccine"
-msgstr "Guardando vacuna"
+#, fuzzy
+msgid "ERROR: No indications for new vaccine."
+msgstr "Administra las indicaciones para esta vacuna."
+
+msgid "Product not a vaccine (ATC does not start with J07) !"
+msgstr ""
+
+#, fuzzy
+msgid "generic/unknown"
+msgstr "desconocido/a"
+
+#, fuzzy
+msgid "new vaccine"
+msgstr "La vacuna"
+
+#, fuzzy
+msgid "Pick target indications."
+msgstr "condición por objetivo"
+
+msgid "Known indications"
+msgstr "Indicaciones conocidas"
 
 #, fuzzy, python-format
+msgid "Targets of %s"
+msgstr "Objetivo: %s"
+
 msgid ""
-"This vaccine is already in use:\n"
+"Are you positively sure you want to *change*\n"
+"the target indications for this vaccine ?\n"
 "\n"
-" \"%s\"\n"
-"\n"
-"Are you absolutely positively sure that\n"
-"you really want to edit this vaccine ?\n"
-"\n"
-"This will change the vaccine name and/or target\n"
-"conditions in each patient this vaccine was\n"
-"used in to document a vaccination with.\n"
+"Doing so will modify the documented vaccination\n"
+"status of ALL patients having received this vaccine.\n"
 msgstr ""
-"Esta vacuna está en uso:\n"
-"\n"
-" \"%s\"\n"
-" \"%s\"\n"
-"\n"
-"¿Está totalmente seguro que realmente desea editar esta vacuna?\n"
-"\n"
-"Esto cambiará el nombre de la vacuna y/o la condición\n"
-"objetiva de cada paciente en que esta vacuna fue usada\n"
-"para documentar una vacunación.\n"
+
+#, fuzzy
+msgid "Modifying vaccine."
+msgstr "Edita vacuna"
+
+#, fuzzy
+msgid "Vaccine indications updated."
+msgstr "Vacunaciones:"
+
+#, fuzzy
+msgid "ERROR: Cannot update vaccine in database."
+msgstr "No puedo mover parte del documento."
 
 msgid ""
 "GNUmed will use this URL to access a website which lets\n"
@@ -12804,6 +12488,10 @@ msgstr ""
 
 #, fuzzy, python-format
 msgid "Vaccination history -- %s"
+msgstr "mantengo historial de vacunaciones"
+
+#, fuzzy
+msgid "Printing vaccination history"
 msgstr "mantengo historial de vacunaciones"
 
 msgid "Pretty vaccination history form failed. Generating failsafe version."
@@ -12890,11 +12578,6 @@ msgstr "%s Vac: %s (última de %s)"
 #, fuzzy, python-format
 msgid "%s  (no previous vaccination recorded)"
 msgstr "no hay versiones previas de este registro"
-
-msgid ""
-"Protects against:\n"
-" "
-msgstr ""
 
 msgid "prevention"
 msgstr "prevención"
@@ -13916,9 +13599,9 @@ msgid "The substance the patient is taking."
 msgstr "El componente activo, opcional con concentración."
 
 msgid ""
-"The substance the patient is taking\n"
+"The substance the patient is taking.\n"
 "\n"
-".You can enter/select a substance with or without a strength."
+"You can enter/select a substance with or without a strength."
 msgstr ""
 
 #, fuzzy
@@ -16234,66 +15917,56 @@ msgid "Find next [%s] (<CTRL-N>)"
 msgstr "Encuentra siguiente [%s] (<CTRL-N>)"
 
 #, fuzzy
-msgid "&All rows"
-msgstr "&Todos los usuarios"
+msgid "as &text"
+msgstr "texto"
 
-msgid "All rows as &CSV"
+#, fuzzy
+msgid "as &CSV"
 msgstr "Todas las filas como &CSV"
 
 #, fuzzy
-msgid "&Tooltips of all rows"
-msgstr "Herramientas de ayuda sobre filas seleccionadas"
-
-msgid "&Data of all rows"
-msgstr "&Datos de todas las filas"
+msgid "as t&ooltips"
+msgstr "Fila de herramienta de ayuda"
 
 #, fuzzy
-msgid "&Selected rows"
+msgid "as &data"
+msgstr "datos"
+
+#, fuzzy
+msgid "&all rows ..."
+msgstr "&Todos los usuarios"
+
+#, fuzzy
+msgid "&selected row(s) ..."
 msgstr "&Seleccionar"
 
-msgid "&Selected rows as CSV"
-msgstr "&Filas seleccionadas como CSV"
+msgid "as &one-liner"
+msgstr ""
+
+msgid "as &multi-liner (per field)"
+msgstr ""
 
 #, fuzzy
-msgid "&Tooltips of selected rows"
-msgstr "Herramientas de ayuda sobre filas seleccionadas"
+msgid "as &tooltip"
+msgstr "Fila de herramienta de ayuda"
+
+msgid "as &data (text)"
+msgstr ""
 
 #, fuzzy
-msgid "&Data of selected rows"
-msgstr "Herramientas de ayuda sobre filas seleccionadas"
+msgid "from &field"
+msgstr "Importo desde un archivo"
 
-msgid "Tooltips of selected rows"
-msgstr "Herramientas de ayuda sobre filas seleccionadas"
-
-#, fuzzy
-msgid "Data (formatted as text) of selected rows"
-msgstr "Datos de fila (en una linea)"
-
-msgid "Content (as one line each) of selected rows"
-msgstr "Contenido (individual por linea) de las filas seleccionadas"
-
-msgid "Tooltip of current row"
-msgstr "Herrmienta de ayuda de la fila actual"
+msgid "as &one-liner(s)"
+msgstr ""
 
 #, fuzzy
-msgid "Data (formatted as text) of current row"
-msgstr "Datos de fila (en una linea)"
+msgid "as &tooltip(s)"
+msgstr "Fila de herramienta de ayuda"
 
 #, fuzzy
-msgid "Content (as one line) of current row"
-msgstr "Contenido de fila (como una linea)"
-
-#, fuzzy
-msgid "Content (one line per column) of current row"
-msgstr "Contenido de linea (una linea por columna )"
-
-#, fuzzy, python-format
-msgid "Column &%s (current row): \"%s\" [#%s]"
-msgstr "Columna &%s: \"%s\" [#%s]"
-
-#, fuzzy, python-format
-msgid "Column &%s (current row): %s"
-msgstr "Columna &%s: %s"
+msgid "&activated row ..."
+msgstr "Desactive registro"
 
 #, fuzzy
 msgid "Screen&shot ..."
@@ -16307,9 +15980,6 @@ msgstr "Guardar Como ..."
 msgid "Copy to &clipboard..."
 msgstr "Copio al portapapeles"
 
-msgid "Append (&+) to clipboard..."
-msgstr "Agregue (&+) al portapapeles ..."
-
 #, python-format
 msgid ""
 "%s list items are selected.\n"
@@ -16319,9 +15989,6 @@ msgstr ""
 "%s iitems de lista están seleccionados.\n"
 "\n"
 "¿Realmente elimina todos los %s items ?"
-
-msgid "Enter the search term:"
-msgstr "Ingrese el término de búsqueda:"
 
 msgid "List search"
 msgstr "Búsqueda en la lista"
@@ -17233,6 +16900,17 @@ msgid "Imported files into export area."
 msgstr "Ubica la línea de tiempo en el área de exportación."
 
 #, fuzzy
+msgid "Show list of paperwork passphrases."
+msgstr "Muestro una lista de todos los marcadores de posición."
+
+#, fuzzy
+msgid "Paperwork passphrases"
+msgstr "Configurar contraseña"
+
+msgid "Hash"
+msgstr ""
+
+#, fuzzy
 msgid "Clearing out a directory"
 msgstr "Datos del paciente para"
 
@@ -17559,6 +17237,9 @@ msgstr "<gm-fax_doc(.bat) no encontrado>"
 msgid "Password not provided twice. Aborting."
 msgstr ""
 
+msgid "Master passphrase not provided twice. Aborting."
+msgstr ""
+
 #, fuzzy
 msgid "Error exporting entries."
 msgstr "Error al imprimir documentos."
@@ -17568,7 +17249,9 @@ msgid "Error creating zip file."
 msgstr "Error al generar PDF de factura"
 
 msgid ""
-"Enter passphrase to protect the data with.\n"
+"No public keys available for safekeeping of paperwork passphrases.\n"
+"\n"
+"Enter master passphrase for encryption thereof.\n"
 "\n"
 "(minimum length: 5, trailing blanks will be stripped)"
 msgstr ""
@@ -17581,9 +17264,32 @@ msgid ""
 "Enter another passphrase ?"
 msgstr ""
 
+msgid ""
+"Once more enter master passphrase for safekeeping of paperwork passphrases.\n"
+"\n"
+"(this will protect you from typos)\n"
+"\n"
+"Abort by leaving empty.\n"
+"\n"
+"Make sure to safely remember the master passphrase. It is NOT stored in "
+"GNUmed at all."
+msgstr ""
+
+msgid ""
+"Passphrases do not match.\n"
+"\n"
+"Retry, or abort with an empty passphrase."
+msgstr ""
+
+msgid ""
+"Enter passphrase to protect the object with.\n"
+"\n"
+"(minimum length: 5, trailing blanks will be stripped)"
+msgstr ""
+
 #, fuzzy
 msgid ""
-"Once more enter passphrase to protect the data with.\n"
+"Once more enter passphrase to protect the object with.\n"
 "\n"
 "(this will protect you from typos)\n"
 "\n"
@@ -17593,12 +17299,6 @@ msgstr ""
 "\n"
 "(Esto lo/a protegerá de errores tipográficos.)\n"
 "\t\t"
-
-msgid ""
-"Passphrases do not match.\n"
-"\n"
-"Retry, or abort with an empty passphrase."
-msgstr ""
 
 msgid "Export area empty. Nothing to do."
 msgstr ""
@@ -17625,6 +17325,10 @@ msgstr "Guardo documentos"
 #, fuzzy
 msgid "Select items for encryption."
 msgstr "Seleccione  el modo de prescripción por defecto.\n"
+
+#, fuzzy
+msgid "Encrypting items"
+msgstr "Cancele elección de ítems."
 
 #, fuzzy
 msgid "Select items for PDF."
@@ -17687,6 +17391,15 @@ msgid "Select a LOINC (Logical Observation Identifiers Names and Codes)."
 msgstr ""
 "Seleccione un LOINC (Nombres y Códigos de Identificadores Lógicos de "
 "Observación)"
+
+msgid ""
+"GNUmed generic document template\n"
+"\n"
+"Some context data has been added below for your copy/paste convenience.\n"
+"\n"
+"Before entering text you should switch the \"paragraph type\"\n"
+"from \"Pre-formatted Text\" to \"Standard\".\n"
+msgstr ""
 
 #, fuzzy, python-format
 msgid "Today: %s"
@@ -17853,6 +17566,10 @@ msgstr "Esta consulta"
 
 msgid "Bill receiver"
 msgstr "Selecciona receptor"
+
+#, fuzzy, python-format
+msgid "List of Documents -- %s"
+msgstr "Documentos: %s"
 
 msgid ""
 "Are you sure you want to delete this\n"
@@ -18247,6 +17964,18 @@ msgstr "Seleccione consulta correspondiente"
 msgid "Manage descriptions"
 msgstr "Administrar descripciones"
 
+#, fuzzy
+msgid "Archive Actions:"
+msgstr "Acciones sobre parte:"
+
+#, fuzzy
+msgid "Show as listing"
+msgstr "Falta un código."
+
+#, fuzzy
+msgid "Put listing into export area"
+msgstr "Ubica la línea de tiempo en el área de exportación."
+
 #, python-format
 msgid "part %2s"
 msgstr "parte %2s"
@@ -18375,6 +18104,10 @@ msgstr "Guardo parte de documento al directorio ..."
 #, fuzzy, python-format
 msgid "Successfully saved document part as [%s]."
 msgstr "Parte de documento exitosamente exportado como [%s]."
+
+#, fuzzy
+msgid "Patient documents list"
+msgstr "obteniendo lista de informes"
 
 #, python-format
 msgid ""
@@ -18556,10 +18289,6 @@ msgstr "SCAI: Orthanc \"%s\" (AET \"%s\", Versión %s, DB v%s)"
 
 msgid "Known PACS IDs:"
 msgstr "IDs conocidas de SCAI:"
-
-#, fuzzy, python-format
-msgid "generic: %s"
-msgstr "genérico %s"
 
 #, fuzzy, python-format
 msgid "stored: \"%(value)s\" @ [%(issuer)s]"
@@ -19574,31 +19303,42 @@ msgid "&EMR"
 msgstr "&RME"
 
 #, fuzzy
-msgid "&Write letter (template)"
-msgstr "&Escriba carta"
+msgid "Document from &template"
+msgstr "Genero documento desde plantilla"
 
 #, fuzzy
-msgid "Write a template-based letter for the current patient."
-msgstr "Escribe una carta para el paciente activo."
+msgid "Create document/form for current patient from template."
+msgstr "Comienza una nueva cita activa para el paciente actual."
 
 #, fuzzy
-msgid "&Write letter (generic)"
-msgstr "&Escriba carta"
+msgid "&Generic document"
+msgstr "Borrando documento"
 
 #, fuzzy
-msgid "Write a generic letter for the current patient."
+msgid "Write free-form document for current patient."
 msgstr "Escribe una carta para el paciente activo."
 
 msgid "Screenshot -> export area"
 msgstr "Pantallazo -> área de exportación"
 
-msgid "Put a screenshot into the patient export area."
+#, fuzzy
+msgid "Put screenshot into patient export area."
 msgstr "Pongo un pantallazo en el área de exportación del paciente."
 
-msgid "List Placeholders"
+#, fuzzy
+msgid "List placeholders"
 msgstr "Listo  Marcador de Posición"
 
-msgid "Show a list of all placeholders."
+#, fuzzy
+msgid "Show list of all placeholders."
+msgstr "Muestro una lista de todos los marcadores de posición."
+
+#, fuzzy
+msgid "List passphrases"
+msgstr "Configurar contraseña"
+
+#, fuzzy
+msgid "Show list of paperwork passphrases"
 msgstr "Muestro una lista de todos los marcadores de posición."
 
 msgid "&Correspondence"
@@ -21618,6 +21358,9 @@ msgstr ""
 msgid "Showing ATC codes."
 msgstr "Mostrando códigos ATQ."
 
+msgid "Route"
+msgstr "Ruta"
+
 msgid "Choose an ATC import config file"
 msgstr "Elija un archivo de configuración para la importación de ATQ"
 
@@ -21862,6 +21605,9 @@ msgid ""
 "because it is in use."
 msgstr "No puedo borrar tipo de medición [%s (%s)] porque está en uso."
 
+msgid "fake"
+msgstr "falso"
+
 #, fuzzy
 msgid "Drug products currently known to GNUmed."
 msgstr ""
@@ -21960,11 +21706,11 @@ msgstr ""
 
 #, fuzzy
 msgid ""
-"The product name of the drug.\n"
+"Product name of the drug.\n"
 "\n"
 "Note: a product name will need to be linked to\n"
 "one or more components before it can be used,\n"
-"except in the case of fake (generic) vaccines."
+"except in the case of vaccines."
 msgstr ""
 "La marca comercial de esta droga.\n"
 "\n"
@@ -22148,9 +21894,6 @@ msgstr ""
 "Ha ocurrido un error al dividir el archivo HL7\n"
 "\n"
 "%s"
-
-msgid "generic"
-msgstr "genérico"
 
 #, python-format
 msgid ""
@@ -23948,6 +23691,522 @@ msgstr "Aborto"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Aborto y NO conecto a GNUMed."
 
+#~ msgid "Vaccine ..."
+#~ msgstr "Vacuna ..."
+
+#~ msgid "ADR"
+#~ msgstr "Efectos secundarios por drogas"
+
+#~ msgid "Report this event as an adverse drug reaction."
+#~ msgstr "Divulgue este acontecimiento como reacción adversa a la vacuna."
+
+#~ msgid "Fake"
+#~ msgstr "Falso"
+
+#, fuzzy
+#~ msgid "Whether this is an actual product or a generic, fake vaccine."
+#~ msgstr "Acaso es una marca real o una vacuna genérica, falsa."
+
+#~ msgid ""
+#~ "The route by which this vaccine is to be administered.\n"
+#~ "\n"
+#~ "Typically one of i.m., s.c., or orally."
+#~ msgstr ""
+#~ "La ruta a través de la cual la vacuna es administrada.\n"
+#~ "\n"
+#~ "Típicamente i.m., s.c. u oral."
+
+#~ msgid ""
+#~ "Protects\n"
+#~ "from"
+#~ msgstr ""
+#~ "Protege\n"
+#~ "contra"
+
+#, fuzzy, python-format
+#~ msgid "%s%s (%s+%s)"
+#~ msgstr "%s%7s (%s):%s (%s)"
+
+#, fuzzy, python-format
+#~ msgid "%s%s (%s-%s,%s)"
+#~ msgstr "%s%s%s (%s atrás, %s)"
+
+#, fuzzy
+#~ msgid "Inactive vaccine"
+#~ msgstr "La vacuna"
+
+#, fuzzy
+#~ msgid "indication"
+#~ msgstr "Indicación"
+
+#, fuzzy
+#~ msgid "indication(s)"
+#~ msgstr "Indicaciones"
+
+#, fuzzy, python-format
+#~ msgid " Product: \"%s\"     #%s"
+#~ msgstr " Marca comercial: %%s [#%s]\n"
+
+#, fuzzy, python-format
+#~ msgid "  %s%s%s%s"
+#~ msgstr "%s %s %s%s"
+
+#, fuzzy
+#~ msgid "fake product"
+#~ msgstr "Marca falsa"
+
+#, fuzzy
+#~ msgid " Indications"
+#~ msgstr "Indicaciones"
+
+#~ msgid "J07AC01-target::anthrax"
+#~ msgstr "J07AC01-target::ántrax"
+
+#~ msgid "J07AD01-target::brucellosis"
+#~ msgstr "J07AD01-target::brucelosis"
+
+#~ msgid "J07AE0-target::cholera"
+#~ msgstr "J07AE0-target::cólera"
+
+#~ msgid "J07AF01-target::diphtheria"
+#~ msgstr "J07AF01-target::difteria"
+
+#~ msgid "J07AG01-target::HiB"
+#~ msgstr "J07AG01-target::HiB"
+
+#~ msgid "J07AH01-target::meningococcus A"
+#~ msgstr "J07AH01-target::meningococo A"
+
+#~ msgid "J07AH06-target::meningococcus B"
+#~ msgstr "J07AH06-target::meningococo B"
+
+#~ msgid "J07AH07-target::meningococcus C"
+#~ msgstr "J07AH07-target::meningococo C"
+
+#~ msgid "J07AH0Y-target::meningococcus Y"
+#~ msgstr "J07AH0Y-target::meningococo Y"
+
+#~ msgid "J07AH0W-target::meningococcus W"
+#~ msgstr "J07AH0W-target::meningococo W"
+
+#~ msgid "J07AJ0-target::pertussis"
+#~ msgstr "J07AJ0-target::entropión"
+
+#~ msgid "J07AK01-target::plague"
+#~ msgstr "J07AK01-target::peste"
+
+#~ msgid "J07AL0-target::pneumococcus"
+#~ msgstr "J07AL0-target::neumococo"
+
+#~ msgid "J07AM01-target::tetanus"
+#~ msgstr "J07AM01-target::tétano"
+
+#~ msgid "J07AN01-target::tbc"
+#~ msgstr "J07AN01-target::tbc"
+
+#~ msgid "J07AP0-target::typhoid"
+#~ msgstr "J07AP0-target::tifoidea"
+
+#~ msgid "J07AP1-target::typhoid, paratyphus"
+#~ msgstr "J07AP1-target::tifoidea, paratifus"
+
+#~ msgid "J07AR01-target::typhus exanthematicus"
+#~ msgstr "J07AR01-target::tifus exantemático"
+
+#~ msgid "J07AXQF-target::Q fever"
+#~ msgstr "J07AXQF-target::fiebre Q"
+
+#, fuzzy
+#~ msgid "J07BX03-target::CoViD-2019"
+#~ msgstr "J07BM03-target::VPH"
+
+#~ msgid "J07BA01-target::tick-borne encephalitis"
+#~ msgstr "J07BA01-target::encefalitis por garrapatas"
+
+#~ msgid "J07BA0J-target::japanese encephalitis"
+#~ msgstr "J07BA0J-target::encefalitis japonesa"
+
+#~ msgid "J07BB0-target::influenza"
+#~ msgstr "J07BB0-target::influenza"
+
+#~ msgid "J07BC01-target::hepatitis B"
+#~ msgstr "J07BC01-target::hepatitis B"
+
+#~ msgid "J07BC0-target::hepatitis A"
+#~ msgstr "J07BC0-target::hepatitis A"
+
+#~ msgid "J07BD01-target::measles"
+#~ msgstr "J07BD01-target::sarampión"
+
+#~ msgid "J07BE01-target::mumps"
+#~ msgstr "J07BE01-target::paperas"
+
+#~ msgid "J07BF0-target::poliomyelitis"
+#~ msgstr "J07BF0-target::poliomielitis"
+
+#~ msgid "J07BG01-target::rabies"
+#~ msgstr "J07BG01-target::rabia"
+
+#~ msgid "J07BH0-target::rotavirus diarrhea"
+#~ msgstr "J07BH0-target::diarrea por rotavirus"
+
+#~ msgid "J07BJ01-target::rubella"
+#~ msgstr "J07BJ01-target::rubéola"
+
+#~ msgid "J07BK0-target::varicella (chickenpox)"
+#~ msgstr "J07BK0-target::varicela"
+
+#~ msgid "J07BK0-target::zoster (shingles)"
+#~ msgstr "J07BK0-target::zóster (herpes)"
+
+#~ msgid "J07BL01-target::yellow fever"
+#~ msgstr "J07BL01-target::fiebre amarilla"
+
+#~ msgid "J07BM0-target::HPV"
+#~ msgstr "J07BM0-target::VPH"
+
+#~ msgid "J07BM01-target::HPV"
+#~ msgstr "J07BM01-target::VPH"
+
+#~ msgid "J07BM02-target::HPV"
+#~ msgstr "J07BM02-target::VPH"
+
+#~ msgid "J07BM03-target::HPV"
+#~ msgstr "J07BM03-target::VPH"
+
+#~ msgid "J07BX01-target::variola (smallpox)"
+#~ msgstr "J07BX01-target::viruela"
+
+#, fuzzy
+#~ msgid "generic anthrax vaccine"
+#~ msgstr "Guardando vacuna"
+
+#, fuzzy
+#~ msgid "generic brucellosis vaccine"
+#~ msgstr "La vacuna"
+
+#, fuzzy
+#~ msgid "generic cholera vaccine"
+#~ msgstr "La vacuna"
+
+#, fuzzy
+#~ msgid "generic cholera vaccine, live"
+#~ msgstr "Ingrese vacuna proporcionada"
+
+#, fuzzy
+#~ msgid "generic diphtheria vaccine"
+#~ msgstr "Edita vacuna"
+
+#, fuzzy
+#~ msgid "generic HiB vaccine"
+#~ msgstr "La vacuna"
+
+#, fuzzy
+#~ msgid "generic meningococcus A vaccine"
+#~ msgstr "Borrando vacuna"
+
+#, fuzzy
+#~ msgid "generic meningococcus B vaccine"
+#~ msgstr "Borrando vacuna"
+
+#, fuzzy
+#~ msgid "generic meningococcus C vaccine"
+#~ msgstr "Borrando vacuna"
+
+#, fuzzy
+#~ msgid "generic pertussis vaccine"
+#~ msgstr "esta es una vacuna"
+
+#, fuzzy
+#~ msgid "generic plague vaccine"
+#~ msgstr "Guardando vacuna"
+
+#, fuzzy
+#~ msgid "generic pneumococcus vaccine"
+#~ msgstr "Borrando vacuna"
+
+#, fuzzy
+#~ msgid "generic tetanus vaccine"
+#~ msgstr "Borrando vacuna"
+
+#, fuzzy
+#~ msgid "generic Tbc vaccine"
+#~ msgstr "La vacuna"
+
+#, fuzzy
+#~ msgid "generic typhoid vaccine"
+#~ msgstr "La vacuna"
+
+#, fuzzy
+#~ msgid "generic typhoid vaccine, live"
+#~ msgstr "La vacuna"
+
+#, fuzzy
+#~ msgid "generic typhoid/paratyphus vaccine"
+#~ msgstr "La vacuna"
+
+#, fuzzy
+#~ msgid "generic typhus exanthematicus vaccine"
+#~ msgstr "esta es una vacuna"
+
+#, fuzzy
+#~ msgid "generic Q fever vaccine"
+#~ msgstr "Borrando vacuna"
+
+#, fuzzy
+#~ msgid "generic tick-borne encephalitis vaccine"
+#~ msgstr "Recree vacunas genéricas falsas."
+
+#, fuzzy
+#~ msgid "generic CoViD-2019 vaccine"
+#~ msgstr "La vacuna"
+
+#, fuzzy
+#~ msgid "generic japanese encephalitis vaccine"
+#~ msgstr "Recree vacunas genéricas falsas."
+
+#~ msgid "generic japanese encephalitis vaccine, live"
+#~ msgstr "vacuna genércia viva atenuada contra la encefalitis japonesa"
+
+#, fuzzy
+#~ msgid "generic influenza vaccine"
+#~ msgstr "Borrando vacuna"
+
+#, fuzzy
+#~ msgid "generic influenza vaccine, live"
+#~ msgstr "Borrando vacuna"
+
+#, fuzzy
+#~ msgid "generic hepatitis A vaccine"
+#~ msgstr "esta es una vacuna"
+
+#, fuzzy
+#~ msgid "generic hepatitis B vaccine"
+#~ msgstr "esta es una vacuna"
+
+#, fuzzy
+#~ msgid "generic measles vaccine, live"
+#~ msgstr "Ingrese vacuna proporcionada"
+
+#, fuzzy
+#~ msgid "generic mumps vaccine, live"
+#~ msgstr "Ingrese vacuna proporcionada"
+
+#, fuzzy
+#~ msgid "generic poliomyelitis vaccine"
+#~ msgstr "Borrando vacuna"
+
+#, fuzzy
+#~ msgid "generic poliomyelitis vaccine, live"
+#~ msgstr "Borrando vacuna"
+
+#, fuzzy
+#~ msgid "generic rabies vaccine"
+#~ msgstr "La vacuna"
+
+#, fuzzy
+#~ msgid "generic rotavirus vaccine, live"
+#~ msgstr "Ingrese vacuna proporcionada"
+
+#, fuzzy
+#~ msgid "generic rubella vaccine, live"
+#~ msgstr "Ingrese vacuna proporcionada"
+
+#, fuzzy
+#~ msgid "generic varicella vaccine, live"
+#~ msgstr "Ingrese vacuna proporcionada"
+
+#, fuzzy
+#~ msgid "generic zoster vaccine, live"
+#~ msgstr "Ingrese vacuna proporcionada"
+
+#, fuzzy
+#~ msgid "generic yellow fever vaccine"
+#~ msgstr "Borrando vacuna"
+
+#, fuzzy
+#~ msgid "generic HPV vaccine"
+#~ msgstr "vacuna"
+
+#, fuzzy
+#~ msgid "generic variola vaccine, live"
+#~ msgstr "Ingrese vacuna proporcionada"
+
+#, fuzzy
+#~ msgid "generic meningococcus AC vaccine"
+#~ msgstr "Borrando vacuna"
+
+#, fuzzy
+#~ msgid "generic meningococcus ACYW135 vaccine"
+#~ msgstr "Borrando vacuna"
+
+#~ msgid "generic measles-mumps vaccine, live"
+#~ msgstr "vacuna genérica viva atenuada contra sarampión-paperas"
+
+#, fuzzy
+#~ msgid "generic MMR vaccine, live"
+#~ msgstr "Ingrese vacuna proporcionada"
+
+#, fuzzy
+#~ msgid "generic MMRV vaccine, live"
+#~ msgstr "Ingrese vacuna proporcionada"
+
+#~ msgid "generic measles-rubella vaccine, live"
+#~ msgstr "vacuna genérica viva atenuada contra sarampión-rubéola"
+
+#, fuzzy
+#~ msgid "generic mumps-rubella vaccine, live"
+#~ msgstr "La vacuna"
+
+#, fuzzy
+#~ msgid "generic cholera-typhoid vaccine"
+#~ msgstr "Borrando vacuna"
+
+#, fuzzy
+#~ msgid "generic typhoid-hepA vaccine"
+#~ msgstr "La vacuna"
+
+#, fuzzy
+#~ msgid "generic TdPol vaccine"
+#~ msgstr "La vacuna"
+
+#, fuzzy
+#~ msgid "generic DTPol vaccine"
+#~ msgstr "La vacuna"
+
+#, fuzzy
+#~ msgid "generic Td-HepB vaccine"
+#~ msgstr "La vacuna"
+
+#, fuzzy
+#~ msgid "generic Td-rubella vaccine"
+#~ msgstr "La vacuna"
+
+#, fuzzy
+#~ msgid "generic TdaPPol vaccine"
+#~ msgstr "La vacuna"
+
+#, fuzzy
+#~ msgid "generic TdaP-HepB vaccine"
+#~ msgstr "La vacuna"
+
+#, fuzzy
+#~ msgid "generic TdaP vaccine"
+#~ msgstr "La vacuna"
+
+#, fuzzy
+#~ msgid "generic DTaPPol-Hib vaccine"
+#~ msgstr "La vacuna"
+
+#, fuzzy
+#~ msgid "generic TdaP-Hib-HepB vaccine"
+#~ msgstr "La vacuna"
+
+#, fuzzy
+#~ msgid "generic TdaPPol-HepB vaccine"
+#~ msgstr "La vacuna"
+
+#, fuzzy
+#~ msgid "generic TdaPPol-HiB-HepB vaccine"
+#~ msgstr "La vacuna"
+
+#, fuzzy
+#~ msgid "generic TdaPPol-HiB-HepB-MenAC vaccine"
+#~ msgstr "La vacuna"
+
+#, fuzzy, python-format
+#~ msgid ""
+#~ "This vaccine is already in use:\n"
+#~ "\n"
+#~ " \"%s\"\n"
+#~ "\n"
+#~ "Are you absolutely positively sure that\n"
+#~ "you really want to edit this vaccine ?\n"
+#~ "\n"
+#~ "This will change the vaccine name and/or target\n"
+#~ "conditions in each patient this vaccine was\n"
+#~ "used in to document a vaccination with.\n"
+#~ msgstr ""
+#~ "Esta vacuna está en uso:\n"
+#~ "\n"
+#~ " \"%s\"\n"
+#~ " \"%s\"\n"
+#~ "\n"
+#~ "¿Está totalmente seguro que realmente desea editar esta vacuna?\n"
+#~ "\n"
+#~ "Esto cambiará el nombre de la vacuna y/o la condición\n"
+#~ "objetiva de cada paciente en que esta vacuna fue usada\n"
+#~ "para documentar una vacunación.\n"
+
+#, fuzzy
+#~ msgid "&Tooltips of all rows"
+#~ msgstr "Herramientas de ayuda sobre filas seleccionadas"
+
+#~ msgid "&Data of all rows"
+#~ msgstr "&Datos de todas las filas"
+
+#~ msgid "&Selected rows as CSV"
+#~ msgstr "&Filas seleccionadas como CSV"
+
+#, fuzzy
+#~ msgid "&Tooltips of selected rows"
+#~ msgstr "Herramientas de ayuda sobre filas seleccionadas"
+
+#, fuzzy
+#~ msgid "&Data of selected rows"
+#~ msgstr "Herramientas de ayuda sobre filas seleccionadas"
+
+#~ msgid "Tooltips of selected rows"
+#~ msgstr "Herramientas de ayuda sobre filas seleccionadas"
+
+#, fuzzy
+#~ msgid "Data (formatted as text) of selected rows"
+#~ msgstr "Datos de fila (en una linea)"
+
+#~ msgid "Content (as one line each) of selected rows"
+#~ msgstr "Contenido (individual por linea) de las filas seleccionadas"
+
+#~ msgid "Tooltip of current row"
+#~ msgstr "Herrmienta de ayuda de la fila actual"
+
+#, fuzzy
+#~ msgid "Data (formatted as text) of current row"
+#~ msgstr "Datos de fila (en una linea)"
+
+#, fuzzy
+#~ msgid "Content (as one line) of current row"
+#~ msgstr "Contenido de fila (como una linea)"
+
+#, fuzzy
+#~ msgid "Content (one line per column) of current row"
+#~ msgstr "Contenido de linea (una linea por columna )"
+
+#, fuzzy, python-format
+#~ msgid "Column &%s (current row): \"%s\" [#%s]"
+#~ msgstr "Columna &%s: \"%s\" [#%s]"
+
+#, fuzzy, python-format
+#~ msgid "Column &%s (current row): %s"
+#~ msgstr "Columna &%s: %s"
+
+#~ msgid "Append (&+) to clipboard..."
+#~ msgstr "Agregue (&+) al portapapeles ..."
+
+#~ msgid "Enter the search term:"
+#~ msgstr "Ingrese el término de búsqueda:"
+
+#, fuzzy
+#~ msgid "&Write letter (template)"
+#~ msgstr "&Escriba carta"
+
+#, fuzzy
+#~ msgid "Write a template-based letter for the current patient."
+#~ msgstr "Escribe una carta para el paciente activo."
+
+#, fuzzy
+#~ msgid "&Write letter (generic)"
+#~ msgstr "&Escriba carta"
+
 #, fuzzy
 #~ msgid "Activate patient from search box."
 #~ msgstr "Activar paciente"
@@ -24096,10 +24355,6 @@ msgstr "Aborto y NO conecto a GNUMed."
 
 #~ msgid "Comment / Identification:"
 #~ msgstr "Comentarios / Identificación:"
-
-#, fuzzy
-#~ msgid "Load from &file"
-#~ msgstr "Importo desde un archivo"
 
 #, fuzzy
 #~ msgid "Load a &file"
@@ -25381,15 +25636,6 @@ msgstr "Aborto y NO conecto a GNUMed."
 #~ "- additional documents"
 #~ msgstr "Envío documentos por correo-e"
 
-#, fuzzy
-#~ msgid ""
-#~ "Cannot remove content from\n"
-#~ " [%s]"
-#~ msgstr ""
-#~ "No puedo cargar paciente desde archivo BDT\n"
-#~ "\n"
-#~ " [%s]"
-
 #~ msgid ""
 #~ "Saved documents into directory:\n"
 #~ "\n"
@@ -25918,19 +26164,6 @@ msgstr "Aborto y NO conecto a GNUMed."
 #~ msgstr "Comienzo del cuidado"
 
 #~ msgid ""
-#~ "Cannot delete vaccine\n"
-#~ "\n"
-#~ " %s - %s (#%s)\n"
-#~ "\n"
-#~ "It is probably documented in a vaccination."
-#~ msgstr ""
-#~ "No puedo borrar vacuna\n"
-#~ "\n"
-#~ " %s - %s (#%s)\n"
-#~ "\n"
-#~ "Probablemente documentada en una vacunación."
-
-#~ msgid ""
 #~ "There was a problem with running the editor\n"
 #~ "for visual progress notes.\n"
 #~ "\n"
@@ -26014,9 +26247,6 @@ msgstr "Aborto y NO conecto a GNUMed."
 #~ msgstr ""
 #~ "Seleccione las indicaciones respecto de las cuales esta vacuna fue "
 #~ "prescrita."
-
-#~ msgid "Manage the indications for this vaccine."
-#~ msgstr "Administra las indicaciones para esta vacuna."
 
 #~ msgid "Details on the selected drug."
 #~ msgstr "Detalles de la droga seleccionada."
@@ -26128,9 +26358,6 @@ msgstr "Aborto y NO conecto a GNUMed."
 
 #~ msgid "ATCs: multi-condition vaccines"
 #~ msgstr "ATQs: vacunas multicondiciones"
-
-#~ msgid "Known indications"
-#~ msgstr "Indicaciones conocidas"
 
 #~ msgid ""
 #~ "\n"
@@ -26312,9 +26539,6 @@ msgstr "Aborto y NO conecto a GNUMed."
 
 #~ msgid "health issue"
 #~ msgstr "problema de salud"
-
-#~ msgid "Row tooltip"
-#~ msgstr "Fila de herramienta de ayuda"
 
 #~ msgid "&Entry time"
 #~ msgstr "&Hora de ingreso"

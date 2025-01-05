@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-31 18:48+0100\n"
+"POT-Creation-Date: 2025-01-05 20:20+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4331,19 +4331,24 @@ msgid ""
 "as Subjective rather than Plan."
 msgstr ""
 
-msgid "Vaccine ..."
+msgid "Vaccine"
 msgstr ""
 
 msgid ""
-"The vaccine used, if known.\n"
+"The vaccine given, if known.\n"
 "\n"
-"If unknown check off the indications which were vaccinated against."
+"If not, select a suitable generic vaccine entry."
 msgstr ""
 
 msgid " + "
 msgstr ""
 
 msgid "Add a vaccine to GNUmed."
+msgstr ""
+
+msgid ""
+"Target\n"
+"indications"
 msgstr ""
 
 msgid "Batch №"
@@ -4375,13 +4380,10 @@ msgstr ""
 msgid "Reaction"
 msgstr ""
 
+msgid "Report Adverse Drug Reaction."
+msgstr ""
+
 msgid "Record any adverse reactions to this vaccine."
-msgstr ""
-
-msgid "ADR"
-msgstr ""
-
-msgid "Report this event as an adverse drug reaction."
 msgstr ""
 
 msgid "Any comment you may wish to relate to this vaccination."
@@ -5355,19 +5357,19 @@ msgstr ""
 msgid "→"
 msgstr ""
 
-msgid "←"
-msgstr ""
-
-msgid "Extra"
-msgstr ""
-
 msgid "Move selected items from left to right."
+msgstr ""
+
+msgid "←"
 msgstr ""
 
 msgid "Move selected items from right to left."
 msgstr ""
 
 msgid "Cancel picking items."
+msgstr ""
+
+msgid "Extra"
 msgstr ""
 
 msgid ""
@@ -5537,25 +5539,24 @@ msgstr ""
 msgid "Remove selected LOINC from test panel."
 msgstr ""
 
-msgid "Fake"
-msgstr ""
-
 msgid "Live"
-msgstr ""
-
-msgid "Whether this is an actual product or a generic, fake vaccine."
-msgstr ""
-
-msgid ""
-"The route by which this vaccine is to be administered.\n"
-"\n"
-"Typically one of i.m., s.c., or orally."
 msgstr ""
 
 msgid "Check if this is a live attenuated vaccine."
 msgstr ""
 
+msgid ""
+"Pick\n"
+"&targets"
+msgstr ""
+
+msgid "ATC"
+msgstr ""
+
 msgid "The ATC for this vaccine."
+msgstr ""
+
+msgid "Age range"
 msgstr ""
 
 msgid "The minimum age at which this vaccine should be given."
@@ -5565,20 +5566,6 @@ msgid "The maximum age at which this vaccine should be given."
 msgstr ""
 
 msgid "Any comment you may wish to relate to this vaccine."
-msgstr ""
-
-msgid "Route"
-msgstr ""
-
-msgid ""
-"Protects\n"
-"from"
-msgstr ""
-
-msgid "ATC"
-msgstr ""
-
-msgid "Age range"
 msgstr ""
 
 msgid "&Nicotine"
@@ -8633,6 +8620,10 @@ msgstr ""
 msgid "%s ago"
 msgstr ""
 
+#, python-format
+msgid "generic: %s"
+msgstr ""
+
 msgid "External care"
 msgstr ""
 
@@ -9560,41 +9551,22 @@ msgstr ""
 msgid "prescription data"
 msgstr ""
 
-#, python-format
-msgid "%s with %s %s     #%s"
-msgstr ""
-
-msgid "Live vaccine"
-msgstr ""
-
-msgid "Inactive vaccine"
-msgstr ""
-
-msgid "indication"
-msgstr ""
-
-msgid "indications"
-msgstr ""
-
-msgid "indication(s)"
+msgid " (live)"
 msgstr ""
 
 #, python-format
-msgid " Product: \"%s\"     #%s"
+msgid "\"%s\" [#%s]%s -- #%s"
 msgstr ""
 
 #, python-format
-msgid "  %s%s%s%s"
+msgid "Generic vaccine%s [#%s]%s"
 msgstr ""
 
-msgid "fake product"
+msgid " Targets:"
 msgstr ""
 
 #, python-format
-msgid " Age %s - %s"
-msgstr ""
-
-msgid " Indications"
+msgid " Age range: %s - %s"
 msgstr ""
 
 #, python-format
@@ -9621,23 +9593,22 @@ msgstr ""
 msgid "Last given"
 msgstr ""
 
-msgid "Vaccine"
-msgstr ""
-
-msgid "Lot \\#"
+msgid "Lot #"
 msgstr ""
 
 msgid "SoaP"
 msgstr ""
 
 msgid ""
-"SoaP -- \"S\"ubjective: vaccination was remembered by patient. \"P\"lan: "
-"vaccination was administered in the practice or copied from trustworthy "
-"records."
+"SoaP -- \"S\"ubjective: Reported. \"P\"lan: Administered here/taken from "
+"trustworthy records."
 msgstr ""
 
 msgid ""
 "Total number of vaccinations recorded for the corresponding target condition."
+msgstr ""
+
+msgid "generic"
 msgstr ""
 
 msgid "Injection site"
@@ -9659,306 +9630,6 @@ msgstr ""
 
 #, python-format
 msgid "Organization: %s (%s)"
-msgstr ""
-
-msgid "J07AC01-target::anthrax"
-msgstr ""
-
-msgid "J07AD01-target::brucellosis"
-msgstr ""
-
-msgid "J07AE0-target::cholera"
-msgstr ""
-
-msgid "J07AF01-target::diphtheria"
-msgstr ""
-
-msgid "J07AG01-target::HiB"
-msgstr ""
-
-msgid "J07AH01-target::meningococcus A"
-msgstr ""
-
-msgid "J07AH06-target::meningococcus B"
-msgstr ""
-
-msgid "J07AH07-target::meningococcus C"
-msgstr ""
-
-msgid "J07AH0Y-target::meningococcus Y"
-msgstr ""
-
-msgid "J07AH0W-target::meningococcus W"
-msgstr ""
-
-msgid "J07AJ0-target::pertussis"
-msgstr ""
-
-msgid "J07AK01-target::plague"
-msgstr ""
-
-msgid "J07AL0-target::pneumococcus"
-msgstr ""
-
-msgid "J07AM01-target::tetanus"
-msgstr ""
-
-msgid "J07AN01-target::tbc"
-msgstr ""
-
-msgid "J07AP0-target::typhoid"
-msgstr ""
-
-msgid "J07AP1-target::typhoid, paratyphus"
-msgstr ""
-
-msgid "J07AR01-target::typhus exanthematicus"
-msgstr ""
-
-msgid "J07AXQF-target::Q fever"
-msgstr ""
-
-msgid "J07BX03-target::CoViD-2019"
-msgstr ""
-
-msgid "J07BA01-target::tick-borne encephalitis"
-msgstr ""
-
-msgid "J07BA0J-target::japanese encephalitis"
-msgstr ""
-
-msgid "J07BB0-target::influenza"
-msgstr ""
-
-msgid "J07BC01-target::hepatitis B"
-msgstr ""
-
-msgid "J07BC0-target::hepatitis A"
-msgstr ""
-
-msgid "J07BD01-target::measles"
-msgstr ""
-
-msgid "J07BE01-target::mumps"
-msgstr ""
-
-msgid "J07BF0-target::poliomyelitis"
-msgstr ""
-
-msgid "J07BG01-target::rabies"
-msgstr ""
-
-msgid "J07BH0-target::rotavirus diarrhea"
-msgstr ""
-
-msgid "J07BJ01-target::rubella"
-msgstr ""
-
-msgid "J07BK0-target::varicella (chickenpox)"
-msgstr ""
-
-msgid "J07BK0-target::zoster (shingles)"
-msgstr ""
-
-msgid "J07BL01-target::yellow fever"
-msgstr ""
-
-msgid "J07BM0-target::HPV"
-msgstr ""
-
-msgid "J07BM01-target::HPV"
-msgstr ""
-
-msgid "J07BM02-target::HPV"
-msgstr ""
-
-msgid "J07BM03-target::HPV"
-msgstr ""
-
-msgid "J07BX01-target::variola (smallpox)"
-msgstr ""
-
-msgid "generic anthrax vaccine"
-msgstr ""
-
-msgid "generic brucellosis vaccine"
-msgstr ""
-
-msgid "generic cholera vaccine"
-msgstr ""
-
-msgid "generic cholera vaccine, live"
-msgstr ""
-
-msgid "generic diphtheria vaccine"
-msgstr ""
-
-msgid "generic HiB vaccine"
-msgstr ""
-
-msgid "generic meningococcus A vaccine"
-msgstr ""
-
-msgid "generic meningococcus B vaccine"
-msgstr ""
-
-msgid "generic meningococcus C vaccine"
-msgstr ""
-
-msgid "generic pertussis vaccine"
-msgstr ""
-
-msgid "generic plague vaccine"
-msgstr ""
-
-msgid "generic pneumococcus vaccine"
-msgstr ""
-
-msgid "generic tetanus vaccine"
-msgstr ""
-
-msgid "generic Tbc vaccine"
-msgstr ""
-
-msgid "generic typhoid vaccine"
-msgstr ""
-
-msgid "generic typhoid vaccine, live"
-msgstr ""
-
-msgid "generic typhoid/paratyphus vaccine"
-msgstr ""
-
-msgid "generic typhus exanthematicus vaccine"
-msgstr ""
-
-msgid "generic Q fever vaccine"
-msgstr ""
-
-msgid "generic tick-borne encephalitis vaccine"
-msgstr ""
-
-msgid "generic CoViD-2019 vaccine"
-msgstr ""
-
-msgid "generic japanese encephalitis vaccine"
-msgstr ""
-
-msgid "generic japanese encephalitis vaccine, live"
-msgstr ""
-
-msgid "generic influenza vaccine"
-msgstr ""
-
-msgid "generic influenza vaccine, live"
-msgstr ""
-
-msgid "generic hepatitis A vaccine"
-msgstr ""
-
-msgid "generic hepatitis B vaccine"
-msgstr ""
-
-msgid "generic measles vaccine, live"
-msgstr ""
-
-msgid "generic mumps vaccine, live"
-msgstr ""
-
-msgid "generic poliomyelitis vaccine"
-msgstr ""
-
-msgid "generic poliomyelitis vaccine, live"
-msgstr ""
-
-msgid "generic rabies vaccine"
-msgstr ""
-
-msgid "generic rotavirus vaccine, live"
-msgstr ""
-
-msgid "generic rubella vaccine, live"
-msgstr ""
-
-msgid "generic varicella vaccine, live"
-msgstr ""
-
-msgid "generic zoster vaccine, live"
-msgstr ""
-
-msgid "generic yellow fever vaccine"
-msgstr ""
-
-msgid "generic HPV vaccine"
-msgstr ""
-
-msgid "generic variola vaccine, live"
-msgstr ""
-
-msgid "generic meningococcus AC vaccine"
-msgstr ""
-
-msgid "generic meningococcus ACYW135 vaccine"
-msgstr ""
-
-msgid "generic measles-mumps vaccine, live"
-msgstr ""
-
-msgid "generic MMR vaccine, live"
-msgstr ""
-
-msgid "generic MMRV vaccine, live"
-msgstr ""
-
-msgid "generic measles-rubella vaccine, live"
-msgstr ""
-
-msgid "generic mumps-rubella vaccine, live"
-msgstr ""
-
-msgid "generic cholera-typhoid vaccine"
-msgstr ""
-
-msgid "generic typhoid-hepA vaccine"
-msgstr ""
-
-msgid "generic Td vaccine"
-msgstr ""
-
-msgid "generic TdPol vaccine"
-msgstr ""
-
-msgid "generic DTPol vaccine"
-msgstr ""
-
-msgid "generic Td-HepB vaccine"
-msgstr ""
-
-msgid "generic Td-rubella vaccine"
-msgstr ""
-
-msgid "generic TdaPPol vaccine"
-msgstr ""
-
-msgid "generic TdaP-HepB vaccine"
-msgstr ""
-
-msgid "generic TdaP vaccine"
-msgstr ""
-
-msgid "generic DTaPPol-Hib vaccine"
-msgstr ""
-
-msgid "generic TdaP-Hib-HepB vaccine"
-msgstr ""
-
-msgid "generic TdaPPol-HepB vaccine"
-msgstr ""
-
-msgid "generic TdaPPol-HiB-HepB vaccine"
-msgstr ""
-
-msgid "generic TdaPPol-HiB-HepB-MenAC vaccine"
 msgstr ""
 
 msgid "A: Sign"
@@ -11184,7 +10855,35 @@ msgstr ""
 msgid "Editing vaccine"
 msgstr ""
 
-msgid "fake"
+msgid "Removing vaccine"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot remove vaccine\n"
+"\n"
+" %s [#%s]\n"
+"\n"
+"It is in use documenting a vaccination."
+msgstr ""
+
+msgid "generic vaccine"
+msgstr ""
+
+#, python-format
+msgid ""
+"Also delete the drug product\n"
+"\n"
+" \"%s\"\n"
+"\n"
+"associated with this vaccine ?"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot remove vaccine and/or drug product\n"
+"\n"
+" %s [#%s]"
 msgstr ""
 
 msgid "Showing vaccine details"
@@ -11199,21 +10898,43 @@ msgstr ""
 msgid "Enter or select the batch/lot number of the vaccine used."
 msgstr ""
 
-msgid "Saving vaccine"
+msgid "ERROR: No indications for new vaccine."
+msgstr ""
+
+msgid "Product not a vaccine (ATC does not start with J07) !"
+msgstr ""
+
+msgid "generic/unknown"
+msgstr ""
+
+msgid "new vaccine"
+msgstr ""
+
+msgid "Pick target indications."
+msgstr ""
+
+msgid "Known indications"
 msgstr ""
 
 #, python-format
+msgid "Targets of %s"
+msgstr ""
+
 msgid ""
-"This vaccine is already in use:\n"
+"Are you positively sure you want to *change*\n"
+"the target indications for this vaccine ?\n"
 "\n"
-" \"%s\"\n"
-"\n"
-"Are you absolutely positively sure that\n"
-"you really want to edit this vaccine ?\n"
-"\n"
-"This will change the vaccine name and/or target\n"
-"conditions in each patient this vaccine was\n"
-"used in to document a vaccination with.\n"
+"Doing so will modify the documented vaccination\n"
+"status of ALL patients having received this vaccine.\n"
+msgstr ""
+
+msgid "Modifying vaccine."
+msgstr ""
+
+msgid "Vaccine indications updated."
+msgstr ""
+
+msgid "ERROR: Cannot update vaccine in database."
 msgstr ""
 
 msgid ""
@@ -11313,11 +11034,6 @@ msgstr ""
 
 #, python-format
 msgid "%s  (no previous vaccination recorded)"
-msgstr ""
-
-msgid ""
-"Protects against:\n"
-" "
 msgstr ""
 
 msgid "prevention"
@@ -16081,10 +15797,6 @@ msgid "Known PACS IDs:"
 msgstr ""
 
 #, python-format
-msgid "generic: %s"
-msgstr ""
-
-#, python-format
 msgid "stored: \"%(value)s\" @ [%(issuer)s]"
 msgstr ""
 
@@ -18644,6 +18356,9 @@ msgstr ""
 msgid "Showing ATC codes."
 msgstr ""
 
+msgid "Route"
+msgstr ""
+
 msgid "Choose an ATC import config file"
 msgstr ""
 
@@ -18848,6 +18563,9 @@ msgid ""
 "because it is in use."
 msgstr ""
 
+msgid "fake"
+msgstr ""
+
 msgid "Drug products currently known to GNUmed."
 msgstr ""
 
@@ -18913,11 +18631,11 @@ msgid "Cannot save drug product. Invalid or missing essential input."
 msgstr ""
 
 msgid ""
-"The product name of the drug.\n"
+"Product name of the drug.\n"
 "\n"
 "Note: a product name will need to be linked to\n"
 "one or more components before it can be used,\n"
-"except in the case of fake (generic) vaccines."
+"except in the case of vaccines."
 msgstr ""
 
 msgid "Adding new single-component generic drug"
@@ -19072,9 +18790,6 @@ msgid ""
 "There was a problem with splitting the HL7 file\n"
 "\n"
 " %s"
-msgstr ""
-
-msgid "generic"
 msgstr ""
 
 #, python-format

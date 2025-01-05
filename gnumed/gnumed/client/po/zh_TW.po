@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-22 16:43+0200\n"
+"POT-Creation-Date: 2025-01-05 20:20+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2328,6 +2328,10 @@ msgid "The selected value contains invalid characters and can't be saved"
 msgstr ""
 
 #, python-format
+msgid "binary data: %s%s (total: %s bytes)"
+msgstr ""
+
+#, python-format
 msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
 msgstr ""
 
@@ -2494,6 +2498,12 @@ msgid "0 minutes"
 msgstr ""
 
 msgid "0 seconds"
+msgstr ""
+
+msgid "zero_duration_symbol::\\u2300"
+msgstr ""
+
+msgid "zero_duration_text::no duration"
 msgstr ""
 
 msgid "y::year_abbreviation"
@@ -4335,13 +4345,13 @@ msgid ""
 "as Subjective rather than Plan."
 msgstr ""
 
-msgid "Vaccine ..."
+msgid "Vaccine"
 msgstr ""
 
 msgid ""
-"The vaccine used, if known.\n"
+"The vaccine given, if known.\n"
 "\n"
-"If unknown check off the indications which were vaccinated against."
+"If not, select a suitable generic vaccine entry."
 msgstr ""
 
 msgid " + "
@@ -4349,6 +4359,12 @@ msgstr ""
 
 msgid "Add a vaccine to GNUmed."
 msgstr ""
+
+#, fuzzy
+msgid ""
+"Target\n"
+"indications"
+msgstr "未知反應"
 
 msgid "Batch №"
 msgstr ""
@@ -4379,13 +4395,10 @@ msgstr ""
 msgid "Reaction"
 msgstr "反應"
 
+msgid "Report Adverse Drug Reaction."
+msgstr ""
+
 msgid "Record any adverse reactions to this vaccine."
-msgstr ""
-
-msgid "ADR"
-msgstr ""
-
-msgid "Report this event as an adverse drug reaction."
 msgstr ""
 
 msgid "Any comment you may wish to relate to this vaccination."
@@ -5368,19 +5381,19 @@ msgstr ""
 msgid "→"
 msgstr ""
 
-msgid "←"
-msgstr ""
-
-msgid "Extra"
-msgstr ""
-
 msgid "Move selected items from left to right."
+msgstr ""
+
+msgid "←"
 msgstr ""
 
 msgid "Move selected items from right to left."
 msgstr ""
 
 msgid "Cancel picking items."
+msgstr ""
+
+msgid "Extra"
 msgstr ""
 
 msgid ""
@@ -5550,25 +5563,24 @@ msgstr ""
 msgid "Remove selected LOINC from test panel."
 msgstr ""
 
-msgid "Fake"
-msgstr ""
-
 msgid "Live"
-msgstr ""
-
-msgid "Whether this is an actual product or a generic, fake vaccine."
-msgstr ""
-
-msgid ""
-"The route by which this vaccine is to be administered.\n"
-"\n"
-"Typically one of i.m., s.c., or orally."
 msgstr ""
 
 msgid "Check if this is a live attenuated vaccine."
 msgstr ""
 
+msgid ""
+"Pick\n"
+"&targets"
+msgstr ""
+
+msgid "ATC"
+msgstr ""
+
 msgid "The ATC for this vaccine."
+msgstr ""
+
+msgid "Age range"
 msgstr ""
 
 msgid "The minimum age at which this vaccine should be given."
@@ -5578,20 +5590,6 @@ msgid "The maximum age at which this vaccine should be given."
 msgstr ""
 
 msgid "Any comment you may wish to relate to this vaccine."
-msgstr ""
-
-msgid "Route"
-msgstr ""
-
-msgid ""
-"Protects\n"
-"from"
-msgstr ""
-
-msgid "ATC"
-msgstr ""
-
-msgid "Age range"
 msgstr ""
 
 msgid "&Nicotine"
@@ -8203,17 +8201,9 @@ msgstr ""
 msgid "today%s (%s)"
 msgstr "狀態"
 
-#, fuzzy, python-format
-msgid "%s%s (%s+%s)"
-msgstr "目標"
-
 #, python-format
 msgid "%s%s%s (in %s%s)"
 msgstr ""
-
-#, fuzzy, python-format
-msgid "%s%s (%s-%s,%s)"
-msgstr "目標"
 
 #, python-format
 msgid "%s%s%s (%s%s ago, in %s)"
@@ -8452,6 +8442,18 @@ msgstr ""
 msgid "GNUmed patient data excerpt"
 msgstr ""
 
+msgid ""
+"In order to decrypt the paperwork passphrase you will need\n"
+"access to the secret GPG key or the master passphrase,\n"
+"depending on the encryption method used.\n"
+"\n"
+"Note that GNUmed does not itself store the master\n"
+"passphrase in any way, shape, or form.\n"
+msgstr ""
+
+msgid "Encrypted paperwork passphrase:\n"
+msgstr ""
+
 #, python-format
 msgid "error with placeholder [%s]"
 msgstr ""
@@ -8657,6 +8659,10 @@ msgstr ""
 msgid "%s ago"
 msgstr ""
 
+#, fuzzy, python-format
+msgid "generic: %s"
+msgstr "通用資訊"
+
 msgid "External care"
 msgstr ""
 
@@ -8693,6 +8699,10 @@ msgstr ""
 
 msgid "The query failed."
 msgstr ""
+
+#, fuzzy
+msgid "No results."
+msgstr "測試結果"
 
 #, python-format
 msgid ""
@@ -9383,6 +9393,10 @@ msgstr ""
 msgid " External reference: %s\n"
 msgstr ""
 
+#, fuzzy, python-format
+msgid "From: %s @ %s"
+msgstr "目標"
+
 msgid "Cannot run [arriba] !"
 msgstr ""
 
@@ -9583,43 +9597,24 @@ msgstr ""
 msgid "prescription data"
 msgstr ""
 
+msgid " (live)"
+msgstr ""
+
 #, fuzzy, python-format
-msgid "%s with %s %s     #%s"
+msgid "\"%s\" [#%s]%s -- #%s"
 msgstr "目標"
 
-msgid "Live vaccine"
-msgstr ""
-
-msgid "Inactive vaccine"
-msgstr ""
+#, fuzzy, python-format
+msgid "Generic vaccine%s [#%s]%s"
+msgstr "通用資訊"
 
 #, fuzzy
-msgid "indication"
-msgstr "未知反應"
-
-msgid "indications"
-msgstr ""
-
-msgid "indication(s)"
-msgstr ""
-
-#, python-format
-msgid " Product: \"%s\"     #%s"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "  %s%s%s%s"
+msgid " Targets:"
 msgstr "目標"
 
-msgid "fake product"
-msgstr ""
-
-#, python-format
-msgid " Age %s - %s"
-msgstr ""
-
-msgid " Indications"
-msgstr ""
+#, fuzzy, python-format
+msgid " Age range: %s - %s"
+msgstr "目標"
 
 #, fuzzy, python-format
 msgid "Indications: %s"
@@ -9645,24 +9640,24 @@ msgstr ""
 msgid "Last given"
 msgstr ""
 
-msgid "Vaccine"
-msgstr ""
-
-msgid "Lot \\#"
+msgid "Lot #"
 msgstr ""
 
 msgid "SoaP"
 msgstr ""
 
 msgid ""
-"SoaP -- \"S\"ubjective: vaccination was remembered by patient. \"P\"lan: "
-"vaccination was administered in the practice or copied from trustworthy "
-"records."
+"SoaP -- \"S\"ubjective: Reported. \"P\"lan: Administered here/taken from "
+"trustworthy records."
 msgstr ""
 
 msgid ""
 "Total number of vaccinations recorded for the corresponding target condition."
 msgstr ""
+
+#, fuzzy
+msgid "generic"
+msgstr "通用資訊"
 
 msgid "Injection site"
 msgstr ""
@@ -9683,312 +9678,6 @@ msgstr ""
 
 #, python-format
 msgid "Organization: %s (%s)"
-msgstr ""
-
-msgid "J07AC01-target::anthrax"
-msgstr ""
-
-msgid "J07AD01-target::brucellosis"
-msgstr ""
-
-msgid "J07AE0-target::cholera"
-msgstr ""
-
-msgid "J07AF01-target::diphtheria"
-msgstr ""
-
-msgid "J07AG01-target::HiB"
-msgstr ""
-
-msgid "J07AH01-target::meningococcus A"
-msgstr ""
-
-msgid "J07AH06-target::meningococcus B"
-msgstr ""
-
-msgid "J07AH07-target::meningococcus C"
-msgstr ""
-
-msgid "J07AH0Y-target::meningococcus Y"
-msgstr ""
-
-msgid "J07AH0W-target::meningococcus W"
-msgstr ""
-
-msgid "J07AJ0-target::pertussis"
-msgstr ""
-
-msgid "J07AK01-target::plague"
-msgstr ""
-
-msgid "J07AL0-target::pneumococcus"
-msgstr ""
-
-msgid "J07AM01-target::tetanus"
-msgstr ""
-
-msgid "J07AN01-target::tbc"
-msgstr ""
-
-msgid "J07AP0-target::typhoid"
-msgstr ""
-
-msgid "J07AP1-target::typhoid, paratyphus"
-msgstr ""
-
-msgid "J07AR01-target::typhus exanthematicus"
-msgstr ""
-
-msgid "J07AXQF-target::Q fever"
-msgstr ""
-
-msgid "J07BX03-target::CoViD-2019"
-msgstr ""
-
-msgid "J07BA01-target::tick-borne encephalitis"
-msgstr ""
-
-msgid "J07BA0J-target::japanese encephalitis"
-msgstr ""
-
-msgid "J07BB0-target::influenza"
-msgstr ""
-
-msgid "J07BC01-target::hepatitis B"
-msgstr ""
-
-msgid "J07BC0-target::hepatitis A"
-msgstr ""
-
-msgid "J07BD01-target::measles"
-msgstr ""
-
-msgid "J07BE01-target::mumps"
-msgstr ""
-
-msgid "J07BF0-target::poliomyelitis"
-msgstr ""
-
-msgid "J07BG01-target::rabies"
-msgstr ""
-
-msgid "J07BH0-target::rotavirus diarrhea"
-msgstr ""
-
-msgid "J07BJ01-target::rubella"
-msgstr ""
-
-msgid "J07BK0-target::varicella (chickenpox)"
-msgstr ""
-
-msgid "J07BK0-target::zoster (shingles)"
-msgstr ""
-
-msgid "J07BL01-target::yellow fever"
-msgstr ""
-
-msgid "J07BM0-target::HPV"
-msgstr ""
-
-msgid "J07BM01-target::HPV"
-msgstr ""
-
-msgid "J07BM02-target::HPV"
-msgstr ""
-
-msgid "J07BM03-target::HPV"
-msgstr ""
-
-msgid "J07BX01-target::variola (smallpox)"
-msgstr ""
-
-msgid "generic anthrax vaccine"
-msgstr ""
-
-msgid "generic brucellosis vaccine"
-msgstr ""
-
-msgid "generic cholera vaccine"
-msgstr ""
-
-msgid "generic cholera vaccine, live"
-msgstr ""
-
-msgid "generic diphtheria vaccine"
-msgstr ""
-
-#, fuzzy
-msgid "generic HiB vaccine"
-msgstr "通用資訊"
-
-msgid "generic meningococcus A vaccine"
-msgstr ""
-
-msgid "generic meningococcus B vaccine"
-msgstr ""
-
-msgid "generic meningococcus C vaccine"
-msgstr ""
-
-#, fuzzy
-msgid "generic pertussis vaccine"
-msgstr "通用錯誤訊息"
-
-msgid "generic plague vaccine"
-msgstr ""
-
-msgid "generic pneumococcus vaccine"
-msgstr ""
-
-msgid "generic tetanus vaccine"
-msgstr ""
-
-msgid "generic Tbc vaccine"
-msgstr ""
-
-msgid "generic typhoid vaccine"
-msgstr ""
-
-msgid "generic typhoid vaccine, live"
-msgstr ""
-
-msgid "generic typhoid/paratyphus vaccine"
-msgstr ""
-
-msgid "generic typhus exanthematicus vaccine"
-msgstr ""
-
-msgid "generic Q fever vaccine"
-msgstr ""
-
-msgid "generic tick-borne encephalitis vaccine"
-msgstr ""
-
-#, fuzzy
-msgid "generic CoViD-2019 vaccine"
-msgstr "通用資訊"
-
-msgid "generic japanese encephalitis vaccine"
-msgstr ""
-
-msgid "generic japanese encephalitis vaccine, live"
-msgstr ""
-
-#, fuzzy
-msgid "generic influenza vaccine"
-msgstr "通用資訊"
-
-msgid "generic influenza vaccine, live"
-msgstr ""
-
-msgid "generic hepatitis A vaccine"
-msgstr ""
-
-msgid "generic hepatitis B vaccine"
-msgstr ""
-
-msgid "generic measles vaccine, live"
-msgstr ""
-
-msgid "generic mumps vaccine, live"
-msgstr ""
-
-#, fuzzy
-msgid "generic poliomyelitis vaccine"
-msgstr "通用資訊"
-
-msgid "generic poliomyelitis vaccine, live"
-msgstr ""
-
-#, fuzzy
-msgid "generic rabies vaccine"
-msgstr "通用警告訊息"
-
-msgid "generic rotavirus vaccine, live"
-msgstr ""
-
-msgid "generic rubella vaccine, live"
-msgstr ""
-
-msgid "generic varicella vaccine, live"
-msgstr ""
-
-msgid "generic zoster vaccine, live"
-msgstr ""
-
-msgid "generic yellow fever vaccine"
-msgstr ""
-
-msgid "generic HPV vaccine"
-msgstr ""
-
-msgid "generic variola vaccine, live"
-msgstr ""
-
-msgid "generic meningococcus AC vaccine"
-msgstr ""
-
-msgid "generic meningococcus ACYW135 vaccine"
-msgstr ""
-
-msgid "generic measles-mumps vaccine, live"
-msgstr ""
-
-msgid "generic MMR vaccine, live"
-msgstr ""
-
-msgid "generic MMRV vaccine, live"
-msgstr ""
-
-msgid "generic measles-rubella vaccine, live"
-msgstr ""
-
-msgid "generic mumps-rubella vaccine, live"
-msgstr ""
-
-msgid "generic cholera-typhoid vaccine"
-msgstr ""
-
-msgid "generic typhoid-hepA vaccine"
-msgstr ""
-
-msgid "generic Td vaccine"
-msgstr ""
-
-msgid "generic TdPol vaccine"
-msgstr ""
-
-msgid "generic DTPol vaccine"
-msgstr ""
-
-msgid "generic Td-HepB vaccine"
-msgstr ""
-
-msgid "generic Td-rubella vaccine"
-msgstr ""
-
-msgid "generic TdaPPol vaccine"
-msgstr ""
-
-msgid "generic TdaP-HepB vaccine"
-msgstr ""
-
-msgid "generic TdaP vaccine"
-msgstr ""
-
-msgid "generic DTaPPol-Hib vaccine"
-msgstr ""
-
-msgid "generic TdaP-Hib-HepB vaccine"
-msgstr ""
-
-msgid "generic TdaPPol-HepB vaccine"
-msgstr ""
-
-msgid "generic TdaPPol-HiB-HepB vaccine"
-msgstr ""
-
-msgid "generic TdaPPol-HiB-HepB-MenAC vaccine"
 msgstr ""
 
 msgid "A: Sign"
@@ -11215,7 +10904,36 @@ msgstr ""
 msgid "Editing vaccine"
 msgstr ""
 
-msgid "fake"
+msgid "Removing vaccine"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot remove vaccine\n"
+"\n"
+" %s [#%s]\n"
+"\n"
+"It is in use documenting a vaccination."
+msgstr ""
+
+#, fuzzy
+msgid "generic vaccine"
+msgstr "通用資訊"
+
+#, python-format
+msgid ""
+"Also delete the drug product\n"
+"\n"
+" \"%s\"\n"
+"\n"
+"associated with this vaccine ?"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot remove vaccine and/or drug product\n"
+"\n"
+" %s [#%s]"
 msgstr ""
 
 msgid "Showing vaccine details"
@@ -11231,21 +10949,47 @@ msgstr ""
 msgid "Enter or select the batch/lot number of the vaccine used."
 msgstr ""
 
-msgid "Saving vaccine"
+msgid "ERROR: No indications for new vaccine."
 msgstr ""
 
-#, python-format
+msgid "Product not a vaccine (ATC does not start with J07) !"
+msgstr ""
+
+#, fuzzy
+msgid "generic/unknown"
+msgstr "通用資訊"
+
+#, fuzzy
+msgid "new vaccine"
+msgstr "通用資訊"
+
+#, fuzzy
+msgid "Pick target indications."
+msgstr "未知反應"
+
+#, fuzzy
+msgid "Known indications"
+msgstr "未知反應"
+
+#, fuzzy, python-format
+msgid "Targets of %s"
+msgstr "目標"
+
 msgid ""
-"This vaccine is already in use:\n"
+"Are you positively sure you want to *change*\n"
+"the target indications for this vaccine ?\n"
 "\n"
-" \"%s\"\n"
-"\n"
-"Are you absolutely positively sure that\n"
-"you really want to edit this vaccine ?\n"
-"\n"
-"This will change the vaccine name and/or target\n"
-"conditions in each patient this vaccine was\n"
-"used in to document a vaccination with.\n"
+"Doing so will modify the documented vaccination\n"
+"status of ALL patients having received this vaccine.\n"
+msgstr ""
+
+msgid "Modifying vaccine."
+msgstr ""
+
+msgid "Vaccine indications updated."
+msgstr ""
+
+msgid "ERROR: Cannot update vaccine in database."
 msgstr ""
 
 msgid ""
@@ -11268,6 +11012,10 @@ msgstr ""
 #, python-format
 msgid "Vaccination history -- %s"
 msgstr ""
+
+#, fuzzy
+msgid "Printing vaccination history"
+msgstr "未知反應"
 
 msgid "Pretty vaccination history form failed. Generating failsafe version."
 msgstr ""
@@ -11342,11 +11090,6 @@ msgstr ""
 
 #, python-format
 msgid "%s  (no previous vaccination recorded)"
-msgstr ""
-
-msgid ""
-"Protects against:\n"
-" "
 msgstr ""
 
 msgid "prevention"
@@ -12219,9 +11962,9 @@ msgid "The substance the patient is taking."
 msgstr ""
 
 msgid ""
-"The substance the patient is taking\n"
+"The substance the patient is taking.\n"
 "\n"
-".You can enter/select a substance with or without a strength."
+"You can enter/select a substance with or without a strength."
 msgstr ""
 
 msgid "A drug product."
@@ -14171,57 +13914,47 @@ msgstr ""
 msgid "Find next [%s] (<CTRL-N>)"
 msgstr ""
 
-msgid "&All rows"
+msgid "as &text"
 msgstr ""
 
-msgid "All rows as &CSV"
+msgid "as &CSV"
 msgstr ""
 
-msgid "&Tooltips of all rows"
+msgid "as t&ooltips"
 msgstr ""
 
-msgid "&Data of all rows"
+#, fuzzy
+msgid "as &data"
+msgstr "目標"
+
+msgid "&all rows ..."
 msgstr ""
 
-msgid "&Selected rows"
+msgid "&selected row(s) ..."
 msgstr ""
 
-msgid "&Selected rows as CSV"
+msgid "as &one-liner"
 msgstr ""
 
-msgid "&Tooltips of selected rows"
+msgid "as &multi-liner (per field)"
 msgstr ""
 
-msgid "&Data of selected rows"
+msgid "as &tooltip"
 msgstr ""
 
-msgid "Tooltips of selected rows"
+msgid "as &data (text)"
 msgstr ""
 
-msgid "Data (formatted as text) of selected rows"
+msgid "from &field"
 msgstr ""
 
-msgid "Content (as one line each) of selected rows"
+msgid "as &one-liner(s)"
 msgstr ""
 
-msgid "Tooltip of current row"
+msgid "as &tooltip(s)"
 msgstr ""
 
-msgid "Data (formatted as text) of current row"
-msgstr ""
-
-msgid "Content (as one line) of current row"
-msgstr ""
-
-msgid "Content (one line per column) of current row"
-msgstr ""
-
-#, python-format
-msgid "Column &%s (current row): \"%s\" [#%s]"
-msgstr ""
-
-#, python-format
-msgid "Column &%s (current row): %s"
+msgid "&activated row ..."
 msgstr ""
 
 msgid "Screen&shot ..."
@@ -14233,17 +13966,11 @@ msgstr ""
 msgid "Copy to &clipboard..."
 msgstr ""
 
-msgid "Append (&+) to clipboard..."
-msgstr ""
-
 #, python-format
 msgid ""
 "%s list items are selected.\n"
 "\n"
 "Really delete all %s items ?"
-msgstr ""
-
-msgid "Enter the search term:"
 msgstr ""
 
 msgid "List search"
@@ -14980,6 +14707,15 @@ msgstr ""
 msgid "Imported files into export area."
 msgstr ""
 
+msgid "Show list of paperwork passphrases."
+msgstr ""
+
+msgid "Paperwork passphrases"
+msgstr ""
+
+msgid "Hash"
+msgstr ""
+
 #, fuzzy
 msgid "Clearing out a directory"
 msgstr " %s 測試結果\n"
@@ -15246,6 +14982,9 @@ msgstr ""
 msgid "Password not provided twice. Aborting."
 msgstr ""
 
+msgid "Master passphrase not provided twice. Aborting."
+msgstr ""
+
 msgid "Error exporting entries."
 msgstr ""
 
@@ -15253,7 +14992,9 @@ msgid "Error creating zip file."
 msgstr ""
 
 msgid ""
-"Enter passphrase to protect the data with.\n"
+"No public keys available for safekeeping of paperwork passphrases.\n"
+"\n"
+"Enter master passphrase for encryption thereof.\n"
 "\n"
 "(minimum length: 5, trailing blanks will be stripped)"
 msgstr ""
@@ -15267,17 +15008,34 @@ msgid ""
 msgstr ""
 
 msgid ""
-"Once more enter passphrase to protect the data with.\n"
+"Once more enter master passphrase for safekeeping of paperwork passphrases.\n"
 "\n"
 "(this will protect you from typos)\n"
 "\n"
-"Abort by leaving empty."
+"Abort by leaving empty.\n"
+"\n"
+"Make sure to safely remember the master passphrase. It is NOT stored in "
+"GNUmed at all."
 msgstr ""
 
 msgid ""
 "Passphrases do not match.\n"
 "\n"
 "Retry, or abort with an empty passphrase."
+msgstr ""
+
+msgid ""
+"Enter passphrase to protect the object with.\n"
+"\n"
+"(minimum length: 5, trailing blanks will be stripped)"
+msgstr ""
+
+msgid ""
+"Once more enter passphrase to protect the object with.\n"
+"\n"
+"(this will protect you from typos)\n"
+"\n"
+"Abort by leaving empty."
 msgstr ""
 
 msgid "Export area empty. Nothing to do."
@@ -15302,6 +15060,9 @@ msgstr ""
 #, fuzzy
 msgid "Select items for encryption."
 msgstr " %s 測試結果\n"
+
+msgid "Encrypting items"
+msgstr ""
 
 #, fuzzy
 msgid "Select items for PDF."
@@ -15358,6 +15119,15 @@ msgid "Importing LOINC reference data failed."
 msgstr ""
 
 msgid "Select a LOINC (Logical Observation Identifiers Names and Codes)."
+msgstr ""
+
+msgid ""
+"GNUmed generic document template\n"
+"\n"
+"Some context data has been added below for your copy/paste convenience.\n"
+"\n"
+"Before entering text you should switch the \"paragraph type\"\n"
+"from \"Pre-formatted Text\" to \"Standard\".\n"
 msgstr ""
 
 #, fuzzy, python-format
@@ -15503,6 +15273,10 @@ msgid "This praxis"
 msgstr ""
 
 msgid "Bill receiver"
+msgstr ""
+
+#, python-format
+msgid "List of Documents -- %s"
 msgstr ""
 
 msgid ""
@@ -15834,6 +15608,16 @@ msgstr ""
 msgid "Manage descriptions"
 msgstr ""
 
+#, fuzzy
+msgid "Archive Actions:"
+msgstr "反應"
+
+msgid "Show as listing"
+msgstr ""
+
+msgid "Put listing into export area"
+msgstr ""
+
 #, python-format
 msgid "part %2s"
 msgstr ""
@@ -15936,6 +15720,10 @@ msgstr ""
 #, python-format
 msgid "Successfully saved document part as [%s]."
 msgstr ""
+
+#, fuzzy
+msgid "Patient documents list"
+msgstr "目標"
 
 #, python-format
 msgid ""
@@ -16078,10 +15866,6 @@ msgstr ""
 
 msgid "Known PACS IDs:"
 msgstr ""
-
-#, fuzzy, python-format
-msgid "generic: %s"
-msgstr "通用資訊"
 
 #, python-format
 msgid "stored: \"%(value)s\" @ [%(issuer)s]"
@@ -16980,28 +16764,36 @@ msgstr ""
 msgid "&EMR"
 msgstr ""
 
-msgid "&Write letter (template)"
+#, fuzzy
+msgid "Document from &template"
+msgstr "註記"
+
+msgid "Create document/form for current patient from template."
 msgstr ""
 
-msgid "Write a template-based letter for the current patient."
-msgstr ""
+#, fuzzy
+msgid "&Generic document"
+msgstr " %s 測試結果\n"
 
-msgid "&Write letter (generic)"
-msgstr ""
-
-msgid "Write a generic letter for the current patient."
+msgid "Write free-form document for current patient."
 msgstr ""
 
 msgid "Screenshot -> export area"
 msgstr ""
 
-msgid "Put a screenshot into the patient export area."
+msgid "Put screenshot into patient export area."
 msgstr ""
 
-msgid "List Placeholders"
+msgid "List placeholders"
 msgstr ""
 
-msgid "Show a list of all placeholders."
+msgid "Show list of all placeholders."
+msgstr ""
+
+msgid "List passphrases"
+msgstr ""
+
+msgid "Show list of paperwork passphrases"
 msgstr ""
 
 msgid "&Correspondence"
@@ -18641,6 +18433,9 @@ msgstr ""
 msgid "Showing ATC codes."
 msgstr ""
 
+msgid "Route"
+msgstr ""
+
 msgid "Choose an ATC import config file"
 msgstr ""
 
@@ -18845,6 +18640,9 @@ msgid ""
 "because it is in use."
 msgstr ""
 
+msgid "fake"
+msgstr ""
+
 msgid "Drug products currently known to GNUmed."
 msgstr ""
 
@@ -18910,11 +18708,11 @@ msgid "Cannot save drug product. Invalid or missing essential input."
 msgstr ""
 
 msgid ""
-"The product name of the drug.\n"
+"Product name of the drug.\n"
 "\n"
 "Note: a product name will need to be linked to\n"
 "one or more components before it can be used,\n"
-"except in the case of fake (generic) vaccines."
+"except in the case of vaccines."
 msgstr ""
 
 msgid "Adding new single-component generic drug"
@@ -19070,10 +18868,6 @@ msgid ""
 "\n"
 " %s"
 msgstr ""
-
-#, fuzzy
-msgid "generic"
-msgstr "通用資訊"
 
 #, python-format
 msgid ""
@@ -20529,9 +20323,37 @@ msgstr "中止"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr ""
 
-#, fuzzy
-#~ msgid "Patient document"
+#, fuzzy, python-format
+#~ msgid "%s%s (%s+%s)"
 #~ msgstr "目標"
+
+#, fuzzy, python-format
+#~ msgid "%s%s (%s-%s,%s)"
+#~ msgstr "目標"
+
+#, fuzzy, python-format
+#~ msgid "  %s%s%s%s"
+#~ msgstr "目標"
+
+#, fuzzy
+#~ msgid "generic pertussis vaccine"
+#~ msgstr "通用錯誤訊息"
+
+#, fuzzy
+#~ msgid "generic CoViD-2019 vaccine"
+#~ msgstr "通用資訊"
+
+#, fuzzy
+#~ msgid "generic influenza vaccine"
+#~ msgstr "通用資訊"
+
+#, fuzzy
+#~ msgid "generic poliomyelitis vaccine"
+#~ msgstr "通用資訊"
+
+#, fuzzy
+#~ msgid "generic rabies vaccine"
+#~ msgstr "通用警告訊息"
 
 #~ msgid "generic error message"
 #~ msgstr "通用錯誤訊息"

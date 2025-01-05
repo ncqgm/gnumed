@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-22 16:43+0200\n"
+"POT-Creation-Date: 2025-01-05 20:20+0100\n"
 "PO-Revision-Date: 2011-08-25 16:54+0000\n"
 "Last-Translator: Karolina Kalic <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
@@ -2413,6 +2413,10 @@ msgid "The selected value contains invalid characters and can't be saved"
 msgstr ""
 
 #, python-format
+msgid "binary data: %s%s (total: %s bytes)"
+msgstr ""
+
+#, python-format
 msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
 msgstr ""
 
@@ -2579,6 +2583,12 @@ msgid "0 minutes"
 msgstr ""
 
 msgid "0 seconds"
+msgstr ""
+
+msgid "zero_duration_symbol::\\u2300"
+msgstr ""
+
+msgid "zero_duration_text::no duration"
 msgstr ""
 
 msgid "y::year_abbreviation"
@@ -4468,13 +4478,13 @@ msgid ""
 "as Subjective rather than Plan."
 msgstr ""
 
-msgid "Vaccine ..."
-msgstr "Вакцина ..."
+msgid "Vaccine"
+msgstr "Вакцина"
 
 msgid ""
-"The vaccine used, if known.\n"
+"The vaccine given, if known.\n"
 "\n"
-"If unknown check off the indications which were vaccinated against."
+"If not, select a suitable generic vaccine entry."
 msgstr ""
 
 msgid " + "
@@ -4482,6 +4492,12 @@ msgstr ""
 
 msgid "Add a vaccine to GNUmed."
 msgstr "Додај вакцину у ГНУмед."
+
+#, fuzzy
+msgid ""
+"Target\n"
+"indications"
+msgstr "Приказивање вакцинација."
 
 msgid "Batch №"
 msgstr ""
@@ -4512,13 +4528,10 @@ msgstr ""
 msgid "Reaction"
 msgstr "Реакција"
 
+msgid "Report Adverse Drug Reaction."
+msgstr ""
+
 msgid "Record any adverse reactions to this vaccine."
-msgstr ""
-
-msgid "ADR"
-msgstr ""
-
-msgid "Report this event as an adverse drug reaction."
 msgstr ""
 
 msgid "Any comment you may wish to relate to this vaccination."
@@ -5531,19 +5544,19 @@ msgstr ""
 msgid "→"
 msgstr ""
 
-msgid "←"
-msgstr ""
-
-msgid "Extra"
-msgstr ""
-
 msgid "Move selected items from left to right."
+msgstr ""
+
+msgid "←"
 msgstr ""
 
 msgid "Move selected items from right to left."
 msgstr ""
 
 msgid "Cancel picking items."
+msgstr ""
+
+msgid "Extra"
 msgstr ""
 
 msgid ""
@@ -5726,25 +5739,24 @@ msgstr ""
 msgid "Remove selected LOINC from test panel."
 msgstr " %s докумената\n"
 
-msgid "Fake"
-msgstr ""
-
 msgid "Live"
-msgstr ""
-
-msgid "Whether this is an actual product or a generic, fake vaccine."
-msgstr ""
-
-msgid ""
-"The route by which this vaccine is to be administered.\n"
-"\n"
-"Typically one of i.m., s.c., or orally."
 msgstr ""
 
 msgid "Check if this is a live attenuated vaccine."
 msgstr ""
 
+msgid ""
+"Pick\n"
+"&targets"
+msgstr ""
+
+msgid "ATC"
+msgstr ""
+
 msgid "The ATC for this vaccine."
+msgstr ""
+
+msgid "Age range"
 msgstr ""
 
 msgid "The minimum age at which this vaccine should be given."
@@ -5755,20 +5767,6 @@ msgstr "Максималан број година када би се ова в�
 
 msgid "Any comment you may wish to relate to this vaccine."
 msgstr "Било који коментар који би се повезао са овом вакцином."
-
-msgid "Route"
-msgstr ""
-
-msgid ""
-"Protects\n"
-"from"
-msgstr ""
-
-msgid "ATC"
-msgstr ""
-
-msgid "Age range"
-msgstr ""
 
 msgid "&Nicotine"
 msgstr ""
@@ -8437,15 +8435,7 @@ msgid "today%s (%s)"
 msgstr "данас (%s)"
 
 #, fuzzy, python-format
-msgid "%s%s (%s+%s)"
-msgstr "Документа: %s"
-
-#, fuzzy, python-format
 msgid "%s%s%s (in %s%s)"
-msgstr "Документа: %s"
-
-#, fuzzy, python-format
-msgid "%s%s (%s-%s,%s)"
 msgstr "Документа: %s"
 
 #, fuzzy, python-format
@@ -8694,6 +8684,18 @@ msgstr "Приказивање вакцина."
 msgid "GNUmed patient data excerpt"
 msgstr "Приказивање вакцина."
 
+msgid ""
+"In order to decrypt the paperwork passphrase you will need\n"
+"access to the secret GPG key or the master passphrase,\n"
+"depending on the encryption method used.\n"
+"\n"
+"Note that GNUmed does not itself store the master\n"
+"passphrase in any way, shape, or form.\n"
+msgstr ""
+
+msgid "Encrypted paperwork passphrase:\n"
+msgstr ""
+
 #, python-format
 msgid "error with placeholder [%s]"
 msgstr ""
@@ -8902,6 +8904,10 @@ msgstr "Вакцинације"
 msgid "%s ago"
 msgstr ""
 
+#, fuzzy, python-format
+msgid "generic: %s"
+msgstr "генеричка порука за обавештење"
+
 msgid "External care"
 msgstr ""
 
@@ -8940,6 +8946,10 @@ msgstr ""
 
 msgid "The query failed."
 msgstr ""
+
+#, fuzzy
+msgid "No results."
+msgstr "Резултати теста"
 
 #, python-format
 msgid ""
@@ -9658,6 +9668,10 @@ msgstr "здравствени проблем: %s"
 msgid " External reference: %s\n"
 msgstr ""
 
+#, fuzzy, python-format
+msgid "From: %s @ %s"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
+
 msgid "Cannot run [arriba] !"
 msgstr ""
 
@@ -9864,48 +9878,24 @@ msgstr "Рецепти"
 msgid "prescription data"
 msgstr "Рецепти"
 
-#, fuzzy, python-format
-msgid "%s with %s %s     #%s"
-msgstr "  ваше време: %s - %s  (@%s = %s%s)\n"
-
-#, fuzzy
-msgid "Live vaccine"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "Inactive vaccine"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "indication"
-msgstr "Приказивање вакцинација."
-
-#, fuzzy
-msgid "indications"
-msgstr "Приказивање вакцинација."
-
-#, fuzzy
-msgid "indication(s)"
-msgstr "Приказивање вакцинација."
-
-#, fuzzy, python-format
-msgid " Product: \"%s\"     #%s"
-msgstr "Супстанца"
-
-#, fuzzy, python-format
-msgid "  %s%s%s%s"
-msgstr "  ваше време: %s - %s  (@%s = %s%s)\n"
-
-msgid "fake product"
+msgid " (live)"
 msgstr ""
 
 #, fuzzy, python-format
-msgid " Age %s - %s"
-msgstr "Пацијент: %s (%s), Бр: %s\n"
+msgid "\"%s\" [#%s]%s -- #%s"
+msgstr "  ваше време: %s - %s  (@%s = %s%s)\n"
+
+#, fuzzy, python-format
+msgid "Generic vaccine%s [#%s]%s"
+msgstr "вакцина"
 
 #, fuzzy
-msgid " Indications"
-msgstr "Приказивање вакцинација."
+msgid " Targets:"
+msgstr "Последњи датум"
+
+#, fuzzy, python-format
+msgid " Age range: %s - %s"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
 
 #, fuzzy, python-format
 msgid "Indications: %s"
@@ -9932,24 +9922,24 @@ msgstr ""
 msgid "Last given"
 msgstr ""
 
-msgid "Vaccine"
-msgstr "Вакцина"
-
-msgid "Lot \\#"
+msgid "Lot #"
 msgstr ""
 
 msgid "SoaP"
 msgstr ""
 
 msgid ""
-"SoaP -- \"S\"ubjective: vaccination was remembered by patient. \"P\"lan: "
-"vaccination was administered in the practice or copied from trustworthy "
-"records."
+"SoaP -- \"S\"ubjective: Reported. \"P\"lan: Administered here/taken from "
+"trustworthy records."
 msgstr ""
 
 msgid ""
 "Total number of vaccinations recorded for the corresponding target condition."
 msgstr ""
+
+#, fuzzy
+msgid "generic"
+msgstr "генеричка порука за обавештење"
 
 msgid "Injection site"
 msgstr "Место инјекције"
@@ -9971,364 +9961,6 @@ msgstr ""
 #, python-format
 msgid "Organization: %s (%s)"
 msgstr ""
-
-msgid "J07AC01-target::anthrax"
-msgstr ""
-
-msgid "J07AD01-target::brucellosis"
-msgstr ""
-
-msgid "J07AE0-target::cholera"
-msgstr ""
-
-msgid "J07AF01-target::diphtheria"
-msgstr ""
-
-msgid "J07AG01-target::HiB"
-msgstr ""
-
-msgid "J07AH01-target::meningococcus A"
-msgstr ""
-
-msgid "J07AH06-target::meningococcus B"
-msgstr ""
-
-msgid "J07AH07-target::meningococcus C"
-msgstr ""
-
-msgid "J07AH0Y-target::meningococcus Y"
-msgstr ""
-
-msgid "J07AH0W-target::meningococcus W"
-msgstr ""
-
-msgid "J07AJ0-target::pertussis"
-msgstr ""
-
-msgid "J07AK01-target::plague"
-msgstr ""
-
-msgid "J07AL0-target::pneumococcus"
-msgstr ""
-
-msgid "J07AM01-target::tetanus"
-msgstr ""
-
-msgid "J07AN01-target::tbc"
-msgstr ""
-
-msgid "J07AP0-target::typhoid"
-msgstr ""
-
-msgid "J07AP1-target::typhoid, paratyphus"
-msgstr ""
-
-msgid "J07AR01-target::typhus exanthematicus"
-msgstr ""
-
-msgid "J07AXQF-target::Q fever"
-msgstr ""
-
-msgid "J07BX03-target::CoViD-2019"
-msgstr ""
-
-msgid "J07BA01-target::tick-borne encephalitis"
-msgstr ""
-
-msgid "J07BA0J-target::japanese encephalitis"
-msgstr ""
-
-msgid "J07BB0-target::influenza"
-msgstr ""
-
-msgid "J07BC01-target::hepatitis B"
-msgstr ""
-
-msgid "J07BC0-target::hepatitis A"
-msgstr ""
-
-msgid "J07BD01-target::measles"
-msgstr ""
-
-msgid "J07BE01-target::mumps"
-msgstr ""
-
-msgid "J07BF0-target::poliomyelitis"
-msgstr ""
-
-msgid "J07BG01-target::rabies"
-msgstr ""
-
-msgid "J07BH0-target::rotavirus diarrhea"
-msgstr ""
-
-msgid "J07BJ01-target::rubella"
-msgstr ""
-
-msgid "J07BK0-target::varicella (chickenpox)"
-msgstr ""
-
-msgid "J07BK0-target::zoster (shingles)"
-msgstr ""
-
-msgid "J07BL01-target::yellow fever"
-msgstr ""
-
-msgid "J07BM0-target::HPV"
-msgstr ""
-
-msgid "J07BM01-target::HPV"
-msgstr ""
-
-msgid "J07BM02-target::HPV"
-msgstr ""
-
-msgid "J07BM03-target::HPV"
-msgstr ""
-
-msgid "J07BX01-target::variola (smallpox)"
-msgstr ""
-
-#, fuzzy
-msgid "generic anthrax vaccine"
-msgstr "Чување вакцине"
-
-#, fuzzy
-msgid "generic brucellosis vaccine"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "generic cholera vaccine"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "generic cholera vaccine, live"
-msgstr "Унеси дату вакцинацију"
-
-#, fuzzy
-msgid "generic diphtheria vaccine"
-msgstr "Уређивање вакцине"
-
-#, fuzzy
-msgid "generic HiB vaccine"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "generic meningococcus A vaccine"
-msgstr "Брисање вакцине"
-
-#, fuzzy
-msgid "generic meningococcus B vaccine"
-msgstr "Брисање вакцине"
-
-#, fuzzy
-msgid "generic meningococcus C vaccine"
-msgstr "Брисање вакцине"
-
-#, fuzzy
-msgid "generic pertussis vaccine"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "generic plague vaccine"
-msgstr "Чување вакцине"
-
-#, fuzzy
-msgid "generic pneumococcus vaccine"
-msgstr "Брисање вакцине"
-
-#, fuzzy
-msgid "generic tetanus vaccine"
-msgstr "Брисање вакцине"
-
-#, fuzzy
-msgid "generic Tbc vaccine"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "generic typhoid vaccine"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "generic typhoid vaccine, live"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "generic typhoid/paratyphus vaccine"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "generic typhus exanthematicus vaccine"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "generic Q fever vaccine"
-msgstr "Брисање вакцине"
-
-#, fuzzy
-msgid "generic tick-borne encephalitis vaccine"
-msgstr "Поново направи лажне генеричке вакцине."
-
-#, fuzzy
-msgid "generic CoViD-2019 vaccine"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "generic japanese encephalitis vaccine"
-msgstr "Поново направи лажне генеричке вакцине."
-
-msgid "generic japanese encephalitis vaccine, live"
-msgstr ""
-
-#, fuzzy
-msgid "generic influenza vaccine"
-msgstr "Брисање вакцине"
-
-#, fuzzy
-msgid "generic influenza vaccine, live"
-msgstr "Брисање вакцине"
-
-#, fuzzy
-msgid "generic hepatitis A vaccine"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "generic hepatitis B vaccine"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "generic measles vaccine, live"
-msgstr "Унеси дату вакцинацију"
-
-#, fuzzy
-msgid "generic mumps vaccine, live"
-msgstr "Унеси дату вакцинацију"
-
-#, fuzzy
-msgid "generic poliomyelitis vaccine"
-msgstr "Брисање вакцине"
-
-#, fuzzy
-msgid "generic poliomyelitis vaccine, live"
-msgstr "Брисање вакцине"
-
-#, fuzzy
-msgid "generic rabies vaccine"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "generic rotavirus vaccine, live"
-msgstr "Унеси дату вакцинацију"
-
-#, fuzzy
-msgid "generic rubella vaccine, live"
-msgstr "Унеси дату вакцинацију"
-
-#, fuzzy
-msgid "generic varicella vaccine, live"
-msgstr "Унеси дату вакцинацију"
-
-#, fuzzy
-msgid "generic zoster vaccine, live"
-msgstr "Унеси дату вакцинацију"
-
-#, fuzzy
-msgid "generic yellow fever vaccine"
-msgstr "Брисање вакцине"
-
-#, fuzzy
-msgid "generic HPV vaccine"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "generic variola vaccine, live"
-msgstr "Унеси дату вакцинацију"
-
-#, fuzzy
-msgid "generic meningococcus AC vaccine"
-msgstr "Брисање вакцине"
-
-#, fuzzy
-msgid "generic meningococcus ACYW135 vaccine"
-msgstr "Брисање вакцине"
-
-msgid "generic measles-mumps vaccine, live"
-msgstr ""
-
-#, fuzzy
-msgid "generic MMR vaccine, live"
-msgstr "Унеси дату вакцинацију"
-
-#, fuzzy
-msgid "generic MMRV vaccine, live"
-msgstr "Унеси дату вакцинацију"
-
-msgid "generic measles-rubella vaccine, live"
-msgstr ""
-
-#, fuzzy
-msgid "generic mumps-rubella vaccine, live"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "generic cholera-typhoid vaccine"
-msgstr "Брисање вакцине"
-
-#, fuzzy
-msgid "generic typhoid-hepA vaccine"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "generic Td vaccine"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "generic TdPol vaccine"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "generic DTPol vaccine"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "generic Td-HepB vaccine"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "generic Td-rubella vaccine"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "generic TdaPPol vaccine"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "generic TdaP-HepB vaccine"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "generic TdaP vaccine"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "generic DTaPPol-Hib vaccine"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "generic TdaP-Hib-HepB vaccine"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "generic TdaPPol-HepB vaccine"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "generic TdaPPol-HiB-HepB vaccine"
-msgstr "вакцина"
-
-#, fuzzy
-msgid "generic TdaPPol-HiB-HepB-MenAC vaccine"
-msgstr "вакцина"
 
 msgid "A: Sign"
 msgstr "А: Знак"
@@ -11576,7 +11208,42 @@ msgstr "Додавање нове вакцине"
 msgid "Editing vaccine"
 msgstr "Уређивање вакцине"
 
-msgid "fake"
+#, fuzzy
+msgid "Removing vaccine"
+msgstr "Чување вакцине"
+
+#, fuzzy, python-format
+msgid ""
+"Cannot remove vaccine\n"
+"\n"
+" %s [#%s]\n"
+"\n"
+"It is in use documenting a vaccination."
+msgstr ""
+"Не могу да обришем вакцину\n"
+"\n"
+" %s - %s (#%s)\n"
+"\n"
+"Вероватно је документована у вакцинацији."
+
+#, fuzzy
+msgid "generic vaccine"
+msgstr "вакцина"
+
+#, python-format
+msgid ""
+"Also delete the drug product\n"
+"\n"
+" \"%s\"\n"
+"\n"
+"associated with this vaccine ?"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot remove vaccine and/or drug product\n"
+"\n"
+" %s [#%s]"
 msgstr ""
 
 #, fuzzy
@@ -11594,22 +11261,51 @@ msgstr "Уређивање вакцине"
 msgid "Enter or select the batch/lot number of the vaccine used."
 msgstr ""
 
-msgid "Saving vaccine"
-msgstr "Чување вакцине"
-
-#, python-format
-msgid ""
-"This vaccine is already in use:\n"
-"\n"
-" \"%s\"\n"
-"\n"
-"Are you absolutely positively sure that\n"
-"you really want to edit this vaccine ?\n"
-"\n"
-"This will change the vaccine name and/or target\n"
-"conditions in each patient this vaccine was\n"
-"used in to document a vaccination with.\n"
+msgid "ERROR: No indications for new vaccine."
 msgstr ""
+
+msgid "Product not a vaccine (ATC does not start with J07) !"
+msgstr ""
+
+#, fuzzy
+msgid "generic/unknown"
+msgstr "генеричка порука за обавештење"
+
+#, fuzzy
+msgid "new vaccine"
+msgstr "вакцина"
+
+#, fuzzy
+msgid "Pick target indications."
+msgstr "Приказивање вакцинација."
+
+#, fuzzy
+msgid "Known indications"
+msgstr "Приказивање вакцинација."
+
+#, fuzzy, python-format
+msgid "Targets of %s"
+msgstr "Последњи датум"
+
+msgid ""
+"Are you positively sure you want to *change*\n"
+"the target indications for this vaccine ?\n"
+"\n"
+"Doing so will modify the documented vaccination\n"
+"status of ALL patients having received this vaccine.\n"
+msgstr ""
+
+#, fuzzy
+msgid "Modifying vaccine."
+msgstr "Уређивање вакцине"
+
+#, fuzzy
+msgid "Vaccine indications updated."
+msgstr "Вакцинације:"
+
+#, fuzzy
+msgid "ERROR: Cannot update vaccine in database."
+msgstr "ГРЕШКА: не могу да активни распоред вакцинација"
 
 msgid ""
 "GNUmed will use this URL to access a website which lets\n"
@@ -11631,6 +11327,10 @@ msgstr ""
 #, fuzzy, python-format
 msgid "Vaccination history -- %s"
 msgstr "Историја коришћених лекова"
+
+#, fuzzy
+msgid "Printing vaccination history"
+msgstr "Уређивање вакцинације"
 
 msgid "Pretty vaccination history form failed. Generating failsafe version."
 msgstr ""
@@ -11715,11 +11415,6 @@ msgstr "Пацијент: %s (%s), Бр: %s\n"
 
 #, python-format
 msgid "%s  (no previous vaccination recorded)"
-msgstr ""
-
-msgid ""
-"Protects against:\n"
-" "
 msgstr ""
 
 msgid "prevention"
@@ -12632,9 +12327,9 @@ msgid "The substance the patient is taking."
 msgstr "Супстанца"
 
 msgid ""
-"The substance the patient is taking\n"
+"The substance the patient is taking.\n"
 "\n"
-".You can enter/select a substance with or without a strength."
+"You can enter/select a substance with or without a strength."
 msgstr ""
 
 #, fuzzy
@@ -14635,62 +14330,51 @@ msgstr ""
 msgid "Find next [%s] (<CTRL-N>)"
 msgstr ""
 
-msgid "&All rows"
+msgid "as &text"
 msgstr ""
 
-msgid "All rows as &CSV"
+msgid "as &CSV"
 msgstr ""
 
-msgid "&Tooltips of all rows"
-msgstr ""
-
-msgid "&Data of all rows"
+msgid "as t&ooltips"
 msgstr ""
 
 #, fuzzy
-msgid "&Selected rows"
+msgid "as &data"
+msgstr "План"
+
+msgid "&all rows ..."
+msgstr ""
+
+#, fuzzy
+msgid "&selected row(s) ..."
 msgstr "Брисање вакцине"
 
-msgid "&Selected rows as CSV"
+#, fuzzy
+msgid "as &one-liner"
+msgstr "неактиван"
+
+msgid "as &multi-liner (per field)"
 msgstr ""
 
-msgid "&Tooltips of selected rows"
+msgid "as &tooltip"
+msgstr ""
+
+msgid "as &data (text)"
 msgstr ""
 
 #, fuzzy
-msgid "&Data of selected rows"
-msgstr ""
-"\n"
-"Комплетна историја вакцинације овог пацијента.\n"
+msgid "from &field"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
 
-msgid "Tooltips of selected rows"
+msgid "as &one-liner(s)"
 msgstr ""
 
-msgid "Data (formatted as text) of selected rows"
+msgid "as &tooltip(s)"
 msgstr ""
 
-msgid "Content (as one line each) of selected rows"
+msgid "&activated row ..."
 msgstr ""
-
-msgid "Tooltip of current row"
-msgstr ""
-
-msgid "Data (formatted as text) of current row"
-msgstr ""
-
-msgid "Content (as one line) of current row"
-msgstr ""
-
-msgid "Content (one line per column) of current row"
-msgstr ""
-
-#, python-format
-msgid "Column &%s (current row): \"%s\" [#%s]"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "Column &%s (current row): %s"
-msgstr "Документа: %s"
 
 msgid "Screen&shot ..."
 msgstr ""
@@ -14703,19 +14387,12 @@ msgstr "Направи лажне вакцине"
 msgid "Copy to &clipboard..."
 msgstr "Додавање нове вакцине"
 
-msgid "Append (&+) to clipboard..."
-msgstr ""
-
 #, python-format
 msgid ""
 "%s list items are selected.\n"
 "\n"
 "Really delete all %s items ?"
 msgstr ""
-
-#, fuzzy
-msgid "Enter the search term:"
-msgstr "Листа лекова"
 
 msgid "List search"
 msgstr ""
@@ -15473,6 +15150,15 @@ msgstr ""
 msgid "Imported files into export area."
 msgstr "Додавање нове вакцине"
 
+msgid "Show list of paperwork passphrases."
+msgstr ""
+
+msgid "Paperwork passphrases"
+msgstr ""
+
+msgid "Hash"
+msgstr ""
+
 #, fuzzy
 msgid "Clearing out a directory"
 msgstr "здравствени проблем: %s"
@@ -15751,6 +15437,9 @@ msgstr ""
 msgid "Password not provided twice. Aborting."
 msgstr ""
 
+msgid "Master passphrase not provided twice. Aborting."
+msgstr ""
+
 #, fuzzy
 msgid "Error exporting entries."
 msgstr "Уређивање вакцинације"
@@ -15760,7 +15449,9 @@ msgid "Error creating zip file."
 msgstr "Брисање вакцине"
 
 msgid ""
-"Enter passphrase to protect the data with.\n"
+"No public keys available for safekeeping of paperwork passphrases.\n"
+"\n"
+"Enter master passphrase for encryption thereof.\n"
 "\n"
 "(minimum length: 5, trailing blanks will be stripped)"
 msgstr ""
@@ -15774,17 +15465,34 @@ msgid ""
 msgstr ""
 
 msgid ""
-"Once more enter passphrase to protect the data with.\n"
+"Once more enter master passphrase for safekeeping of paperwork passphrases.\n"
 "\n"
 "(this will protect you from typos)\n"
 "\n"
-"Abort by leaving empty."
+"Abort by leaving empty.\n"
+"\n"
+"Make sure to safely remember the master passphrase. It is NOT stored in "
+"GNUmed at all."
 msgstr ""
 
 msgid ""
 "Passphrases do not match.\n"
 "\n"
 "Retry, or abort with an empty passphrase."
+msgstr ""
+
+msgid ""
+"Enter passphrase to protect the object with.\n"
+"\n"
+"(minimum length: 5, trailing blanks will be stripped)"
+msgstr ""
+
+msgid ""
+"Once more enter passphrase to protect the object with.\n"
+"\n"
+"(this will protect you from typos)\n"
+"\n"
+"Abort by leaving empty."
 msgstr ""
 
 msgid "Export area empty. Nothing to do."
@@ -15811,6 +15519,10 @@ msgstr "Приказивање вакцина."
 #, fuzzy
 msgid "Select items for encryption."
 msgstr "неактиван"
+
+#, fuzzy
+msgid "Encrypting items"
+msgstr "Уређивање вакцине"
 
 #, fuzzy
 msgid "Select items for PDF."
@@ -15869,6 +15581,15 @@ msgid "Importing LOINC reference data failed."
 msgstr ""
 
 msgid "Select a LOINC (Logical Observation Identifiers Names and Codes)."
+msgstr ""
+
+msgid ""
+"GNUmed generic document template\n"
+"\n"
+"Some context data has been added below for your copy/paste convenience.\n"
+"\n"
+"Before entering text you should switch the \"paragraph type\"\n"
+"from \"Pre-formatted Text\" to \"Standard\".\n"
 msgstr ""
 
 #, fuzzy, python-format
@@ -16026,6 +15747,10 @@ msgstr "вакцина"
 #, fuzzy
 msgid "Bill receiver"
 msgstr "Брисање вакцине"
+
+#, fuzzy, python-format
+msgid "List of Documents -- %s"
+msgstr "Документа: %s"
 
 msgid ""
 "Are you sure you want to delete this\n"
@@ -16363,6 +16088,18 @@ msgstr ""
 msgid "Manage descriptions"
 msgstr ""
 
+#, fuzzy
+msgid "Archive Actions:"
+msgstr "Реакција"
+
+#, fuzzy
+msgid "Show as listing"
+msgstr "Приказивање вакцинација."
+
+#, fuzzy
+msgid "Put listing into export area"
+msgstr "Додавање нове вакцине"
+
 #, python-format
 msgid "part %2s"
 msgstr ""
@@ -16467,6 +16204,10 @@ msgstr ""
 #, fuzzy, python-format
 msgid "Successfully saved document part as [%s]."
 msgstr "Додавање нове вакцине"
+
+#, fuzzy
+msgid "Patient documents list"
+msgstr "Приказивање вакцина."
 
 #, python-format
 msgid ""
@@ -16620,10 +16361,6 @@ msgstr ""
 
 msgid "Known PACS IDs:"
 msgstr ""
-
-#, fuzzy, python-format
-msgid "generic: %s"
-msgstr "генеричка порука за обавештење"
 
 #, python-format
 msgid "stored: \"%(value)s\" @ [%(issuer)s]"
@@ -17567,30 +17304,40 @@ msgstr "Додавање нове вакцине"
 msgid "&EMR"
 msgstr ""
 
-msgid "&Write letter (template)"
-msgstr ""
+#, fuzzy
+msgid "Document from &template"
+msgstr "Документа:"
 
 #, fuzzy
-msgid "Write a template-based letter for the current patient."
+msgid "Create document/form for current patient from template."
 msgstr "Додај вакцинацију(е) за тренутног пацијента."
 
-msgid "&Write letter (generic)"
-msgstr ""
+#, fuzzy
+msgid "&Generic document"
+msgstr " %s докумената\n"
 
 #, fuzzy
-msgid "Write a generic letter for the current patient."
+msgid "Write free-form document for current patient."
 msgstr "Додај вакцинацију(е) за тренутног пацијента."
 
 msgid "Screenshot -> export area"
 msgstr ""
 
-msgid "Put a screenshot into the patient export area."
+#, fuzzy
+msgid "Put screenshot into patient export area."
+msgstr "Додавање нове вакцине"
+
+#, fuzzy
+msgid "List placeholders"
+msgstr "Уреди вакцинације"
+
+msgid "Show list of all placeholders."
 msgstr ""
 
-msgid "List Placeholders"
+msgid "List passphrases"
 msgstr ""
 
-msgid "Show a list of all placeholders."
+msgid "Show list of paperwork passphrases"
 msgstr ""
 
 msgid "&Correspondence"
@@ -19284,6 +19031,9 @@ msgstr ""
 msgid "Showing ATC codes."
 msgstr ""
 
+msgid "Route"
+msgstr ""
+
 msgid "Choose an ATC import config file"
 msgstr ""
 
@@ -19500,6 +19250,9 @@ msgid ""
 "because it is in use."
 msgstr ""
 
+msgid "fake"
+msgstr ""
+
 #, fuzzy
 msgid "Drug products currently known to GNUmed."
 msgstr ""
@@ -19568,11 +19321,11 @@ msgid "Cannot save drug product. Invalid or missing essential input."
 msgstr ""
 
 msgid ""
-"The product name of the drug.\n"
+"Product name of the drug.\n"
 "\n"
 "Note: a product name will need to be linked to\n"
 "one or more components before it can be used,\n"
-"except in the case of fake (generic) vaccines."
+"except in the case of vaccines."
 msgstr ""
 
 msgid "Adding new single-component generic drug"
@@ -19740,10 +19493,6 @@ msgid ""
 "\n"
 " %s"
 msgstr ""
-
-#, fuzzy
-msgid "generic"
-msgstr "генеричка порука за обавештење"
 
 #, python-format
 msgid ""
@@ -21255,6 +21004,287 @@ msgstr "Прекинути"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr ""
 
+#~ msgid "Vaccine ..."
+#~ msgstr "Вакцина ..."
+
+#, fuzzy, python-format
+#~ msgid "%s%s (%s+%s)"
+#~ msgstr "Документа: %s"
+
+#, fuzzy, python-format
+#~ msgid "%s%s (%s-%s,%s)"
+#~ msgstr "Документа: %s"
+
+#, fuzzy
+#~ msgid "Inactive vaccine"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "indication"
+#~ msgstr "Приказивање вакцинација."
+
+#, fuzzy
+#~ msgid "indication(s)"
+#~ msgstr "Приказивање вакцинација."
+
+#, fuzzy, python-format
+#~ msgid " Product: \"%s\"     #%s"
+#~ msgstr "Супстанца"
+
+#, fuzzy, python-format
+#~ msgid "  %s%s%s%s"
+#~ msgstr "  ваше време: %s - %s  (@%s = %s%s)\n"
+
+#, fuzzy
+#~ msgid " Indications"
+#~ msgstr "Приказивање вакцинација."
+
+#, fuzzy
+#~ msgid "generic anthrax vaccine"
+#~ msgstr "Чување вакцине"
+
+#, fuzzy
+#~ msgid "generic brucellosis vaccine"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "generic cholera vaccine"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "generic cholera vaccine, live"
+#~ msgstr "Унеси дату вакцинацију"
+
+#, fuzzy
+#~ msgid "generic diphtheria vaccine"
+#~ msgstr "Уређивање вакцине"
+
+#, fuzzy
+#~ msgid "generic HiB vaccine"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "generic meningococcus A vaccine"
+#~ msgstr "Брисање вакцине"
+
+#, fuzzy
+#~ msgid "generic meningococcus B vaccine"
+#~ msgstr "Брисање вакцине"
+
+#, fuzzy
+#~ msgid "generic meningococcus C vaccine"
+#~ msgstr "Брисање вакцине"
+
+#, fuzzy
+#~ msgid "generic pertussis vaccine"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "generic plague vaccine"
+#~ msgstr "Чување вакцине"
+
+#, fuzzy
+#~ msgid "generic pneumococcus vaccine"
+#~ msgstr "Брисање вакцине"
+
+#, fuzzy
+#~ msgid "generic tetanus vaccine"
+#~ msgstr "Брисање вакцине"
+
+#, fuzzy
+#~ msgid "generic Tbc vaccine"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "generic typhoid vaccine"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "generic typhoid vaccine, live"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "generic typhoid/paratyphus vaccine"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "generic typhus exanthematicus vaccine"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "generic Q fever vaccine"
+#~ msgstr "Брисање вакцине"
+
+#, fuzzy
+#~ msgid "generic tick-borne encephalitis vaccine"
+#~ msgstr "Поново направи лажне генеричке вакцине."
+
+#, fuzzy
+#~ msgid "generic CoViD-2019 vaccine"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "generic japanese encephalitis vaccine"
+#~ msgstr "Поново направи лажне генеричке вакцине."
+
+#, fuzzy
+#~ msgid "generic influenza vaccine"
+#~ msgstr "Брисање вакцине"
+
+#, fuzzy
+#~ msgid "generic influenza vaccine, live"
+#~ msgstr "Брисање вакцине"
+
+#, fuzzy
+#~ msgid "generic hepatitis A vaccine"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "generic hepatitis B vaccine"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "generic measles vaccine, live"
+#~ msgstr "Унеси дату вакцинацију"
+
+#, fuzzy
+#~ msgid "generic mumps vaccine, live"
+#~ msgstr "Унеси дату вакцинацију"
+
+#, fuzzy
+#~ msgid "generic poliomyelitis vaccine"
+#~ msgstr "Брисање вакцине"
+
+#, fuzzy
+#~ msgid "generic poliomyelitis vaccine, live"
+#~ msgstr "Брисање вакцине"
+
+#, fuzzy
+#~ msgid "generic rabies vaccine"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "generic rotavirus vaccine, live"
+#~ msgstr "Унеси дату вакцинацију"
+
+#, fuzzy
+#~ msgid "generic rubella vaccine, live"
+#~ msgstr "Унеси дату вакцинацију"
+
+#, fuzzy
+#~ msgid "generic varicella vaccine, live"
+#~ msgstr "Унеси дату вакцинацију"
+
+#, fuzzy
+#~ msgid "generic zoster vaccine, live"
+#~ msgstr "Унеси дату вакцинацију"
+
+#, fuzzy
+#~ msgid "generic yellow fever vaccine"
+#~ msgstr "Брисање вакцине"
+
+#, fuzzy
+#~ msgid "generic HPV vaccine"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "generic variola vaccine, live"
+#~ msgstr "Унеси дату вакцинацију"
+
+#, fuzzy
+#~ msgid "generic meningococcus AC vaccine"
+#~ msgstr "Брисање вакцине"
+
+#, fuzzy
+#~ msgid "generic meningococcus ACYW135 vaccine"
+#~ msgstr "Брисање вакцине"
+
+#, fuzzy
+#~ msgid "generic MMR vaccine, live"
+#~ msgstr "Унеси дату вакцинацију"
+
+#, fuzzy
+#~ msgid "generic MMRV vaccine, live"
+#~ msgstr "Унеси дату вакцинацију"
+
+#, fuzzy
+#~ msgid "generic mumps-rubella vaccine, live"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "generic cholera-typhoid vaccine"
+#~ msgstr "Брисање вакцине"
+
+#, fuzzy
+#~ msgid "generic typhoid-hepA vaccine"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "generic TdPol vaccine"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "generic DTPol vaccine"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "generic Td-HepB vaccine"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "generic Td-rubella vaccine"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "generic TdaPPol vaccine"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "generic TdaP-HepB vaccine"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "generic TdaP vaccine"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "generic DTaPPol-Hib vaccine"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "generic TdaP-Hib-HepB vaccine"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "generic TdaPPol-HepB vaccine"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "generic TdaPPol-HiB-HepB vaccine"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "generic TdaPPol-HiB-HepB-MenAC vaccine"
+#~ msgstr "вакцина"
+
+#, fuzzy
+#~ msgid "&Data of selected rows"
+#~ msgstr ""
+#~ "\n"
+#~ "Комплетна историја вакцинације овог пацијента.\n"
+
+#, fuzzy, python-format
+#~ msgid "Column &%s (current row): %s"
+#~ msgstr "Документа: %s"
+
+#, fuzzy
+#~ msgid "Enter the search term:"
+#~ msgstr "Листа лекова"
+
+#, fuzzy
+#~ msgid "Write a template-based letter for the current patient."
+#~ msgstr "Додај вакцинацију(е) за тренутног пацијента."
+
 #, fuzzy
 #~ msgid "Activate patient from search box."
 #~ msgstr "Активни проблеми"
@@ -21487,9 +21517,6 @@ msgstr ""
 #~ msgid "No vaccines were chosen"
 #~ msgstr "Није ижабрана ни једна вакцина"
 
-#~ msgid "ERROR: cannot retrieve active vaccination schedules"
-#~ msgstr "ГРЕШКА: не могу да активни распоред вакцинација"
-
 #~ msgid "no active vaccination schedules"
 #~ msgstr "нема активног распореда вакцинација"
 
@@ -21569,19 +21596,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Go to &Date...\tCtrl+G"
 #~ msgstr "Последњи датум"
-
-#~ msgid ""
-#~ "Cannot delete vaccine\n"
-#~ "\n"
-#~ " %s - %s (#%s)\n"
-#~ "\n"
-#~ "It is probably documented in a vaccination."
-#~ msgstr ""
-#~ "Не могу да обришем вакцину\n"
-#~ "\n"
-#~ " %s - %s (#%s)\n"
-#~ "\n"
-#~ "Вероватно је документована у вакцинацији."
 
 #, fuzzy
 #~ msgid "Export part"
@@ -21757,10 +21771,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Printing prescription list"
 #~ msgstr "Рецепти"
-
-#, fuzzy
-#~ msgid "Printing vaccinations"
-#~ msgstr "Уређивање вакцинације"
 
 #, fuzzy
 #~ msgid "Print vaccinations using a template."
