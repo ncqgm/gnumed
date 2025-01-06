@@ -32,6 +32,7 @@ from Gnumed.pycommon import gmMimeLib
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
 from Gnumed.business import gmVaccination
+from Gnumed.business import gmVaccDefs
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmProviderInbox
 
@@ -57,17 +58,18 @@ def regenerate_generic_vaccines():
 		return False
 
 	wx.BeginBusyCursor()
-	_cfg = gmCfgINI.gmCfgData()
-	_log.debug('regenerating generic vaccines, SQL script: %s', sql_script)
-	if not gmPG2.run_sql_script(sql_script, conn = dbo_conn):
+	sql_script_fname = gmTools.get_unique_filename(suffix = '.sql')
+	with open(sql_script_fname, mode = 'w', encoding = 'utf8') as sql_script:
+		sql_script.write(gmVaccDefs.v23_generate_generic_vaccines_SQL())
+	_log.debug('regenerating generic vaccines, SQL script: %s', sql_script_fname)
+	if not gmPG2.run_sql_script(sql_script_fname, conn = dbo_conn):
 		wx.EndBusyCursor()
-		gmGuiHelpers.gm_show_warning (
-			warning = _('Error regenerating generic vaccines.\n\nSee [%s]') % sql_script,
-			title = _('Regenerating generic vaccines')
-		)
+		w = _('Error regenerating generic vaccines.\n\nSee [%s]') % sql_script_fname
+		t = _('Regenerating generic vaccines')
+		gmGuiHelpers.warn(warning = w, title = t)
 		return False
 
-	gmDispatcher.send(signal = 'statustext', msg = _('Successfully regenerated generic vaccines ...'), beep = False)
+	gmDispatcher.send(signal = 'statustext', msg = _('Successfully regenerated generic vaccines.'), beep = False)
 	wx.EndBusyCursor()
 	return True
 
@@ -214,7 +216,7 @@ SELECT data, field_label, list_label FROM (
 			SELECT
 				batch_no AS data,
 				batch_no AS field_label,
-				batch_no || ' (' || vaccine || ')' AS list_label,
+				batch_no || ' (' || coalesce(vaccine, 'generic') || ')' AS list_label,
 				1 as rank
 			FROM
 				clin.v_vaccinations
@@ -226,7 +228,7 @@ SELECT data, field_label, list_label FROM (
 			SELECT
 				batch_no AS data,
 				batch_no AS field_label,
-				batch_no || ' (' || vaccine || ')' AS list_label,
+				batch_no || ' (' || coalesce(vaccine, 'generic') || ')' AS list_label,
 				2 AS rank
 			FROM
 				clin.v_vaccinations
@@ -994,7 +996,7 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl, gmEditArea.cGenericEditAreaMixin):
 				lines.append(_('%s  (most recent shot of %s: %s ago)') % (l10n_ind, no_of_shots4ind, ago))
 			except KeyError:
 				lines.append(_('%s  (no previous vaccination recorded)') % l10n_ind)
-		self._TCTRL_indications.SetValue(_('Protects against:\n ') + '\n '.join(lines))
+		self._TCTRL_indications.SetValue('\n '.join(lines))
 
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API

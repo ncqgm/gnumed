@@ -2005,19 +2005,16 @@ def create_drug_product_by_atc(atc=None, product_name=None, preparation=None, re
 #------------------------------------------------------------
 def delete_drug_product(pk_drug_product:int=None) -> bool:
 	args = {'pk': pk_drug_product}
-	# check in-use
 	SQL = 'SELECT EXISTS(SELECT 1 FROM clin.vaccination WHERE fk_vaccine = (SELECT pk FROM ref.vaccine WHERE fk_drug_product = %(pk)s))'
-	args = {'pk': self.pk_obj}
+	args = {'pk': pk_drug_product}
 	rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
 	if rows and rows[0][0]:
 		_log.error('cannot delete drug product [%s], it is used as a vaccine')
 		return False
 
 	queries = []
-	# delete components
 	SQL = 'DELETE FROM ref.lnk_dose2drug WHERE fk_drug_product = %(pk)s'
 	queries.append({'cmd': SQL, 'args': args})
-	# delete drug
 	SQL = 'DELETE FROM ref.drug_product WHERE pk = %(pk)s'
 	queries.append({'cmd': SQL, 'args': args})
 	gmPG2.run_rw_queries(queries = queries)

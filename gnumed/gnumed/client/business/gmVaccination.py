@@ -303,7 +303,7 @@ def delete_vaccine(pk_vaccine:int=None, also_delete_product:bool=False) -> bool:
 	try:
 		gmPG2.run_rw_queries(queries = queries)
 	except gmPG2.dbapi.IntegrityError:
-		_log.exception('cannot delete vaccine [%s]', vaccine)
+		_log.exception('cannot delete vaccine [#%s]', pk_vaccine)
 		return False
 
 	return True

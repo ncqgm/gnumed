@@ -627,6 +627,10 @@ def gm_show_info(info:str=None, title:str=None):
 	dlg.DestroyLater()
 
 #-------------------------------------------------------------------------
+def warn(warning:str=None, title:str=None):
+	return gm_show_warning(warning = warning, title = title)
+
+#-------------------------------------------------------------------------
 def gm_show_warning(warning:str=None, title:str=None):
 	if not warning:
 		warning = _('programmer forgot to specify warning')

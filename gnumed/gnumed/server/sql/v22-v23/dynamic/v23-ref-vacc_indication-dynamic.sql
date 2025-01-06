@@ -25,15 +25,15 @@ alter table ref.vacc_indication
 	alter column target
 		set not null;
 
-drop index if exists ref.idx__ref__vacc_indication__target cascade;
-create unique index idx__ref__vacc_indication__target on ref.vacc_indication(target);
+drop index if exists ref.idx_uniq__ref__vacc_indication__target cascade;
+create unique index idx_uniq__ref__vacc_indication__target on ref.vacc_indication(target);
 
 -- --------------------------------------------------------------
 -- .atc
 comment on column ref.vacc_indication.atc is 'ATC for the target vaccine, if any. Single-target ATCs only.';
 
-drop index if exists ref.idx__ref__vacc_indication__atc cascade;
-create index idx__ref__vacc_indication__atc on ref.vacc_indication(atc);
+drop index if exists ref.idx_uniq__ref__vacc_indication__atc cascade;
+create unique index idx_uniq__ref__vacc_indication__atc on ref.vacc_indication(atc);
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v23-ref-vacc_indication-dynamic.sql', '23.0');

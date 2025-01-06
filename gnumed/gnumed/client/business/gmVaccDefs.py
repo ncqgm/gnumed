@@ -96,6 +96,36 @@ def v23_generate_vaccination_targets_SQL():
 	return '\n'.join(lines)
 
 #============================================================
+__SQL_v23_insert_generic_vaccine = """-- v23: single-target generic vaccine for indication "%(target)s"
+INSERT INTO ref.vaccine (atc, comment, is_live)
+	SELECT '%(atc)s', 'generic vaccine for %(target)s', False
+	WHERE NOT EXISTS (
+		SELECT 1 FROM ref.vaccine WHERE atc = '%(atc)s'
+	);
+
+INSERT INTO ref.lnk_indic2vaccine (fk_vaccine, fk_indication)
+	SELECT
+		(SELECT pk FROM ref.vaccine WHERE atc = '%(atc)s' AND fk_drug_product IS NULL),
+		(SELECT pk FROM ref.vacc_indication WHERE atc = '%(atc)s')
+	WHERE NOT EXISTS (
+		SELECT 1 FROM ref.lnk_indic2vaccine
+		WHERE
+			(fk_vaccine = (SELECT pk FROM ref.vaccine WHERE atc = '%(atc)s' AND fk_drug_product IS NULL))
+				AND
+			(fk_indication = (SELECT pk FROM ref.vacc_indication WHERE atc = '%(atc)s'))
+	);
+"""
+
+def v23_generate_generic_vaccines_SQL():
+	lines = []
+	for target, data in __VACCINATION__SINGLE_TARGET_ATCS.items():
+		lines.append(__SQL_v23_insert_generic_vaccine % {
+			'target': target,
+			'atc': data['atc']
+		})
+	return '\n'.join(lines)
+
+#============================================================
 # main - unit testing
 #------------------------------------------------------------
 if __name__ == '__main__':
@@ -116,4 +146,9 @@ if __name__ == '__main__':
 		print(v23_generate_vaccination_targets_SQL())
 
 	#-----------------------------------------------------
-	test_v23_generate_vaccination_targets_SQL()
+	def test_v23_generate_generic_vaccines_SQL():
+		print(v23_generate_generic_vaccines_SQL())
+
+	#-----------------------------------------------------
+	#test_v23_generate_vaccination_targets_SQL()
+	test_v23_generate_generic_vaccines_SQL()
