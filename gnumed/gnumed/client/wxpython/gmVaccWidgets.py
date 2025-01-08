@@ -23,7 +23,6 @@ from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmCfgDB
-from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmNetworkTools
 from Gnumed.pycommon import gmPG2
