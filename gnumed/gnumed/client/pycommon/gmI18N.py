@@ -218,7 +218,9 @@ def __log_encoding_settings():
 	_log.debug('sys.getdefaultencoding(): [%s]' % py_str_enc)
 	_log.debug('locale.getpreferredencoding(): [%s]' % pref_loc_enc)
 	_log.debug('locale.getlocale()[1]: [%s]' % loc_enc)
+	_log.debug('locale.getencoding(): [%s]', locale.getencoding())
 	_log.debug('sys.getfilesystemencoding(): [%s]' % sys_fs_enc)
+	_log.debug('sys.getfilesystemencodeerrors(): [%s]', sys.getfilesystemencodeerrors())
 	if loc_enc:
 		loc_enc = loc_enc.upper()
 		loc_enc_compare = loc_enc.replace('-', '')
@@ -246,10 +248,6 @@ def __log_locale_settings(message=None):
 	_log.debug('current locale settings:')
 	__log_getlocale_categories()
 	__log_setlocale_categories()
-	try:
-		_log.debug('locale.getdefaultlocale() - default (user) locale: %s' % str(locale.getdefaultlocale()))
-	except ValueError:
-		_log.exception('the OS locale setup seems faulty')
 	loc_enc = __log_encoding_settings()
 	__log_locale_ENV()
 	__log_localeconv(loc_enc)
@@ -349,10 +347,7 @@ def install_domain(domain:str=None, language:str=None, prefer_local_catalog:bool
 	#    (this can be strange on, say, Windows: Hungarian_Hungary)
 	if locale.getlocale()[0] not in lang_candidates:
 		lang_candidates.append(locale.getlocale()[0])
-	# 3) try locale.get*default*locale()[0], if not yet in list
-	if locale.getdefaultlocale()[0] not in lang_candidates:
-		lang_candidates.append(locale.getdefaultlocale()[0])
-	# 4) add variants
+	# 3) add variants
 	lang_variants = []
 	for lang in lang_candidates:
 		if lang is None:
