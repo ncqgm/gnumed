@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-05 20:20+0100\n"
-"PO-Revision-Date: 2025-01-05 20:59+0100\n"
+"POT-Creation-Date: 2025-01-26 17:47+0100\n"
+"PO-Revision-Date: 2025-01-26 17:50+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -11069,7 +11069,7 @@ msgstr ""
 "Genaue Fehlerbeschreibung in der Logdatei."
 
 msgid "EMR Journal sorted by last modification time\n"
-msgstr "Karteijournal, Einträge sortiert nach letztem Bearbeitungszeitpunkt\n"
+msgstr "Krankenblatt, sortiert nach letztem Bearbeitungszeitpunkt\n"
 
 #, python-format
 msgid "Patient: %s (%s), No: %s\n"
@@ -11100,7 +11100,7 @@ msgid "Exported: %s\n"
 msgstr "Exportiert: %s\n"
 
 msgid "Chronological EMR Journal\n"
-msgstr "Karteikarte als chronologisches Journal\n"
+msgstr "Krankenblatt als chronologisches Journal\n"
 
 msgid "Doc"
 msgstr "Arzt"
@@ -11626,10 +11626,10 @@ msgstr ""
 "\n"
 
 msgid "Enter (regex) term to search for across all EMRs:"
-msgstr "Den in allen Karteikarten zu suchenden Begriff (regex) eingeben:"
+msgstr "Den in allen Krankenblättern zu suchenden Begriff (regex) eingeben:"
 
 msgid "Text search across all EMRs"
-msgstr "Textsuche über alle Karteikarten"
+msgstr "Textsuche über alle Krankenblätter"
 
 #, python-format
 msgid ""
@@ -11653,13 +11653,13 @@ msgid "Match location"
 msgstr "Fundstelle"
 
 msgid "Cannot search EMR. No active patient."
-msgstr "Kann Kartei nicht durchsuchen. Kein Patient aktiv."
+msgstr "Kann Krankenblatt nicht durchsuchen. Kein Patient aktiv."
 
 msgid "Enter search term:"
 msgstr "Suchbegriff:"
 
 msgid "Text search of entire EMR of active patient"
-msgstr "Textsuche in der Karteikarte des aktiven Patienten"
+msgstr "Textsuche im Krankenblatt des aktiven Patienten"
 
 #, python-format
 msgid ""
@@ -11676,7 +11676,7 @@ msgstr ""
 "%s\n"
 
 msgid "Cannot export EMR for Medistar. No active patient."
-msgstr "Kann Kartei nicht für MEDISTAR exportieren. Kein Patient aktiv."
+msgstr "Kann Krankenblatt nicht für MEDISTAR exportieren. Kein Patient aktiv."
 
 msgid "text files"
 msgstr "Textdateien"
@@ -12175,8 +12175,8 @@ msgstr ""
 "\n"
 "Siehe [%s]"
 
-msgid "Successfully regenerated generic vaccines ..."
-msgstr "Generische Impfstoff neu erzeugt ..."
+msgid "Successfully regenerated generic vaccines."
+msgstr "Generische Impfstoffe wurden angelegt."
 
 msgid "Adding new vaccine"
 msgstr "Impfstoff hinzufügen"
@@ -13058,7 +13058,7 @@ msgstr ""
 "Die Vorlage/Vornotiz wurde aber nicht verändert.\n"
 "\n"
 "Wollen Sie das unveränderte Bild trotzdem als Bildnotiz\n"
-"in der Karteikarte des Patienten speichern ?\n"
+"im Krankenblatt des Patienten speichern ?\n"
 
 msgid "visual progress notes"
 msgstr "Bildnotizen"
@@ -14218,7 +14218,7 @@ msgstr ""
 "%s"
 
 msgid "Recorded deletion of inbox message in EMR."
-msgstr "Löschung der Nachricht in der Kartei vermerkt."
+msgstr "Löschung der Nachricht im Krankenblatt vermerkt."
 
 msgid "Problem removing message from Inbox."
 msgstr "Problem beim Löschen der Nachricht aus dem Posteingang."
@@ -18640,7 +18640,7 @@ msgid "User interface ..."
 msgstr "Programmoberfläche ..."
 
 msgid "EMR ..."
-msgstr "Karteikarte ..."
+msgstr "Krankenblatt ..."
 
 msgid "Billing ..."
 msgstr "Abrechnung ..."
@@ -18811,8 +18811,7 @@ msgid "&Episode"
 msgstr "&Episode"
 
 msgid "Add an episode of illness to the EMR of the active patient"
-msgstr ""
-"Der Karteikarte des aktiven Patienten eine Krankheitsepisode hinzufügen"
+msgstr "Dem aktiven Krankenblatt eine Krankheitsepisode hinzufügen"
 
 msgid "&Medication"
 msgstr "&Medikamente"
@@ -18908,10 +18907,10 @@ msgid "&Manage ..."
 msgstr "&Verwalten..."
 
 msgid "Search this EMR"
-msgstr "Diese Kartei durchsuchen"
+msgstr "Dieses Krankenblatt durchsuchen"
 
 msgid "Search for data in the EMR of the active patient"
-msgstr "Kartei des aktiven Patienten durchsuchen"
+msgstr "Aktives Krankenblatt durchsuchen"
 
 msgid "Start new encounter"
 msgstr "Neuen Kontakt anlegen"
@@ -18923,16 +18922,14 @@ msgid "Statistics"
 msgstr "Statistik"
 
 msgid "Show a high-level statistic summary of the EMR."
-msgstr "Eine grobe Statistik der Karteikarte zeigen."
+msgstr "Eine grobe Statistik des Krankenblatts zeigen."
 
 msgid "Journal (encounters)"
 msgstr "Journal (APK)"
 
 msgid ""
 "Copy EMR of the active patient as a chronological journal into export area"
-msgstr ""
-"Karteikarte des aktiven Patienten als chronologisches Journal in Sammelmappe "
-"legen"
+msgstr "Aktives Krankenblatt als chronologisches Journal in Sammelmappe legen"
 
 msgid "Journal (mod time)"
 msgstr "Journal (Bearb.zeit)"
@@ -18941,29 +18938,27 @@ msgid ""
 "Copy EMR of active patient as journal (by last modification time) into "
 "export area"
 msgstr ""
-"Kartei des aktiven Patienten als Journal (nach Bearbeitungszeitpunkt) in "
-"Sammelmappe legen"
+"Aktives Krankenblatt als Journal (nach Bearbeitungszeitpunkt) in Sammelmappe "
+"legen"
 
 msgid "Text document"
 msgstr "Textdatei"
 
 msgid "Copy EMR of active patient as text document into export area"
-msgstr "Kartei des aktiven Patienten als Textdokument in Sammelmappe legen"
+msgstr "Aktives Krankenblatt als Textdokument in Sammelmappe legen"
 
 msgid "Timeline file"
 msgstr "Zeitstrahl-Datei"
 
 msgid "Copy EMR of active patient as timeline file (XML) into export area"
-msgstr ""
-"Kartei des aktiven Patienten als Zeitstrahl-Datei (XML) in Sammelmappe legen"
+msgstr "Aktives Krankenblatt als Zeitstrahl-Datei (XML) in Sammelmappe legen"
 
 msgid "Care structure"
 msgstr "Behandlungsstruktur"
 
 msgid "Copy EMR of active patient as care structure text file into export area"
 msgstr ""
-"Kartei des aktiven Patienten als Behandlungsstruktur-Datei in Sammelmappe "
-"legen"
+"Aktives Krankenblatt als Behandlungsstruktur-Datei in Sammelmappe legen"
 
 msgid "MEDISTAR import format (as file)"
 msgstr "MEDISTAR-Importformat (als Datei)"
@@ -18979,7 +18974,7 @@ msgid "Put into export area as ..."
 msgstr "In Sammelmappe legen als ..."
 
 msgid "&EMR"
-msgstr "&Karteikarte"
+msgstr "&Krankenblatt"
 
 msgid "Document from &template"
 msgstr "Dokument aus &Vorlage"
@@ -19005,6 +19000,12 @@ msgstr "Platzhalter zeigen"
 msgid "Show list of all placeholders."
 msgstr "Eine Liste aller Platzhalter anzeigen."
 
+msgid "Test placeholder"
+msgstr "Platzhalter testen"
+
+msgid "Manually test placeholders"
+msgstr "Manuell Platzhalter testen"
+
 msgid "List passphrases"
 msgstr "Passworte zeigen"
 
@@ -19015,10 +19016,10 @@ msgid "&Correspondence"
 msgstr "&Schriftverkehr"
 
 msgid "Search all EMRs"
-msgstr "Alle Karteien durchsuchen"
+msgstr "Alle Krankenblätter durchsuchen"
 
 msgid "Search for data across the EMRs of all patients"
-msgstr "Karteikarten aller Patienten durchsuchen"
+msgstr "Krankenblätter aller Patienten durchsuchen"
 
 msgid "no viewer installed"
 msgstr "kein Betrachter installiert"
@@ -19077,6 +19078,99 @@ msgstr "Anhängige (vorbereitete) Eingangsdaten durchsehen"
 msgid "Lab results ..."
 msgstr "Laborergebnisse ..."
 
+msgid "&Screenshot"
+msgstr "&Bildschirmphoto"
+
+msgid "Save a screenshot of this GNUmed client."
+msgstr "Ein Bildschirmphoto des Programms erstellen."
+
+msgid "Status line: &Clear"
+msgstr "Statuszeile leeren"
+
+msgid "Clear the status line."
+msgstr "Die Statuszeile leeren."
+
+msgid "Status line: History"
+msgstr "Statuszeile: Verlauf"
+
+msgid "Show status line history."
+msgstr "Zeige Verlauf der Statusmeldungen."
+
+msgid "Tooltips on"
+msgstr "Tooltips an"
+
+msgid "Globally enable tooltips."
+msgstr "Tooltips aktivieren."
+
+msgid "Tooltips off"
+msgstr "Tooltips aus"
+
+msgid "Globally (attempt to) disable tooltips."
+msgstr "Tooltips deaktivieren (nicht immer möglich)."
+
+msgid "Unlock mouse"
+msgstr "Mauszeiger reparieren"
+
+msgid "Unlock mouse pointer in case it got stuck in hourglass mode."
+msgstr ""
+"Den Mauszeiger zurücksetzen, wenn er als Stundenglas hängengeblieben ist."
+
+msgid "pgAdmin III"
+msgstr "pgAdmin III"
+
+msgid "pgAdmin III: Browse GNUmed database(s) in PostgreSQL server."
+msgstr "pgAdmin III: GNUmed-Datenbank im PostgreSQL-Server ansehen."
+
+msgid "Lock/unlock patient search"
+msgstr "Patientensuche sperren/entsperren"
+
+msgid "Lock/unlock patient search - USE ONLY IF YOU KNOW WHAT YOU ARE DOING !"
+msgstr ""
+"Patientensuche sperren/entsperren. NUR VERWENDEN, WENN SIE WISSEN, WAS SIE "
+"TUN !"
+
+msgid "Admin connection"
+msgstr "Admin-Verbindung"
+
+msgid "Test connecting to the database as admin."
+msgstr "Datenbankverbindung als Admin testen."
+
+msgid "Error handling"
+msgstr "Fehlerbehandlung"
+
+msgid "Throw an exception to test error handling."
+msgstr "Einen künstlichen Fehler auslösen, um die Fehlerbehandlung zu testen."
+
+msgid "Access violation exception"
+msgstr "Zugriffsverletzung"
+
+msgid "Simulate an access violation exception."
+msgstr "Einen Zugriffsfehler simulieren."
+
+msgid "Access checking"
+msgstr "Zugriffsprüfung"
+
+msgid "Simulate a failing access check."
+msgstr "Eine Zugriffsverweigerung simulieren."
+
+msgid "Fault handler"
+msgstr "Faulthandler"
+
+msgid "Simulate a catastrophic fault (SIGSEGV)."
+msgstr "Einen katastrophalen Fehler simulieren (SIGSEGV)."
+
+msgid "Invoke inspector"
+msgstr "Inspektor aufrufen"
+
+msgid "Invoke the widget hierarchy inspector."
+msgstr "Den Inspektor für die Hierarchie der Widgets starten."
+
+msgid "Tests ..."
+msgstr "Tests ..."
+
+msgid "&Technical ..."
+msgstr "&Technisch ..."
+
 msgid "&Tools"
 msgstr "&Werkzeuge"
 
@@ -19134,70 +19228,37 @@ msgstr "Handbuch (www)"
 msgid "Go to the User Manual on the web."
 msgstr "Das Benutzerhandbuch online anzeigen."
 
-msgid "Browse work dir"
-msgstr "Arbeitsverzeichnis zeigen"
+msgid "show"
+msgstr "zeigen"
+
+msgid "Show log file in text viewer."
+msgstr "Logdatei in Texteditor anzeigen."
+
+msgid "Backup content of the log to another file."
+msgstr "Logdatei kopieren."
+
+msgid "email"
+msgstr "mailen"
+
+msgid "Send log file to the authors for help."
+msgstr "Logdatei an die GNUmed-Autoren senden."
+
+msgid "work dir"
+msgstr "Arbeitsverzeichni"
 
 #, python-format
 msgid "Browse user working directory [%s]."
 msgstr "Nutzer-Arbeitsverzeichnis [%s] anzeigen."
 
-msgid "Status line: &Clear"
-msgstr "Statuszeile leeren"
-
-msgid "Clear the status line."
-msgstr "Die Statuszeile leeren."
-
-msgid "Status line: History"
-msgstr "Statuszeile: Verlauf"
-
-msgid "Show status line history."
-msgstr "Zeige Verlauf der Statusmeldungen."
-
-msgid "Tooltips on"
-msgstr "Tooltips an"
-
-msgid "Globally enable tooltips."
-msgstr "Tooltips aktivieren."
-
-msgid "Tooltips off"
-msgstr "Tooltips aus"
-
-msgid "Globally (attempt to) disable tooltips."
-msgstr "Tooltips deaktivieren (nicht immer möglich)."
-
-msgid "Screenshot"
-msgstr "Bildschirmphoto"
-
-msgid "Save a screenshot of this GNUmed client."
-msgstr "Ein Bildschirmphoto des Programms erstellen."
-
-msgid "Show log file"
-msgstr "Logdatei anzeigen"
-
-msgid "Show log file in text viewer."
-msgstr "Logdatei in Texteditor anzeigen."
-
-msgid "Backup log file"
-msgstr "Logdatei sichern"
-
-msgid "Backup content of the log to another file."
-msgstr "Logdatei kopieren."
-
-msgid "Email log file"
-msgstr "Logdatei emailen"
-
-msgid "Send log file to the authors for help."
-msgstr "Logdatei an die GNUmed-Autoren senden."
-
-msgid "Browse tmp dir"
-msgstr "Temporäres Verzeichnis zeigen"
+msgid "tmp dir"
+msgstr "Temporäres Verzeichnis"
 
 #, python-format
 msgid "Browse temporary directory [%s]."
 msgstr "Das temporäre Verzeichnis [%s] anzeigen."
 
-msgid "Browse internal work dir"
-msgstr "Internes Arbeitsverzeichnis zeigen"
+msgid "internal work dir"
+msgstr "Internes Arbeitsverzeichnis"
 
 #, python-format
 msgid "Browse internal working directory [%s]."
@@ -19209,70 +19270,11 @@ msgstr "Fehlerdatenbank"
 msgid "Go to the GNUmed bug tracker on the web."
 msgstr "Zeige die Datenbank zur Fehlerverfolgung im WWW."
 
-msgid "Unlock mouse"
-msgstr "Mauszeiger reparieren"
+msgid "Log ..."
+msgstr "Log ..."
 
-msgid "Unlock mouse pointer in case it got stuck in hourglass mode."
-msgstr ""
-"Den Mauszeiger zurücksetzen, wenn er als Stundenglas hängengeblieben ist."
-
-msgid "pgAdmin III"
-msgstr "pgAdmin III"
-
-msgid "pgAdmin III: Browse GNUmed database(s) in PostgreSQL server."
-msgstr "pgAdmin III: GNUmed-Datenbank im PostgreSQL-Server ansehen."
-
-msgid "Admin connection"
-msgstr "Admin-Verbindung"
-
-msgid "Test connecting to the database as admin."
-msgstr "Datenbankverbindung als Admin testen."
-
-msgid "Lock/unlock patient search"
-msgstr "Patientensuche sperren/entsperren"
-
-msgid "Lock/unlock patient search - USE ONLY IF YOU KNOW WHAT YOU ARE DOING !"
-msgstr ""
-"Patientensuche sperren/entsperren. NUR VERWENDEN, WENN SIE WISSEN, WAS SIE "
-"TUN !"
-
-msgid "Test error handling"
-msgstr "Fehlerbehandlung testen"
-
-msgid "Throw an exception to test error handling."
-msgstr "Einen künstlichen Fehler auslösen, um die Fehlerbehandlung zu testen."
-
-msgid "Test access violation exception"
-msgstr "Zugriffsverletzung testen"
-
-msgid "Simulate an access violation exception."
-msgstr "Einen Zugriffsfehler simulieren."
-
-msgid "Test access checking"
-msgstr "Zugriffsprüfung testen"
-
-msgid "Simulate a failing access check."
-msgstr "Eine Zugriffsverweigerung simulieren."
-
-msgid "Invoke inspector"
-msgstr "Inspektor aufrufen"
-
-msgid "Invoke the widget hierarchy inspector (needs wxPython 2.8)."
-msgstr ""
-"Den Inspektor für die Hierarchie der Widgets aufrufen (benötigt wxPython "
-"2.8)."
-
-msgid "Test fault handler"
-msgstr "Faulthandler testen"
-
-msgid "Simulate a catastrophic fault (SIGSEGV)."
-msgstr "Einen katastrophalen Fehler simulieren (SIGSEGV)."
-
-msgid "Test placeholder"
-msgstr "Platzhalter testen"
-
-msgid "Manually test placeholders"
-msgstr "Manuell Platzhalter testen"
+msgid "Browse ..."
+msgstr "Stöbern ..."
 
 msgid "Debugging ..."
 msgstr "Fehlersuche ..."
@@ -19291,6 +19293,9 @@ msgstr "Über GNUmed-Helfer"
 
 msgid "Show GNUmed contributors"
 msgstr "GNUmed-Helfer zeigen"
+
+msgid "&Help/Info"
+msgstr "H&ilfe/Info"
 
 #, python-format
 msgid "Raise plugin [%s]."
@@ -20259,48 +20264,48 @@ msgid "Cannot manage smoking status. No active patient."
 msgstr "Kann Rauchstatus nicht verwalten. Kein Patient aktiv."
 
 msgid "Cannot show EMR summary. No active patient."
-msgstr "Kann Karteizusammenfassung nicht zeigen. Kein Patient aktiv."
+msgstr "Kann Krankenblatt nicht zusammenfassen. Kein Patient aktiv."
 
 msgid "EMR Summary"
-msgstr "Zusammenfassung der Kartei"
+msgstr "Zusammenfassung des Krankenblatts"
 
 msgid "Cannot export EMR. No active patient."
-msgstr "Kann Kartei nicht exportieren. Kein Patient aktiv."
+msgstr "Kann Krankenblatt nicht exportieren. Kein Patient aktiv."
 
 msgid "EMR as text document"
-msgstr "Kartei als Textdokument"
+msgstr "Krankenblatt in Textform"
 
 msgid "EMR as timeline file (XML)"
-msgstr "Kartei als Zeitstrahl-Datei (XML)"
+msgstr "Krankenblatt als Zeitstrahl (XML)"
 
 msgid "EMR as care structure file"
-msgstr "Kartei als Behandlungsstruktur"
+msgstr "Krankenblatt als Behandlungsstruktur"
 
 msgid "Cannot export EMR."
-msgstr "Kann Kartei nicht exportieren."
+msgstr "Kann Krankenblatt nicht exportieren."
 
 msgid "Cannot export EMR journal by last modification time. No active patient."
-msgstr "Kann Karteijournal (Bearb.zeit) nicht exportieren. Kein Patient aktiv."
+msgstr "Kann Krankenblatt nicht exportieren. Kein Patient aktiv."
 
 msgid "Error exporting patient EMR as journal by last modification time."
 msgstr ""
-"Fehler beim Exportieren der Karteikarte des Patienten als Journal nach "
+"Fehler beim Exportieren des Krankenblatts als Journal nach "
 "Bearbeitungszeitpunkt."
 
 msgid "EMR journal export"
-msgstr "Journalexport der Karteikarte"
+msgstr "Journalexport des Krankenblatts"
 
 msgid "EMR journal by last modification time"
-msgstr "Karteijournal nach letzter Bearbeitungszeit"
+msgstr "Krankenblatt nach letzter Bearbeitungszeit"
 
 msgid "Cannot export EMR journal. No active patient."
-msgstr "Kann Karteijournal nicht exportieren. Kein Patient aktiv."
+msgstr "Kann Krankenblatt nicht exportieren. Kein Patient aktiv."
 
 msgid "Error exporting patient EMR as chronological journal."
-msgstr "Fehler beim Exportieren der Karteikarte des Patienten als Journal."
+msgstr "Fehler beim Exportieren des Krankenblatts als Journal."
 
 msgid "EMR journal by encounter"
-msgstr "Karteijournal nach APK"
+msgstr "Krankenblatt nach APK"
 
 msgid "Cannot add tag to person. No active patient."
 msgstr "Kann Symbol nicht hinzufügen. Kein Patient aktiv."
@@ -20770,7 +20775,7 @@ msgid "BMI: %s ago"
 msgstr "BMI: vor %s"
 
 msgid "BMI ?"
-msgstr ""
+msgstr "BMI ?"
 
 #, python-format
 msgid "weight: %s ago"
@@ -21983,27 +21988,27 @@ msgid "no LOINC details found"
 msgstr "keine LOINC-Details gefunden"
 
 msgid "emr-export"
-msgstr "Kartei-Export"
+msgstr "Krankenblattauszug"
 
 msgid "Save patient's EMR as..."
-msgstr "Speichere Karteikarte des Patienten in ..."
+msgstr "Speichere Krankenblatt des Patienten in ..."
 
 #, python-format
 msgid "EMR successfully exported to file: %s"
-msgstr "Karteikarte erfolgreich in Datei [%s] exportiert"
+msgstr "Krankenblatt erfolgreich in Datei [%s] exportiert"
 
 #, python-format
 msgid "EMR of %(lastnames)s, %(firstnames)s"
-msgstr "Kartei von %(lastnames)s, %(firstnames)s"
+msgstr "Krankenblatt von %(lastnames)s, %(firstnames)s"
 
 msgid "Primary provider in this praxis"
 msgstr "Primärarzt innerhalb dieser Praxis"
 
 msgid "EMR Actions:"
-msgstr "Kartei-Aktionen:"
+msgstr "Krankenblatt-Aktionen:"
 
 msgid "Print EMR"
-msgstr "Kartei drucken"
+msgstr "Krankenblatt drucken"
 
 msgid "Create health issue"
 msgstr "Grunderkrankung anlegen"
@@ -22033,7 +22038,7 @@ msgid "Manage vaccinations"
 msgstr "Impfungen verwalten"
 
 msgid "Open EMR to ..."
-msgstr "Karteikarte entfalten auf ..."
+msgstr "Krankenblatt entfalten auf ..."
 
 msgid "... issue level"
 msgstr "... Ebene \"Grunderkrankungen\""
@@ -22181,7 +22186,7 @@ msgid "&New notes %s"
 msgstr "Neue &Einträge %s"
 
 msgid "Find text in EMR Journal"
-msgstr "Finde Text im Karteijournal"
+msgstr "Finde Text im Krankenblatt"
 
 msgid "Happened"
 msgstr "Passiert"
@@ -22994,10 +22999,10 @@ msgid "loading plugin <%s>"
 msgstr "lade Modul <%s>"
 
 msgid "EMR Timeline"
-msgstr "Kartei - Zeitstrahl"
+msgstr "Krankenblatt - Zeitstrahl"
 
 msgid "EMR &Timeline"
-msgstr "Kartei: &Zeitstrahl"
+msgstr "Krankenblatt: &Zeitstrahl"
 
 msgid "Overview"
 msgstr "Übersicht"
@@ -23021,10 +23026,10 @@ msgid "&SimpleNotes"
 msgstr "&EinfachKartei"
 
 msgid "EMR Tree"
-msgstr "Karteibaum"
+msgstr "Krankenblattbaum"
 
 msgid "EMR &Tree"
-msgstr "Kartei: &Baum"
+msgstr "Krankenblatt: &Baum"
 
 msgid "Print Manager"
 msgstr "Druckcenter"
@@ -23033,10 +23038,10 @@ msgid "&Print Manager"
 msgstr "&Druckcenter"
 
 msgid "EMR Journal"
-msgstr "Karteijournal"
+msgstr "Krankenblattjournal"
 
 msgid "EMR &Journal (list)"
-msgstr "Kartei: &Journal (Liste)"
+msgstr "Krankenblatt: &Journal (Liste)"
 
 msgid "&Vaccinations"
 msgstr "&Impfungen"
@@ -23087,7 +23092,7 @@ msgid "User &manual (local)"
 msgstr "&Handbuch (lokal)"
 
 msgid "EMR &Journal (text)"
-msgstr "Kartei: &Journal (Text)"
+msgstr "Krankenblatt: &Journal (Text)"
 
 msgid "Demographics"
 msgstr "Personalien"
@@ -23240,6 +23245,18 @@ msgstr "Abbrechen"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
+
+#~ msgid "Show log file"
+#~ msgstr "Logdatei anzeigen"
+
+#~ msgid "Backup log file"
+#~ msgstr "Logdatei sichern"
+
+#~ msgid "Email log file"
+#~ msgstr "Logdatei emailen"
+
+#~ msgid "Test error handling"
+#~ msgstr "Fehlerbehandlung testen"
 
 #~ msgid "Vaccine ..."
 #~ msgstr "Impfstoff ..."
@@ -28983,9 +29000,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ "Anlegen des neuen Benutzerkontos für die GNUmed-Datenbank schlug fehl.\n"
 #~ "\n"
 #~ "Der neue Mitarbeiter kann daher nicht angelegt werden."
-
-#~ msgid "&show XDT"
-#~ msgstr "xDT anzeigen"
 
 #~ msgid "please select a KVK"
 #~ msgstr "bitte eine Chipkarte wählen"

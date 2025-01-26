@@ -901,6 +901,9 @@ class database:
 					return False
 
 		tablespace = cfg_get(self.section, 'tablespace')
+		# locale_provider = builtin
+		# locale = "C.UTF-8"
+		# builtin_locale = "C.UTF-8"
 		if tablespace is None:
 			create_db_cmd = """
 				CREATE DATABASE \"%s\" with

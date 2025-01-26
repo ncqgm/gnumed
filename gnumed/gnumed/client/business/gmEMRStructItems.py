@@ -459,7 +459,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			if with_medications:
 				meds = emr.get_current_medications (
 					issues = [ self._payload['pk_health_issue'] ],
-					order_by = 'is_currently_active DESC, started, substance'
+					order_by = 'discontinued DESC NULLS FIRST, started, substance'
 				)
 				if len(meds) > 0:
 					lines.append('')

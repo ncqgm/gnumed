@@ -646,6 +646,8 @@ class gmTopLevelFrame(wx.Frame):
 		menu_paperwork.AppendSeparator()
 		item = menu_paperwork.Append(-1, _('List placeholders'), _('Show list of all placeholders.'))
 		self.Bind(wx.EVT_MENU, self.__on_show_placeholders, item)
+		item = menu_paperwork.Append(-1, _('Test placeholder'), _('Manually test placeholders'))
+		self.Bind(wx.EVT_MENU, self.__on_test_placeholders, item)
 		item = menu_paperwork.Append(-1, _('List passphrases'), _('Show list of paperwork passphrases'))
 		self.Bind(wx.EVT_MENU, self.__on_show_paperwork_passphrases, item)
 #		item = menu_paperwork.Append(-1, _('Select receiver'), _('Select a letter receiver for testing.'))
@@ -694,9 +696,49 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.__on_stage_hl7, item)
 		item = menu_lab.Append(-1, _('Browse pending'), _('Browse pending (staged) incoming data'))
 		self.Bind(wx.EVT_MENU, self.__on_incoming, item)
-
 		self.menu_tools.Append(wx.NewId(), _('Lab results ...'), menu_lab)
 
+		menu_tech_tools = wx.Menu()
+		item = menu_tech_tools.Append(-1, _('&Screenshot'), _('Save a screenshot of this GNUmed client.'))
+		self.Bind(wx.EVT_MENU, self.__on_save_screenshot, item)
+		item = menu_tech_tools.Append(-1, _('Status line: &Clear'), _('Clear the status line.'))
+		self.Bind(wx.EVT_MENU, self.__on_clear_status_line, item)
+		item = menu_tech_tools.Append(-1, _('Status line: History'), _('Show status line history.'))
+		self.Bind(wx.EVT_MENU, self.__on_show_status_line_history, item)
+		item = menu_tech_tools.Append(-1, _('Tooltips on'), _('Globally enable tooltips.'))
+		self.Bind(wx.EVT_MENU, self.__on_enable_tooltips, item)
+		item = menu_tech_tools.Append(-1, _('Tooltips off'), _('Globally (attempt to) disable tooltips.'))
+		self.Bind(wx.EVT_MENU, self.__on_disable_tooltips, item)
+		item = menu_tech_tools.Append(-1, _('Unlock mouse'), _('Unlock mouse pointer in case it got stuck in hourglass mode.'))
+		self.Bind(wx.EVT_MENU, self.__on_unblock_cursor, item)
+		item = menu_tech_tools.Append(-1, _('pgAdmin III'), _('pgAdmin III: Browse GNUmed database(s) in PostgreSQL server.'))
+		self.Bind(wx.EVT_MENU, self.__on_pgadmin3, item)
+		if _cfg.get(option = 'debug'):
+			item = menu_tech_tools.Append(-1, _('Lock/unlock patient search'), _('Lock/unlock patient search - USE ONLY IF YOU KNOW WHAT YOU ARE DOING !'))
+			self.Bind(wx.EVT_MENU, self.__on_toggle_patient_lock, item)
+		menu_tests = wx.Menu()
+		item = menu_tests.Append(-1, _('Admin connection'), _('Test connecting to the database as admin.'))
+		self.Bind(wx.EVT_MENU, self.__on_gm_dbo_connection_test, item)
+		if _cfg.get(option = 'debug'):
+			item = menu_tests.Append(-1, _('Error handling'), _('Throw an exception to test error handling.'))
+			self.Bind(wx.EVT_MENU, self.__on_test_exception, item)
+			item = menu_tests.Append(-1, _('Access violation exception'), _('Simulate an access violation exception.'))
+			self.Bind(wx.EVT_MENU, self.__on_test_access_violation, item)
+			item = menu_tests.Append(-1, _('Access checking'), _('Simulate a failing access check.'))
+			self.Bind(wx.EVT_MENU, self.__on_test_access_checking, item)
+			try:
+				item = menu_tests.Append(-1, _('Fault handler'), _('Simulate a catastrophic fault (SIGSEGV).'))
+				self.Bind(wx.EVT_MENU, self.__on_test_segfault, item)
+			except ImportError:
+				pass
+			try:
+				import wx.lib.inspection
+				item = menu_tech_tools.Append(-1, _('Invoke inspector'), _('Invoke the widget hierarchy inspector.'))
+				self.Bind(wx.EVT_MENU, self.__on_invoke_inspector, item)
+			except ImportError:
+				pass
+		menu_tech_tools.Append(wx.NewId(), _('Tests ...'), menu_tests)
+		self.menu_tools.Append(wx.NewId(), _('&Technical ...'), menu_tech_tools)
 		self.menu_tools.AppendSeparator()
 
 		self.mainmenu.Append(self.menu_tools, _("&Tools"))
@@ -749,65 +791,30 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.__on_display_user_manual_online, item)
 #		item = help_menu.Append(-1, _('Menu reference (www)'), _('View the reference for menu items on the web.'))
 #		self.Bind(wx.EVT_MENU, self.__on_menu_reference, item)
-		item = help_menu.Append(-1, _('Browse work dir'), _('Browse user working directory [%s].') % gmTools.gmPaths().user_work_dir)
+
+		menu_log = wx.Menu()
+		item = menu_log.Append(-1, _('show'), _('Show log file in text viewer.'))
+		self.Bind(wx.EVT_MENU, self.__on_show_log_file, item)
+		item = menu_log.Append(-1, _('save'), _('Backup content of the log to another file.'))
+		self.Bind(wx.EVT_MENU, self.__on_backup_log_file, item)
+		item = menu_log.Append(-1, _('email'), _('Send log file to the authors for help.'))
+		self.Bind(wx.EVT_MENU, self.__on_email_log_file, item)
+
+		menu_browse = wx.Menu()
+		item = menu_browse.Append(-1, _('work dir'), _('Browse user working directory [%s].') % gmTools.gmPaths().user_work_dir)
 		self.Bind(wx.EVT_MENU, self.__on_browse_work_dir, item)
+		item = menu_browse.Append(-1, _('tmp dir'), _('Browse temporary directory [%s].') % gmTools.gmPaths().tmp_dir)
+		self.Bind(wx.EVT_MENU, self.__on_browse_tmp_dir, item)
+		item = menu_browse.Append(-1, _('internal work dir'), _('Browse internal working directory [%s].') % gmTools.gmPaths().user_appdata_dir)
+		self.Bind(wx.EVT_MENU, self.__on_browse_internal_work_dir, item)
 
 		menu_debugging = wx.Menu()
-		item = menu_debugging.Append(-1, _('Status line: &Clear'), _('Clear the status line.'))
-		self.Bind(wx.EVT_MENU, self.__on_clear_status_line, item)
-		item = menu_debugging.Append(-1, _('Status line: History'), _('Show status line history.'))
-		self.Bind(wx.EVT_MENU, self.__on_show_status_line_history, item)
-		item = menu_debugging.Append(-1, _('Tooltips on'), _('Globally enable tooltips.'))
-		self.Bind(wx.EVT_MENU, self.__on_enable_tooltips, item)
-		item = menu_debugging.Append(-1, _('Tooltips off'), _('Globally (attempt to) disable tooltips.'))
-		self.Bind(wx.EVT_MENU, self.__on_disable_tooltips, item)
-		item = menu_debugging.Append(-1, _('Screenshot'), _('Save a screenshot of this GNUmed client.'))
-		self.Bind(wx.EVT_MENU, self.__on_save_screenshot, item)
-		item = menu_debugging.Append(-1, _('Show log file'), _('Show log file in text viewer.'))
-		self.Bind(wx.EVT_MENU, self.__on_show_log_file, item)
-		item = menu_debugging.Append(-1, _('Backup log file'), _('Backup content of the log to another file.'))
-		self.Bind(wx.EVT_MENU, self.__on_backup_log_file, item)
-		item = menu_debugging.Append(-1, _('Email log file'), _('Send log file to the authors for help.'))
-		self.Bind(wx.EVT_MENU, self.__on_email_log_file, item)
-		item = menu_debugging.Append(-1, _('Browse tmp dir'), _('Browse temporary directory [%s].') % gmTools.gmPaths().tmp_dir)
-		self.Bind(wx.EVT_MENU, self.__on_browse_tmp_dir, item)
-		item = menu_debugging.Append(-1, _('Browse internal work dir'), _('Browse internal working directory [%s].') % gmTools.gmPaths().user_appdata_dir)
-		self.Bind(wx.EVT_MENU, self.__on_browse_internal_work_dir, item)
 		item = menu_debugging.Append(-1, _('Bug tracker'), _('Go to the GNUmed bug tracker on the web.'))
 		self.Bind(wx.EVT_MENU, self.__on_display_bugtracker, item)
-		item = menu_debugging.Append(-1, _('Unlock mouse'), _('Unlock mouse pointer in case it got stuck in hourglass mode.'))
-		self.Bind(wx.EVT_MENU, self.__on_unblock_cursor, item)
-		item = menu_debugging.Append(-1, _('pgAdmin III'), _('pgAdmin III: Browse GNUmed database(s) in PostgreSQL server.'))
-		self.Bind(wx.EVT_MENU, self.__on_pgadmin3, item)
-		item = menu_debugging.Append(-1, _('Admin connection'), _('Test connecting to the database as admin.'))
-		self.Bind(wx.EVT_MENU, self.__on_gm_dbo_connection_test, item)
 #		item = menu_debugging.Append(-1, _('Reload hook script'), _('Reload hook script from hard drive.'))
 #		self.Bind(wx.EVT_MENU, self.__on_reload_hook_script, item)
-		if _cfg.get(option = 'debug'):
-			item = menu_debugging.Append(-1, _('Lock/unlock patient search'), _('Lock/unlock patient search - USE ONLY IF YOU KNOW WHAT YOU ARE DOING !'))
-			self.Bind(wx.EVT_MENU, self.__on_toggle_patient_lock, item)
-			item = menu_debugging.Append(-1, _('Test error handling'), _('Throw an exception to test error handling.'))
-			self.Bind(wx.EVT_MENU, self.__on_test_exception, item)
-			item = menu_debugging.Append(-1, _('Test access violation exception'), _('Simulate an access violation exception.'))
-			self.Bind(wx.EVT_MENU, self.__on_test_access_violation, item)
-			item = menu_debugging.Append(-1, _('Test access checking'), _('Simulate a failing access check.'))
-			self.Bind(wx.EVT_MENU, self.__on_test_access_checking, item)
-			try:
-				import wx.lib.inspection
-				item = menu_debugging.Append(-1, _('Invoke inspector'), _('Invoke the widget hierarchy inspector (needs wxPython 2.8).'))
-				self.Bind(wx.EVT_MENU, self.__on_invoke_inspector, item)
-			except ImportError:
-				#enu_debugging.Enable(item, enable = False)
-				pass
-			try:
-				item = menu_debugging.Append(-1, _('Test fault handler'), _('Simulate a catastrophic fault (SIGSEGV).'))
-				self.Bind(wx.EVT_MENU, self.__on_test_segfault, item)
-			except ImportError:
-				pass
-			item = menu_debugging.Append(-1, _('Test placeholder'), _('Manually test placeholders'))
-			self.Bind(wx.EVT_MENU, self.__on_test_placeholders, item)
-			# help debugging hang with document insertion
-
+		menu_debugging.Append(wx.NewId(), _('Log ...'), menu_log)
+		menu_debugging.Append(wx.NewId(), _('Browse ...'), menu_browse)
 		help_menu.Append(wx.NewId(), _('Debugging ...'), menu_debugging)
 		help_menu.AppendSeparator()
 
@@ -820,7 +827,7 @@ class gmTopLevelFrame(wx.Frame):
 #		item = help_menu.Append(-1, _('Git log'), _('Show full git commit log'))
 #		self.Bind(wx.EVT_MENU, self.__on_show_git_log, item)
 		help_menu.AppendSeparator()
-		self.mainmenu.Append(help_menu, _("&Help"))
+		self.mainmenu.Append(help_menu, _("&Help/Info"))
 		# among other things the Manual is added from a plugin
 		self.__gb['main.helpmenu'] = help_menu
 

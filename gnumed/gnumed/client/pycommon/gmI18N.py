@@ -465,6 +465,11 @@ def __install_domain(domain, prefer_local_catalog, language='?'):
 		_log.debug('found msg catalog: [%s] => [%s]', __orig_tag__, _(__orig_tag__))
 		global _translate_via_gettext
 		_translate_via_gettext = builtins._
+		_log.debug('message catalog details from %s', _translate_via_gettext.__self__)
+		_log.debug(' charset: %s', _translate_via_gettext.__self__.charset())
+		mo_info = _translate_via_gettext.__self__.info()
+		for key in mo_info:
+			_log.debug(' %s: %s', key, mo_info[key])
 		builtins._ = _translate_safely
 		return True
 

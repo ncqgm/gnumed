@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-05 20:20+0100\n"
+"POT-Creation-Date: 2025-01-26 17:47+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -10846,7 +10846,7 @@ msgid ""
 "See [%s]"
 msgstr ""
 
-msgid "Successfully regenerated generic vaccines ..."
+msgid "Successfully regenerated generic vaccines."
 msgstr ""
 
 msgid "Adding new vaccine"
@@ -16716,6 +16716,12 @@ msgstr ""
 msgid "Show list of all placeholders."
 msgstr ""
 
+msgid "Test placeholder"
+msgstr ""
+
+msgid "Manually test placeholders"
+msgstr ""
+
 msgid "List passphrases"
 msgstr ""
 
@@ -16786,6 +16792,96 @@ msgstr ""
 msgid "Lab results ..."
 msgstr ""
 
+msgid "&Screenshot"
+msgstr ""
+
+msgid "Save a screenshot of this GNUmed client."
+msgstr ""
+
+msgid "Status line: &Clear"
+msgstr ""
+
+msgid "Clear the status line."
+msgstr ""
+
+msgid "Status line: History"
+msgstr ""
+
+msgid "Show status line history."
+msgstr ""
+
+msgid "Tooltips on"
+msgstr ""
+
+msgid "Globally enable tooltips."
+msgstr ""
+
+msgid "Tooltips off"
+msgstr ""
+
+msgid "Globally (attempt to) disable tooltips."
+msgstr ""
+
+msgid "Unlock mouse"
+msgstr ""
+
+msgid "Unlock mouse pointer in case it got stuck in hourglass mode."
+msgstr ""
+
+msgid "pgAdmin III"
+msgstr ""
+
+msgid "pgAdmin III: Browse GNUmed database(s) in PostgreSQL server."
+msgstr ""
+
+msgid "Lock/unlock patient search"
+msgstr ""
+
+msgid "Lock/unlock patient search - USE ONLY IF YOU KNOW WHAT YOU ARE DOING !"
+msgstr ""
+
+msgid "Admin connection"
+msgstr ""
+
+msgid "Test connecting to the database as admin."
+msgstr ""
+
+msgid "Error handling"
+msgstr ""
+
+msgid "Throw an exception to test error handling."
+msgstr ""
+
+msgid "Access violation exception"
+msgstr ""
+
+msgid "Simulate an access violation exception."
+msgstr ""
+
+msgid "Access checking"
+msgstr ""
+
+msgid "Simulate a failing access check."
+msgstr ""
+
+msgid "Fault handler"
+msgstr ""
+
+msgid "Simulate a catastrophic fault (SIGSEGV)."
+msgstr ""
+
+msgid "Invoke inspector"
+msgstr ""
+
+msgid "Invoke the widget hierarchy inspector."
+msgstr ""
+
+msgid "Tests ..."
+msgstr ""
+
+msgid "&Technical ..."
+msgstr ""
+
 msgid "&Tools"
 msgstr ""
 
@@ -16843,69 +16939,36 @@ msgstr ""
 msgid "Go to the User Manual on the web."
 msgstr ""
 
-msgid "Browse work dir"
+msgid "show"
+msgstr ""
+
+msgid "Show log file in text viewer."
+msgstr ""
+
+msgid "Backup content of the log to another file."
+msgstr ""
+
+msgid "email"
+msgstr ""
+
+msgid "Send log file to the authors for help."
+msgstr ""
+
+msgid "work dir"
 msgstr ""
 
 #, python-format
 msgid "Browse user working directory [%s]."
 msgstr ""
 
-msgid "Status line: &Clear"
-msgstr ""
-
-msgid "Clear the status line."
-msgstr ""
-
-msgid "Status line: History"
-msgstr ""
-
-msgid "Show status line history."
-msgstr ""
-
-msgid "Tooltips on"
-msgstr ""
-
-msgid "Globally enable tooltips."
-msgstr ""
-
-msgid "Tooltips off"
-msgstr ""
-
-msgid "Globally (attempt to) disable tooltips."
-msgstr ""
-
-msgid "Screenshot"
-msgstr ""
-
-msgid "Save a screenshot of this GNUmed client."
-msgstr ""
-
-msgid "Show log file"
-msgstr ""
-
-msgid "Show log file in text viewer."
-msgstr ""
-
-msgid "Backup log file"
-msgstr ""
-
-msgid "Backup content of the log to another file."
-msgstr ""
-
-msgid "Email log file"
-msgstr ""
-
-msgid "Send log file to the authors for help."
-msgstr ""
-
-msgid "Browse tmp dir"
+msgid "tmp dir"
 msgstr ""
 
 #, python-format
 msgid "Browse temporary directory [%s]."
 msgstr ""
 
-msgid "Browse internal work dir"
+msgid "internal work dir"
 msgstr ""
 
 #, python-format
@@ -16918,64 +16981,10 @@ msgstr ""
 msgid "Go to the GNUmed bug tracker on the web."
 msgstr ""
 
-msgid "Unlock mouse"
+msgid "Log ..."
 msgstr ""
 
-msgid "Unlock mouse pointer in case it got stuck in hourglass mode."
-msgstr ""
-
-msgid "pgAdmin III"
-msgstr ""
-
-msgid "pgAdmin III: Browse GNUmed database(s) in PostgreSQL server."
-msgstr ""
-
-msgid "Admin connection"
-msgstr ""
-
-msgid "Test connecting to the database as admin."
-msgstr ""
-
-msgid "Lock/unlock patient search"
-msgstr ""
-
-msgid "Lock/unlock patient search - USE ONLY IF YOU KNOW WHAT YOU ARE DOING !"
-msgstr ""
-
-msgid "Test error handling"
-msgstr ""
-
-msgid "Throw an exception to test error handling."
-msgstr ""
-
-msgid "Test access violation exception"
-msgstr ""
-
-msgid "Simulate an access violation exception."
-msgstr ""
-
-msgid "Test access checking"
-msgstr ""
-
-msgid "Simulate a failing access check."
-msgstr ""
-
-msgid "Invoke inspector"
-msgstr ""
-
-msgid "Invoke the widget hierarchy inspector (needs wxPython 2.8)."
-msgstr ""
-
-msgid "Test fault handler"
-msgstr ""
-
-msgid "Simulate a catastrophic fault (SIGSEGV)."
-msgstr ""
-
-msgid "Test placeholder"
-msgstr ""
-
-msgid "Manually test placeholders"
+msgid "Browse ..."
 msgstr ""
 
 msgid "Debugging ..."
@@ -16994,6 +17003,9 @@ msgid "About contributors"
 msgstr ""
 
 msgid "Show GNUmed contributors"
+msgstr ""
+
+msgid "&Help/Info"
 msgstr ""
 
 #, python-format
