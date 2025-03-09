@@ -1034,8 +1034,8 @@ class database:
 			# evaluate
 			if val_in_new_db != val_in_old_db:
 				_log.error('plausibility check [%s] failed, expected: [%s] (from old DB), found: [%s] (in new DB)', tag_of_check, val_in_old_db, val_in_new_db)
-				_log.error('SQL (old DB): %s', old_query)
-				_log.error('SQL (new DB): %s', new_query)
+				_log.error('SQL (old DB): %s', SQL__old_db)
+				_log.error('SQL (new DB): %s', SQL__new_db)
 				print_msg("    ... failed (data error, check [%s])" % tag_of_check)
 				all_tests_successful = False
 				def_of_check = None
