@@ -135,7 +135,7 @@ $m[%_if_dbg]m$\renewcommand*\ShowFrameColor{\color{red}}		% configure showframe
 \hypersetup{%
 	pdftitle = {Patient: $m[PtFirstLast]m$, $m[PtDOB]m$},
 	pdfauthor = {$m[Prov]m$, $m[PrxBrPrx]m$},
-	pdfsubject = {GENERIC TITLE},
+	pdfsubject = {Begleitbrief},
 	pdfproducer = {GNUmed $1<client_version::::>1$, Template $m[GmFormTmpl]m$},
 	pdfdisplaydoctitle = true,
 	pdfprintscaling = None
@@ -177,7 +177,7 @@ $m[%_if_dbg]m$\renewcommand*\ShowFrameColor{\color{red}}		% configure showframe
 \setkomavar{backaddress}{$m[ProvFLast]m$\\$1<praxis_address::%(street)s %(number)s\\%(postcode)s %(urb)s::60>1$}
 \setkomavar{location}{%
 	\begin{tabular}[t]{cc}%
-		Patient & Sender \\
+		Patient & Absender \\
 			$3<ph_cfg::argumentsdivider//#3#//%% <%(name)s> set to [%(value)s]::>3$
 		\includegraphics[width=30mm]{$m[PtMcfQR]m$} & $3<if_not_empty::$m[PrxStreet]m$#3#$m[PrxAdrQrHREF]m$#3#\includegraphics[width=30mm]{$m[PrxMcfQR]m$} %% no praxis address available::>3$
 			$3<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>3$
@@ -192,12 +192,23 @@ $m[%_if_dbg]m$\renewcommand*\ShowFrameColor{\color{red}}		% configure showframe
 
 
 % - reference line
-\setkomavar{myref}{$2<free_text::"Our Ref" (say, "$m[ProvFL]m$" for $m[ProvFirstLast]m$)//$m[ProvFL]m$::40>2$}
-\setkomavar{yourref}{$2<free_text::Text under "Your Ref"::40>2$}
-\setkomavar{yourmail}{$2<free_text::Date under "Your letter from"::20>2$}
+\setkomavar{myref}{$2<free_text::"Unser Zeichen" (z.B. "$m[ProvFL]m$" für $m[ProvFirstLast]m$)//$m[ProvFL]m$::40>2$}
+\setkomavar{yourref}{$2<free_text::"Ihr Zeichen"::40>2$}
+\setkomavar{yourmail}{$2<free_text::"Ihr Schreiben vom"::20>2$}
 \setkomavar{date}{$1<today::%d.%B %Y::50>1$}
 \setkomavar{place}{$1<praxis_address::%(urb)s::120>1$}
 
+
+\newcommand{\DxListing}[1]{%
+	\if\relax\detokenize{#1}\relax\else
+		\begin{itemize}
+			\setlength\topsep{0pt}%
+			\setlength\partopsep{0pt}%
+			\setlength\itemsep{0pt}%
+			#1
+		\end{itemize}
+	\fi%
+}
 
 % - Subject, namely patient data
 % %% $m[Subject==$2<free_text::Betreff (Patientenstammdaten werden hinzugefügt)::120>2$]m$
@@ -205,12 +216,9 @@ $m[%_if_dbg]m$\renewcommand*\ShowFrameColor{\color{red}}		% configure showframe
 	$3<if_not_empty::$m[Subject]m$//%s\\//%% no additional Subject by user::>3$
 	$m[Pt4Subj]m$
 	$m[PtAdr4Subj]m$
-%	\begin{itemize}
-%		\setlength\topsep{0pt}
-%		\setlength\partopsep{0pt}
-%		\setlength\itemsep{0pt}
-%$1<diagnoses::		\item %(diagnosis)s::>1$
-%	\end{itemize}
+	\DxListing{%
+$1<diagnoses::		\item %(diagnosis)s::>1$%
+	}
 }
 
 
@@ -219,10 +227,10 @@ $m[%_if_dbg]m$\renewcommand*\ShowFrameColor{\color{red}}		% configure showframe
 		$3<ph_cfg::argumentsdivider//#3#//%% <%(name)s> set to [%(value)s]::>3$
 	$3<if_not_empty::$2<data_snippet::autograph-$1<current_provider_lastnames::::>1$_$1<current_provider_firstnames::::>1$//\includegraphics[width=30mm]{%s}//image/png//.png::250>2$#3#%s\\#3#%% no signature file available::>3$
 		$3<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>3$
-	\rule{\widthof{\tiny{}(The signator cannot be held responsible for unconfirmed content or alterations to this letter.)}}{.1pt}\\
+	\rule{\widthof{\tiny{}(Der Unterzeichner haftet nicht für unsignierte Änderungen des Inhalts.)}}{.1pt}\\
 	$m[ProvTitleFirstLast]m$\\
 	$2<if_not_empty::$m[ProvFA50]m$//FA für %s\\//%% no speciality available::>2$
-	{\tiny{}(The signator cannot be held responsible for unconfirmed content or alterations to this letter.)}
+	{\tiny{}(Der Unterzeichner haftet nicht für unsignierte Änderungen des Inhalts.)}
 }
 \renewcommand*{\raggedsignature}{\raggedright}
 \makeatletter
@@ -297,7 +305,7 @@ $m[%_if_dbg]m$\afterpage{\AddToShipoutPicture*{\ShowFramePicture}}		% show "norm
 
 % define opening (Anrede)
 \opening{%
-	$2<free_text::Opening, eg. "Dear $1<receiver_name::::>1$,"//Dear $1<receiver_name::::>1$,::140>2$%
+	$2<free_text::Anrede, z.B. "Sehr geehrte/geehrter $1<receiver_name::::>1$,"//Sehr geehrte Kollegin $1<receiver_name::::>1$,::140>2$%
 }
 
 
@@ -309,7 +317,7 @@ $2<free_text::Der eigentliche Brieftext (in LaTeX)::>2$
 % define closing of letter (Grußformel)
 % multiple lines with \\, no empty lines
 \closing{%
-	$2<free_text::Closing, eg. "Yours truly,"//Yours truly,::140>2$%
+	$2<free_text::Grußformel, z.B. "Mit kollegialen Grüßen,"//Mit kollegialen Grüßen,::140>2$%
 }
 
 % no Post Scriptum

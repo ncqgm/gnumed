@@ -1225,6 +1225,28 @@ if __name__ == '__main__':
 		return
 
 	#----------------------------------------
+	def test_form_template():
+
+		from Gnumed.pycommon import gmPG2
+		from Gnumed.business import gmPersonSearch
+		from Gnumed.wxpython import gmGuiTest
+
+		frame = gmGuiTest.setup_widget_test_env()
+		path = os.path.abspath(sys.argv[2])
+		form = gmForms.cLaTeXForm(template_file = path)
+		ph = gmMacro.gmPlaceholderHandler()
+		ph.debug = True
+
+		def handle_form():
+			form.substitute_placeholders(data_source = ph)
+			pdf_name = form.generate_output()
+			print("final PDF file is:", pdf_name)
+			return
+
+		wx.CallLater(2000, handle_form)#, parent = frame)
+		wx.GetApp().MainLoop()
+
+	#----------------------------------------
 	def test_print_generic_document():
 		#gmStaff.set_current_provider_to_logged_on_user()
 		from Gnumed.pycommon import gmPG2
@@ -1246,6 +1268,7 @@ if __name__ == '__main__':
 	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
 		#test_cFormTemplateEAPnl()
 		#test_print_generic_document()
-		test_generate_failsafe_form_wrapper()
+		#test_generate_failsafe_form_wrapper()
+		test_form_template()
 
 #============================================================
