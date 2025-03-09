@@ -696,9 +696,24 @@ def get_db_fingerprint(conn=None, fname=None, with_dump=False, eol=None):
 	except KeyError:
 		lines.append('%20s: %s' % ('Schema hash', md5_sum))
 	for cmd, label in queries:
-		curs.execute(cmd)
-		rows = curs.fetchall()
-		lines.append('%20s: %s' % (label, rows[0][0]))
+		try:
+			curs.execute(cmd)
+			rows = curs.fetchall()
+			lines.append('%20s: %s' % (label, rows[0][0]))
+		except PG_ERROR_EXCEPTION as pg_exc:
+			if pg_exc.pgcode != sql_error_codes.INSUFFICIENT_PRIVILEGE:
+				raise
+
+			details = 'Query: [%s]' % curs.query.decode(errors = 'replace').strip().strip('\n').strip().strip('\n')
+			if curs.statusmessage != '':
+				details = 'Status: %s\n%s' % (
+					curs.statusmessage.strip().strip('\n').strip().strip('\n'),
+					details
+				)
+			if pg_exc.pgerror is None:
+				msg = '[%s]' % pg_exc.pgcode
+			else:
+				msg = '[%s]: %s' % (pg_exc.pgcode, pg_exc.pgerror)
 	if with_dump:
 		lines.append('')
 		lines.append(str(get_schema_structure(link_obj = curs)))
