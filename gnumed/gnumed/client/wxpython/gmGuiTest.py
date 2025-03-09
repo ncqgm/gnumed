@@ -25,6 +25,7 @@ from Gnumed.pycommon import gmPG2
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmPerson
 from Gnumed.business import gmPersonSearch
+from Gnumed.business import gmStaff
 
 
 _log = logging.getLogger('gm.guitest')
@@ -76,9 +77,10 @@ def setup_widget_test_env(patient=-1):
 		main frame, which can be used to instantiate widgets
 	"""
 	gmPG2.request_login_params(setup_pool = True, force_tui = True)
-	gmPraxis.activate_first_praxis_branch()
 	if not __activate_patient(patient = patient):
 		sys.exit()
+	gmPraxis.activate_first_praxis_branch()
+	gmStaff.set_current_provider_to_logged_on_user()
 
 	app = inspection.InspectableApp()
 	app.SetAssertMode(wx.APP_ASSERT_EXCEPTION | wx.APP_ASSERT_LOG)
