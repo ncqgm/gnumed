@@ -4,10 +4,10 @@
 #
 
 import wx
-import wx.adv
 
 # begin wxGlade: dependencies
 import gettext
+import wx.adv
 # end wxGlade
 
 # begin wxGlade: extracode
@@ -20,57 +20,62 @@ class wxgMultilineTextEntryDlg(wx.Dialog):
 		kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_DIALOG_STYLE | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX | wx.RESIZE_BORDER
 		wx.Dialog.__init__(self, *args, **kwds)
 		self.SetSize((600, 641))
+		self.SetTitle(_("Generic multi line text entry dialog"))
+
+		__szr_main = wx.BoxSizer(wx.VERTICAL)
+
 		self._LBL_msg = wx.StaticText(self, wx.ID_ANY, "")
+		__szr_main.Add(self._LBL_msg, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 5)
+
 		self._TCTRL_data = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_WORDWRAP)
+		__szr_main.Add(self._TCTRL_data, 1, wx.ALL | wx.EXPAND, 5)
+
 		from Gnumed.wxpython.gmTextCtrl import cTextCtrl
 		self._TCTRL_text = cTextCtrl(self, wx.ID_ANY, "", style=wx.TE_MULTILINE | wx.TE_WORDWRAP)
+		__szr_main.Add(self._TCTRL_text, 4, wx.ALL | wx.EXPAND, 5)
+
+		__szr_options = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_main.Add(__szr_options, 0, wx.ALL | wx.EXPAND, 5)
+
 		self._CHBOX_is_already_formatted = wx.CheckBox(self, wx.ID_ANY, _("Do not reformat text"))
-		self._HCTRL_ReST = wx.adv.HyperlinkCtrl(self, wx.ID_ANY, _("Formatting help"), _("http://docutils.sourceforge.net/docs/user/rst/quickref.html"))
-		self._BTN_save = wx.Button(self, wx.ID_SAVE, "")
-		self._BTN_clear = wx.Button(self, wx.ID_CLEAR, "")
-		self._BTN_restore = wx.Button(self, wx.ID_REVERT_TO_SAVED, "")
-		self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, "")
-
-		self.__set_properties()
-		self.__do_layout()
-
-		self.Bind(wx.EVT_BUTTON, self._on_save_button_pressed, self._BTN_save)
-		self.Bind(wx.EVT_BUTTON, self._on_clear_button_pressed, self._BTN_clear)
-		self.Bind(wx.EVT_BUTTON, self._on_restore_button_pressed, self._BTN_restore)
-		# end wxGlade
-
-	def __set_properties(self):
-		# begin wxGlade: wxgMultilineTextEntryDlg.__set_properties
-		self.SetTitle(_("Generic multi line text entry dialog"))
-		self.SetSize((600, 641))
 		self._CHBOX_is_already_formatted.SetToolTip(_("This is an option for power users.\n\nGNUmed will normally check your input for parts that\nneed escaping or transforming for proper output. It will\nalso convert any ReST formatting, if possible.\n\nCheck this option if you do NOT want GNUmed to apply\nANY modifications to ANY of your input into this dialog.\n\nThis is useful when you have entered raw formatting,\nlike HTML or LaTeX, and you are confident it should be\nput into the output as-is. Note that this will also disable\nReST post-processing."))
 		self._CHBOX_is_already_formatted.Enable(False)
-		self._HCTRL_ReST.SetToolTip(_("If you are writing a letter, and the letter is processed\nby LaTeX, you can use reStructuredText markup to\nformat some aspects of your text.\n\nLists, tables, and emphasis will mainly be useful.\n\nFollow the link for details."))
-		self._BTN_restore.Enable(False)
-		# end wxGlade
+		__szr_options.Add(self._CHBOX_is_already_formatted, 0, wx.EXPAND, 0)
 
-	def __do_layout(self):
-		# begin wxGlade: wxgMultilineTextEntryDlg.__do_layout
-		__szr_main = wx.BoxSizer(wx.VERTICAL)
-		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_options = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_main.Add(self._LBL_msg, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 5)
-		__szr_main.Add(self._TCTRL_data, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 5)
-		__szr_main.Add(self._TCTRL_text, 4, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 5)
-		__szr_options.Add(self._CHBOX_is_already_formatted, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__szr_options.Add((20, 20), 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+		__szr_options.Add((20, 20), 1, wx.EXPAND, 0)
+
+		self._HCTRL_ReST = wx.adv.HyperlinkCtrl(self, wx.ID_ANY, _("Formatting help"), _("http://docutils.sourceforge.net/docs/user/rst/quickref.html"))
+		self._HCTRL_ReST.SetToolTip(_("If you are writing a letter, and the letter is processed\nby LaTeX, you can use reStructuredText markup to\nformat some aspects of your text.\n\nLists, tables, and emphasis will mainly be useful.\n\nFollow the link for details."))
 		__szr_options.Add(self._HCTRL_ReST, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_main.Add(__szr_options, 0, wx.ALL | wx.EXPAND, 5)
-		__szr_buttons.Add(self._BTN_save, 0, wx.EXPAND, 5)
-		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-		__szr_buttons.Add(self._BTN_clear, 0, wx.EXPAND | wx.RIGHT, 5)
-		__szr_buttons.Add(self._BTN_restore, 0, wx.EXPAND, 3)
-		__szr_buttons.Add((20, 20), 3, wx.EXPAND, 0)
-		__szr_buttons.Add(self._BTN_cancel, 0, wx.EXPAND, 3)
+
+		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_main.Add(__szr_buttons, 0, wx.ALL | wx.EXPAND, 4)
+
+		self._BTN_save = wx.Button(self, wx.ID_SAVE, "")
+		__szr_buttons.Add(self._BTN_save, 0, wx.EXPAND, 5)
+
+		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+
+		self._BTN_clear = wx.Button(self, wx.ID_CLEAR, "")
+		__szr_buttons.Add(self._BTN_clear, 0, wx.EXPAND | wx.RIGHT, 5)
+
+		self._BTN_restore = wx.Button(self, wx.ID_REVERT_TO_SAVED, "")
+		self._BTN_restore.Enable(False)
+		__szr_buttons.Add(self._BTN_restore, 0, wx.EXPAND, 3)
+
+		__szr_buttons.Add((20, 20), 3, wx.EXPAND, 0)
+
+		self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, "")
+		__szr_buttons.Add(self._BTN_cancel, 0, wx.EXPAND, 3)
+
 		self.SetSizer(__szr_main)
+
 		self.Layout()
 		self.Centre()
+
+		self._BTN_save.Bind(wx.EVT_BUTTON, self._on_save_button_pressed)
+		self._BTN_clear.Bind(wx.EVT_BUTTON, self._on_clear_button_pressed)
+		self._BTN_restore.Bind(wx.EVT_BUTTON, self._on_restore_button_pressed)
 		# end wxGlade
 
 	def _on_save_button_pressed(self, event):  # wxGlade: wxgMultilineTextEntryDlg.<event_handler>
