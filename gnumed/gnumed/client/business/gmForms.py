@@ -1094,8 +1094,30 @@ form_engines['T'] = cTextForm
 # LaTeX template forms
 #----------------------------------------------------------------
 class cLaTeXForm(cFormEngine):
-	"""A forms engine wrapping LaTeX (pdflatex)."""
+	"""A forms engine wrapping LaTeX (pdflatex).
 
+	This engine supports macro expansion.
+
+	Macros can be assigned to in lines starting with '%
+	%%' only. Such lines must only contain one macro
+	assignment but macro *use* (access) can be nested inside.
+
+	Macro assigments look like this:
+
+		% %% $m[macro1==macro_value]m$
+		% %% $m[macro2==$m[macro1]m$]m$
+		% %% $m[macro3==placeholder]m$
+
+	which can be mixed:
+
+		% %% $m[macro_max==some static text + $m[some_other_macro]m$ & $1<some_placeholder::args::range>$1]m$
+
+	Macro access can be used anywhere. The format is:
+
+		$m[some_macro]m$
+
+	Five macro expansion passes are run before placeholders takes place.
+	"""
 	_version_checked = False
 	_mimetypes = [
 		'application/x-latex',
@@ -1105,11 +1127,22 @@ class cLaTeXForm(cFormEngine):
 		'text/x-tex',
 		'text/plain'
 	]
+	_placeholder_regexen = [
+		r'unused-dummy',
+		r'\$1{0,1}<[^<].+?>1{0,1}\$',
+		r'\$2<[^<].+?>2\$',
+		r'\$3<[^<].+?>3\$',
+		r'\$4<[^<].+?>4\$',
+		r'\$5<[^<].+?>5\$'
+	]
+	_macro_assign_regex = r'\$m\[[^[]+?==.*]m\$'			# greedy is OK because only one assignment per line allowed, but can be nested hence greedy is needed
+	_macro_use_regex = r'\$m\[[^=]+?]m\$'
+
 	def __init__(self, template_file=None):
 		# create sandbox for LaTeX to play in (and don't assume
 		# much of anything about the template_file except that it
 		# is at our disposal for reading)
-		sandbox_dir = gmTools.mk_sandbox_dir(prefix = gmTools.fname_stem(template_file) + '_')
+		sandbox_dir = gmTools.mk_sandbox_dir(prefix = gmTools.fname_stem(template_file) + '-')
 		_log.debug('LaTeX sandbox directory: [%s]', sandbox_dir)
 		shutil.copy(template_file, sandbox_dir)
 		template_file = os.path.join(sandbox_dir, os.path.split(template_file)[1])
@@ -1120,14 +1153,17 @@ class cLaTeXForm(cFormEngine):
 	def _rst2latex_transform(self, text):
 		# remove extra linefeeds which the docutils ReST2LaTeX
 		# converter likes to add but which makes pdflatex go
-		# crazy when ending up inside KOMAScript variables
+		# crazy when ending up inside, say, KOMAScript variables
 		return gmTools.rst2latex_snippet(text).strip()
 
 	#--------------------------------------------------------
 	def substitute_placeholders(self, data_source=None):
 
+		_log.debug('macro assignment regex: >>>%s<<<', cLaTeXForm._macro_assign_regex)
+		_log.debug('macro use regex: >>>%s<<<', cLaTeXForm._macro_use_regex)
+
 		# debugging
-		#data_source.debug = True
+		data_source.debug = False
 
 		if self.template:
 			# pylint: disable=unsubscriptable-object
@@ -1147,81 +1183,155 @@ class cLaTeXForm(cFormEngine):
 				f.write('\n')
 			f.write('%------------------------------------------------------------------\n')
 			f.close()
-
 		data_source.escape_function = gmTools.tex_escape_string
 		data_source.escape_style = 'latex'
 
-		path, ext = os.path.splitext(self.template_filename)
-		if ext in [r'', r'.']:
-			ext = r'.tex'
-
-		filenames = [
-			self.template_filename,
-			r'%s-result-pass-1%s' % (path, ext),
-			r'%s-result-pass-2%s' % (path, ext),
-			r'%s-result-pass-3%s' % (path, ext),
-			r'%s-result-pass-4%s' % (path, ext),
-			r'%s-result-pass-5%s' % (path, ext)
-		]
-		regexen = [
-			'dummy',
-			r'\$1{0,1}<[^<].+?>1{0,1}\$',
-			r'\$2<[^<].+?>2\$',
-			r'\$3<[^<].+?>3\$',
-			r'\$4<[^<].+?>4\$',
-			r'\$5<[^<].+?>5\$'
-		]
-
-		current_pass = 1
-		while current_pass < 6:
-			_log.debug('placeholder substitution pass #%s', current_pass)
+		macros_fname = self.__expand_macros(input_filename = self.template_filename)
+		path, fname = os.path.split(macros_fname)
+		input_fname = macros_fname
+		output_fname = input_fname
+		for current_pass in range(1,6):
+			_log.debug('substitution pass #%s', current_pass)
+			output_fname = os.path.join(path, '%s.placeholders-replaced.%s.tex' % (fname, current_pass))
 			self.__substitute_placeholders (
-				input_filename = filenames[current_pass-1],
-				output_filename = filenames[current_pass],
-				data_source = data_source,
-				placeholder_regex = regexen[current_pass]
+				iteration = current_pass,
+				input_filename = input_fname,
+				output_filename = output_fname,
+				data_source = data_source
 			)
-			current_pass += 1
-
+			input_fname = output_fname
 		# remove temporary placeholders
 		data_source.unset_placeholder('form_name_long')
 		data_source.unset_placeholder('form_name_short')
 		data_source.unset_placeholder('form_version')
 		data_source.unset_placeholder('form_version_internal')
 		data_source.unset_placeholder('form_last_modified')
-
-		self.instance_filename = self.re_editable_filenames[0]
-
+		self.re_editable_filenames = [output_fname]
+		self.instance_filename = output_fname
 		return
 
 	#--------------------------------------------------------
-	def __substitute_placeholders(self, data_source=None, input_filename=None, output_filename=None, placeholder_regex=None):
+	def __load_macro_values(self, input_filename:str=None) -> dict[str,str]:
+		_log.debug(('[%s]: loading macro values from' % input_filename) + ' % %% lines')
+		macro_values = {}
+		with open(input_filename, mode = 'rt', encoding = 'utf-8-sig') as input_file:
+			for line in input_file:
+				if not line.lstrip().startswith('% %%'):
+					continue
+				# scan for assignments
+				macros_in_line = regex.findall(cLaTeXForm._macro_assign_regex, line, regex.IGNORECASE)
+				if not macros_in_line:
+					continue
 
-		_log.debug('[%s] -> [%s]', input_filename, output_filename)
-		_log.debug('searching for placeholders with pattern: %s', placeholder_regex)
+				if len(macros_in_line) > 1:
+					_log.error(' error: more than one macro assignment in line:')
+					_log.error(' %s' % line)
+					continue
 
-		template_file = open(input_filename, mode = 'rt', encoding = 'utf-8-sig')
-		instance_file = open(output_filename, mode = 'wt', encoding = 'utf8')
+				macro_def = macros_in_line[0]
+				_log.debug(' found macro assignment: %s', macro_def)
+				macro_def = macro_def[3:-3]
+				_log.debug(' stripped macro def: %s', macro_def)
+				macro_parts = macro_def.split('==', maxsplit = 1)
+				if len(macro_parts) != 2:
+					_log.error(' invalid macro assignment, not 2 parts separated by ==')
+					continue
+				macro_name, macro_val = macro_parts
+				_log.debug(' macro "%s" holds: >>%s<<', macro_name, macro_val)
+				macro_values[macro_name] = macro_val
+		return macro_values
 
-		for line in template_file:
+	#--------------------------------------------------------
+	def __expand_macros(self, input_filename:str=None) -> str:
+		_log.debug('expanding macros in [%s]', input_filename)
+		path, fname = os.path.split(input_filename)
+		filename2return = input_filename
+		prev_output_filename = input_filename
+		iteration = 1
+		any_macros_found = None
+		while True:
+			if iteration > 5:
+				break
+			output_filename = os.path.join(path, '%s.macro-use-expanded.%s.tex' % (fname, iteration))
+			any_macros_found = self.__expand_macro_use (
+				input_filename = prev_output_filename,
+				output_filename = output_filename
+			)
+			if any_macros_found:
+				filename2return = output_filename
+			else:
+				break
+			iteration += 1
+			prev_output_filename = output_filename
+		return filename2return
+
+	#--------------------------------------------------------
+	def __expand_macro_use(self, input_filename:str=None, output_filename:str=None) -> bool:
+		_log.debug('expanding macro usage')
+		macro_values = self.__load_macro_values(input_filename)
+		if not macro_values:
+			_log.debug(' no macro values found, cannot replace')
+			return False
+
+		_log.debug(' [%s] -> [%s]', input_filename, output_filename)
+		input_file = open(input_filename, mode = 'rt', encoding = 'utf-8-sig')
+		output_file = open(output_filename, mode = 'wt', encoding = 'utf8')
+		any_macros_found = False
+		for line in input_file:
+			if line.lstrip().startswith('%'):
+				if not line.lstrip().startswith('% %%'):
+					output_file.write(line)
+					continue
+			macros_in_line = regex.findall(cLaTeXForm._macro_use_regex, line, regex.IGNORECASE)
+			if not macros_in_line:
+				output_file.write(line)
+				continue
+			any_macros_found = True
+			_log.debug(' %s macro(s) detected in line:', len(macros_in_line))
+			_log.debug(' >>>%s<<<', line.rstrip('\n'))
+			for macro_def in macros_in_line:
+				_log.debug(' replacing macro "%s"', macro_def)
+				macro_name = macro_def[3:-3]
+				if macro_name not in macro_values:
+					_log.error(' macro not assigned')
+					macro_values[macro_name] = '%s:?undefined?' % macro_name
+				else:
+					_log.debug(' value: >>>%s<<<', macro_values[macro_name])
+				line = line.replace(macro_def, macro_values[macro_name])
+			output_file.write(line)
+		output_file.close()
+		input_file.close()
+		return any_macros_found
+
+	#--------------------------------------------------------
+	def __substitute_placeholders(self, iteration:int, input_filename:str=None, output_filename:str=None, data_source=None) -> str:
+		_log.debug('placeholder substitution pass #%s', iteration)
+		ph_regex = cLaTeXForm._placeholder_regexen[iteration]
+		_log.debug(' placeholders regex: %s', ph_regex)
+		_log.debug(' [%s] -> [%s]', input_filename, output_filename)
+		input_file = open(input_filename, mode = 'rt', encoding = 'utf-8-sig')
+		output_file = open(output_filename, mode = 'wt', encoding = 'utf8')
+		for line in input_file:
 			# empty lines
 			if line.strip() in ['', '\r', '\n', '\r\n']:
-				instance_file.write(line)
+				output_file.write(line)
 				continue
 			# TeX-comment-only lines
 			if line.lstrip().startswith('%'):
-				instance_file.write(line)
-				continue
+				# but not "double-comment" lines, those may contain placeholders for setting macro values
+				if not line.lstrip().startswith('% %%'):
+					output_file.write(line)
+					continue
 
 			# 1) find placeholders in this line
-			placeholders_in_line = regex.findall(placeholder_regex, line, regex.IGNORECASE)
-			if len(placeholders_in_line) == 0:
-				instance_file.write(line)
+			placeholders_in_line = regex.findall(ph_regex, line, regex.IGNORECASE)
+			if not placeholders_in_line:
+				output_file.write(line)
 				continue
 
 			# 2) replace them
-			_log.debug('replacing in non-empty, non-comment line: >>>%s<<<', line.rstrip(u'\n'))
-			_log.debug('%s placeholder(s) detected', len(placeholders_in_line))
+			_log.debug(' %s placeholder(s) detected in line:', len(placeholders_in_line))
+			_log.debug(' >>>%s<<<', line.rstrip('\n'))
 			for placeholder in placeholders_in_line:
 				if 'free_text' in placeholder:
 					# enable reStructuredText processing
@@ -1229,16 +1339,16 @@ class cLaTeXForm(cFormEngine):
 				else:
 					data_source.escape_function = gmTools.tex_escape_string
 				original_ph_def = placeholder
-				_log.debug('placeholder: >>>%s<<<', original_ph_def)
+				_log.debug(' placeholder: >>>%s<<<', original_ph_def)
 				# normalize start/end
 				if placeholder.startswith('$<'):
 					placeholder = '$1<' + placeholder[2:]
 				if placeholder.endswith('>$'):
 					placeholder = placeholder[:-2] + '>1$'
-				_log.debug('normalized : >>>%s<<<', placeholder)
+				_log.debug(' normalized : >>>%s<<<', placeholder)
 				# remove start/end
 				placeholder = placeholder[3:-3]
-				_log.debug('stripped   : >>>%s<<<', placeholder)
+				_log.debug(' stripped   : >>>%s<<<', placeholder)
 				try:
 					val = data_source[placeholder]
 				except Exception:
@@ -1247,15 +1357,12 @@ class cLaTeXForm(cFormEngine):
 				if val is None:
 					_log.debug('error with placeholder [%s]', original_ph_def)
 					val = gmTools.tex_escape_string(_('error with placeholder [%s]') % original_ph_def)
-				_log.debug('value      : >>>%s<<<', val)
+				_log.debug(' value      : >>>%s<<<', val)
 				line = line.replace(original_ph_def, val)
-			instance_file.write(line)
-
-		instance_file.close()
-		self.re_editable_filenames = [output_filename]
-		template_file.close()
-
-		return
+			output_file.write(line)
+		output_file.close()
+		input_file.close()
+		return output_filename
 
 	#--------------------------------------------------------
 	def edit(self) -> bool:
@@ -2183,13 +2290,11 @@ if __name__ == '__main__':
 		pat = gmPersonSearch.ask_for_patient()
 		if pat is None:
 			return
+
 		gmPerson.set_active_patient(patient = pat)
-
 		gmStaff.gmCurrentProvider(provider = gmStaff.cStaff())
-
 		path = os.path.abspath(sys.argv[2])
 		form = cLaTeXForm(template_file = path)
-
 		from Gnumed.wxpython import gmMacro
 		ph = gmMacro.gmPlaceholderHandler()
 		ph.debug = True
@@ -2281,9 +2386,9 @@ if __name__ == '__main__':
 	gmPG2.request_login_params(setup_pool = True)
 	if not gmPraxis.activate_first_praxis_branch():
 		print('no praxis')
-	#test_latex_form()
+	test_latex_form()
 	#test_pdf_form()
 	#test_abiword_form()
-	test_text_form()
+	#test_text_form()
 
 #============================================================
