@@ -1227,11 +1227,10 @@ if __name__ == '__main__':
 	#----------------------------------------
 	def test_form_template():
 
-		from Gnumed.pycommon import gmPG2
-		from Gnumed.business import gmPersonSearch
 		from Gnumed.wxpython import gmGuiTest
 
 		frame = gmGuiTest.setup_widget_test_env()
+		print(frame)
 		path = os.path.abspath(sys.argv[2])
 		form = gmForms.cLaTeXForm(template_file = path)
 		ph = gmMacro.gmPlaceholderHandler()
