@@ -2266,6 +2266,14 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v22
 ------------------------------------------------
 
+	22.30
+
+FIX: unique constraint on identity+name with multiple names per identity [thanks Maria]
+
+	22.29
+
+No changes.
+
 	22.28
 
 FIX: concatenation of the database schema structure
