@@ -2344,6 +2344,7 @@ FIX: revoke CREATE from PUBLIC on schema PUBLIC (thanks PG)
 FIX: unique constraint on identity+name with multiple names per identity [thanks Maria]
 FIX: gm-staff permissions on dem.v_pat_addresses [thanks Maria]
 FIX: gm-staff permissions on dem.v_message_inbox [thanks Maria]
+FIX: permissions on org/unit tables/views
 
 	22.29
 
