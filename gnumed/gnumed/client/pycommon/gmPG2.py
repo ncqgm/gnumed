@@ -771,21 +771,16 @@ def get_db_fingerprint(conn=None, fname:str=None, with_dump:bool=False, eol:str=
 		try:
 			curs.execute(cmd)
 			rows = curs.fetchall()
-			lines.append('%20s: %s' % (label, rows[0][0]))
+			val = rows[0][0]
 		except PG_ERROR_EXCEPTION as pg_exc:
 			if pg_exc.pgcode != sql_error_codes.INSUFFICIENT_PRIVILEGE:
 				raise
 
-			details = 'Query: [%s]' % curs.query.decode(errors = 'replace').strip().strip('\n').strip().strip('\n')
-			if curs.statusmessage != '':
-				details = 'Status: %s\n%s' % (
-					curs.statusmessage.strip().strip('\n').strip().strip('\n'),
-					details
-				)
 			if pg_exc.pgerror is None:
-				msg = '[%s]' % pg_exc.pgcode
+				val = '[%s]: insufficient privileges' % pg_exc.pgcode
 			else:
-				msg = '[%s]: %s' % (pg_exc.pgcode, pg_exc.pgerror)
+				val = '[%s]: %s' % (pg_exc.pgcode, pg_exc.pgerror)
+		lines.append('%20s: %s' % (label, val))
 	if with_dump:
 		lines.append('')
 		lines.append(str(get_schema_structure(link_obj = curs)))
