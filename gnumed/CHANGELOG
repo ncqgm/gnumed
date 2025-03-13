@@ -2269,6 +2269,8 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 	22.30
 
 FIX: unique constraint on identity+name with multiple names per identity [thanks Maria]
+FIX: gm-staff permissions on dem.v_pat_addresses [thanks Maria]
+FIX: gm-staff permissions on dem.v_message_inbox [thanks Maria]
 
 	22.29
 
