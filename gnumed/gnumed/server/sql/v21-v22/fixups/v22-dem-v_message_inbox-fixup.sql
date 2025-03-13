@@ -248,6 +248,7 @@ Using UNION makes sure we get the right level of uniqueness.';
 
 
 grant select on dem.v_message_inbox to group "gm-doctors";
+grant select on dem.v_message_inbox to group "gm-staff";
 
 -- ==============================================================
-select gm.log_script_insertion('v22-dem-v_message_inbox-fixup.sql', '22.5');
+select gm.log_script_insertion('v22-dem-v_message_inbox-fixup.sql', '22.30');
