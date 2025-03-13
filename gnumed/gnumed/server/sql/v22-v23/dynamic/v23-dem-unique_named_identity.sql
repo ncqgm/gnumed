@@ -56,53 +56,59 @@ create function dem.trf_assert_unique_named_identity()
 	as '
 DECLARE
 	_identity_row record;
+	_names_pks integer[];
 	_names_row record;
 	_other_identities integer[];
 BEGIN
 	-- trigger fired on dem.identity: get corresponding dem.names row
 	if TG_TABLE_NAME = ''identity'' then
 		_identity_row := NEW;
-		select * into _names_row from dem.names where id_identity = NEW.pk;
+		select array_agg(id) into _names_pks from dem.names where id_identity = NEW.pk;
 	-- trigger fired on dem.names: get corresponding dem.identity row
 	else
 		select * into _identity_row from dem.identity where pk = NEW.id_identity;
-		_names_row := NEW;
+		select ARRAY[NEW.id] into _names_pks;
 	end if;
 
-	-- there shall not be any combination of identical
-	-- (dob, firstname, lastname, identity.comment)
-	-- so, look for clashing rows
-	SELECT dem.get_person_duplicates (
-		_identity_row.dob,
-		_names_row.lastnames,
-		_names_row.firstnames,
-		_identity_row.gender,
-		_identity_row.comment
-	) INTO _other_identities;
+	-- loop over names rows belonging to identity
+	FOR _names_row IN
+		SELECT * FROM dem.names
+		WHERE id = ANY(_names_pks)
+	LOOP
+		-- there must not be any combination of identical
+		-- (dob, firstname, lastname, identity.comment)
+		-- so, look for clashing rows
+		SELECT dem.get_person_duplicates (
+			_identity_row.dob,
+			_names_row.lastnames,
+			_names_row.firstnames,
+			_identity_row.gender,
+			_identity_row.comment
+		) INTO _other_identities;
 
-	-- not needed anymore because we now use a BEFORE trigger
-	-- but not the currently updated or inserted row
-	--	d_i.pk != _identity_row.pk
-	--;
+		-- not needed anymore because we now use a BEFORE trigger
+		-- but not the currently updated or inserted row
+		--	d_i.pk != _identity_row.pk
+		--;
 
-	IF coalesce(array_length(_other_identities, 1), 0) > 0 THEN
-		RAISE EXCEPTION
-			''[dem.assert_unique_named_identity] % on %.%: More than one person with (firstnames=%), (lastnames=%), (dob=%), (gender=%), (comment=%): % & %'',
-				TG_OP,
-				TG_TABLE_SCHEMA,
-				TG_TABLE_NAME,
-				_names_row.firstnames,
-				_names_row.lastnames,
-				_identity_row.dob,
-				_identity_row.gender,
-				_identity_row.comment,
-				_identity_row.pk,
-				_other_identities
-			USING ERRCODE = ''unique_violation''
-		;
-		RETURN NULL;
-	END IF;
-
+		IF coalesce(array_length(_other_identities, 1), 0) > 0 THEN
+			RAISE EXCEPTION
+				''[dem.assert_unique_named_identity] % on %.%: More than one person with (firstnames=%), (lastnames=%), (dob=%), (gender=%), (comment=%): % & %'',
+					TG_OP,
+					TG_TABLE_SCHEMA,
+					TG_TABLE_NAME,
+					_names_row.firstnames,
+					_names_row.lastnames,
+					_identity_row.dob,
+					_identity_row.gender,
+					_identity_row.comment,
+					_identity_row.pk,
+					_other_identities
+				USING ERRCODE = ''unique_violation''
+			;
+			RETURN NULL;
+		END IF;
+	END LOOP;
 	return NEW;
 END;';
 
