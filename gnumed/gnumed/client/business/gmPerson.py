@@ -1995,14 +1995,24 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	subdir_name = property(get_subdir_name)
 
 #============================================================
-def identity_is_patient(pk_identity:int) -> bool:
-	cmd = 'SELECT 1 FROM clin.patient WHERE fk_identity = %(pk_pat)s'
-	args = {'pk_pat': pk_identity}
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
-	if rows:
-		return True
+def identity_is_patient(pk_identity:int) -> bool | None:
+	"""Check for identity to be set up as patient.
 
-	return False
+	Returns:
+		True: is patient
+		False: is not patient
+		None: you don't have permissions to know
+	"""
+	SQL = 'SELECT 1 FROM clin.patient WHERE fk_identity = %(pk_pat)s'
+	args = {'pk_pat': pk_identity}
+	status = False
+	try:
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+		if rows:
+			status = True
+	except gmExceptions.AccessDenied:
+		status = None
+	return status
 
 #============================================================
 # helper functions
