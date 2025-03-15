@@ -36,53 +36,6 @@ from Gnumed.wxpython import gmCfgWidgets
 _log = logging.getLogger('gm.ui')
 
 #============================================================
-def configure_default_medications_lab_panel(parent=None):
-
-	panels = gmPathLab.get_test_panels(order_by = 'description')
-	gmCfgWidgets.configure_string_from_list_option (
-		parent = parent,
-		message = _(
-			'\n'
-			'Select the measurements panel to show in the medications plugin.'
-			'\n'
-		),
-		option = 'horstspace.medications_plugin.lab_panel',
-		bias = 'user',
-		default_value = None,
-		choices = [ '%s%s' % (p['description'], gmTools.coalesce(p['comment'], '', ' (%s)')) for p in panels ],
-		columns = [_('Measurements panel')],
-		data = [ p['pk_test_panel'] for p in panels ],
-		caption = _('Configuring medications plugin measurements panel')
-	)
-
-#============================================================
-def configure_adr_url():
-
-	def is_valid(value):
-		value = value.strip()
-		if value == '':
-			return True, gmMedication.URL_drug_adr_german_default
-		try:
-			urllib.request.urlopen(value)
-			return True, value
-		except Exception:
-			return True, value
-
-	gmCfgWidgets.configure_string_option (
-		message = _(
-			'GNUmed will use this URL to access a website which lets\n'
-			'you report an adverse drug reaction (ADR).\n'
-			'\n'
-			'If you leave this empty it will fall back\n'
-			'to an URL for reporting ADRs in Germany.'
-		),
-		option = 'external.urls.report_ADR',
-		bias = 'user',
-		default_value = gmMedication.URL_drug_adr_german_default,
-		validator = is_valid
-	)
-
-#============================================================
 from Gnumed.wxGladeWidgets import wxgCurrentSubstancesPnl
 
 class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmRegetMixin.cRegetOnPaintMixin):

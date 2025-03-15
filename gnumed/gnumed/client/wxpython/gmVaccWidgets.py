@@ -606,12 +606,12 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 #======================================================================
 # vaccination related widgets
 #----------------------------------------------------------------------
-def configure_adr_url():
+def configure_vaccine_ADR_url():
 
 	def is_valid(value):
 		value = value.strip()
 		if value == '':
-			return True, gmVaccination.URL_vaccine_adr_german_default
+			return True, gmVaccination.URL_vaccine_ADR_german_default
 		try:
 			urllib.request.urlopen(value)
 			return True, value
@@ -629,7 +629,7 @@ def configure_adr_url():
 		),
 		option = 'external.urls.report_vaccine_ADR',
 		bias = 'user',
-		default_value = gmVaccination.URL_vaccine_adr_german_default,
+		default_value = gmVaccination.URL_vaccine_ADR_german_default,
 		validator = is_valid
 	)
 
@@ -1195,7 +1195,6 @@ if __name__ == "__main__":
 #	#pat = gmPerson.cPerson(12)
 #	#gmGuiTest.test_widget(cCurrentSubstancesGrid, patient = 12)
 #	main_frame = gmGuiTest.setup_widget_test_env(patient = 12)
-#	#print(generate_failsafe_medication_list(patient = gmPerson.gmCurrentPatient(), max_width = 80, eol = '\n'))
 #	gmStaff.set_current_provider_to_logged_on_user()
 #	vaccs_hx = save_failsafe_vaccination_history(max_width = 80)
 #	gmMimeLib.call_editor_on_file(filename = vaccs_hx, block = True)

@@ -64,7 +64,7 @@ URL_long_qt = 'https://www.crediblemeds.org'
 
 # http://www.akdae.de/Arzneimittelsicherheit/UAW-Meldung/UAW-Meldung-online.html
 # https://dcgma.org/uaw/meldung.php
-URL_drug_adr_german_default = 'https://nebenwirkungen.pei.de'
+URL_drug_ADR_german_default = 'https://nebenwirkungen.pei.de'
 
 
 (
@@ -4470,7 +4470,7 @@ if __name__ == "__main__":
 		urls = [
 			URL_renal_insufficiency,
 			URL_long_qt,
-			URL_drug_adr_german_default
+			URL_drug_ADR_german_default
 		]
 		for url in urls:
 			print(url)

@@ -409,10 +409,10 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.__on_configure_drug_data_source, item)
 #		item = menu_cfg_ext_tools.Append(-1, _('FreeDiams path'), _('Set the path for the FreeDiams binary.'))
 #		self.Bind(wx.EVT_MENU, self.__on_configure_freediams_cmd, item)
-		item = menu_cfg_ext_tools.Append(-1, _('ADR URL'), _('URL for reporting Adverse Drug Reactions.'))
-		self.Bind(wx.EVT_MENU, self.__on_configure_adr_url, item)
-		item = menu_cfg_ext_tools.Append(-1, _('vaccADR URL'), _('URL for reporting Adverse Drug Reactions to *vaccines*.'))
-		self.Bind(wx.EVT_MENU, self.__on_configure_vaccine_adr_url, item)
+		item = menu_cfg_ext_tools.Append(-1, _('ADR URL (Meds)'), _('URL for reporting Adverse Drug Reactions.'))
+		self.Bind(wx.EVT_MENU, self.__on_configure_drug_ADR_url, item)
+		item = menu_cfg_ext_tools.Append(-1, _('ADR URL (Vx)'), _('URL for reporting Adverse Drug Reactions to *vaccines*.'))
+		self.Bind(wx.EVT_MENU, self.__on_configure_vaccine_ADR_url, item)
 		item = menu_cfg_ext_tools.Append(-1, _('Vacc plans URL'), _('URL for vaccination plans.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_vaccination_plans_url, item)
 		item = menu_cfg_ext_tools.Append(-1, _('Visual SOAP editor'), _('Set the command for calling the visual progress note editor.'))
@@ -1381,12 +1381,12 @@ class gmTopLevelFrame(wx.Frame):
 		gmSubstanceMgmtWidgets.configure_drug_data_source(parent = self)
 
 	#----------------------------------------------
-	def __on_configure_adr_url(self, evt):
-		gmMedicationWidgets.configure_adr_url()
+	def __on_configure_drug_ADR_url(self, evt):
+		gmMedicationWorkflows.configure_drug_ADR_url()
 
 	#----------------------------------------------
-	def __on_configure_vaccine_adr_url(self, evt):
-		gmVaccWidgets.configure_adr_url()
+	def __on_configure_vaccine_ADR_url(self, evt):
+		gmVaccWidgets.configure_vaccine_ADR_url()
 
 	#----------------------------------------------
 	def __on_configure_vaccination_plans_url(self, evt):
@@ -1773,10 +1773,12 @@ class gmTopLevelFrame(wx.Frame):
 	# submenu GNUmed / config / encounter
 	#----------------------------------------------
 	def __on_cfg_medication_list_template(self, evt):
-		gmMedicationWidgets.configure_medication_list_template(parent = self)
+		gmMedicationWorkflows.configure_medication_list_template(parent = self)
+
 	#----------------------------------------------
 	def __on_cfg_prescription_template(self, evt):
-		gmMedicationWidgets.configure_prescription_template(parent = self)
+		gmMedicationWorkflows.configure_prescription_template(parent = self)
+
 	#----------------------------------------------
 	def __on_cfg_prescription_mode(self, evt):
 		gmCfgWidgets.configure_string_from_list_option (
@@ -1789,18 +1791,23 @@ class gmTopLevelFrame(wx.Frame):
 			columns = [_('Prescription mode')],
 			data = [ 'form', 'database' ]
 		)
+
 	#----------------------------------------------
 	def __on_cfg_default_gnuplot_template(self, evt):
 		gmMeasurementWidgets.configure_default_gnuplot_template(parent = self)
+
 	#----------------------------------------------
 	def __on_cfg_fallback_primary_provider(self, evt):
 		gmPraxisWidgets.configure_fallback_primary_provider(parent = self)
+
 	#----------------------------------------------
 	def __on_cfg_meds_lab_pnl(self, evt):
-		gmMedicationWidgets.configure_default_medications_lab_panel(parent = self)
+		gmMedicationWorkflows.configure_default_medications_lab_panel(parent = self)
+
 	#----------------------------------------------
 	def __on_cfg_top_lab_pnl(self, evt):
 		gmMeasurementWidgets.configure_default_top_lab_panel(parent = self)
+
 	#----------------------------------------------
 	def __on_cfg_enc_default_type(self, evt):
 		enc_types = gmEMRStructItems.get_encounter_types()

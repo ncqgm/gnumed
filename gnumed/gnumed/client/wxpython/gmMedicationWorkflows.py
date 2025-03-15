@@ -10,7 +10,6 @@ import sys
 
 
 import wx
-import wx.grid
 
 
 if __name__ == '__main__':
@@ -41,6 +40,53 @@ from Gnumed.wxpython import gmSubstanceIntakeWidgets
 _log = logging.getLogger('gm.ui')
 
 _cfg = gmCfgINI.gmCfgData()
+
+#============================================================
+def configure_drug_ADR_url():
+
+	def is_valid(value):
+		value = value.strip()
+		if value == '':
+			return True, gmMedication.URL_drug_ADR_german_default
+		try:
+			urllib.request.urlopen(value)
+			return True, value
+		except Exception:
+			return True, value
+
+	gmCfgWidgets.configure_string_option (
+		message = _(
+			'GNUmed will use this URL to access a website which lets\n'
+			'you report an adverse drug reaction (ADR).\n'
+			'\n'
+			'If you leave this empty it will fall back\n'
+			'to an URL for reporting ADRs in Germany.'
+		),
+		option = 'external.urls.report_ADR',
+		bias = 'user',
+		default_value = gmMedication.URL_drug_ADR_german_default,
+		validator = is_valid
+	)
+
+#============================================================
+def configure_default_medications_lab_panel(parent=None):
+
+	panels = gmPathLab.get_test_panels(order_by = 'description')
+	gmCfgWidgets.configure_string_from_list_option (
+		parent = parent,
+		message = _(
+			'\n'
+			'Select the measurements panel to show in the medications plugin.'
+			'\n'
+		),
+		option = 'horstspace.medications_plugin.lab_panel',
+		bias = 'user',
+		default_value = None,
+		choices = [ '%s%s' % (p['description'], gmTools.coalesce(p['comment'], '', ' (%s)')) for p in panels ],
+		columns = [_('Measurements panel')],
+		data = [ p['pk_test_panel'] for p in panels ],
+		caption = _('Configuring medications plugin measurements panel')
+	)
 
 #============================================================
 def configure_medication_list_template(parent=None):
@@ -235,6 +281,8 @@ def get_prescription_template(parent=None):
 	return template
 
 #------------------------------------------------------------
+# prescription workflows
+#------------------------------------------------------------
 def generate_failsafe_prescription(pk_patient:int=None, max_width:int=80, eol:str=None) -> str|list:
 	if not pk_patient:
 		pk_patient = gmPerson.gmCurrentPatient().ID
@@ -392,15 +440,8 @@ if __name__ == '__main__':
 	from Gnumed.wxpython import gmGuiTest
 
 	#----------------------------------------
-	#pat = gmPerson.cPerson(12)
-	#gmGuiTest.test_widget(cCurrentSubstancesGrid, patient = 12)
-
 	main_frame = gmGuiTest.setup_widget_test_env(patient = 12)
 	#print(generate_failsafe_medication_list(patient = gmPerson.gmCurrentPatient(), max_width = 80, eol = '\n'))
 	gmStaff.set_current_provider_to_logged_on_user()
 	meds_list = save_failsafe_medication_list(max_width = 80)
 	gmMimeLib.call_editor_on_file(filename = meds_list, block = True)
-
-#	my_widget = cCurrentSubstancesGrid(main_frame)
-#	my_widget.patient = gmPerson.gmCurrentPatient()
-#	wx.GetApp().MainLoop()

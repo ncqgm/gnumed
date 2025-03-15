@@ -36,6 +36,7 @@ from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmAllergyWidgets
 from Gnumed.wxpython import gmSubstanceMgmtWidgets
 from Gnumed.wxpython import gmSubstanceIntakeWidgets
+from Gnumed.wxpython import gmMedicationWorkflows
 
 
 _log = logging.getLogger('gm.ui')
@@ -368,13 +369,13 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		url = gmCfgDB.get4user (
 			option = 'external.urls.report_ADR',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			default = gmMedication.URL_drug_adr_german_default
+			default = gmMedication.URL_drug_ADR_german_default
 		)
 		gmNetworkTools.open_url_in_browser(url = url)
 
 	#------------------------------------------------------------
 	def prescribe(self):
-		prescribe_drugs (
+		gmMedicationWorkflows.prescribe_drugs (
 			parent = self,
 			emr = self.__patient.emr
 		)
@@ -441,7 +442,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 	#------------------------------------------------------------
 	def print_medication_list(self):
 		# there could be some filtering/user interaction going on here
-		print_medication_list(parent = self)
+		gmMedicationWorkflows.print_medication_list(parent = self)
 
 	#------------------------------------------------------------
 	def get_row_tooltip(self, row=None):
@@ -536,12 +537,10 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 #            self.tool_tip.Tip = ''
 
 		row, col = self.XYToCell(x, y)
-
 		if row == self.__prev_tooltip_row:
 			return
 
 		self.__prev_tooltip_row = row
-
 		try:
 			evt.GetEventObject().SetToolTip(self.get_row_tooltip(row = row))
 		except KeyError:
@@ -569,13 +568,7 @@ if __name__ == '__main__':
 	#----------------------------------------
 	#pat = gmPerson.cPerson(12)
 	#gmGuiTest.test_widget(cCurrentSubstancesGrid, patient = 12)
-
-	main_frame = gmGuiTest.setup_widget_test_env(patient = 12)
-	#print(generate_failsafe_medication_list(patient = gmPerson.gmCurrentPatient(), max_width = 80, eol = '\n'))
-	gmStaff.set_current_provider_to_logged_on_user()
-	meds_list = save_failsafe_medication_list(max_width = 80)
-	gmMimeLib.call_editor_on_file(filename = meds_list, block = True)
-
+	#main_frame = gmGuiTest.setup_widget_test_env(patient = 12)
 #	my_widget = cCurrentSubstancesGrid(main_frame)
 #	my_widget.patient = gmPerson.gmCurrentPatient()
 #	wx.GetApp().MainLoop()
