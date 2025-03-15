@@ -367,7 +367,20 @@ def get_narrative(since=None, until=None, encounters=None, episodes=None, issues
 #		filtered_narrative = (lambda narr: narr['soap_cat'] in soap_cats, filtered_narrative)
 
 #------------------------------------------------------------
-def get_as_journal(since=None, until=None, encounters=None, episodes=None, issues=None, soap_cats=None, providers=None, order_by=None, time_range=None, patient=None, active_encounter=None):
+def get_as_journal (
+	since=None,
+	until=None,
+	encounters=None,
+	episodes=None,
+	issues=None,
+	soap_cats=None,
+	providers=None,
+	order_by=None,
+	time_range=None,
+	patient=None,
+	active_encounter=None,
+	types=None
+) -> list[str]:
 
 	if (patient is None) and (episodes is None) and (issues is None) and (encounters is None):
 		raise ValueError('at least one of <patient>, <episodes>, <issues>, <encounters> must not be None')
@@ -399,6 +412,9 @@ def get_as_journal(since=None, until=None, encounters=None, episodes=None, issue
 	if issues is not None:
 		where_parts.append("c_vej.pk_health_issue = ANY(%(issues)s)")
 		args['issues'] = issues
+	if types:
+		where_parts.append('c_vej.src_table = ANY(%(src_tbl)s)')
+		args['src_tbl'] = types
 	# FIXME: implement more constraints
 	cmd_journal = """
 		SELECT
@@ -478,8 +494,45 @@ def get_as_journal(since=None, until=None, encounters=None, episodes=None, issue
 		cmd = cmd_journal + '\nUNION ALL\n' + cmd_hints + '\n' + order_by
 
 	journal_rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
-
 	return journal_rows
+
+#------------------------------------------------------------
+def format_narrative_for_failsafe_output(pk_patient:int, max_width:int=80) -> list[str]:
+
+	narr_rows = get_as_journal(patient = pk_patient, types = ['clin.clin_narrative'])
+	if not narr_rows:
+		return []
+
+	lines = []
+	date_len = len(narr_rows[0]['date'])
+	empty_date = ' ' * date_len
+	empty_soap = ' '
+	soap_len = 1
+	last_date = None
+	last_soap = None
+	line_template = '%' + str(date_len) + 's %' + str(soap_len) + 's: %s'
+	narr_len = max_width - len(line_template)
+	for narr in narr_rows:
+		if not narr['narrative']:
+			continue
+
+		if last_date == narr['date']:
+			date = empty_date
+		else:
+			date = narr['date']
+			last_date = date
+		if last_soap == narr['soap_cat']:
+			soap = empty_soap
+		else:
+			soap = narr['soap_cat']
+			last_soap = soap
+
+		wrapped = gmTools.wrap(text = narr['narrative'], width = narr_len)
+		sub_lines = wrapped.split('\n')
+		lines.append(gmTools.shorten_text(line_template % (date, soap, sub_lines[0]), max_width))
+		for sl in sub_lines[1:]:
+			lines.append(gmTools.shorten_text(line_template % (empty_date, empty_soap, sl), max_width))
+	return lines
 
 #============================================================
 # convenience functions
@@ -515,6 +568,11 @@ if __name__ == '__main__':
 	gmPG2.request_login_params(setup_pool = True)
 
 	#-----------------------------------------
+	def test_format_narrative_for_failsafe_output():
+		for n in format_narrative_for_failsafe_output(pk_patient = 12):
+			print(n)
+
+	#-----------------------------------------
 	def test_narrative():
 		print("\nnarrative test")
 		print("--------------")
@@ -539,5 +597,6 @@ if __name__ == '__main__':
 			print(r)
 	#-----------------------------------------
 
-	test_search_text_across_emrs()
+	#test_search_text_across_emrs()
 	#test_narrative()
+	test_format_narrative_for_failsafe_output()

@@ -1072,8 +1072,9 @@ class gmTopLevelFrame(wx.Frame):
 			[_('Medication list'), gmMedicationWorkflows.save_failsafe_medication_list],
 			[_('Prescription'), gmMedicationWorkflows.save_failsafe_prescription],
 			[_('Documents list'), gmDocumentWidgets.save_failsafe_documents_list],
-			[_('Measurements'), gmMeasurementWidgets.save_failsafe_test_results_list]
-			#[_(''), ]
+			[_('Measurements'), gmMeasurementWidgets.save_failsafe_test_results_list],
+			[_('Progress notes'), gmNarrativeWorkflows.save_failsafe_narrative]
+			#,[_(''), ]
 		]
 		doc_type = gmListWidgets.get_choices_from_list (
 			#parent=None,

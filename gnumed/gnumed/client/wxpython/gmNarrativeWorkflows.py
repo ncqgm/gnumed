@@ -30,6 +30,7 @@ from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmEMRStructWidgets
 from Gnumed.wxpython import gmEncounterWidgets
 from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython import gmFormWidgets
 from Gnumed.wxpython import gmNarrativeWidgets
 from Gnumed.wxpython.gmPatSearchWidgets import set_active_patient
 
@@ -945,6 +946,36 @@ def select_narrative_from_episodes(parent=None, soap_cats=None):
 			selected_narrative_pks = [ i['pk_narrative'] for i in selected_narr ]
 			for narr in selected_narr:
 				selected_soap[narr['pk_narrative']] = narr
+
+#------------------------------------------------------------
+def generate_failsafe_narrative(pk_patient:int=None, max_width:int=80, eol:str=None) -> str|list:
+	if not pk_patient:
+		pk_patient = gmPerson.gmCurrentPatient().ID
+	lines, footer = gmFormWidgets.generate_failsafe_form_wrapper (
+		pk_patient = pk_patient,
+		title = _('Progress Notes -- %s') % gmDateTime.pydt_now_here().strftime('%Y %b %d'),
+		max_width = max_width
+	)
+	lines.append('')
+	lines.append('#' + '-' * (max_width - 2) + '#')
+	lines.extend(gmClinNarrative.format_narrative_for_failsafe_output (
+		pk_patient = pk_patient,
+		max_width = max_width
+	))
+	lines.append('')
+	lines.extend(footer)
+	if eol:
+		return eol.join(lines)
+
+	return lines
+
+#------------------------------------------------------------
+def save_failsafe_narrative(pk_patient:int=None, max_width:int=80, filename:str=None) -> str:
+	if not filename:
+		filename = gmTools.get_unique_filename()
+	with open(filename, 'w', encoding = 'utf8') as narr_file:
+		narr_file.write(generate_failsafe_narrative(pk_patient = pk_patient, max_width = max_width, eol = '\n'))
+	return filename
 
 #============================================================
 # main
