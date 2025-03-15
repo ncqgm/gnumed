@@ -773,7 +773,7 @@ def get_db_fingerprint(conn=None, fname:str=None, with_dump:bool=False, eol:str=
 			rows = curs.fetchall()
 			val = rows[0][0]
 		except PG_ERROR_EXCEPTION as pg_exc:
-			if pg_exc.pgcode != sql_error_codes.INSUFFICIENT_PRIVILEGE:
+			if pg_exc.pgcode != PG_error_codes.INSUFFICIENT_PRIVILEGE:
 				raise
 
 			if pg_exc.pgerror is None:

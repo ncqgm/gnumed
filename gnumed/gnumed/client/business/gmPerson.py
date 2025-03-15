@@ -28,6 +28,7 @@ if __name__ == '__main__':
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmBorg
 from Gnumed.pycommon import gmNull
 from Gnumed.pycommon import gmBusinessDBObject
