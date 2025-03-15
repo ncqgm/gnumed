@@ -615,16 +615,16 @@ def print_measurements(tests=None) -> bool:
 	return True
 
 #----------------------------------------------------------------
-def generate_failsafe_test_results_list(patient=None, test_results:list=None, max_width:int=80, eol:str=None) -> str|list:
-	if not patient:
-		patient = gmPerson.gmCurrentPatient()
+def generate_failsafe_test_results_list(pk_patient=None, test_results:list=None, max_width:int=80, eol:str=None) -> str|list:
+	if not pk_patient:
+		pk_patient = gmPerson.gmCurrentPatient().ID
 	lines, footer = gmFormWidgets.generate_failsafe_form_wrapper (
-		pk_patient = patient.ID,
+		pk_patient = pk_patient,
 		title = _('Lab results -- %s') % gmDateTime.pydt_now_here().strftime('%Y %b %d'),
 		max_width = max_width
 	)
 	lines.extend(gmPathLab.generate_failsafe_test_results_entries (
-		pk_patient = patient.ID,
+		pk_patient = pk_patient,
 		test_results = test_results,
 		max_width = max_width
 	))
@@ -636,11 +636,11 @@ def generate_failsafe_test_results_list(patient=None, test_results:list=None, ma
 	return lines
 
 #------------------------------------------------------------
-def save_failsafe_test_results_list(patient=None, test_results=None, max_width:int=80, filename:str=None) -> str:
+def save_failsafe_test_results_list(pk_patient=None, test_results=None, max_width:int=80, filename:str=None) -> str:
 	if not filename:
 		filename = gmTools.get_unique_filename()
 	with open(filename, 'w', encoding = 'utf8') as tr_file:
-		tr_file.write(generate_failsafe_test_results_list(patient = patient, test_results = test_results, max_width = max_width, eol = '\n'))
+		tr_file.write(generate_failsafe_test_results_list(pk_patient = pk_patient, test_results = test_results, max_width = max_width, eol = '\n'))
 	return filename
 
 #================================================================

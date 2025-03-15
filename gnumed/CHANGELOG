@@ -25,6 +25,7 @@ NEW: forms: failsafe medication list
 NEW: forms: failsafe vaccination history
 NEW: forms: failsafe lab results list
 NEW: documents: failsafe documents list
+NEW: paperwork: direct access to failsafe forms
 
 IMPROVED: GUI: show current patient in window titles
 IMPROVED: placeholder: $current_provider_name$

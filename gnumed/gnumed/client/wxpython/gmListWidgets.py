@@ -68,6 +68,7 @@ def get_choices_from_list (
 			single_selection=False,
 			can_return_empty=False,
 			ignore_OK_button=False,
+			close_on_activate=False,
 			left_extra_button=None,
 			middle_extra_button=None,
 			right_extra_button=None,
@@ -78,6 +79,7 @@ def get_choices_from_list (
 	- edit_callback: (item data)
 	- delete_callback: (item data)
 	- refresh_callback: (listctrl)
+	- activate_callback: (event)
 	- list_tooltip_callback: (item data)
 
 	- left/middle/right_extra_button: (label, tooltip, <callback> [, wants_list_ctrl])
@@ -110,6 +112,7 @@ def get_choices_from_list (
 
 	dlg.can_return_empty = can_return_empty
 	dlg.ignore_OK_button = ignore_OK_button
+	dlg.close_on_activate = close_on_activate
 	dlg.left_extra_button = left_extra_button
 	dlg.middle_extra_button = middle_extra_button
 	dlg.right_extra_button = right_extra_button
@@ -132,7 +135,6 @@ def get_choices_from_list (
 	btn_pressed = dlg.ShowModal()
 	sels = dlg.get_selected_item_data(only_one = single_selection)
 	dlg.DestroyLater()
-
 	if btn_pressed == wx.ID_OK:
 		if can_return_empty and (sels is None):
 			return []
@@ -184,6 +186,8 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 
 		self.select_callback = None				# called when an item is selected, data of topmost selected item passed in
 		self._LCTRL_items.select_callback = self._on_list_item_selected_in_listctrl
+		self.close_on_activate = False
+		self._LCTRL_items.activate_callback = self._on_list_item_activated_in_listctrl
 		if single_selection:
 			self._LCTRL_items.SetSingleStyle(wx.LC_SINGLE_SEL, add = True)
 
@@ -363,6 +367,26 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		if self.__select_callback is not None:
 			item = self._LCTRL_items.get_selected_item_data(only_one = True)
 			self.__select_callback(item)
+
+	#------------------------------------------------------------
+	def _on_list_item_activated_in_listctrl(self, event):
+		event.Skip()
+		if self.__ignore_OK_button:
+			return
+
+		if not self.close_on_activate:
+			return
+
+		item = self._LCTRL_items.get_selected_item_data(only_one = True)
+		if not item:
+			if not self.can_return_empty:
+				return
+
+		if self.IsModal():
+			self.EndModal(wx.ID_OK)
+		else:
+			self.Close()
+			return item
 
 	#------------------------------------------------------------
 	def _on_delete_key_pressed_in_listctrl(self):

@@ -98,6 +98,7 @@ from Gnumed.wxpython import gmStaffWidgets
 from Gnumed.wxpython import gmDocumentWidgets
 from Gnumed.wxpython import gmTimer
 from Gnumed.wxpython import gmMeasurementWidgets
+from Gnumed.wxpython import gmMedicationWorkflows
 from Gnumed.wxpython import gmFormWidgets
 from Gnumed.wxpython import gmSnellen
 from Gnumed.wxpython import gmVaccWidgets
@@ -598,7 +599,8 @@ class gmTopLevelFrame(wx.Frame):
 		# - EMR /
 		item = menu_emr.Append(-1, _('Search this EMR'), _('Search for data in the EMR of the active patient'))
 		self.Bind(wx.EVT_MENU, self.__on_search_emr, item)
-
+		item = menu_emr.Append(-1, _('Search all EMRs'), _('Search for data across the EMRs of all patients'))
+		self.Bind(wx.EVT_MENU, self.__on_search_across_emrs, item)
 		item = menu_emr.Append(-1, _('Start new encounter'), _('Start a new encounter for the active patient right now.'))
 		self.Bind(wx.EVT_MENU, self.__on_start_new_encounter, item)
 
@@ -641,6 +643,8 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.__on_new_letter, item)
 		item = menu_paperwork.Append(-1, _('&Generic document'), _('Write free-form document for current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_new_generic_letter, item)
+		item = menu_paperwork.Append(-1, _('&Failsafe document'), _('Generate failsafe document.'))
+		self.Bind(wx.EVT_MENU, self.__on_generate_failsafe_document, item)
 		item = menu_paperwork.Append(-1, _('Screenshot -> export area'), _('Put screenshot into patient export area.'))
 		self.Bind(wx.EVT_MENU, self.__on_save_screenshot_into_export_area, item)
 		menu_paperwork.AppendSeparator()
@@ -657,8 +661,6 @@ class gmTopLevelFrame(wx.Frame):
 
 		# -- menu "Tools" -------------------------
 		self.menu_tools = wx.Menu()
-		item = self.menu_tools.Append(-1, _('Search all EMRs'), _('Search for data across the EMRs of all patients'))
-		self.Bind(wx.EVT_MENU, self.__on_search_across_emrs, item)
 		viewer = _('no viewer installed')
 		if gmShellAPI.detect_external_binary(binary = 'ginkgocadx')[0]:
 			viewer = 'Ginkgo CADx'
@@ -1051,13 +1053,54 @@ class gmTopLevelFrame(wx.Frame):
 
 	#----------------------------------------------
 	def __on_new_generic_letter(self, evt):
-		#return
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot write letter. No active patient.'), beep = True)
 			return True
 
 		gmFormWidgets.print_generic_document(parent = self)
+
+	#----------------------------------------------
+	def __on_generate_failsafe_document(self, evt):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot generate document. No active patient.'), beep = True)
+			return True
+
+		known_templates = [
+			[_('Vaccination history'), gmVaccWidgets.save_failsafe_vaccination_history ],
+			[_('Medication list'), gmMedicationWorkflows.save_failsafe_medication_list],
+			[_('Prescription'), gmMedicationWorkflows.save_failsafe_prescription],
+			[_('Documents list'), gmDocumentWidgets.save_failsafe_documents_list],
+			[_('Measurements'), gmMeasurementWidgets.save_failsafe_test_results_list]
+			#[_(''), ]
+		]
+		doc_type = gmListWidgets.get_choices_from_list (
+			#parent=None,
+			msg = _('A text-only document will be generated and displayed for editing and printing.'),
+			caption = _('Generate failsafe document'),
+			columns = [_('Document type')],
+			choices = [ [t[0]] for t in known_templates ],
+			data = known_templates,
+			#selections=None,
+			#edit_callback=None,
+			#new_callback=None,
+			#delete_callback=None,
+			#refresh_callback=None,
+			single_selection = True,
+			close_on_activate = True
+			#can_return_empty = True,
+			#ignore_OK_button=False,
+			#left_extra_button=None,
+			#middle_extra_button=None,
+			#right_extra_button=None,
+			#list_tooltip_callback=None
+		)
+		if not doc_type:
+			return
+
+		doc = doc_type[1](max_width = 80)
+		gmMimeLib.call_editor_on_file(filename = doc, block = True)
 
 	#----------------------------------------------
 	def __on_show_placeholders(self, evt):

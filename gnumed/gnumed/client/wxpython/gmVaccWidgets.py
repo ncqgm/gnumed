@@ -661,18 +661,18 @@ def configure_vaccination_plans_url():
 	)
 
 #------------------------------------------------------------
-def generate_failsafe_vaccination_history(patient=None, max_width:int=80, eol:str=None) -> str|list:
-	if not patient:
-		patient = gmPerson.gmCurrentPatient()
+def generate_failsafe_vaccination_history(pk_patient:int=None, max_width:int=80, eol:str=None) -> str|list:
+	if not pk_patient:
+		pk_patient = gmPerson.gmCurrentPatient().ID
 	lines, footer = gmFormWidgets.generate_failsafe_form_wrapper (
-		pk_patient = patient.ID,
+		pk_patient = pk_patient,
 		title = _('Vaccination history -- %s') % gmDateTime.pydt_now_here().strftime('%Y %b %d'),
 		max_width = max_width
 	)
 	lines.append('')
 	lines.append('#' + '-' * (max_width - 2) + '#')
 	lines.extend(gmVaccination.format_vaccinations_by_indication_for_failsafe_output (
-		pk_patient = 12,
+		pk_patient = pk_patient,
 		max_width = max_width
 	))
 	lines.append('')
@@ -683,11 +683,11 @@ def generate_failsafe_vaccination_history(patient=None, max_width:int=80, eol:st
 	return lines
 
 #------------------------------------------------------------
-def save_failsafe_vaccination_history(patient:int=None, max_width:int=80, filename:str=None) -> str:
+def save_failsafe_vaccination_history(pk_patient:int=None, max_width:int=80, filename:str=None) -> str:
 	if not filename:
 		filename = gmTools.get_unique_filename()
 	with open(filename, 'w', encoding = 'utf8') as vacc_file:
-		vacc_file.write(generate_failsafe_vaccination_history(patient = patient, max_width = max_width, eol = '\n'))
+		vacc_file.write(generate_failsafe_vaccination_history(pk_patient = pk_patient, max_width = max_width, eol = '\n'))
 	return filename
 
 #----------------------------------------------------------------------
