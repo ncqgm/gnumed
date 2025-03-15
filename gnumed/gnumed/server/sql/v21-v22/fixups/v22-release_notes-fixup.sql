@@ -17,24 +17,21 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.8.19 (database v22.28)',
-	'GNUmed 1.8.19 Release Notes:
+	'Release Notes for GNUmed 1.8.20 (database v22.30)',
+	'GNUmed 1.8.20 Release Notes:
 
-	1.8.19
+	1.8.20
 
-FIX: export area: exception on browsing export dir
-FIX: export area: allow removing remote/empty/stale DIRENTRYs
-FIX: document: gracefully handle empty templates [thanks parallels]
-FIX: episodes: do not auto-tinker with open state of existing episodes
+FIX: startup: crash on fingerprinting episodes in DB if gm-staff [thanks Maria]
+FIX: patient search: gm-staff shall not ensure patient-ness [thanks Maria]
 
-IMPROVED: documents: part export filename
-IMPROVED: regular expression strings [thanks Wolfgang]
-IMPROVED: export area: saving entries as archive
+	22.30
 
-	22.29
-
-no changes
+FIX: unique constraint on identity+name with multiple names per identity [thanks Maria]
+FIX: gm-staff permissions on dem.v_pat_addresses [thanks Maria]
+FIX: gm-staff permissions on dem.v_message_inbox [thanks Maria]
+FIX: permissions on org/unit tables/views
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.28@1.8.19');
+select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.30@1.8.20');
