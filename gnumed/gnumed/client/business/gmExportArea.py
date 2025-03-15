@@ -1102,7 +1102,7 @@ class cExportArea(object):
 		return zip_file
 
 	#--------------------------------------------------------
-	def export(self, base_dir:str=None, items:list=None, passphrase:str=None, master_passphrase:str=None) -> bool|str:
+	def export(self, base_dir:str=None, items:list=None, passphrase:str=None, master_passphrase:str=None) -> bool|str|None:
 		"""Export items as structured patient media.
 
 		Args:
