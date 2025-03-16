@@ -92,7 +92,6 @@ from Gnumed.wxpython import gmCfgWidgets
 from Gnumed.wxpython import gmExceptionHandlingWidgets
 from Gnumed.wxpython import gmNarrativeWorkflows
 from Gnumed.wxpython import gmPhraseWheel
-from Gnumed.wxpython import gmMedicationWidgets
 from Gnumed.wxpython import gmSubstanceIntakeWidgets
 from Gnumed.wxpython import gmStaffWidgets
 from Gnumed.wxpython import gmDocumentWidgets

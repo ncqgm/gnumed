@@ -7,6 +7,7 @@ __license__ = "SPDX-License-Identifier: GPL-2.0-or-later"
 
 import logging
 import sys
+import urllib
 
 
 import wx
@@ -19,7 +20,6 @@ from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmNetworkTools
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmMimeLib
 
@@ -28,13 +28,13 @@ from Gnumed.business import gmPraxis
 from Gnumed.business import gmMedication
 from Gnumed.business import gmForms
 from Gnumed.business import gmStaff
+from Gnumed.business import gmPathLab
 
+from Gnumed.wxpython import gmCfgWidgets
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmFormWidgets
 from Gnumed.wxpython import gmListWidgets
-from Gnumed.wxpython import gmAllergyWidgets
 from Gnumed.wxpython import gmSubstanceMgmtWidgets
-from Gnumed.wxpython import gmSubstanceIntakeWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -48,9 +48,11 @@ def configure_drug_ADR_url():
 		value = value.strip()
 		if value == '':
 			return True, gmMedication.URL_drug_ADR_german_default
+
 		try:
 			urllib.request.urlopen(value)
 			return True, value
+
 		except Exception:
 			return True, value
 

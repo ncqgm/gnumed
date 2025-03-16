@@ -21,18 +21,10 @@ from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmNetworkTools
-from Gnumed.pycommon import gmDateTime
-from Gnumed.pycommon import gmMimeLib
 
-from Gnumed.business import gmPerson
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmMedication
-from Gnumed.business import gmForms
-from Gnumed.business import gmStaff
 
-from Gnumed.wxpython import gmGuiHelpers
-from Gnumed.wxpython import gmFormWidgets
-from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmAllergyWidgets
 from Gnumed.wxpython import gmSubstanceMgmtWidgets
 from Gnumed.wxpython import gmSubstanceIntakeWidgets
@@ -563,7 +555,7 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	from Gnumed.wxpython import gmGuiTest
+#	from Gnumed.wxpython import gmGuiTest
 
 	#----------------------------------------
 	#pat = gmPerson.cPerson(12)

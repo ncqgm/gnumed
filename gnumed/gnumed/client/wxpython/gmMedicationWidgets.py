@@ -6,7 +6,6 @@ __license__ = "GPL v2 or later"
 
 import logging
 import sys
-import urllib
 import datetime as pydt
 
 
@@ -24,13 +23,11 @@ from Gnumed.pycommon import gmDateTime
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmPraxis
-from Gnumed.business import gmMedication
 from Gnumed.business import gmLOINC
 from Gnumed.business import gmClinicalCalculator
 from Gnumed.business import gmPathLab
 
 from Gnumed.wxpython import gmRegetMixin
-from Gnumed.wxpython import gmCfgWidgets
 
 
 _log = logging.getLogger('gm.ui')
