@@ -811,7 +811,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			gmDispatcher.send(signal = 'display_widget', name = 'gmEMRBrowserPlugin')
 			return
 		if isinstance(data, gmFamilyHistory.cFamilyHistory):
-			FamilyHistoryWidgets.manage_family_history(parent = self)
+			gmFamilyHistoryWidgets.manage_family_history(parent = self)
 			return
 		if isinstance(data, gmEMRStructItems.cHospitalStay):
 			gmHospitalStayWidgets.manage_hospital_stays(parent = self)

@@ -10,6 +10,7 @@
 
 FIX: startup: crash on fingerprinting episodes in DB if gm-staff [thanks Maria]
 FIX: patient search: gm-staff shall not ensure patient-ness [thanks Maria]
+FIX: patient overview: typo with family history access [thanks Maria]
 
 	1.8.19
 
