@@ -2162,7 +2162,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 		Args:
 			patient:
 
-			* None: get currently active patient
+			* None: return currently active patient
 			* -1: unset currently active patient
 			* cPatient instance: set active patient if possible
 		"""
@@ -2674,6 +2674,8 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
+	gmLog2.print_logfile_name()
+
 	gmDateTime.init()
 
 	#--------------------------------------------------------
@@ -2887,8 +2889,8 @@ if __name__ == '__main__':
 	#test_vcf()
 
 	gmPG2.request_login_params(setup_pool = True)
-	test_gender_list()
-	#test_set_active_pat()
+	#test_gender_list()
+	test_set_active_pat()
 	#test_mecard()
 	#test_ext_id()
 	#test_current_patient()
