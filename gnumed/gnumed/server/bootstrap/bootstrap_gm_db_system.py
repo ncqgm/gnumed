@@ -951,7 +951,7 @@ class database:
 	#--------------------------------------------------------------
 	def check_data_plausibility(self):
 
-		print_msg("==> [%s]: checking migrated data for plausibility ..." % self.template_db)
+		print_msg("==> [%s]: checking migrated data for plausibility ..." % self.name)
 
 		plausibility_queries = cfg_get(self.section, 'upgrade plausibility checks')
 		if plausibility_queries is None:
