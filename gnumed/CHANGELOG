@@ -2333,6 +2333,7 @@ NEW: add list position to export items
 NEW: add intake regimen support
 NEW: bootstrapper: auto-fix collations as needed
 NEW: bootstrapper: adjust view settings to security_definer (requires PG15)
+NEW: support for gender symbols stored in DB
 
 IMPROVED: bootstrap script permissions warning
 IMRPOVED: clin.v_narrative4search: add some demographics (port from 1.8.6)

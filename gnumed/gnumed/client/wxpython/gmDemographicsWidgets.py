@@ -679,9 +679,9 @@ class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		if cGenderSelectionPhraseWheel._gender_map is None:
 			cmd = """
-				SELECT tag, l10n_label, sort_weight
+				SELECT tag, l10n_label
 				from dem.v_gender_labels
-				order by sort_weight desc"""
+				order by l10n_label"""
 			rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 			cGenderSelectionPhraseWheel._gender_map = {}
 			for gender in rows:
@@ -689,7 +689,7 @@ class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 					'data': gender['tag'],
 					'field_label': gender['l10n_label'],
 					'list_label': gender['l10n_label'],
-					'weight': gender['sort_weight']
+					'weight': 1
 				}
 
 		mp = gmMatchProvider.cMatchProvider_FixedList(aSeq = list(cGenderSelectionPhraseWheel._gender_map.values()))
@@ -699,6 +699,7 @@ class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.selection_only = True
 		self.matcher = mp
 		self.picklist_delay = 50
+
 #------------------------------------------------------------
 class cExternalIDTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 

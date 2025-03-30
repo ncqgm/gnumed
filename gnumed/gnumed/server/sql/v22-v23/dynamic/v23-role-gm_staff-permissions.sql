@@ -52,9 +52,11 @@ GRANT SELECT ON TABLE clin.v_test_types TO "gm-staff";
 
 -- --------------------------------------------------------------
 -- dem.*
-GRANT SELECT ON TABLE dem.gender_label TO "gm-staff";
-
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE dem.identity_tag TO "gm-staff";
+
+revoke all on dem.gender_label from public, "gm-public", "gm-staff", "gm-doctors";
+GRANT SELECT ON TABLE dem.gender_label TO "gm-public";
+GRANT INSERT, UPDATE, DELETE ON TABLE dem.gender_label TO "gm-staff";
 
 revoke all on dem.marital_status from public;
 revoke all on dem.marital_status from "gm-doctors";
@@ -67,6 +69,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE dem.org TO "gm-staff";
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE dem.org_category TO "gm-staff";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE dem.org_unit TO "gm-staff";
+
+GRANT SELECT ON TABLE dem.v_gender_labels TO "gm-public";
 
 GRANT SELECT ON TABLE dem.v_message_inbox TO "gm-staff";
 

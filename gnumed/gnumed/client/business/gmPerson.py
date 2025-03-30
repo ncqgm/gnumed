@@ -54,6 +54,7 @@ __gender_list = None
 
 __gender2salutation_map = None
 __gender2string_map = None
+__gender2symbol_map = None
 
 #============================================================
 _MERGE_SCRIPT_HEADER = """-- GNUmed patient merge script
@@ -2557,12 +2558,12 @@ def set_active_patient(patient=None, forced_reload=False):
 def get_gender_list() -> list:
 	"""Retrieves the list of known genders from the database."""
 	global __gender_list
+	if __gender_list:
+		return __gender_list
 
-	if __gender_list is None:
-		cmd = "SELECT tag, l10n_tag, label, l10n_label, sort_weight FROM dem.v_gender_labels ORDER BY sort_weight DESC"
-		__gender_list = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
-		_log.debug('genders in database: %s' % __gender_list)
-
+	cmd = "SELECT tag, l10n_tag, label, l10n_label, symbol, l10n_symbol FROM dem.v_gender_labels ORDER BY l10n_label"
+	__gender_list = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	_log.debug('genders in database: %s' % __gender_list)
 	return __gender_list
 
 #------------------------------------------------------------
@@ -2584,28 +2585,11 @@ map_gender2vcard = {
 	'h': 'O',
 	None: 'U'
 }
-
 #------------------------------------------------------------
-# maps GNUmed related i18n-aware gender specifiers to a unicode symbol
-map_gender2symbol = {
-	'm': '\u2642',
-	'f': '\u2640',
-	'tf': '\u26A5\u2640',
-#	'tf': u'\u2642\u2640-\u2640',
-	'tm': '\u26A5\u2642',
-#	'tm': u'\u2642\u2640-\u2642',
-	'h': '\u26A5',
-#	'h': u'\u2642\u2640',
-	None: '?\u26A5?'
-}
-#------------------------------------------------------------
-def map_gender2string(gender=None):
+def map_gender2string(gender:str=None) -> str:
 	"""Maps GNUmed related i18n-aware gender specifiers to a human-readable string."""
-
 	global __gender2string_map
-
-	if __gender2string_map is None:
-		genders = get_gender_list()
+	if not __gender2string_map:
 		__gender2string_map = {
 			'm': _('male'),
 			'f': _('female'),
@@ -2614,20 +2598,52 @@ def map_gender2string(gender=None):
 			'h': '',
 			None: _('unknown gender')
 		}
-		for g in genders:
-			__gender2string_map[g['l10n_tag']] = g['l10n_label']
-			__gender2string_map[g['tag']] = g['l10n_label']
+		for g in get_gender_list():
+			if g['l10n_label']:
+				__gender2string_map[g['l10n_tag']] = g['l10n_label']
+				__gender2string_map[g['tag']] = g['l10n_label']
 		_log.debug('gender -> string mapping: %s' % __gender2string_map)
+	try:
+		return __gender2string_map[gender]
 
-	return __gender2string_map[gender]
+	except KeyError:
+		return '?%s?' % gender
+
+#------------------------------------------------------------
+def map_gender2symbol(gender:str=None) -> str:
+	"""Maps GNUmed related i18n-aware gender specifiers to a unicode symbol."""
+	global __gender2symbol_map
+	if not __gender2symbol_map:
+		# built-in defaults
+		__gender2symbol_map = {
+			'm': '\u2642',
+			'f': '\u2640',
+			'tf': '\u26A5\u2640',
+			#'tf': u'\u2642\u2640-\u2640',
+			'tm': '\u26A5\u2642',
+			#'tm': u'\u2642\u2640-\u2642',
+			'h': '\u26A5',
+			#'h': u'\u2642\u2640',
+			None: '?\u26A5?'
+		}
+		# update from database, possibly adding more genders
+		for g in get_gender_list():
+			if g['l10n_symbol']:
+				__gender2symbol_map[g['l10n_tag']] = g['l10n_symbol']
+				__gender2symbol_map[g['tag']] = g['l10n_symbol']
+		_log.debug('gender -> symbol mapping: %s' % __gender2symbol_map)
+	try:
+		return __gender2symbol_map[gender]
+
+	except KeyError:
+		return '?%s?' % gender
+
 #------------------------------------------------------------
 def map_gender2salutation(gender=None):
 	"""Maps GNUmed related i18n-aware gender specifiers to a human-readable salutation."""
 
 	global __gender2salutation_map
-
-	if __gender2salutation_map is None:
-		genders = get_gender_list()
+	if not __gender2salutation_map:
 		__gender2salutation_map = {
 			'm': _('Mr'),
 			'f': _('Mrs'),
@@ -2636,13 +2652,17 @@ def map_gender2salutation(gender=None):
 			'h': '',
 			None: ''
 		}
-		for g in genders:
-			__gender2salutation_map[g['l10n_tag']] = __gender2salutation_map[g['tag']]
-			__gender2salutation_map[g['label']] = __gender2salutation_map[g['tag']]
-			__gender2salutation_map[g['l10n_label']] = __gender2salutation_map[g['tag']]
+	#	for g in get_gender_list():
+	#		__gender2salutation_map[g['l10n_tag']] = __gender2salutation_map[g['tag']]
+	#		__gender2salutation_map[g['label']] = __gender2salutation_map[g['tag']]
+	#		__gender2salutation_map[g['l10n_label']] = __gender2salutation_map[g['tag']]
 		_log.debug('gender -> salutation mapping: %s' % __gender2salutation_map)
+	try:
+		return __gender2salutation_map[gender]
 
-	return __gender2salutation_map[gender]
+	except KeyError:
+		return ''
+
 #------------------------------------------------------------
 def map_firstnames2gender(firstnames=None):
 	"""Try getting the gender for the given first name."""
@@ -2659,6 +2679,7 @@ def map_firstnames2gender(firstnames=None):
 		return None
 
 	return rows[0][0]
+
 #============================================================
 def get_person_IDs():
 	cmd = 'SELECT pk FROM dem.identity'
@@ -2800,9 +2821,9 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_gender_list():
 		genders = get_gender_list()
-		print("\n\nRetrieving gender enum (tag, label, sort_weight):")
+		print("\n\nRetrieving gender enum (tag, label, symbol):")
 		for gender in genders:
-			print("%s, %s, %s" % (gender['tag'], gender['l10n_label'], gender['sort_weight']))
+			print("%s, %s, %s, %s" % (gender['tag'], gender['l10n_label'], gender['l10n_symbol'], map_gender2symbol(gender['tag'])))
 
 	#--------------------------------------------------------
 	def test_export_area():
@@ -2916,8 +2937,8 @@ if __name__ == '__main__':
 	#test_vcf()
 
 	gmPG2.request_login_params(setup_pool = True)
-	#test_gender_list()
-	test_set_active_pat()
+	test_gender_list()
+	#test_set_active_pat()
 	#test_mecard()
 	#test_ext_id()
 	#test_current_patient()
