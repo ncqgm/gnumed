@@ -219,21 +219,17 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 			self._LCTRL_persons.SetItem(row_num, 1, person['firstnames'])
 			self._LCTRL_persons.SetItem(row_num, 2, person.get_formatted_dob(format = '%Y %b %d'))
 			self._LCTRL_persons.SetItem(row_num, 3, gmTools.coalesce(person['l10n_gender'], '?'))
-
 			label = ''
-			if person.is_patient:
-				enc = person.get_last_encounter()
-				if enc is not None:
-					label = '%s (%s)' % (gmDateTime.pydt_strftime(enc['started'], '%Y %b %d'), enc['l10n_type'])
+			last = person.last_contact
+			if last:
+				label = '%s (%s)' % (last['last_affirmed'].strftime('%Y %b %d'), last['l10n_type'])
 			self._LCTRL_persons.SetItem(row_num, 4, label)
-
 			parts = []
 			if person['preferred'] is not None:
 				parts.append(person['preferred'])
 			if person['comment'] is not None:
 				parts.append(person['comment'])
 			self._LCTRL_persons.SetItem(row_num, 5, ' / '.join(parts))
-
 			try:
 				self._LCTRL_persons.SetItem(row_num, 6, person['match_type'])
 			except KeyError:
