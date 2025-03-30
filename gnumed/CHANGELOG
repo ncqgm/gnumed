@@ -71,6 +71,7 @@ FIX: forward-port fix for grid selection constant names
 
 FIX: startup: crash on fingerprinting episodes in DB if gm-staff [thanks Maria]
 FIX: patient search: gm-staff shall not ensure patient-ness [thanks Maria]
+FIX: patient overview: typo with family history access [thanks Maria]
 
 	1.8.19
 
@@ -98,11 +99,13 @@ FIX: logging of invalid form templates
 FIX: logging of invalid address data
 
 IMPROVED: EMR browser: link document review dlg from document nodes
+IMPROVED: configuration: logging of set-option failures
 
 	1.8.16
 
 FIX: SQL plugin: exception on faulty query
 FIX: meds plugin: grid selection constant names
+FIX: gtk: do not abort on sizer flags inconsistencies in production code
 
 IMPROVED: plugin PACS: layout
 
