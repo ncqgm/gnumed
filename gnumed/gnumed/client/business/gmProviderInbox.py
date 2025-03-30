@@ -398,6 +398,11 @@ if __name__ == '__main__':
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 
+	from Gnumed.pycommon import gmLog2
+	gmLog2.print_logfile_name()
+
+	gmPG2.request_login_params(setup_pool = True)
+
 	#---------------------------------------
 	def test_inbox():
 		gmStaff.gmCurrentProvider(provider = gmStaff.cStaff())
@@ -419,6 +424,6 @@ if __name__ == '__main__':
 	#test_inbox()
 	#test_msg()
 	#test_create_type()
-	#test_due()
+	test_due()
 
 #============================================================

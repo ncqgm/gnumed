@@ -69,32 +69,33 @@ def _display_clinical_reminders():
 	# dynamic hints
 	hints2aggregate = []
 	emr = pat.emr
-	hint_dlg = cDynamicHintDlg(wx.GetApp().GetTopWindow(), -1)
-	# single-hint popups
-	for hint in emr.dynamic_hints:
-		# might be abused:
-		if hint.failed:
-			# do not popup hints that failed to check (but do list them)
-			continue
-		if hint['popup_type'] == gmAutoHints.HINT_POPUP_NONE:
-			continue
-		if hint['popup_type'] == gmAutoHints.HINT_POPUP_IN_LIST:
-			hints2aggregate.append(hint)
-			continue
-		hint_dlg.hint = hint
-		if hint_dlg.ShowModal() == wx.ID_APPLY:
-			hint.suppress (
-				rationale = hint_dlg.rationale.strip(),
-				pk_encounter = emr.current_encounter['pk_encounter']
-			)
-	hint_dlg.DestroyLater()
-	# aggregate popup
-	if len(hints2aggregate) > 0:
-		hints_dlg = cDynamicHintListDlg(wx.GetApp().GetTopWindow(), -1)
-		hints_dlg.pk_encounter = emr.current_encounter['pk_encounter']
-		hints_dlg.hints = hints2aggregate
-		hints_dlg.ShowModal()
-		hints_dlg.DestroyLater()
+	if emr:
+		hint_dlg = cDynamicHintDlg(wx.GetApp().GetTopWindow(), -1)
+		# single-hint popups
+		for hint in emr.dynamic_hints:
+			# might be abused:
+			if hint.failed:
+				# do not popup hints that failed to check (but do list them)
+				continue
+			if hint['popup_type'] == gmAutoHints.HINT_POPUP_NONE:
+				continue
+			if hint['popup_type'] == gmAutoHints.HINT_POPUP_IN_LIST:
+				hints2aggregate.append(hint)
+				continue
+			hint_dlg.hint = hint
+			if hint_dlg.ShowModal() == wx.ID_APPLY:
+				hint.suppress (
+					rationale = hint_dlg.rationale.strip(),
+					pk_encounter = emr.current_encounter['pk_encounter']
+				)
+		hint_dlg.DestroyLater()
+		# aggregate popup
+		if len(hints2aggregate) > 0:
+			hints_dlg = cDynamicHintListDlg(wx.GetApp().GetTopWindow(), -1)
+			hints_dlg.pk_encounter = emr.current_encounter['pk_encounter']
+			hints_dlg.hints = hints2aggregate
+			hints_dlg.ShowModal()
+			hints_dlg.DestroyLater()
 
 	return
 

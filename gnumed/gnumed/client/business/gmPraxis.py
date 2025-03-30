@@ -657,11 +657,11 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_mecard():
 		for b in get_praxis_branches():
+			print(gmTools.create_qrcode(text = b.MECARD, qr_filename = None, verbose = True))
 			print(b.MECARD)
 			mcf = b.export_as_mecard()
 			print(mcf)
-			#print(gmTools.create_qrcode(filename = mcf, qr_filename = None, verbose = True)
-			print(gmTools.create_qrcode(text = b.MECARD, qr_filename = None, verbose = True))
+			print(gmTools.create_qrcode(filename = mcf, qr_filename = None, verbose = True))
 			input()
 
 	#--------------------------------------------------------

@@ -624,7 +624,6 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_as_patient(self) -> 'cPatient':
-		self.is_patient = True
 		return cPatient(self._payload['pk_identity'])
 
 	as_patient = property(_get_as_patient)
@@ -1914,6 +1913,18 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	#----------------------------------------------------------------------
 	# practice related
 	#----------------------------------------------------------------------
+	def get_last_contact(self):
+		SQL = 'select pk_encounter, last_affirmed, l10n_type from clin.v_most_recent_encounters where pk_patient = %(pat)s'
+		args = {'pat': self._payload['pk_identity']}
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+		if rows:
+			return rows[0]
+
+		return None
+
+	last_contact = property(get_last_contact)
+
+	#----------------------------------------------------------------------
 	def get_last_encounter(self):
 		cmd = 'select * from clin.v_most_recent_encounters where pk_patient=%s'
 		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self._payload['pk_identity']]}])
@@ -2055,6 +2066,9 @@ class cPatient(cPerson):
 	#----------------------------------------------------------
 	def get_emr(self):
 		_log.debug('accessing EMR for identity [%s], thread [%s]', self._payload['pk_identity'], threading.get_native_id())
+		if self.is_patient is None:
+			_log.error('trying to access EMR without required permissions')
+			return None
 
 		# fast path: already set, just return it
 		if self.__emr is not None:
@@ -2107,6 +2121,10 @@ class cPatient(cPerson):
 
 	#----------------------------------------------------------
 	def get_document_folder(self):
+		if self.is_patient is None:
+			_log.error('trying to access EMR without required permissions')
+			return None
+
 		if self.__doc_folder is None:
 			self.__doc_folder = cDocumentFolder(aPKey = self._payload['pk_identity'])
 		return self.__doc_folder
@@ -2164,7 +2182,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 
 			* None: return currently active patient
 			* -1: unset currently active patient
-			* cPatient instance: set active patient if possible
+			* cPatient/cPerson instance: set active patient if possible
 		"""
 		try:
 			self.patient
@@ -2205,20 +2223,22 @@ class gmCurrentPatient(gmBorg.cBorg):
 			return None
 
 		# must be cPatient instance, then
-		if not isinstance(patient, cPatient):
-			_log.error('cannot set active patient to [%s], must be either None, -1 or cPatient instance' % str(patient))
-			raise TypeError('gmPerson.gmCurrentPatient.__init__(): <patient> must be None, -1 or cPatient instance but is: %s' % str(patient))
+		if not isinstance(patient, (cPatient, cPerson)):
+			_log.error('cannot set active patient to [%s], must be either None, -1, cPatient or cPerson instance' % str(patient))
+			raise TypeError('gmPerson.gmCurrentPatient.__init__(): <patient> must be None, -1, cPerson or cPatient instance but is: %s' % str(patient))
 
-		_log.info('patient switch [%s] -> [%s] requested', self.patient['pk_identity'], patient['pk_identity'])
+		#_log.info('patient switch [%s] -> [%s] requested', self.patient['pk_identity'], patient['pk_identity'])
+		_log.info('patient switch [%s] -> [%s] requested', self.patient.ID, patient.ID)
 
 		# same ID, no change needed
-		if (self.patient['pk_identity'] == patient['pk_identity']) and not forced_reload:
+		#if (self.patient['pk_identity'] == patient['pk_identity']) and not forced_reload:
+		if (self.patient.ID == patient.ID) and not forced_reload:
 			return None
 
 		# do not access "deleted" patients
 		if patient['is_deleted']:
 			_log.error('cannot set active patient to disabled dem.identity row: %s', patient)
-			raise ValueError('gmPerson.gmCurrentPatient.__init__(): <patient> is disabled: %s' % patient)
+			raise ValueError('gmPerson.gmCurrentPatient.__init__(): <person> is disabled: %s' % patient)
 
 		# this blocks
 		if not self.__run_callbacks_before_switching_away_from_patient():
@@ -2684,24 +2704,31 @@ if __name__ == '__main__':
 		ident = cPerson(1)
 		print("setting active patient with", ident)
 		print(ident.description)
+		print(ident.last_contact)
 		set_active_patient(patient=ident)
+		input()
 
 		patient = cPatient(12)
 		print("setting active patient with", patient)
 		print(patient.description)
+		print(patient.last_contact)
 		set_active_patient(patient=patient)
+		input()
 
 		pat = gmCurrentPatient()
 		print(pat['dob'])
 		print(pat.description)
+		print(pat.last_contact)
 		#pat['dob'] = 'test'
 
 #		staff = cStaff()
 #		print("setting active patient with", staff)
 #		set_active_patient(patient=staff)
 
+		input()
 		print("setting active patient with -1")
 		set_active_patient(patient=-1)
+
 	#--------------------------------------------------------
 	def test_dto_person():
 		dto = cDTO_person()

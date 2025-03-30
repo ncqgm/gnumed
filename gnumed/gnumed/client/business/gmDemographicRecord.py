@@ -1104,7 +1104,6 @@ if __name__ == "__main__":
 
 	import random
 
-	from Gnumed.pycommon import gmConnectionPool
 	#--------------------------------------------------------
 	def test_address_exists():
 
@@ -1222,12 +1221,14 @@ if __name__ == "__main__":
 	#--------------------------------------------------------
 	def test_get_billing_address():
 		print(get_patient_address_by_type(pk_patient = 12, adr_type = 'billing'))
+
 	#--------------------------------------------------------
 	def test_map_urb_zip_region2country():
 		print(map_urb_zip_region2country(urb = 'Kassel', zip = '34119', region = 'Hessen'))
 		print(map_urb_zip_region2country(urb = 'Kassel', zip = None, region = 'Hessen'))
 		print(map_urb_zip_region2country(urb = None, zip = '34119', region = 'Hessen'))
 		print(map_urb_zip_region2country(urb = 'Kassel', zip = '34119', region = None))
+
 	#--------------------------------------------------------
 	def test_map_urb_zip_country2region():
 		print(map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = 'Germany', country_code = 'DE'))
@@ -1244,15 +1245,14 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------
 	#gmPG2.get_connection()
-	l, creds = gmPG2.request_login_params()
-	gmConnectionPool.gmConnectionPool().credentials = creds
+	gmPG2.request_login_params(setup_pool = True)
 
-	test_address_exists()
+	#test_address_exists()
 	#test_create_address()
 	#test_get_countries()
 	#test_get_country_for_region()
 	#test_delete_tag()
 	#test_tag_images()
-	test_get_billing_address()
+	#test_get_billing_address()
 	#test_map_urb_zip_region2country()
 	#test_map_urb_zip_country2region()
