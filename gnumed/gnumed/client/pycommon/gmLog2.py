@@ -223,7 +223,7 @@ def log_stack_trace(message:str=None, t=None, v=None, tb=None):
 			logger.debug('%20s = %s', varname, value)
 
 #---------------------------------------------------------------
-def log_multiline(level, message:str=None, line_prefix:str=None, text:str=None):
+def log_multiline(level:int=logging.DEBUG, message:str=None, line_prefix:str=None, text:str|list[str]=None):
 	"""Log multi-line text in a standard format.
 
 	Args:
@@ -232,17 +232,20 @@ def log_multiline(level, message:str=None, line_prefix:str=None, text:str=None):
 		line_prefix: a string to prefix lines with
 		text: the multi-line text to log
 	"""
-	if text is None:
+	if not text:
 		return
 
-	if message is None:
-		message = 'multiline text:'
-	if line_prefix is None:
-		line_template = '  > %s'
-	else:
+	if line_prefix:
 		line_template = '%s: %%s' % line_prefix
-	lines2log = [message]
-	lines2log.extend([ line_template % line for line in text.split('\n') ])
+	else:
+		line_template = '  > %s'
+	lines2log = []
+	if message:
+		lines2log.append(message)
+	if isinstance(text, list):
+		lines2log.extend([ line_template % line for line in text ])
+	else:
+		lines2log.extend([ line_template % line for line in text.split('\n') ])
 	logger = logging.getLogger('gm.logging')
 	logger.log(level, '\n'.join(lines2log))
 
