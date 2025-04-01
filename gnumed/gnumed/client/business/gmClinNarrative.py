@@ -380,7 +380,7 @@ def get_as_journal (
 	patient=None,
 	active_encounter=None,
 	types=None
-) -> list[str]:
+) -> list:
 
 	if (patient is None) and (episodes is None) and (issues is None) and (encounters is None):
 		raise ValueError('at least one of <patient>, <episodes>, <issues>, <encounters> must not be None')

@@ -1760,7 +1760,7 @@ if __name__ == "__main__":
 		creds.host = 'localhost'
 		pool = gmConnectionPool()
 		pool.credentials = creds
-		conn = pool.get_connection()
+		pool.get_connection()
 		#curs = conn.cursor()
 		#log_role_permissions(curs)
 		#log_role_permissions(curs, role = 'any-staff')

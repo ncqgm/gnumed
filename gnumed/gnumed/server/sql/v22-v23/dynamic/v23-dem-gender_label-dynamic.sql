@@ -10,7 +10,7 @@
 
 -- --------------------------------------------------------------
 alter table dem.gender_label
-	drop column if exists sort_weight text;
+	drop column if exists sort_weight cascade;
 
 -- --------------------------------------------------------------
 alter table dem.gender_label

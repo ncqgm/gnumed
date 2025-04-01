@@ -644,7 +644,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	# identity API
 	#--------------------------------------------------------
 	def _get_gender_symbol(self) -> str:
-		return map_gender2symbol[self._payload['gender']]
+		return map_gender2symbol(self._payload['gender'])
 
 	gender_symbol = property(_get_gender_symbol)
 
@@ -2020,7 +2020,7 @@ def identity_is_patient(pk_identity:int) -> bool | None:
 	args = {'pk_pat': pk_identity}
 	status = False
 	try:
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
 		if rows:
 			status = True
 	except gmExceptions.AccessDenied:
