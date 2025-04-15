@@ -254,6 +254,15 @@ Integration with systemd-tmpfiles(8).
 .TP
 .B gnumed-completion.bash
 Integration with BASH completions.
+.TP
+.B ~/gnumed/auto-incoming/
+Directory from which files are auto-imported for archival as
+patient documents. This directory is meant for the user to
+manually drop files into.
+
+It will also contain a README listing another auto-import
+directory meant for programmatic dropping of files. Under
+Linux this path will likely be ~/.local/gnumed/auto-incoming/
 
 
 .SH SEE ALSO

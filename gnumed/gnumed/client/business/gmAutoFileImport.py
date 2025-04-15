@@ -28,6 +28,53 @@ from Gnumed.business import gmIncomingData
 
 _log = logging.getLogger('gm.autoimport')
 
+
+AUTOIMPORT_DIR_README = """GNUmed Electronic Medical Record
+
+Files dropped into the following directories (and their
+subdirectories) will be auto-imported into the GNUmed
+incoming area.
+
+	%s/
+		(for user interaction)
+
+	%s/
+		(for programmatic interaction)
+
+Subdirectories can be links.
+
+
+File import rules:
+
+	- inaccessible files will be ignored
+
+	- filenames ending in ".imported" will be ignored
+
+	- filenames ending in ".new" will be ignored, unless
+	  the file was last modified more than 24 hours ago
+
+	- successfully imported files will be renamed to
+	  ".FILENAME.CURRENT_TIMESTAMP.imported"
+
+	- files already existing in the database (based on
+	  MD5 of the file content) will be removed from
+	  the directory
+
+	- one level of subdirectories is scanned for files
+
+	- subdirectories will not be removed, even if empty
+
+
+How to safely drop files into these directories:
+
+	Copy the file with a filename ending in ".new" into the
+	desired directory.
+
+	When done copying rename it by removing the ".new" suffix.
+	Renaming in-place must be an atomic operation. Check your
+	filesystem's documentation.
+"""
+
 #============================================================
 def _worker__auto_import_files():
 	"""Import files. Will run in a thread."""
@@ -48,43 +95,8 @@ def setup_default_import_dirs() -> bool:
 		# aka ".local/gnumed/"
 		os.path.join(gmTools.gmPaths().user_appdata_dir, 'auto-import')
 	]
-	README = """GNUmed Electronic Medical Record
 
-	for user interaction:
-		%s/
-
-	for programmatic interaction:
-		%s/
-
-Files dropped into these directories and their subdirectories
-will be auto-imported into the GNUmed incoming area. Sub-
-directories can also be links.
-
-Rules:
-
-	- inaccessible files will be ignored
-
-	- filenames ending in ".imported" will be ignored
-
-	- filenames ending in ".new" will be ignored, unless
-	  the file was last modified more than 24 hours ago
-
-	- successfully imported files will be renamed to
-	  ".FILENAME.CURRENT_TIMESTAMP.imported"
-
-	- files already existing in the database (based on
-	  MD5 of the file content) will be removed
-
-	- one level of subdirectories is scanned for files
-
-	- subdirectories will not be removed, even if empty
-
-How to safely drop files into this directory:
-
-	Copy in the file with a filename ending in ".new". When
-	done copying rename it by removing the ".new" suffix. Renaming
-	in-place is expected to be a safe (atomic) operation.
-""" % tuple(paths)
+	README = AUTOIMPORT_DIR_README % tuple(paths)
 	for path in paths:
 		_log.debug(path)
 		if gmTools.mkdir(directory = path):
@@ -124,7 +136,7 @@ class cAutoImportDir:
 		self.__paths = [
 			# aka "~/gnumed/"
 			os.path.join(gmTools.gmPaths().user_work_dir, 'auto-import'),
-			# aka ".gnumed/"
+			# aka ".local/gnumed/"
 			os.path.join(gmTools.gmPaths().user_appdata_dir, 'auto-import')
 		]
 		_log.info(self.__paths)
