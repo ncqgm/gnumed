@@ -6,6 +6,10 @@
 # rel-1-8-patches
 ------------------------------------------------
 
+	1.8.21
+
+FIX: startup: crash on fingerprinting v15+ servers [thanks gm-dbo]
+
 	1.8.20
 
 FIX: startup: crash on fingerprinting episodes in DB if gm-staff [thanks Maria]
