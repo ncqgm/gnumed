@@ -2934,7 +2934,6 @@ second line\n
 	#test_make_table_from_dicts()
 	#test_create_dir_desc_file()
 	#test_dir_list_files()
-	#test_decorate_window_title()
 	#test_rename_file()
 
 #===========================================================================

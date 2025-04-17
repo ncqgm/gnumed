@@ -544,25 +544,42 @@ def __snapshot_to_bitmap(source_dc=None, x2snap_from=0, y2snap_from=0, width2sna
 	del target_dc
 	return wxbmp
 
-# ========================================================================
-__curr_pat = None
+#==========================================================================
+__CURR_PAT = None
 
 def __on_post_patient_selection(**kwds):
-	global __curr_pat
-	__curr_pat = kwds['current_patient']
+	global __CURR_PAT
+	__CURR_PAT = kwds['current_patient']
 
 gmDispatcher.connect(signal = 'post_patient_selection', receiver = __on_post_patient_selection)
 
 #---------------------------------------------------------------------------
 def __generate_pat_str():
-	if __curr_pat is None:
+	if __CURR_PAT is None:
 		return None
+
 	data = {
-		'last': __curr_pat['lastnames'].upper(),
-		'first': __curr_pat['firstnames'],
-		'sex': __curr_pat.gender_symbol
+		'last': __CURR_PAT['lastnames'].upper(),
+		'first': __CURR_PAT['firstnames'],
+		'sex': __CURR_PAT.gender_symbol
 	}
 	return ('%(last)s %(first)s (%(sex)s)' % data).strip()
+
+#---------------------------------------------------------------------------
+__CURR_PROV_STR = None
+
+def __generate_provider_str():
+	global __CURR_PROV_STR
+	if __CURR_PROV_STR:
+		return __CURR_PROV_STR
+
+	from Gnumed.business.gmStaff import gmCurrentProvider
+	prov = gmCurrentProvider()
+	if not prov.provider:
+		return None
+
+	__CURR_PROV_STR = prov['short_alias']
+	return __CURR_PROV_STR
 
 #---------------------------------------------------------------------------
 def decorate_window_title(title):
@@ -572,9 +589,11 @@ def decorate_window_title(title):
 			title.strip()
 		)
 	pat = __generate_pat_str()
-	if (pat is not None) and (pat not in title):
+	if pat and (pat not in title):
 		title = '%s | %s' % (title, pat)
-	# FIXME: add current provider
+	prov = __generate_provider_str()
+	if prov and (prov not in title):
+		title = '%s | [%s]' % (title, prov)
 	return title
 
 #---------------------------------------------------------------------------
@@ -723,9 +742,14 @@ if __name__ == '__main__':
 		print(save_screenshot_to_file())
 
 	#------------------------------------------------------------------
+	def test_decorate_window_title():
+		print(decorate_window_title('test window'))
+
+	#------------------------------------------------------------------
 	#test_scale_img()
 	#test_sql_logic_prw()
 	#test_clipboard()
-	test_take_screenshot()
+	#test_take_screenshot()
+	test_decorate_window_title()
 
 #======================================================================
