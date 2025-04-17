@@ -67,6 +67,10 @@ FIX: forward-port fix for grid selection constant names
 # rel-1-8-maint
 ------------------------------------------------
 
+	1.8.21
+
+FIX: startup: crash on fingerprinting v15+ servers [thanks gm-dbo]
+
 	1.8.20
 
 FIX: startup: crash on fingerprinting episodes in DB if gm-staff [thanks Maria]

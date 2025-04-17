@@ -730,7 +730,7 @@ def get_db_fingerprint(conn=None, fname:str=None, with_dump:bool=False, eol:str=
 	queries = [
 		("Version (PG)", "SELECT setting FROM pg_settings WHERE name = 'server_version'"),
 		('Encoding (PG)', "SELECT setting FROM pg_settings WHERE name = 'server_encoding'"),
-		('LC_COLLATE (PG)', "SELECT setting FROM pg_settings WHERE name = 'lc_collate'"),
+		#('LC_COLLATE (PG)', "SELECT setting FROM pg_settings WHERE name = 'lc_collate'"),
 		('LC_CTYPE (PG)', "SELECT setting FROM pg_settings WHERE name = 'lc_ctype'"),
 		('Patients', "SELECT COUNT(*) FROM dem.identity"),
 		('Contacts', "SELECT COUNT(*) FROM clin.encounter"),
@@ -3456,6 +3456,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 #		print(type(e))
 #		for s in dir(e.diag):
 #			print(s, getattr(e.diag, s))
+	test_get_db_fingerprint()
 	#test_schema_compatible()
 	#test_get_schema_structure()
 	#test___get_schema_structure()
