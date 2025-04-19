@@ -730,7 +730,7 @@ def get_db_fingerprint(conn=None, fname:str=None, with_dump:bool=False, eol:str=
 	queries = [
 		("Version (PG)", "SELECT setting FROM pg_settings WHERE name = 'server_version'"),
 		('Encoding (PG)', "SELECT setting FROM pg_settings WHERE name = 'server_encoding'"),
-		#('LC_COLLATE (PG)', "SELECT setting FROM pg_settings WHERE name = 'lc_collate'"),
+		('LC_COLLATE (PG)', "SELECT setting FROM pg_settings WHERE name = 'lc_collate'"),
 		('LC_CTYPE (PG)', "SELECT setting FROM pg_settings WHERE name = 'lc_ctype'"),
 		('Patients', "SELECT COUNT(*) FROM dem.identity"),
 		('Contacts', "SELECT COUNT(*) FROM clin.encounter"),
@@ -771,7 +771,10 @@ def get_db_fingerprint(conn=None, fname:str=None, with_dump:bool=False, eol:str=
 		try:
 			curs.execute(cmd)
 			rows = curs.fetchall()
-			val = rows[0][0]
+			if rows:
+				val = rows[0][0]
+			else:
+				val = '<not found>'
 		except PG_ERROR_EXCEPTION as pg_exc:
 			if pg_exc.pgcode != PG_error_codes.INSUFFICIENT_PRIVILEGE:
 				raise
