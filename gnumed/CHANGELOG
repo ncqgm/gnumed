@@ -2272,6 +2272,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v22
 ------------------------------------------------
 
+	22.31
+
+FIX: crash on fingerprinting v15+ servers [thanks gm-dbo]
+
 	22.30
 
 FIX: unique constraint on identity+name with multiple names per identity [thanks Maria]
