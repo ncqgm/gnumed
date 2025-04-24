@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-26 17:47+0100\n"
+"POT-Creation-Date: 2025-04-24 16:03+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4873,19 +4873,19 @@ msgstr ""
 msgid "Details of the patients to merge"
 msgstr ""
 
-msgid "Select the paperwork receiver:"
-msgstr ""
-
-msgid "&OK"
-msgstr ""
-
 msgid "Letter receiver selection"
+msgstr ""
+
+msgid "Select the paperwork receiver:"
 msgstr ""
 
 msgid ""
 "This name will be used.\n"
 "\n"
 "You can edit the (or type another) name here, too."
+msgstr ""
+
+msgid "Address"
 msgstr ""
 
 msgid ""
@@ -4895,21 +4895,6 @@ msgid ""
 msgstr ""
 
 msgid "Manage generic list of all addresses."
-msgstr ""
-
-msgid "Select the organizational unit you want to write to."
-msgstr ""
-
-msgid "Manage known organizations and units thereof."
-msgstr ""
-
-msgid "Use the above name and address."
-msgstr ""
-
-msgid "Abort the receiver selection."
-msgstr ""
-
-msgid "Address"
 msgstr ""
 
 msgid "Selected Receiver"
@@ -4947,6 +4932,21 @@ msgid "Quick picks"
 msgstr ""
 
 msgid "Org:"
+msgstr ""
+
+msgid "Select the organizational unit you want to write to."
+msgstr ""
+
+msgid "Manage known organizations and units thereof."
+msgstr ""
+
+msgid "&OK"
+msgstr ""
+
+msgid "Use the above name and address."
+msgstr ""
+
+msgid "Abort the receiver selection."
 msgstr ""
 
 msgid "&Run"
@@ -6788,16 +6788,10 @@ msgstr ""
 msgid "Nest under"
 msgstr ""
 
-msgid "Do not reformat text"
-msgstr ""
-
-msgid "Formatting help"
-msgstr ""
-
-msgid "http://docutils.sourceforge.net/docs/user/rst/quickref.html"
-msgstr ""
-
 msgid "Generic multi line text entry dialog"
+msgstr ""
+
+msgid "Do not reformat text"
 msgstr ""
 
 msgid ""
@@ -6814,6 +6808,12 @@ msgid ""
 "like HTML or LaTeX, and you are confident it should be\n"
 "put into the output as-is. Note that this will also disable\n"
 "ReST post-processing."
+msgstr ""
+
+msgid "Formatting help"
+msgstr ""
+
+msgid "http://docutils.sourceforge.net/docs/user/rst/quickref.html"
 msgstr ""
 
 msgid ""
@@ -10552,6 +10552,10 @@ msgid ""
 " Now, mark the entries you want to include in your report.\n"
 msgstr ""
 
+#, python-format
+msgid "Progress Notes -- %s"
+msgstr ""
+
 msgid "Pick a date ..."
 msgstr ""
 
@@ -11938,77 +11942,6 @@ msgid "&Summary"
 msgstr ""
 
 msgid "icon_clinical_summary"
-msgstr ""
-
-msgid "No medication list template configured."
-msgstr ""
-
-#, python-format
-msgid "Medication List -- %s"
-msgstr ""
-
-msgid "Allergies: unknown"
-msgstr ""
-
-msgid "Printing medication list"
-msgstr ""
-
-msgid "There is no medication list template configured."
-msgstr ""
-
-msgid "Problem loading medication list template."
-msgstr ""
-
-#, python-format
-msgid "Cannot load medication list template [%s - %s]"
-msgstr ""
-
-msgid "Pretty medication list form failed. Generating failsafe version."
-msgstr ""
-
-msgid "generated medication list document"
-msgstr ""
-
-msgid "Select the default prescription template:"
-msgstr ""
-
-msgid "No prescription template configured."
-msgstr ""
-
-msgid "There is no prescription template configured."
-msgstr ""
-
-msgid "Printing prescription"
-msgstr ""
-
-msgid "Problem loading prescription template."
-msgstr ""
-
-#, python-format
-msgid "Cannot load prescription template [%s - %s]"
-msgstr ""
-
-#, python-format
-msgid "Prescription -- %s"
-msgstr ""
-
-msgid "Pretty prescription form failed. Generating failsafe version."
-msgstr ""
-
-msgid "generated prescription"
-msgstr ""
-
-msgid ""
-"These products have been prescribed but are not listed\n"
-"in the current medication list of this patient.\n"
-"\n"
-"Please select those you want added to the medication list."
-msgstr ""
-
-msgid "Newly prescribed drugs"
-msgstr ""
-
-msgid "Add to medication list"
 msgstr ""
 
 msgid "Timeframe"
@@ -14114,6 +14047,96 @@ msgstr ""
 msgid "There are no device checkup reports in the database."
 msgstr ""
 
+msgid ""
+"GNUmed will use this URL to access a website which lets\n"
+"you report an adverse drug reaction (ADR).\n"
+"\n"
+"If you leave this empty it will fall back\n"
+"to an URL for reporting ADRs in Germany."
+msgstr ""
+
+msgid ""
+"\n"
+"Select the measurements panel to show in the medications plugin.\n"
+msgstr ""
+
+msgid "Measurements panel"
+msgstr ""
+
+msgid "Configuring medications plugin measurements panel"
+msgstr ""
+
+msgid "No medication list template configured."
+msgstr ""
+
+#, python-format
+msgid "Medication List -- %s"
+msgstr ""
+
+msgid "Allergies: unknown"
+msgstr ""
+
+msgid "Printing medication list"
+msgstr ""
+
+msgid "There is no medication list template configured."
+msgstr ""
+
+msgid "Problem loading medication list template."
+msgstr ""
+
+#, python-format
+msgid "Cannot load medication list template [%s - %s]"
+msgstr ""
+
+msgid "Pretty medication list form failed. Generating failsafe version."
+msgstr ""
+
+msgid "generated medication list document"
+msgstr ""
+
+msgid "Select the default prescription template:"
+msgstr ""
+
+msgid "No prescription template configured."
+msgstr ""
+
+msgid "There is no prescription template configured."
+msgstr ""
+
+msgid "Printing prescription"
+msgstr ""
+
+msgid "Problem loading prescription template."
+msgstr ""
+
+#, python-format
+msgid "Cannot load prescription template [%s - %s]"
+msgstr ""
+
+#, python-format
+msgid "Prescription -- %s"
+msgstr ""
+
+msgid "Pretty prescription form failed. Generating failsafe version."
+msgstr ""
+
+msgid "generated prescription"
+msgstr ""
+
+msgid ""
+"These products have been prescribed but are not listed\n"
+"in the current medication list of this patient.\n"
+"\n"
+"Please select those you want added to the medication list."
+msgstr ""
+
+msgid "Newly prescribed drugs"
+msgstr ""
+
+msgid "Add to medication list"
+msgstr ""
+
 msgid "Yes: + / ! / 1"
 msgstr ""
 
@@ -14472,25 +14495,6 @@ msgid "<patient search locked>"
 msgstr ""
 
 msgid "<type here to search patient>"
-msgstr ""
-
-msgid ""
-"\n"
-"Select the measurements panel to show in the medications plugin.\n"
-msgstr ""
-
-msgid "Measurements panel"
-msgstr ""
-
-msgid "Configuring medications plugin measurements panel"
-msgstr ""
-
-msgid ""
-"GNUmed will use this URL to access a website which lets\n"
-"you report an adverse drug reaction (ADR).\n"
-"\n"
-"If you leave this empty it will fall back\n"
-"to an URL for reporting ADRs in Germany."
 msgstr ""
 
 msgid "EDC (!?!):"
@@ -16237,13 +16241,13 @@ msgstr ""
 msgid "Select the drug data source."
 msgstr ""
 
-msgid "ADR URL"
+msgid "ADR URL (Meds)"
 msgstr ""
 
 msgid "URL for reporting Adverse Drug Reactions."
 msgstr ""
 
-msgid "vaccADR URL"
+msgid "ADR URL (Vx)"
 msgstr ""
 
 msgid "URL for reporting Adverse Drug Reactions to *vaccines*."
@@ -16633,6 +16637,12 @@ msgstr ""
 msgid "Search for data in the EMR of the active patient"
 msgstr ""
 
+msgid "Search all EMRs"
+msgstr ""
+
+msgid "Search for data across the EMRs of all patients"
+msgstr ""
+
 msgid "Start new encounter"
 msgstr ""
 
@@ -16704,6 +16714,12 @@ msgstr ""
 msgid "Write free-form document for current patient."
 msgstr ""
 
+msgid "&Failsafe document"
+msgstr ""
+
+msgid "Generate failsafe document."
+msgstr ""
+
 msgid "Screenshot -> export area"
 msgstr ""
 
@@ -16729,12 +16745,6 @@ msgid "Show list of paperwork passphrases"
 msgstr ""
 
 msgid "&Correspondence"
-msgstr ""
-
-msgid "Search all EMRs"
-msgstr ""
-
-msgid "Search for data across the EMRs of all patients"
 msgstr ""
 
 msgid "no viewer installed"
@@ -17052,6 +17062,32 @@ msgid ""
 msgstr ""
 
 msgid "Cannot write letter. No active patient."
+msgstr ""
+
+msgid "Cannot generate document. No active patient."
+msgstr ""
+
+msgid "Vaccination history"
+msgstr ""
+
+msgid "Prescription"
+msgstr ""
+
+msgid "Documents list"
+msgstr ""
+
+msgid "Measurements"
+msgstr ""
+
+msgid "Progress notes"
+msgstr ""
+
+msgid ""
+"A text-only document will be generated and displayed for editing and "
+"printing."
+msgstr ""
+
+msgid "Generate failsafe document"
 msgstr ""
 
 msgid "Cannot put screenshot into export area. No active patient."
@@ -20017,19 +20053,16 @@ msgstr ""
 msgid "loading plugin <%s>"
 msgstr ""
 
-msgid "EMR Timeline"
+msgid "EMR TL"
 msgstr ""
 
-msgid "EMR &Timeline"
+msgid "EMR: T&imeline"
 msgstr ""
 
 msgid "Overview"
 msgstr ""
 
 msgid "&Overview"
-msgstr ""
-
-msgid "Measurements"
 msgstr ""
 
 msgid "AU Vacc"
@@ -20047,7 +20080,7 @@ msgstr ""
 msgid "EMR Tree"
 msgstr ""
 
-msgid "EMR &Tree"
+msgid "EMR: &Tree"
 msgstr ""
 
 msgid "Print Manager"
@@ -20056,10 +20089,10 @@ msgstr ""
 msgid "&Print Manager"
 msgstr ""
 
-msgid "EMR Journal"
+msgid "EMR List"
 msgstr ""
 
-msgid "EMR &Journal (list)"
+msgid "EMR: &List Journal"
 msgstr ""
 
 msgid "&Vaccinations"
@@ -20098,9 +20131,6 @@ msgstr ""
 msgid "&Report Generator"
 msgstr ""
 
-msgid "Progress notes"
-msgstr ""
-
 msgid "HTML Source"
 msgstr ""
 
@@ -20110,7 +20140,10 @@ msgstr ""
 msgid "User &manual (local)"
 msgstr ""
 
-msgid "EMR &Journal (text)"
+msgid "EMR Text"
+msgstr ""
+
+msgid "EMR: Te&xt Journal"
 msgstr ""
 
 msgid "Demographics"

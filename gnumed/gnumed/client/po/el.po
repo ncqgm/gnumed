@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-05 20:20+0100\n"
+"POT-Creation-Date: 2025-04-24 16:03+0200\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -5676,22 +5676,21 @@ msgid "Details of the patients to merge"
 msgstr "Επιλέξτε αυτό αν ο ασθενής έχει γνωστές αλλεργίες."
 
 #, fuzzy
-msgid "Select the paperwork receiver:"
-msgstr "Επέλεξε τον τύπο της συνεδρίας."
-
-#, fuzzy
-msgid "&OK"
-msgstr "OK"
-
-#, fuzzy
 msgid "Letter receiver selection"
 msgstr "Ο στιγμιαία επιλεγμένος ασθενής είναι:"
+
+#, fuzzy
+msgid "Select the paperwork receiver:"
+msgstr "Επέλεξε τον τύπο της συνεδρίας."
 
 msgid ""
 "This name will be used.\n"
 "\n"
 "You can edit the (or type another) name here, too."
 msgstr ""
+
+msgid "Address"
+msgstr "Διεύθυνση"
 
 msgid ""
 "This address will be used.\n"
@@ -5702,25 +5701,6 @@ msgstr ""
 #, fuzzy
 msgid "Manage generic list of all addresses."
 msgstr "Αποθήκευση διεύθυνσης"
-
-#, fuzzy
-msgid "Select the organizational unit you want to write to."
-msgstr "Η εμπορική ονομασία του φάρμακου που λαμβάνει ο ασθενής."
-
-#, fuzzy
-msgid "Manage known organizations and units thereof."
-msgstr "Εμφάνισε  Οργανώσεις"
-
-#, fuzzy
-msgid "Use the above name and address."
-msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
-
-#, fuzzy
-msgid "Abort the receiver selection."
-msgstr "Τρέχουσα φαρμακευτική αγωγή"
-
-msgid "Address"
-msgstr "Διεύθυνση"
 
 #, fuzzy
 msgid "Selected Receiver"
@@ -5759,6 +5739,26 @@ msgstr ""
 
 msgid "Org:"
 msgstr ""
+
+#, fuzzy
+msgid "Select the organizational unit you want to write to."
+msgstr "Η εμπορική ονομασία του φάρμακου που λαμβάνει ο ασθενής."
+
+#, fuzzy
+msgid "Manage known organizations and units thereof."
+msgstr "Εμφάνισε  Οργανώσεις"
+
+#, fuzzy
+msgid "&OK"
+msgstr "OK"
+
+#, fuzzy
+msgid "Use the above name and address."
+msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
+
+#, fuzzy
+msgid "Abort the receiver selection."
+msgstr "Τρέχουσα φαρμακευτική αγωγή"
 
 msgid "&Run"
 msgstr ""
@@ -7733,16 +7733,10 @@ msgstr "Δεν υπάρχουν συνεδρίες για αυτό το επει
 msgid "Nest under"
 msgstr ""
 
-msgid "Do not reformat text"
-msgstr ""
-
-msgid "Formatting help"
-msgstr ""
-
-msgid "http://docutils.sourceforge.net/docs/user/rst/quickref.html"
-msgstr ""
-
 msgid "Generic multi line text entry dialog"
+msgstr ""
+
+msgid "Do not reformat text"
 msgstr ""
 
 msgid ""
@@ -7759,6 +7753,12 @@ msgid ""
 "like HTML or LaTeX, and you are confident it should be\n"
 "put into the output as-is. Note that this will also disable\n"
 "ReST post-processing."
+msgstr ""
+
+msgid "Formatting help"
+msgstr ""
+
+msgid "http://docutils.sourceforge.net/docs/user/rst/quickref.html"
 msgstr ""
 
 msgid ""
@@ -11794,6 +11794,10 @@ msgid ""
 " Now, mark the entries you want to include in your report.\n"
 msgstr ""
 
+#, fuzzy, python-format
+msgid "Progress Notes -- %s"
+msgstr "Σημειώσεις προόδου"
+
 msgid "Pick a date ..."
 msgstr ""
 
@@ -12094,7 +12098,7 @@ msgid ""
 msgstr ""
 
 #, fuzzy
-msgid "Successfully regenerated generic vaccines ..."
+msgid "Successfully regenerated generic vaccines."
 msgstr "Επιτυχής εξαγωγή του ΗΙΦ στο αρχείο:%s"
 
 msgid "Adding new vaccine"
@@ -13270,90 +13274,6 @@ msgstr "&Περίληψη"
 
 msgid "icon_clinical_summary"
 msgstr "εικόνα_κλινική_σύνοψη"
-
-msgid "No medication list template configured."
-msgstr "Ουδεμία λίστα προτύπων της φαρμακευτικής αγωγής έχει διαμορφωθεί."
-
-#, fuzzy, python-format
-msgid "Medication List -- %s"
-msgstr "Λίστα φαρμάκων"
-
-#, fuzzy
-msgid "Allergies: unknown"
-msgstr "Αλλεργίες"
-
-msgid "Printing medication list"
-msgstr "Εκτύπωση λίστας φαρμακευτικής αγωγής"
-
-msgid "There is no medication list template configured."
-msgstr ""
-"Δεν υπάρχει μια διαμορφωμένη λίστα προτύπων της φαρμακευτικής αγωγής "
-"διαμορφωμένη."
-
-msgid "Problem loading medication list template."
-msgstr "Σφάλμα κατά την μεταφόρτωση του προτύπου της φαρμακευτικής αγωγής."
-
-#, python-format
-msgid "Cannot load medication list template [%s - %s]"
-msgstr ""
-
-msgid "Pretty medication list form failed. Generating failsafe version."
-msgstr ""
-
-#, fuzzy
-msgid "generated medication list document"
-msgstr "Εκτύπωση λίστας της φαρμακευτικής αγωγής."
-
-msgid "Select the default prescription template:"
-msgstr ""
-
-#, fuzzy
-msgid "No prescription template configured."
-msgstr "Ουδεμία λίστα προτύπων της φαρμακευτικής αγωγής έχει διαμορφωθεί."
-
-#, fuzzy
-msgid "There is no prescription template configured."
-msgstr ""
-"Δεν υπάρχει μια διαμορφωμένη λίστα προτύπων της φαρμακευτικής αγωγής "
-"διαμορφωμένη."
-
-#, fuzzy
-msgid "Printing prescription"
-msgstr "Συνταγές"
-
-#, fuzzy
-msgid "Problem loading prescription template."
-msgstr "Σφάλμα κατά την μεταφόρτωση του προτύπου της φαρμακευτικής αγωγής."
-
-#, python-format
-msgid "Cannot load prescription template [%s - %s]"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "Prescription -- %s"
-msgstr "Συνταγές"
-
-msgid "Pretty prescription form failed. Generating failsafe version."
-msgstr ""
-
-#, fuzzy
-msgid "generated prescription"
-msgstr "Συνταγές"
-
-msgid ""
-"These products have been prescribed but are not listed\n"
-"in the current medication list of this patient.\n"
-"\n"
-"Please select those you want added to the medication list."
-msgstr ""
-
-#, fuzzy
-msgid "Newly prescribed drugs"
-msgstr "Συνταγογραφήθηκε για"
-
-#, fuzzy
-msgid "Add to medication list"
-msgstr "Λίστα φαρμάκων"
 
 #, fuzzy
 msgid "Timeframe"
@@ -15578,6 +15498,111 @@ msgstr ""
 msgid "There are no device checkup reports in the database."
 msgstr ""
 
+msgid ""
+"GNUmed will use this URL to access a website which lets\n"
+"you report an adverse drug reaction (ADR).\n"
+"\n"
+"If you leave this empty it will fall back\n"
+"to an URL for reporting ADRs in Germany."
+msgstr ""
+
+#, fuzzy
+msgid ""
+"\n"
+"Select the measurements panel to show in the medications plugin.\n"
+msgstr "Επέλεξε πρότυπο για την εκτύπωση της φαρμακευτικής αγωγής."
+
+#, fuzzy
+msgid "Measurements panel"
+msgstr "Μετρήσεις"
+
+msgid "Configuring medications plugin measurements panel"
+msgstr ""
+
+msgid "No medication list template configured."
+msgstr "Ουδεμία λίστα προτύπων της φαρμακευτικής αγωγής έχει διαμορφωθεί."
+
+#, fuzzy, python-format
+msgid "Medication List -- %s"
+msgstr "Λίστα φαρμάκων"
+
+#, fuzzy
+msgid "Allergies: unknown"
+msgstr "Αλλεργίες"
+
+msgid "Printing medication list"
+msgstr "Εκτύπωση λίστας φαρμακευτικής αγωγής"
+
+msgid "There is no medication list template configured."
+msgstr ""
+"Δεν υπάρχει μια διαμορφωμένη λίστα προτύπων της φαρμακευτικής αγωγής "
+"διαμορφωμένη."
+
+msgid "Problem loading medication list template."
+msgstr "Σφάλμα κατά την μεταφόρτωση του προτύπου της φαρμακευτικής αγωγής."
+
+#, python-format
+msgid "Cannot load medication list template [%s - %s]"
+msgstr ""
+
+msgid "Pretty medication list form failed. Generating failsafe version."
+msgstr ""
+
+#, fuzzy
+msgid "generated medication list document"
+msgstr "Εκτύπωση λίστας της φαρμακευτικής αγωγής."
+
+msgid "Select the default prescription template:"
+msgstr ""
+
+#, fuzzy
+msgid "No prescription template configured."
+msgstr "Ουδεμία λίστα προτύπων της φαρμακευτικής αγωγής έχει διαμορφωθεί."
+
+#, fuzzy
+msgid "There is no prescription template configured."
+msgstr ""
+"Δεν υπάρχει μια διαμορφωμένη λίστα προτύπων της φαρμακευτικής αγωγής "
+"διαμορφωμένη."
+
+#, fuzzy
+msgid "Printing prescription"
+msgstr "Συνταγές"
+
+#, fuzzy
+msgid "Problem loading prescription template."
+msgstr "Σφάλμα κατά την μεταφόρτωση του προτύπου της φαρμακευτικής αγωγής."
+
+#, python-format
+msgid "Cannot load prescription template [%s - %s]"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Prescription -- %s"
+msgstr "Συνταγές"
+
+msgid "Pretty prescription form failed. Generating failsafe version."
+msgstr ""
+
+#, fuzzy
+msgid "generated prescription"
+msgstr "Συνταγές"
+
+msgid ""
+"These products have been prescribed but are not listed\n"
+"in the current medication list of this patient.\n"
+"\n"
+"Please select those you want added to the medication list."
+msgstr ""
+
+#, fuzzy
+msgid "Newly prescribed drugs"
+msgstr "Συνταγογραφήθηκε για"
+
+#, fuzzy
+msgid "Add to medication list"
+msgstr "Λίστα φαρμάκων"
+
 msgid "Yes: + / ! / 1"
 msgstr ""
 
@@ -15957,27 +15982,6 @@ msgid "<patient search locked>"
 msgstr ""
 
 msgid "<type here to search patient>"
-msgstr ""
-
-#, fuzzy
-msgid ""
-"\n"
-"Select the measurements panel to show in the medications plugin.\n"
-msgstr "Επέλεξε πρότυπο για την εκτύπωση της φαρμακευτικής αγωγής."
-
-#, fuzzy
-msgid "Measurements panel"
-msgstr "Μετρήσεις"
-
-msgid "Configuring medications plugin measurements panel"
-msgstr ""
-
-msgid ""
-"GNUmed will use this URL to access a website which lets\n"
-"you report an adverse drug reaction (ADR).\n"
-"\n"
-"If you leave this empty it will fall back\n"
-"to an URL for reporting ADRs in Germany."
 msgstr ""
 
 msgid "EDC (!?!):"
@@ -17847,13 +17851,13 @@ msgstr ""
 msgid "Select the drug data source."
 msgstr ""
 
-msgid "ADR URL"
+msgid "ADR URL (Meds)"
 msgstr ""
 
 msgid "URL for reporting Adverse Drug Reactions."
 msgstr ""
 
-msgid "vaccADR URL"
+msgid "ADR URL (Vx)"
 msgstr ""
 
 msgid "URL for reporting Adverse Drug Reactions to *vaccines*."
@@ -18274,6 +18278,12 @@ msgstr "Αναζήτηση αυτού του ΗΙΦ"
 msgid "Search for data in the EMR of the active patient"
 msgstr ""
 
+msgid "Search all EMRs"
+msgstr "Αναζήτηση όλων των ΗΙΦ"
+
+msgid "Search for data across the EMRs of all patients"
+msgstr "Αναζήτηση δεδομένων ανάμεσα στους ΗΙΦ όλων των ασθενών"
+
 msgid "Start new encounter"
 msgstr ""
 
@@ -18360,6 +18370,14 @@ msgstr "Γενικό όνομα"
 msgid "Write free-form document for current patient."
 msgstr "Αρχή νέας συνεδρίας για τον ενεργό ασθενή αμέσως τώρα."
 
+#, fuzzy
+msgid "&Failsafe document"
+msgstr "Αποθήκευση εγγράφου"
+
+#, fuzzy
+msgid "Generate failsafe document."
+msgstr "Εκτύπωση λίστας της φαρμακευτικής αγωγής."
+
 msgid "Screenshot -> export area"
 msgstr ""
 
@@ -18376,6 +18394,14 @@ msgid "Show list of all placeholders."
 msgstr "σφάλμα στην κράτηση θέσης [%s]"
 
 #, fuzzy
+msgid "Test placeholder"
+msgstr "σφάλμα στην κράτηση θέσης [%s]"
+
+#, fuzzy
+msgid "Manually test placeholders"
+msgstr "σφάλμα στην κράτηση θέσης [%s]"
+
+#, fuzzy
 msgid "List passphrases"
 msgstr "Αναζήτηση"
 
@@ -18384,12 +18410,6 @@ msgstr ""
 
 msgid "&Correspondence"
 msgstr "&Αλληλογραφία"
-
-msgid "Search all EMRs"
-msgstr "Αναζήτηση όλων των ΗΙΦ"
-
-msgid "Search for data across the EMRs of all patients"
-msgstr "Αναζήτηση δεδομένων ανάμεσα στους ΗΙΦ όλων των ασθενών"
 
 msgid "no viewer installed"
 msgstr ""
@@ -18448,6 +18468,101 @@ msgstr ""
 #, fuzzy
 msgid "Lab results ..."
 msgstr "Εργαστηριακό αποτέλεσμα"
+
+#, fuzzy
+msgid "&Screenshot"
+msgstr "Στιγμιότυπο"
+
+msgid "Save a screenshot of this GNUmed client."
+msgstr ""
+
+msgid "Status line: &Clear"
+msgstr ""
+
+msgid "Clear the status line."
+msgstr ""
+
+msgid "Status line: History"
+msgstr ""
+
+msgid "Show status line history."
+msgstr ""
+
+msgid "Tooltips on"
+msgstr ""
+
+msgid "Globally enable tooltips."
+msgstr ""
+
+msgid "Tooltips off"
+msgstr ""
+
+msgid "Globally (attempt to) disable tooltips."
+msgstr ""
+
+msgid "Unlock mouse"
+msgstr ""
+
+msgid "Unlock mouse pointer in case it got stuck in hourglass mode."
+msgstr ""
+
+msgid "pgAdmin III"
+msgstr "pgAdmin III"
+
+msgid "pgAdmin III: Browse GNUmed database(s) in PostgreSQL server."
+msgstr ""
+
+msgid "Lock/unlock patient search"
+msgstr ""
+
+msgid "Lock/unlock patient search - USE ONLY IF YOU KNOW WHAT YOU ARE DOING !"
+msgstr ""
+
+#, fuzzy
+msgid "Admin connection"
+msgstr "Αποσύνδεση"
+
+msgid "Test connecting to the database as admin."
+msgstr ""
+
+msgid "Error handling"
+msgstr ""
+
+msgid "Throw an exception to test error handling."
+msgstr ""
+
+#, fuzzy
+msgid "Access violation exception"
+msgstr "Συντόμευση"
+
+msgid "Simulate an access violation exception."
+msgstr ""
+
+msgid "Access checking"
+msgstr ""
+
+msgid "Simulate a failing access check."
+msgstr ""
+
+msgid "Fault handler"
+msgstr ""
+
+msgid "Simulate a catastrophic fault (SIGSEGV)."
+msgstr ""
+
+msgid "Invoke inspector"
+msgstr ""
+
+msgid "Invoke the widget hierarchy inspector."
+msgstr ""
+
+#, fuzzy
+msgid "Tests ..."
+msgstr "&Χρήστες ..."
+
+#, fuzzy
+msgid "&Technical ..."
+msgstr "&Χρήστες ..."
 
 msgid "&Tools"
 msgstr "&Εργαλεία"
@@ -18510,72 +18625,41 @@ msgstr "Εγχειρίδιο χρήστη (www)"
 msgid "Go to the User Manual on the web."
 msgstr ""
 
+msgid "show"
+msgstr ""
+
+msgid "Show log file in text viewer."
+msgstr ""
+
+msgid "Backup content of the log to another file."
+msgstr ""
+
 #, fuzzy
-msgid "Browse work dir"
+msgid "email"
+msgstr "αλληλογραφία"
+
+msgid "Send log file to the authors for help."
+msgstr ""
+
+#, fuzzy
+msgid "work dir"
 msgstr "Αποθήκευση εγγράφου"
 
 #, python-format
 msgid "Browse user working directory [%s]."
 msgstr ""
 
-msgid "Status line: &Clear"
-msgstr ""
-
-msgid "Clear the status line."
-msgstr ""
-
-msgid "Status line: History"
-msgstr ""
-
-msgid "Show status line history."
-msgstr ""
-
-msgid "Tooltips on"
-msgstr ""
-
-msgid "Globally enable tooltips."
-msgstr ""
-
-msgid "Tooltips off"
-msgstr ""
-
-msgid "Globally (attempt to) disable tooltips."
-msgstr ""
-
-msgid "Screenshot"
-msgstr "Στιγμιότυπο"
-
-msgid "Save a screenshot of this GNUmed client."
-msgstr ""
-
-msgid "Show log file"
-msgstr ""
-
-msgid "Show log file in text viewer."
-msgstr ""
-
-msgid "Backup log file"
-msgstr ""
-
-msgid "Backup content of the log to another file."
-msgstr ""
-
-msgid "Email log file"
-msgstr ""
-
-msgid "Send log file to the authors for help."
-msgstr ""
-
 #, fuzzy
-msgid "Browse tmp dir"
+msgid "tmp dir"
 msgstr "Αποθήκευση εγγράφου"
 
 #, python-format
 msgid "Browse temporary directory [%s]."
 msgstr ""
 
-msgid "Browse internal work dir"
-msgstr ""
+#, fuzzy
+msgid "internal work dir"
+msgstr "Αποθήκευση εγγράφου"
 
 #, python-format
 msgid "Browse internal working directory [%s]."
@@ -18587,68 +18671,13 @@ msgstr ""
 msgid "Go to the GNUmed bug tracker on the web."
 msgstr ""
 
-msgid "Unlock mouse"
-msgstr ""
-
-msgid "Unlock mouse pointer in case it got stuck in hourglass mode."
-msgstr ""
-
-msgid "pgAdmin III"
-msgstr "pgAdmin III"
-
-msgid "pgAdmin III: Browse GNUmed database(s) in PostgreSQL server."
-msgstr ""
+#, fuzzy
+msgid "Log ..."
+msgstr "Εμβόλιο ..."
 
 #, fuzzy
-msgid "Admin connection"
-msgstr "Αποσύνδεση"
-
-msgid "Test connecting to the database as admin."
-msgstr ""
-
-msgid "Lock/unlock patient search"
-msgstr ""
-
-msgid "Lock/unlock patient search - USE ONLY IF YOU KNOW WHAT YOU ARE DOING !"
-msgstr ""
-
-msgid "Test error handling"
-msgstr ""
-
-msgid "Throw an exception to test error handling."
-msgstr ""
-
-msgid "Test access violation exception"
-msgstr ""
-
-msgid "Simulate an access violation exception."
-msgstr ""
-
-msgid "Test access checking"
-msgstr ""
-
-msgid "Simulate a failing access check."
-msgstr ""
-
-msgid "Invoke inspector"
-msgstr ""
-
-msgid "Invoke the widget hierarchy inspector (needs wxPython 2.8)."
-msgstr ""
-
-msgid "Test fault handler"
-msgstr ""
-
-msgid "Simulate a catastrophic fault (SIGSEGV)."
-msgstr ""
-
-#, fuzzy
-msgid "Test placeholder"
-msgstr "σφάλμα στην κράτηση θέσης [%s]"
-
-#, fuzzy
-msgid "Manually test placeholders"
-msgstr "σφάλμα στην κράτηση θέσης [%s]"
+msgid "Browse ..."
+msgstr "&Όλοι οι χρήστες"
 
 msgid "Debugging ..."
 msgstr ""
@@ -18667,6 +18696,10 @@ msgstr ""
 
 msgid "Show GNUmed contributors"
 msgstr ""
+
+#, fuzzy
+msgid "&Help/Info"
+msgstr "&Βοήθεια"
 
 #, python-format
 msgid "Raise plugin [%s]."
@@ -18713,6 +18746,37 @@ msgstr ""
 
 msgid "Cannot write letter. No active patient."
 msgstr ""
+
+#, fuzzy
+msgid "Cannot generate document. No active patient."
+msgstr "Δεν μπορώ να εισάγω την φαρμακευτική αγωγή. Κανείς ενεργός ασθενής."
+
+#, fuzzy
+msgid "Vaccination history"
+msgstr "Ιατρικό Ιστορικό"
+
+#, fuzzy
+msgid "Prescription"
+msgstr "Περιγραφή"
+
+#, fuzzy
+msgid "Documents list"
+msgstr "Αρχεία:%s"
+
+msgid "Measurements"
+msgstr "Μετρήσεις"
+
+msgid "Progress notes"
+msgstr "Σημειώσεις προόδου"
+
+msgid ""
+"A text-only document will be generated and displayed for editing and "
+"printing."
+msgstr ""
+
+#, fuzzy
+msgid "Generate failsafe document"
+msgstr "Εκτύπωση λίστας της φαρμακευτικής αγωγής."
 
 #, fuzzy
 msgid "Cannot put screenshot into export area. No active patient."
@@ -21905,11 +21969,11 @@ msgid "loading plugin <%s>"
 msgstr "προσθήκη πρόσθετου ..."
 
 #, fuzzy
-msgid "EMR Timeline"
+msgid "EMR TL"
 msgstr "Δέντρο Ηλεκτρονικού Ιατρικού Φακέλου"
 
 #, fuzzy
-msgid "EMR &Timeline"
+msgid "EMR: T&imeline"
 msgstr "Δέντρο Ηλεκτρονικού Ιατρικού Φακέλου"
 
 msgid "Overview"
@@ -21917,9 +21981,6 @@ msgstr ""
 
 msgid "&Overview"
 msgstr ""
-
-msgid "Measurements"
-msgstr "Μετρήσεις"
 
 msgid "AU Vacc"
 msgstr ""
@@ -21940,7 +22001,7 @@ msgid "EMR Tree"
 msgstr "Δέντρο Ηλεκτρονικού Ιατρικού Φακέλου"
 
 #, fuzzy
-msgid "EMR &Tree"
+msgid "EMR: &Tree"
 msgstr "Δέντρο Ηλεκτρονικού Ιατρικού Φακέλου"
 
 #, fuzzy
@@ -21952,11 +22013,11 @@ msgid "&Print Manager"
 msgstr "&Διαχείριση"
 
 #, fuzzy
-msgid "EMR Journal"
-msgstr "Ημερολόγιο Ηλεκτρονικού Ιατρικού Φακέλου"
+msgid "EMR List"
+msgstr "Λίστα αναμονής"
 
 #, fuzzy
-msgid "EMR &Journal (list)"
+msgid "EMR: &List Journal"
 msgstr "Ημερολόγιο Ηλεκτρονικού Ιατρικού Φακέλου"
 
 msgid "&Vaccinations"
@@ -21995,9 +22056,6 @@ msgstr "Αναφορές"
 msgid "&Report Generator"
 msgstr "&Γεννήτρια Αναφορών"
 
-msgid "Progress notes"
-msgstr "Σημειώσεις προόδου"
-
 msgid "HTML Source"
 msgstr "Πηγή HTML"
 
@@ -22008,8 +22066,12 @@ msgid "User &manual (local)"
 msgstr "Χρήστης &χειροκίνητο"
 
 #, fuzzy
-msgid "EMR &Journal (text)"
-msgstr "Εξαγωγή εφημερίδας ΗΙΦ"
+msgid "EMR Text"
+msgstr "Δέντρο Ηλεκτρονικού Ιατρικού Φακέλου"
+
+#, fuzzy
+msgid "EMR: Te&xt Journal"
+msgstr "Ημερολόγιο Ηλεκτρονικού Ιατρικού Φακέλου"
 
 msgid "Demographics"
 msgstr "Δημογραφικά"
@@ -22152,6 +22214,18 @@ msgstr "Ματαίωση"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUmed."
+
+#, fuzzy
+#~ msgid "EMR &Timeline"
+#~ msgstr "Δέντρο Ηλεκτρονικού Ιατρικού Φακέλου"
+
+#, fuzzy
+#~ msgid "EMR &Journal (list)"
+#~ msgstr "Ημερολόγιο Ηλεκτρονικού Ιατρικού Φακέλου"
+
+#, fuzzy
+#~ msgid "EMR &Journal (text)"
+#~ msgstr "Εξαγωγή εφημερίδας ΗΙΦ"
 
 #~ msgid "Vaccine ..."
 #~ msgstr "Εμβόλιο ..."

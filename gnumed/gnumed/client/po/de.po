@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-26 17:47+0100\n"
+"POT-Creation-Date: 2025-04-24 16:02+0200\n"
 "PO-Revision-Date: 2025-01-26 17:50+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
@@ -5411,14 +5411,11 @@ msgstr ""
 msgid "Details of the patients to merge"
 msgstr "Details der zusammenzuführenden Patienten"
 
-msgid "Select the paperwork receiver:"
-msgstr "Wählen Sie den Empfänger des Schriftstücks:"
-
-msgid "&OK"
-msgstr "&OK"
-
 msgid "Letter receiver selection"
 msgstr "Auswahl des Empfängers"
+
+msgid "Select the paperwork receiver:"
+msgstr "Wählen Sie den Empfänger des Schriftstücks:"
 
 msgid ""
 "This name will be used.\n"
@@ -5428,6 +5425,9 @@ msgstr ""
 "Dieser Name wird verwendet.\n"
 "\n"
 "Sie können den Namen bearbeiten (oder einen anderen eingeben)."
+
+msgid "Address"
+msgstr "Adresse"
 
 msgid ""
 "This address will be used.\n"
@@ -5440,21 +5440,6 @@ msgstr ""
 
 msgid "Manage generic list of all addresses."
 msgstr "Adressen verwalten."
-
-msgid "Select the organizational unit you want to write to."
-msgstr "Wählen Sie die Abteilung, an welche Sie schreiben wollen."
-
-msgid "Manage known organizations and units thereof."
-msgstr "Organisationen und deren Abteilungen verwalten."
-
-msgid "Use the above name and address."
-msgstr "Obenstehenden Namen und Adresse verwenden."
-
-msgid "Abort the receiver selection."
-msgstr "Empfängerwahl abbrechen."
-
-msgid "Address"
-msgstr "Adresse"
 
 msgid "Selected Receiver"
 msgstr "Gewählter Empfänger"
@@ -5492,6 +5477,21 @@ msgstr "Schnellwahl"
 
 msgid "Org:"
 msgstr ""
+
+msgid "Select the organizational unit you want to write to."
+msgstr "Wählen Sie die Abteilung, an welche Sie schreiben wollen."
+
+msgid "Manage known organizations and units thereof."
+msgstr "Organisationen und deren Abteilungen verwalten."
+
+msgid "&OK"
+msgstr "&OK"
+
+msgid "Use the above name and address."
+msgstr "Obenstehenden Namen und Adresse verwenden."
+
+msgid "Abort the receiver selection."
+msgstr "Empfängerwahl abbrechen."
 
 msgid "&Run"
 msgstr "&Ausführen"
@@ -7662,17 +7662,11 @@ msgstr "Eine Zusammenfassung des aktuellen Stands dieser Episode."
 msgid "Nest under"
 msgstr "Einordnen unter"
 
-msgid "Do not reformat text"
-msgstr "Text nicht umformatieren"
-
-msgid "Formatting help"
-msgstr "Formatierungshilfe"
-
-msgid "http://docutils.sourceforge.net/docs/user/rst/quickref.html"
-msgstr ""
-
 msgid "Generic multi line text entry dialog"
 msgstr "Allgemeiner Texteingabedialog"
+
+msgid "Do not reformat text"
+msgstr "Text nicht umformatieren"
 
 msgid ""
 "This is an option for power users.\n"
@@ -7702,6 +7696,12 @@ msgstr ""
 "eingegeben haben, etwa HTML oder LaTeX, der UNVERÄNDERT in\n"
 "die Ausgabe eingefügt werden soll. Diese Option unterdrückt\n"
 "auch jede ReST-Nachverarbeitung."
+
+msgid "Formatting help"
+msgstr "Formatierungshilfe"
+
+msgid "http://docutils.sourceforge.net/docs/user/rst/quickref.html"
+msgstr ""
 
 msgid ""
 "If you are writing a letter, and the letter is processed\n"
@@ -11804,6 +11804,10 @@ msgstr ""
 "\n"
 " Markieren Sie die Einträge, die in den Bericht einfließen sollen.\n"
 
+#, fuzzy, python-format
+msgid "Progress Notes -- %s"
+msgstr "Verlaufsnotizen"
+
 msgid "Pick a date ..."
 msgstr "Wählen Sie ein Datum ..."
 
@@ -13422,81 +13426,6 @@ msgstr "&Zusammenfassung"
 
 msgid "icon_clinical_summary"
 msgstr "icon_clinical_summary"
-
-msgid "No medication list template configured."
-msgstr "Keine Druckvorlage für die Medikamentenliste voreingestellt."
-
-#, python-format
-msgid "Medication List -- %s"
-msgstr "Medikamentenliste -- %s"
-
-msgid "Allergies: unknown"
-msgstr "Allergien: unbekannt"
-
-msgid "Printing medication list"
-msgstr "Drucken der Medikamentenliste"
-
-msgid "There is no medication list template configured."
-msgstr "Es ist keine Druckvorlagen für die Medikamentenliste eingestellt."
-
-msgid "Problem loading medication list template."
-msgstr "Problem beim Laden der Druckvorlage für die Medikamentenliste."
-
-#, python-format
-msgid "Cannot load medication list template [%s - %s]"
-msgstr "Kann Vorlage [%s - %s] für Medikamentenliste nicht laden"
-
-msgid "Pretty medication list form failed. Generating failsafe version."
-msgstr "Fehlerhafte Vorlage \"Medikamentenliste\". Erzeuge Notfallversion."
-
-msgid "generated medication list document"
-msgstr "Medikamentenliste erzeugt"
-
-msgid "Select the default prescription template:"
-msgstr "Wählen Sie die Standardvorlage für Verordnungen:"
-
-msgid "No prescription template configured."
-msgstr "Keine Druckvorlage für Verordnungen voreingestellt."
-
-msgid "There is no prescription template configured."
-msgstr "Es ist keine Druckvorlagen für Verordnungen eingestellt."
-
-msgid "Printing prescription"
-msgstr "Drucke Verordnung"
-
-msgid "Problem loading prescription template."
-msgstr "Problem beim Laden der Druckvorlage für Verordnungen."
-
-#, python-format
-msgid "Cannot load prescription template [%s - %s]"
-msgstr "Kann Vorlage [%s - %s] für Verordnungen nicht laden"
-
-#, python-format
-msgid "Prescription -- %s"
-msgstr "Rezept -- %s"
-
-msgid "Pretty prescription form failed. Generating failsafe version."
-msgstr "Fehlerhafte Vorlage \"Rezept\". Erzeuge Notfallversion."
-
-msgid "generated prescription"
-msgstr "Verordnung erzeugt"
-
-msgid ""
-"These products have been prescribed but are not listed\n"
-"in the current medication list of this patient.\n"
-"\n"
-"Please select those you want added to the medication list."
-msgstr ""
-"Diese Medikamente wurden verordnet, aber fehlen\n"
-"in der aktuellen Medikation des Patienten.\n"
-"\n"
-"Bitte wählen Sie diejenigen, die eingetragen werden sollen."
-
-msgid "Newly prescribed drugs"
-msgstr "Neu verschriebene Medikamente"
-
-msgid "Add to medication list"
-msgstr "In Medikationsliste eintragen"
 
 msgid "Timeframe"
 msgstr "Zeitraum"
@@ -15993,6 +15922,107 @@ msgstr "PM/ICD-Prüfbericht"
 msgid "There are no device checkup reports in the database."
 msgstr "Keine PM/ICD-Prüfberichte gefunden."
 
+msgid ""
+"GNUmed will use this URL to access a website which lets\n"
+"you report an adverse drug reaction (ADR).\n"
+"\n"
+"If you leave this empty it will fall back\n"
+"to an URL for reporting ADRs in Germany."
+msgstr ""
+"GNUmed öffnet mit dieser Adresse eine Webseite, auf der\n"
+"Sie Unerwünschte Arzneimittelwirkungen (UAW) melden können.\n"
+"\n"
+"Wenn Sie das Feld leerlassen, wird eine für Deutschland\n"
+"gültige Adresse eingestellt."
+
+msgid ""
+"\n"
+"Select the measurements panel to show in the medications plugin.\n"
+msgstr ""
+"\n"
+"Wählen Sie das Meßwertprofil für das Medikationsmodul.\n"
+
+msgid "Measurements panel"
+msgstr "Meßwerteprofil"
+
+msgid "Configuring medications plugin measurements panel"
+msgstr "Konfiguration des Laborprofils für die Medikamentenüberwachung"
+
+msgid "No medication list template configured."
+msgstr "Keine Druckvorlage für die Medikamentenliste voreingestellt."
+
+#, python-format
+msgid "Medication List -- %s"
+msgstr "Medikamentenliste -- %s"
+
+msgid "Allergies: unknown"
+msgstr "Allergien: unbekannt"
+
+msgid "Printing medication list"
+msgstr "Drucken der Medikamentenliste"
+
+msgid "There is no medication list template configured."
+msgstr "Es ist keine Druckvorlagen für die Medikamentenliste eingestellt."
+
+msgid "Problem loading medication list template."
+msgstr "Problem beim Laden der Druckvorlage für die Medikamentenliste."
+
+#, python-format
+msgid "Cannot load medication list template [%s - %s]"
+msgstr "Kann Vorlage [%s - %s] für Medikamentenliste nicht laden"
+
+msgid "Pretty medication list form failed. Generating failsafe version."
+msgstr "Fehlerhafte Vorlage \"Medikamentenliste\". Erzeuge Notfallversion."
+
+msgid "generated medication list document"
+msgstr "Medikamentenliste erzeugt"
+
+msgid "Select the default prescription template:"
+msgstr "Wählen Sie die Standardvorlage für Verordnungen:"
+
+msgid "No prescription template configured."
+msgstr "Keine Druckvorlage für Verordnungen voreingestellt."
+
+msgid "There is no prescription template configured."
+msgstr "Es ist keine Druckvorlagen für Verordnungen eingestellt."
+
+msgid "Printing prescription"
+msgstr "Drucke Verordnung"
+
+msgid "Problem loading prescription template."
+msgstr "Problem beim Laden der Druckvorlage für Verordnungen."
+
+#, python-format
+msgid "Cannot load prescription template [%s - %s]"
+msgstr "Kann Vorlage [%s - %s] für Verordnungen nicht laden"
+
+#, python-format
+msgid "Prescription -- %s"
+msgstr "Rezept -- %s"
+
+msgid "Pretty prescription form failed. Generating failsafe version."
+msgstr "Fehlerhafte Vorlage \"Rezept\". Erzeuge Notfallversion."
+
+msgid "generated prescription"
+msgstr "Verordnung erzeugt"
+
+msgid ""
+"These products have been prescribed but are not listed\n"
+"in the current medication list of this patient.\n"
+"\n"
+"Please select those you want added to the medication list."
+msgstr ""
+"Diese Medikamente wurden verordnet, aber fehlen\n"
+"in der aktuellen Medikation des Patienten.\n"
+"\n"
+"Bitte wählen Sie diejenigen, die eingetragen werden sollen."
+
+msgid "Newly prescribed drugs"
+msgstr "Neu verschriebene Medikamente"
+
+msgid "Add to medication list"
+msgstr "In Medikationsliste eintragen"
+
 msgid "Yes: + / ! / 1"
 msgstr "Ja: + / ! / 1 / y"
 
@@ -16450,32 +16480,6 @@ msgstr "<Patientensuche gesperrt>"
 
 msgid "<type here to search patient>"
 msgstr "<hier Patienten suchen>"
-
-msgid ""
-"\n"
-"Select the measurements panel to show in the medications plugin.\n"
-msgstr ""
-"\n"
-"Wählen Sie das Meßwertprofil für das Medikationsmodul.\n"
-
-msgid "Measurements panel"
-msgstr "Meßwerteprofil"
-
-msgid "Configuring medications plugin measurements panel"
-msgstr "Konfiguration des Laborprofils für die Medikamentenüberwachung"
-
-msgid ""
-"GNUmed will use this URL to access a website which lets\n"
-"you report an adverse drug reaction (ADR).\n"
-"\n"
-"If you leave this empty it will fall back\n"
-"to an URL for reporting ADRs in Germany."
-msgstr ""
-"GNUmed öffnet mit dieser Adresse eine Webseite, auf der\n"
-"Sie Unerwünschte Arzneimittelwirkungen (UAW) melden können.\n"
-"\n"
-"Wenn Sie das Feld leerlassen, wird eine für Deutschland\n"
-"gültige Adresse eingestellt."
 
 msgid "EDC (!?!):"
 msgstr "ET (!?!):"
@@ -18506,14 +18510,16 @@ msgstr "Medikamentenquelle"
 msgid "Select the drug data source."
 msgstr "Wählen Sie die Medikamentenquelle."
 
-msgid "ADR URL"
+#, fuzzy
+msgid "ADR URL (Meds)"
 msgstr "UAW-URL"
 
 msgid "URL for reporting Adverse Drug Reactions."
 msgstr "Webseite für die Meldung von Unerwünschten Arzneimittelwirkungen."
 
-msgid "vaccADR URL"
-msgstr "Impf-UAW-URL"
+#, fuzzy
+msgid "ADR URL (Vx)"
+msgstr "UAW-URL"
 
 msgid "URL for reporting Adverse Drug Reactions to *vaccines*."
 msgstr "Webseite für die Meldung von Impfreaktionen."
@@ -18912,6 +18918,12 @@ msgstr "Dieses Krankenblatt durchsuchen"
 msgid "Search for data in the EMR of the active patient"
 msgstr "Aktives Krankenblatt durchsuchen"
 
+msgid "Search all EMRs"
+msgstr "Alle Krankenblätter durchsuchen"
+
+msgid "Search for data across the EMRs of all patients"
+msgstr "Krankenblätter aller Patienten durchsuchen"
+
 msgid "Start new encounter"
 msgstr "Neuen Kontakt anlegen"
 
@@ -18988,6 +19000,14 @@ msgstr "&Unspezifisches Dokument"
 msgid "Write free-form document for current patient."
 msgstr "Einen Brief ohne Vorlage für den aktiven Patienten schreiben."
 
+#, fuzzy
+msgid "&Failsafe document"
+msgstr "Faxe Dokumente"
+
+#, fuzzy
+msgid "Generate failsafe document."
+msgstr "Medikamentenliste erzeugt"
+
 msgid "Screenshot -> export area"
 msgstr "Bildschirmfoto -> Sammelmappe"
 
@@ -19014,12 +19034,6 @@ msgstr "Eine Liste aller Dokumentenpassworte zeigen."
 
 msgid "&Correspondence"
 msgstr "&Schriftverkehr"
-
-msgid "Search all EMRs"
-msgstr "Alle Krankenblätter durchsuchen"
-
-msgid "Search for data across the EMRs of all patients"
-msgstr "Krankenblätter aller Patienten durchsuchen"
 
 msgid "no viewer installed"
 msgstr "kein Betrachter installiert"
@@ -19351,6 +19365,37 @@ msgstr ""
 
 msgid "Cannot write letter. No active patient."
 msgstr "Kann keinen Brief schreiben. Kein Patient aktiv."
+
+#, fuzzy
+msgid "Cannot generate document. No active patient."
+msgstr "Kann Dokumente nicht laden. Kein Patient aktiv."
+
+#, fuzzy
+msgid "Vaccination history"
+msgstr "Impfstand -- %s"
+
+#, fuzzy
+msgid "Prescription"
+msgstr "Beschreibung"
+
+#, fuzzy
+msgid "Documents list"
+msgstr "Dokumente: %s"
+
+msgid "Measurements"
+msgstr "Meßwerte"
+
+msgid "Progress notes"
+msgstr "Verlaufsnotizen"
+
+msgid ""
+"A text-only document will be generated and displayed for editing and "
+"printing."
+msgstr ""
+
+#, fuzzy
+msgid "Generate failsafe document"
+msgstr "Medikamentenliste erzeugt"
 
 msgid "Cannot put screenshot into export area. No active patient."
 msgstr "Kann kein Bildschirmfoto in Sammelmappe legen. Kein Patient aktiv."
@@ -22998,20 +23043,19 @@ msgstr "Sammelmappe"
 msgid "loading plugin <%s>"
 msgstr "lade Modul <%s>"
 
-msgid "EMR Timeline"
-msgstr "Krankenblatt - Zeitstrahl"
+#, fuzzy
+msgid "EMR TL"
+msgstr "Krankenblattbaum"
 
-msgid "EMR &Timeline"
-msgstr "Krankenblatt: &Zeitstrahl"
+#, fuzzy
+msgid "EMR: T&imeline"
+msgstr "Krankenblatt - Zeitstrahl"
 
 msgid "Overview"
 msgstr "Übersicht"
 
 msgid "&Overview"
 msgstr "&Übersicht"
-
-msgid "Measurements"
-msgstr "Meßwerte"
 
 msgid "AU Vacc"
 msgstr "Impfungen (AU)"
@@ -23028,7 +23072,8 @@ msgstr "&EinfachKartei"
 msgid "EMR Tree"
 msgstr "Krankenblattbaum"
 
-msgid "EMR &Tree"
+#, fuzzy
+msgid "EMR: &Tree"
 msgstr "Krankenblatt: &Baum"
 
 msgid "Print Manager"
@@ -23037,11 +23082,13 @@ msgstr "Druckcenter"
 msgid "&Print Manager"
 msgstr "&Druckcenter"
 
-msgid "EMR Journal"
-msgstr "Krankenblattjournal"
+#, fuzzy
+msgid "EMR List"
+msgstr "Liste"
 
-msgid "EMR &Journal (list)"
-msgstr "Krankenblatt: &Journal (Liste)"
+#, fuzzy
+msgid "EMR: &List Journal"
+msgstr "Krankenblattjournal"
 
 msgid "&Vaccinations"
 msgstr "&Impfungen"
@@ -23079,9 +23126,6 @@ msgstr "Analysen"
 msgid "&Report Generator"
 msgstr "&Analysator"
 
-msgid "Progress notes"
-msgstr "Verlaufsnotizen"
-
 msgid "HTML Source"
 msgstr "HTML Quelltext"
 
@@ -23091,8 +23135,13 @@ msgstr "Handbuch"
 msgid "User &manual (local)"
 msgstr "&Handbuch (lokal)"
 
-msgid "EMR &Journal (text)"
-msgstr "Krankenblatt: &Journal (Text)"
+#, fuzzy
+msgid "EMR Text"
+msgstr "Krankenblattbaum"
+
+#, fuzzy
+msgid "EMR: Te&xt Journal"
+msgstr "Krankenblattjournal"
 
 msgid "Demographics"
 msgstr "Personalien"
@@ -23245,6 +23294,18 @@ msgstr "Abbrechen"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
+
+#~ msgid "vaccADR URL"
+#~ msgstr "Impf-UAW-URL"
+
+#~ msgid "EMR &Timeline"
+#~ msgstr "Krankenblatt: &Zeitstrahl"
+
+#~ msgid "EMR &Journal (list)"
+#~ msgstr "Krankenblatt: &Journal (Liste)"
+
+#~ msgid "EMR &Journal (text)"
+#~ msgstr "Krankenblatt: &Journal (Text)"
 
 #~ msgid "Show log file"
 #~ msgstr "Logdatei anzeigen"
@@ -28450,9 +28511,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Significance"
 #~ msgstr "Signifikanz"
-
-#~ msgid "Progress Notes"
-#~ msgstr "Verlaufsnotizen"
 
 #~ msgid "Class"
 #~ msgstr "Klasse (?)"

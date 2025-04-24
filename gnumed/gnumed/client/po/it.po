@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-05 20:20+0100\n"
+"POT-Creation-Date: 2025-04-24 16:03+0200\n"
 "PO-Revision-Date: 2012-06-01 01:22+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: GNUmed\n"
@@ -5292,22 +5292,21 @@ msgid "Details of the patients to merge"
 msgstr "Dettagli dei pazienti da unire:"
 
 #, fuzzy
-msgid "Select the paperwork receiver:"
-msgstr "Seleziona il tipo d'appuntamento"
-
-#, fuzzy
-msgid "&OK"
-msgstr "OK"
-
-#, fuzzy
 msgid "Letter receiver selection"
 msgstr "Selezione del dispositivo"
+
+#, fuzzy
+msgid "Select the paperwork receiver:"
+msgstr "Seleziona il tipo d'appuntamento"
 
 msgid ""
 "This name will be used.\n"
 "\n"
 "You can edit the (or type another) name here, too."
 msgstr ""
+
+msgid "Address"
+msgstr "Indirizzo"
 
 msgid ""
 "This address will be used.\n"
@@ -5318,25 +5317,6 @@ msgstr ""
 #, fuzzy
 msgid "Manage generic list of all addresses."
 msgstr "Salva indirizzo"
-
-#, fuzzy
-msgid "Select the organizational unit you want to write to."
-msgstr "Selezionare l'episodio del quale si desidera spostare la narrazione."
-
-#, fuzzy
-msgid "Manage known organizations and units thereof."
-msgstr "Gestisci le descrizioni"
-
-#, fuzzy
-msgid "Use the above name and address."
-msgstr "un indirizzo deve essere selezionato"
-
-#, fuzzy
-msgid "Abort the receiver selection."
-msgstr "Elimina la persona selezionata."
-
-msgid "Address"
-msgstr "Indirizzo"
 
 #, fuzzy
 msgid "Selected Receiver"
@@ -5375,6 +5355,26 @@ msgstr ""
 
 msgid "Org:"
 msgstr ""
+
+#, fuzzy
+msgid "Select the organizational unit you want to write to."
+msgstr "Selezionare l'episodio del quale si desidera spostare la narrazione."
+
+#, fuzzy
+msgid "Manage known organizations and units thereof."
+msgstr "Gestisci le descrizioni"
+
+#, fuzzy
+msgid "&OK"
+msgstr "OK"
+
+#, fuzzy
+msgid "Use the above name and address."
+msgstr "un indirizzo deve essere selezionato"
+
+#, fuzzy
+msgid "Abort the receiver selection."
+msgstr "Elimina la persona selezionata."
 
 msgid "&Run"
 msgstr ""
@@ -7377,16 +7377,10 @@ msgstr "Non ci sono appuntamenti per questo caso"
 msgid "Nest under"
 msgstr ""
 
-msgid "Do not reformat text"
-msgstr ""
-
-msgid "Formatting help"
-msgstr ""
-
-msgid "http://docutils.sourceforge.net/docs/user/rst/quickref.html"
-msgstr ""
-
 msgid "Generic multi line text entry dialog"
+msgstr ""
+
+msgid "Do not reformat text"
 msgstr ""
 
 msgid ""
@@ -7403,6 +7397,12 @@ msgid ""
 "like HTML or LaTeX, and you are confident it should be\n"
 "put into the output as-is. Note that this will also disable\n"
 "ReST post-processing."
+msgstr ""
+
+msgid "Formatting help"
+msgstr ""
+
+msgid "http://docutils.sourceforge.net/docs/user/rst/quickref.html"
 msgstr ""
 
 msgid ""
@@ -11444,6 +11444,10 @@ msgid ""
 " Now, mark the entries you want to include in your report.\n"
 msgstr ""
 
+#, fuzzy, python-format
+msgid "Progress Notes -- %s"
+msgstr "Progressi, note"
+
 msgid "Pick a date ..."
 msgstr ""
 
@@ -11742,7 +11746,7 @@ msgid ""
 msgstr ""
 
 #, fuzzy
-msgid "Successfully regenerated generic vaccines ..."
+msgid "Successfully regenerated generic vaccines."
 msgstr "Nuovo documento salvato con successo."
 
 msgid "Adding new vaccine"
@@ -12919,88 +12923,6 @@ msgstr "&Riassunto"
 
 msgid "icon_clinical_summary"
 msgstr ""
-
-msgid "No medication list template configured."
-msgstr ""
-
-#, fuzzy, python-format
-msgid "Medication List -- %s"
-msgstr "Lista farmaci"
-
-#, fuzzy
-msgid "Allergies: unknown"
-msgstr "&Allergie"
-
-msgid "Printing medication list"
-msgstr ""
-
-msgid "There is no medication list template configured."
-msgstr ""
-
-msgid "Problem loading medication list template."
-msgstr ""
-
-#, python-format
-msgid "Cannot load medication list template [%s - %s]"
-msgstr ""
-
-msgid "Pretty medication list form failed. Generating failsafe version."
-msgstr ""
-
-#, fuzzy
-msgid "generated medication list document"
-msgstr "Inserisci un commento sul documento."
-
-#, fuzzy
-msgid "Select the default prescription template:"
-msgstr "Seleziona il tipo di default per le nuove consultazioni.\n"
-
-msgid "No prescription template configured."
-msgstr ""
-
-msgid "There is no prescription template configured."
-msgstr ""
-
-#, fuzzy
-msgid "Printing prescription"
-msgstr "Prescrizioni"
-
-#, fuzzy
-msgid "Problem loading prescription template."
-msgstr "Elimino dal modello."
-
-#, fuzzy, python-format
-msgid "Cannot load prescription template [%s - %s]"
-msgstr ""
-"Non posso creare il nuovo paziente:\n"
-"\n"
-" [%s %s (%s), %s]"
-
-#, fuzzy, python-format
-msgid "Prescription -- %s"
-msgstr "Prescrizioni"
-
-msgid "Pretty prescription form failed. Generating failsafe version."
-msgstr ""
-
-#, fuzzy
-msgid "generated prescription"
-msgstr "Prescrizioni"
-
-msgid ""
-"These products have been prescribed but are not listed\n"
-"in the current medication list of this patient.\n"
-"\n"
-"Please select those you want added to the medication list."
-msgstr ""
-
-#, fuzzy
-msgid "Newly prescribed drugs"
-msgstr "Prescritto per"
-
-#, fuzzy
-msgid "Add to medication list"
-msgstr "Stampa la lista di farmaci."
 
 #, fuzzy
 msgid "Timeframe"
@@ -15300,6 +15222,108 @@ msgstr ""
 msgid "There are no device checkup reports in the database."
 msgstr ""
 
+msgid ""
+"GNUmed will use this URL to access a website which lets\n"
+"you report an adverse drug reaction (ADR).\n"
+"\n"
+"If you leave this empty it will fall back\n"
+"to an URL for reporting ADRs in Germany."
+msgstr ""
+
+msgid ""
+"\n"
+"Select the measurements panel to show in the medications plugin.\n"
+msgstr ""
+
+#, fuzzy
+msgid "Measurements panel"
+msgstr "Misurazioni"
+
+msgid "Configuring medications plugin measurements panel"
+msgstr ""
+
+msgid "No medication list template configured."
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Medication List -- %s"
+msgstr "Lista farmaci"
+
+#, fuzzy
+msgid "Allergies: unknown"
+msgstr "&Allergie"
+
+msgid "Printing medication list"
+msgstr ""
+
+msgid "There is no medication list template configured."
+msgstr ""
+
+msgid "Problem loading medication list template."
+msgstr ""
+
+#, python-format
+msgid "Cannot load medication list template [%s - %s]"
+msgstr ""
+
+msgid "Pretty medication list form failed. Generating failsafe version."
+msgstr ""
+
+#, fuzzy
+msgid "generated medication list document"
+msgstr "Inserisci un commento sul documento."
+
+#, fuzzy
+msgid "Select the default prescription template:"
+msgstr "Seleziona il tipo di default per le nuove consultazioni.\n"
+
+msgid "No prescription template configured."
+msgstr ""
+
+msgid "There is no prescription template configured."
+msgstr ""
+
+#, fuzzy
+msgid "Printing prescription"
+msgstr "Prescrizioni"
+
+#, fuzzy
+msgid "Problem loading prescription template."
+msgstr "Elimino dal modello."
+
+#, fuzzy, python-format
+msgid "Cannot load prescription template [%s - %s]"
+msgstr ""
+"Non posso creare il nuovo paziente:\n"
+"\n"
+" [%s %s (%s), %s]"
+
+#, fuzzy, python-format
+msgid "Prescription -- %s"
+msgstr "Prescrizioni"
+
+msgid "Pretty prescription form failed. Generating failsafe version."
+msgstr ""
+
+#, fuzzy
+msgid "generated prescription"
+msgstr "Prescrizioni"
+
+msgid ""
+"These products have been prescribed but are not listed\n"
+"in the current medication list of this patient.\n"
+"\n"
+"Please select those you want added to the medication list."
+msgstr ""
+
+#, fuzzy
+msgid "Newly prescribed drugs"
+msgstr "Prescritto per"
+
+#, fuzzy
+msgid "Add to medication list"
+msgstr "Stampa la lista di farmaci."
+
 msgid "Yes: + / ! / 1"
 msgstr ""
 
@@ -15685,26 +15709,6 @@ msgid "<patient search locked>"
 msgstr "Ricerca pazienti..."
 
 msgid "<type here to search patient>"
-msgstr ""
-
-msgid ""
-"\n"
-"Select the measurements panel to show in the medications plugin.\n"
-msgstr ""
-
-#, fuzzy
-msgid "Measurements panel"
-msgstr "Misurazioni"
-
-msgid "Configuring medications plugin measurements panel"
-msgstr ""
-
-msgid ""
-"GNUmed will use this URL to access a website which lets\n"
-"you report an adverse drug reaction (ADR).\n"
-"\n"
-"If you leave this empty it will fall back\n"
-"to an URL for reporting ADRs in Germany."
 msgstr ""
 
 msgid "EDC (!?!):"
@@ -17610,13 +17614,13 @@ msgstr ""
 msgid "Select the drug data source."
 msgstr ""
 
-msgid "ADR URL"
+msgid "ADR URL (Meds)"
 msgstr ""
 
 msgid "URL for reporting Adverse Drug Reactions."
 msgstr ""
 
-msgid "vaccADR URL"
+msgid "ADR URL (Vx)"
 msgstr ""
 
 msgid "URL for reporting Adverse Drug Reactions to *vaccines*."
@@ -18042,6 +18046,12 @@ msgstr ""
 msgid "Search for data in the EMR of the active patient"
 msgstr ""
 
+msgid "Search all EMRs"
+msgstr ""
+
+msgid "Search for data across the EMRs of all patients"
+msgstr ""
+
 msgid "Start new encounter"
 msgstr "Incomincia una nuova consultazione"
 
@@ -18128,6 +18138,14 @@ msgstr "Cancella documento"
 msgid "Write free-form document for current patient."
 msgstr "Scrivi una lettere per il paziente corrente."
 
+#, fuzzy
+msgid "&Failsafe document"
+msgstr "salvo il documento"
+
+#, fuzzy
+msgid "Generate failsafe document."
+msgstr "Inserisci un commento sul documento."
+
 msgid "Screenshot -> export area"
 msgstr ""
 
@@ -18144,6 +18162,14 @@ msgid "Show list of all placeholders."
 msgstr "erro com o placeholder [%s]"
 
 #, fuzzy
+msgid "Test placeholder"
+msgstr "erro com o placeholder [%s]"
+
+#, fuzzy
+msgid "Manually test placeholders"
+msgstr "Gestisci le descrizioni"
+
+#, fuzzy
 msgid "List passphrases"
 msgstr "Imposta pass frase"
 
@@ -18152,12 +18178,6 @@ msgstr ""
 
 msgid "&Correspondence"
 msgstr "&Corrispondenza"
-
-msgid "Search all EMRs"
-msgstr ""
-
-msgid "Search for data across the EMRs of all patients"
-msgstr ""
 
 msgid "no viewer installed"
 msgstr "nessun viewer installato"
@@ -18218,6 +18238,105 @@ msgstr ""
 #, fuzzy
 msgid "Lab results ..."
 msgstr "Risultato di laboratorio"
+
+#, fuzzy
+msgid "&Screenshot"
+msgstr "Screenshot"
+
+msgid "Save a screenshot of this GNUmed client."
+msgstr "Salva uno screenshot di questo client GNUmed."
+
+msgid "Status line: &Clear"
+msgstr ""
+
+#, fuzzy
+msgid "Clear the status line."
+msgstr "&Cancella query"
+
+msgid "Status line: History"
+msgstr ""
+
+msgid "Show status line history."
+msgstr ""
+
+msgid "Tooltips on"
+msgstr ""
+
+msgid "Globally enable tooltips."
+msgstr ""
+
+msgid "Tooltips off"
+msgstr ""
+
+msgid "Globally (attempt to) disable tooltips."
+msgstr ""
+
+msgid "Unlock mouse"
+msgstr "Sblocca mouse"
+
+msgid "Unlock mouse pointer in case it got stuck in hourglass mode."
+msgstr ""
+
+msgid "pgAdmin III"
+msgstr "pgAdmin III"
+
+msgid "pgAdmin III: Browse GNUmed database(s) in PostgreSQL server."
+msgstr "pgAdmin III: Mostra il/i database GNUmed nel server PostgreSQL."
+
+#, fuzzy
+msgid "Lock/unlock patient search"
+msgstr "Blocca/sblocca paziente"
+
+#, fuzzy
+msgid "Lock/unlock patient search - USE ONLY IF YOU KNOW WHAT YOU ARE DOING !"
+msgstr ""
+"Blocca/sblocca paziente - UTILIZZA SOLO SE SAI QUELLO CHE STAI FACENDO!"
+
+#, fuzzy
+msgid "Admin connection"
+msgstr "Aggiungi la descrizione del documento"
+
+msgid "Test connecting to the database as admin."
+msgstr ""
+
+msgid "Error handling"
+msgstr ""
+
+msgid "Throw an exception to test error handling."
+msgstr ""
+
+#, fuzzy
+msgid "Access violation exception"
+msgstr "Abbreviazione"
+
+msgid "Simulate an access violation exception."
+msgstr ""
+
+msgid "Access checking"
+msgstr ""
+
+msgid "Simulate a failing access check."
+msgstr ""
+
+msgid "Fault handler"
+msgstr ""
+
+msgid "Simulate a catastrophic fault (SIGSEGV)."
+msgstr ""
+
+msgid "Invoke inspector"
+msgstr ""
+
+msgid "Invoke the widget hierarchy inspector."
+msgstr ""
+
+#, fuzzy
+msgid "Tests ..."
+msgstr "Testo"
+
+#, fuzzy
+msgid "&Technical ..."
+msgstr "Testo"
 
 msgid "&Tools"
 msgstr "&Strumenti"
@@ -18281,73 +18400,41 @@ msgstr "Manuale utente (www)"
 msgid "Go to the User Manual on the web."
 msgstr "Vai al manuale utente sul web."
 
+msgid "show"
+msgstr ""
+
+msgid "Show log file in text viewer."
+msgstr ""
+
+msgid "Backup content of the log to another file."
+msgstr ""
+
 #, fuzzy
-msgid "Browse work dir"
+msgid "email"
+msgstr "mail"
+
+msgid "Send log file to the authors for help."
+msgstr ""
+
+#, fuzzy
+msgid "work dir"
 msgstr "Unire i pazienti"
 
 #, python-format
 msgid "Browse user working directory [%s]."
 msgstr ""
 
-msgid "Status line: &Clear"
-msgstr ""
-
 #, fuzzy
-msgid "Clear the status line."
-msgstr "&Cancella query"
-
-msgid "Status line: History"
-msgstr ""
-
-msgid "Show status line history."
-msgstr ""
-
-msgid "Tooltips on"
-msgstr ""
-
-msgid "Globally enable tooltips."
-msgstr ""
-
-msgid "Tooltips off"
-msgstr ""
-
-msgid "Globally (attempt to) disable tooltips."
-msgstr ""
-
-msgid "Screenshot"
-msgstr "Screenshot"
-
-msgid "Save a screenshot of this GNUmed client."
-msgstr "Salva uno screenshot di questo client GNUmed."
-
-msgid "Show log file"
-msgstr ""
-
-msgid "Show log file in text viewer."
-msgstr ""
-
-msgid "Backup log file"
-msgstr ""
-
-msgid "Backup content of the log to another file."
-msgstr ""
-
-msgid "Email log file"
-msgstr ""
-
-msgid "Send log file to the authors for help."
-msgstr ""
-
-#, fuzzy
-msgid "Browse tmp dir"
+msgid "tmp dir"
 msgstr "Unire i pazienti"
 
 #, python-format
 msgid "Browse temporary directory [%s]."
 msgstr ""
 
-msgid "Browse internal work dir"
-msgstr ""
+#, fuzzy
+msgid "internal work dir"
+msgstr "Unire i pazienti"
 
 #, python-format
 msgid "Browse internal working directory [%s]."
@@ -18359,71 +18446,13 @@ msgstr ""
 msgid "Go to the GNUmed bug tracker on the web."
 msgstr ""
 
-msgid "Unlock mouse"
-msgstr "Sblocca mouse"
-
-msgid "Unlock mouse pointer in case it got stuck in hourglass mode."
-msgstr ""
-
-msgid "pgAdmin III"
-msgstr "pgAdmin III"
-
-msgid "pgAdmin III: Browse GNUmed database(s) in PostgreSQL server."
-msgstr "pgAdmin III: Mostra il/i database GNUmed nel server PostgreSQL."
+#, fuzzy
+msgid "Log ..."
+msgstr "&Azioni ... "
 
 #, fuzzy
-msgid "Admin connection"
-msgstr "Aggiungi la descrizione del documento"
-
-msgid "Test connecting to the database as admin."
-msgstr ""
-
-#, fuzzy
-msgid "Lock/unlock patient search"
-msgstr "Blocca/sblocca paziente"
-
-#, fuzzy
-msgid "Lock/unlock patient search - USE ONLY IF YOU KNOW WHAT YOU ARE DOING !"
-msgstr ""
-"Blocca/sblocca paziente - UTILIZZA SOLO SE SAI QUELLO CHE STAI FACENDO!"
-
-msgid "Test error handling"
-msgstr ""
-
-msgid "Throw an exception to test error handling."
-msgstr ""
-
-msgid "Test access violation exception"
-msgstr ""
-
-msgid "Simulate an access violation exception."
-msgstr ""
-
-msgid "Test access checking"
-msgstr ""
-
-msgid "Simulate a failing access check."
-msgstr ""
-
-msgid "Invoke inspector"
-msgstr ""
-
-msgid "Invoke the widget hierarchy inspector (needs wxPython 2.8)."
-msgstr ""
-
-msgid "Test fault handler"
-msgstr ""
-
-msgid "Simulate a catastrophic fault (SIGSEGV)."
-msgstr ""
-
-#, fuzzy
-msgid "Test placeholder"
-msgstr "erro com o placeholder [%s]"
-
-#, fuzzy
-msgid "Manually test placeholders"
-msgstr "Gestisci le descrizioni"
+msgid "Browse ..."
+msgstr "&Tutti gli utenti"
 
 msgid "Debugging ..."
 msgstr "Debugging ..."
@@ -18444,6 +18473,10 @@ msgstr "contributori GNUmed"
 #, fuzzy
 msgid "Show GNUmed contributors"
 msgstr "mostra chi ha contribuito a GNUmed"
+
+#, fuzzy
+msgid "&Help/Info"
+msgstr "Aiu&to"
 
 #, python-format
 msgid "Raise plugin [%s]."
@@ -18498,6 +18531,37 @@ msgstr ""
 
 msgid "Cannot write letter. No active patient."
 msgstr "Non posso scrivere la lettera. Nessun paziente attivo."
+
+#, fuzzy
+msgid "Cannot generate document. No active patient."
+msgstr "Non posso caricare i documenti. Nessun paziente attivo."
+
+#, fuzzy
+msgid "Vaccination history"
+msgstr "Storico dei medicamenti"
+
+#, fuzzy
+msgid "Prescription"
+msgstr "Descrizione"
+
+#, fuzzy
+msgid "Documents list"
+msgstr "Documenti: %s"
+
+msgid "Measurements"
+msgstr "Misurazioni"
+
+msgid "Progress notes"
+msgstr "Progressi, note"
+
+msgid ""
+"A text-only document will be generated and displayed for editing and "
+"printing."
+msgstr ""
+
+#, fuzzy
+msgid "Generate failsafe document"
+msgstr "Inserisci un commento sul documento."
 
 #, fuzzy
 msgid "Cannot put screenshot into export area. No active patient."
@@ -21743,11 +21807,11 @@ msgid "loading plugin <%s>"
 msgstr "Aggiungi plugin..."
 
 #, fuzzy
-msgid "EMR Timeline"
+msgid "EMR TL"
 msgstr "Albero medico"
 
 #, fuzzy
-msgid "EMR &Timeline"
+msgid "EMR: T&imeline"
 msgstr "Albero medico"
 
 #, fuzzy
@@ -21757,9 +21821,6 @@ msgstr "Recensione"
 #, fuzzy
 msgid "&Overview"
 msgstr "Recensione"
-
-msgid "Measurements"
-msgstr "Misurazioni"
 
 msgid "AU Vacc"
 msgstr ""
@@ -21780,7 +21841,7 @@ msgid "EMR Tree"
 msgstr "Albero medico"
 
 #, fuzzy
-msgid "EMR &Tree"
+msgid "EMR: &Tree"
 msgstr "Albero medico"
 
 #, fuzzy
@@ -21792,11 +21853,11 @@ msgid "&Print Manager"
 msgstr "Stampa"
 
 #, fuzzy
-msgid "EMR Journal"
-msgstr "giornale medico"
+msgid "EMR List"
+msgstr "Lista d'attesa"
 
 #, fuzzy
-msgid "EMR &Journal (list)"
+msgid "EMR: &List Journal"
 msgstr "giornale medico"
 
 msgid "&Vaccinations"
@@ -21835,9 +21896,6 @@ msgstr "Rapporti"
 msgid "&Report Generator"
 msgstr "&Genera Report"
 
-msgid "Progress notes"
-msgstr "Progressi, note"
-
 msgid "HTML Source"
 msgstr "Sorgente HTML"
 
@@ -21848,7 +21906,11 @@ msgid "User &manual (local)"
 msgstr "Manuale &utente (locale)"
 
 #, fuzzy
-msgid "EMR &Journal (text)"
+msgid "EMR Text"
+msgstr "Albero medico"
+
+#, fuzzy
+msgid "EMR: Te&xt Journal"
 msgstr "giornale medico"
 
 msgid "Demographics"
@@ -22005,6 +22067,18 @@ msgstr "Annulla"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Annulla e NON connetti a GNUmed"
+
+#, fuzzy
+#~ msgid "EMR &Timeline"
+#~ msgstr "Albero medico"
+
+#, fuzzy
+#~ msgid "EMR &Journal (list)"
+#~ msgstr "giornale medico"
+
+#, fuzzy
+#~ msgid "EMR &Journal (text)"
+#~ msgstr "giornale medico"
 
 #, fuzzy, python-format
 #~ msgid "%s%s (%s+%s)"
