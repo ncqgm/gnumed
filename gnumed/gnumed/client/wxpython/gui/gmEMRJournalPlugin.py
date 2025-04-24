@@ -20,7 +20,7 @@ if __name__ == '__main__':
 class gmEMRJournalPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate patient EMR Journal window."""
 
-	tab_name = _('EMR Journal')
+	tab_name = _('EMR Text')
 	required_minimum_role = 'full clinical access'
 
 	def name (self):
@@ -40,7 +40,7 @@ class gmEMRJournalPlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 
 	def MenuInfo (self):
-		return ('emr', _('EMR &Journal (text)'))
+		return ('emr', _('EMR: Te&xt Journal'))
 
 	def can_receive_focus(self):
 		# need patient
