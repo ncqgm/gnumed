@@ -224,7 +224,7 @@ class cResizingWindow(wx.ScrolledWindow):
 		x_dimension, y_dimension = self.GetScrollPixelsPerUnit()
 		y = y / y_dimension
 		# currently, don't bother with X direction
-		self.Scroll (-1, y)
+		self.Scroll (-1, round(y))
 	#------------------------------------------------
 	def SetValue(self, values):
 		"""

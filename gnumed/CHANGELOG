@@ -69,6 +69,8 @@ FIX: forward-port fix for grid selection constant names
 
 	1.8.22
 
+FIX: SOAP: auto-resizing input text field [thanks Maria]
+
 IMPROVED: EMR presentations naming (tabs/menu items) [thanks Maria]
 
 	1.8.21
