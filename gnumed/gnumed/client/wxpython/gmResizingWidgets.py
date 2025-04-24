@@ -636,7 +636,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		# - move to next/prev_in_tab_order
 		# FIXME: what about inside a list ?
 		if event.GetKeyCode() == wx.WXK_TAB:
-			if event.ShiftDown:
+			if event.ShiftDown():
 				if self.prev_in_tab_order is not None:
 					self.prev_in_tab_order.SetFocus()
 			else:
