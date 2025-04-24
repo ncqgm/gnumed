@@ -9,6 +9,7 @@
 	1.8.22
 
 FIX: SOAP: auto-resizing input text field [thanks Maria]
+FIX: SOAP: tabbing in auto-resizing STC [thanks Maria]
 
 IMPROVED: EMR presentations naming (tabs/menu items) [thanks Maria]
 
