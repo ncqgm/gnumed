@@ -6,6 +6,10 @@
 # rel-1-8-patches
 ------------------------------------------------
 
+	1.8.22
+
+IMPROVED: EMR presentations naming (tabs/menu items) [thanks Maria]
+
 	1.8.21
 
 FIX: startup: crash on fingerprinting v15+ servers [thanks gm-dbo]

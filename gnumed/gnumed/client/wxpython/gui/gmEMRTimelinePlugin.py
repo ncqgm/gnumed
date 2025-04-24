@@ -17,7 +17,7 @@ from Gnumed.wxpython import gmAccessPermissionWidgets
 #================================================================
 class gmEMRTimelinePlugin(gmPlugin.cNotebookPlugin):
 
-	tab_name = _("EMR Timeline")
+	tab_name = _("EMR TL")
 	required_minimum_role = 'full clinical access'
 
 	@gmAccessPermissionWidgets.verify_minimum_required_role (
@@ -37,7 +37,7 @@ class gmEMRTimelinePlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 	#--------------------------------------------------------
 	def MenuInfo (self):
-		return ('emr', _('EMR &Timeline'))
+		return ('emr', _('EMR: T&imeline'))
 	#--------------------------------------------------------
 	def can_receive_focus(self):
 		if not self._verify_patient_avail():
