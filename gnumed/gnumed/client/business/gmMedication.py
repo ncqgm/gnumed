@@ -262,7 +262,7 @@ def get_substances(order_by=None, return_pks=False):
 	return [ cSubstance(row = {'data': r, 'idx': idx, 'pk_field': 'pk_substance'}) for r in rows ]
 
 #------------------------------------------------------------
-def create_substance(substance=None, atc=None):
+def create_substance(substance=None, atc=None, link_obj=None):
 	if atc is not None:
 		atc = atc.strip()
 
@@ -271,7 +271,7 @@ def create_substance(substance=None, atc=None):
 		'atc': atc
 	}
 	cmd = "SELECT pk FROM ref.substance WHERE lower(description) = lower(%(desc)s)"
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
 
 	if len(rows) == 0:
 		cmd = """
@@ -282,12 +282,12 @@ def create_substance(substance=None, atc=None):
 					(SELECT code FROM ref.atc WHERE term = %(desc)s LIMIT 1)
 				)
 			) RETURNING pk"""
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+		rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
 
 	if atc is not None:
-		gmATC.propagate_atc(substance = substance.strip(), atc = atc)
+		gmATC.propagate_atc(link_obj = link_obj, substance = substance.strip(), atc = atc)
 
-	return cSubstance(aPK_obj = rows[0]['pk'])
+	return cSubstance(aPK_obj = rows[0]['pk'], link_obj = link_obj)
 
 #------------------------------------------------------------
 def create_substance_by_atc(substance=None, atc=None, link_obj=None):
@@ -3307,6 +3307,8 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------
 	def test_get_doses():
+		print(create_substance_dose(substance = 'test', amount = 1, unit = 'mg'))
+		return
 		for d in get_substance_doses():
 			#print d
 			print("--------------------------")
@@ -3383,13 +3385,15 @@ if __name__ == "__main__":
 	#test_interaction_check()
 	#test_medically_formatted_start_end()
 
+	gmPG2.request_login_params(setup_pool = True)
+
 	#test_get_substances()
-	#test_get_doses()
+	test_get_doses()
 	#test_get_components()
 	#test_get_drugs()
 	#test_get_intakes()
 	#test_create_substance_intake()
-	test_delete_intake()
+	#test_delete_intake()
 
 	#test_get_habit_drugs()
 
