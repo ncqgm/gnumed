@@ -4352,6 +4352,8 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------
 	def test_get_doses():
+		print(create_substance_dose(substance = 'test', amount = 1, unit = 'mg'))
+		return
 		for d in get_substance_doses():
 			#print d
 			print("--------------------------")
@@ -4639,7 +4641,7 @@ if __name__ == "__main__":
 	#test_format_regimen_like_as_multiple_lines()
 	#test_format_regimen_like_as_single_line()
 	#test_get_substances()
-	#test_get_doses()
+	test_get_doses()
 	#test_get_components()
 	#test_get_drugs()
 	#test_get_intakes()
