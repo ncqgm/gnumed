@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-24 16:03+0200\n"
+"POT-Creation-Date: 2025-04-27 11:35+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -8634,6 +8634,21 @@ msgstr ""
 msgid "Allergy detail: %s"
 msgstr ""
 
+msgid "male"
+msgstr ""
+
+msgid "female"
+msgstr ""
+
+msgid "unknown gender"
+msgstr ""
+
+msgid "Mr"
+msgstr ""
+
+msgid "Mrs"
+msgstr ""
+
 msgid "expired"
 msgstr ""
 
@@ -8961,21 +8976,6 @@ msgstr ""
 
 #, python-format
 msgid "invalid age: DOB [%s] after reference date [%s] (%s)"
-msgstr ""
-
-msgid "male"
-msgstr ""
-
-msgid "female"
-msgstr ""
-
-msgid "unknown gender"
-msgstr ""
-
-msgid "Mr"
-msgstr ""
-
-msgid "Mrs"
 msgstr ""
 
 msgid "empty status"
@@ -16477,6 +16477,9 @@ msgstr ""
 msgid "Import demographics from clipboard (vCard) as patient"
 msgstr ""
 
+msgid "&Import\\u2026"
+msgstr ""
+
 msgid "Export demographics of currently active person as GDT into clipboard."
 msgstr ""
 
@@ -16498,6 +16501,9 @@ msgid "Export demographics of currently active person into vCard file."
 msgstr ""
 
 msgid "\\u2192 &File as\\u2026"
+msgstr ""
+
+msgid "E&xport\\u2026"
 msgstr ""
 
 msgid "&Merge persons"
@@ -16522,6 +16528,9 @@ msgid "Enlist as user"
 msgstr ""
 
 msgid "Enlist current person as GNUmed user"
+msgstr ""
+
+msgid "&Person"
 msgstr ""
 
 msgid "&Past history (health issue / PMH)"
