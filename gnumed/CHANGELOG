@@ -13,6 +13,7 @@ FIX: SOAP: tabbing in auto-resizing STC [thanks Maria]
 FIX: medication: adding substance dose [thanks Maria]
 
 IMPROVED: EMR presentations naming (tabs/menu items) [thanks Maria]
+IMPROVED: i18n: added translatable strings [thanks Maria]
 
 	1.8.21
 

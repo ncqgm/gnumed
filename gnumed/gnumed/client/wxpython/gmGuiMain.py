@@ -525,7 +525,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.__on_import_xml_linuxmednews, item)
 		item = menu_person_import.Append(-1, _('Clipboard (&vCard) \u2192 patient'), _('Import demographics from clipboard (vCard) as patient'))
 		self.Bind(wx.EVT_MENU, self.__on_import_vcard_from_clipboard, item)
-		menu_person.Append(wx.NewId(), '&Import\u2026', menu_person_import)
+		menu_person.Append(wx.NewId(), _('&Import\u2026'), menu_person_import)
 
 		menu_person_export = wx.Menu()
 		menu_person_export_clipboard = wx.Menu()
@@ -544,7 +544,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.__on_export_as_vcard, item)
 		menu_person_export.Append(wx.NewId(), _('\u2192 &File as\u2026'), menu_person_export_file)
 
-		menu_person.Append(wx.NewId(), 'E&xport\u2026', menu_person_export)
+		menu_person.Append(wx.NewId(), _('E&xport\u2026'), menu_person_export)
 
 		item = menu_person.Append(-1, _('&Merge persons'), _('Merge two persons into one.'))
 		self.Bind(wx.EVT_MENU, self.__on_merge_patients, item)
@@ -557,7 +557,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.__on_enlist_patient_as_staff, item)
 		menu_person.AppendSeparator()
 
-		self.mainmenu.Append(menu_person, '&Person')
+		self.mainmenu.Append(menu_person, _('&Person'))
 		self.__gb['main.patientmenu'] = menu_person
 
 		# -- menu "EMR" ---------------------------
