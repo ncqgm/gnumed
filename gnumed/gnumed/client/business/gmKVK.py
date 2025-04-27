@@ -25,8 +25,11 @@ import logging
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
+from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmPG2
 from Gnumed.business import gmPerson
-from Gnumed.pycommon import gmDateTime, gmTools, gmPG2
+from Gnumed.business import gmGender
 
 
 _log = logging.getLogger('gm.kvk')
@@ -482,7 +485,7 @@ select pk_identity from dem.v_external_ids4identity where
 		self.last_read_timestamp = pyDT.datetime(ts.tm_year, ts.tm_mon, ts.tm_mday, ts.tm_hour, ts.tm_min, ts.tm_sec, tzinfo = gmDateTime.gmCurrentLocalTimezone)
 
 		# guess gender from firstname
-		self.gender = gmTools.coalesce(gmPerson.map_firstnames2gender(firstnames=self.firstnames), 'f')
+		self.gender = gmTools.coalesce(gmGender.map_firstnames2gender(firstnames=self.firstnames), 'f')
 
 		if not card_type_seen:
 			_log.warning('no line with card type found, unable to verify')
@@ -617,7 +620,7 @@ select pk_identity from dem.v_external_ids4identity where
 		self.last_read_timestamp = pyDT.datetime(ts.tm_year, ts.tm_mon, ts.tm_mday, ts.tm_hour, ts.tm_min, ts.tm_sec, tzinfo = gmDateTime.gmCurrentLocalTimezone)
 
 		# guess gender from firstname
-		self.gender = gmTools.coalesce(gmPerson.map_firstnames2gender(firstnames=self.firstnames), 'f')
+		self.gender = gmTools.coalesce(gmGender.map_firstnames2gender(firstnames=self.firstnames), 'f')
 
 		if not card_type_seen:
 			_log.warning('no line with card type found, unable to verify')

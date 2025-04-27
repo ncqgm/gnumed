@@ -19,16 +19,14 @@ if __name__ == '__main__':
 
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmI18N
-
 if __name__ == '__main__':
 	_ = lambda x:x
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 	gmDateTime.init()
-
 from Gnumed.pycommon import gmTools
 from Gnumed.business import gmLOINC
-
+from Gnumed.business.gmGender import map_gender2mf
 
 _log = logging.getLogger('gm.calc')
 
@@ -326,7 +324,6 @@ class cClinicalCalculator(object):
 			return result
 
 		# 1) gender
-		from Gnumed.business.gmPerson import map_gender2mf
 		result.variables['gender'] = self.__patient['gender']
 		result.variables['gender_mf'] = map_gender2mf[self.__patient['gender']]
 		if result.variables['gender_mf'] == 'm':
@@ -426,7 +423,6 @@ class cClinicalCalculator(object):
 			return result
 
 		# 1) gender
-		from Gnumed.business.gmPerson import map_gender2mf
 		result.variables['gender'] = self.__patient['gender']
 		result.variables['gender_mf'] = map_gender2mf[self.__patient['gender']]
 		if result.variables['gender_mf'] == 'm':
@@ -525,7 +521,6 @@ class cClinicalCalculator(object):
 			return result
 
 		# 1) gender
-		from Gnumed.business.gmPerson import map_gender2mf
 		result.variables['gender'] = self.__patient['gender']
 		result.variables['gender_mf'] = map_gender2mf[self.__patient['gender']]
 		if result.variables['gender_mf'] not in ['m', 'f']:

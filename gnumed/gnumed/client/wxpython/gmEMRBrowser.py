@@ -29,6 +29,7 @@ from Gnumed.exporters import gmPatientExporter
 from Gnumed.business import gmGenericEMRItem
 from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmPerson
+from Gnumed.business import gmGender
 from Gnumed.business import gmPersonSearch
 from Gnumed.business import gmSoapDefs
 from Gnumed.business import gmClinicalRecord
@@ -288,7 +289,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		if doc is not None:
 			self.__root_tooltip += '%s:\n' % _('Primary provider in this praxis')
 			self.__root_tooltip += ' %s %s %s (%s)%s\n\n' % (
-				gmTools.coalesce(doc['title'], gmPerson.map_gender2salutation(gender = doc['gender'])),
+				gmTools.coalesce(doc['title'], gmGender.map_gender2salutation(gender = doc['gender'])),
 				doc['firstnames'],
 				doc['lastnames'],
 				doc['short_alias'],

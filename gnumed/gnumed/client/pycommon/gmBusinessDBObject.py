@@ -174,7 +174,7 @@ from Gnumed.pycommon import gmPG2
 # search/replace "" " -> 3 "s
 #
 # search-replace get_XXX, use plural form
-_SQL_get_XXX = u"" "
+_SQL_get_XXX = "" "
 	SELECT *, (xmin AS xmin_XXX)
 	FROM XXX.v_XXX
 	WHERE %s
@@ -183,9 +183,9 @@ _SQL_get_XXX = u"" "
 class cXxxXxx(gmBusinessDBObject.cBusinessDBObject):
 	"" "Represents ..."" "
 
-	_cmd_fetch_payload = _SQL_get_XXX % u"pk_XXX = %s"
+	_cmd_fetch_payload = _SQL_get_XXX % 'pk_XXX = %s'
 	_cmds_store_payload = [
-		u"" "
+		"" "
 			-- typically the underlying table name
 			UPDATE xxx.xxx SET
 				-- typically "table_col = % (view_col)s"
@@ -216,9 +216,9 @@ class cXxxXxx(gmBusinessDBObject.cBusinessDBObject):
 #------------------------------------------------------------
 def get_XXX(order_by=None):
 	if order_by is None:
-		order_by = u'true'
+		order_by = 'true'
 	else:
-		order_by = u'true ORDER BY %s' % order_by
+		order_by = 'true ORDER BY %s' % order_by
 
 	cmd = _SQL_get_XXX % order_by
 	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
@@ -227,10 +227,10 @@ def get_XXX(order_by=None):
 def create_xxx(xxx1=None, xxx2=None):
 
 	args = {
-		u'xxx1': xxx1,
-		u'xxx2': xxx2
+		'xxx1': xxx1,
+		'xxx2': xxx2
 	}
-	cmd = u"" "
+	cmd = "" "
 		INSERT INTO xxx.xxx (
 			xxx1,
 			xxx2,
@@ -741,7 +741,6 @@ class cBusinessDBObject(object):
 			queries = queries,
 			return_data = True
 		)
-
 		# success ?
 		if len(rows) == 0:
 			# nothing updated - this can happen if:
@@ -776,12 +775,10 @@ class cBusinessDBObject(object):
 		self._is_modified = False
 		commit_conn()
 		close_conn()
-
 		# update to new "original" payload
 		self.payload_most_recently_fetched = {}
 		for field in self._payload.keys():
 			self.payload_most_recently_fetched[field] = self._payload[field]
-
 		return (True, None)
 
 #============================================================

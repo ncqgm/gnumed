@@ -32,6 +32,7 @@ from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmCrypto
 
 from Gnumed.business import gmPerson
+from Gnumed.business import gmGender
 from Gnumed.business import gmStaff
 from Gnumed.business import gmMedication
 from Gnumed.business import gmPathLab
@@ -1913,7 +1914,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		title = gmTools.coalesce (
 			prov['title'],
-			gmPerson.map_gender2salutation(prov['gender'])
+			gmGender.map_gender2salutation(prov['gender'])
 		)
 
 		tmp = '%s %s. %s' % (

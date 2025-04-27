@@ -22,6 +22,7 @@ from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmDateTime
 
 from Gnumed.business import gmPerson
+from Gnumed.business import gmGender
 from Gnumed.business import gmStaff
 from Gnumed.business import gmProviderInbox
 from Gnumed.business import gmClinicalRecord
@@ -496,7 +497,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		msg = _(' Inbox of %s %s%s') % (
 			gmTools.coalesce (
 				self.provider['title'],
-				gmPerson.map_gender2salutation(self.provider['gender'])
+				gmGender.map_gender2salutation(self.provider['gender'])
 			),
 			self.provider['lastnames'],
 			gmTools.coalesce(no_of_messages, '.', _(': %s message(s)'))

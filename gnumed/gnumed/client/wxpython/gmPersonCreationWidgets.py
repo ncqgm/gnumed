@@ -25,6 +25,7 @@ from Gnumed.pycommon import gmDispatcher
 
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmPerson
+from Gnumed.business import gmGender
 from Gnumed.business import gmStaff
 from Gnumed.business import gmDemographicRecord
 
@@ -385,7 +386,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		if firstname == '':
 			return True
 
-		gender = gmPerson.map_firstnames2gender(firstnames = firstname)
+		gender = gmGender.map_firstnames2gender(firstnames = firstname)
 		if gender is None:
 			return True
 

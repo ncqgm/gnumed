@@ -32,6 +32,7 @@ from Gnumed.pycommon import gmCrypto
 from Gnumed.business import gmDocuments
 from Gnumed.business import gmKeywordExpansion
 from Gnumed.business import gmStaff
+from Gnumed.business import gmGender
 
 
 _log = logging.getLogger('gm.exp_area')
@@ -1501,7 +1502,7 @@ class cExportArea(object):
 			gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), format = '%Y-%m-%d'),
 			patient.ID,
 			_cfg.get(option = 'client_version'),
-			' / '.join([ '%s = %s (%s)' % (g['tag'], g['label'], g['l10n_label']) for g in patient.gender_list ])
+			' / '.join([ '%s = %s (%s)' % (g['tag'], g['label'], g['l10n_label']) for g in gmGender.get_genders() ])
 		))
 		cd_inf.close()
 		return fname
@@ -1934,8 +1935,8 @@ if __name__ == '__main__':
 
 	gmPG2.request_login_params(setup_pool = True)
 	#test_export_area()
-	#test_label()
-	test_store_passphrase_of_file()
+	test_label()
+	#test_store_passphrase_of_file()
 	#test_save_object_passphrase_to_file()
 
 #============================================================

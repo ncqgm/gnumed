@@ -43,18 +43,12 @@ from Gnumed.business import gmProviderInbox
 from Gnumed.business import gmExportArea
 from Gnumed.business import gmBilling
 from Gnumed.business import gmAutoHints
+from Gnumed.business import gmGender
 from Gnumed.business.gmDocuments import cDocumentFolder
 from Gnumed.business.gmClinicalRecord import cClinicalRecord
-from Gnumed.business.gmXdtMappings import map_gender_gm2xdt
 
 
 _log = logging.getLogger('gm.person')
-
-__gender_list = None
-
-__gender2salutation_map = None
-__gender2string_map = None
-__gender2symbol_map = None
 
 #============================================================
 _MERGE_SCRIPT_HEADER = """-- GNUmed patient merge script
@@ -422,6 +416,7 @@ class cDTO_person(object):
 			gmTools.bool2subst(self.dob_is_estimated, '~', '', ''),
 			self.dob
 		)
+
 	#--------------------------------------------------------
 	def __setattr__(self, attr, val):
 		"""Do some sanity checks on self.* access."""
@@ -431,12 +426,10 @@ class cDTO_person(object):
 				object.__setattr__(self, attr, val)
 				return
 
-			glist = get_gender_list()
-			for gender in glist:
-				if str(val) in [gender[0], gender[1], gender[2], gender[3]]:
-					val = gender['tag']
-					object.__setattr__(self, attr, val)
-					return
+			tag = gmGender.map_gender2tag(val)
+			if tag:
+				object.__setattr__(self, attr, tag)
+				return
 
 			raise ValueError('invalid gender: [%s]' % val)
 
@@ -454,6 +447,7 @@ class cDTO_person(object):
 
 		object.__setattr__(self, attr, val)
 		return
+
 	#--------------------------------------------------------
 	def __getitem__(self, attr):
 		return getattr(self, attr)
@@ -520,7 +514,7 @@ class cPersonName(gmBusinessDBObject.cBusinessDBObject):
 			'last': self._payload['lastnames'],
 			'title': gmTools.coalesce (
 				self._payload['title'],
-				map_gender2salutation(self._payload['gender'])
+				gmGender.map_gender2salutation(self._payload['gender'])
 			),
 			'first': self._payload['firstnames'],
 			'nick': gmTools.coalesce(self._payload['preferred'], '', " '%s'", '%s')
@@ -644,22 +638,15 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	# identity API
 	#--------------------------------------------------------
 	def _get_gender_symbol(self) -> str:
-		return map_gender2symbol(self._payload['gender'])
+		return gmGender.map_gender2symbol(self._payload['gender'])
 
 	gender_symbol = property(_get_gender_symbol)
 
 	#--------------------------------------------------------
 	def _get_gender_string(self) -> str:
-		return map_gender2string(gender = self._payload['gender'])
+		return gmGender.map_gender2string(gender = self._payload['gender'])
 
 	gender_string = property(_get_gender_string)
-
-	#--------------------------------------------------------
-	def _get_gender_list(self) -> list:
-		gender_list, tmp = get_gender_list()
-		return gender_list
-
-	gender_list = property(_get_gender_list)
 
 	#--------------------------------------------------------
 	def get_active_name(self) -> cPersonName:
@@ -1271,7 +1258,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		gdt_file.write(template % ('%03d' % (9 + len(self._payload['lastnames'])), '3101', self._payload['lastnames']))
 		gdt_file.write(template % ('%03d' % (9 + len(self._payload['firstnames'])), '3102', self._payload['firstnames']))
 		gdt_file.write(template % ('%03d' % (9 + len(self._payload['dob'].strftime('%d%m%Y'))), '3103', self._payload['dob'].strftime('%d%m%Y')))
-		gdt_file.write(template % ('010', '3110', map_gender_gm2xdt[self._payload['gender']]))
+		gdt_file.write(template % ('010', '3110', gmGender.map_gender_gm2xdt[self._payload['gender']]))
 		gdt_file.write(template % ('025', '6330', 'GNUmed::9206::encoding'))
 		gdt_file.write(template % ('%03d' % (9 + len(encoding)), '6331', encoding))
 		if external_id_type is None:
@@ -1323,7 +1310,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		if self._payload['gender'] is None:
 			gender.text = ''
 		else:
-			gender.text = map_gender2mf[self._payload['gender']]
+			gender.text = gmGender.map_gender2mf[self._payload['gender']]
 
 		home = etree.SubElement(pat, 'home_address')
 		adrs = self.get_addresses(address_type = 'home')
@@ -1405,7 +1392,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		vc.title.value = gmTools.coalesce(self._payload['title'], '')
 		vc.add('gender')
 		# FIXME: dont know how to add gender_string after ';'
-		vc.gender.value = map_gender2vcard[self._payload['gender']]#, self.gender_string
+		vc.gender.value = gmGender.map_gender2vcard[self._payload['gender']]#, self.gender_string
 		vc.add('bday')
 		vc.bday.value = gmDateTime.pydt_strftime(self._payload['dob'], dob_format, accuracy = gmDateTime.acc_days, none_str = '')
 
@@ -2553,134 +2540,6 @@ def set_active_patient(patient=None, forced_reload=False):
 	return True
 
 #============================================================
-# gender related
-#------------------------------------------------------------
-def get_gender_list() -> list:
-	"""Retrieves the list of known genders from the database."""
-	global __gender_list
-	if __gender_list:
-		return __gender_list
-
-	cmd = "SELECT tag, l10n_tag, label, l10n_label, symbol, l10n_symbol FROM dem.v_gender_labels ORDER BY l10n_label"
-	__gender_list = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
-	_log.debug('genders in database: %s' % __gender_list)
-	return __gender_list
-
-#------------------------------------------------------------
-map_gender2mf = {
-	'm': 'm',
-	'f': 'f',
-	'tf': 'f',
-	'tm': 'm',
-	'h': 'mf'
-}
-
-# https://tools.ietf.org/html/rfc6350#section-6.2.7
-# M F O N U
-map_gender2vcard = {
-	'm': 'M',
-	'f': 'F',
-	'tf': 'F',
-	'tm': 'M',
-	'h': 'O',
-	None: 'U'
-}
-#------------------------------------------------------------
-def map_gender2string(gender:str=None) -> str:
-	"""Maps GNUmed related i18n-aware gender specifiers to a human-readable string."""
-	global __gender2string_map
-	if not __gender2string_map:
-		__gender2string_map = {
-			'm': _('male'),
-			'f': _('female'),
-			'tf': '',
-			'tm': '',
-			'h': '',
-			None: _('unknown gender')
-		}
-		for g in get_gender_list():
-			if g['l10n_label']:
-				__gender2string_map[g['l10n_tag']] = g['l10n_label']
-				__gender2string_map[g['tag']] = g['l10n_label']
-		_log.debug('gender -> string mapping: %s' % __gender2string_map)
-	try:
-		return __gender2string_map[gender]
-
-	except KeyError:
-		return '?%s?' % gender
-
-#------------------------------------------------------------
-def map_gender2symbol(gender:str=None) -> str:
-	"""Maps GNUmed related i18n-aware gender specifiers to a unicode symbol."""
-	global __gender2symbol_map
-	if not __gender2symbol_map:
-		# built-in defaults
-		__gender2symbol_map = {
-			'm': '\u2642',
-			'f': '\u2640',
-			'tf': '\u26A5\u2640',
-			#'tf': u'\u2642\u2640-\u2640',
-			'tm': '\u26A5\u2642',
-			#'tm': u'\u2642\u2640-\u2642',
-			'h': '\u26A5',
-			#'h': u'\u2642\u2640',
-			None: '?\u26A5?'
-		}
-		# update from database, possibly adding more genders
-		for g in get_gender_list():
-			if g['l10n_symbol']:
-				__gender2symbol_map[g['l10n_tag']] = g['l10n_symbol']
-				__gender2symbol_map[g['tag']] = g['l10n_symbol']
-		_log.debug('gender -> symbol mapping: %s' % __gender2symbol_map)
-	try:
-		return __gender2symbol_map[gender]
-
-	except KeyError:
-		return '?%s?' % gender
-
-#------------------------------------------------------------
-def map_gender2salutation(gender=None):
-	"""Maps GNUmed related i18n-aware gender specifiers to a human-readable salutation."""
-
-	global __gender2salutation_map
-	if not __gender2salutation_map:
-		__gender2salutation_map = {
-			'm': _('Mr'),
-			'f': _('Mrs'),
-			'tf': '',
-			'tm': '',
-			'h': '',
-			None: ''
-		}
-	#	for g in get_gender_list():
-	#		__gender2salutation_map[g['l10n_tag']] = __gender2salutation_map[g['tag']]
-	#		__gender2salutation_map[g['label']] = __gender2salutation_map[g['tag']]
-	#		__gender2salutation_map[g['l10n_label']] = __gender2salutation_map[g['tag']]
-		_log.debug('gender -> salutation mapping: %s' % __gender2salutation_map)
-	try:
-		return __gender2salutation_map[gender]
-
-	except KeyError:
-		return ''
-
-#------------------------------------------------------------
-def map_firstnames2gender(firstnames=None):
-	"""Try getting the gender for the given first name."""
-
-	if firstnames is None:
-		return None
-
-	rows = gmPG2.run_ro_queries(queries = [{
-		'cmd': "SELECT gender FROM dem.name_gender_map WHERE name ILIKE %(fn)s LIMIT 1",
-		'args': {'fn': firstnames}
-	}])
-
-	if len(rows) == 0:
-		return None
-
-	return rows[0][0]
-
-#============================================================
 def get_person_IDs():
 	cmd = 'SELECT pk FROM dem.identity'
 	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
@@ -2819,13 +2678,6 @@ if __name__ == '__main__':
 			print(name.description)
 			print('  ', name)
 	#--------------------------------------------------------
-	def test_gender_list():
-		genders = get_gender_list()
-		print("\n\nRetrieving gender enum (tag, label, symbol):")
-		for gender in genders:
-			print("%s, %s, %s, %s" % (gender['tag'], gender['l10n_label'], gender['l10n_symbol'], map_gender2symbol(gender['tag'])))
-
-	#--------------------------------------------------------
 	def test_export_area():
 		person = cPerson(aPK_obj = 12)
 		print(person)
@@ -2927,7 +2779,6 @@ if __name__ == '__main__':
 	#test_search_by_dto()
 	#test_name()
 
-	#map_gender2salutation('m')
 	# module functions
 
 	#comms = get_comm_list()
@@ -2937,7 +2788,6 @@ if __name__ == '__main__':
 	#test_vcf()
 
 	gmPG2.request_login_params(setup_pool = True)
-	test_gender_list()
 	#test_set_active_pat()
 	#test_mecard()
 	#test_ext_id()
