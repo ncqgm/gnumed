@@ -19,6 +19,13 @@ import wx.lib.statbmp as wx_genstatbmp
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
+else:
+	try: _
+	except NameError:
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
+
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmPG2
@@ -31,6 +38,7 @@ from Gnumed.business import gmDemographicRecord
 from Gnumed.business import gmPersonSearch
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
+from Gnumed.business import gmGender
 
 from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmRegetMixin
@@ -599,6 +607,234 @@ def disable_identity(identity=None):
 
 	return True
 
+#====================================================================
+from Gnumed.wxGladeWidgets import wxgGenderDefEAPnl
+
+class cGenderDefEAPnl(wxgGenderDefEAPnl.wxgGenderDefEAPnl, gmEditArea.cGenericEditAreaMixin):
+
+	def __init__(self, *args, **kwargs):
+		try:
+			data = kwargs['gender_def']
+			del kwargs['gender_def']
+		except KeyError:
+			data = None
+
+		wxgGenderDefEAPnl.wxgGenderDefEAPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+
+		self.mode = 'new'
+		self.data = data
+		if data is not None:
+			self.mode = 'edit'
+
+		#self.__init_ui()
+
+	#----------------------------------------------------------------
+#	def __init_ui(self):
+#		# adjust phrasewheels etc
+
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+		validity = True
+		if self._TCTRL_abbreviation.Value.strip() == u'':
+			validity = False
+			self._TCTRL_abbreviation.display_as_valid(False)
+			self.StatusText = _('Abbreviation needed for gender definition.')
+			self._TCTRL_abbreviation.SetFocus()
+		else:
+			self._TCTRL_abbreviation.display_as_valid(True)
+		if self._TCTRL_name.Value.strip() == u'':
+			validity = False
+			self._TCTRL_name.display_as_valid(False)
+			self.StatusText = _('Name needed for gender definition.')
+			self._TCTRL_name.SetFocus()
+		else:
+			self._TCTRL_name.display_as_valid(True)
+		return validity
+
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+		data = gmGender.create_gender_def (
+			tag = self._TCTRL_abbreviation.Value,
+			name = self._TCTRL_name.Value,
+			comment = self._TCTRL_comment.Value,
+			symbol = self._TCTRL_symbol.Value
+		)
+		if self._TCTRL_name_l10n.Value:
+			data.store_field_translation (
+				original = self._TCTRL_name.Value,
+				translation = self._TCTRL_name_l10n.Value
+			)
+		if self._TCTRL_l10n_abbreviation.Value:
+			data.store_field_translation (
+				original = self._TCTRL_l10n_abbreviation.Value,
+				translation = self._TCTRL_l10n_abbreviation.Value
+			)
+		if self._TCTRL_symbol.Value and self._TCTRL_symbol_l10n.Value:
+			data.store_field_translation (
+				original = self._TCTRL_symbol.Value,
+				translation = self._TCTRL_symbol_l10n.Value
+			)
+		self.data = data
+		return True
+
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		self.data['name'] = self._TCTRL_name.Value
+		self.data['tag'] = self._TCTRL_abbreviation.Value
+		self.data['symbol'] = self._TCTRL_symbol.Value
+		self.data['comment'] = self._TCTRL_comment.Value
+		self.data.save()
+		if self._TCTRL_name_l10n.Value:
+			self.data.store_field_translation (
+				original = self._TCTRL_name.Value,
+				translation = self._TCTRL_name_l10n.Value
+			)
+		if self._TCTRL_l10n_abbreviation.Value:
+			self.data.store_field_translation (
+				original = self._TCTRL_l10n_abbreviation.Value,
+				translation = self._TCTRL_l10n_abbreviation.Value
+			)
+		if self._TCTRL_symbol.Value and self._TCTRL_symbol_l10n.Value:
+			self.data.store_field_translation (
+				original = self._TCTRL_symbol.Value,
+				translation = self._TCTRL_symbol_l10n.Value
+			)
+		return True
+
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		self._TCTRL_name.Value = ''
+		self._TCTRL_name_l10n.Value = ''
+		self._TCTRL_abbreviation.Value = ''
+		self._TCTRL_l10n_abbreviation.Value = ''
+		self._TCTRL_symbol.Value = ''
+		self._TCTRL_symbol_l10n.Value = ''
+		self._TCTRL_comment.Value = ''
+
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		self._refresh_as_new()
+
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		self._refresh_as_new()
+		self._TCTRL_name.Value = self.data['name']
+		if self.data['l10n_name'] != self.data['name']:
+			self._TCTRL_name_l10n.Value = self.data['l10n_name']
+		self._TCTRL_abbreviation.Value = self.data['tag']
+		if self.data['l10n_tag'] != self.data['tag']:
+			self._TCTRL_l10n_abbreviation.Value = self.data['l10n_tag']
+		if self.data['symbol']:
+			self._TCTRL_symbol.Value = self.data['symbol'].strip()
+		else:
+			symbol = gmGender.map_gender2symbol(self.data['tag'])
+			if not (symbol.startswith('?') and symbol.endswith('?')):
+				self._TCTRL_symbol.Value = symbol
+		if self.data['l10n_symbol']:
+			self._TCTRL_symbol_l10n.Value = self.data['l10n_symbol']
+		if self.data['comment']:
+			self._TCTRL_comment.Value = self.data['comment'].strip()
+
+	#----------------------------------------------------------------
+	def set_fields(self, fields):
+		# <fields> must be a dict compatible with the
+		# structure of the business object this edit
+		# area is for,
+		# thusly, the edit area knows how to set its
+		# controls from it,
+		# <fields> doesn't have to contain all keys, rather:
+		# - missing ones are skipped
+		# - unknown ones are ignored
+		# each key must hold a dict with at least a key 'value'
+		# and _can_ contain another key 'data',
+		# 'value' and 'data' must be compatible with the
+		# control they go into,
+		# controls which don't require 'data' (say, RadioButton)
+		# will ignore an existing 'data' key
+		pass
+
+	#----------------------------------------------------------------
+
+#------------------------------------------------------------
+# widget code
+#------------------------------------------------------------
+def edit_gender_definition(parent=None, gender_def=None, single_entry=False, presets=None):
+	ea = cGenderDefEAPnl(parent, -1)
+	ea.data = gender_def
+	ea.mode = gmTools.coalesce(gender_def, 'new', 'edit')
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
+	dlg.SetTitle(gmTools.coalesce(gender_def, _('Adding new gender definition'), _('Editing gender definition')))
+	result = dlg.ShowModal()
+	dlg.DestroyLater()
+	return result
+
+#------------------------------------------------------------
+def delete_gender_definition(gender_def=None):
+	if not gender_def:
+		return False
+
+	if gender_def['tag'] in ['m', 'f', 'tm', 'tf', 'h']:
+		_log.debug('will not delete any of m/f/tm/tf/h genders')
+		return False
+
+	if gender_def.is_in_use:
+		_log.debug('gender definition is in use: %s', gender_def)
+		return False
+
+	return gmGender.delete_gender_def(pk_gender_label = gender_def['pk_gender_label'])
+
+#------------------------------------------------------------
+def manage_gender_definitions(parent):
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	#------------------------------------------------------------
+	def edit(gender_def=None):
+		return edit_gender_definition(parent = parent, gender_def = gender_def, single_entry = True)
+
+	#------------------------------------------------------------
+	def delete(gender_def=None):
+		return delete_gender_definition(gender_def)
+
+	#------------------------------------------------------------
+	def get_tooltip(gender_def=None):
+		if not gender_def:
+			return None
+
+		return gender_def.format()
+
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		genders = gmGender.get_genders(as_instance = True)
+		items = [ [
+			g['name'],
+			g['tag'],
+			gmTools.coalesce(g['symbol'], '')
+		] for g in genders ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(genders)
+
+	#------------------------------------------------------------
+	lang = gmPG2.get_current_user_language()
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		caption = _('Managing gender definitions'),
+		msg = _('Current language (database): %s') % lang,
+		columns = [ _('Name'), _('Tag'), _('Symbol') ],
+		single_selection = True,
+		refresh_callback = refresh,
+		edit_callback = edit,
+		new_callback = edit,
+		delete_callback = delete,
+		list_tooltip_callback = get_tooltip
+	)
+
+#------------------------------------------------------------
+# remember to add in clinical item generic workflows and generic clinical item formatting
+
 #------------------------------------------------------------
 # phrasewheels
 #------------------------------------------------------------
@@ -679,16 +915,16 @@ class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		if cGenderSelectionPhraseWheel._gender_map is None:
 			cmd = """
-				SELECT tag, l10n_label
-				from dem.v_gender_labels
-				order by l10n_label"""
+				SELECT tag, l10n_name
+				from dem.v_gender_defs
+				order by l10n_name"""
 			rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 			cGenderSelectionPhraseWheel._gender_map = {}
 			for gender in rows:
 				cGenderSelectionPhraseWheel._gender_map[gender['tag']] = {
 					'data': gender['tag'],
-					'field_label': gender['l10n_label'],
-					'list_label': gender['l10n_label'],
+					'field_label': gender['l10n_name'],
+					'list_label': gender['l10n_name'],
 					'weight': 1
 				}
 
@@ -1796,6 +2032,23 @@ class cNotebookedPatEditionPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 #============================================================
 if __name__ == "__main__":
 
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
+
+	from Gnumed.pycommon import gmLog2
+	gmLog2.print_logfile_name()
+	del _
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
+
+	#from Gnumed.pycommon import gmPG2
+
+	from Gnumed.wxpython import gmGuiTest
+
 	#--------------------------------------------------------
 	def test_organizer_pnl():
 		app = wx.PyWidgetTester(size = (600, 400))
@@ -1844,10 +2097,31 @@ if __name__ == "__main__":
 		from Gnumed.wxpython.gmPatSearchWidgets import set_active_patient
 		set_active_patient(patient = patient)
 		return patient
-	#--------------------------------------------------------
-	if len(sys.argv) > 1 and sys.argv[1] == 'test':
 
-		gmPG2.get_connection()
+	#--------------------------------------------------------
+	def test_gender_def_ea():
+		gmPG2.request_login_params(setup_pool = True, force_tui = True)
+		for g_def in gmGender.get_genders():
+			gmGuiTest.test_widget (
+				cGenderDefEAPnl,
+				# *widget_args,
+				patient = None,
+				#size = None,
+				setup_db = False
+				#, **widget_kwargs
+				, gender_def = g_def
+			)
+
+	#----------------------------------------
+	def test_manage_gender_defs():
+		frame = gmGuiTest.setup_widget_test_env(patient = None)
+		wx.CallLater(2000, manage_gender_definitions, parent = frame)
+		wx.GetApp().MainLoop()
+
+	#--------------------------------------------------------
+	#test_gender_def_ea()
+	test_manage_gender_defs()
+
 
 #		app = wx.PyWidgetTester(size = (400, 300))
 #		app.SetWidget(cNotebookedPatEditionPanel, -1)
@@ -1859,7 +2133,7 @@ if __name__ == "__main__":
 
 		# identity related widgets
 		#test_person_names_pnl()
-		test_person_ids_pnl()
+	#test_person_ids_pnl()
 		#test_pat_ids_pnl()
 		#test_name_ea_pnl()
 

@@ -1502,7 +1502,7 @@ class cExportArea(object):
 			gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), format = '%Y-%m-%d'),
 			patient.ID,
 			_cfg.get(option = 'client_version'),
-			' / '.join([ '%s = %s (%s)' % (g['tag'], g['label'], g['l10n_label']) for g in gmGender.get_genders() ])
+			' / '.join([ '%s = %s (%s)' % (g['tag'], g['name'], g['l10n_name']) for g in gmGender.get_genders() ])
 		))
 		cd_inf.close()
 		return fname

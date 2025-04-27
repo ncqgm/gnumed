@@ -39,16 +39,16 @@ __MAP__gender2string = None
 __MAP__gender2symbol = None
 
 #============================================================
-_SQL_get_gender_labels = 'SELECT * FROM dem.v_gender_labels'
+_SQL_get_gender_defs = 'SELECT * FROM dem.v_gender_defs'
 
-class cGenderLabel(gmBusinessDBObject.cBusinessDBObject):
-	"""Represents a gender label."""
+class cGenderDef(gmBusinessDBObject.cBusinessDBObject):
+	"""Represents a gender definition."""
 
-	_cmd_fetch_payload = '%s WHERE pk_gender_label = %%s' % _SQL_get_gender_labels
+	_cmd_fetch_payload = '%s WHERE pk_gender_label = %%s' % _SQL_get_gender_defs
 	_cmds_store_payload = [
 		"""UPDATE dem.gender_label SET
 				tag = gm.nullify_empty_string(%(tag)s),
-				label = gm.nullify_empty_string(%(label)s),
+				label = gm.nullify_empty_string(%(name)s),
 				symbol = gm.nullify_empty_string(%(symbol)s),
 				comment = gm.nullify_empty_string(%(comment)s)
 			WHERE
@@ -58,39 +58,56 @@ class cGenderLabel(gmBusinessDBObject.cBusinessDBObject):
 			RETURNING
 				xmin AS xmin_gender_label,
 				_(tag) as l10n_tag,
-				_(label) as l10n_label,
+				_(label) as l10n_name,
 				_(symbol) as l10n_symbol
 		"""
 	]
 	_updatable_fields = [
 		'tag',
-		'label',
+		'name',
 		'symbol',
 		'comment'
 	]
 	#--------------------------------------------------------
 	def format(self):
 		symbol = map_gender2symbol(gender = self._payload['tag'])
-		line = '%(l10n_tag)s: %(l10n_label)s' % self._payload
+		line = '%(l10n_tag)s: %(l10n_name)s' % self._payload
 		if symbol:
 			line += ' (%s)' % symbol
 		return line
 
 	#--------------------------------------------------------
 	def store_field_translation(self, original:str, translation:str, link_obj=None):
-		return gmPG2.update_translation_in_database (
+		gmPG2.update_translation_in_database (
 			language = None,	# use current DB language
 			original = original,
 			translation = translation,
 			link_obj = link_obj
 		)
+		invalidate_genders_cache()
+		self.refetch_payload(link_obj = link_obj)
+
+	#--------------------------------------------------------
+	def save_payload(self, conn:gmPG2.dbapi.extras.DictConnection=None) -> tuple[bool, tuple]:
+		result = super().save_payload(conn = conn)
+		invalidate_genders_cache()
+		return result
+
+	#--------------------------------------------------------
+	def _get_is_in_use(self):
+		SQL = 'SELECT EXISTS (SELECT 1 FROM dem.identity WHERE dem.identity.gender = %(tag)s)'
+		args = {'tag': self._payload['tag']}
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+		return rows[0][0]
+
+	is_in_use = property(_get_is_in_use)
 
 #------------------------------------------------------------
 def get_genders(as_instance:bool=False, order_by:str=None) -> list:
 	"""Retrieves the list of known genders from the database."""
 	global __LIST__gender_defs
 	if not __LIST__gender_defs:
-		SQL = _SQL_get_gender_labels
+		SQL = _SQL_get_gender_defs
 		if order_by:
 			SQL += ' ORDER BY %s' % order_by
 		__LIST__gender_defs = gmPG2.run_ro_queries(queries = [{'cmd': SQL}])
@@ -98,53 +115,36 @@ def get_genders(as_instance:bool=False, order_by:str=None) -> list:
 	if not as_instance:
 		return __LIST__gender_defs
 
-	return [ cGenderLabel(row = {'data': r, 'pk_field': 'pk_gender_label'}) for r in __LIST__gender_defs ]
+	return [ cGenderDef(row = {'data': r, 'pk_field': 'pk_gender_label'}) for r in __LIST__gender_defs ]
 
 #------------------------------------------------------------
-def create_gender_label(tag:str=None, label:str=None, comment:str=None, symbol:str=None):
+def create_gender_def(tag:str=None, name:str=None, comment:str=None, symbol:str=None):
 	args = {
 		'tag': tag,
-		'label': label,
+		'name': name,
 		'cmt': comment,
 		'sym': symbol
 	}
 	SQL = """
 		INSERT INTO dem.gender_label (tag, label, comment, symbol) VALUES (
 			gm.nullify_empty_string(%(tag)s),
-			gm.nullify_empty_string(%(label)s),
+			gm.nullify_empty_string(%(name)s),
 			gm.nullify_empty_string(%(cmt)s),
-			gm.nullify_empty_string(%(sym)s),
+			gm.nullify_empty_string(%(sym)s)
 		)
 		RETURNING pk
 	"""
-	rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
-	return cGenderLabel(aPK_obj = rows[0]['pk'])
+	rows = gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}], return_data = True)
+	invalidate_genders_cache()
+	return cGenderDef(aPK_obj = rows[0]['pk'])
 
 #------------------------------------------------------------
-def delete_gender_label(pk_gender_label=None):
+def delete_gender_def(pk_gender_label=None):
 	args = {'pk': pk_gender_label}
-	cmd = u"DELETE FROM dem.gender_label WHERE pk = %(pk)s"
+	cmd = "DELETE FROM dem.gender_label WHERE pk = %(pk)s"
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	invalidate_genders_cache()
 	return True
-
-#------------------------------------------------------------
-# widget code
-#------------------------------------------------------------
-#def edit_gender_label(parent=None, xxx=None, single_entry=False, presets=None):
-#	pass
-
-#i18n.upd_tx gmPG2.update_translation_in_database(language=None, original=None, translation=None, link_obj=None)
-
-#------------------------------------------------------------
-#def delete_gender_label():
-#	pass
-
-#------------------------------------------------------------
-#def manage_gender_labels():
-#	pass
-
-#------------------------------------------------------------
-# remember to add in clinical item generic workflows and generic clinical item formatting
 
 #------------------------------------------------------------
 #------------------------------------------------------------
@@ -170,7 +170,7 @@ map_gender2vcard = {
 #------------------------------------------------------------
 def map_gender2tag(gender:str=None) -> str:
 	for gdef in get_genders():
-		if gender in [gdef['tag'], gdef['l10n_tag'], gdef['label'], gdef['l10n_label'], gdef['symbol'], gdef['l10n_symbol']]:
+		if gender in [gdef['tag'], gdef['l10n_tag'], gdef['name'], gdef['l10n_name'], gdef['symbol'], gdef['l10n_symbol']]:
 			return gdef['tag']
 
 	return None
@@ -178,6 +178,7 @@ def map_gender2tag(gender:str=None) -> str:
 #------------------------------------------------------------
 def map_gender2string(gender:str=None) -> str:
 	"""Maps GNUmed related i18n-aware gender specifiers to a human-readable string."""
+	genders = get_genders()
 	global __MAP__gender2string
 	if not __MAP__gender2string:
 		__MAP__gender2string = {
@@ -188,10 +189,10 @@ def map_gender2string(gender:str=None) -> str:
 			'h': '',
 			None: _('unknown gender')
 		}
-		for g in get_genders():
-			if g['l10n_label']:
-				__MAP__gender2string[g['l10n_tag']] = g['l10n_label']
-				__MAP__gender2string[g['tag']] = g['l10n_label']
+		for g in genders:
+			if g['l10n_name']:
+				__MAP__gender2string[g['l10n_tag']] = g['l10n_name']
+				__MAP__gender2string[g['tag']] = g['l10n_name']
 		_log.debug('gender -> string mapping: %s' % __MAP__gender2string)
 	try:
 		return __MAP__gender2string[gender]
@@ -202,6 +203,7 @@ def map_gender2string(gender:str=None) -> str:
 #------------------------------------------------------------
 def map_gender2symbol(gender:str=None) -> str:
 	"""Maps GNUmed related i18n-aware gender specifiers to a unicode symbol."""
+	genders = get_genders()
 	global __MAP__gender2symbol
 	if not __MAP__gender2symbol:
 		# built-in defaults
@@ -217,7 +219,7 @@ def map_gender2symbol(gender:str=None) -> str:
 			None: '?\u26A5?'
 		}
 		# update from database, possibly adding more genders
-		for g in get_genders():
+		for g in genders:
 			if g['l10n_symbol']:
 				__MAP__gender2symbol[g['l10n_tag']] = g['l10n_symbol']
 				__MAP__gender2symbol[g['tag']] = g['l10n_symbol']
@@ -231,7 +233,6 @@ def map_gender2symbol(gender:str=None) -> str:
 #------------------------------------------------------------
 def map_gender2salutation(gender=None):
 	"""Maps GNUmed related i18n-aware gender specifiers to a human-readable salutation."""
-
 	global __MAP__gender2salutation
 	if not __MAP__gender2salutation:
 		__MAP__gender2salutation = {
@@ -242,10 +243,6 @@ def map_gender2salutation(gender=None):
 			'h': '',
 			None: ''
 		}
-	#	for g in get_genders():
-	#		__MAP__gender2salutation[g['l10n_tag']] = __MAP__gender2salutation[g['tag']]
-	#		__MAP__gender2salutation[g['label']] = __MAP__gender2salutation[g['tag']]
-	#		__MAP__gender2salutation[g['l10n_label']] = __MAP__gender2salutation[g['tag']]
 		_log.debug('gender -> salutation mapping: %s' % __MAP__gender2salutation)
 	try:
 		return __MAP__gender2salutation[gender]
@@ -270,6 +267,11 @@ def map_firstnames2gender(firstnames=None):
 
 	return rows[0][0]
 
+#------------------------------------------------------------
+def invalidate_genders_cache():
+	global __LIST__gender_defs
+	__LIST__gender_defs = None
+
 #============================================================
 # main/testing
 #============================================================
@@ -286,18 +288,18 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_gender_list():
 		genders = get_genders()
-		print("\n\nRetrieving gender enum (tag, label, symbol):")
+		print("\n\nRetrieving gender enum (tag, name, symbol):")
 		for gender in genders:
-			print("%s, %s, %s, %s" % (gender['tag'], gender['l10n_label'], gender['l10n_symbol'], map_gender2symbol(gender['tag'])))
+			print("%s, %s, %s, %s" % (gender['tag'], gender['l10n_name'], gender['l10n_symbol'], map_gender2symbol(gender['tag'])))
 
 	#--------------------------------------------------------
-	def test_get_gender_labels():
+	def test_get_gender_defs():
 		for l in get_genders(as_instance = True):
-			print(l.format())
+			print(l.format(), ':', l.is_in_use)
 
 	#--------------------------------------------------------
 
 	gmPG2.request_login_params(setup_pool = True, force_tui = True)
 	#map_gender2salutation('m')
-	test_get_gender_labels()
+	test_get_gender_defs()
 	#test_gender_list()

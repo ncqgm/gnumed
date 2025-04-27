@@ -21,22 +21,26 @@ comment on column dem.gender_label.symbol is
 
 -- --------------------------------------------------------------
 drop view if exists dem.v_gender_labels cascade;
+drop view if exists dem.v_gender_defs cascade;
 
-create view dem.v_gender_labels as
+create view dem.v_gender_defs as
 select
 	d_gl.tag,
 	_(d_gl.tag)
 		as l10n_tag,
-	d_gl.label,
+	d_gl.label
+		as name,
 	_(d_gl.label)
-		as l10n_label,
+		as l10n_name,
 	d_gl.comment,
 	d_gl.symbol
 		as symbol,
 	_(d_gl.symbol)
 		as l10n_symbol,
 	d_gl.pk
-		as pk_gender_label
+		as pk_gender_label,
+	d_gl.xmin
+		as xmin_gender_label
 from
 	dem.gender_label d_gl
 ;

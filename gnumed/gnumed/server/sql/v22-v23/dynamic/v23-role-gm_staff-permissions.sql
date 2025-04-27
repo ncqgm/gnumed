@@ -70,7 +70,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE dem.org_category TO "gm-staff";
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE dem.org_unit TO "gm-staff";
 
-GRANT SELECT ON TABLE dem.v_gender_labels TO "gm-public";
+GRANT SELECT ON TABLE dem.v_gender_defs TO "gm-public";
 
 GRANT SELECT ON TABLE dem.v_message_inbox TO "gm-staff";
 
