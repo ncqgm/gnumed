@@ -7,12 +7,7 @@ __license__ = "GPL"
 
 # std lib
 import sys
-import time
-import datetime as pyDT
-import threading
 import logging
-import inspect
-from xml.etree import ElementTree as etree
 
 # GNUmed
 if __name__ == '__main__':
@@ -24,10 +19,7 @@ if __name__ == '__main__':
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 from Gnumed.pycommon import gmBusinessDBObject
-from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmPG2
-
-from Gnumed.business.gmXdtMappings import map_gender_gm2xdt
 
 
 _log = logging.getLogger('gm.person')
@@ -141,8 +133,8 @@ def create_gender_def(tag:str=None, name:str=None, comment:str=None, symbol:str=
 #------------------------------------------------------------
 def delete_gender_def(pk_gender_label=None):
 	args = {'pk': pk_gender_label}
-	cmd = "DELETE FROM dem.gender_label WHERE pk = %(pk)s"
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	SQL = 'DELETE FROM dem.gender_label WHERE pk = %(pk)s'
+	gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}])
 	invalidate_genders_cache()
 	return True
 
@@ -257,12 +249,10 @@ def map_firstnames2gender(firstnames=None):
 	if firstnames is None:
 		return None
 
-	rows = gmPG2.run_ro_queries(queries = [{
-		'cmd': "SELECT gender FROM dem.name_gender_map WHERE name ILIKE %(fn)s LIMIT 1",
-		'args': {'fn': firstnames}
-	}])
-
-	if len(rows) == 0:
+	SQL = 'SELECT gender FROM dem.name_gender_map WHERE name ILIKE %(fn)s LIMIT 1'
+	args = {'fn': firstnames}
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+	if not rows:
 		return None
 
 	return rows[0][0]
