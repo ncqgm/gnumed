@@ -2,5 +2,5 @@
 
 POFILES=$@
 for POFILE in ${POFILES} ; do
-	msgfmt -v -c --statistics ${POFILE}
+	msgfmt --verbose --check --check-accelerators --statistics ${POFILE}
 done
