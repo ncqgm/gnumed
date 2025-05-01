@@ -162,8 +162,8 @@ def manage_vaccines(parent=None):
 				_('generic: %s') % '/'.join([ ind['l10n_indication'] for ind in v['indications'] ])
 			),
 			'%s - %s' % (
-				gmDateTime.format_interval(interval = v['min_age'], accuracy_wanted = gmDateTime.acc_months, none_string = ''),
-				gmDateTime.format_interval(interval = v['max_age'], accuracy_wanted = gmDateTime.acc_months, none_string = '')
+				gmDateTime.format_interval(interval = v['min_age'], accuracy_wanted = gmDateTime.ACC_MONTHS, none_string = ''),
+				gmDateTime.format_interval(interval = v['max_age'], accuracy_wanted = gmDateTime.ACC_MONTHS, none_string = '')
 			),
 			gmTools.coalesce(v['comment'], ''),
 			'%s%s' % (
@@ -514,14 +514,14 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 			self._PRW_age_min.SetText(value = '', data = None, suppress_smarts = True)
 		else:
 			self._PRW_age_min.SetText (
-				value = gmDateTime.format_interval(self.data['min_age'], gmDateTime.acc_years),
+				value = gmDateTime.format_interval(self.data['min_age'], gmDateTime.ACC_YEARS),
 				data = self.data['min_age']
 			)
 		if self.data['max_age'] is None:
 			self._PRW_age_max.SetText(value = '', data = None, suppress_smarts = True)
 		else:
 			self._PRW_age_max.SetText (
-				value = gmDateTime.format_interval(self.data['max_age'], gmDateTime.acc_years),
+				value = gmDateTime.format_interval(self.data['max_age'], gmDateTime.ACC_YEARS),
 				data = self.data['max_age']
 			)
 		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], ''))

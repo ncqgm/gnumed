@@ -2866,7 +2866,7 @@ def export_results_for_gnuplot(results=None, filename=None, show_year=True, pati
 		prev_date = None
 		prev_year = None
 		for result in sorted(results_grouped_by_test_type[test_type], key=lambda result:result['clin_when']):
-			curr_date = gmDateTime.pydt_strftime(result['clin_when'], '%Y-%m-%d', 'utf8', gmDateTime.acc_days)
+			curr_date = gmDateTime.pydt_strftime(result['clin_when'], '%Y-%m-%d', 'utf8', gmDateTime.ACC_DAYS)
 			if curr_date == prev_date:
 				gplot_data.write('# %s\n\n' % _('blank line inserted to allow for discontinued-line style drawing of same-day values:'))
 			if show_year:
@@ -2883,7 +2883,7 @@ def export_results_for_gnuplot(results=None, filename=None, show_year=True, pati
 			if val is None:
 				continue		# skip distinctly non-numericable values
 			gplot_data.write ('%s %s "%s" %s %s %s %s %s %s "%s"\n' % (
-				gmDateTime.pydt_strftime(result['clin_when'], '%Y-%m-%d_%H:%M', 'utf8', gmDateTime.acc_minutes),
+				gmDateTime.pydt_strftime(result['clin_when'], '%Y-%m-%d_%H:%M', 'utf8', gmDateTime.ACC_MINUTES),
 				val,
 				gmTools.coalesce(result['val_unit'], '"<?>"'),
 				gmTools.coalesce(result['unified_target_min'], '"<?>"'),
@@ -2895,7 +2895,7 @@ def export_results_for_gnuplot(results=None, filename=None, show_year=True, pati
 				gmDateTime.pydt_strftime (
 					result['clin_when'],
 					format = when_template,
-					accuracy = gmDateTime.acc_minutes
+					accuracy = gmDateTime.ACC_MINUTES
 				)
 			))
 			prev_date = curr_date

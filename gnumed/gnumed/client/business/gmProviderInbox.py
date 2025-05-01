@@ -70,7 +70,7 @@ class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 			gmDateTime.pydt_strftime (
 				self._payload['received_when'],
 				format = '%A, %Y %b %d, %H:%M',
-				accuracy = gmDateTime.acc_minutes
+				accuracy = gmDateTime.ACC_MINUTES
 			),
 			gmTools.bool2subst(self._payload['is_virtual'], _('virtual message'), _('message')),
 			gmTools.coalesce(self._payload['pk_inbox_message'], '', ' #%s ')

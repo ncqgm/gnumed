@@ -269,7 +269,7 @@ class cBillItem(gmBusinessDBObject.cBusinessDBObject):
 		txt += _(' Charge date: %s') % gmDateTime.pydt_strftime (
 			self._payload['date_to_bill'],
 			'%Y %b %d',
-			accuracy = gmDateTime.acc_days
+			accuracy = gmDateTime.ACC_DAYS
 		)
 		bill = self.bill
 		if bill is not None:
@@ -392,7 +392,7 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 			txt += _(' Closed: %s\n') % gmDateTime.pydt_strftime (
 				self._payload['close_date'],
 				'%Y %b %d',
-				accuracy = gmDateTime.acc_days
+				accuracy = gmDateTime.ACC_DAYS
 			)
 
 		if self._payload['comment'] is not None:

@@ -63,7 +63,7 @@ def manage_family_history(parent=None):
 			gmTools.coalesce(f['age_noted'], ''),
 			gmDateTime.format_interval (
 				interval = f['age_of_death'],
-				accuracy_wanted = gmDateTime.acc_years,
+				accuracy_wanted = gmDateTime.ACC_YEARS,
 				none_string = ''
 			),
 			gmTools.coalesce(f['name_relative'], ''),

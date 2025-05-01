@@ -2442,7 +2442,7 @@ limit 1
 				when = gmDateTime.pydt_strftime (
 					soap_entry['date'],
 					format = '%Y-%m-%d %H:%M',
-					accuracy = gmDateTime.acc_minutes
+					accuracy = gmDateTime.ACC_MINUTES
 				)
 				txt = '%s%s %.8s, %s %s' % (
 					' ' * 40,
@@ -2484,21 +2484,21 @@ limit 1
 				gmDateTime.pydt_strftime (
 					self._payload['started'],
 					date_format,
-					accuracy = gmDateTime.acc_days
+					accuracy = gmDateTime.ACC_DAYS
 				)
 			),
 			gmTools.tex_escape_string (
 				gmDateTime.pydt_strftime (
 					self._payload['started'],
 					'%H:%M',
-					accuracy = gmDateTime.acc_minutes
+					accuracy = gmDateTime.ACC_MINUTES
 				)
 			),
 			gmTools.tex_escape_string (
 				gmDateTime.pydt_strftime (
 					self._payload['last_affirmed'],
 					'%H:%M',
-					accuracy = gmDateTime.acc_minutes
+					accuracy = gmDateTime.ACC_MINUTES
 				)
 			)
 		)

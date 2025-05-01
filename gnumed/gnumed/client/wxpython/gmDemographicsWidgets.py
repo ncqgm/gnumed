@@ -1268,38 +1268,22 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 		pass
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
-
 		self._LBL_info.SetLabel('ID: #%s' % (
 			self.data.ID
 			# FIXME: add 'deleted' status
 		))
-		if self.data['dob'] is None:
-			val = ''
-		else:
-			val = gmDateTime.pydt_strftime (
-				self.data['dob'],
-				format = '%Y-%m-%d',
-				accuracy = gmDateTime.acc_minutes
-			)
+		val = self.data['dob'].strftime('%Y-%m-%d') if self.data['dob'] else ''
 		self._PRW_dob.SetText(value = val, data = self.data['dob'])
 		self._CHBOX_estimated_dob.SetValue(self.data['dob_is_estimated'])
-		if self.data['tob'] is None:
-			self._TCTRL_tob.SetValue('')
-		else:
-			self._TCTRL_tob.SetValue(self.data['tob'].strftime('%H:%M'))
-		if self.data['deceased'] is None:
-			val = ''
-		else:
-			val = gmDateTime.pydt_strftime (
-				self.data['deceased'],
-				format = '%Y-%m-%d %H:%M',
-				accuracy = gmDateTime.acc_minutes
-			)
+		val = self.data['tob'].strftime('%H:%M') if self.data['tob'] else ''
+		self._TCTRL_tob.SetValue(val)
+		val = self.data['deceased'].strftime('%Y-%m-%d %H:%M') if self.data['deceased'] else ''
 		self._PRW_dod.SetText(value = val, data = self.data['deceased'])
 		self._PRW_gender.SetData(self.data['gender'])
 		#self._PRW_ethnicity.SetValue()
 		self._PRW_title.SetText(gmTools.coalesce(self.data['title'], ''))
 		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], ''))
+
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		pass

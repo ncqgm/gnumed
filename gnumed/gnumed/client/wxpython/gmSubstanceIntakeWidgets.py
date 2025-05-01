@@ -206,7 +206,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		self._PRW_substance.selection_only = False
 		self._PRW_substance.add_callback_on_lose_focus(callback = self._on_leave_substance)
 		self._PRW_substance.add_callback_on_selection(callback = self._on_substance_selected)
-		#self._PRW_duration.display_accuracy = gmDateTime.acc_days
+		#self._PRW_duration.display_accuracy = gmDateTime.ACC_DAYS
 		self._DPRW_discontinued.add_callback_on_selection(callback = self._on_discontinued_date_changed)
 		self._LCTRL_regimen.set_resize_column()
 		#self._LCTRL_regimen.set_column_widths([wx.LIST_AUTOSIZE])

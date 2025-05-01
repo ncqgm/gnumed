@@ -64,14 +64,14 @@ current_local_timezone_name = None
 
 gmCurrentLocalTimezone = None
 
-(	acc_years,
-	acc_months,
-	acc_weeks,
-	acc_days,
-	acc_hours,
-	acc_minutes,
-	acc_seconds,
-	acc_subseconds
+(	ACC_YEARS,
+	ACC_MONTHS,
+	ACC_WEEKS,
+	ACC_DAYS,
+	ACC_HOURS,
+	ACC_MINUTES,
+	ACC_SECONDS,
+	ACC_SUBSECONDS
 ) = range(1,9)
 
 _accuracy_strings = {
@@ -100,10 +100,10 @@ gregorian_month_length = {
 	12: 31
 }
 
-avg_days_per_gregorian_year = 365
-avg_days_per_gregorian_month = 30
-avg_seconds_per_day = 24 * 60 * 60
-days_per_week = 7
+AVG_DAYS_PER_GREGORIAN_YEAR = 365
+AVG_DAYS_PER_GREGORIAN_MONTH = 30
+AVG_SECONDS_PER_DAY = 24 * 60 * 60
+DAYS_PER_WEEK = 7
 
 #===========================================================================
 # module init
@@ -294,7 +294,7 @@ def format_dob(dob:pyDT.datetime, format='%Y %b %d', none_string=None, dob_is_es
 			return _('** DOB unknown **')
 		return none_string
 
-	dob_txt = pydt_strftime(dob, format = format, accuracy = acc_days)
+	dob_txt = pydt_strftime(dob, format = format, accuracy = ACC_DAYS)
 	if dob_is_estimated:
 		return '%s%s' % ('\u2248', dob_txt)
 
@@ -460,62 +460,85 @@ def wxDate2py_dt(wxDate=None):
 #===========================================================================
 # interval related
 #---------------------------------------------------------------------------
-def format_interval(interval=None, accuracy_wanted=None, none_string=None, verbose=False):
+def __get_time_part_tags (
+	verbose:bool=False,
+	years:int=None,
+	months:int=None,
+	weeks:int=None,
+	days:int=None,
+	hours:int=None,
+	minutes:int=None,
+	seconds:int=None
+) -> dict[str,str]:
+	if verbose:
+		return {
+			'years': ' ' + (_('year') if years == 1 else _('years')),
+			'months': ' ' + (_('month') if months == 1 else _('months')),
+			'weeks': ' ' + (_('week') if weeks == 1 else _('weeks')),
+			'days': ' ' + (_('day') if days == 1 else _('days')),
+			'hours': ' ' + (_('hour') if hours == 1 else _('hours')),
+			'minutes': ' ' + (_('minute') if mins == 1 else _('minutes')),
+			'seconds': ' ' + (_('second') if secs == 1 else _('seconds'))
+		}
+
+	return {
+		'years': _('interval_format_tag::years::y')[-1],
+		'months': _('interval_format_tag::months::m')[-1],
+		'weeks': _('interval_format_tag::weeks::w')[-1],
+		'days': _('interval_format_tag::days::d')[-1],
+		'hours': '/24',
+		'minutes': '/60',
+		'seconds': _('interval_format_tag::seconds::s')[-1]
+	}
+
+#---------------------------------------------------------------------------
+def format_interval(interval=None, accuracy_wanted:int=None, none_string:str=None, verbose:bool=False) -> str:
+	"""Formats an interval.
+	"""
+	if interval is None:
+		return none_string
 
 	if accuracy_wanted is None:
-		accuracy_wanted = acc_seconds
-
-	if interval is None:
-		if none_string is not None:
-			return none_string
-
-	years, days = divmod(interval.days, avg_days_per_gregorian_year)
-	months, days = divmod(days, avg_days_per_gregorian_month)
-	weeks, days = divmod(days, days_per_week)
-	days, secs = divmod((days * avg_seconds_per_day) + interval.seconds, avg_seconds_per_day)
+		accuracy_wanted = ACC_SECONDS
+	years, days = divmod(interval.days, AVG_DAYS_PER_GREGORIAN_YEAR)
+	months, days = divmod(days, AVG_DAYS_PER_GREGORIAN_MONTH)
+	weeks, days = divmod(days, DAYS_PER_WEEK)
+	days, secs = divmod((days * AVG_SECONDS_PER_DAY) + interval.seconds, AVG_SECONDS_PER_DAY)
 	hours, secs = divmod(secs, 3600)
 	mins, secs = divmod(secs, 60)
-
-	if verbose:
-		years_tag = ' ' + (_('year') if years == 1 else _('years'))
-		months_tag = ' ' + (_('month') if months == 1 else _('months'))
-		weeks_tag = ' ' + (_('week') if weeks == 1 else _('weeks'))
-		days_tag = ' ' + (_('day') if days == 1 else _('days'))
-		hours_tag = ' ' + (_('hour') if hours == 1 else _('hours'))
-		minutes_tag = ' ' + (_('minute') if mins == 1 else _('minutes'))
-		seconds_tag = ' ' + (_('second') if secs == 1 else _('seconds'))
-	else:
-		years_tag = _('interval_format_tag::years::y')[-1:]
-		months_tag = _('interval_format_tag::months::m')[-1:]
-		weeks_tag = _('interval_format_tag::weeks::w')[-1:]
-		days_tag = _('interval_format_tag::days::d')[-1:]
-		hours_tag = '/24'
-		minutes_tag = '/60'
-		seconds_tag = 's'
-
+	tags = __get_time_part_tags (
+		verbose = verbose,
+		years = years,
+		months = months,
+		weeks = weeks,
+		days = days,
+		hours = hours,
+		minutes = mins,
+		seconds = seconds
+	)
 	# special cases
 	if years == 0:
-		if accuracy_wanted < acc_months:
-			return _('0 years') if verbose else '0%s' % years_tag
+		if accuracy_wanted < ACC_MONTHS:
+			return _('0 years') if verbose else '0%s' % tags['years']
 
 	if years + months == 0:
-		if accuracy_wanted < acc_weeks:
-			return _('0 months') if verbose else '0%s' % months_tag
+		if accuracy_wanted < ACC_WEEKS:
+			return _('0 months') if verbose else '0%s' % tags['months']
 
 	if years + months + weeks == 0:
-		if accuracy_wanted < acc_days:
-			return _('0 weeks') if verbose else '0%s' % weeks_tag
+		if accuracy_wanted < ACC_DAYS:
+			return _('0 weeks') if verbose else '0%s' % tags['weeks']
 
 	if years + months + weeks + days == 0:
-		if accuracy_wanted < acc_hours:
-			return _('0 days') if verbose else '0%s' % days_tag
+		if accuracy_wanted < ACC_HOURS:
+			return _('0 days') if verbose else '0%s' % tags['days']
 
 	if years + months + weeks + days + hours == 0:
-		if accuracy_wanted < acc_minutes:
+		if accuracy_wanted < ACC_MINUTES:
 			return _('0 hours') if verbose else '0/24'
 
 	if years + months + weeks + days + hours + mins == 0:
-		if accuracy_wanted < acc_seconds:
+		if accuracy_wanted < ACC_SECONDS:
 			return _('0 minutes') if verbose else '0/60'
 
 	if years + months + weeks + days + hours + mins + secs == 0:
@@ -524,37 +547,37 @@ def format_interval(interval=None, accuracy_wanted=None, none_string=None, verbo
 	# normal cases
 	formatted_intv = ''
 	if years > 0:
-		formatted_intv += '%s%s' % (int(years), years_tag)
-	if accuracy_wanted < acc_months:
+		formatted_intv += '%s%s' % (int(years), tags['years'])
+	if accuracy_wanted < ACC_MONTHS:
 		return formatted_intv.strip()
 
 	if months > 0:
-		formatted_intv += ' %s%s' % (int(months), months_tag)
-	if accuracy_wanted < acc_weeks:
+		formatted_intv += ' %s%s' % (int(months), tags['months'])
+	if accuracy_wanted < ACC_WEEKS:
 		return formatted_intv.strip()
 
 	if weeks > 0:
-		formatted_intv += ' %s%s' % (int(weeks), weeks_tag)
-	if accuracy_wanted < acc_days:
+		formatted_intv += ' %s%s' % (int(weeks), tags['weeks'])
+	if accuracy_wanted < ACC_DAYS:
 		return formatted_intv.strip()
 
 	if days > 0:
-		formatted_intv += ' %s%s' % (int(days), days_tag)
-	if accuracy_wanted < acc_hours:
+		formatted_intv += ' %s%s' % (int(days), tags['days'])
+	if accuracy_wanted < ACC_HOURS:
 		return formatted_intv.strip()
 
 	if hours > 0:
-		formatted_intv += ' %s%s' % (int(hours), hours_tag)
-	if accuracy_wanted < acc_minutes:
+		formatted_intv += ' %s%s' % (int(hours), tags['hours'])
+	if accuracy_wanted < ACC_MINUTES:
 		return formatted_intv.strip()
 
 	if mins > 0:
-		formatted_intv += ' %s%s' % (int(mins), minutes_tag)
-	if accuracy_wanted < acc_seconds:
+		formatted_intv += ' %s%s' % (int(mins), tags['minutes'])
+	if accuracy_wanted < ACC_SECONDS:
 		return formatted_intv.strip()
 
 	if secs > 0:
-		formatted_intv += ' %s%s' % (int(secs), seconds_tag)
+		formatted_intv += ' %s%s' % (int(secs), tags['seconds'])
 	return formatted_intv.strip()
 
 #---------------------------------------------------------------------------
@@ -585,7 +608,7 @@ def format_interval_medically(interval:pyDT.timedelta=None, terse:bool=False, ap
 	prefix = approximation_prefix if approximation_prefix else ''
 	# more than 1 year ?
 	if interval.days > 364:
-		years, days = divmod(interval.days, avg_days_per_gregorian_year)
+		years, days = divmod(interval.days, AVG_DAYS_PER_GREGORIAN_YEAR)
 		months, day = divmod(days, 30.33)
 		if int(months) == 0:
 			return '%s%s%s%s' % (
@@ -945,7 +968,7 @@ def str2interval(str_interval=None):
 	# "(~)35(yY)"	- at age 35 years
 	keys = '|'.join(list(unit_keys['year'].replace('_keys_year', '')))
 	if regex.match(r'^~*(\s|\t)*\d+(%s)*$' % keys, str_interval, flags = regex.UNICODE):
-		return pyDT.timedelta(days = (int(regex.findall(r'\d+', str_interval, flags = regex.UNICODE)[0]) * avg_days_per_gregorian_year))
+		return pyDT.timedelta(days = (int(regex.findall(r'\d+', str_interval, flags = regex.UNICODE)[0]) * AVG_DAYS_PER_GREGORIAN_YEAR))
 
 	# "(~)12mM" - at age 12 months
 	keys = '|'.join(list(unit_keys['month'].replace('_keys_month', '')))
@@ -954,7 +977,7 @@ def str2interval(str_interval=None):
 			int(regex.findall(r'\d+', str_interval, flags = regex.UNICODE)[0]),
 			12
 		)
-		return pyDT.timedelta(days = ((years * avg_days_per_gregorian_year) + (months * avg_days_per_gregorian_month)))
+		return pyDT.timedelta(days = ((years * AVG_DAYS_PER_GREGORIAN_YEAR) + (months * AVG_DAYS_PER_GREGORIAN_MONTH)))
 
 	# weeks
 	keys = '|'.join(list(unit_keys['week'].replace('_keys_week', '')))
@@ -977,7 +1000,7 @@ def str2interval(str_interval=None):
 			int(regex.findall(r'\d+', str_interval, flags = regex.UNICODE)[0]),
 			12
 		)
-		return pyDT.timedelta(days = ((years * avg_days_per_gregorian_year) + (months * avg_days_per_gregorian_month)))
+		return pyDT.timedelta(days = ((years * AVG_DAYS_PER_GREGORIAN_YEAR) + (months * AVG_DAYS_PER_GREGORIAN_MONTH)))
 
 	# x/52 - weeks
 	if regex.match(r'^~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*52$', str_interval, flags = regex.UNICODE):
@@ -1002,7 +1025,7 @@ def str2interval(str_interval=None):
 		parts = regex.findall(r'\d+', str_interval, flags = regex.UNICODE)
 		years, months = divmod(int(parts[1]), 12)
 		years += int(parts[0])
-		return pyDT.timedelta(days = ((years * avg_days_per_gregorian_year) + (months * avg_days_per_gregorian_month)))
+		return pyDT.timedelta(days = ((years * AVG_DAYS_PER_GREGORIAN_YEAR) + (months * AVG_DAYS_PER_GREGORIAN_MONTH)))
 
 	# nMnW - months, weeks
 	keys_month = '|'.join(list(unit_keys['month'].replace('_keys_month', '')))
@@ -1011,7 +1034,7 @@ def str2interval(str_interval=None):
 		parts = regex.findall(r'\d+', str_interval, flags = regex.UNICODE)
 		months, weeks = divmod(int(parts[1]), 4)
 		months += int(parts[0])
-		return pyDT.timedelta(days = ((months * avg_days_per_gregorian_month) + (weeks * days_per_week)))
+		return pyDT.timedelta(days = ((months * AVG_DAYS_PER_GREGORIAN_MONTH) + (weeks * DAYS_PER_WEEK)))
 
 	return None
 
@@ -1548,7 +1571,7 @@ def str2pydt_matches(str2parse:str=None, patterns:list=None) -> list:
 	hour = 11
 	minute = 11
 	second = 11
-	acc = acc_days
+	acc = ACC_DAYS
 	lbl_fmt = '%Y-%m-%d'
 	if len(parts) > 1:
 		for pattern in ['%H:%M', '%H:%M:%S']:
@@ -1557,7 +1580,7 @@ def str2pydt_matches(str2parse:str=None, patterns:list=None) -> list:
 				hour = date.hour
 				minute = date.minute
 				second = date.second
-				acc = acc_minutes
+				acc = ACC_MINUTES
 				lbl_fmt = '%Y-%m-%d %H:%M'
 				break
 			except ValueError:
@@ -1611,7 +1634,7 @@ def __single_slash(str2parse):
 		if month in range(1, 13):
 			fts = cFuzzyTimestamp (
 				timestamp = now.replace(year = int(parts[1], month = month)),
-				accuracy = acc_months
+				accuracy = ACC_MONTHS
 			)
 			matches.append ({
 				'data': fts,
@@ -1641,17 +1664,17 @@ def __single_slash(str2parse):
 
 		if val < 13 and val > 0:
 			matches.append ({
-				'data': cFuzzyTimestamp(timestamp = now, accuracy = acc_months),
+				'data': cFuzzyTimestamp(timestamp = now, accuracy = ACC_MONTHS),
 				'label': '%.2d/%s' % (val, now.year)
 			})
 			ts = now.replace(year = now.year + 1)
 			matches.append ({
-				'data': cFuzzyTimestamp(timestamp = ts, accuracy = acc_months),
+				'data': cFuzzyTimestamp(timestamp = ts, accuracy = ACC_MONTHS),
 				'label': '%.2d/%s' % (val, ts.year)
 			})
 			ts = now.replace(year = now.year - 1)
 			matches.append ({
-				'data': cFuzzyTimestamp(timestamp = ts, accuracy = acc_months),
+				'data': cFuzzyTimestamp(timestamp = ts, accuracy = ACC_MONTHS),
 				'label': '%.2d/%s' % (val, ts.year)
 			})
 			matches.append ({
@@ -1700,7 +1723,7 @@ def __numbers_only(str2parse):
 	if (1850 < val) and (val < 2100):
 		target_date = cFuzzyTimestamp (
 			timestamp = now.replace(year = val),
-			accuracy = acc_years
+			accuracy = ACC_YEARS
 		)
 		tmp = {
 			'data': target_date,
@@ -1713,7 +1736,7 @@ def __numbers_only(str2parse):
 		ts = now.replace(day = val)
 		target_date = cFuzzyTimestamp (
 			timestamp = ts,
-			accuracy = acc_days
+			accuracy = ACC_DAYS
 		)
 		tmp = {
 			'data': target_date,
@@ -1727,7 +1750,7 @@ def __numbers_only(str2parse):
 		ts = now.replace(day = val, month = next_month)
 		target_date = cFuzzyTimestamp (
 			timestamp = ts,
-			accuracy = acc_days
+			accuracy = ACC_DAYS
 		)
 		tmp = {
 			'data': target_date,
@@ -1741,7 +1764,7 @@ def __numbers_only(str2parse):
 		ts = now.replace(day = val, month = last_month)
 		target_date = cFuzzyTimestamp (
 			timestamp = ts,
-			accuracy = acc_days
+			accuracy = ACC_DAYS
 		)
 		tmp = {
 			'data': target_date,
@@ -1772,7 +1795,7 @@ def __numbers_only(str2parse):
 		# ... this year
 		target_date = cFuzzyTimestamp (
 			timestamp = pydt_replace(now, month = val, strict = False),
-			accuracy = acc_months
+			accuracy = ACC_MONTHS
 		)
 		tmp = {
 			'data': target_date,
@@ -1783,7 +1806,7 @@ def __numbers_only(str2parse):
 		# ... next year
 		target_date = cFuzzyTimestamp (
 			timestamp = pydt_add(pydt_replace(now, month = val, strict = False), years = 1),
-			accuracy = acc_months
+			accuracy = ACC_MONTHS
 		)
 		tmp = {
 			'data': target_date,
@@ -1794,7 +1817,7 @@ def __numbers_only(str2parse):
 		# ... last year
 		target_date = cFuzzyTimestamp (
 			timestamp = pydt_add(pydt_replace(now, month = val, strict = False), years = -1),
-			accuracy = acc_months
+			accuracy = ACC_MONTHS
 		)
 		tmp = {
 			'data': target_date,
@@ -1827,7 +1850,7 @@ def __numbers_only(str2parse):
 #		ts = now + mxDT.RelativeDateTime(weekday = (val-1, 0))
 #		target_date = cFuzzyTimestamp (
 #			timestamp = ts,
-#			accuracy = acc_days
+#			accuracy = ACC_DAYS
 #		)
 #		tmp = {
 #			'data': target_date,
@@ -1839,7 +1862,7 @@ def __numbers_only(str2parse):
 #		ts = now + mxDT.RelativeDateTime(weeks = +1, weekday = (val-1, 0))
 #		target_date = cFuzzyTimestamp (
 #			timestamp = ts,
-#			accuracy = acc_days
+#			accuracy = ACC_DAYS
 #		)
 #		tmp = {
 #			'data': target_date,
@@ -1851,7 +1874,7 @@ def __numbers_only(str2parse):
 #		ts = now + mxDT.RelativeDateTime(weeks = -1, weekday = (val-1, 0))
 #		target_date = cFuzzyTimestamp (
 #			timestamp = ts,
-#			accuracy = acc_days
+#			accuracy = ACC_DAYS
 #		)
 #		tmp = {
 #			'data': target_date,
@@ -1868,12 +1891,12 @@ def __numbers_only(str2parse):
 	# year 2k
 	if val == 200:
 		tmp = {
-			'data': cFuzzyTimestamp(timestamp = now, accuracy = acc_days),
+			'data': cFuzzyTimestamp(timestamp = now, accuracy = ACC_DAYS),
 			'label': '%s' % target_date
 		}
 		matches.append(tmp)
 		matches.append ({
-			'data': cFuzzyTimestamp(timestamp = now, accuracy = acc_months),
+			'data': cFuzzyTimestamp(timestamp = now, accuracy = ACC_MONTHS),
 			'label': '%.2d/%s' % (now.month, now.year)
 		})
 		matches.append ({
@@ -1920,17 +1943,17 @@ def str2fuzzy_timestamp_matches(str2parse=None, default_time=None, patterns=None
 	matches.extend(__single_slash(str2parse))
 
 	matches.extend ([
-		{	'data': cFuzzyTimestamp(timestamp = m['data'], accuracy = acc_days),
+		{	'data': cFuzzyTimestamp(timestamp = m['data'], accuracy = ACC_DAYS),
 			'label': m['label']
 		} for m in __single_dot2py_dt(str2parse)
 	])
 	matches.extend ([
-		{	'data': cFuzzyTimestamp(timestamp = m['data'], accuracy = acc_days),
+		{	'data': cFuzzyTimestamp(timestamp = m['data'], accuracy = ACC_DAYS),
 			'label': m['label']
 		} for m in __single_char2py_dt(str2parse)
 	])
 	matches.extend ([
-		{	'data': cFuzzyTimestamp(timestamp = m['data'], accuracy = acc_days),
+		{	'data': cFuzzyTimestamp(timestamp = m['data'], accuracy = ACC_DAYS),
 			'label': m['label']
 		} for m in __explicit_offset2py_dt(str2parse)
 	])
@@ -1957,7 +1980,7 @@ def str2fuzzy_timestamp_matches(str2parse=None, default_time=None, patterns=None
 	hour = 11
 	minute = 11
 	second = 11
-	acc = acc_days
+	acc = ACC_DAYS
 	if len(parts) > 1:
 		for pattern in ['%H:%M', '%H:%M:%S']:
 			try:
@@ -1965,7 +1988,7 @@ def str2fuzzy_timestamp_matches(str2parse=None, default_time=None, patterns=None
 				hour = date.hour
 				minute = date.minute
 				second = date.second
-				acc = acc_minutes
+				acc = ACC_MINUTES
 				break
 			except ValueError:
 				# C-level overflow
@@ -2018,11 +2041,11 @@ class cFuzzyTimestamp:
 	Unfortunately, one cannot directly derive a class from mx.DateTime.DateTime :-(
 	"""
 	#-----------------------------------------------------------------------
-	def __init__(self, timestamp=None, accuracy=acc_subseconds, modifier=''):
+	def __init__(self, timestamp=None, accuracy=ACC_SUBSECONDS, modifier=''):
 
 		if timestamp is None:
 			timestamp = pydt_now_here()
-			accuracy = acc_subseconds
+			accuracy = ACC_SUBSECONDS
 			modifier = ''
 
 		if (accuracy < 1) or (accuracy > 8):
@@ -2075,28 +2098,28 @@ class cFuzzyTimestamp:
 		if accuracy is None:
 			accuracy = self.accuracy
 
-		if accuracy == acc_years:
+		if accuracy == ACC_YEARS:
 			return str(self.timestamp.year)
 
-		if accuracy == acc_months:
+		if accuracy == ACC_MONTHS:
 			return self.timestamp.strftime('%m/%Y')	# FIXME: use 3-letter month ?
 
-		if accuracy == acc_weeks:
+		if accuracy == ACC_WEEKS:
 			return self.timestamp.strftime('%m/%Y')	# FIXME: use 3-letter month ?
 
-		if accuracy == acc_days:
+		if accuracy == ACC_DAYS:
 			return self.timestamp.strftime('%Y-%m-%d')
 
-		if accuracy == acc_hours:
+		if accuracy == ACC_HOURS:
 			return self.timestamp.strftime("%Y-%m-%d %I%p")
 
-		if accuracy == acc_minutes:
+		if accuracy == ACC_MINUTES:
 			return self.timestamp.strftime("%Y-%m-%d %H:%M")
 
-		if accuracy == acc_seconds:
+		if accuracy == ACC_SECONDS:
 			return self.timestamp.strftime("%Y-%m-%d %H:%M:%S")
 
-		if accuracy == acc_subseconds:
+		if accuracy == ACC_SUBSECONDS:
 			return self.timestamp.strftime("%Y-%m-%d %H:%M:%S.%f")
 
 		raise ValueError('%s.format_accurately(): <accuracy> (%s) must be between 1 and 7' % (
@@ -2371,16 +2394,16 @@ if __name__ == '__main__':
 		dt = pydt_now_here()
 		print (pydt_strftime(dt, '-(%Y %b %d)-'))
 		print (pydt_strftime(dt))
-		print (pydt_strftime(dt, accuracy = acc_days))
-		print (pydt_strftime(dt, accuracy = acc_minutes))
-		print (pydt_strftime(dt, accuracy = acc_seconds))
+		print (pydt_strftime(dt, accuracy = ACC_DAYS))
+		print (pydt_strftime(dt, accuracy = ACC_MINUTES))
+		print (pydt_strftime(dt, accuracy = ACC_SECONDS))
 		dt = dt.replace(year = 1899)
 		print (pydt_strftime(dt))
-		print (pydt_strftime(dt, accuracy = acc_days))
-		print (pydt_strftime(dt, accuracy = acc_minutes))
-		print (pydt_strftime(dt, accuracy = acc_seconds))
+		print (pydt_strftime(dt, accuracy = ACC_DAYS))
+		print (pydt_strftime(dt, accuracy = ACC_MINUTES))
+		print (pydt_strftime(dt, accuracy = ACC_SECONDS))
 		dt = dt.replace(year = 198)
-		print (pydt_strftime(dt, accuracy = acc_seconds))
+		print (pydt_strftime(dt, accuracy = ACC_SECONDS))
 	#-------------------------------------------------
 	def test_is_leap_year():
 		for idx in range(120):

@@ -1243,8 +1243,8 @@ def _check_birthday(patient=None):
 		'age': patient.get_medical_age(at_date = patient.birthday_this_year).strip('y'),
 		'month': patient.get_formatted_dob(format = '%B'),
 		'day': patient.get_formatted_dob(format = '%d'),
-		'month_now': gmDateTime.pydt_strftime(now, '%B', gmDateTime.acc_months),
-		'day_now': gmDateTime.pydt_strftime(now, '%d', gmDateTime.acc_days)
+		'month_now': now.strftime('%B'),
+		'day_now': now.strftime('%d')
 	}
 	gmDispatcher.send(signal = 'statustext', msg = msg)
 

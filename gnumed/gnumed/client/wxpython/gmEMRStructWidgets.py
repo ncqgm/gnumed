@@ -1199,7 +1199,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		if pat['dob'] is not None:
 			fts = gmDateTime.cFuzzyTimestamp (
 				timestamp = pat['dob'] + issue_age,
-				accuracy = gmDateTime.acc_months
+				accuracy = gmDateTime.ACC_MONTHS
 			)
 			self._PRW_year_noted.SetText(value = str(fts), data = fts)
 

@@ -353,13 +353,13 @@ insert into blobs.reviewed_doc_objs (
 
 		if date_before_type:
 			date_type_part = '%s-%s' % (
-				gmDateTime.pydt_strftime(self._payload['date_generated'], '%Y-%m-%d', 'utf-8', gmDateTime.acc_days),
+				gmDateTime.pydt_strftime(self._payload['date_generated'], '%Y-%m-%d', 'utf-8', gmDateTime.ACC_DAYS),
 				self._payload['l10n_type'].replace(' ', '_').replace('-', '_'),
 			)
 		else:
 			date_type_part = '%s-%s' % (
 				self._payload['l10n_type'].replace(' ', '_').replace('-', '_'),
-				gmDateTime.pydt_strftime(self._payload['date_generated'], '%Y-%m-%d', 'utf-8', gmDateTime.acc_days)
+				gmDateTime.pydt_strftime(self._payload['date_generated'], '%Y-%m-%d', 'utf-8', gmDateTime.ACC_DAYS)
 			)
 
 		if name_first:
@@ -729,7 +729,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 			detail = ' (%s)' % detail
 
 		return '%s %s (%s):%s%s' % (
-			gmDateTime.pydt_strftime(self._payload['clin_when'], '%Y %b %d', accuracy = gmDateTime.acc_days),
+			gmDateTime.pydt_strftime(self._payload['clin_when'], '%Y %b %d', accuracy = gmDateTime.ACC_DAYS),
 			self._payload['l10n_type'],
 			parts,
 			gmTools.coalesce(self._payload['comment'], '', ' "%s"'),
@@ -782,7 +782,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 			self._payload['l10n_type'],
 			parts,
 			self._payload['pk_doc'],
-			gmDateTime.pydt_strftime(self._payload['clin_when'], format = '%Y %b %d', accuracy = gmDateTime.acc_days),
+			gmDateTime.pydt_strftime(self._payload['clin_when'], format = '%Y %b %d', accuracy = gmDateTime.ACC_DAYS),
 			self._payload['episode'],
 			gmTools.coalesce(self._payload['health_issue'], '', _(' Health issue: %s\n')),
 			gmTools.coalesce(self._payload['ext_ref'], '', _(' External reference: %s\n')),

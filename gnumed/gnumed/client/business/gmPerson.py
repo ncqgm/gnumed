@@ -579,16 +579,16 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 					raise TypeError('[%s]: type [%s] (%s) invalid for attribute [dob], must be datetime.datetime or None' % (self.__class__.__name__, type(value), value))
 
 				# compare DOB at seconds level
-				if self._payload['dob'] is not None:
+				if self._payload['dob']:
 					old_dob = gmDateTime.pydt_strftime (
 						self._payload['dob'],
 						format = '%Y %m %d %H %M %S',
-						accuracy = gmDateTime.acc_seconds
+						accuracy = gmDateTime.ACC_SECONDS
 					)
 					new_dob = gmDateTime.pydt_strftime (
 						value,
 						format = '%Y %m %d %H %M %S',
-						accuracy = gmDateTime.acc_seconds
+						accuracy = gmDateTime.ACC_SECONDS
 					)
 					if new_dob == old_dob:
 						return
@@ -1237,6 +1237,8 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def export_as_gdt(self, filename=None, encoding='iso-8859-15', external_id_type=None):
 
+		from Gnumed.business import gmXdtMappings
+
 		template = '%s%s%s\r\n'
 
 		if filename is None:
@@ -1258,7 +1260,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		gdt_file.write(template % ('%03d' % (9 + len(self._payload['lastnames'])), '3101', self._payload['lastnames']))
 		gdt_file.write(template % ('%03d' % (9 + len(self._payload['firstnames'])), '3102', self._payload['firstnames']))
 		gdt_file.write(template % ('%03d' % (9 + len(self._payload['dob'].strftime('%d%m%Y'))), '3103', self._payload['dob'].strftime('%d%m%Y')))
-		gdt_file.write(template % ('010', '3110', gmGender.map_gender_gm2xdt[self._payload['gender']]))
+		gdt_file.write(template % ('010', '3110', gmXdtMappings.map_gender_gm2xdt[self._payload['gender']]))
 		gdt_file.write(template % ('025', '6330', 'GNUmed::9206::encoding'))
 		gdt_file.write(template % ('%03d' % (9 + len(encoding)), '6331', encoding))
 		if external_id_type is None:
@@ -1303,7 +1305,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 		dob = etree.SubElement(pat, 'DOB')
 		dob.set('format', dob_format)
-		dob.text = gmDateTime.pydt_strftime(self._payload['dob'], dob_format, accuracy = gmDateTime.acc_days, none_str = '')
+		dob.text = gmDateTime.pydt_strftime(self._payload['dob'], dob_format, accuracy = gmDateTime.ACC_DAYS, none_str = '')
 
 		gender = etree.SubElement(pat, 'gender')
 		gender.set('comment', self.gender_string)
@@ -1394,7 +1396,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		# FIXME: dont know how to add gender_string after ';'
 		vc.gender.value = gmGender.map_gender2vcard[self._payload['gender']]#, self.gender_string
 		vc.add('bday')
-		vc.bday.value = gmDateTime.pydt_strftime(self._payload['dob'], dob_format, accuracy = gmDateTime.acc_days, none_str = '')
+		vc.bday.value = gmDateTime.pydt_strftime(self._payload['dob'], dob_format, accuracy = gmDateTime.ACC_DAYS, none_str = '')
 
 		channels = self.get_comm_channels(comm_medium = 'homephone')
 		if len(channels) > 0:

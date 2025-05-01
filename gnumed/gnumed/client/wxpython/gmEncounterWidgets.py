@@ -485,13 +485,13 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 
 		fts = gmDateTime.cFuzzyTimestamp (
 			timestamp = self.__encounter['started'],
-			accuracy = gmDateTime.acc_minutes
+			accuracy = gmDateTime.ACC_MINUTES
 		)
 		self._PRW_start.SetText(fts.format_accurately(), data=fts)
 
 		fts = gmDateTime.cFuzzyTimestamp (
 			timestamp = self.__encounter['last_affirmed'],
-			accuracy = gmDateTime.acc_minutes
+			accuracy = gmDateTime.ACC_MINUTES
 		)
 		self._PRW_end.SetText(fts.format_accurately(), data=fts)
 
@@ -623,7 +623,7 @@ class cEncounterEditAreaDlg(wxgEncounterEditAreaDlg.wxgEncounterEditAreaDlg):
 		if end is None:
 			fts = gmDateTime.cFuzzyTimestamp (
 				timestamp = start,
-				accuracy = gmDateTime.acc_minutes
+				accuracy = gmDateTime.ACC_MINUTES
 			)
 			self._PRW_encounter_end.SetText(fts.format_accurately(), data = fts)
 			return
@@ -637,7 +637,7 @@ class cEncounterEditAreaDlg(wxgEncounterEditAreaDlg.wxgEncounterEditAreaDlg):
 			)
 			fts = gmDateTime.cFuzzyTimestamp (
 				timestamp = end,
-				accuracy = gmDateTime.acc_minutes
+				accuracy = gmDateTime.ACC_MINUTES
 			)
 			self._PRW_encounter_end.SetText(fts.format_accurately(), data = fts)
 			return
@@ -651,7 +651,7 @@ class cEncounterEditAreaDlg(wxgEncounterEditAreaDlg.wxgEncounterEditAreaDlg):
 			)
 			fts = gmDateTime.cFuzzyTimestamp (
 				timestamp = end,
-				accuracy = gmDateTime.acc_minutes
+				accuracy = gmDateTime.ACC_MINUTES
 			)
 			self._PRW_encounter_end.SetText(fts.format_accurately(), data = fts)
 			return

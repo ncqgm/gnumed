@@ -131,7 +131,7 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 			gmDateTime.pydt_strftime (
 				self.problem['modified_when'],
 				format = '%B %Y',
-				accuracy = gmDateTime.acc_days
+				accuracy = gmDateTime.ACC_DAYS
 			)
 		)
 		self._LBL_summary.SetLabel(caption)

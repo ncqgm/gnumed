@@ -279,7 +279,7 @@ def browse_incoming(parent=None):
 			'%s, %s (%s) %s' % (
 				gmTools.coalesce(i['lastnames'], ''),
 				gmTools.coalesce(i['firstnames'], ''),
-				gmDateTime.pydt_strftime(dt = i['dob'], format = '%Y %b %d', accuracy = gmDateTime.acc_days, none_str = _('unknown DOB')),
+				gmDateTime.pydt_strftime(dt = i['dob'], format = '%Y %b %d', accuracy = gmDateTime.ACC_DAYS, none_str = _('unknown DOB')),
 				gmTools.coalesce(i['gender'], '')
 			),
 			gmTools.coalesce(i['external_data_id'], ''),
@@ -396,7 +396,7 @@ def manage_measurements(parent=None, single_selection=False, emr=None, measureme
 			gmDateTime.pydt_strftime (
 				r['clin_when'],
 				'%Y %b %d %H:%M',
-				accuracy = gmDateTime.acc_minutes
+				accuracy = gmDateTime.ACC_MINUTES
 			),
 			r['unified_abbrev'],
 			'%s%s%s%s' % (
@@ -849,7 +849,7 @@ class cMeasurementsAsListPnl(wxgMeasurementsAsListPnl, gmRegetMixin.cRegetOnPain
 				' ' + gmTools.u_writing_hand
 			)
 			items.append ([
-				gmDateTime.pydt_strftime(r['clin_when'], '%Y %b %d  %H:%M', accuracy = gmDateTime.acc_minutes),
+				gmDateTime.pydt_strftime(r['clin_when'], '%Y %b %d  %H:%M', accuracy = gmDateTime.ACC_MINUTES),
 				r['abbrev_tt'],
 				'%s%s%s%s' % (
 					gmTools.strip_empty_lines(text = r['unified_val'])[0],
@@ -1486,7 +1486,7 @@ class cMeasurementsAsMostRecentListPnl(wxgMeasurementsAsMostRecentListPnl, gmReg
 				)
 				result_when = _('%s ago (%s)') % (
 					gmDateTime.format_interval_medically(interval = gmDateTime.pydt_now_here() - r['clin_when']),
-					gmDateTime.pydt_strftime(r['clin_when'], '%Y %b %d  %H:%M', accuracy = gmDateTime.acc_minutes)
+					gmDateTime.pydt_strftime(r['clin_when'], '%Y %b %d  %H:%M', accuracy = gmDateTime.ACC_MINUTES)
 				)
 				range_info = gmTools.coalesce (
 					r.formatted_clinical_range,
@@ -2112,7 +2112,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 			tests = test_pks2show,
 			reverse_chronological = True
 		)]
-		col_labels = [ gmDateTime.pydt_strftime(date, self.__date_format, accuracy = gmDateTime.acc_days) for date in self.__col_label_data ]
+		col_labels = [ gmDateTime.pydt_strftime(date, self.__date_format, accuracy = gmDateTime.ACC_DAYS) for date in self.__col_label_data ]
 
 		results = emr.get_test_results_by_date (
 			tests = test_pks2show,
@@ -2137,7 +2137,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 				gmTools.bool2subst(result['is_fake_meta_type'], '', gmTools.u_sum, ''),
 				result['unified_abbrev']
 			))
-			col_idx = col_labels.index(gmDateTime.pydt_strftime(result['clin_when'], self.__date_format, accuracy = gmDateTime.acc_days))
+			col_idx = col_labels.index(gmDateTime.pydt_strftime(result['clin_when'], self.__date_format, accuracy = gmDateTime.ACC_DAYS))
 
 			try:
 				self.__cell_data[col_idx]
@@ -2880,7 +2880,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 
 		self.successful_save_msg = _('Successfully saved measurement.')
 
-		self._DPRW_evaluated.display_accuracy = gmDateTime.acc_minutes
+		self._DPRW_evaluated.display_accuracy = gmDateTime.ACC_MINUTES
 
 	#--------------------------------------------------------
 	# generic edit area mixin API

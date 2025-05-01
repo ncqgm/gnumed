@@ -151,7 +151,7 @@ where narrative %(fragment_condition)s
 		if self.__allergy is None:
 			ts = gmDateTime.cFuzzyTimestamp (
 				timestamp = pyDT.datetime.now(tz=gmDateTime.gmCurrentLocalTimezone),
-				accuracy = gmDateTime.acc_days
+				accuracy = gmDateTime.ACC_DAYS
 			)
 			self._DPRW_date_noted.SetData(data = ts)
 			self._PRW_trigger.SetText()
@@ -170,7 +170,7 @@ where narrative %(fragment_condition)s
 
 		ts = gmDateTime.cFuzzyTimestamp (
 			timestamp = self.__allergy['date'],
-			accuracy = gmDateTime.acc_days
+			accuracy = gmDateTime.ACC_DAYS
 		)
 		self._DPRW_date_noted.SetData(data=ts)
 		self._PRW_trigger.SetText(value = self.__allergy['allergene'])
