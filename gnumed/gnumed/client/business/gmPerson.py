@@ -1180,7 +1180,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			'cmd': 'delete from dem.identity where pk = %(pat2del)s',
 			'args': args
 		})
-		args['date'] = gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), '%Y %B %d  %H:%M')
+		args['date'] = gmDateTime.pydt_now_here().strftime('%Y %B %d  %H:%M')
 		script_name = gmTools.get_unique_filename(prefix = 'gm-assimilate-%(pat2del)s-into-%(pat2keep)s-' % args, suffix = '.sql')
 		_log.warning('identity [%s] is about to assimilate identity [%s], SQL script [%s]', self.ID, other_identity.ID, script_name)
 		with open(script_name, 'wt', encoding = 'utf8') as script:
@@ -1305,7 +1305,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 		dob = etree.SubElement(pat, 'DOB')
 		dob.set('format', dob_format)
-		dob.text = gmDateTime.pydt_strftime(self._payload['dob'], dob_format, accuracy = gmDateTime.ACC_DAYS, none_str = '')
+		dob.text = gmDateTime.pydt_strftime(self._payload['dob'], dob_format, none_str = '')
 
 		gender = etree.SubElement(pat, 'gender')
 		gender.set('comment', self.gender_string)
@@ -1396,7 +1396,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		# FIXME: dont know how to add gender_string after ';'
 		vc.gender.value = gmGender.map_gender2vcard[self._payload['gender']]#, self.gender_string
 		vc.add('bday')
-		vc.bday.value = gmDateTime.pydt_strftime(self._payload['dob'], dob_format, accuracy = gmDateTime.ACC_DAYS, none_str = '')
+		vc.bday.value = gmDateTime.pydt_strftime(self._payload['dob'], dob_format, none_str = '')
 
 		channels = self.get_comm_channels(comm_medium = 'homephone')
 		if len(channels) > 0:

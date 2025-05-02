@@ -4026,7 +4026,7 @@ def format_regimen_start_medically(regimen_like:cIntakeWithRegimen|cIntakeRegime
 
 		return _('today%s (%s)') % (
 			comment_mark,
-			gmDateTime.pydt_strftime(regimen_like['started'], format = '%Y %b %d', accuracy = gmDateTime.ACC_DAYS)
+			gmDateTime.pydt_strftime(regimen_like['started'], format = '%Y %b %d')
 		)
 
 	start_prefix = gmTools.u_almost_equal_to if regimen_like['comment_on_start'] else ''
@@ -4056,31 +4056,31 @@ def format_regimen_start_medically(regimen_like:cIntakeWithRegimen|cIntakeRegime
 	if started_ago < three_months:
 		if terse:
 			return '%s%s (%s-%s,%s)' % (
-				gmDateTime.pydt_strftime(regimen_like['started'], format = '%b %d', accuracy = gmDateTime.ACC_DAYS),
+				gmDateTime.pydt_strftime(regimen_like['started'], format = '%b %d'),
 				comment_mark,
 				gmTools.u_almost_equal_to,
 				gmDateTime.format_interval_medically(started_ago, terse = terse),
-				gmDateTime.pydt_strftime(regimen_like['started'], format = '%Y', accuracy = gmDateTime.ACC_DAYS)
+				gmDateTime.pydt_strftime(regimen_like['started'], format = '%Y')
 			)
 
 		return _('%s%s%s (%s%s ago, in %s)') % (
 			start_prefix,
-			gmDateTime.pydt_strftime(regimen_like['started'], format = '%b %d', accuracy = gmDateTime.ACC_DAYS),
+			gmDateTime.pydt_strftime(regimen_like['started'], format = '%b %d'),
 			gmTools.coalesce(regimen_like['comment_on_start'], '', ' [%s]'),
 			gmTools.u_almost_equal_to,
 			gmDateTime.format_interval_medically(started_ago, terse = terse),
-			gmDateTime.pydt_strftime(regimen_like['started'], format = '%Y', accuracy = gmDateTime.ACC_DAYS)
+			gmDateTime.pydt_strftime(regimen_like['started'], format = '%Y')
 		)
 
 	five_years = pydt.timedelta(weeks = 265)
 	if started_ago < five_years:
 		if terse:
 			return '%s%s (%s-%s,%s)' % (
-				gmDateTime.pydt_strftime(regimen_like['started'], format = '%Y %b', accuracy = gmDateTime.ACC_MONTHS),
+				gmDateTime.pydt_strftime(regimen_like['started'], format = '%Y %b'),
 				comment_mark,
 				gmTools.u_almost_equal_to,
 				gmDateTime.format_interval_medically(started_ago, terse = terse),
-				gmDateTime.pydt_strftime(regimen_like['started'], format = '%b %d', accuracy = gmDateTime.ACC_DAYS)
+				gmDateTime.pydt_strftime(regimen_like['started'], format = '%b %d')
 			)
 
 		return _('%s%s%s (%s%s ago: %s)') % (
@@ -4198,7 +4198,7 @@ def format_regimen_timerange_of_stopped_medically(regimen_like:cIntakeWithRegime
 		comment = '¹' if terse else gmTools.coalesce(regimen_like['comment_on_start'], '', ' [%s]')
 		start = '%s%s%s' % (
 			gmTools.bool2subst((regimen_like['comment_on_start'] is None), '', gmTools.u_almost_equal_to),
-			gmDateTime.pydt_strftime(regimen_like['started'], format = '%Y %b %d', accuracy = gmDateTime.ACC_DAYS),
+			gmDateTime.pydt_strftime(regimen_like['started'], format = '%Y %b %d'),
 			comment
 		)
 	else:

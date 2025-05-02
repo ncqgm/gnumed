@@ -124,7 +124,7 @@ def manage_episodes(parent=None):
 		items = [
 			[	e['description'],
 				gmTools.bool2subst(e['episode_open'], _('ongoing'), _('closed'), '<unknown>'),
-				gmDateTime.pydt_strftime(e.best_guess_clinical_start_date, '%Y %b %d'),
+				e.best_guess_clinical_start_date.strftime('%Y %b %d'),
 				gmTools.coalesce(e['health_issue'], '')
 			] for e in epis
 		]

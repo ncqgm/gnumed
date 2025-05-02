@@ -124,7 +124,7 @@ xml_end = """
 
 #============================================================
 def format_pydt(pydt, format = '%Y-%m-%d %H:%M:%S'):
-	return gmDateTime.pydt_strftime(pydt, format = format, accuracy = gmDateTime.ACC_SECONDS)
+	return pydt.strftime(format = format)
 
 #------------------------------------------------------------
 # health issues

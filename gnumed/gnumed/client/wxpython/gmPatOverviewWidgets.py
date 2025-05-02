@@ -427,7 +427,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		no_of_unsigned = len(docs)
 		for doc in docs:
 			list_items.append('%s %s (%s)' % (
-				gmDateTime.pydt_strftime(doc['clin_when'], format = '%m/%Y', accuracy = gmDateTime.ACC_MONTHS),
+				gmDateTime.pydt_strftime(doc['clin_when'], format = '%m/%Y'),
 				doc['l10n_type'],
 				gmTools.u_writing_hand
 			))
@@ -437,7 +437,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		docs = doc_folder.get_documents(order_by = 'clin_when DESC', exclude_unsigned = True)
 		for doc in docs[:5]:
 			list_items.append('%s %s' % (
-				gmDateTime.pydt_strftime(doc['clin_when'], format = '%m/%Y', accuracy = gmDateTime.ACC_MONTHS),
+				gmDateTime.pydt_strftime(doc['clin_when'], format = '%m/%Y'),
 				doc['l10n_type']
 			))
 			list_data.append(doc)

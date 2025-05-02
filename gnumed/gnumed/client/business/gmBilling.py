@@ -584,8 +584,8 @@ def generate_invoice_id(template=None, pk_patient=None, person=None, date_format
 	now = gmDateTime.pydt_now_here()
 	data = {}
 	data['pk_pat'] = gmTools.coalesce(pk_patient, '?')
-	data['date'] = gmDateTime.pydt_strftime(now, date_format).strip()
-	data['time'] = gmDateTime.pydt_strftime(now, time_format).strip()
+	data['date'] = now.strftime(date_format).strip()
+	data['time'] = now.strftime(time_format).strip()
 	if person is None:
 		data['firstname'] = u'?'
 		data['lastname'] = u'?'
@@ -595,7 +595,7 @@ def generate_invoice_id(template=None, pk_patient=None, person=None, date_format
 		data['lastname'] = person['lastnames'].replace(' ', gmTools.u_space_as_open_box).strip()
 		data['dob'] = person.get_formatted_dob (
 			format = date_format,
-			none_string = u'?',
+			none_string = '?',
 			honor_estimation = False
 		).strip()
 	candidate_invoice_id = template % data
@@ -776,7 +776,7 @@ def get_scan2pay_data(branch, bill, provider=None, comment=None):
 	amount = bill['total_amount_with_vat']
 	invoice_id = (_('Inv: %s, %s') % (
 		bill['invoice_id'],
-		gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), '%d.%B %Y')
+		gmDateTime.pydt_now_here().strftime('%d.%B %Y')
 	))
 	return generate_scan2pay_string (
 		IBAN = IBAN,
@@ -832,7 +832,7 @@ def __get_scan2pay_data(branch, bill, provider=None, comment=None):
 	data['amount'] = bill['total_amount_with_vat'][:9]
 	data['ref'] = (_('Inv: %s, %s') % (
 		bill['invoice_id'],
-		gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), '%d.%B %Y')
+		gmDateTime.pydt_now_here().strftime('%d.%B %Y')
 	))[:140]
 	data['cmt'] = gmTools.coalesce(comment, '', '\n%s')[:70]
 

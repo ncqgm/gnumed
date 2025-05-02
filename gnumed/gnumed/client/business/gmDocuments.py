@@ -729,7 +729,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 			detail = ' (%s)' % detail
 
 		return '%s %s (%s):%s%s' % (
-			gmDateTime.pydt_strftime(self._payload['clin_when'], '%Y %b %d', accuracy = gmDateTime.ACC_DAYS),
+			gmDateTime.pydt_strftime(self._payload['clin_when'], '%Y %b %d'),
 			self._payload['l10n_type'],
 			parts,
 			gmTools.coalesce(self._payload['comment'], '', ' "%s"'),
@@ -782,7 +782,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 			self._payload['l10n_type'],
 			parts,
 			self._payload['pk_doc'],
-			gmDateTime.pydt_strftime(self._payload['clin_when'], format = '%Y %b %d', accuracy = gmDateTime.ACC_DAYS),
+			gmDateTime.pydt_strftime(self._payload['clin_when'], format = '%Y %b %d'),
 			self._payload['episode'],
 			gmTools.coalesce(self._payload['health_issue'], '', _(' Health issue: %s\n')),
 			gmTools.coalesce(self._payload['ext_ref'], '', _(' External reference: %s\n')),

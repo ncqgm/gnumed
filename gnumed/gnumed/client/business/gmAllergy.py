@@ -309,8 +309,8 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 		))
 		if self._payload['reaction'] is not None:
 			lines.append(' ' + _('Reaction:') + ' ' + self._payload['reaction'])
-		if self._payload['date'] is not None:
-			lines.append(' ' + _('Noted:') + ' ' + gmDateTime.pydt_strftime(self._payload['date'], '%Y %b %d'))
+		if self._payload['date']:
+			lines.append(' ' + _('Noted:') + ' ' + self._payload['date'].strftime('%Y %b %d'))
 		if self._payload['allergene'] is not None:
 			lines.append(' ' + _('Allergene:') + ' ' + self._payload['allergene'])
 		if self._payload['substance'] is not None:

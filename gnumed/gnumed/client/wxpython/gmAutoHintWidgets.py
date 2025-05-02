@@ -57,7 +57,7 @@ def _display_clinical_reminders():
 			'Reminder by: %s'
 		) % (
 			gmDateTime.format_interval_medically(msg['interval_due']),
-			gmDateTime.pydt_strftime(msg['due_date'], '%Y %b %d', accuracy = gmDateTime.ACC_DAYS),
+			gmDateTime.pydt_strftime(msg['due_date'], '%Y %b %d'),
 			exp,
 			gmTools.coalesce(msg['comment'], '', '\n%s\n'),
 			gmTools.coalesce(msg['data'], '', '\n%s\n'),

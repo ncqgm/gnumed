@@ -1087,7 +1087,7 @@ def manage_documents(parent=None, msg=None, single_selection=True, pk_types=None
 	def refresh(lctrl):
 		docs = pat.document_folder.get_documents(pk_types = pk_types, pk_episodes = pk_episodes)
 		items = [ [
-			gmDateTime.pydt_strftime(d['clin_when'], '%Y %b %d', accuracy = gmDateTime.ACC_DAYS),
+			gmDateTime.pydt_strftime(d['clin_when'], '%Y %b %d'),
 			d['l10n_type'],
 			gmTools.coalesce(d['comment'], ''),
 			gmTools.coalesce(d['ext_ref'], ''),
@@ -2255,7 +2255,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 				self.__curr_node_data['seq_idx'],
 				gmTools.coalesce(self.__curr_node_data['obj_comment'], '', ' "%s"\n\n'),
 				self.__curr_node_data['l10n_type'],
-				gmDateTime.pydt_strftime(self.__curr_node_data['date_generated'], format = '%Y-%m-%d', accuracy = gmDateTime.ACC_DAYS),
+				gmDateTime.pydt_strftime(self.__curr_node_data['date_generated'], format = '%Y-%m-%d'),
 				gmTools.coalesce(self.__curr_node_data['doc_comment'], '', ' "%s"\n')
 			)
 		)

@@ -244,9 +244,9 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 		edc = self.curr_pat.emr.EDC
 		if edc is not None:
 			if self.curr_pat.emr.EDC_is_fishy:
-				tests2show.append(_('?EDC %s') % gmDateTime.pydt_strftime(edc, '%Y-%b-%d', accuracy = gmDateTime.ACC_DAYS))
+				tests2show.append(_('?EDC %s') % gmDateTime.pydt_strftime(edc, '%Y-%b-%d'))
 			else:
-				tests2show.append(_('EDC %s') % gmDateTime.pydt_strftime(edc, '%Y-%b-%d', accuracy = gmDateTime.ACC_DAYS))
+				tests2show.append(_('EDC %s') % gmDateTime.pydt_strftime(edc, '%Y-%b-%d'))
 
 		INRs = self.curr_pat.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_inr_quantity, max_no_of_results = 1)
 		if len(INRs) > 0:

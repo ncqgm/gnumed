@@ -182,9 +182,9 @@ class cPatientPicture(wx.StaticBitmap):
 				'Patient picture (%s).\n'
 				'\n'
 				'Right-click for context menu.'
-			) % gmDateTime.pydt_strftime(photo['date_generated'], '%b %Y'))
-
+			) % photo['date_generated'].strftime('%b %Y'))
 		return self.__set_pic_from_file(fname)
+
 	#-----------------------------------------------------------------
 	def __set_pic_from_file(self, fname=None):
 		if fname is None:
@@ -200,7 +200,6 @@ class cPatientPicture(wx.StaticBitmap):
 		del img_data
 		self.SetBitmap(bmp_data)
 		self.__pic_name = fname
-
 		return True
 
 #====================================================

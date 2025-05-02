@@ -598,7 +598,7 @@ def __format_latest_vaccinations_latex(vaccinations=None):
 		target_count, vacc = vaccinations[target]
 		lines += row_template % (
 			gmTools.tex_escape_string(target),
-			gmTools.tex_escape_string(gmDateTime.pydt_strftime(vacc['date_given'], '%Y %b %d')),
+			gmTools.tex_escape_string(vacc['date_given'].strftime('%Y %b %d')),
 			gmTools.tex_escape_string(gmTools.coalesce(vacc['vaccine'], _('generic'))),
 			gmTools.tex_escape_string(vacc['batch_no']),
 			vacc['soap_cat'].upper(),

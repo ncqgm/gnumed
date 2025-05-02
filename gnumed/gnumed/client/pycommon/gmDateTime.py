@@ -288,23 +288,20 @@ def get_date_of_weekday_following_date(weekday, base_dt:pyDT.datetime=None):
 	return pydt_add(base_dt, days = days2add)
 
 #---------------------------------------------------------------------------
-def format_dob(dob:pyDT.datetime, format='%Y %b %d', none_string=None, dob_is_estimated=False):
+def format_dob(dob:pyDT.datetime, format:str='%Y %b %d', none_string:str=None, dob_is_estimated:bool=False) -> str:
 	if dob is None:
-		if none_string is None:
-			return _('** DOB unknown **')
-		return none_string
+		return none_string if none_string else _('** DOB unknown **')
 
-	dob_txt = pydt_strftime(dob, format = format, accuracy = ACC_DAYS)
+	dob_txt = dob.strftime(format)
 	if dob_is_estimated:
-		return '%s%s' % ('\u2248', dob_txt)
-
+		dob_txt = '\u2248' + dob_txt
 	return dob_txt
 
 #---------------------------------------------------------------------------
-def pydt_strftime(dt=None, format='%Y %b %d  %H:%M.%S', accuracy=None, none_str=None):
+def pydt_strftime(dt=None, format='%Y %b %d  %H:%M.%S', none_str=None):
 
 	if dt is None:
-		if none_str is not None:
+		if none_str is not None:	# can be '', though ...
 			return none_str
 		raise ValueError('must provide <none_str> if <dt>=None is to be dealt with')
 
@@ -1571,7 +1568,6 @@ def str2pydt_matches(str2parse:str=None, patterns:list=None) -> list:
 	hour = 11
 	minute = 11
 	second = 11
-	acc = ACC_DAYS
 	lbl_fmt = '%Y-%m-%d'
 	if len(parts) > 1:
 		for pattern in ['%H:%M', '%H:%M:%S']:
@@ -1580,11 +1576,9 @@ def str2pydt_matches(str2parse:str=None, patterns:list=None) -> list:
 				hour = date.hour
 				minute = date.minute
 				second = date.second
-				acc = ACC_MINUTES
 				lbl_fmt = '%Y-%m-%d %H:%M'
 				break
-			except ValueError:
-				# C-level overflow
+			except ValueError:		# C-level overflow
 				continue
 	if patterns is None:
 		patterns = []
@@ -1599,10 +1593,9 @@ def str2pydt_matches(str2parse:str=None, patterns:list=None) -> list:
 			)
 			matches.append ({
 				'data': date,
-				'label': pydt_strftime(date, format = lbl_fmt, accuracy = acc)
+				'label': pydt_strftime(date, format = lbl_fmt)
 			})
-		except ValueError:
-			# C-level overflow
+		except ValueError:			# C-level overflow
 			continue
 	return matches
 
@@ -2394,16 +2387,16 @@ if __name__ == '__main__':
 		dt = pydt_now_here()
 		print (pydt_strftime(dt, '-(%Y %b %d)-'))
 		print (pydt_strftime(dt))
-		print (pydt_strftime(dt, accuracy = ACC_DAYS))
-		print (pydt_strftime(dt, accuracy = ACC_MINUTES))
-		print (pydt_strftime(dt, accuracy = ACC_SECONDS))
+		print (pydt_strftime(dt))
+		print (pydt_strftime(dt))
+		print (pydt_strftime(dt))
 		dt = dt.replace(year = 1899)
 		print (pydt_strftime(dt))
-		print (pydt_strftime(dt, accuracy = ACC_DAYS))
-		print (pydt_strftime(dt, accuracy = ACC_MINUTES))
-		print (pydt_strftime(dt, accuracy = ACC_SECONDS))
+		print (pydt_strftime(dt))
+		print (pydt_strftime(dt))
+		print (pydt_strftime(dt))
 		dt = dt.replace(year = 198)
-		print (pydt_strftime(dt, accuracy = ACC_SECONDS))
+		print (pydt_strftime(dt))
 	#-------------------------------------------------
 	def test_is_leap_year():
 		for idx in range(120):
