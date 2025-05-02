@@ -227,7 +227,7 @@ class cGenericEMRItem(gmBusinessDBObject.cBusinessDBObject):
 			enc_info = gmTools.u_diameter
 		else:
 			enc_info = '%s - %s (%s)' % (
-				gmDateTime.pydt_strftime(self._payload['encounter_started'], '%Y %b %d  %H:%M'),
+				self._payload['encounter_started'].strftime('%Y %b %d  %H:%M'),
 				self._payload['encounter_last_affirmed'].strftime('%H:%M'),
 				self._payload['encounter_l10n_type']
 			)

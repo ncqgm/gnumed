@@ -542,9 +542,9 @@ class cBusinessDBObject(object):
 				continue
 			if isinstance(val, datetime.datetime):
 				if date_format is None:
-					data[field] = val			# type: ignore [assignment]
+					data[field] = str(val)			# x-type: ignore [assignment]
 					continue
-				data[field] = pydt_strftime(val, format = date_format)
+				data[field] = val.strftime(date_format)
 				if escape_style in ['latex', 'tex']:
 					data[field] = tex_escape_string(data[field])
 				elif escape_style in ['xetex', 'xelatex']:

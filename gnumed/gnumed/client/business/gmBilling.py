@@ -266,16 +266,12 @@ class cBillItem(gmBusinessDBObject.cBusinessDBObject):
 		}
 
 		txt += '\n'
-		txt += _(' Charge date: %s') % gmDateTime.pydt_strftime (
-			self._payload['date_to_bill'],
-			'%Y %b %d',
-			accuracy = gmDateTime.ACC_DAYS
-		)
-		bill = self.bill
-		if bill is not None:
-			txt += _('\n On bill: %s') % bill['invoice_id']
+		txt += _(' Charge date: %s') % self._payload['date_to_bill'].strftime('%Y %b %d')
+		if self._payload['pk_bill']:
+			txt += _('\n On bill: %s') % self.bill['invoice_id']
 
 		return txt
+
 	#--------------------------------------------------------
 	def _get_billable(self):
 		return cBillable(aPK_obj = self._payload['pk_billable'])
@@ -285,6 +281,7 @@ class cBillItem(gmBusinessDBObject.cBusinessDBObject):
 	def _get_bill(self):
 		if self._payload['pk_bill'] is None:
 			return None
+
 		return cBill(aPK_obj = self._payload['pk_bill'])
 
 	bill = property(_get_bill)
@@ -387,17 +384,10 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 			self._payload['pk_bill']
 		)
 		txt += _(' Invoice ID: %s\n') % self._payload['invoice_id']
-
-		if self._payload['close_date'] is not None:
-			txt += _(' Closed: %s\n') % gmDateTime.pydt_strftime (
-				self._payload['close_date'],
-				'%Y %b %d',
-				accuracy = gmDateTime.ACC_DAYS
-			)
-
-		if self._payload['comment'] is not None:
+		if self._payload['close_date']:
+			txt += _(' Closed: %s\n') % self._payload['close_date'].strftime('%Y %b %d')
+		if self._payload['comment']:
 			txt += _(' Comment: %s\n') % self._payload['comment']
-
 		txt += _(' Bill value: %(curr)s%(val)s\n') % {
 			'curr': self._payload['currency'],
 			'val': self._payload['total_amount']
@@ -442,6 +432,7 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 				txt += '\n '.join(gmDemographicRecord.get_patient_address(pk_patient_address = self._payload['pk_receiver_address']).format())
 
 		return txt
+
 	#--------------------------------------------------------
 	def add_items(self, items=None):
 		"""Requires no pending changes within the bill itself."""

@@ -514,7 +514,7 @@ def process_staged_single_PID_hl7_file(staged_item):
 		_log.exception('error when importing single-PID/single-MSH file')
 
 	if not success:
-		staged_item['comment'] = _('failed import: %s\n') % gmDateTime.pydt_strftime(gmDateTime.pydt_now_here())
+		staged_item['comment'] = _('failed import: %s\n') % gmDateTime.pydt_now_here().isoformat()
 		staged_item['comment'] += '\n'
 		staged_item['comment'] += ('-' * 80)
 		staged_item['comment'] += '\n\n'
@@ -1072,7 +1072,7 @@ def __import_single_PID_hl7_file(filename, emr=None):
 			if clin_when is not None:
 				current_result['clin_when'] = clin_when
 			current_result.save(conn = conn)
-			when_list[gmDateTime.pydt_strftime(current_result['clin_when'], '%Y %b %d')] = 1
+			when_list[current_result['clin_when'].strftime('%Y %b %d')] = 1
 			previous_segment = seg_type
 			continue
 

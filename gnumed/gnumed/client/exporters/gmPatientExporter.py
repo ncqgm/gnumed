@@ -120,8 +120,8 @@ class cEmrExport:
         """
         emr = self.__patient.emr
         # patient dob
-        patient_dob = self.__patient['dob']
-        date_length = len(gmDateTime.pydt_strftime(patient_dob, '%Y %b %d')) + 2
+        dob_str = self.__patient.get_formatted_dob(format = '%Y %b %d', honor_estimation = True)
+        date_length = len(dob_str) + 2
 
         # dictionary of pairs indication : scheduled vaccination
         vaccinations4regimes = {}
@@ -131,7 +131,7 @@ class cEmrExport:
         # vaccination regimes count
         chart_columns = len(vacc_regimes)
         # foot headers
-        foot_headers = ['last booster', 'next booster']           
+        foot_headers = ['last booster', 'next booster']
         # string for both: ending of vaccinations; non boosters needed
         ending_str = '='
 
@@ -154,7 +154,7 @@ class cEmrExport:
             vaccinations[a_vacc_regime['indication']] = emr.get_vaccinations(indications=[a_vacc_regime['indication']]) # given shots 4 indication
 
         # patient dob in top of vaccination chart 
-        txt = '\nDOB: %s' % (gmDateTime.pydt_strftime(patient_dob, '%Y %b %d')) + '\n'
+        txt = '\nDOB: %s\n' % dob_str
 
         # vacc chart table headers
         # top ---- header line
@@ -176,9 +176,9 @@ class cEmrExport:
         # vacc chart data
         due_date = None           
         # previously displayed date list
-        prev_displayed_date = [patient_dob]
+        prev_displayed_date = [self.__patient['dob']]
         for a_regime in vacc_regimes:
-            prev_displayed_date.append(patient_dob) # initialice with patient dob (useful for due first shot date calculation)
+            prev_displayed_date.append(self.__patient['dob']) # initialice with patient dob (useful for due first shot date calculation)
         # iterate data rows
         for row_index in range(0, chart_rows):              
             row_header = '#%s' %(row_index+1)
@@ -192,7 +192,7 @@ class cEmrExport:
                 elif row_index < seq_no: # vaccination scheduled
                     try:
                         vacc_date = vaccinations[indication][row_index]['date'] # vaccination given
-                        vacc_date_str = gmDateTime.pydt_strftime(vacc_date, '%Y %b %d')
+                        vacc_date_str = vacc_date.strftime('%Y %b %d')
                         txt +=    vacc_date_str + (column_widths[col_index] - len(vacc_date_str)) * ' ' + '|'
                         prev_displayed_date[col_index] = vacc_date
                     except Exception:
@@ -408,13 +408,13 @@ class cEmrExport:
             left_margin * ' ',
             allergy['descriptor'],
             gmTools.coalesce(allergy['reaction'], _('unknown reaction')),
-            gmDateTime.pydt_strftime(allergy['date'], '%Y %b %d')
+            allergy['date'].strftime('%Y %b %d')
         )
 #        txt = left_margin * ' ' \
 #           + _('Allergy') + ': ' \
 #            + allergy['descriptor'] + u', ' \
 #            + gmTools.coalesce(allergy['reaction'], _('unknown reaction')) ' ' \
-#            + _('(noted %s)') % gmDateTime.pydt_strftime(allergy['date'], '%Y %b %d') \
+#            + _('(noted %s)') % gmDateTime.pydt_-_strftime(allergy['date'], '%Y %b %d') \
 #            + '\n'
         return txt
     #--------------------------------------------------------
@@ -980,7 +980,7 @@ class cEMRJournalExporter:
 			f.write(txt)
 
 		f.write ((gmTools.u_box_horiz_single * 100) + '\n')
-		f.write(_('Exported: %s\n') % gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), '%Y %b %d  %H:%M:%S'))
+		f.write(_('Exported: %s\n') % gmDateTime.pydt_now_here().strftime('%Y %b %d  %H:%M:%S'))
 
 		f.close()
 		return filename
@@ -1149,7 +1149,7 @@ class cEMRJournalExporter:
 			gmTools.u_box_horiz_single * self.__narrative_wrap_len
 		))
 
-		target.write(_('Exported: %s\n') % gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), format = '%Y %b %d  %H:%M:%S'))
+		target.write(_('Exported: %s\n') % gmDateTime.pydt_now_here().strftime('%Y %b %d  %H:%M:%S'))
 
 		return
 

@@ -102,24 +102,24 @@ class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 				self._payload['pk_patient']
 			))
 
-		if self._payload['due_date'] is not None:
+		if self._payload['due_date']:
 			if self._payload['is_overdue']:
 				template = _('Due: %s (%s ago)\n')
 			else:
 				template = _('Due: %s (in %s)\n')
 			tt += template % (
-				gmDateTime.pydt_strftime(self._payload['due_date'], '%Y %b %d'),
+				self._payload['due_date'].strftime('%Y %b %d'),
 				gmDateTime.format_interval_medically(self._payload['interval_due'])
 			)
 
-		if self._payload['expiry_date'] is not None:
+		if self._payload['expiry_date']:
 			if self._payload['is_expired']:
 				template = _('Expired: %s\n')
 			else:
 				template = _('Expires: %s\n')
-			tt += template % gmDateTime.pydt_strftime(self._payload['expiry_date'], '%Y %b %d')
+			tt += template % self._payload['expiry_date'].strftime('%Y %b %d')
 
-		if self._payload['data'] is not None:
+		if self._payload['data']:
 			tt += self._payload['data'][:150]
 			if len(self._payload['data']) > 150:
 				tt += gmTools.u_ellipsis

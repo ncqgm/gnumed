@@ -1007,8 +1007,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			if other_identity.ID == curr_pat.ID:
 				return False, _('Cannot merge active patient into another patient.')
 
-		now_here = gmDateTime.pydt_strftime(gmDateTime.pydt_now_here())
-		distinguisher = _('merge of #%s into #%s @ %s') % (other_identity.ID, self.ID, now_here)
+		distinguisher = _('merge of #%s into #%s @ %s') % (other_identity.ID, self.ID, gmDateTime.pydt_now_here().isoformat())
 		queries:list[dict] = []
 		args = {'pat2del': other_identity.ID, 'pat2keep': self.ID}
 		# merge allergy state

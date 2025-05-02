@@ -346,8 +346,8 @@ class cDTO_CCRdr(gmPerson.cDTO_person):
 						value = self.insuree_number,
 						issuer = EXTERNAL_ID_ISSUER_TEMPLATE % (self.raw_data['KostentraegerName'], self.raw_data['Kostentraegerkennung']),
 						comment = 'Nummer (eGK) des Versicherten bei der Krankenkasse, gültig: %s - %s' % (
-							gmDateTime.pydt_strftime(self.valid_since, '%Y %b %d'),
-							gmDateTime.pydt_strftime(self.valid_until, '%Y %b %d')
+							gmDateTime.pydt_strftime(self.valid_since, '%Y %b %d', none_string = '?'),
+							gmDateTime.pydt_strftime(self.valid_until, '%Y %b %d', none_string = '?')
 						)
 					)
 				except KeyError:

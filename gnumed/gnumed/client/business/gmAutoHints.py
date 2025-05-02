@@ -25,7 +25,6 @@ else:
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmDateTime
 
 from Gnumed.business import gmStaff
 
@@ -274,7 +273,7 @@ class cSuppressedHint(gmBusinessDBObject.cBusinessDBObject):
 		txt += '\n'
 		txt += '%s\n\n' % self._payload['title']
 		txt += _('Suppressed by: %s\n') % self._payload['suppressed_by']
-		txt += _('Suppressed at: %s\n') % gmDateTime.pydt_strftime(self._payload['suppressed_when'], '%Y %b %d')
+		txt += _('Suppressed at: %s\n') % self._payload['suppressed_when'].strftime('%Y %b %d')
 		txt += _('Hint #: %s\n') % self._payload['pk_hint']
 		txt += _('Patient #: %s\n') % self._payload['pk_identity']
 		txt += _('MD5 (currently): %s\n') % self._payload['md5_hint']
@@ -362,7 +361,6 @@ if __name__ == '__main__':
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
-	gmDateTime.init()
 
 	#---------------------------------------
 	def test_auto_hints():

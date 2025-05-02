@@ -232,7 +232,7 @@ class cPlatformLocalTimezone(pyDT.tzinfo):
 		try:
 			stamp = time.mktime(tt)
 		except (OverflowError, ValueError):
-			_log.exception('overflow in time.mktime(%s)', tt)
+			_log.exception('overflow in time.mktime(%s), assuming non-DST', tt)
 			return False
 
 		tt = time.localtime(stamp)
@@ -1564,11 +1564,11 @@ def str2pydt_matches(str2parse:str=None, patterns:list=None) -> list:
 	matches:list[dict] = []
 	for parser in STR2PYDT_PARSERS:
 		matches.extend(parser(str2parse))
-	parts = str2parse.split(maxsplit = 1)
 	hour = 11
 	minute = 11
 	second = 11
 	lbl_fmt = '%Y-%m-%d'
+	parts = str2parse.split(maxsplit = 1)
 	if len(parts) > 1:
 		for pattern in ['%H:%M', '%H:%M:%S']:
 			try:
@@ -1593,7 +1593,7 @@ def str2pydt_matches(str2parse:str=None, patterns:list=None) -> list:
 			)
 			matches.append ({
 				'data': date,
-				'label': pydt_strftime(date, format = lbl_fmt)
+				'label': date.strftime(lbl_fmt)
 			})
 		except ValueError:			# C-level overflow
 			continue
@@ -2441,13 +2441,13 @@ if __name__ == '__main__':
 	init()
 	#test_date_time()
 	#test_str2fuzzy_timestamp_matches()
-	#test_str2pydt_matches()
+	test_str2pydt_matches()
 	#test_get_date_of_weekday_in_week_of_date()
 	#test_cFuzzyTimeStamp()
 	#test_get_pydt()
 	#test_str2interval()
 	#test_format_interval()
-	test_format_interval_medically()
+	#test_format_interval_medically()
 	#test_pydt_strftime()
 	#test_calculate_apparent_age()
 	#test_is_leap_year()

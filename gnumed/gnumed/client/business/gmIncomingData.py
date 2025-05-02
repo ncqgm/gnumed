@@ -20,7 +20,6 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
-from Gnumed.pycommon import gmDateTime
 
 
 _log = logging.getLogger('gm.import')
@@ -86,8 +85,8 @@ class cIncomingData(gmBusinessDBObject.cBusinessDBObject):
 			gmTools.coalesce(self._payload['firstnames'], '', 'first=%s'),
 			gmTools.coalesce(self._payload['gender'], '', 'gender=%s')
 		)
-		if self._payload['dob'] is not None:
-			tmp += ' dob=%s' % gmDateTime.pydt_strftime(self._payload['dob'], '%Y %b %d')
+		if self._payload['dob']:
+			tmp += ' dob=%s' % self._payload['dob'].strftime('%Y %b %d')
 		return tmp
 
 	patient_identification = property(_format_patient_identification)
@@ -229,7 +228,6 @@ if __name__ == "__main__":
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	gmDateTime.init()
 	gmTools.gmPaths()
 
 	#-------------------------------------------------------
