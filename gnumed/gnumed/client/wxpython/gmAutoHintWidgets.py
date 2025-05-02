@@ -43,11 +43,7 @@ def _display_clinical_reminders():
 		if msg['expiry_date'] is None:
 			exp = ''
 		else:
-			exp = _(' - expires %s') % gmDateTime.pydt_strftime (
-				msg['expiry_date'],
-				'%Y %b %d',
-				accuracy = gmDateTime.ACC_DAYS
-			)
+			exp = _(' - expires %s') % msg['expiry_date'].strftime('%Y %b %d')
 		txt = _(
 			'Due for %s (since %s%s):\n'
 			'%s'
@@ -57,7 +53,7 @@ def _display_clinical_reminders():
 			'Reminder by: %s'
 		) % (
 			gmDateTime.format_interval_medically(msg['interval_due']),
-			gmDateTime.pydt_strftime(msg['due_date'], '%Y %b %d'),
+			msg['due_date'].strftime('%Y %b %d'),
 			exp,
 			gmTools.coalesce(msg['comment'], '', '\n%s\n'),
 			gmTools.coalesce(msg['data'], '', '\n%s\n'),
@@ -681,7 +677,7 @@ def manage_suppressed_hints(parent=None, pk_identity=None):
 		hints = gmAutoHints.get_suppressed_hints(pk_identity = pk_identity, order_by = 'title')
 		items = [ [
 			h['title'],
-			gmDateTime.pydt_strftime(h['suppressed_when'], '%Y %b %d'),
+			h['suppressed_when'].strftime('%Y %b %d'),
 			h['suppressed_by'],
 			h['rationale'],
 			gmTools.bool2subst(h['is_active'], gmTools.u_checkmark_thin, ''),
@@ -691,6 +687,7 @@ def manage_suppressed_hints(parent=None, pk_identity=None):
 		] for h in hints ]
 		lctrl.set_string_items(items)
 		lctrl.set_data(hints)
+
 	#------------------------------------------------------------
 	gmListWidgets.get_choices_from_list (
 		parent = parent,

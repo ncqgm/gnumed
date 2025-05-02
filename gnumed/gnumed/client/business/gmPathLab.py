@@ -514,7 +514,7 @@ class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 			most_recent = self.get_most_recent_result(patient = patient)
 			if most_recent is not None:
 				txt += _(' Most recent (%s): %s%s%s') % (
-					gmDateTime.pydt_strftime(most_recent['clin_when'], '%Y %b %d'),
+					most_recent['clin_when'].strftime('%Y %b %d'),
 					most_recent['unified_val'],
 					gmTools.coalesce(most_recent['val_unit'], '', ' %s'),
 					gmTools.coalesce(most_recent['abnormality_indicator'], '', ' (%s)')
@@ -523,7 +523,7 @@ class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 			if oldest is not None:
 				txt += '\n'
 				txt += _(' Oldest (%s): %s%s%s') % (
-					gmDateTime.pydt_strftime(oldest['clin_when'], '%Y %b %d'),
+					oldest['clin_when'].strftime('%Y %b %d'),
 					oldest['unified_val'],
 					gmTools.coalesce(oldest['val_unit'], '', ' %s'),
 					gmTools.coalesce(oldest['abnormality_indicator'], '', ' (%s)')
@@ -938,7 +938,7 @@ LIMIT 1"""
 			if len(results) > 0:
 				result = results[0]
 				tt += _(' Most recent (%s): %s%s%s') % (
-					gmDateTime.pydt_strftime(result['clin_when'], '%Y %b %d'),
+					result['clin_when'].strftime('%Y %b %d'),
 					result['unified_val'],
 					gmTools.coalesce(result['val_unit'], '', ' %s'),
 					gmTools.coalesce(result['abnormality_indicator'], '', ' (%s)')
@@ -947,7 +947,7 @@ LIMIT 1"""
 			if result is not None:
 				tt += '\n'
 				tt += _(' Oldest (%s): %s%s%s') % (
-					gmDateTime.pydt_strftime(result['clin_when'], '%Y %b %d'),
+					result['clin_when'].strftime('%Y %b %d'),
 					result['unified_val'],
 					gmTools.coalesce(result['val_unit'], '', ' %s'),
 					gmTools.coalesce(result['abnormality_indicator'], '', ' (%s)')
@@ -1419,10 +1419,9 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		if with_review:
 			tt += _('Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s.') % ({
 				'row_ver': self._payload['row_version'],
-				'mod_when': gmDateTime.pydt_strftime(self._payload['modified_when'],date_format),
+				'mod_when': self._payload['modified_when'].strftime(date_format),
 				'mod_by': self._payload['modified_by']
 			})
-
 		return tt
 
 	#--------------------------------------------------------
@@ -2866,7 +2865,7 @@ def export_results_for_gnuplot(results=None, filename=None, show_year=True, pati
 		prev_date = None
 		prev_year = None
 		for result in sorted(results_grouped_by_test_type[test_type], key=lambda result:result['clin_when']):
-			curr_date = gmDateTime.pydt_strftime(result['clin_when'], '%Y-%m-%d', 'utf8', gmDateTime.ACC_DAYS)
+			curr_date = result['clin_when'].strftime('%Y-%m-%d')
 			if curr_date == prev_date:
 				gplot_data.write('# %s\n\n' % _('blank line inserted to allow for discontinued-line style drawing of same-day values:'))
 			if show_year:
@@ -2883,7 +2882,7 @@ def export_results_for_gnuplot(results=None, filename=None, show_year=True, pati
 			if val is None:
 				continue		# skip distinctly non-numericable values
 			gplot_data.write ('%s %s "%s" %s %s %s %s %s %s "%s"\n' % (
-				gmDateTime.pydt_strftime(result['clin_when'], '%Y-%m-%d_%H:%M', 'utf8', gmDateTime.ACC_MINUTES),
+				result['clin_when'].strftime('%Y-%m-%d_%H:%M'),
 				val,
 				gmTools.coalesce(result['val_unit'], '"<?>"'),
 				gmTools.coalesce(result['unified_target_min'], '"<?>"'),
@@ -2892,11 +2891,7 @@ def export_results_for_gnuplot(results=None, filename=None, show_year=True, pati
 				gmTools.coalesce(result['val_normal_max'], '"<?>"'),
 				gmTools.coalesce(result['val_target_min'], '"<?>"'),
 				gmTools.coalesce(result['val_target_max'], '"<?>"'),
-				gmDateTime.pydt_strftime (
-					result['clin_when'],
-					format = when_template,
-					accuracy = gmDateTime.ACC_MINUTES
-				)
+				result['clin_when'].strftime(when_template)
 			))
 			prev_date = curr_date
 	gplot_data.close()

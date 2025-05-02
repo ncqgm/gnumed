@@ -965,7 +965,7 @@ class cExportArea(object):
 		for doc in documents:
 			doc_tag = _('%s (%s)%s') % (
 				doc['l10n_type'],
-				gmDateTime.pydt_strftime(doc['clin_when'], '%Y %b %d'),
+				doc['clin_when'].strftime('%Y %b %d'),
 				gmTools.coalesce(doc['comment'], '', ' "%s"')
 			)
 			for obj in doc.parts:
@@ -1149,8 +1149,8 @@ class cExportArea(object):
 			mugshot_fname = mugshot.save_to_file(directory = doc_dir)
 			fname = os.path.split(mugshot_fname)[1]
 			html_data['mugshot_url'] = os.path.join(DOCUMENTS_SUBDIR, fname)
-			html_data['mugshot_alt'] =_('patient photograph from %s') % gmDateTime.pydt_strftime(mugshot['date_generated'], '%B %Y')
-			html_data['mugshot_title'] = gmDateTime.pydt_strftime(mugshot['date_generated'], '%B %Y')
+			html_data['mugshot_alt'] =_('patient photograph from %s') % mugshot['date_generated'].strftime('%B %Y')
+			html_data['mugshot_title'] = mugshot['date_generated'].strftime('%B %Y')
 		# - export patient demographics as GDT/XML/VCF/MCF
 		pat.export_as_gdt(filename = os.path.join(sandbox_dir, 'patient.gdt'))
 		pat.export_as_xml_linuxmednews(filename = os.path.join(sandbox_dir, 'patient.xml'))
@@ -1310,7 +1310,7 @@ class cExportArea(object):
 			'browse_root': _('browse storage medium'),
 			'browse_docs': _('browse documents area'),
 			'doc_subdir': DOCUMENTS_SUBDIR,
-			'date' : gmTools.html_escape_string(gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), format = '%Y %B %d'))
+			'date' : gmTools.html_escape_string(gmDateTime.pydt_now_here().strftime('%Y %B %d'))
 		}
 		frontpage_fname_enc = 'frontpage.html.asc'
 		if os.path.isfile(os.path.join(directory, frontpage_fname_enc)):
@@ -1364,7 +1364,7 @@ class cExportArea(object):
 			'doc_subdir': DOCUMENTS_SUBDIR,
 			'browse_dicomdir': '',
 			'run_dicom_viewer': '',
-			'date' : gmTools.html_escape_string(gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), format = '%Y %B %d'))
+			'date' : gmTools.html_escape_string(gmDateTime.pydt_now_here().strftime('%Y %B %d'))
 		}
 		for key in data:
 			_HTML_data[key] = data[key]
@@ -1499,7 +1499,7 @@ class cExportArea(object):
 			patient['firstnames'],
 			gmTools.coalesce(patient['gender'], '?'),
 			patient.get_formatted_dob('%Y-%m-%d'),
-			gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), format = '%Y-%m-%d'),
+			gmDateTime.pydt_now_here().strftime('%Y-%m-%d'),
 			patient.ID,
 			_cfg.get(option = 'client_version'),
 			' / '.join([ '%s = %s (%s)' % (g['tag'], g['name'], g['l10n_name']) for g in gmGender.get_genders() ])

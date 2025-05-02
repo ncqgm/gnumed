@@ -718,8 +718,8 @@ class cClinicalRecord(object):
 		txt += '\n'
 		txt += _(' %s encounters from %s to %s\n') % (
 			stats['encounters'],
-			gmDateTime.pydt_strftime(first['started'], '%Y %b %d'),
-			gmDateTime.pydt_strftime(last['started'], '%Y %b %d')
+			first['started'].strftime('%Y %b %d'),
+			last['started'].strftime('%Y %b %d')
 		)
 		txt += _(' %s active medications\n') % stats['active_drugs']
 		txt += _(' %s documents\n') % stats['documents']
@@ -744,7 +744,7 @@ class cClinicalRecord(object):
 		if allg_state:
 			txt += allg_state.state_string
 			if allg_state['last_confirmed']:
-				txt += _(' (last confirmed %s)') % gmDateTime.pydt_strftime(allg_state['last_confirmed'], '%Y %b %d')
+				txt += _(' (last confirmed %s)') % allg_state['last_confirmed'].strftime('%Y %b %d')
 			txt += '\n'
 			txt += gmTools.coalesce(allg_state['comment'], '', ' %s\n')
 		else:
@@ -1653,7 +1653,7 @@ WHERE
 #			pat[1][:15],
 #			pat[2][:15],
 #			pat[3],
-#			gmDateTime.pydt_strftime(pat[4], '%Y %b %d'),
+#			pat[4].strftime('%Y %b %d'),
 #			self.pk_patient
 #		)
 #		msg = _(
@@ -1672,8 +1672,8 @@ WHERE
 #			'or do you want to start a new one ?\n'
 #		) % (
 #			pat_str,
-#			gmDateTime.pydt_strftime(encounter['started'], '%Y %b %d'),
-#			gmDateTime.pydt_strftime(encounter['started'], '%H:%M'), gmDateTime.pydt_strftime(encounter['last_affirmed'], '%H:%M'),
+#			encounter['started'].strftime('%Y %b %d'),
+#			encounter['started'].strftime('%H:%M'), encounter['last_affirmed'].strftime('%H:%M'),
 #			encounter['l10n_type'],
 #			gmTools.coalesce(encounter['reason_for_encounter'], _('none given')),
 #			gmTools.coalesce(encounter['assessment_of_encounter'], _('none given')),

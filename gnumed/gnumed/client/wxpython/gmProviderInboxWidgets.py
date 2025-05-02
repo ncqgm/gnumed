@@ -593,7 +593,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		for m in self.__msgs:
 			item = [_indicator[m['importance']]]
 			item.append('%s: %s%s%s' % (
-				gmDateTime.pydt_strftime(m['received_when'], '%Y-%m-%d'),
+				m['received_when'].strftime('%Y-%m-%d'),
 				m['modified_by'],
 				gmTools.u_arrow2right,
 				gmTools.coalesce(m['provider'], _('all'))

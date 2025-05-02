@@ -448,7 +448,7 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 			fname = part.save_to_file(conn = conn)
 			if fname is None:
 				continue
-			tt_header = _('Created: %s%s') % (gmDateTime.pydt_strftime(part['date_generated'], '%Y %b %d'), parts_counter)
+			tt_header = _('Created: %s%s') % (part['date_generated'].strftime('%Y %b %d'), parts_counter)
 			tt_footer = gmTools.coalesce(part['doc_comment'], '').strip()
 			parts_list.append([fname, part, tt_header, tt_footer])
 		conn.close()
