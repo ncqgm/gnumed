@@ -506,7 +506,7 @@ class cLoginPanel(wx.Panel):
 		# FIXME: why doesn't this align in the centre ?
 		self.paramsbox = wx.StaticBox( self, -1, paramsbox_caption, style = wx.ALIGN_CENTRE_HORIZONTAL)
 		self.paramsboxsizer = wx.StaticBoxSizer( self.paramsbox, wx.VERTICAL )
-		self.paramsbox.SetForegroundColour(wx.Colour(35, 35, 142))
+		self.__set_label_color(self.paramsbox)  # set color according to background
 		self.paramsbox.SetFont(wx.Font(
 			pointSize = 12,
 			family = wx.SWISS,
@@ -519,7 +519,7 @@ class cLoginPanel(wx.Panel):
 
 		# PROFILE COMBO
 		label = wx.StaticText( self, -1, _('Log into'), wx.DefaultPosition, wx.DefaultSize, 0)
-		label.SetForegroundColour(wx.Colour(35, 35, 142))
+		self.__set_label_color(label)  # set color according to dark/light theme
 		self.pboxgrid.Add(label, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 5)
 		self.__backend_profiles = self.__get_backend_profiles()
 		self._CBOX_profile = wx.ComboBox (
@@ -535,7 +535,7 @@ class cLoginPanel(wx.Panel):
 
 		# USER NAME COMBO
 		label = wx.StaticText( self, -1, _("Username"), wx.DefaultPosition, wx.DefaultSize, 0 )
-		label.SetForegroundColour(wx.Colour(35, 35, 142))
+		self.__set_label_color(label)  # set color according to dark/light theme
 		self.pboxgrid.Add(label, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 		self.__previously_used_accounts = self.__get_previously_used_accounts()
 		self._CBOX_user = wx.ComboBox (
@@ -551,7 +551,7 @@ class cLoginPanel(wx.Panel):
 
 		#PASSWORD TEXT ENTRY
 		label = wx.StaticText( self, -1, _("Password"), wx.DefaultPosition, wx.DefaultSize, 0 )
-		label.SetForegroundColour(wx.Colour(35, 35, 142))
+		self.__set_label_color(label)  # set color according to dark/light theme
 		self.pboxgrid.Add( label, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 		self.pwdentry = wx.TextCtrl( self, 1, '', wx.DefaultPosition, wx.Size(80,-1), wx.TE_PASSWORD )
 		# set focus on password entry
@@ -560,7 +560,7 @@ class cLoginPanel(wx.Panel):
 
 		# --debug checkbox
 		label = wx.StaticText(self, -1, _('Options'), wx.DefaultPosition, wx.DefaultSize, 0)
-		label.SetForegroundColour(wx.Colour(35, 35, 142))
+		self.__set_label_color(label)  # set color according to dark/light theme
 		self.pboxgrid.Add(label, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
 		self._CHBOX_debug = wx.CheckBox(self, -1, _('&Debug mode'))
 		self._CHBOX_debug.SetToolTip(_('Check this to run GNUmed client in debugging mode.'))
@@ -568,7 +568,7 @@ class cLoginPanel(wx.Panel):
 
 		# --slave checkbox
 		label = wx.StaticText(self, -1, '', wx.DefaultPosition, wx.DefaultSize, 0)
-		label.SetForegroundColour(wx.Colour(35, 35, 142))
+		self.__set_label_color(label)  # set color according to dark/light theme
 		self.pboxgrid.Add(label, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
 		self._CHBOX_slave = wx.CheckBox(self, -1, _('Enable &remote control'))
 		self._CHBOX_slave.SetToolTip(_('Check this to run GNUmed client in slave mode for remote control.'))
@@ -636,6 +636,19 @@ class cLoginPanel(wx.Panel):
 	#----------------------------------------------------------
 	# internal helper methods
 	#----------------------------------------------------------
+	def __set_label_color(self, label):
+		"""Set adaptive label color based on system theme background."""
+
+		# get system background color
+		bg_colour = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
+		# detect if light/dark color
+		brightness = (bg_colour.Red() * 299 + bg_colour.Green() * 587 + bg_colour.Blue() * 114) / 1000
+		# set text color accordingly
+		if brightness < 128:  # dark background/theme
+			pass  # default text color
+		else:  # light background/theme
+			label.SetForegroundColour(wx.Colour(35, 35, 142))  # orig dark blue
+	#----------------------------------------------------
 	def __get_previously_used_accounts(self):
 
 		accounts = gmTools.coalesce (
