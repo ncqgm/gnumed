@@ -314,6 +314,160 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		return left_margin + eol_w_margin.join(lines) + '\n'
 
 	#--------------------------------------------------------
+	def __format_clinical_data (
+		self,
+		patient,
+		with_episodes=True,
+		with_encounters=True,
+		with_medications=True,
+		with_hospital_stays=True,
+		with_procedures=True,
+		with_family_history=True,
+		with_documents=True,
+		with_tests=True,
+		with_vaccinations=True
+	):
+		if not patient:
+			return []
+
+		if patient.ID != self._payload['pk_patient']:
+			msg = '<patient>.ID = %s but health issue %s belongs to patient %s' % (
+				patient.ID,
+				self._payload['pk_health_issue'],
+				self._payload['pk_patient']
+			)
+			raise ValueError(msg)
+
+		emr = patient.emr
+		lines = []
+		# episodes
+		if with_episodes:
+			epis = self.get_episodes()
+			if epis is None:
+				lines.append(_('Error retrieving episodes for this health issue.'))
+			elif len(epis) == 0:
+				lines.append(_('There are no episodes for this health issue.'))
+			else:
+				lines.append (
+					_('Episodes: %s (most recent: %s%s%s)') % (
+						len(epis),
+						gmTools.u_left_double_angle_quote,
+						emr.get_most_recent_episode(issue = self._payload['pk_health_issue'])['description'],
+						gmTools.u_right_double_angle_quote
+					)
+				)
+				for epi in epis:
+					lines.append(' \u00BB%s\u00AB (%s)' % (
+						epi['description'],
+						gmTools.bool2subst(epi['episode_open'], _('ongoing'), _('closed'))
+					))
+			lines.append('')
+
+		# encounters
+		if with_encounters:
+			first_encounter = emr.get_first_encounter(issue_id = self._payload['pk_health_issue'])
+			last_encounter = emr.get_last_encounter(issue_id = self._payload['pk_health_issue'])
+
+			if first_encounter is None or last_encounter is None:
+				lines.append(_('No encounters found for this health issue.'))
+			else:
+				encs = emr.get_encounters(issues = [self._payload['pk_health_issue']])
+				lines.append(_('Encounters: %s (%s - %s):') % (
+					len(encs),
+					first_encounter['started_original_tz'].strftime('%m/%Y'),
+					last_encounter['last_affirmed_original_tz'].strftime('%m/%Y')
+				))
+				lines.append(_(' Most recent: %s - %s') % (
+					last_encounter['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
+					last_encounter['last_affirmed_original_tz'].strftime('%H:%M')
+				))
+
+		# medications
+		if with_medications:
+			meds = emr.get_current_medications (
+				issues = [ self._payload['pk_health_issue'] ],
+				order_by = 'discontinued DESC NULLS FIRST, started, substance'
+			)
+			if len(meds) > 0:
+				lines.append('')
+				lines.append(_('Medications and Substances'))
+			for m in meds:
+				lines.append(m.format(left_margin = (left_margin + 1)))
+			del meds
+
+		# hospitalizations
+		if with_hospital_stays:
+			stays = emr.get_hospital_stays (
+				issues = [ self._payload['pk_health_issue'] ]
+			)
+			if len(stays) > 0:
+				lines.append('')
+				lines.append(_('Hospitalizations: %s') % len(stays))
+			for s in stays:
+				lines.append(s.format(left_margin = (left_margin + 1)))
+			del stays
+
+		# procedures
+		if with_procedures:
+			procs = emr.get_performed_procedures (
+				issues = [ self._payload['pk_health_issue'] ]
+			)
+			if len(procs) > 0:
+				lines.append('')
+				lines.append(_('Procedures performed: %s') % len(procs))
+			for p in procs:
+				lines.append(p.format(left_margin = (left_margin + 1)))
+			del procs
+
+		# family history
+		if with_family_history:
+			fhx = emr.get_family_history(issues = [ self._payload['pk_health_issue'] ])
+			if len(fhx) > 0:
+				lines.append('')
+				lines.append(_('Family History: %s') % len(fhx))
+			for f in fhx:
+				lines.append(f.format (
+					left_margin = (left_margin + 1),
+					include_episode = True,
+					include_comment = True,
+					include_codes = False
+				))
+			del fhx
+
+		epis = self.get_episodes()
+		if epis:
+			epi_pks = [ e['pk_episode'] for e in epis ]
+
+			# documents
+			if with_documents:
+				doc_folder = patient.get_document_folder()
+				docs = doc_folder.get_documents(pk_episodes = epi_pks)
+				if len(docs) > 0:
+					lines.append('')
+					lines.append(_('Documents: %s') % len(docs))
+				del docs
+
+			# test results
+			if with_tests:
+				tests = emr.get_test_results_by_date(episodes = epi_pks)
+				if len(tests) > 0:
+					lines.append('')
+					lines.append(_('Measurements and Results: %s') % len(tests))
+				del tests
+
+			# vaccinations
+			if with_vaccinations:
+				vaccs = emr.get_vaccinations(episodes = epi_pks, order_by = 'date_given, vaccine')
+				if len(vaccs) > 0:
+					lines.append('')
+					lines.append(_('Vaccinations:'))
+				for vacc in vaccs:
+					lines.extend(vacc.format(with_reaction = True))
+				del vaccs
+		del epis
+		return lines
+
+	#--------------------------------------------------------
 	def format (self, left_margin=0, patient=None,
 		with_summary=True,
 		with_codes=True,
@@ -385,164 +539,23 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 					initial_indent = '  ',
 					subsequent_indent = '  '
 				))
-
-		# codes ?
-		if with_codes:
-			codes = self.generic_codes
-			if len(codes) > 0:
-				lines.append('')
-			for c in codes:
-				lines.append(' %s: %s (%s - %s)' % (
-					c['code'],
-					c['term'],
-					c['name_short'],
-					c['version']
-				))
-			del codes
-
 		lines.append('')
-
 		# patient/emr dependant
-		if patient is not None:
-			if patient.ID != self._payload['pk_patient']:
-				msg = '<patient>.ID = %s but health issue %s belongs to patient %s' % (
-					patient.ID,
-					self._payload['pk_health_issue'],
-					self._payload['pk_patient']
-				)
-				raise ValueError(msg)
-			emr = patient.emr
-
-			# episodes
-			if with_episodes:
-				epis = self.get_episodes()
-				if epis is None:
-					lines.append(_('Error retrieving episodes for this health issue.'))
-				elif len(epis) == 0:
-					lines.append(_('There are no episodes for this health issue.'))
-				else:
-					lines.append (
-						_('Episodes: %s (most recent: %s%s%s)') % (
-							len(epis),
-							gmTools.u_left_double_angle_quote,
-							emr.get_most_recent_episode(issue = self._payload['pk_health_issue'])['description'],
-							gmTools.u_right_double_angle_quote
-						)
-					)
-					for epi in epis:
-						lines.append(' \u00BB%s\u00AB (%s)' % (
-							epi['description'],
-							gmTools.bool2subst(epi['episode_open'], _('ongoing'), _('closed'))
-						))
-				lines.append('')
-
-			# encounters
-			if with_encounters:
-				first_encounter = emr.get_first_encounter(issue_id = self._payload['pk_health_issue'])
-				last_encounter = emr.get_last_encounter(issue_id = self._payload['pk_health_issue'])
-
-				if first_encounter is None or last_encounter is None:
-					lines.append(_('No encounters found for this health issue.'))
-				else:
-					encs = emr.get_encounters(issues = [self._payload['pk_health_issue']])
-					lines.append(_('Encounters: %s (%s - %s):') % (
-						len(encs),
-						first_encounter['started_original_tz'].strftime('%m/%Y'),
-						last_encounter['last_affirmed_original_tz'].strftime('%m/%Y')
-					))
-					lines.append(_(' Most recent: %s - %s') % (
-						last_encounter['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
-						last_encounter['last_affirmed_original_tz'].strftime('%H:%M')
-					))
-
-			# medications
-			if with_medications:
-				meds = emr.get_current_medications (
-					issues = [ self._payload['pk_health_issue'] ],
-					order_by = 'discontinued DESC NULLS FIRST, started, substance'
-				)
-				if len(meds) > 0:
-					lines.append('')
-					lines.append(_('Medications and Substances'))
-				for m in meds:
-					lines.append(m.format(left_margin = (left_margin + 1)))
-				del meds
-
-			# hospitalizations
-			if with_hospital_stays:
-				stays = emr.get_hospital_stays (
-					issues = [ self._payload['pk_health_issue'] ]
-				)
-				if len(stays) > 0:
-					lines.append('')
-					lines.append(_('Hospitalizations: %s') % len(stays))
-				for s in stays:
-					lines.append(s.format(left_margin = (left_margin + 1)))
-				del stays
-
-			# procedures
-			if with_procedures:
-				procs = emr.get_performed_procedures (
-					issues = [ self._payload['pk_health_issue'] ]
-				)
-				if len(procs) > 0:
-					lines.append('')
-					lines.append(_('Procedures performed: %s') % len(procs))
-				for p in procs:
-					lines.append(p.format(left_margin = (left_margin + 1)))
-				del procs
-
-			# family history
-			if with_family_history:
-				fhx = emr.get_family_history(issues = [ self._payload['pk_health_issue'] ])
-				if len(fhx) > 0:
-					lines.append('')
-					lines.append(_('Family History: %s') % len(fhx))
-				for f in fhx:
-					lines.append(f.format (
-						left_margin = (left_margin + 1),
-						include_episode = True,
-						include_comment = True,
-						include_codes = False
-					))
-				del fhx
-
-			epis = self.get_episodes()
-			if len(epis) > 0:
-				epi_pks = [ e['pk_episode'] for e in epis ]
-
-				# documents
-				if with_documents:
-					doc_folder = patient.get_document_folder()
-					docs = doc_folder.get_documents(pk_episodes = epi_pks)
-					if len(docs) > 0:
-						lines.append('')
-						lines.append(_('Documents: %s') % len(docs))
-					del docs
-
-				# test results
-				if with_tests:
-					tests = emr.get_test_results_by_date(episodes = epi_pks)
-					if len(tests) > 0:
-						lines.append('')
-						lines.append(_('Measurements and Results: %s') % len(tests))
-					del tests
-
-				# vaccinations
-				if with_vaccinations:
-					vaccs = emr.get_vaccinations(episodes = epi_pks, order_by = 'date_given, vaccine')
-					if len(vaccs) > 0:
-						lines.append('')
-						lines.append(_('Vaccinations:'))
-					for vacc in vaccs:
-						lines.extend(vacc.format(with_reaction = True))
-					del vaccs
-
-			del epis
-
+		lines.extend(self.__format_clinical_data (
+			patient,
+			with_episodes = with_episodes,
+			with_encounters = with_encounters,
+			with_medications = with_medications,
+			with_hospital_stays = with_hospital_stays,
+			with_procedures = with_procedures,
+			with_family_history = with_family_history,
+			with_documents = with_documents,
+			with_tests = with_tests,
+			with_vaccinations = with_vaccinations
+		))
 		if with_external_care:
 			care = self._get_external_care(order_by = 'organization, unit, provider')
-			if len(care) > 0:
+			if care:
 				lines.append('')
 				lines.append(_('External care:'))
 			for item in care:
@@ -557,6 +570,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		eol_w_margin = '\n%s' % left_margin
 		lines = gmTools.strip_trailing_empty_lines(lines = lines, eol = '\n')
 		return left_margin + eol_w_margin.join(lines) + '\n'
+
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
@@ -4016,7 +4030,8 @@ if __name__ == '__main__':
 #		h_issue = cHealthIssue(encounter = 1, name = u'post appendectomy/peritonitis')
 #		print h_issue
 #		print h_issue.format_as_journal()
-		print(h_issue.formatted_revision_history)
+		#print(h_issue.formatted_revision_history)
+		print(h_issue.format())
 
 	#--------------------------------------------------------	
 	def test_episode():
@@ -4121,12 +4136,13 @@ if __name__ == '__main__':
 		print(mp._find_matches('no patient'))
 
 	#--------------------------------------------------------
-	# run them
+	gmPG2.request_login_params(setup_pool = True)
+
 	#test_episode()
 	#test_episode_encounters()
 	#test_problem()
 	#test_encounter()
-	#test_health_issue()
+	test_health_issue()
 	#test_hospital_stay()
 	#test_performed_procedure()
 	#test_diagnostic_certainty_classification_map()
@@ -4135,6 +4151,6 @@ if __name__ == '__main__':
 
 	#test_export_emr_structure()
 
-	test_cEpisodeMatchProvider()
+	#test_cEpisodeMatchProvider()
 
 #============================================================
