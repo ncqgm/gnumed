@@ -477,8 +477,8 @@ def __get_time_part_tags (
 			'weeks': ' ' + (_('week') if weeks == 1 else _('weeks')),
 			'days': ' ' + (_('day') if days == 1 else _('days')),
 			'hours': ' ' + (_('hour') if hours == 1 else _('hours')),
-			'minutes': ' ' + (_('minute') if mins == 1 else _('minutes')),
-			'seconds': ' ' + (_('second') if secs == 1 else _('seconds'))
+			'minutes': ' ' + (_('minute') if minutes == 1 else _('minutes')),
+			'seconds': ' ' + (_('second') if seconds == 1 else _('seconds'))
 		}
 
 	return {
@@ -514,7 +514,7 @@ def format_interval(interval=None, accuracy_wanted:int=None, none_string:str=Non
 		days = days,
 		hours = hours,
 		minutes = mins,
-		seconds = seconds
+		seconds = secs
 	)
 	# special cases
 	if years == 0:
