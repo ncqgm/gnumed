@@ -692,6 +692,20 @@ def gm_show_question(question:str=None, title:str=None, cancel_button:bool=False
 	return None
 
 #======================================================================
+__IS_DARK_THEME:bool=None	# hash calculation, requires client restart for dark/ligth theme change
+
+def is_probably_dark_theme():
+	global __IS_DARK_THEME
+	if __IS_DARK_THEME is not None:
+		return __IS_DARK_THEME
+
+	bg_colour = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
+	# detect if light/dark color
+	brightness = (bg_colour.Red() * 299 + bg_colour.Green() * 587 + bg_colour.Blue() * 114) / 1000
+	__IS_DARK_THEME = (brightness < 128)		# dark background/theme ?
+	return __IS_DARK_THEME
+
+#======================================================================
 if __name__ == '__main__':
 
 	if len(sys.argv) < 2:
