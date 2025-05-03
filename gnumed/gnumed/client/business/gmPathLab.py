@@ -1177,16 +1177,163 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		return txt.strip('\n')
 
 	#--------------------------------------------------------
+	def __format_evaluation(self) -> str:
+		if self._payload['val_num'] is None:
+			return ''
+
+		tt = ''
+		norm_eval = None
+		# 1) normal range
+		# lowered ?
+		if (self._payload['val_normal_min'] is not None) and (self._payload['val_num'] < self._payload['val_normal_min']):
+			try:
+				percent = (self._payload['val_num'] * 100) / self._payload['val_normal_min']
+			except ZeroDivisionError:
+				percent = None
+			if percent is not None:
+				if percent < 6:
+					norm_eval = _('%.1f %% of the normal lower limit') % percent
+				else:
+					norm_eval = _('%.0f %% of the normal lower limit') % percent
+		# raised ?
+		if (self._payload['val_normal_max'] is not None) and (self._payload['val_num'] > self._payload['val_normal_max']):
+			try:
+				x_times = self._payload['val_num'] / self._payload['val_normal_max']
+			except ZeroDivisionError:
+				x_times = None
+			if x_times is not None:
+				if x_times < 10:
+					norm_eval = _('%.1f times the normal upper limit') % x_times
+				else:
+					norm_eval = _('%.0f times the normal upper limit') % x_times
+		if norm_eval:
+			tt += '  = %s\n' % norm_eval
+#		#-------------------------------------
+#		# this idea was shot down on the list
+#		#-------------------------------------
+#		# bandwidth of deviation
+#		if None not in [self._payload['val_normal_min'], self._payload['val_normal_max']]:
+#			normal_width = self._payload['val_normal_max'] - self._payload['val_normal_min']
+#			deviation_from_normal_range = None
+#			# below ?
+#			if self._payload['val_num'] < self._payload['val_normal_min']:
+#				deviation_from_normal_range = self._payload['val_normal_min'] - self._payload['val_num']
+#			# above ?
+#			elif self._payload['val_num'] > self._payload['val_normal_max']:
+#				deviation_from_normal_range = self._payload['val_num'] - self._payload['val_normal_max']
+#			if deviation_from_normal_range is None:
+#				try:
+#					times_deviation = deviation_from_normal_range / normal_width
+#				except ZeroDivisionError:
+#					times_deviation = None
+#				if times_deviation is not None:
+#					if times_deviation < 10:
+#						tt += u'  (%s)\n' % _(u'deviates by %.1f times of the normal range') % times_deviation
+#					else:
+#						tt += u'  (%s)\n' % _(u'deviates by %.0f times of the normal range') % times_deviation
+#		#-------------------------------------
+		# 2) clinical target range
+		norm_eval = None
+		# lowered ?
+		if (self._payload['val_target_min'] is not None) and (self._payload['val_num'] < self._payload['val_target_min']):
+			try:
+				percent = (self._payload['val_num'] * 100) / self._payload['val_target_min']
+			except ZeroDivisionError:
+				percent = None
+			if percent is not None:
+				if percent < 6:
+					norm_eval = _('%.1f %% of the target lower limit') % percent
+				else:
+					norm_eval = _('%.0f %% of the target lower limit') % percent
+		# raised ?
+		if (self._payload['val_target_max'] is not None) and (self._payload['val_num'] > self._payload['val_target_max']):
+			try:
+				x_times = self._payload['val_num'] / self._payload['val_target_max']
+			except ZeroDivisionError:
+				x_times = None
+			if x_times is not None:
+				if x_times < 10:
+					norm_eval = _('%.1f times the target upper limit') % x_times
+				else:
+					norm_eval = _('%.0f times the target upper limit') % x_times
+		if norm_eval:
+			tt += ' = %s\n' % norm_eval
+#		#-------------------------------------
+#		# this idea was shot down on the list
+#		#-------------------------------------
+#		# bandwidth of deviation
+#		if None not in [self._payload['val_target_min'], self._payload['val_target_max']]:
+#			normal_width = self._payload['val_target_max'] - self._payload['val_target_min']
+#			deviation_from_target_range = None
+#			# below ?
+#			if self._payload['val_num'] < self._payload['val_target_min']:
+#				deviation_from_target_range = self._payload['val_target_min'] - self._payload['val_num']
+#			# above ?
+#			elif self._payload['val_num'] > self._payload['val_target_max']:
+#				deviation_from_target_range = self._payload['val_num'] - self._payload['val_target_max']
+#			if deviation_from_target_range is None:
+#				try:
+#					times_deviation = deviation_from_target_range / normal_width
+#				except ZeroDivisionError:
+#					times_deviation = None
+#			if times_deviation is not None:
+#				if times_deviation < 10:
+#					tt += u'  (%s)\n' % _(u'deviates by %.1f times of the target range') % times_deviation
+#				else:
+#					tt += u'  (%s)\n' % _(u'deviates by %.0f times of the target range') % times_deviation
+		return tt
+
+	#--------------------------------------------------------
+	def __format_review(self, date_format:str='%Y %b %d %H:%M') -> str:
+		if self._payload['reviewed']:
+			review = self._payload['last_reviewed'].strftime(date_format)
+		else:
+			review = _('not yet')
+		tt = _('Signed (%(sig_hand)s): %(reviewed)s\n') % ({
+			'sig_hand': gmTools.u_writing_hand,
+			'reviewed': review
+		})
+		tt += ' ' + _('Responsible clinician: %s\n') % gmTools.bool2subst (
+			self._payload['you_are_responsible'],
+			_('you'),
+			self._payload['responsible_reviewer']
+		)
+		if self._payload['reviewed']:
+			tt += ' ' + _('Last reviewer: %(reviewer)s\n') % ({
+				'reviewer': gmTools.bool2subst (
+					self._payload['review_by_you'],
+					_('you'),
+					gmTools.coalesce(self._payload['last_reviewer'], '?')
+				)
+			})
+			tt += ' ' + _(' Technically abnormal: %(abnormal)s\n') % ({
+				'abnormal': gmTools.bool2subst (
+					self._payload['is_technically_abnormal'],
+					_('yes'),
+					_('no'),
+					'?'
+				)
+			})
+			tt += ' ' + _(' Clinically relevant: %(relevant)s\n') % ({
+				'relevant': gmTools.bool2subst (
+					self._payload['is_clinically_relevant'],
+					_('yes'),
+					_('no'),
+					'?'
+				)
+			})
+		if self._payload['review_comment']:
+			tt += ' ' + _(' Comment: %s\n') % self._payload['review_comment'].strip()
+		tt += '\n'
+		return tt
+
+	#--------------------------------------------------------
 	def format(self, with_review=True, with_evaluation=True, with_ranges=True, with_episode=True, with_type_details=True, with_source_data=False, date_format='%Y %b %d %H:%M'):
 
 		# FIXME: add battery, request details
 
 		# header
-		tt = _('Result from %s             \n') % gmDateTime.pydt_strftime (
-			self._payload['clin_when'],
-			date_format
-		)
-
+		tt = _('Result from %s             \n') % self._payload['clin_when'].strftime(date_format)
 		# basics
 		tt += ' ' + _('Type: "%(name)s" (%(abbr)s)  [#%(pk_type)s]\n') % ({
 			'name': self._payload['name_tt'],
@@ -1205,118 +1352,17 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			'pk_result': self._payload['pk_test_result']
 		})
 
-		if self._payload['status'] is not None:
+		if self._payload['status']:
 			try:
 				stat = HL7_RESULT_STATI[self._payload['status']]
 			except KeyError:
 				stat = self._payload['status']
 			tt += ' ' + _('Status: %s\n') % stat
-		if self._payload['val_grouping'] is not None:
+		if self._payload['val_grouping']:
 			tt += ' ' + _('Grouping: %s\n') % self._payload['val_grouping']
 
 		if with_evaluation:
-			norm_eval = None
-			if self._payload['val_num'] is not None:
-				# 1) normal range
-				# lowered ?
-				if (self._payload['val_normal_min'] is not None) and (self._payload['val_num'] < self._payload['val_normal_min']):
-					try:
-						percent = (self._payload['val_num'] * 100) / self._payload['val_normal_min']
-					except ZeroDivisionError:
-						percent = None
-					if percent is not None:
-						if percent < 6:
-							norm_eval = _('%.1f %% of the normal lower limit') % percent
-						else:
-							norm_eval = _('%.0f %% of the normal lower limit') % percent
-				# raised ?
-				if (self._payload['val_normal_max'] is not None) and (self._payload['val_num'] > self._payload['val_normal_max']):
-					try:
-						x_times = self._payload['val_num'] / self._payload['val_normal_max']
-					except ZeroDivisionError:
-						x_times = None
-					if x_times is not None:
-						if x_times < 10:
-							norm_eval = _('%.1f times the normal upper limit') % x_times
-						else:
-							norm_eval = _('%.0f times the normal upper limit') % x_times
-				if norm_eval is not None:
-					tt += '  = %s\n' % norm_eval
-	#			#-------------------------------------
-	#			# this idea was shot down on the list
-	#			#-------------------------------------
-	#			# bandwidth of deviation
-	#			if None not in [self._payload['val_normal_min'], self._payload['val_normal_max']]:
-	#				normal_width = self._payload['val_normal_max'] - self._payload['val_normal_min']
-	#				deviation_from_normal_range = None
-	#				# below ?
-	#				if self._payload['val_num'] < self._payload['val_normal_min']:
-	#					deviation_from_normal_range = self._payload['val_normal_min'] - self._payload['val_num']
-	#				# above ?
-	#				elif self._payload['val_num'] > self._payload['val_normal_max']:
-	#					deviation_from_normal_range = self._payload['val_num'] - self._payload['val_normal_max']
-	#				if deviation_from_normal_range is None:
-	#					try:
-	#						times_deviation = deviation_from_normal_range / normal_width
-	#					except ZeroDivisionError:
-	#						times_deviation = None
-	#					if times_deviation is not None:
-	#						if times_deviation < 10:
-	#							tt += u'  (%s)\n' % _(u'deviates by %.1f times of the normal range') % times_deviation
-	#						else:
-	#							tt += u'  (%s)\n' % _(u'deviates by %.0f times of the normal range') % times_deviation
-	#			#-------------------------------------
-
-				# 2) clinical target range
-				norm_eval = None
-				# lowered ?
-				if (self._payload['val_target_min'] is not None) and (self._payload['val_num'] < self._payload['val_target_min']):
-					try:
-						percent = (self._payload['val_num'] * 100) / self._payload['val_target_min']
-					except ZeroDivisionError:
-						percent = None
-					if percent is not None:
-						if percent < 6:
-							norm_eval = _('%.1f %% of the target lower limit') % percent
-						else:
-							norm_eval = _('%.0f %% of the target lower limit') % percent
-				# raised ?
-				if (self._payload['val_target_max'] is not None) and (self._payload['val_num'] > self._payload['val_target_max']):
-					try:
-						x_times = self._payload['val_num'] / self._payload['val_target_max']
-					except ZeroDivisionError:
-						x_times = None
-					if x_times is not None:
-						if x_times < 10:
-							norm_eval = _('%.1f times the target upper limit') % x_times
-						else:
-							norm_eval = _('%.0f times the target upper limit') % x_times
-				if norm_eval is not None:
-					tt += ' = %s\n' % norm_eval
-	#			#-------------------------------------
-	#			# this idea was shot down on the list
-	#			#-------------------------------------
-	#			# bandwidth of deviation
-	#			if None not in [self._payload['val_target_min'], self._payload['val_target_max']]:
-	#				normal_width = self._payload['val_target_max'] - self._payload['val_target_min']
-	#				deviation_from_target_range = None
-	#				# below ?
-	#				if self._payload['val_num'] < self._payload['val_target_min']:
-	#					deviation_from_target_range = self._payload['val_target_min'] - self._payload['val_num']
-	#				# above ?
-	#				elif self._payload['val_num'] > self._payload['val_target_max']:
-	#					deviation_from_target_range = self._payload['val_num'] - self._payload['val_target_max']
-	#				if deviation_from_target_range is None:
-	#					try:
-	#						times_deviation = deviation_from_target_range / normal_width
-	#					except ZeroDivisionError:
-	#						times_deviation = None
-	#				if times_deviation is not None:
-	#					if times_deviation < 10:
-	#						tt += u'  (%s)\n' % _(u'deviates by %.1f times of the target range') % times_deviation
-	#					else:
-	#						tt += u'  (%s)\n' % _(u'deviates by %.0f times of the target range') % times_deviation
-	#			#-------------------------------------
+			tt += self.__format_evaluation()
 
 		tmp = ('%s%s' % (
 			gmTools.coalesce(self._payload['name_test_org'], ''),
@@ -1347,49 +1393,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		tt += '\n'
 
 		if with_review:
-			if self._payload['reviewed']:
-				review = gmDateTime.pydt_strftime (
-					self._payload['last_reviewed'],
-					date_format
-				)
-			else:
-				review = _('not yet')
-			tt += _('Signed (%(sig_hand)s): %(reviewed)s\n') % ({
-				'sig_hand': gmTools.u_writing_hand,
-				'reviewed': review
-			})
-			tt += ' ' + _('Responsible clinician: %s\n') % gmTools.bool2subst (
-				self._payload['you_are_responsible'],
-				_('you'),
-				self._payload['responsible_reviewer']
-			)
-			if self._payload['reviewed']:
-				tt += ' ' + _('Last reviewer: %(reviewer)s\n') % ({
-					'reviewer': gmTools.bool2subst (
-						self._payload['review_by_you'],
-						_('you'),
-						gmTools.coalesce(self._payload['last_reviewer'], '?')
-					)
-				})
-				tt += ' ' + _(' Technically abnormal: %(abnormal)s\n') % ({
-					'abnormal': gmTools.bool2subst (
-						self._payload['is_technically_abnormal'],
-						_('yes'),
-						_('no'),
-						'?'
-					)
-				})
-				tt += ' ' + _(' Clinically relevant: %(relevant)s\n') % ({
-					'relevant': gmTools.bool2subst (
-						self._payload['is_clinically_relevant'],
-						_('yes'),
-						_('no'),
-						'?'
-					)
-				})
-			if self._payload['review_comment'] is not None:
-				tt += ' ' + _(' Comment: %s\n') % self._payload['review_comment'].strip()
-			tt += '\n'
+			tt += self.__format_review(date_format = date_format)
 
 		# type
 		if with_type_details:
@@ -3258,6 +3262,8 @@ if __name__ == '__main__':
 #			cTestResult(aPK_obj=4)
 		]
 		print(format_test_results(results = results))
+		for r in results:
+			print(r.format())
 	#--------------------------------------------------------
 	def test_calculate_bmi():
 		done, data = calculate_bmi(mass = sys.argv[2], height = sys.argv[3])
@@ -3367,13 +3373,13 @@ if __name__ == '__main__':
 	#test_pending()
 	#test_meta_test_type()
 	#test_test_type()
-	#test_format_test_results()
+	test_format_test_results()
 	#test_calculate_bmi()
 	#test_test_panel()
 	#test_get_test_results()
 	#test_get_most_recent_results_for_panel()
 	#test_get_most_recent_results_in_loinc_group()
 	#test_export_result_for_gnuplot()
-	test_format_test_results_failsafe()
+	#test_format_test_results_failsafe()
 
 #============================================================
