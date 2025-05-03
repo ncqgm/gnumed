@@ -243,19 +243,15 @@ class cPlatformLocalTimezone(pyDT.tzinfo):
 #---------------------------------------------------------------------------
 def get_next_month(dt:pyDT.datetime):
 	next_month = dt.month + 1
-	if next_month == 13:
-		return 1
-	return next_month
+	return 1 if next_month == 13 else next_month
 
 #---------------------------------------------------------------------------
 def get_last_month(dt:pyDT.datetime):
 	last_month = dt.month - 1
-	if last_month == 0:
-		return 12
-	return last_month
+	return 12 if last_month == 0 else last_month
 
 #---------------------------------------------------------------------------
-def get_date_of_weekday_in_week_of_date(weekday, base_dt:pyDT.datetime=None) -> pyDT.datetime:
+def get_date_of_weekday_in_week_of_date(weekday:int, base_dt:pyDT.datetime=None) -> pyDT.datetime:
 	# weekday:
 	# 0 = Sunday
 	# 1 = Monday ...
@@ -298,8 +294,7 @@ def format_dob(dob:pyDT.datetime, format:str='%Y %b %d', none_string:str=None, d
 	return dob_txt
 
 #---------------------------------------------------------------------------
-def pydt_strftime(dt=None, format='%Y %b %d  %H:%M.%S', none_str=None):
-
+def pydt_strftime(dt=None:pyDT.datetime, format:str='%Y %b %d  %H:%M.%S', none_str:str=None):
 	if dt is None:
 		if none_str is not None:	# can be '', though ...
 			return none_str
