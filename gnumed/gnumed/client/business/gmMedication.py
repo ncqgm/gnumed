@@ -2733,7 +2733,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 			lines.append('')
 			lines.append(_('Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s.') % {
 				'row_ver': self._payload['row_version'],
-				'mod_when': gmDateTime.pydt_strftime(self._payload['modified_when']),
+				'mod_when': self._payload['modified_when'].strftime('%Y %b %d  %H:%M.%S'),
 				'mod_by': self._payload['modified_by']
 			})
 		if eol is None:
@@ -2791,7 +2791,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		lines.append('')
 		lines.append(_('Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s.') % {
 			'row_ver': self._payload['row_version'],
-			'mod_when': gmDateTime.pydt_strftime(self._payload['modified_when']),
+			'mod_when': self._payload['modified_when'].strftime('%Y %b %d  %H:%M.%S'),
 			'mod_by': self._payload['modified_by']
 		})
 		if eol is None:
@@ -3765,13 +3765,13 @@ def format_regimen_like_as_multiple_lines_abuse(regimen_like:cIntakeRegimen | cI
 	if include_metadata:
 		lines.append(_('Intake revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s.') % {
 			'row_ver': regimen_like['row_version__intake'],
-			'mod_when': gmDateTime.pydt_strftime(regimen_like['modified_when__intake']),
+			'mod_when': regimen_like['modified_when__intake'].strftime('%Y %b %d  %H:%M.%S'),
 			'mod_by': regimen_like['modified_by__intake']
 		})
 		if regimen_like['row_version__regimen']:
 			lines.append(_('Regimen revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s.') % {
 				'row_ver': regimen_like['row_version__regimen'],
-				'mod_when': gmDateTime.pydt_strftime(regimen_like['modified_when__regimen']),
+				'mod_when': regimen_like['modified_when__regimen'].strftime('%Y %b %d  %H:%M.%S'),
 				'mod_by': regimen_like['modified_by__regimen']
 			})
 	if eol is None:
@@ -3870,14 +3870,14 @@ def format_regimen_like_as_multiple_lines (
 		lines.append(_('Intake: #%(pk)s, rev %(row_ver)s, %(mod_when)s by %(mod_by)s.') % {
 			'pk': regimen_like['pk_intake'],
 			'row_ver': regimen_like['row_version__intake'],
-			'mod_when': gmDateTime.pydt_strftime(regimen_like['modified_when__intake']),
+			'mod_when': regimen_like['modified_when__intake'].strftime('%Y %b %d  %H:%M.%S'),
 			'mod_by': regimen_like['modified_by__intake']
 		})
 		if regimen_like['pk_intake_regimen']:
 			lines.append(_('Regimen: #%(pk)s, rev %(row_ver)s, %(mod_when)s by %(mod_by)s.') % {
 				'pk': regimen_like['pk_intake_regimen'],
 				'row_ver': regimen_like['row_version__regimen'],
-				'mod_when': gmDateTime.pydt_strftime(regimen_like['modified_when__regimen']),
+				'mod_when': regimen_like['modified_when__regimen'].strftime('%Y %b %d  %H:%M.%S'),
 				'mod_by': regimen_like['modified_by__regimen']
 			})
 	if not eol:

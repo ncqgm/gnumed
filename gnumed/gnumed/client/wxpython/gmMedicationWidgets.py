@@ -142,13 +142,13 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		edc = emr.EDC
 
 		# display EDC
-		if edc is not None:
+		if edc:
 			if emr.EDC_is_fishy:
 				lbl = wx.StaticText(self, -1, _('EDC (!?!):'))
-				val = wx.StaticText(self, -1, gmDateTime.pydt_strftime(edc, format = '%Y %b %d'))
+				val = wx.StaticText(self, -1, edc.strftime('%Y %b %d'))
 			else:
 				lbl = wx.StaticText(self, -1, _('EDC:'))
-				val = wx.StaticText(self, -1, gmDateTime.pydt_strftime(edc, format = '%Y %b %d'))
+				val = wx.StaticText(self, -1, edc.strftime('%Y %b %d'))
 			lbl.SetForegroundColour('blue')
 			szr = wx.BoxSizer(wx.HORIZONTAL)
 			szr.Add(lbl, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)

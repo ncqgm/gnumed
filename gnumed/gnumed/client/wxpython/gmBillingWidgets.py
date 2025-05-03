@@ -748,7 +748,7 @@ def remove_items_from_bill(parent=None, bill=None):
 		parent = wx.GetApp().GetTopWindow()
 
 	list_items = [ [
-		gmDateTime.pydt_strftime(b['date_to_bill'], '%Y %b %d'),
+		b['date_to_bill'].strftime('%Y %b %d'),
 		b['unit_count'],
 		'%s: %s%s' % (b['billable_code'], b['billable_description'], gmTools.coalesce(b['item_detail'], '', ' - %s')),
 		'%(curr)s %(total_val)s (%(count)s %(x)s %(unit_val)s%(x)s%(val_multiplier)s)' % {
@@ -926,7 +926,7 @@ def manage_bills(parent=None, patient=None):
 			if b['close_date'] is None:
 				close_date = _('<open>')
 			else:
-				close_date = gmDateTime.pydt_strftime(b['close_date'], '%Y %b %d')
+				close_date = b['close_date'].strftime('%Y %b %d')
 			if b['total_amount'] is None:
 				amount = _('no items on bill')
 			else:
@@ -1152,7 +1152,7 @@ def manage_bill_items(parent=None, pk_patient=None):
 	def refresh(lctrl):
 		b_items = gmBilling.get_bill_items(pk_patient = pk_patient)
 		items = [ [
-			gmDateTime.pydt_strftime(b['date_to_bill'], '%Y %b %d'),
+			b['date_to_bill'].strftime('%Y %b %d'),
 			b['unit_count'],
 			'%s: %s%s' % (b['billable_code'], b['billable_description'], gmTools.coalesce(b['item_detail'], '', ' - %s')),
 			b['currency'],
@@ -1222,7 +1222,7 @@ class cPersonBillItemsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 
 		b_items = gmBilling.get_bill_items(pk_patient = self.__identity.ID, non_invoiced_only = self.__show_non_invoiced_only)
 		items = [ [
-			gmDateTime.pydt_strftime(b['date_to_bill'], '%Y %b %d'),
+			b['date_to_bill'].strftime('%Y %b %d'),
 			b['unit_count'],
 			'%s: %s%s' % (b['billable_code'], b['billable_description'], gmTools.coalesce(b['item_detail'], '', ' - %s')),
 			b['currency'],

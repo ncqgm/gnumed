@@ -73,7 +73,7 @@ def _ask_for_encounter_continuation(new_encounter=None, fairly_recent_encounter=
 		' (If not a new one will be used.)\n'
 	) % (
 		curr_pat.get_description_gender(with_nickname = False),
-		gmDateTime.pydt_strftime(curr_pat['dob'], '%Y %b %d'),
+		curr_pat.get_formatted_dob('%Y %b %d'),
 		curr_pat.ID,
 		fairly_recent_encounter.format (
 			episodes = None,
@@ -318,7 +318,10 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 
 		items = [
 			[
-				'%s - %s' % (gmDateTime.pydt_strftime(e['started'], '%Y %b %d  %H:%M'), e['last_affirmed'].strftime('%H:%M')),
+				'%s - %s' % (
+					e['started'].strftime('%Y %b %d  %H:%M'),
+					e['last_affirmed'].strftime('%H:%M')
+				),
 				e['l10n_type'],
 				gmTools.coalesce(e['praxis_branch'], ''),
 				gmTools.coalesce(e['reason_for_encounter'], ''),
@@ -408,7 +411,7 @@ class cEncounterPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	#--------------------------------------------------------
 	def set_from_instance(self, instance):
 		val = '%s: %s' % (
-			gmDateTime.pydt_strftime(instance['started'], '%Y %b %d'),
+			instance['started'].strftime('%Y %b %d'),
 			instance['l10n_type']
 		)
 		self.SetText(value = val, data = instance['pk_encounter'])

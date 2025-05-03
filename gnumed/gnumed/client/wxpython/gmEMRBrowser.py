@@ -281,7 +281,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			template = ' %s - %s (%s)\n\n'
 			self.__root_tooltip += template % (
 				self.__pat.get_formatted_dob(format = '%d.%b %Y'),
-				gmDateTime.pydt_strftime(self.__pat['deceased'], '%Y %b %d'),
+				self.__pat['deceased'].strftime('%Y %b %d'),
 				self.__pat.medical_age
 			)
 		self.__root_tooltip += gmTools.coalesce(self.__pat['comment'], '', '%s\n\n')
@@ -730,7 +730,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 	#--------------------------------------------------------
 	def __calc_encounter_tooltip(self, encounter):
 		tt = '%s  %s  %s - %s\n' % (
-			gmDateTime.pydt_strftime(encounter['started'], '%Y %b %d'),
+			encounter['started'].strftime('%Y %b %d'),
 			encounter['l10n_type'],
 			encounter['started'].strftime('%H:%M'),
 			encounter['last_affirmed'].strftime('%H:%M')
@@ -1237,7 +1237,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 #					return
 #
 #				self.SetToolTip(u'%s  %s  %s - %s\n\nRFE: %s\nAOE: %s' % (
-#					gmDateTime.pydt_strftime(data['started'], '%Y %b %d'),
+#					gmDateTime.py--dt_strftime(data['started'], '%Y %b %d'),
 #					data['l10n_type'],
 #					data['started'].strftime('%H:%m'),
 #					data['last_affirmed'].strftime('%H:%m'),
@@ -1665,9 +1665,9 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 			soap_cat = gmSoapDefs.soap_cat2l10n[entry['soap_cat']]
 			who = '%s (%s)' % (entry['modified_by'], entry['date_modified'])
 			try:
-				entry_date = gmDateTime.pydt_strftime(entry[date_fields[0]], '%Y-%m-%d')
+				entry_date = entry[date_fields[0]].strftime('%Y-%m-%d')
 			except KeyError:
-				entry_date = gmDateTime.pydt_strftime(entry[date_fields[1]], '%Y-%m-%d')
+				entry_date = entry[date_fields[1]].strftime('%Y-%m-%d')
 			if entry_date == prev_date:
 				date2show = ''
 			else:
@@ -1726,8 +1726,8 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 			enc_duration = gmTools.u_diameter
 		else:
 			enc_duration = '%s - %s' % (
-				gmDateTime.pydt_strftime(entry['encounter_started'], '%Y %b %d  %H:%M'),
-				gmDateTime.pydt_strftime(entry['encounter_last_affirmed'], '%H:%M')
+				entry['encounter_started'].strftime('%Y %b %d  %H:%M'),
+				entry['encounter_last_affirmed'].strftime('%H:%M')
 			)
 		self.__data[entry['src_table']][entry['src_pk']]['formatted_header'] = _(
 			'Chart entry: %s       [#%s in %s]\n'

@@ -1087,7 +1087,7 @@ def manage_documents(parent=None, msg=None, single_selection=True, pk_types=None
 	def refresh(lctrl):
 		docs = pat.document_folder.get_documents(pk_types = pk_types, pk_episodes = pk_episodes)
 		items = [ [
-			gmDateTime.pydt_strftime(d['clin_when'], '%Y %b %d'),
+			d['clin_when'].strftime('%Y %b %d'),
 			d['l10n_type'],
 			gmTools.coalesce(d['comment'], ''),
 			gmTools.coalesce(d['ext_ref'], ''),
@@ -1291,7 +1291,7 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 
 		items = []
 		items.append([_('Document'), '%s [#%s]' % (document['l10n_type'], document['pk_doc'])])
-		items.append([_('Generated'), gmDateTime.pydt_strftime(document['clin_when'], '%Y %b %d')])
+		items.append([_('Generated'), document['clin_when'].strftime('%Y %b %d')])
 		items.append([_('Health issue'), gmTools.coalesce(document['health_issue'], '', '%%s [#%s]' % document['pk_health_issue'])])
 		items.append([_('Episode'), '%s (%s) [#%s]' % (
 			document['episode'],
@@ -1325,7 +1325,7 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 				include_receiver = False,
 				include_doc = False
 			)])
-		items.append([_('Modified'), gmDateTime.pydt_strftime(document['modified_when'], '%Y %b %d')])
+		items.append([_('Modified'), document['modified_when'].strftime('%Y %b %d')])
 		items.append([_('... by'), document['modified_by']])
 		items.append([_('# encounter'), document['pk_encounter']])
 		return items

@@ -553,7 +553,7 @@ def select_narrative(parent=None, soap_cats=None, msg=None):
 		lctrl.secondary_sort_column = 0
 		soap = emr.get_clin_narrative(soap_cats = soap_cats)
 		lctrl.set_string_items ([ [
-			gmDateTime.pydt_strftime(s['date'], '%Y %m %d'),
+			s['date'].strftime('%Y %m %d'),
 			s['modified_by'],
 			gmSoapDefs.soap_cat2l10n[s['soap_cat']],
 			s['narrative'],
@@ -622,7 +622,7 @@ def select_narrative_by_issue(parent=None, soap_cats=None):
 			),
 			columns = [_('When'), _('Who'), _('Type'), _('Entry')],
 			choices = [ [
-				gmDateTime.pydt_strftime(narr['date'], '%Y %b %d  %H:%M'),
+				narr['date'].strftime('%Y %b %d  %H:%M'),
 				narr['modified_by'],
 				gmSoapDefs.soap_cat2l10n[narr['soap_cat']],
 				narr['narrative'].replace('\n', '//').replace('\r', '//')
@@ -750,7 +750,7 @@ def select_narrative_by_episode(parent=None, soap_cats=None):
 			),
 			columns = [_('When'), _('Who'), _('Type'), _('Entry')],
 			choices = [ [
-				gmDateTime.pydt_strftime(narr['date'], '%Y %b %d  %H:%M'),
+				narr['date'].strftime('%Y %b %d  %H:%M'),
 				narr['modified_by'],
 				gmSoapDefs.soap_cat2l10n[narr['soap_cat']],
 				narr['narrative'].replace('\n', '//').replace('\r', '//')

@@ -242,11 +242,11 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 				))
 
 		edc = self.curr_pat.emr.EDC
-		if edc is not None:
+		if edc:
 			if self.curr_pat.emr.EDC_is_fishy:
-				tests2show.append(_('?EDC %s') % gmDateTime.pydt_strftime(edc, '%Y-%b-%d'))
+				tests2show.append(_('?EDC %s') % edc.strftime('%Y-%b-%d'))
 			else:
-				tests2show.append(_('EDC %s') % gmDateTime.pydt_strftime(edc, '%Y-%b-%d'))
+				tests2show.append(_('EDC %s') % edc.strftime('%Y-%b-%d'))
 
 		INRs = self.curr_pat.emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_inr_quantity, max_no_of_results = 1)
 		if len(INRs) > 0:
@@ -300,13 +300,13 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 		tt += _('Born: %s\n') % self.curr_pat.get_formatted_dob(format = '%d %b %Y')
 
 		# patient is dead
-		if self.curr_pat['deceased'] is not None:
-			tt += _('Died: %s\n') % gmDateTime.pydt_strftime(self.curr_pat['deceased'], '%d %b %Y')
+		if self.curr_pat['deceased']:
+			tt += _('Died: %s\n') % self.curr_pat['deceased'].strftime('%d %b %Y')
 			tt += _('At age: %s\n') % self.curr_pat.medical_age
 			age = '%s  %s - %s (%s)' % (
 				self.curr_pat.gender_symbol,
 				self.curr_pat.get_formatted_dob(format = '%d %b %Y'),
-				gmDateTime.pydt_strftime(self.curr_pat['deceased'], '%d %b %Y'),
+				self.curr_pat['deceased'].strftime('%d %b %Y'),
 				self.curr_pat.medical_age
 			)
 			if self.curr_pat['dob_is_estimated']:
@@ -384,7 +384,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 			if state['last_confirmed'] is None:
 				confirmed = _('never')
 			else:
-				confirmed = gmDateTime.pydt_strftime(state['last_confirmed'], '%Y %b %d')
+				confirmed = state['last_confirmed'].strftime('%Y %b %d')
 			tt = (state.state_string + (90 * ' '))[:90] + '\n'
 			tt += _('last confirmed %s\n') % confirmed
 			tt += gmTools.coalesce(state['comment'], '', _('Comment (%s): %%s') % state['modified_by'])
@@ -419,7 +419,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 					color = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT)
 				display = state.state_symbol
 				if state['last_confirmed']:
-					display += gmDateTime.pydt_strftime(state['last_confirmed'], ' (%Y %b)')
+					display += state['last_confirmed'].strftime(' (%Y %b)')
 			else:
 				color = 'yellow'
 				display = _('obtain')

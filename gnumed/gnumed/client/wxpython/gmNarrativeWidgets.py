@@ -75,10 +75,10 @@ class cMoveNarrativeDlg(wxgMoveNarrativeDlg.wxgMoveNarrativeDlg):
 
 		self.LBL_source_episode.SetLabel('%s%s' % (self.source_episode['description'], gmTools.coalesce(self.source_episode['health_issue'], '', ' (%s)')))
 		self.LBL_encounter.SetLabel('%s: %s %s - %s' % (
-			gmDateTime.pydt_strftime(self.encounter['started'], '%Y %b %d'),
+			self.encounter['started'].strftime('%Y %b %d'),
 			self.encounter['l10n_type'],
-			gmDateTime.pydt_strftime(self.encounter['started'], '%H:%M'),
-			gmDateTime.pydt_strftime(self.encounter['last_affirmed'], '%H:%M')
+			self.encounter['started'].strftime('%H:%M'),
+			self.encounter['last_affirmed'].strftime('%H:%M')
 		))
 		pat = gmPerson.gmCurrentPatient()
 		emr = pat.emr
