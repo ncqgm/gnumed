@@ -27,6 +27,7 @@ NEW: forms: failsafe lab results list
 NEW: documents: failsafe documents list
 NEW: paperwork: direct access to failsafe forms
 NEW: forms: failsafe progress notes form
+NEW: macro expansions in LaTeX templates
 
 IMPROVED: GUI: show current patient/provider in window titles
 IMPROVED: placeholder: $current_provider_name$
