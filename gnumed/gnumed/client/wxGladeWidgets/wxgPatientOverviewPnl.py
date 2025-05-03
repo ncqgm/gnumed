@@ -39,7 +39,7 @@ class wxgPatientOverviewPnl(wx.ScrolledWindow):
 		# begin wxGlade: wxgPatientOverviewPnl.__set_properties
 		self.SetSize((400, 300))
 		self.SetScrollRate(10, 10)
-		self._LCTRL_problems.SetBackgroundColour(wx.Colour(255, 238, 180))
+		# self._LCTRL_problems.SetBackgroundColour(wx.Colour(255, 238, 180))  # already set in gmPatOverviewWidgets.py
 		# end wxGlade
 
 	def __do_layout(self):
