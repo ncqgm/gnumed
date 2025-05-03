@@ -86,6 +86,10 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		self._LCTRL_meds.item_tooltip_callback = self._calc_meds_list_item_tooltip
 		self._LCTRL_meds.activate_callback = self._on_meds_item_activated
 
+		if gmGuiHelpers.is_probably_dark_theme():
+			self._LCTRL_problems.SetBackgroundColour(wx.Colour(0, 0, 120)) # blue
+		else:
+			self._LCTRL_problems.SetBackgroundColour(wx.Colour(255, 238, 180)) # orig light yellow
 		self._LCTRL_problems.set_columns(columns = [''])
 		self._LCTRL_problems.item_tooltip_callback = self._calc_problem_list_item_tooltip
 		self._LCTRL_problems.activate_callback = self._on_problem_activated
