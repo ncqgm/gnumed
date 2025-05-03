@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-27 11:35+0200\n"
+"POT-Creation-Date: 2025-05-03 14:48+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2466,6 +2466,9 @@ msgid "interval_format_tag::weeks::w"
 msgstr ""
 
 msgid "interval_format_tag::days::d"
+msgstr ""
+
+msgid "interval_format_tag::seconds::s"
 msgstr ""
 
 msgid "0 years"
@@ -6788,6 +6791,36 @@ msgstr ""
 msgid "Nest under"
 msgstr ""
 
+msgid "The name for this gender definition."
+msgstr ""
+
+msgid "Translation of name into your language."
+msgstr ""
+
+msgid "An abbreviation for this gender definition."
+msgstr ""
+
+msgid "Translation:"
+msgstr ""
+
+msgid "Translation of abbreviation into your language."
+msgstr ""
+
+msgid "Symbol"
+msgstr ""
+
+msgid "Symbolic representation for this gender."
+msgstr ""
+
+msgid "Alternative:"
+msgstr ""
+
+msgid "Symbol for this gender appropriate to your culture."
+msgstr ""
+
+msgid "A descriptive comment on this gender definition."
+msgstr ""
+
 msgid "Generic multi line text entry dialog"
 msgstr ""
 
@@ -9654,27 +9687,6 @@ msgstr ""
 msgid "Clinical data generated during encounters under this health issue:"
 msgstr ""
 
-#, python-format
-msgid "Health Issue %s%s%s%s   [#%s]"
-msgstr ""
-
-msgid " ***** CONFIDENTIAL *****"
-msgstr ""
-
-msgid " contributed to death of patient"
-msgstr ""
-
-#, python-format
-msgid " Created during encounter: %s (%s - %s)   [#%s]"
-msgstr ""
-
-#, python-format
-msgid " Noted at age: %s"
-msgstr ""
-
-msgid "not clinically relevant"
-msgstr ""
-
 msgid "Error retrieving episodes for this health issue."
 msgstr ""
 
@@ -9720,6 +9732,27 @@ msgid "Measurements and Results: %s"
 msgstr ""
 
 msgid "Vaccinations:"
+msgstr ""
+
+#, python-format
+msgid "Health Issue %s%s%s%s   [#%s]"
+msgstr ""
+
+msgid " ***** CONFIDENTIAL *****"
+msgstr ""
+
+msgid " contributed to death of patient"
+msgstr ""
+
+#, python-format
+msgid " Created during encounter: %s (%s - %s)   [#%s]"
+msgstr ""
+
+#, python-format
+msgid " Noted at age: %s"
+msgstr ""
+
+msgid "not clinically relevant"
 msgstr ""
 
 msgid "External care:"
@@ -11633,9 +11666,6 @@ msgid "Cyrillic"
 msgstr ""
 
 msgid "Four Es"
-msgstr ""
-
-msgid "Symbol"
 msgstr ""
 
 msgid "Snellen Chart"
@@ -19622,6 +19652,25 @@ msgid "This person did NOT receive care here."
 msgstr ""
 
 msgid "Disabling person"
+msgstr ""
+
+msgid "Abbreviation needed for gender definition."
+msgstr ""
+
+msgid "Name needed for gender definition."
+msgstr ""
+
+msgid "Adding new gender definition"
+msgstr ""
+
+msgid "Editing gender definition"
+msgstr ""
+
+msgid "Managing gender definitions"
+msgstr ""
+
+#, python-format
+msgid "Current language (database): %s"
 msgstr ""
 
 msgid "Type or select a last name (family name/surname)."

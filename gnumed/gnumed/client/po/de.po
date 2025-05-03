@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-24 16:02+0200\n"
-"PO-Revision-Date: 2025-01-26 17:50+0100\n"
+"POT-Creation-Date: 2025-05-03 14:48+0200\n"
+"PO-Revision-Date: 2025-04-27 23:55+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -2708,6 +2708,9 @@ msgstr "interval_format_tag::weeks::W"
 msgid "interval_format_tag::days::d"
 msgstr "interval_format_tag::days::T"
 
+msgid "interval_format_tag::seconds::s"
+msgstr "interval_format_tag::seconds::S"
+
 msgid "0 years"
 msgstr "0 Jahre"
 
@@ -5294,7 +5297,7 @@ msgid "Add document(s) from file(s)."
 msgstr "Dokumente aus Dateien hinzufügen."
 
 msgid "← &Directory"
-msgstr "← Verzeichnis"
+msgstr "← &Verzeichnis"
 
 msgid "Add a local directory."
 msgstr "Lokales Verzeichnis hinzufügen."
@@ -5327,7 +5330,7 @@ msgid "Save selected/all items to disk."
 msgstr "Gewählte/alle Dokumente auf Datenträger speichern."
 
 msgid "E&xport"
-msgstr ""
+msgstr "E&xportieren"
 
 msgid "Export all/selected items to removable media (CD/DVD/USB)."
 msgstr "Alle/die gewählten Einträge auf ein Medium (CD/DVD/BD) exportieren."
@@ -5813,10 +5816,10 @@ msgid "use subdirectory"
 msgstr "Unterverzeichnis benutzen"
 
 msgid "generate &metadata"
-msgstr "Beschreibungen erstellen"
+msgstr "&Beschreibungen erstellen"
 
 msgid "en&crypt"
-msgstr "verschlüsseln"
+msgstr "&verschlüsseln"
 
 msgid "convert to PDF"
 msgstr "in PDF umwandeln"
@@ -7661,6 +7664,39 @@ msgstr "Eine Zusammenfassung des aktuellen Stands dieser Episode."
 
 msgid "Nest under"
 msgstr "Einordnen unter"
+
+msgid "The name for this gender definition."
+msgstr "Die Bezeichnung für diese Geschlechtsdefinition."
+
+msgid "Translation of name into your language."
+msgstr ""
+"Übersetzung der Bezeichnung für die Geschlechtsdefinition in Ihre "
+"Landessprache."
+
+msgid "An abbreviation for this gender definition."
+msgstr "Eine Kurzform für diese Geschlechtsdefinition."
+
+msgid "Translation:"
+msgstr "Übersetzung:"
+
+msgid "Translation of abbreviation into your language."
+msgstr ""
+"Übersetzung der Kurzform für die Geschlechtsdefinition in Ihre Landessprache."
+
+msgid "Symbol"
+msgstr "Symbol"
+
+msgid "Symbolic representation for this gender."
+msgstr "Symbol für diese Geschlechtsdefinition."
+
+msgid "Alternative:"
+msgstr "Landessprachlich:"
+
+msgid "Symbol for this gender appropriate to your culture."
+msgstr "Landestypisches Symbol für diese Geschlechtsdefinition."
+
+msgid "A descriptive comment on this gender definition."
+msgstr "Ein Kommentar zu dieser Geschlechtsdefinition."
 
 msgid "Generic multi line text entry dialog"
 msgstr "Allgemeiner Texteingabedialog"
@@ -9735,6 +9771,21 @@ msgstr "Allergien/Unverträglichkeiten"
 msgid "Allergy detail: %s"
 msgstr "Allergiedetails: %s"
 
+msgid "male"
+msgstr "männlich"
+
+msgid "female"
+msgstr "weiblich"
+
+msgid "unknown gender"
+msgstr "unbekanntes Geschlecht"
+
+msgid "Mr"
+msgstr "Herr"
+
+msgid "Mrs"
+msgstr "Frau"
+
 msgid "expired"
 msgstr "verfallen"
 
@@ -10076,21 +10127,6 @@ msgstr "explizit"
 #, python-format
 msgid "invalid age: DOB [%s] after reference date [%s] (%s)"
 msgstr "ungültiges Alter: Geburtsdatum [%s] nach Referenzdatum [%s] (%s)"
-
-msgid "male"
-msgstr "männlich"
-
-msgid "female"
-msgstr "weiblich"
-
-msgid "unknown gender"
-msgstr "unbekanntes Geschlecht"
-
-msgid "Mr"
-msgstr "Herr"
-
-msgid "Mrs"
-msgstr "Frau"
 
 msgid "empty status"
 msgstr "unbekannter Status"
@@ -10789,27 +10825,6 @@ msgstr "beidseits"
 msgid "Clinical data generated during encounters under this health issue:"
 msgstr "Medizinische Daten aus Kontakten zu dieser Grunderkrankung:"
 
-#, python-format
-msgid "Health Issue %s%s%s%s   [#%s]"
-msgstr "Grunderkrankung %s%s%s%s   [#%s]"
-
-msgid " ***** CONFIDENTIAL *****"
-msgstr " ***** VERTRAULICH *****"
-
-msgid " contributed to death of patient"
-msgstr " trug zum Tode des Patienten bei"
-
-#, python-format
-msgid " Created during encounter: %s (%s - %s)   [#%s]"
-msgstr " Angelegt während Konsultation: %s (%s - %s)   [#%s]"
-
-#, python-format
-msgid " Noted at age: %s"
-msgstr " Bemerkt im Alter von: %s"
-
-msgid "not clinically relevant"
-msgstr "medizinisch nicht relevant"
-
 msgid "Error retrieving episodes for this health issue."
 msgstr "Fehler beim Laden der Episoden für diese Grunderkrankung."
 
@@ -10856,6 +10871,27 @@ msgstr "Messungen und Ergebnisse: %s"
 
 msgid "Vaccinations:"
 msgstr "Impfungen:"
+
+#, python-format
+msgid "Health Issue %s%s%s%s   [#%s]"
+msgstr "Grunderkrankung %s%s%s%s   [#%s]"
+
+msgid " ***** CONFIDENTIAL *****"
+msgstr " ***** VERTRAULICH *****"
+
+msgid " contributed to death of patient"
+msgstr " trug zum Tode des Patienten bei"
+
+#, python-format
+msgid " Created during encounter: %s (%s - %s)   [#%s]"
+msgstr " Angelegt während Konsultation: %s (%s - %s)   [#%s]"
+
+#, python-format
+msgid " Noted at age: %s"
+msgstr " Bemerkt im Alter von: %s"
+
+msgid "not clinically relevant"
+msgstr "medizinisch nicht relevant"
 
 msgid "External care:"
 msgstr "Externe Mitbetreuung:"
@@ -11804,9 +11840,9 @@ msgstr ""
 "\n"
 " Markieren Sie die Einträge, die in den Bericht einfließen sollen.\n"
 
-#, fuzzy, python-format
+#, python-format
 msgid "Progress Notes -- %s"
-msgstr "Verlaufsnotizen"
+msgstr "Verlaufsnotizen -- %s"
 
 msgid "Pick a date ..."
 msgstr "Wählen Sie ein Datum ..."
@@ -13096,9 +13132,6 @@ msgstr "Kyrillisch"
 
 msgid "Four Es"
 msgstr "Vier Es"
-
-msgid "Symbol"
-msgstr "Symbol"
 
 msgid "Snellen Chart"
 msgstr "Snellen-Tafel"
@@ -18510,16 +18543,14 @@ msgstr "Medikamentenquelle"
 msgid "Select the drug data source."
 msgstr "Wählen Sie die Medikamentenquelle."
 
-#, fuzzy
 msgid "ADR URL (Meds)"
-msgstr "UAW-URL"
+msgstr "UAW-URL (Medik)"
 
 msgid "URL for reporting Adverse Drug Reactions."
 msgstr "Webseite für die Meldung von Unerwünschten Arzneimittelwirkungen."
 
-#, fuzzy
 msgid "ADR URL (Vx)"
-msgstr "UAW-URL"
+msgstr "UAW-URL (Impfg)"
 
 msgid "URL for reporting Adverse Drug Reactions to *vaccines*."
 msgstr "Webseite für die Meldung von Impfreaktionen."
@@ -18754,6 +18785,9 @@ msgstr "Zwischenablage (&vCard) → Patient"
 msgid "Import demographics from clipboard (vCard) as patient"
 msgstr "Importiere Stammdaten von der Zwischenablage (vCard) als Patienten"
 
+msgid "&Import\\u2026"
+msgstr "&Importieren\\u2026"
+
 msgid "Export demographics of currently active person as GDT into clipboard."
 msgstr ""
 "Stammdaten der aktiven Person im GDT-Format in die Zwischenablage legen."
@@ -18780,6 +18814,9 @@ msgstr "Stammdaten der aktiven Person als vCard-Datei exportieren."
 msgid "\\u2192 &File as\\u2026"
 msgstr "\\u2192 &Datei als\\u2026"
 
+msgid "E&xport\\u2026"
+msgstr "E&xportieren\\u2026"
+
 msgid "&Merge persons"
 msgstr "Personen &zusammenführen"
 
@@ -18803,6 +18840,9 @@ msgstr "Als Nutzer aufnehmen"
 
 msgid "Enlist current person as GNUmed user"
 msgstr "Aktuelle Person als GNUmed-Nutzer aufnehmen"
+
+msgid "&Person"
+msgstr "&Person"
 
 msgid "&Past history (health issue / PMH)"
 msgstr "&Grunderkrankung (Eigenanamnese)"
@@ -19000,13 +19040,11 @@ msgstr "&Unspezifisches Dokument"
 msgid "Write free-form document for current patient."
 msgstr "Einen Brief ohne Vorlage für den aktiven Patienten schreiben."
 
-#, fuzzy
 msgid "&Failsafe document"
-msgstr "Faxe Dokumente"
+msgstr "Aus&fallsicheres Dokument"
 
-#, fuzzy
 msgid "Generate failsafe document."
-msgstr "Medikamentenliste erzeugt"
+msgstr "Ausfallsicheres Dokument erzeugen."
 
 msgid "Screenshot -> export area"
 msgstr "Bildschirmfoto -> Sammelmappe"
@@ -19099,7 +19137,7 @@ msgid "Save a screenshot of this GNUmed client."
 msgstr "Ein Bildschirmphoto des Programms erstellen."
 
 msgid "Status line: &Clear"
-msgstr "Statuszeile leeren"
+msgstr "Statuszeile &leeren"
 
 msgid "Clear the status line."
 msgstr "Die Statuszeile leeren."
@@ -19366,21 +19404,17 @@ msgstr ""
 msgid "Cannot write letter. No active patient."
 msgstr "Kann keinen Brief schreiben. Kein Patient aktiv."
 
-#, fuzzy
 msgid "Cannot generate document. No active patient."
-msgstr "Kann Dokumente nicht laden. Kein Patient aktiv."
+msgstr "Kann Dokumente nicht erzeugen. Kein Patient aktiv."
 
-#, fuzzy
 msgid "Vaccination history"
-msgstr "Impfstand -- %s"
+msgstr "Impfhistorie"
 
-#, fuzzy
 msgid "Prescription"
-msgstr "Beschreibung"
+msgstr "Verordnung"
 
-#, fuzzy
 msgid "Documents list"
-msgstr "Dokumente: %s"
+msgstr "Liste von Dokumente"
 
 msgid "Measurements"
 msgstr "Meßwerte"
@@ -19392,10 +19426,10 @@ msgid ""
 "A text-only document will be generated and displayed for editing and "
 "printing."
 msgstr ""
+"Ein Textdokument wird erzeugt und zum Bearbeiten und Drucken angezeigt."
 
-#, fuzzy
 msgid "Generate failsafe document"
-msgstr "Medikamentenliste erzeugt"
+msgstr "Ausfallsicheres Dokument erzeugen"
 
 msgid "Cannot put screenshot into export area. No active patient."
 msgstr "Kann kein Bildschirmfoto in Sammelmappe legen. Kein Patient aktiv."
@@ -22420,6 +22454,25 @@ msgstr "Diese Person wurde hier noch NICHT behandelt."
 msgid "Disabling person"
 msgstr "Patient deaktivieren"
 
+msgid "Abbreviation needed for gender definition."
+msgstr "Kurzform notwendig für eine Geschlechtsdefinition."
+
+msgid "Name needed for gender definition."
+msgstr "Bezeichnung notwendig für Geschlechtsdefinition."
+
+msgid "Adding new gender definition"
+msgstr "Neue Geschlechtsdefinition anlegen"
+
+msgid "Editing gender definition"
+msgstr "Geschlechtsdefinition bearbeiten"
+
+msgid "Managing gender definitions"
+msgstr "Geschlechtsdefinition verwalten"
+
+#, python-format
+msgid "Current language (database): %s"
+msgstr "Aktuelle Sprache (Datenbank): %s"
+
 msgid "Type or select a last name (family name/surname)."
 msgstr "Tippen oder wählen Sie einen Familien-/Nachnamen."
 
@@ -23043,13 +23096,11 @@ msgstr "Sammelmappe"
 msgid "loading plugin <%s>"
 msgstr "lade Modul <%s>"
 
-#, fuzzy
 msgid "EMR TL"
-msgstr "Krankenblattbaum"
+msgstr "Kartei-Strahl"
 
-#, fuzzy
 msgid "EMR: T&imeline"
-msgstr "Krankenblatt - Zeitstrahl"
+msgstr "Krankenblatt: &Zeitstrahl"
 
 msgid "Overview"
 msgstr "Übersicht"
@@ -23072,9 +23123,8 @@ msgstr "&EinfachKartei"
 msgid "EMR Tree"
 msgstr "Krankenblattbaum"
 
-#, fuzzy
 msgid "EMR: &Tree"
-msgstr "Krankenblatt: &Baum"
+msgstr "Kartei: &Baum"
 
 msgid "Print Manager"
 msgstr "Druckcenter"
@@ -23082,13 +23132,11 @@ msgstr "Druckcenter"
 msgid "&Print Manager"
 msgstr "&Druckcenter"
 
-#, fuzzy
 msgid "EMR List"
-msgstr "Liste"
+msgstr "Kartei-Liste"
 
-#, fuzzy
 msgid "EMR: &List Journal"
-msgstr "Krankenblattjournal"
+msgstr "Krankenblatt: &Liste"
 
 msgid "&Vaccinations"
 msgstr "&Impfungen"
@@ -23135,13 +23183,11 @@ msgstr "Handbuch"
 msgid "User &manual (local)"
 msgstr "&Handbuch (lokal)"
 
-#, fuzzy
 msgid "EMR Text"
-msgstr "Krankenblattbaum"
+msgstr "Kartei-Text"
 
-#, fuzzy
 msgid "EMR: Te&xt Journal"
-msgstr "Krankenblattjournal"
+msgstr "Krankenblatt: &Journal"
 
 msgid "Demographics"
 msgstr "Personalien"
@@ -23258,7 +23304,7 @@ msgid "Find text"
 msgstr "Text finden"
 
 msgid "translated string"
-msgstr ""
+msgstr "Übersetzung"
 
 msgid "gm_ctl_client: starting slave GNUmed client"
 msgstr "gm_ctl_client: Starte ferngesteuertes GNUmed"
@@ -26467,9 +26513,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ msgid "edit form template details"
 #~ msgstr "Details der Vorlage ändern"
 
-#~ msgid "Save the form template definition."
-#~ msgstr "Die Dokumentenvorlagen speichern."
-
 #~ msgid "Processed by:"
 #~ msgstr "Verarbeitet von:"
 
@@ -26618,9 +26661,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "provider only"
 #~ msgstr "Anwender"
-
-#~ msgid "About active:"
-#~ msgstr "Über aktiven:"
 
 #~ msgid "Active-patient related"
 #~ msgstr "über aktiven Patienten"
