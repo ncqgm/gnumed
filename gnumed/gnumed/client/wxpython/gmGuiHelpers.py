@@ -703,6 +703,8 @@ def is_probably_dark_theme():
 	# detect if light/dark color
 	brightness = (bg_colour.Red() * 299 + bg_colour.Green() * 587 + bg_colour.Blue() * 114) / 1000
 	__IS_DARK_THEME = (brightness < 128)		# dark background/theme ?
+	_log.debug('wx.SYS_COLOUR_WINDOW brightness: %s', brightness)
+	_log.debug('considered dark theme: %s (brightness < 128)', __IS_DARK_THEME)
 	return __IS_DARK_THEME
 
 #======================================================================
