@@ -294,7 +294,7 @@ def format_dob(dob:pyDT.datetime, format:str='%Y %b %d', none_string:str=None, d
 	return dob_txt
 
 #---------------------------------------------------------------------------
-def pydt_strftime(dt=None:pyDT.datetime, format:str='%Y %b %d  %H:%M.%S', none_str:str=None):
+def pydt_strftime(dt:pyDT.datetime=None, format:str='%Y %b %d  %H:%M.%S', none_str:str=None):
 	if dt is None:
 		if none_str is not None:	# can be '', though ...
 			return none_str
