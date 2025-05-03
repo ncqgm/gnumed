@@ -762,10 +762,19 @@ if __name__ == '__main__':
 		print(decorate_window_title('test window'))
 
 	#------------------------------------------------------------------
+	def test_is_probably_dark_theme():
+		from Gnumed.wxpython import gmGuiTest
+		frame = gmGuiTest.setup_widget_test_env(patient = None)
+		print(frame)
+		print(is_probably_dark_theme())
+		print(is_probably_dark_theme())
+
+	#------------------------------------------------------------------
 	#test_scale_img()
 	#test_sql_logic_prw()
 	#test_clipboard()
 	#test_take_screenshot()
-	test_decorate_window_title()
+	#test_decorate_window_title()
+	test_is_probably_dark_theme()
 
 #======================================================================
