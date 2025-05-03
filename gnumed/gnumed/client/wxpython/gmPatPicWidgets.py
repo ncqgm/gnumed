@@ -17,7 +17,6 @@ import wx, wx.lib.imagebrowser
 # GNUmed
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmDateTime
 
 from Gnumed.business import gmDocuments
 from Gnumed.business import gmPerson

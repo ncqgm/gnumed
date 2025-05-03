@@ -23,7 +23,6 @@ else:
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmDateTime
 
 from Gnumed.business import gmSoapDefs
 from Gnumed.business.gmEMRStructItems import cHealthIssue

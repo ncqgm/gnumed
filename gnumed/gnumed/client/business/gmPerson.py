@@ -570,30 +570,27 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	def __setitem__(self, attribute:str, value):
 
 		if attribute == 'dob':
-			if value is not None:
+			if value is None:
+				super().__setitem__(attribute, value)
+				return
 
-				if isinstance(value, pyDT.datetime):
-					if value.tzinfo is None:
-						raise ValueError('datetime.datetime instance is lacking a time zone: [%s]' % value.isoformat())
-				else:
-					raise TypeError('[%s]: type [%s] (%s) invalid for attribute [dob], must be datetime.datetime or None' % (self.__class__.__name__, type(value), value))
+			if not isinstance(value, pyDT.datetime):
+				raise TypeError('[%s]: type [%s] (%s) invalid for attribute [dob], must be datetime.datetime or None' % (self.__class__.__name__, type(value), value))
 
-				# compare DOB at seconds level
-				if self._payload['dob']:
-					old_dob = gmDateTime.pydt_strftime (
-						self._payload['dob'],
-						format = '%Y %m %d %H %M %S',
-						accuracy = gmDateTime.ACC_SECONDS
-					)
-					new_dob = gmDateTime.pydt_strftime (
-						value,
-						format = '%Y %m %d %H %M %S',
-						accuracy = gmDateTime.ACC_SECONDS
-					)
-					if new_dob == old_dob:
-						return
+			if value.tzinfo is None:
+				raise ValueError('datetime.datetime instance is lacking a time zone: [%s]' % value.isoformat())
 
-		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
+			if not self._payload['dob']:
+				super().__setitem__(attribute, value)
+				return
+
+			# compare DOB at seconds level
+			old_dob_str = self._payload['dob'].strftime('%Y %m %d %H %M %S')
+			new_dob_str = value.strftime('%Y %m %d %H %M %S')
+			if new_dob_str == old_dob_str:
+				return
+
+		super().__setitem__(attribute, value)
 
 	#--------------------------------------------------------
 	def cleanup(self):

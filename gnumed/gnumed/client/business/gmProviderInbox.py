@@ -67,11 +67,7 @@ class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 	#------------------------------------------------------------
 	def format(self, with_patient=True):
 		tt = '%s: %s%s\n' % (
-			gmDateTime.pydt_strftime (
-				self._payload['received_when'],
-				format = '%A, %Y %b %d, %H:%M',
-				accuracy = gmDateTime.ACC_MINUTES
-			),
+			self._payload['received_when'].strftime('%A, %Y %b %d, %H:%M'),
 			gmTools.bool2subst(self._payload['is_virtual'], _('virtual message'), _('message')),
 			gmTools.coalesce(self._payload['pk_inbox_message'], '', ' #%s ')
 		)
@@ -125,6 +121,7 @@ class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 				tt += gmTools.u_ellipsis
 
 		return tt
+
 #------------------------------------------------------------
 def get_reminders(pk_patient=None, order_by=None, return_pks=False):
 

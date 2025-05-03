@@ -52,7 +52,7 @@ def calculate_edc(parent=None, patient=None):
 				'Really delete the EDC documented previously ?\n'
 				'\n'
 				' EDC: %s'
-			) % gmDateTime.pydt_strftime(prev_edc, '%Y %b %d'),
+			) % prev_edc.strftime('%Y %b %d'),
 			cancel_button = False
 		)
 		if not delete_edc:
@@ -137,14 +137,13 @@ class cEdcCalculatorDlg(wxgEdcCalculatorDlg.wxgEdcCalculatorDlg):
 				'Current age of pregnancy (%s):\n'
 				' day %s = %s weeks %s days = week %s = month %s\n\n'
 			) % (
-				gmDateTime.pydt_strftime(now, '%Y %b %d'),
+				now.strftime('%Y %b %d'),
 				age.days,
 				int(weeks),
 				int(days),
 				week,
 				month
 			)
-
 		details += edc.format (
 			left_margin = 1,
 			width = 50,
@@ -155,6 +154,7 @@ class cEdcCalculatorDlg(wxgEdcCalculatorDlg.wxgEdcCalculatorDlg):
 			return_list = False
 		)
 		self._TCTRL_details.SetValue(details)
+
 	#----------------------------------------------------------------
 	# properties
 	#----------------------------------------------------------------

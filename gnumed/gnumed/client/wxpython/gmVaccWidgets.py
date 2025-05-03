@@ -825,7 +825,7 @@ def manage_vaccinations(parent=None, latest_only:bool=False, expand_indications=
 				items.append ([
 					indication,
 					_('%s (latest of %s: %s ago)') % (
-						gmDateTime.pydt_strftime(latest_vacc4ind['date_given'], format = '%Y %b'),
+						latest_vacc4ind['date_given'].strftime('%Y %b'),
 						no_of_shots4ind,
 						gmDateTime.format_interval_medically(gmDateTime.pydt_now_here() - latest_vacc4ind['date_given'])
 					),
@@ -852,7 +852,7 @@ def manage_vaccinations(parent=None, latest_only:bool=False, expand_indications=
 						items.append ([
 							'%s (#%s)' % (ind, idx),
 							_('%s (%s ago)') % (
-								gmDateTime.pydt_strftime(shot['date_given'], '%Y %b %d'),
+								shot['date_given'].strftime('%Y %b %d'),
 								gmDateTime.format_interval_medically(gmDateTime.pydt_now_here() - shot['date_given'])
 							),
 							gmTools.coalesce(shot['vaccine'], _('generic')),
@@ -865,7 +865,7 @@ def manage_vaccinations(parent=None, latest_only:bool=False, expand_indications=
 						data.append(shot)
 			else:
 				items = [ [
-					gmDateTime.pydt_strftime(s['date_given'], '%Y %b %d'),
+					s['date_given'].strftime('%Y %b %d'),
 					gmTools.coalesce(s['vaccine'], _('generic')),
 					', '.join([ i['l10n_indication'] for i in s['indications'] ]),
 					s['batch_no'],

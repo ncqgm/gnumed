@@ -177,14 +177,14 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 			lbl = _('A (one) "%s, %s (%s)" already exists.') % (
 				lname,
 				gmTools.coalesce(fname, '?', '%s %%s%s %s' % (gmTools.u_ellipsis, gmTools.u_ellipsis, gmTools.u_ellipsis)),
-				gmDateTime.pydt_strftime(dob, '%Y %b %d', 'utf8')
+				gmDateTime.pydt_strftime(dob, '%Y %b %d', none_str = _('unknown DOB'))
 			)
 		else:
 			lbl = _('%s "%s, %s (%s)" already exist.') % (
 				no_of_dupes,
 				lname,
 				gmTools.coalesce(fname, '?', '%s %%s%s %s' % (gmTools.u_ellipsis, gmTools.u_ellipsis, gmTools.u_ellipsis)),
-				gmDateTime.pydt_strftime(dob, '%Y %b %d', 'utf8')
+				gmDateTime.pydt_strftime(dob, '%Y %b %d', none_str = _('unknown DOB'))
 			)
 		self._LBL_person_exists.SetLabel(lbl)
 

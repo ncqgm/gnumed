@@ -280,12 +280,11 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 				lines.append('')
 				prev_epi = row['pk_episode']
 
-			when = gmDateTime.pydt_strftime(row['clin_when'], date_format)
 			top_row = '%s%s %s (%s) %s' % (
 				gmTools.u_box_top_left_arc,
 				gmTools.u_box_horiz_single,
 				gmSoapDefs.soap_cat2l10n_str[row['real_soap_cat']],
-				when,
+				row['clin_when'].strftime(date_format),
 				gmTools.u_box_horiz_single * 5
 			)
 			soap = gmTools.wrap (
@@ -302,7 +301,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 				gmTools.u_box_horiz_light_heavy,
 				row['modified_by'],
 				row_ver,
-				gmDateTime.pydt_strftime(row['modified_when'], date_format),
+				row['modified_when'].strftime(date_format),
 				gmTools.u_box_horiz_heavy_light
 			)
 
@@ -314,9 +313,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		return left_margin + eol_w_margin.join(lines) + '\n'
 
 	#--------------------------------------------------------
-	def __format_clinical_data (
-		self,
-		patient,
+	def __format_clinical_data(self, left_margin=0, patient=None,
 		with_episodes=True,
 		with_encounters=True,
 		with_medications=True,
@@ -468,7 +465,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		return lines
 
 	#--------------------------------------------------------
-	def format (self, left_margin=0, patient=None,
+	def format(self, left_margin=0, patient=None,
 		with_summary=True,
 		with_codes=True,
 		with_episodes=True,
@@ -542,6 +539,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		lines.append('')
 		# patient/emr dependant
 		lines.extend(self.__format_clinical_data (
+			left_margin,
 			patient,
 			with_episodes = with_episodes,
 			with_encounters = with_encounters,
@@ -1294,7 +1292,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 				gmTools.u_box_horiz_light_heavy,
 				row['modified_by'],
 				row_ver,
-				gmDateTime.pydt_strftime(row['modified_when'], date_format),
+				row['modified_when'].strftime(date_format),
 				gmTools.u_box_horiz_heavy_light
 			)
 
@@ -1940,11 +1938,11 @@ def format_clinical_duration_of_episode(start=None, end=None):
 
 	if end is None:
 		start_end_str = '%s-%s' % (
-			gmDateTime.pydt_strftime(start, "%b'%y"),
+			start.strftime("%b'%y"),
 			gmTools.u_ellipsis
 		)
 		start_end_str_long = '%s - %s' % (
-			gmDateTime.pydt_strftime(start, '%b %d %Y'),
+			start.strftime('%b %d %Y'),
 			gmTools.u_ellipsis
 		)
 		duration_str = _('%s so far') % gmDateTime.format_interval_medically(gmDateTime.pydt_now_here() - start)
@@ -1954,29 +1952,29 @@ def format_clinical_duration_of_episode(start=None, end=None):
 	# year different:
 	if end.year != start.year:
 		start_end_str = '%s-%s' % (
-			gmDateTime.pydt_strftime(start, "%b'%y"),
-			gmDateTime.pydt_strftime(end, "%b'%y")
+			start.strftime("%b'%y"),
+			end.strftime("%b'%y")
 		)
 		start_end_str_long = '%s - %s' % (
-			gmDateTime.pydt_strftime(start, '%b %d %Y'),
-			gmDateTime.pydt_strftime(end, '%b %d %Y')
+			start.strftime('%b %d %Y'),
+			end.strftime('%b %d %Y')
 		)
 		return (start_end_str, start_end_str_long, duration_str)
 	# same year:
 	if end.month != start.month:
 		start_end_str = '%s-%s' % (
-			gmDateTime.pydt_strftime(start, '%b'),
-			gmDateTime.pydt_strftime(end, "%b'%y")
+			start.strftime('%b'),
+			end.strftime("%b'%y")
 		)
 		start_end_str_long = '%s - %s' % (
-			gmDateTime.pydt_strftime(start, '%b %d'),
-			gmDateTime.pydt_strftime(end, '%b %d %Y')
+			start.strftime('%b %d'),
+			end.strftime('%b %d %Y')
 		)
 		return (start_end_str, start_end_str_long, duration_str)
 
 	# same year and same month
-	start_end_str = gmDateTime.pydt_strftime(start, "%b'%y")
-	start_end_str_long = gmDateTime.pydt_strftime(start, '%b %d %Y')
+	start_end_str = start.strftime("%b'%y")
+	start_end_str_long = start.strftime('%b %d %Y')
 	return (start_end_str, start_end_str_long, duration_str)
 
 #============================================================
@@ -2453,16 +2451,11 @@ limit 1
 					subsequent_indent = (' ' * left_margin)
 				)
 				lines.append(txt)
-				when = gmDateTime.pydt_strftime (
-					soap_entry['date'],
-					format = '%Y-%m-%d %H:%M',
-					accuracy = gmDateTime.ACC_MINUTES
-				)
 				txt = '%s%s %.8s, %s %s' % (
 					' ' * 40,
 					gmTools.u_box_horiz_light_heavy,
 					soap_entry['modified_by'],
-					when,
+					soap_entry['date'].strftime('%Y-%m-%d %H:%M'),
 					gmTools.u_box_horiz_heavy_light
 				)
 				lines.append(txt)
@@ -2494,27 +2487,9 @@ limit 1
 		tex += '\\hline \n'
 		tex += '\\multicolumn{2}{l}{%s: %s ({\\footnotesize %s - %s})} \\tabularnewline \n' % (
 			gmTools.tex_escape_string(self._payload['l10n_type']),
-			gmTools.tex_escape_string (
-				gmDateTime.pydt_strftime (
-					self._payload['started'],
-					date_format,
-					accuracy = gmDateTime.ACC_DAYS
-				)
-			),
-			gmTools.tex_escape_string (
-				gmDateTime.pydt_strftime (
-					self._payload['started'],
-					'%H:%M',
-					accuracy = gmDateTime.ACC_MINUTES
-				)
-			),
-			gmTools.tex_escape_string (
-				gmDateTime.pydt_strftime (
-					self._payload['last_affirmed'],
-					'%H:%M',
-					accuracy = gmDateTime.ACC_MINUTES
-				)
-			)
+			gmTools.tex_escape_string(self._payload['started'].strftime(date_format)),
+			gmTools.tex_escape_string(self._payload['started'].strftime('%H:%M')),
+			gmTools.tex_escape_string(self._payload['last_affirmed'].strftime('%H:%M'))
 		)
 		tex += '\\hline \n'
 
@@ -3461,8 +3436,8 @@ class cHospitalStay(gmBusinessDBObject.cBusinessDBObject):
 	#-------------------------------------------------------
 	def format(self, left_margin=0, include_procedures=False, include_docs=False, include_episode=True):
 
-		if self._payload['discharge'] is not None:
-			discharge = ' - %s' % gmDateTime.pydt_strftime(self._payload['discharge'], '%Y %b %d')
+		if self._payload['discharge']:
+			discharge = ' - %s' % self._payload['discharge'].strftime('%Y %b %d')
 		else:
 			discharge = ''
 
@@ -3476,7 +3451,7 @@ class cHospitalStay(gmBusinessDBObject.cBusinessDBObject):
 
 		lines = ['%s%s%s (%s@%s)%s' % (
 			' ' * left_margin,
-			gmDateTime.pydt_strftime(self._payload['admission'], '%Y %b %d'),
+			self._payload['admission'].strftime('%Y %b %d'),
 			discharge,
 			self._payload['ward'],
 			self._payload['hospital'],
@@ -3616,11 +3591,11 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 			if end is None:
 				end = ''
 			else:
-				end = ' - %s' % gmDateTime.pydt_strftime(end, '%Y %b %d')
+				end = ' - %s' % end.strftime('%Y %b %d')
 
 		line = '%s%s%s: %s%s [%s @ %s]' % (
 			(' ' * left_margin),
-			gmDateTime.pydt_strftime(self._payload['clin_when'], '%Y %b %d'),
+			self._payload['clin_when'].strftime('%Y %b %d'),
 			end,
 			self._payload['performed_procedure'],
 			gmTools.bool2str(include_episode, ' (%s)' % self._payload['episode'], ''),

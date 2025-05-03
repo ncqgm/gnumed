@@ -1509,7 +1509,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		self._LCTRL_items.set_string_items ([
 			[	i['list_position'],
 				i['created_by'],
-				gmDateTime.pydt_strftime(i['created_when'], '%Y %b %d %H:%M'),
+				i['created_when'].strftime('%Y %b %d %H:%M'),
 				i['description']
 			] for i in items
 		])
@@ -1655,7 +1655,7 @@ class cPrintMgrPluginPnl(wxgPrintMgrPluginPnl.wxgPrintMgrPluginPnl, gmRegetMixin
 				printouts = pat.export_area.get_printouts(order_by = 'created_when, description')
 				items = [[
 					p['created_by'],
-					gmDateTime.pydt_strftime(p['created_when'], '%Y %b %d %H:%M'),
+					p['created_when'].strftime('%Y %b %d %H:%M'),
 					p['description']
 				] for p in printouts ]
 			else:

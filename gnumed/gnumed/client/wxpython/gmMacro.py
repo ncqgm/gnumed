@@ -1984,7 +1984,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		date_confirmed = ''
 		if state['last_confirmed']:
-			date_confirmed = ' (%s)' % gmDateTime.pydt_strftime(state['last_confirmed'], format = '%Y %B %d')
+			date_confirmed = ' (%s)' % state['last_confirmed'].strftime('%Y %B %d')
 		return self._escape('%s%s' % (state.state_string, date_confirmed))
 
 	#--------------------------------------------------------
@@ -3009,7 +3009,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				dict2return[key] = bools[val]
 				continue
 			if isinstance(val, datetime.datetime):
-				dict2return[key] = gmDateTime.pydt_strftime(val, format = date_format)
+				dict2return[key] = val.strftime(date_format)
 				if self.__esc_style in ['latex', 'tex']:
 					dict2return[key] = gmTools.tex_escape_string(dict2return[key])
 				elif self.__esc_style in ['xetex', 'xelatex']:

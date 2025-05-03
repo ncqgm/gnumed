@@ -225,7 +225,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		if state['last_confirmed'] is None:
 			confirmed = _('never')
 		else:
-			confirmed = gmDateTime.pydt_strftime(state['last_confirmed'], '%Y %b %d')
+			confirmed = state['last_confirmed'].strftime('%Y %b %d')
 		msg_lines.append(_('%s, last confirmed %s') % (state.state_string, confirmed))
 		if state['comment']:
 			msg_lines.append(_('Comment (%s): %%s') % (state['comment'], state['modified_by']))
@@ -295,19 +295,18 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 
 		# pregnancy
 		edc = emr.EDC
-		if edc is not None:
+		if edc:
 			msg_lines.append('')
 			msg_lines.append('')
 			if emr.EDC_is_fishy:
-				msg_lines.append(_('EDC (!?!): %s') % gmDateTime.pydt_strftime(edc, format = '%Y %b %d'))
+				msg_lines.append(_('EDC (!?!): %s') % edc.strftime('%Y %b %d'))
 				tt_lines.append(_(
 					'The Expected Date of Confinement is rather questionable.\n'
 					'\n'
 					'Please check patient age, patient gender, time until/since EDC.'
 				))
 			else:
-				msg_lines.append(_('EDC: %s') % gmDateTime.pydt_strftime(edc, format = '%Y %b %d'))
-
+				msg_lines.append(_('EDC: %s') % edc.strftime('%Y %b %d'))
 		self._LBL_information.SetLabel('\n'.join(msg_lines))
 		self._LBL_information.SetToolTip('\n'.join(tt_lines))
 		self.Layout()

@@ -17,7 +17,6 @@ from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmMimeLib
-from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmWorkerThread
 
 from Gnumed.business import gmOrganization
