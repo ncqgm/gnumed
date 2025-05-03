@@ -14,6 +14,7 @@ FIX: medication: adding substance dose [thanks Maria]
 
 IMPROVED: EMR presentations naming (tabs/menu items) [thanks Maria]
 IMPROVED: i18n: added translatable strings [thanks Maria]
+IMPROVED: GUI: detection of dark theme [thanks Maria]
 
 	1.8.21
 
