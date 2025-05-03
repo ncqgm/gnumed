@@ -639,16 +639,9 @@ class cLoginPanel(wx.Panel):
 	#----------------------------------------------------------
 	def __set_label_color(self, label):
 		"""Set adaptive label color based on system theme background."""
-
-		# get system background color
-		bg_colour = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
-		# detect if light/dark color
-		brightness = (bg_colour.Red() * 299 + bg_colour.Green() * 587 + bg_colour.Blue() * 114) / 1000
-		# set text color accordingly
-		if brightness < 128:  # dark background/theme
-			pass  # default text color
-		else:  # light background/theme
+		if gmGuiHelpers.is_probably_dark_theme():
 			label.SetForegroundColour(wx.Colour(35, 35, 142))  # orig dark blue
+
 	#----------------------------------------------------
 	def __get_previously_used_accounts(self):
 
