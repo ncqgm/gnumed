@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-27 11:35+0200\n"
+"POT-Creation-Date: 2025-05-03 22:11+0200\n"
 "PO-Revision-Date: 2016-02-24 18:28+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -2912,6 +2912,10 @@ msgstr "interval_format_tag::semanas::w"
 
 msgid "interval_format_tag::days::d"
 msgstr "interval_format_tag::días::d"
+
+#, fuzzy
+msgid "interval_format_tag::seconds::s"
+msgstr "interval_format_tag::meses::m"
 
 #, fuzzy
 msgid "0 years"
@@ -8114,6 +8118,45 @@ msgstr "Una resumen del estado de este episodio."
 msgid "Nest under"
 msgstr "Agrupar en"
 
+#, fuzzy
+msgid "The name for this gender definition."
+msgstr "El nombre de la organización."
+
+#, fuzzy
+msgid "Translation of name into your language."
+msgstr ""
+"Cambiar la traducción del tipo de documento seleccionado a su idioma local."
+
+#, fuzzy
+msgid "An abbreviation for this gender definition."
+msgstr "Abreviación para el nombre de este tipo de prueba."
+
+#, fuzzy
+msgid "Translation:"
+msgstr "Traducción"
+
+#, fuzzy
+msgid "Translation of abbreviation into your language."
+msgstr ""
+"Cambiar la traducción del tipo de documento seleccionado a su idioma local."
+
+msgid "Symbol"
+msgstr "Símbolo"
+
+msgid "Symbolic representation for this gender."
+msgstr ""
+
+#, fuzzy
+msgid "Alternative:"
+msgstr "Administrativo"
+
+msgid "Symbol for this gender appropriate to your culture."
+msgstr ""
+
+#, fuzzy
+msgid "A descriptive comment on this gender definition."
+msgstr "Nombre descriptivo de este tipo de prueba."
+
 msgid "Generic multi line text entry dialog"
 msgstr "Dialogo genérico de entrada de texto multilinea"
 
@@ -11332,27 +11375,6 @@ msgstr ""
 "Datos clínicos generados durante los contactos relativos a este problema de "
 "salud:"
 
-#, python-format
-msgid "Health Issue %s%s%s%s   [#%s]"
-msgstr "Problema médico %s%s%s%s [#%s]"
-
-msgid " ***** CONFIDENTIAL *****"
-msgstr " ***** CONFIDENCIAL *****"
-
-msgid " contributed to death of patient"
-msgstr " contribuyó a la muerte del paciente"
-
-#, python-format
-msgid " Created during encounter: %s (%s - %s)   [#%s]"
-msgstr " Creado durante contacto: %s (%s - %s) [#%s]"
-
-#, python-format
-msgid " Noted at age: %s"
-msgstr " Identificado a los %s años de edad"
-
-msgid "not clinically relevant"
-msgstr "sin relevancia clínica"
-
 msgid "Error retrieving episodes for this health issue."
 msgstr "Error al consultar por episodios de este problema de salud"
 
@@ -11399,6 +11421,27 @@ msgstr "Evaluaciones y Resultados: %s"
 
 msgid "Vaccinations:"
 msgstr "Vacunaciones:"
+
+#, python-format
+msgid "Health Issue %s%s%s%s   [#%s]"
+msgstr "Problema médico %s%s%s%s [#%s]"
+
+msgid " ***** CONFIDENTIAL *****"
+msgstr " ***** CONFIDENCIAL *****"
+
+msgid " contributed to death of patient"
+msgstr " contribuyó a la muerte del paciente"
+
+#, python-format
+msgid " Created during encounter: %s (%s - %s)   [#%s]"
+msgstr " Creado durante contacto: %s (%s - %s) [#%s]"
+
+#, python-format
+msgid " Noted at age: %s"
+msgstr " Identificado a los %s años de edad"
+
+msgid "not clinically relevant"
+msgstr "sin relevancia clínica"
 
 msgid "External care:"
 msgstr "Cuidado externo:"
@@ -13686,9 +13729,6 @@ msgstr "Cirílico"
 
 msgid "Four Es"
 msgstr "Cuatro Es"
-
-msgid "Symbol"
-msgstr "Símbolo"
 
 msgid "Snellen Chart"
 msgstr "Cartilla de Snellen"
@@ -21049,6 +21089,10 @@ msgstr "ïtems cargables"
 msgid "Reference data sources"
 msgstr "Fuentes de datos de referencia"
 
+#, fuzzy
+msgid "Gender definitions"
+msgstr "Definición de reporte [%s] guardada."
+
 msgid "Master data management"
 msgstr "Manejo de datos maestros"
 
@@ -23407,6 +23451,29 @@ msgstr "Este paciente NO recibió cuidados acá."
 
 msgid "Disabling person"
 msgstr "Deshabilito persona"
+
+msgid "Abbreviation needed for gender definition."
+msgstr ""
+
+#, fuzzy
+msgid "Name needed for gender definition."
+msgstr "Guardar la definición del reporte."
+
+#, fuzzy
+msgid "Adding new gender definition"
+msgstr "Agregando una nueva organización"
+
+#, fuzzy
+msgid "Editing gender definition"
+msgstr "Editando medicación"
+
+#, fuzzy
+msgid "Managing gender definitions"
+msgstr "Gestión de descripciones de documentos"
+
+#, python-format
+msgid "Current language (database): %s"
+msgstr ""
 
 msgid "Type or select a last name (family name/surname)."
 msgstr "Escriba o seleccione un apellido (nombre de la familia/apellido)."

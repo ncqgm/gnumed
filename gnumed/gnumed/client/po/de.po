@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-03 14:48+0200\n"
+"POT-Creation-Date: 2025-05-03 22:11+0200\n"
 "PO-Revision-Date: 2025-04-27 23:55+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
@@ -20216,6 +20216,9 @@ msgstr "Gebührenordnungspositionen"
 
 msgid "Reference data sources"
 msgstr "Quellen für Referenzdaten"
+
+msgid "Gender definitions"
+msgstr "Geschlechtsdefinition"
 
 msgid "Master data management"
 msgstr "Stammdatenverwaltung"
