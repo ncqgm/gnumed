@@ -756,8 +756,6 @@ class cGenderDefEAPnl(wxgGenderDefEAPnl.wxgGenderDefEAPnl, gmEditArea.cGenericEd
 		# will ignore an existing 'data' key
 		pass
 
-	#----------------------------------------------------------------
-
 #------------------------------------------------------------
 # widget code
 #------------------------------------------------------------
@@ -831,9 +829,6 @@ def manage_gender_definitions(parent):
 		delete_callback = delete,
 		list_tooltip_callback = get_tooltip
 	)
-
-#------------------------------------------------------------
-# remember to add in clinical item generic workflows and generic clinical item formatting
 
 #------------------------------------------------------------
 # phrasewheels

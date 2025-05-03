@@ -2151,6 +2151,7 @@ class gmTopLevelFrame(wx.Frame):
 			'communication_channel_types',
 			'text_expansions',
 			'patient_tags',
+			'gender_defs',
 			'hints',
 			'db_translations',
 			'workplaces'
@@ -2180,7 +2181,8 @@ class gmTopLevelFrame(wx.Frame):
 			'meds_drugs':      _('Medications: drug products and generic drugs'),
 			'workplaces': _('Workplace profiles (which plugins to load)'),
 			'billables': _('Billable items'),
-			'ref_data_sources': _('Reference data sources')
+			'ref_data_sources': _('Reference data sources'),
+			'gender_defs': _('Gender definitions')
 		}
 
 		map_list2handler = {
@@ -2207,7 +2209,8 @@ class gmTopLevelFrame(wx.Frame):
 			'billables': gmBillingWidgets.manage_billables,
 			'ref_data_sources': gmCodingWidgets.browse_data_sources,
 			'hints': gmAutoHintWidgets.manage_dynamic_hints,
-			'test_panels': gmMeasurementWidgets.manage_test_panels
+			'test_panels': gmMeasurementWidgets.manage_test_panels,
+			'gender_defs': gmDemographicsWidgets.manage_gender_definitions
 		}
 
 		#---------------------------------
@@ -2215,6 +2218,7 @@ class gmTopLevelFrame(wx.Frame):
 			try: map_list2handler[item](parent = self)
 			except KeyError: pass
 			return False
+
 		#---------------------------------
 
 		gmListWidgets.get_choices_from_list (
