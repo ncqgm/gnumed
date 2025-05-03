@@ -39,7 +39,13 @@ class wxgPatientOverviewPnl(wx.ScrolledWindow):
 		# begin wxGlade: wxgPatientOverviewPnl.__set_properties
 		self.SetSize((400, 300))
 		self.SetScrollRate(10, 10)
-		self._LCTRL_problems.SetBackgroundColour(wx.Colour(255, 238, 180))
+		# adapt Active Problem section bckgrnd color to sys theme dark/light
+		bg_colour = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
+		brightness = (bg_colour.Red() * 299 + bg_colour.Green() * 587 + bg_colour.Blue() * 114) / 1000
+		if brightness < 128:  # dark theme
+			self._LCTRL_problems.SetBackgroundColour(wx.Colour(0, 0, 120)) # blue
+		else:  # light theme
+			self._LCTRL_problems.SetBackgroundColour(wx.Colour(255, 238, 180)) # orig light yellow
 		# end wxGlade
 
 	def __do_layout(self):
