@@ -308,7 +308,18 @@ def pydt_strftime(dt:pyDT.datetime=None, format:str='%Y %b %d  %H:%M.%S', none_s
 		return 'strftime() error'
 
 #---------------------------------------------------------------------------
-def pydt_add(dt:pyDT.datetime, years=0, months=0, weeks=0, days=0, hours=0, minutes=0, seconds=0, milliseconds=0, microseconds=0):
+def pydt_add (
+	dt:pyDT.datetime,
+	years:int=0,
+	months:int=0,
+	weeks:int=0,
+	days:int=0,
+	hours:int=0,
+	minutes:int=0,
+	seconds:int=0,
+	milliseconds:int=0,
+	microseconds:int=0
+) -> pyDT.datetime:
 	"""Add some time to a given datetime."""
 	if months > 11 or months < -11:
 		raise ValueError('pydt_add(): months must be within [-11..11]')
@@ -336,7 +347,32 @@ def pydt_add(dt:pyDT.datetime, years=0, months=0, weeks=0, days=0, hours=0, minu
 	return pydt_replace(dt, year = target_year, month = target_month, strict = False)
 
 #---------------------------------------------------------------------------
-def pydt_replace(dt:pyDT.datetime, strict=True, year=None, month=None, day=None, hour=None, minute=None, second=None, microsecond=None, tzinfo=None):
+def pydt_replace (
+	dt:pyDT.datetime,
+	strict=True,
+	year=None,
+	month=None,
+	day=None,
+	hour=None,
+	minute=None,
+	second=None,
+	microsecond=None,
+	tzinfo=None
+) -> pyDT.datetime:
+	"""Replace parts of a datetime.
+
+	Python's datetime.replace() fails if the target datetime
+	does not exist (say, going from October 31st to November
+	'31st' by replacing the month). This code can take heed
+	of such things, when <strict> is False. The result will
+	not be mathematically correct but likely what's meant in
+	real live (last of October -> last of November). This
+	can be particularly striking when going from January
+	31st to February 28th (!) in non-leap years ...
+
+	Args:
+		strict: adjust - or not - for impossible target datetimes
+	"""
 	# normalization required because .replace() does not
 	# deal with keyword arguments being None ...
 	if year is None:
@@ -361,9 +397,9 @@ def pydt_replace(dt:pyDT.datetime, strict=True, year=None, month=None, day=None,
 
 	try:
 		return dt.replace(year = year, month = month, day = day, hour = hour, minute = minute, second = second, microsecond = microsecond, tzinfo = tzinfo)
+
 	except ValueError:
 		_log.debug('error replacing datetime member(s): %s', locals())
-
 	# (target/existing) day did not exist in target month (which raised the exception)
 	if month == 2:
 		if day > 28:
@@ -374,7 +410,6 @@ def pydt_replace(dt:pyDT.datetime, strict=True, year=None, month=None, day=None,
 	else:
 		if day == 31:
 			day = 30
-
 	return dt.replace(year = year, month = month, day = day, hour = hour, minute = minute, second = second, microsecond = microsecond, tzinfo = tzinfo)
 
 #---------------------------------------------------------------------------
@@ -390,7 +425,7 @@ def pydt_is_same_day(dt1, dt2):
 
 #---------------------------------------------------------------------------
 def pydt_is_today(dt):
-	"""Check wheter <dt> is today."""
+	"""Check whether <dt> is today."""
 	if not dt:
 		return None
 
@@ -399,7 +434,7 @@ def pydt_is_today(dt):
 
 #---------------------------------------------------------------------------
 def pydt_is_yesterday(dt):
-	"""Check wheter <dt> is yesterday."""
+	"""Check whether <dt> is yesterday."""
 	if not dt:
 		return None
 
