@@ -15,7 +15,13 @@ import wx.grid
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-
+	_ = lambda x:x
+else:
+	try: _
+	except NameError:
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmTools
@@ -78,23 +84,11 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		return True
 
 	#--------------------------------------------------------
-	def __refresh_lab(self, patient):
-
-		self._GSZR_lab.Clear(True)		# also delete child windows
-		self._HLINE_lab.Hide()
-
-		if patient is None:
-			self.Layout()
-			return
-
-		emr = patient.emr
-		most_recent_results = {}
-
-		# get most recent results for "LOINCs to monitor"
+	def __get_loincs2monitor(self) -> tuple:
 		loincs2monitor = set()
 		loincs2monitor_data = {}
-		loinc_max_age = {}
-		loinc_max_age_str = {}
+		loinc_max_age:dict[str, int] = {}
+		loinc_max_age_str:dict[str, str] = {}
 		for intake in self._grid_substances.get_row_data():
 			for l in intake['loincs']:
 				loincs2monitor.add(l['loinc'])
@@ -110,101 +104,41 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 					except KeyError:
 						loinc_max_age[l['loinc']] = l['max_age_in_secs']
 						loinc_max_age_str[l['loinc']] = l['max_age_str']
-		loincs2monitor_missing = loincs2monitor.copy()
+		return loincs2monitor, loincs2monitor_data, loinc_max_age, loinc_max_age_str
+
+	#--------------------------------------------------------
+	def __get_most_recent_results2show(self, emr, loincs2monitor:list[str]) -> tuple:
+		loincs_found = set()
+		most_recent_results:dict[int, gmPathLab.cTestResult] = {}
+		# get most recent results for "LOINCs to monitor"
 		for loinc in loincs2monitor:
 			results = emr.get_most_recent_results_in_loinc_group(loincs = [loinc], max_no_of_results = 1)
-			if len(results) == 0:
+			if not results:
 				continue
-			loincs2monitor_missing.remove(loinc)
-			# make unique
+			loincs_found.add(loinc)
 			result = results[0]
 			most_recent_results[result['pk_test_result']] = result
-
 		# get most recent results for "general medication monitoring lab panel"
-		if self.__lab_panel is not None:
-			for result in self.__lab_panel.get_most_recent_results (
-				pk_patient = patient.ID,
+		if self.__lab_panel:
+			panel_results = self.__lab_panel.get_most_recent_results (
+				pk_patient = emr.pk_patient,
 				order_by = 'unified_abbrev',
 				group_by_meta_type = True
-			):
-				try: loincs2monitor_missing.remove(result['loinc_tt'])
-				except KeyError: pass
-				try: loincs2monitor_missing.remove(result['loinc_meta'])
-				except KeyError: pass
-				# make unique
+			)
+			for result in panel_results:
+				loincs_found.add(result['loinc_tt'])
+				loincs_found.add(result['loinc_meta'])
 				most_recent_results[result['pk_test_result']] = result
+		return most_recent_results, loincs_found
 
-		# those need special treatment
-		gfrs = emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_gfr_quantity, max_no_of_results = 1)
-		gfr = gfrs[0] if len(gfrs) > 0 else None
-		creas = emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, max_no_of_results = 1)
-		crea = creas[0] if len(creas) > 0 else None
-		edc = emr.EDC
-
-		# display EDC
-		if edc:
-			if emr.EDC_is_fishy:
-				lbl = wx.StaticText(self, -1, _('EDC (!?!):'))
-				val = wx.StaticText(self, -1, edc.strftime('%Y %b %d'))
-			else:
-				lbl = wx.StaticText(self, -1, _('EDC:'))
-				val = wx.StaticText(self, -1, edc.strftime('%Y %b %d'))
-			lbl.SetForegroundColour('blue')
-			szr = wx.BoxSizer(wx.HORIZONTAL)
-			szr.Add(lbl, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
-			szr.Add(val, 1, wx.ALIGN_CENTER_VERTICAL)
-			self._GSZR_lab.Add(szr)
-
-		# decide which among Crea or GFR to show
-		if crea is None:
-			gfr_3_months_older_than_crea = False
-			if gfr is not None:
-				most_recent_results = [gfr] + most_recent_results
-		elif gfr is None:
-			gfr_3_months_older_than_crea = True
-		else:
-			three_months = pydt.timedelta(weeks = 14)
-			gfr_3_months_older_than_crea = (crea['clin_when'] - gfr['clin_when']) > three_months
-			if not gfr_3_months_older_than_crea:
-				most_recent_results = [gfr] + most_recent_results
-
-		# if GFR not found in most_recent_results or old, then calculate
+	#--------------------------------------------------------
+	def __refresh_most_recent_results (self,
+		most_recent_results:dict[int, gmPathLab.cTestResult],
+		loinc_max_age:dict[str, int],
+		loinc_max_age_str:dict[str, str],
+		loincs2monitor_data:dict[str, dict]
+	):
 		now = gmDateTime.pydt_now_here()
-		if gfr_3_months_older_than_crea:
-			calc = gmClinicalCalculator.cClinicalCalculator()
-			calc.patient = patient
-			gfr = calc.eGFR
-			if gfr.numeric_value is None:
-				gfr_msg = '?'
-			else:
-				gfr_msg = _('%.1f (%s ago)') % (
-					gfr.numeric_value,
-					gmDateTime.format_interval_medically(now - gfr.date_valid)
-				)
-			lbl = wx.StaticText(self, -1, _('eGFR:'))
-			lbl.SetForegroundColour('blue')
-			val = wx.StaticText(self, -1, gfr_msg)
-			tts = []
-			for egfr in calc.eGFRs:
-				if egfr.numeric_value is None:
-					continue
-				tts.append(egfr.format (
-					left_margin = 0,
-					width = 50,
-					eol = '\n',
-					with_formula = False,
-					with_warnings = True,
-					with_variables = False,
-					with_sub_results = False,
-					return_list = False
-				))
-			val.SetToolTip('\n'.join(tts))
-			szr = wx.BoxSizer(wx.HORIZONTAL)
-			szr.Add(lbl, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
-			szr.Add(val, 1, wx.ALIGN_CENTER_VERTICAL)
-			self._GSZR_lab.Add(szr)
-
-		# eventually add most-recent results from monitoring panel and substances monitoring
 		for pk_result in most_recent_results:
 			result = most_recent_results[pk_result]
 			# test type
@@ -257,18 +191,15 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 					))
 			# generate tooltip
 			tt = [_('Most recent: %s ago') % gmDateTime.format_interval_medically(result_age)]
-			if subst2monitor is not None:
+			if subst2monitor:
 				tt.append(_('Why monitor: %s') % subst2monitor)
-			if monitor_comment is not None:
+			if monitor_comment:
 				tt.append(' %s' % monitor_comment)
-			if len(unhappy_reasons) > 0:
+			if unhappy_reasons:
 				indicate_attention = True
 				tt.append(_('Problems:'))
 				tt.extend(unhappy_reasons)
-			tt = '%s\n\n%s' % (
-				'\n'.join(tt),
-				result.format()
-			)
+			tt = '%s\n\n%s' % ('\n'.join(tt), result.format())
 			# set test result and tooltip
 			val = wx.StaticText(self, -1, '%s%s%s' % (
 				result['unified_val'],
@@ -283,15 +214,31 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 			szr.Add(val, 1, wx.ALIGN_CENTER_VERTICAL)
 			self._GSZR_lab.Add(szr)
 
-		# hint at missing, but required results (set to be
-		# monitored under intakes based on LOINCs):
+	#--------------------------------------------------------
+	def __refresh_edc(self, emr):
+		edc = emr.EDC
+		if not edc:
+			return
+
+		if emr.EDC_is_fishy:
+			lbl = wx.StaticText(self, -1, _('EDC (!?!):'))
+			val = wx.StaticText(self, -1, edc.strftime('%Y %b %d'))
+		else:
+			lbl = wx.StaticText(self, -1, _('EDC:'))
+			val = wx.StaticText(self, -1, edc.strftime('%Y %b %d'))
+		lbl.SetForegroundColour('blue')
+		szr = wx.BoxSizer(wx.HORIZONTAL)
+		szr.Add(lbl, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
+		szr.Add(val, 1, wx.ALIGN_CENTER_VERTICAL)
+		self._GSZR_lab.Add(szr)
+
+	#--------------------------------------------------------
+	# hint at missing, but required results (set to be
+	# monitored under intakes based on LOINCs):
+	def __refresh_missing_by_loinc(self, loincs2monitor_missing:list, loincs2monitor_data:list):
 		for loinc in loincs2monitor_missing:
-			#szr.Add(lbl, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
 			loinc_data = gmLOINC.loinc2data(loinc)
-			if loinc_data is None:
-				loinc_str = loinc
-			else:
-				loinc_str = loinc_data['term']
+			loinc_str = loinc_data['term'] if loinc_data else loinc
 			val = wx.StaticText(self, -1, '%s!' % loinc_str)
 			tt = [
 				_('No test result for: %s (%s)') % (loinc_str, loinc),
@@ -307,6 +254,75 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 			szr = wx.BoxSizer(wx.HORIZONTAL)
 			szr.Add(val, 1, wx.ALIGN_CENTER_VERTICAL)
 			self._GSZR_lab.Add(szr)
+
+	#--------------------------------------------------------
+	def __refresh_lab(self, patient):
+
+		self._GSZR_lab.Clear(True)		# also delete child windows
+		self._HLINE_lab.Hide()
+		if not patient:
+			self.Layout()
+			return
+
+		emr = patient.emr
+		loincs2monitor, loincs2monitor_data, loinc_max_age, loinc_max_age_str = self.__get_loincs2monitor()
+		most_recent_results, loincs_found = self.__get_most_recent_results2show(emr, loincs2monitor)
+		self.__refresh_edc(emr)
+
+		# decide which among Crea or GFR to show
+		gfrs = emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_gfr_quantity, max_no_of_results = 1)
+		gfr = gfrs[0] if gfrs else None
+		creas = emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_creatinine_quantity, max_no_of_results = 1)
+		crea = creas[0] if creas else None
+		if crea is None:
+			gfr_3_months_older_than_crea = False
+			if gfr:
+				most_recent_results[gfr['pk_test_result']] = gfr
+		elif gfr is None:
+			gfr_3_months_older_than_crea = True
+		else:
+			three_months = pydt.timedelta(weeks = 14)
+			gfr_3_months_older_than_crea = (crea['clin_when'] - gfr['clin_when']) > three_months
+			if not gfr_3_months_older_than_crea:
+				most_recent_results[gfr['pk_test_result']] = gfr
+		# if GFR not found in most_recent_results or old, then calculate
+		if gfr_3_months_older_than_crea:
+			now = gmDateTime.pydt_now_here()
+			calc = gmClinicalCalculator.cClinicalCalculator()
+			calc.patient = patient
+			gfr = calc.eGFR
+			if gfr.numeric_value is None:
+				gfr_msg = '?'
+			else:
+				gfr_msg = _('%.1f (%s ago)') % (
+					gfr.numeric_value,
+					gmDateTime.format_interval_medically(now - gfr.date_valid)
+				)
+			lbl = wx.StaticText(self, -1, _('eGFR:'))
+			lbl.SetForegroundColour('blue')
+			val = wx.StaticText(self, -1, gfr_msg)
+			tts = []
+			for egfr in calc.eGFRs:
+				if egfr.numeric_value is None:
+					continue
+				tts.append(egfr.format (
+					left_margin = 0,
+					width = 50,
+					eol = '\n',
+					with_formula = False,
+					with_warnings = True,
+					with_variables = False,
+					with_sub_results = False,
+					return_list = False
+				))
+			val.SetToolTip('\n'.join(tts))
+			szr = wx.BoxSizer(wx.HORIZONTAL)
+			szr.Add(lbl, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
+			szr.Add(val, 1, wx.ALIGN_CENTER_VERTICAL)
+			self._GSZR_lab.Add(szr)
+		# eventually add most-recent results from monitoring panel and substances monitoring
+		self.__refresh_most_recent_results(most_recent_results, loinc_max_age, loinc_max_age_str, loincs2monitor_data)
+		self.__refresh_missing_by_loinc(loincs2monitor - loincs_found, loincs2monitor_data)
 
 		self._HLINE_lab.Show()
 		self.Layout()
@@ -472,13 +488,19 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 #============================================================
 # main
 #------------------------------------------------------------
-if __name__ == '__main__':
+if __name__ == "__main__":
 
 	if len(sys.argv) < 2:
 		sys.exit()
 
 	if sys.argv[1] != 'test':
 		sys.exit()
+
+	# setup a real translation
+	del _
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain('gnumed')
 
 	from Gnumed.wxpython import gmGuiTest
 
