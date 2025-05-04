@@ -304,7 +304,7 @@ def pydt_strftime(dt:pyDT.datetime=None, format:str='%Y %b %d  %H:%M.%S', none_s
 		return dt.strftime(format)
 
 	except ValueError:
-		_log.exception()
+		_log.exception('strftime() error')
 		return 'strftime() error'
 
 #---------------------------------------------------------------------------

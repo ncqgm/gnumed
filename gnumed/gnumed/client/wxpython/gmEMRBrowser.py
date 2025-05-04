@@ -21,7 +21,6 @@ if __name__ == '__main__':
 # GNUmed libs
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmLog2
 
 from Gnumed.exporters import gmPatientExporter
