@@ -72,7 +72,7 @@ def manage_substance_abuse(parent=None, patient=None):
 			items.append ([
 				i['substance'],
 				i.use_type_string,
-				gmDateTime.pydt_strftime(i['last_checked_when'], '%b %Y', none_str = '')
+				i['last_checked_when'].strftime('%b %Y')
 			])
 		lctrl.set_string_items(items)
 		lctrl.set_data(intakes)
@@ -293,7 +293,7 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 
 		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['notes'], ''))
 		self._DPRW_quit_when.SetText(data = self.data['discontinued'])
-		self._LBL_confirm_date.SetLabel(gmDateTime.pydt_strftime(self.data['last_checked_when'], '%Y %b %d', none_str = ''))
+		self._LBL_confirm_date.SetLabel(self.data['last_checked_when'].strftime('%Y %b %d'))
 		self._CHBOX_confirm.Enable()
 		self._CHBOX_confirm.SetValue(True)
 

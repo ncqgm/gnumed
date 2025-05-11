@@ -241,7 +241,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		list_items.append(_('Most recent lab work: %s ago (%s)') % (
 			gmDateTime.format_interval_medically(now - most_recent['clin_when']),
-			gmDateTime.pydt_strftime(most_recent['clin_when'], format = '%Y %b %d')
+			most_recent['clin_when'].strftime('%Y %b %d')
 		))
 		list_data.append(most_recent)
 
@@ -431,7 +431,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		no_of_unsigned = len(docs)
 		for doc in docs:
 			list_items.append('%s %s (%s)' % (
-				gmDateTime.pydt_strftime(doc['clin_when'], format = '%m/%Y'),
+				doc['clin_when'].strftime('%m/%Y'),
 				doc['l10n_type'],
 				gmTools.u_writing_hand
 			))
@@ -441,7 +441,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		docs = doc_folder.get_documents(order_by = 'clin_when DESC', exclude_unsigned = True)
 		for doc in docs[:5]:
 			list_items.append('%s %s' % (
-				gmDateTime.pydt_strftime(doc['clin_when'], format = '%m/%Y'),
+				doc['clin_when'].strftime('%m/%Y'),
 				doc['l10n_type']
 			))
 			list_data.append(doc)
@@ -618,14 +618,14 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		if edc is not None:
 			sort_key = '99999 edc'
 			if emr.EDC_is_fishy:
-				label = _('EDC (!?!): %s') % gmDateTime.pydt_strftime(edc, format = '%Y %b %d')
+				label = _('EDC (!?!): %s') % edc.strftime('%Y %b %d')
 				tt = _(
 					'The Expected Date of Confinement is rather questionable.\n'
 					'\n'
 					'Please check patient age, patient gender, time until/since EDC.'
 				)
 			else:
-				label = _('EDC: %s') % gmDateTime.pydt_strftime(edc, format = '%Y %b %d')
+				label = _('EDC: %s') % edc.strftime('%Y %b %d')
 				tt = ''
 			sort_key_list.append(sort_key)
 			data[sort_key] = [label, tt]
@@ -635,7 +635,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		for fhx in fhxs:
 			sort_key = '99998 %s::%s' % (fhx['l10n_relation'], fhx['pk_family_history'])
 			sort_key_list.append(sort_key)
-			#gmDateTime.pydt_strftime(fhx['when_known_to_patient'], format = '%Y %m %d %H %M %S')
+			#fhx['when_known_to_patient'].strftime('%Y %m %d %H %M %S')
 			label = '%s%s: %s' % (fhx['l10n_relation'], gmTools.coalesce(fhx['age_noted'], '', ' (@ %s)'), fhx['condition'])
 			data[sort_key] = [label, fhx]
 		del fhxs
@@ -673,8 +673,8 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 					relevant_date = patient['dob'] + issue['age_noted']
 				else:
 					relevant_date = min(when_candidates)
-			sort_key = '%s::%s' % (gmDateTime.pydt_strftime(relevant_date, format = date_format4sorting), issue['pk_health_issue'])
-			relevant_date_str = gmDateTime.pydt_strftime(relevant_date, format = '%Y %b')
+			sort_key = '%s::%s' % (relevant_date.strftime(date_format4sorting), issue['pk_health_issue'])
+			relevant_date_str = relevant_date.strftime('%Y %b')
 			if issue['age_noted'] is None:
 				encounter = gmEMRStructItems.cEncounter(issue['pk_encounter'])
 				age = _(' (entered %s ago)') % gmDateTime.format_interval_medically(now - encounter['started'])
@@ -686,9 +686,9 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		stays = emr.get_hospital_stays()
 		for stay in stays:
-			sort_key = '%s::%s' % (gmDateTime.pydt_strftime(stay['admission'], format = date_format4sorting), stay['pk_hospital_stay'])
+			sort_key = '%s::%s' % (stay['admission'].strftime(date_format4sorting), stay['pk_hospital_stay'])
 			label = '%s %s: %s (%s)' % (
-				gmDateTime.pydt_strftime(stay['admission'], format = '%Y %b'),
+				stay['admission'].strftime('%Y %b'),
 				stay['hospital'],
 				stay['episode'],
 				_('%s ago') % gmDateTime.format_interval_medically(now - stay['admission'])
@@ -699,9 +699,9 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		procs = emr.get_performed_procedures()
 		for proc in procs:
-			sort_key = '%s::%s' % (gmDateTime.pydt_strftime(proc['clin_when'], format = date_format4sorting), proc['pk_procedure'])
+			sort_key = '%s::%s' % (proc['clin_when'].strftime(date_format4sorting), proc['pk_procedure'])
 			label = '%s%s %s (%s @ %s)' % (
-				gmDateTime.pydt_strftime(proc['clin_when'], format = '%Y %b'),
+				proc['clin_when'].strftime('%Y %b'),
 				gmTools.bool2subst(proc['is_ongoing'], gmTools.u_ellipsis, '', ''),
 				proc['performed_procedure'],
 				_('%s ago') % gmDateTime.format_interval_medically(now - proc['clin_when']),
@@ -714,9 +714,9 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		vaccs = emr.latest_vaccinations
 		for ind, tmp in vaccs.items():
 			no_of_shots, vacc = tmp
-			sort_key = '%s::%s::%s' % (gmDateTime.pydt_strftime(vacc['date_given'], format = date_format4sorting), vacc['pk_vaccination'], ind)
+			sort_key = '%s::%s::%s' % (vacc['date_given'].strftime(date_format4sorting), vacc['pk_vaccination'], ind)
 			label = _('%s Vacc: %s (latest of %s: %s ago)') % (
-				gmDateTime.pydt_strftime(vacc['date_given'], format = '%Y %b'),
+				vacc['date_given'].strftime('%Y %b'),
 				ind,
 				no_of_shots,
 				gmDateTime.format_interval_medically(now - vacc['date_given'])
@@ -726,7 +726,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		del vaccs
 
 		for abuse in [ a for a in emr.abused_substances if a['use_type'] == gmMedication.USE_TYPE_PREVIOUSLY_ADDICTED ]:
-			sort_key = '%s::%s' % (gmDateTime.pydt_strftime(abuse['last_checked_when'], format = date_format4sorting), abuse['substance'])
+			sort_key = '%s::%s' % (abuse['last_checked_when'].strftime(date_format4sorting), abuse['substance'])
 			label = _('Hx of addiction: %s') % abuse['substance']
 			sort_key_list.append(sort_key)
 			data[sort_key] = [label, abuse]

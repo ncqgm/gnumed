@@ -89,7 +89,7 @@ class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 			gmTools.u_right_double_angle_quote
 		)
 
-		if with_patient and (self._payload['pk_patient'] is not None):
+		if with_patient and self._payload['pk_patient']:
 			tt += _('Patient: %s, %s%s %s   #%s\n' % (
 				self._payload['lastnames'],
 				self._payload['firstnames'],

@@ -1649,7 +1649,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 		intermediate_nodes = {}
 		for doc in docs:
-			intermediate_label = gmDateTime.pydt_strftime(doc['clin_when'], '%Y')
+			intermediate_label = doc['clin_when'].strftime('%Y')
 			if intermediate_label not in intermediate_nodes:
 				intermediate_nodes[intermediate_label] = self.AppendItem(parent = self.root, text = intermediate_label)
 				self.SetItemBold(intermediate_nodes[intermediate_label], bold = True)
@@ -1931,8 +1931,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 		if isinstance(data1, pydt.datetime):
 			# normalize at year level
-			ts1 = gmDateTime.pydt_strftime(data1, '%Y')
-			ts2 = gmDateTime.pydt_strftime(data2, '%Y')
+			ts1 = data1.strftime('%Y')
+			ts2 = data2.strftime('%Y')
 			# *reverse* chronologically
 			return -1 * self.__compare_by_label(ts1, ts2)
 
@@ -2255,7 +2255,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 				self.__curr_node_data['seq_idx'],
 				gmTools.coalesce(self.__curr_node_data['obj_comment'], '', ' "%s"\n\n'),
 				self.__curr_node_data['l10n_type'],
-				gmDateTime.pydt_strftime(self.__curr_node_data['date_generated'], format = '%Y-%m-%d'),
+				self.__curr_node_data['date_generated'].strftime('%Y-%m-%d'),
 				gmTools.coalesce(self.__curr_node_data['doc_comment'], '', ' "%s"\n')
 			)
 		)

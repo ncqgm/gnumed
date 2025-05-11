@@ -1122,14 +1122,15 @@ class cExportArea(object):
 
 		from Gnumed.business.gmPerson import cPatient
 		pat = cPatient(aPK_obj = self.__pk_identity)
-		target_base_dir = base_dir
-		if target_base_dir is None:
-			target_sandbox_dir = gmTools.mk_sandbox_dir()
-			target_base_dir = os.path.join(target_sandbox_dir, pat.subdir_name)
-		gmTools.mkdir(target_base_dir)
-		_log.debug('patient media base dir: %s', target_base_dir)
-		if not gmTools.dir_is_empty(target_base_dir):
-			_log.error('patient media base dir is not empty')
+		if base_dir is None:
+			export_sandbox_dir = gmTools.mk_sandbox_dir()
+			export_dir = os.path.join(export_sandbox_dir, pat.subdir_name)
+		else:
+			export_dir = base_dir
+		gmTools.mkdir(export_dir)
+		_log.debug('patient media export dir: %s', export_dir)
+		if not gmTools.dir_is_empty(export_dir):
+			_log.error('patient media export dir is not empty')
 			return False
 
 		from Gnumed.business.gmPraxis import gmCurrentPraxisBranch
@@ -1261,7 +1262,7 @@ class cExportArea(object):
 			index_fname = self._create_index_html(prax, sandbox_dir, html_data)
 
 		# 4) move sandbox to target dir
-		target_dir = gmTools.copy_tree_content(sandbox_dir, target_base_dir)
+		target_dir = gmTools.copy_tree_content(sandbox_dir, export_dir)
 		if target_dir is None:
 			_log.error('cannot fill target base dir')
 			return False
@@ -1272,7 +1273,7 @@ class cExportArea(object):
 	def export_as_zip(self, base_dir:str=None, items:list=None, passphrase:str=None, master_passphrase:str=None) -> str:
 		_log.debug('target dir: %s', base_dir)
 		export_dir = self.export(base_dir = base_dir, items = items)
-		if export_dir is None:
+		if not export_dir:
 			_log.debug('cannot export items')
 			return None
 

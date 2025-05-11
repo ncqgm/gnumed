@@ -300,7 +300,7 @@ class cDateMatchProvider(gmMatchProvider.cMatchProvider):
 #						second = 11,
 #						microsecond = 111111
 #					)
-#					lbl = gmDateTime.pydt_strftime(date, format = '%Y-%m-%d')
+#					lbl = date.strftime('%Y-%m-%d')
 #					matches = (True, [{'data': date, 'label': lbl}])
 #		dlg.DestroyLater()
 #
@@ -355,14 +355,14 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			second = 11,
 			microsecond = 111111
 		)
-		val = gmDateTime.pydt_strftime(date, format = '%Y-%m-%d')
+		val = date.strftime('%Y-%m-%d')
 		self.SetText(value = val, data = date, suppress_smarts = True)
 
 	#--------------------------------------------------------
 	def __pick_from_weekday(self, weekday):
 		self.is_valid_timestamp(empty_is_valid = True)
 		target_date = gmDateTime.get_date_of_weekday_in_week_of_date(weekday, base_dt = self.date)
-		val = gmDateTime.pydt_strftime(target_date, format = '%Y-%m-%d')
+		val = target_date.strftime('%Y-%m-%d')
 		self.SetText(value = val, data = target_date, suppress_smarts = True)
 
 	#--------------------------------------------------------
@@ -374,7 +374,7 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			self._set_data_to_first_match()
 			date = self.GetData()
 			if date is not None:
-				self.SetValue(gmDateTime.pydt_strftime(date, format = '%Y-%m-%d'))
+				self.SetValue(date.strftime('%Y-%m-%d'))
 
 		# let the base class do its thing
 		super(cDateInputPhraseWheel, self)._on_lose_focus(event)
@@ -383,7 +383,8 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def _picklist_item2display_string(self, item=None):
 		data = item['data']
 		if data is not None:
-			return gmDateTime.pydt_strftime(data, format = '%Y-%m-%d')
+			return data.strftime('%Y-%m-%d')
+
 		return item['field_label']
 
 	#--------------------------------------------------------
@@ -429,14 +430,14 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		if date < today:
 			intv = today - date
 			return _('%s\n (a %s %s ago)') % (
-				gmDateTime.pydt_strftime(date, format = '%B %d %Y -- %x'),
-				gmDateTime.pydt_strftime(date, format = '%A'),
+				date.strftime('%B %d %Y -- %x'),
+				date.strftime('%A'),
 				gmDateTime.format_interval(interval = intv, accuracy_wanted = gmDateTime.ACC_DAYS, verbose = True)
 			)
 
 		return _('today (%s): %s') % (
-			gmDateTime.pydt_strftime(date, format = '%A'),
-			gmDateTime.pydt_strftime(date, format = '%B %d %Y -- %x')
+			date.strftime('%A'),
+			date.strftime('%B %d %Y -- %x')
 		)
 
 	#--------------------------------------------------------
@@ -471,7 +472,7 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 					microsecond = 111111
 				)
 			if value.strip() == '':
-				value = gmDateTime.pydt_strftime(data, format = '%Y-%m-%d')
+				value = data.strftime('%Y-%m-%d')
 
 		super().SetText(value = value, data = data, suppress_smarts = suppress_smarts)
 
@@ -480,6 +481,7 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		if data is None:
 			gmPhraseWheel.cPhraseWheel.SetText(self, '', None)
 			return
+
 		self.SetText(data = data)
 
 	#--------------------------------------------------------
@@ -515,7 +517,7 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			return False
 
 		date = self.GetData()
-		self.SetValue(gmDateTime.pydt_strftime(date, format = '%Y-%m-%d'))#, none_str = u'')
+		self.SetValue(date.strftime('%Y-%m-%d'))
 		self.display_as_valid(True)
 		return True
 
@@ -527,7 +529,7 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def _set_date(self, date):
 		raise AttributeError('._set_date not implemented')
-#		val = gmDateTime.pydt_strftime(date, format = '%Y-%m-%d')
+#		val = date.strftime('%Y-%m-%d')
 #		self.data = date.replace (
 #			hour = 11,
 #			minute = 11,
