@@ -148,6 +148,7 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def add_indication(self, pk_indication:int=None, atc:str=None, indication:str=None):
+		args:dict[str,str]|dict[str,int]
 		if not pk_indication:
 			args = {
 				'atc': atc,

@@ -2358,16 +2358,16 @@ def get_intakes_with_regimens (
 ) -> list[cIntakeWithRegimen]:
 	"""Retrieve intake entries for each regimen."""
 	where_parts = ['TRUE']
-	args = {}
+	args:dict[str,int|list[int]] = {}
 	if pk_patient:
 		where_parts.append('pk_patient = %(pat)s')
 		args['pat'] = pk_patient
 	if not include_inactive:
 		where_parts.append('((discontinued IS NULL) OR (discontinued > clock_timestamp()))')
 	if exclude_potential_abuses:
-		where_parts.append('use_type IS NULL -- explicit medications only')
+		where_parts.append('use_type IS NULL	-- explicit medications only')
 	if exclude_medications:
-		where_parts.append('use_type IS NOT NULL')
+		where_parts.append('use_type IS NOT NULL	-- no medications')
 	if episodes:
 		where_parts.append('pk_episode = ANY(%(pk_epis)s)')
 		args['pk_epis'] = episodes
@@ -2905,7 +2905,7 @@ def get_substance_intakes(pk_patient:int=None, return_pks:bool=False, pk_substan
 		pk_substances: constrain by list of substances
 		return_pks: return PKs rather than cSubstanceIntakeEntry's
 	"""
-	args = {}
+	args:dict[str,int|list[int]] = {}
 	where_parts = ['true']
 	if pk_patient:
 		args['pat'] = pk_patient
