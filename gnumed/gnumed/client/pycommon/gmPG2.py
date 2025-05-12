@@ -26,7 +26,7 @@ import logging
 import datetime as pydt
 import hashlib
 import shutil
-from typing import Sequence, Collection
+from typing import Sequence, Collection, TypedDict, NotRequired
 
 
 # GNUmed
@@ -291,21 +291,28 @@ __LLAP = '_\\//'
 
 _TLnkObj = dbapi.extras.DictConnection | dbapi.extras.DictCursor | None
 _TRow = dbapi.extras.DictRow
-
-#_TQuerySQL = str | PG_SQL.Composed
-#_TQueryArgsAsList = list
-#_TQueryArgsAsDict = dict
-#_TQueryArgs = _TQueryArgsAsList | _TQueryArgsAsDict
-#__TQueries = Sequence [
-#	Mapping [
-#		str,
-#		Union[_TQuerySQL, _TQueryArgs]
-#	]
-#]
 _TQueries = Sequence[
 	dict[str, str] | dict[str, PG_SQL.Composed] | dict[str, Collection]
 ]
-#	 | dict[dict, Mapping] | dict[str, list]
+
+_TArgsAsList = list[int|str|None]
+_TArgsAsDict = dict[str, str | int | list[int|str|None] | None]
+_TArgs = _TArgsAsList | _TArgsAsDict
+_TSQL = str | PG_SQL.Composed
+_TQueryWithArgsDict = TypedDict('_TQueryWithArgsDict', {
+	'cmd': _TSQL,
+	'args': _TArgsAsDict
+})
+_TQueryWithArgsList = TypedDict('_TQueryWithArgsList', {
+	'cmd': _TSQL,
+	'args': _TArgsAsList
+})
+_TQueryWithoutArgs = TypedDict('_TQueryWithoutArgs', {
+	'cmd': _TSQL,
+	'args': NotRequired[None]			# dummy
+})
+_TQuery = _TQueryWithArgsDict | _TQueryWithArgsList | _TQueryWithoutArgs
+#_TQueries = Sequence[_TQueryWithArgs]
 
 # =======================================================================
 # login API
@@ -1677,12 +1684,21 @@ def __get_file_from_cache(filename, cache_key_data=None, data_size=None, link2ca
 	return False
 
 #------------------------------------------------------------------------
+#def bytea2file (
+#	data_query:dict=None,
+#	filename:str=None,
+#	chunk_size:int=0,
+#	data_size:int=None,
+#	data_size_query:dict=None,
+#	conn=None,
+#	link2cached:bool=True
+#) -> bool:
 def bytea2file (
-	data_query:dict=None,
+	data_query:_TQueryWithArgsDict=None,
 	filename:str=None,
 	chunk_size:int=0,
 	data_size:int=None,
-	data_size_query:dict=None,
+	data_size_query:_TQueryWithArgsDict=None,
 	conn=None,
 	link2cached:bool=True
 ) -> bool:
@@ -1751,7 +1767,15 @@ def bytea2file (
 	return result
 
 #------------------------------------------------------------------------
-def bytea2file_object(data_query:dict=None, file_obj=None, chunk_size=0, data_size:int=None, data_size_query:dict=None, conn=None) -> bool:
+#def bytea2file_object(data_query:dict=None, file_obj=None, chunk_size:int=0, data_size:int=None, data_size_query:dict=None, conn=None) -> bool:
+def bytea2file_object(
+	data_query:_TQueryWithArgsDict=None,
+	file_obj=None,
+	chunk_size:int=0,
+	data_size:int=None,
+	data_size_query:_TQueryWithArgsDict=None,
+	conn:dbapi.extras.DictConnection|None=None
+) -> bool:
 	"""Stream data from a bytea field into a file-like object.
 
 	Args:
@@ -2273,7 +2297,8 @@ def __safely_close_cursor_and_rollback_close_conn(close_cursor=None, rollback_tx
 #------------------------------------------------------------------------
 def run_ro_queries (
 	link_obj:_TLnkObj=None,
-	queries:_TQueries=None,
+	#queries:_TQueries=None,
+	queries:Sequence[_TQuery]=None,
 	verbose:bool=False,
 	return_data:bool=True
 ) -> list[_TRow] | None:
