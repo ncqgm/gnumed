@@ -26,7 +26,6 @@ import logging
 import datetime as pydt
 import hashlib
 import shutil
-from typing import Sequence, Collection, TypedDict, NotRequired
 
 
 # GNUmed
@@ -289,29 +288,19 @@ __MIND_MELD = '_ı/'
 __LLAP = '_\\//'
 
 
+from typing import Sequence, Collection, TypedDict, NotRequired, MutableMapping
+
 _TLnkObj = dbapi.extras.DictConnection | dbapi.extras.DictCursor | None
 _TRow = dbapi.extras.DictRow
 _TQueries = Sequence[
 	dict[str, str] | dict[str, PG_SQL.Composed] | dict[str, Collection]
 ]
-
-_TArgsAsList = list[int|str|None]
-_TArgsAsDict = dict[str, str | int | list[int|str|None] | None]
-_TArgs = _TArgsAsList | _TArgsAsDict
 _TSQL = str | PG_SQL.Composed
-_TQueryWithArgsDict = TypedDict('_TQueryWithArgsDict', {
+_TArgs = MutableMapping[str, None | str | int | Sequence[None|str|int] ]
+_TQueryWithArgs = TypedDict('_TQueryWithArgs', {
 	'cmd': _TSQL,
-	'args': _TArgsAsDict
+	'args': NotRequired[_TArgs]
 })
-_TQueryWithArgsList = TypedDict('_TQueryWithArgsList', {
-	'cmd': _TSQL,
-	'args': _TArgsAsList
-})
-_TQueryWithoutArgs = TypedDict('_TQueryWithoutArgs', {
-	'cmd': _TSQL,
-	'args': NotRequired[None]			# dummy
-})
-_TQuery = _TQueryWithArgsDict | _TQueryWithArgsList | _TQueryWithoutArgs
 #_TQueries = Sequence[_TQueryWithArgs]
 
 # =======================================================================
@@ -1694,11 +1683,11 @@ def __get_file_from_cache(filename, cache_key_data=None, data_size=None, link2ca
 #	link2cached:bool=True
 #) -> bool:
 def bytea2file (
-	data_query:_TQueryWithArgsDict=None,
+	data_query:_TQueryWithArgs=None,
 	filename:str=None,
 	chunk_size:int=0,
 	data_size:int=None,
-	data_size_query:_TQueryWithArgsDict=None,
+	data_size_query:_TQueryWithArgs=None,
 	conn=None,
 	link2cached:bool=True
 ) -> bool:
@@ -1769,11 +1758,11 @@ def bytea2file (
 #------------------------------------------------------------------------
 #def bytea2file_object(data_query:dict=None, file_obj=None, chunk_size:int=0, data_size:int=None, data_size_query:dict=None, conn=None) -> bool:
 def bytea2file_object(
-	data_query:_TQueryWithArgsDict=None,
+	data_query:_TQueryWithArgs=None,
 	file_obj=None,
 	chunk_size:int=0,
 	data_size:int=None,
-	data_size_query:_TQueryWithArgsDict=None,
+	data_size_query:_TQueryWithArgs=None,
 	conn:dbapi.extras.DictConnection|None=None
 ) -> bool:
 	"""Stream data from a bytea field into a file-like object.
@@ -2297,8 +2286,7 @@ def __safely_close_cursor_and_rollback_close_conn(close_cursor=None, rollback_tx
 #------------------------------------------------------------------------
 def run_ro_queries (
 	link_obj:_TLnkObj=None,
-	#queries:_TQueries=None,
-	queries:Sequence[_TQuery]=None,
+	queries:list[_TQueryWithArgs]=None,
 	verbose:bool=False,
 	return_data:bool=True
 ) -> list[_TRow] | None:
@@ -2315,7 +2303,7 @@ def run_ro_queries (
 		return_data: attempt to fetch data produced by the last query and return that
 
 	Returns:
-		A tuple holding (data rows, column index in row data as per DB-API)
+		list of query results as psycopg2 rows
 	"""
 	assert queries is not None, '<queries> must not be None'
 	assert isinstance(link_obj, (dbapi._psycopg.connection, dbapi._psycopg.cursor, type(None))), '<link_obj> must be None, a cursor, or a connection, but [%s] is of type (%s)' % (link_obj, type(link_obj))
@@ -2347,6 +2335,9 @@ def run_ro_queries (
 	for query in queries:
 		try:				args = query['args']
 		except KeyError:	args = None
+		if isinstance(args, list):
+			_log.debug('arguments-as-list depreciated:')
+			_log.debug(query['cmd'])
 		try:
 			curs.execute(query['cmd'], args)
 		except PG_ERROR_EXCEPTION as pg_exc:
