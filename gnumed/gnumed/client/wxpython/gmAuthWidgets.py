@@ -429,7 +429,7 @@ def change_gmdbowner_password():
 		dbo_account,
 		dbo_pwd_new_2
 	)
-	gmPG2.run_rw_queries(link_obj = dbo_conn, queries = [{'cmd': cmd}], end_tx = True)
+	gmPG2.run_rw_queries(link_obj = dbo_conn, queries = [{'sql': cmd}], end_tx = True)
 	return True
 
 #================================================================

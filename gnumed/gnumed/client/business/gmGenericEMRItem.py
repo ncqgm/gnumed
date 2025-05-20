@@ -333,7 +333,7 @@ def get_generic_emr_items(encounters=None, episodes=None, issues=None, patient=N
 			_SQL_get_hints_as_generic_emr_items
 		) + '\n' + order_by
 
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	if return_pks:
 		return [ {
 			'src_table': r['src_table'],

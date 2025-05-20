@@ -116,7 +116,7 @@ def get_all_options(order_by:str=None) -> list:
 	else:
 		order_by = 'ORDER BY %s' % order_by
 	cmd = 'SELECT * FROM cfg.v_cfg_options %s' % order_by
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
 	return rows
 
 #------------------------------------------------------------------
@@ -233,7 +233,7 @@ class cCfgSQL:
 		if cookie:
 			where_parts.append('c_vco.cookie = %(cookie)s')
 		cmd = 'SELECT * FROM cfg.v_cfg_options c_vco WHERE %s LIMIT 1' % (' AND '.join(where_parts))
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		if rows:
 			return self.__auto_heal_pseudo_boolean_setting(setting = rows[0], default = default)
 
@@ -290,7 +290,7 @@ class cCfgSQL:
 		_log.debug('value:  [%s]', value)
 		_log.debug('JSON: >>>%s<<<', args['val'])
 		SQL = 'SELECT cfg.set_option(%(opt)s, %(val)s, %(wp)s, %(cookie)s, %(usr)s, %(desc)s)'
-		queries = [{'cmd': SQL, 'args': args}]
+		queries = [{'sql': SQL, 'args': args}]
 		try:
 			rows = gmPG2.run_rw_queries(queries = queries, return_data = True)
 			result = rows[0][0]
@@ -313,7 +313,7 @@ class cCfgSQL:
 		else:
 			cmd = "DELETE FROM cfg.cfg_item WHERE pk = %(pk)s"
 		args = {'pk': pk_option}
-		gmPG2.run_rw_queries(link_obj = conn, queries = [{'cmd': cmd, 'args': args}], end_tx = True)
+		gmPG2.run_rw_queries(link_obj = conn, queries = [{'sql': cmd, 'args': args}], end_tx = True)
 
 	#-----------------------------------------------
 	# helper functions
@@ -362,7 +362,7 @@ class cCfgSQL:
 			raise ValueError('<bias> must be "user" or "workplace", or None')
 
 		cmd = 'SELECT * FROM cfg.v_cfg_options c_vco WHERE %s LIMIT 1' % (' AND '.join(where_parts))
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		if rows:
 			return self.__auto_heal_pseudo_boolean_setting(setting = rows[0], default = default)
 
@@ -378,7 +378,7 @@ class cCfgSQL:
 			'c_vco.option = %(opt)s'
 		]
 		cmd = 'SELECT * FROM cfg.v_cfg_options c_vco WHERE %s LIMIT 1' % (' AND '.join(where_parts))
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		if not rows:
 			_log.warning('no site-wide default value for option [%s] in database' % option)
 			if default is None:

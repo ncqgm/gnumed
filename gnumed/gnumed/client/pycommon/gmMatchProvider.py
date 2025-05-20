@@ -493,7 +493,7 @@ class cMatchProvider_SQL2(cMatchProvider):
 		if self._SQL_data2match is None:
 			return None
 
-		query = {'cmd': self._SQL_data2match, 'args': {'pk': data}}
+		query = {'sql': self._SQL_data2match, 'args': {'pk': data}}
 		try:
 			rows = gmPG2.run_ro_queries(queries = [query])
 		except Exception:
@@ -583,7 +583,7 @@ class cMatchProvider_SQL2(cMatchProvider):
 				print("SQL:", cmd)
 
 			try:
-				rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': self._args}])
+				rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': self._args}])
 			except gmPG2.PG_ERROR_EXCEPTION:
 				_log.exception('[%s]: error running match provider SQL, dropping query', self.__class__.__name__)
 				_log.error('SQL: %s', cmd)

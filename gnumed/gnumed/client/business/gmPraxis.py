@@ -33,7 +33,7 @@ def delete_workplace(workplace=None, delete_config=False, conn=None):
 
 	# delete workplace itself (plugin load list, that is)
 	queries = [
-		{'cmd': """
+		{'sql': """
 delete from cfg.cfg_item
 where
 	fk_template = (
@@ -50,7 +50,7 @@ where
 	# delete other config items associated with this workplace
 	if delete_config:
 		queries.append ({
-			'cmd': """
+			'sql': """
 delete from cfg.cfg_item
 where
 	workplace = %(wp)s""",
@@ -277,7 +277,7 @@ def get_praxis_branches(order_by=None, return_pks=False):
 		order_by = 'true ORDER BY %s' % order_by
 
 	cmd = _SQL_get_praxis_branches % order_by
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
 	if return_pks:
 		return [ r['pk_praxis_branch'] for r in rows ]
 	return [ cPraxisBranch(row = {'data': r, 'pk_field': 'pk_praxis_branch'}) for r in rows ]
@@ -286,7 +286,7 @@ def get_praxis_branches(order_by=None, return_pks=False):
 def get_praxis_branch_by_org_unit(pk_org_unit=None):
 	cmd = _SQL_get_praxis_branches % 'pk_org_unit = %(pk_ou)s'
 	args = {'pk_ou': pk_org_unit}
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	if len(rows) == 0:
 		return None
 	return cPraxisBranch(row = {'data': rows[0], 'pk_field': 'pk_praxis_branch'})
@@ -303,8 +303,8 @@ def create_praxis_branch(pk_org_unit=None):
 	"""
 	cmd2 = """SELECT * from dem.v_praxis_branches WHERE pk_org_unit = %(fk_unit)s"""
 	queries = [
-		{'cmd': cmd1, 'args': args},
-		{'cmd': cmd2, 'args': args}
+		{'sql': cmd1, 'args': args},
+		{'sql': cmd2, 'args': args}
 	]
 	rows = gmPG2.run_rw_queries(queries = queries, return_data = True)
 	return cPraxisBranch(row = {'data': rows[0], 'pk_field': 'pk_praxis_branch'})
@@ -320,11 +320,11 @@ def create_praxis_branches(pk_org_units=None):
 				SELECT 1 FROM dem.praxis_branch WHERE fk_org_unit = %(fk_unit)s
 			)
 		"""
-		queries.append({'cmd': cmd, 'args': args})
+		queries.append({'sql': cmd, 'args': args})
 
 	args = {'fk_units': pk_org_units}
 	cmd = """SELECT * from dem.v_praxis_branches WHERE pk_org_unit = ANY(%(fk_units)s)"""
-	queries.append({'cmd': cmd, 'args': args})
+	queries.append({'sql': cmd, 'args': args})
 	rows = gmPG2.run_rw_queries(queries = queries, return_data = True)
 	return [ cPraxisBranch(row = {'data': r, 'pk_field': 'pk_praxis_branch'}) for r in rows ]
 
@@ -334,7 +334,7 @@ def delete_praxis_branch(pk_praxis_branch=None):
 		return False
 	args = {'pk': pk_praxis_branch}
 	cmd = "DELETE FROM dem.praxis_branch WHERE pk = %(pk)s"
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 	unlock_praxis_branch(pk_praxis_branch = pk_praxis_branch, exclusive = True)
 	return True
 
@@ -342,7 +342,7 @@ def delete_praxis_branch(pk_praxis_branch=None):
 def delete_praxis_branches(pk_praxis_branches=None, except_pk_praxis_branches=None):
 	if pk_praxis_branches is None:
 		cmd = 'SELECT pk from dem.praxis_branch'
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
 		pks_to_lock = [ r[0] for r in rows ]
 	else:
 		pks_to_lock = pk_praxis_branches[:]
@@ -367,7 +367,7 @@ def delete_praxis_branches(pk_praxis_branches=None, except_pk_praxis_branches=No
 		cmd = "DELETE FROM dem.praxis_branch"
 	else:
 		cmd = "DELETE FROM dem.praxis_branch WHERE %s" % ' AND '.join(where_parts)
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 	for pk in pks_to_lock:
 		unlock_praxis_branch(pk_praxis_branch = pk, exclusive = True)
 	return True
@@ -429,7 +429,7 @@ class gmCurrentPraxisBranch(gmBorg.cBorg):
 	def remove_from_waiting_list(self, pk=None):
 		cmd = 'DELETE FROM clin.waiting_list WHERE pk = %(pk)s'
 		args = {'pk': pk}
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 		gmHooks.run_hook_script(hook = 'after_waiting_list_modified')
 
 	#--------------------------------------------------------
@@ -449,7 +449,7 @@ where
 			'zone': gmTools.none_if(zone, '')
 		}
 
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 		gmHooks.run_hook_script(hook = 'after_waiting_list_modified')
 
 	#--------------------------------------------------------
@@ -460,14 +460,14 @@ where
 		cmd = 'select clin.move_waiting_list_entry(%(pos)s, (%(pos)s - 1))'
 		args = {'pos': current_position}
 
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 
 	#--------------------------------------------------------
 	def lower_in_waiting_list(self, current_position=None):
 		cmd = 'select clin.move_waiting_list_entry(%(pos)s, (%(pos)s+1))'
 		args = {'pos': current_position}
 
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 
 	#--------------------------------------------------------
 	# properties
@@ -479,7 +479,7 @@ where
 				list_position
 		"""
 		rows = gmPG2.run_ro_queries (
-			queries = [{'cmd': cmd}]
+			queries = [{'sql': cmd}]
 		)
 		return rows
 
@@ -515,18 +515,18 @@ where
 
 	#--------------------------------------------------------
 	def _get_db_logon_banner(self):
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': 'select _(message) from cfg.db_logon_banner'}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': 'select _(message) from cfg.db_logon_banner'}])
 		if len(rows) == 0:
 			return ''
 		return gmTools.coalesce(rows[0][0], '').strip()
 
 	def _set_db_logon_banner(self, banner):
 		queries = [
-			{'cmd': 'delete from cfg.db_logon_banner'}
+			{'sql': 'delete from cfg.db_logon_banner'}
 		]
 		if banner.strip() != '':
 			queries.append ({
-				'cmd': 'insert into cfg.db_logon_banner (message) values (%(msg)s)',
+				'sql': 'insert into cfg.db_logon_banner (message) values (%(msg)s)',
 				'args': {'msg': banner.strip()}
 			})
 		gmPG2.run_rw_queries(queries = queries, end_tx = True)
@@ -571,7 +571,7 @@ where
 
 	def _get_workplaces(self):
 		cmd = 'SELECT DISTINCT workplace FROM cfg.cfg_item WHERE workplace IS NOT NULL ORDER BY workplace'
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
 		return [ r['workplace'] for r in rows ]
 
 	workplaces = property(_get_workplaces, _set_workplaces)

@@ -1012,7 +1012,7 @@ class database:
 				continue
 			# run checks in old/new DB
 			try:
-				rows = gmPG2.run_ro_queries (link_obj = template_conn, queries = [{'cmd': SQL__old_db}])
+				rows = gmPG2.run_ro_queries (link_obj = template_conn, queries = [{'sql': SQL__old_db}])
 				val_in_old_db = rows[0][0]
 			except:
 				_log.exception('error in plausibility check [%s] (old DB), aborting' % tag_of_check)
@@ -1022,7 +1022,7 @@ class database:
 				def_of_check = None
 				continue
 			try:
-				rows = gmPG2.run_ro_queries(link_obj = target_conn,	queries = [{'cmd': SQL__new_db}])
+				rows = gmPG2.run_ro_queries(link_obj = target_conn,	queries = [{'sql': SQL__new_db}])
 				val_in_new_db = rows[0][0]
 			except:
 				_log.exception('error in plausibility check [%s] (new DB), aborting' % tag_of_check)
@@ -1064,7 +1064,7 @@ class database:
 		conn.cookie = u'holy auth check connection'
 
 		cmd = u"select setting from pg_settings where name = 'hba_file'"
-		rows = gmPG2.run_ro_queries(link_obj = conn, queries = [{'cmd': cmd}])
+		rows = gmPG2.run_ro_queries(link_obj = conn, queries = [{'sql': cmd}])
 		conn.close()
 		if len(rows) == 0:
 			_log.info(u'cannot check pg_hba.conf for authentication information - not detectable in pg_settings')
@@ -1291,12 +1291,12 @@ class database:
 
 		cmd = u"select gm.transfer_users('%s'::text)" % self.template_db
 		try:
-			rows = gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}], end_tx = True, return_data = True)
+			rows = gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'sql': cmd}], end_tx = True, return_data = True)
 		except gmPG2.dbapi.ProgrammingError:
 			# maybe an old database
 			_log.info(u'problem running gm.transfer_users(), trying gm_transfer_users()')
 			cmd = u"select gm_transfer_users('%s'::text)" % self.template_db
-			rows = gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}], end_tx = True, return_data = True)
+			rows = gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'sql': cmd}], end_tx = True, return_data = True)
 		if rows[0][0]:
 			_log.info(u'users properly transferred from [%s] to [%s]' % (self.template_db, self.name))
 			return True
@@ -1309,10 +1309,10 @@ class database:
 	def ensure_some_security_settings(self) -> bool:
 		print_msg("==> [%s]: setting up security settings ..." % self.name)
 		SQL = 'REVOKE create ON SCHEMA public FROM public;'
-		gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': SQL}])
+		gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'sql': SQL}])
 		if gmPG2.function_exists(link_obj = self.conn, schema = 'gm', function = 'adjust_view_options'):
 			SQL = 'SELECT gm.adjust_view_options();'
-			gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': SQL}])
+			gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'sql': SQL}])
 		else:
 			print_msg('    ... skipped (unavailable as yet)')
 		return True
@@ -1408,14 +1408,14 @@ class database:
 					'target_tbl': 'episode',
 					'target_col': 'pk'
 				}
-				gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}])
+				gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'sql': cmd}])
 			# index on .fk_episode
 			idx_defs = gmPG2.get_index_name(indexed_table = u'%s.%s' % (child['namespace'], child['table']), indexed_column = u'fk_episode', link_obj = self.conn)
 			# drop any existing
 			for idx_def in idx_defs:
 				_log.info(u'dropping index %s.%s', idx_def['index_schema'], idx_def['index_name'])
 				cmd = u'DROP INDEX IF EXISTS %s.%s CASCADE' % (idx_def['index_schema'], idx_def['index_name'])
-				gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}])
+				gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'sql': cmd}])
 			# create
 			_log.info(u'creating index idx_%s_%s_fk_episode', child['namespace'], child['table'])
 			cmd = SQL_add_index % {
@@ -1424,7 +1424,7 @@ class database:
 				'idx_table': child['table'],
 				'idx_col': u'fk_episode'
 			}
-			gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}])
+			gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'sql': cmd}])
 
 			# .fk_encounter
 			FKs = gmPG2.get_foreign_key_names (
@@ -1451,14 +1451,14 @@ class database:
 					'target_tbl': 'encounter',
 					'target_col': 'pk'
 				}
-				gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}])
+				gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'sql': cmd}])
 			# index on .fk_encounter
 			idx_defs = gmPG2.get_index_name(indexed_table = u'%s.%s' % (child['namespace'], child['table']), indexed_column = u'fk_encounter', link_obj = self.conn)
 			# drop any existing
 			for idx_def in idx_defs:
 				_log.info(u'dropping index %s.%s', idx_def['index_schema'], idx_def['index_name'])
 				cmd = u'DROP INDEX IF EXISTS %s.%s CASCADE' % (idx_def['index_schema'], idx_def['index_name'])
-				gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}])
+				gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'sql': cmd}])
 			# create
 			_log.info(u'creating index idx_%s_%s_fk_encounter', child['namespace'], child['table'])
 			cmd = SQL_add_index % {
@@ -1467,7 +1467,7 @@ class database:
 				'idx_table': child['table'],
 				'idx_col': u'fk_encounter'
 			}
-			gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}])
+			gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'sql': cmd}])
 
 		curs = self.conn.cursor()
 

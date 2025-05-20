@@ -913,7 +913,7 @@ class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 				SELECT tag, l10n_name
 				from dem.v_gender_defs
 				order by l10n_name"""
-			rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+			rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
 			cGenderSelectionPhraseWheel._gender_map = {}
 			for gender in rows:
 				cGenderSelectionPhraseWheel._gender_map[gender['tag']] = {
@@ -1089,7 +1089,7 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl, 
 
 		SQL = 'SELECT issuer FROM dem.enum_ext_id_types WHERE pk = %(pk)s'
 		args = {'pk': pk_curr_type}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
 		if not rows:
 			return True
 

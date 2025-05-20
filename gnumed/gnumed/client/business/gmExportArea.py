@@ -121,7 +121,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 				fk_doc_obj = NULL
 			WHERE pk = %(pk)s"""
 		args = {'pk': self.pk_obj, 'data': data}
-		gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}], return_data = False)
+		gmPG2.run_rw_queries(queries = [{'sql': SQL, 'args': args}], return_data = False)
 		# must update XMIN now ...
 		self.refetch_payload()
 		return True
@@ -308,7 +308,7 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		_log.debug('target path: %s', target_path)
 		SQL = 'SELECT substring(data FROM %(start)s FOR %(size)s) FROM clin.export_item WHERE pk = %(pk)s'
 		success = gmPG2.bytea2file (
-			data_query = {'cmd': SQL, 'args': {'pk': self.pk_obj}},
+			data_query = {'sql': SQL, 'args': {'pk': self.pk_obj}},
 			filename = tmp_fname,
 			data_size = self._payload['size']
 		)
@@ -655,7 +655,7 @@ def get_export_items(order_by=None, pk_identity=None, designation=None, return_p
 		order_by = 'pk_identity, list_position'
 	order_by = ' ORDER BY %s' % order_by
 	cmd = (_SQL_get_export_items % ' AND '.join(where_parts)) + order_by
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	if return_pks:
 		return [ r['pk_export_item'] for r in rows ]
 
@@ -696,14 +696,14 @@ def create_export_item(description=None, pk_identity=None, pk_doc_obj=None, file
 		)
 		RETURNING pk
 	"""
-	rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	rows = gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}], return_data = True)
 	return cExportItem(aPK_obj = rows[0]['pk'])
 
 #------------------------------------------------------------
 def delete_export_item(pk_export_item=None):
 	args = {'pk': pk_export_item}
 	cmd = "DELETE FROM clin.export_item WHERE pk = %(pk)s"
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 	return True
 
 #============================================================
@@ -913,7 +913,7 @@ class cExportArea(object):
 			'fname': path_item_data
 		}
 		SQL = _SQL_get_export_items % ' AND '.join(where_parts)
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
 		if len(rows) == 0:
 			return None
 
@@ -991,7 +991,7 @@ class cExportArea(object):
 	def document_part_item_exists(self, pk_part=None):
 		cmd = "SELECT EXISTS (SELECT 1 FROM clin.export_item WHERE fk_doc_obj = %(pk_obj)s)"
 		args = {'pk_obj': pk_part}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		return rows[0][0]
 
 	#--------------------------------------------------------
@@ -1009,7 +1009,7 @@ class cExportArea(object):
 			where_parts.append('pk_doc_obj IS NULL')
 
 		cmd = _SQL_get_export_items % ' AND '.join(where_parts)
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 
 		if len(rows) == 0:
 			return None
@@ -1751,7 +1751,7 @@ def store_object_passphrase (
 		'phrase': encrypted_phrase['data'],
 		'desc': comment
 	}
-	gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}])
+	gmPG2.run_rw_queries(queries = [{'sql': SQL, 'args': args}])
 	return True
 
 #---------------------------------------------------------------------------
@@ -1775,7 +1775,7 @@ def get_object_passphrases(hash_value:str=None, order_by:str=None, link_obj=None
 		SQL += ' WHERE %s' % ' AND '.join(WHERE_PARTS)
 	if order_by:
 		SQL += ' ORDER BY %s' % order_by
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}], link_obj = link_obj)
+	rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}], link_obj = link_obj)
 	if not rows:
 		return None
 

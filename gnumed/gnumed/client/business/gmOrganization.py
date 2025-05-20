@@ -30,8 +30,8 @@ WHERE NOT EXISTS (
 )"""
 	cmd2 = """SELECT pk FROM dem.org_category WHERE description = %(cat)s or _(description) = %(cat)s LIMIT 1"""
 	queries = [
-		{'cmd': cmd1, 'args': args},
-		{'cmd': cmd2, 'args': args}
+		{'sql': cmd1, 'args': args},
+		{'sql': cmd2, 'args': args}
 	]
 	rows = gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, return_data = True)
 	return rows[0][0]
@@ -95,7 +95,7 @@ def org_exists(organization:str=None, category=None, link_obj=None) -> cOrg:
 		cat_part = 'fk_category = %(cat)s'
 
 	cmd = 'SELECT pk FROM dem.org WHERE description = %%(desc)s AND %s' % cat_part
-	rows = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'sql': cmd, 'args': args}])
 	if len(rows) > 0:
 		return cOrg(aPK_obj = rows[0][0])
 
@@ -116,7 +116,7 @@ def create_org(organization=None, category=None, link_obj=None):
 		cat_part = '%(cat)s'
 
 	cmd = 'INSERT INTO dem.org (description, fk_category) VALUES (%%(desc)s, %s) RETURNING pk' % cat_part
-	rows = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	rows = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'sql': cmd, 'args': args}], return_data = True)
 
 	return cOrg(aPK_obj = rows[0][0], link_obj = link_obj)
 
@@ -131,7 +131,7 @@ def delete_org(organization=None):
 				SELECT 1 FROM dem.org_unit WHERE fk_org = %(pk)s
 			)
 	"""
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 	return True
 
 #------------------------------------------------------------
@@ -143,7 +143,7 @@ def get_orgs(order_by=None, return_pks=False):
 		order_by = 'ORDER BY %s' % order_by
 
 	cmd = _SQL_get_org % ('TRUE %s' % order_by)
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
 	if return_pks:
 		return [ r['pk_org'] for r in rows ]
 	return [ cOrg(row = {'data': r, 'pk_field': 'pk_org'}) for r in rows ]
@@ -198,7 +198,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 						AND
 					comm_type = %(medium)s
 			"""
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 
 		return [ gmDemographicRecord.cOrgCommChannel(row = {
 					'pk_field': 'pk_lnk_org_unit2comm',
@@ -247,7 +247,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 			args['issuer'] = issuer.strip()
 
 		cmd = "SELECT * FROM dem.v_external_ids4org_unit WHERE %s" % ' AND '.join(where_parts)
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 
 		return rows
 
@@ -295,7 +295,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 					value = %(val)s
 						AND
 					issuer = %(issuer)s"""
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 
 		# create new ID if not found
 		if len(rows) == 0:
@@ -313,7 +313,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 					%(comment)s,
 					%(unit)s
 				)"""
-			rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+			rows = gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 
 		# or update comment of existing ID
 		else:
@@ -324,7 +324,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 					comment = '%s%s' % (gmTools.coalesce(row['comment'], '', '%s // '), comment.strip)
 					cmd = "UPDATE dem.lnk_org_unit2ext_id SET comment = %(comment)s WHERE pk = %(pk)s"
 					args = {'comment': comment, 'pk': row['pk_id']}
-					rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+					rows = gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 
 	#--------------------------------------------------------
 	def update_external_id(self, pk_id=None, type=None, value=None, issuer=None, comment=None):
@@ -341,7 +341,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 				pk = %(pk)s
 		"""
 		args = {'pk': pk_id, 'value': value, 'type': type, 'issuer': issuer, 'comment': comment}
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 
 	#--------------------------------------------------------
 	def delete_external_id(self, pk_ext_id=None):
@@ -350,7 +350,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 			WHERE fk_org_unit = %(unit)s AND pk = %(pk)s
 		"""
 		args = {'unit': self.pk_obj, 'pk': pk_ext_id}
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 
 	#--------------------------------------------------------
 	# address API
@@ -432,8 +432,8 @@ def create_org_unit(pk_organization:str=None, unit:str=None, link_obj=None) -> c
 		)"""
 	cmd2 = _SQL_get_org_unit % 'unit = %(desc)s AND pk_org = %(pk_org)s'
 	queries = [
-		{'cmd': cmd1, 'args': args},
-		{'cmd': cmd2, 'args': args}
+		{'sql': cmd1, 'args': args},
+		{'sql': cmd2, 'args': args}
 	]
 	rows = gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, return_data = True)
 	return cOrgUnit(row = {'data': rows[0], 'pk_field': 'pk_org_unit'})
@@ -468,7 +468,7 @@ def delete_org_unit(unit:int=None) -> bool:
 			#--			SELECT 1 FROM dem.lnk_org_unit2ext_id where fk_org_unit = %(pk)s
 			#--		)
 	try:
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 	except gmPG2.dbapi.errors.ForeignKeyViolation:
 		_log.exception('error deleting org unit')
 		return False
@@ -489,7 +489,7 @@ def get_org_units(order_by:str=None, org:int=None, return_pks:bool=False) -> lis
 
 	args = {'org': org}
 	cmd = (_SQL_get_org_unit % where_part) + order_by
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	if return_pks:
 		return [ r['pk_org_unit'] for r in rows ]
 

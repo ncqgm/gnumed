@@ -289,7 +289,7 @@ class cPatientSearcher_SQL:
 			'match': _('first name'),
 			'first': '\m' + normalized
 		}
-		return [{'cmd': cmd, 'args': args}]
+		return [{'sql': cmd, 'args': args}]
 
 	#--------------------------------------------------------
 	def __queries_for_lastname_with_comma(self, raw):
@@ -315,7 +315,7 @@ class cPatientSearcher_SQL:
 			'match': _('last name'),
 			'last': '\m%s' % normalized
 		}
-		return [{'cmd': cmd, 'args': args}]
+		return [{'sql': cmd, 'args': args}]
 
 	#--------------------------------------------------------
 	def __queries_for_LASTNAME(self, raw):
@@ -340,7 +340,7 @@ class cPatientSearcher_SQL:
 			'match': _('last name'),
 			'last': '\m' + normalized
 		}
-		return [{'cmd': cmd, 'args': args}]
+		return [{'sql': cmd, 'args': args}]
 
 	#--------------------------------------------------------
 	def __queries_for_name_fragment(self, raw):
@@ -369,7 +369,7 @@ class cPatientSearcher_SQL:
 			'match': _('name part'),
 			'fragment': fragment
 		}
-		return [{'cmd': SQL, 'args': args}]
+		return [{'sql': SQL, 'args': args}]
 
 	#--------------------------------------------------------
 	def __queries_for_nickname(self, raw):
@@ -392,7 +392,7 @@ class cPatientSearcher_SQL:
 			'match': _('nickname'),
 			'nick': nick
 		}
-		return [{'cmd': SQL, 'args': args}]
+		return [{'sql': SQL, 'args': args}]
 
 	#--------------------------------------------------------
 	def __queries_for_singular_name_part(self, raw):
@@ -417,7 +417,7 @@ class cPatientSearcher_SQL:
 			'match': _('name part'),
 			'name': '\m%s' % name
 		}
-		return [{'cmd': SQL, 'args': args}]
+		return [{'sql': SQL, 'args': args}]
 
 	#--------------------------------------------------------
 	def __queries_for_several_name_parts(self, raw):
@@ -447,7 +447,7 @@ class cPatientSearcher_SQL:
 			'match': _('name parts'),
 			'parts': parts
 		}
-		return [{'cmd': SQL, 'args': args}]
+		return [{'sql': SQL, 'args': args}]
 
 	#--------------------------------------------------------
 	def __queries_for_LAST_and_first(self, raw):
@@ -519,7 +519,7 @@ class cPatientSearcher_SQL:
 			'last': '\m' + last,
 			'first': '\m' + first
 		}
-		return [{'cmd': cmd, 'args': args}]
+		return [{'sql': cmd, 'args': args}]
 
 	#--------------------------------------------------------
 	def __queries_for_external_id(self, raw):
@@ -537,7 +537,7 @@ class cPatientSearcher_SQL:
 			'match_type': _('external patient ID'),
 			'ext_id': eid
 		}
-		return [{'cmd': SQL, 'args': args}]
+		return [{'sql': SQL, 'args': args}]
 
 	#--------------------------------------------------------
 	def __queries_for_pk(self, raw):
@@ -555,7 +555,7 @@ class cPatientSearcher_SQL:
 			'match_type': _('internal patient ID'),
 			'pk': raw
 		}
-		return [{'cmd': SQL, 'args': args}]
+		return [{'sql': SQL, 'args': args}]
 
 	#--------------------------------------------------------
 	def __queries_for_pk_or_external_id(self, raw):
@@ -596,7 +596,7 @@ class cPatientSearcher_SQL:
 			'match_type': _('date of birth'),
 			'dob': dob
 		}
-		return [{'cmd': SQL, 'args': args}]
+		return [{'sql': SQL, 'args': args}]
 
 	#--------------------------------------------------------
 	def generate_simple_query(self, raw):
@@ -729,7 +729,7 @@ class cPatientSearcher_SQL:
 			) ORDER BY lastnames, firstnames, dob""" % ' and '.join(where_snippets)
 
 		queries = [
-			{'cmd': cmd, 'args': vals}
+			{'sql': cmd, 'args': vals}
 		]
 
 		# shall we mogrify name parts ? probably not
@@ -770,34 +770,34 @@ class cPatientSearcher_SQL:
 			queries = []
 			# assumption: first last
 			queries.append ({
-				'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s",
+				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s",
 				'args': [_('name: first-last'), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES)]
 			})
 			queries.append ({
-				'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
+				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
 				'args': [_('name: first-last'), '^' + name_parts[0], '^' + name_parts[1]]
 			})
 			# assumption: last first
 			queries.append ({
-				'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s",
+				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s",
 				'args': [_('name: last-first'), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES)]
 			})
 			queries.append ({
-				'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
+				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
 				'args': [_('name: last-first'), '^' + name_parts[1], '^' + name_parts[0]]
 			})
 			# assumption: last nick
 			queries.append ({
-				'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.preferred ~ %s AND n.lastnames ~ %s",
+				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.preferred ~ %s AND n.lastnames ~ %s",
 				'args': [_('name: last-nick'), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES)]
 			})
 			queries.append ({
-				'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.preferred) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
+				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.preferred) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
 				'args': [_('name: last-nick'), '^' + name_parts[1], '^' + name_parts[0]]
 			})
 			# name parts anywhere inside name - third order query ...
 			queries.append ({
-				'cmd': """SELECT DISTINCT ON (id_identity)
+				'sql': """SELECT DISTINCT ON (id_identity)
 							d_vap.*,
 							%s::text AS match_type
 						FROM
@@ -822,25 +822,25 @@ class cPatientSearcher_SQL:
 			# special case: 3 words, exactly 1 of them a date, no ",;"
 			# assumption: first, last, dob - first order
 			queries.append ({
-				'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
+				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
 				'args': [_('names: first-last, date of birth'), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES), date_part.replace(',', '.')]
 			})
 			queries.append ({
-				'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s) AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
+				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s) AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
 				'args': [_('names: first-last, date of birth'), '^' + name_parts[0], '^' + name_parts[1], date_part.replace(',', '.')]
 			})
 			# assumption: last, first, dob - second order query
 			queries.append ({
-				'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
+				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
 				'args': [_('names: last-first, date of birth'), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES), date_part.replace(',', '.')]
 			})
 			queries.append ({
-				'cmd': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s) AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
+				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s) AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
 				'args': [_('names: last-first, dob'), '^' + name_parts[1], '^' + name_parts[0], date_part.replace(',', '.')]
 			})
 			# name parts anywhere in name - third order query ...
 			queries.append ({
-				'cmd': """SELECT DISTINCT ON (id_identity)
+				'sql': """SELECT DISTINCT ON (id_identity)
 							d_vap.*,
 							%s::text AS match_type
 						FROM
@@ -927,7 +927,7 @@ class cPatientSearcher_SQL:
 			args.append(tmp)
 
 			queries.append ({
-				'cmd': cmd,
+				'sql': cmd,
 				'args': args
 			})
 			return queries
@@ -1086,7 +1086,7 @@ class cPatientSearcher_SQL:
 			# and finally generate the queries ...
 			for where_part in where_parts:
 				queries.append ({
-					'cmd': "SELECT *, %%s::text AS match_type FROM dem.v_active_persons WHERE %s" % where_part['conditions'],
+					'sql': "SELECT *, %%s::text AS match_type FROM dem.v_active_persons WHERE %s" % where_part['conditions'],
 					'args': where_part['args']
 				})
 			return queries
@@ -1121,7 +1121,7 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 		dob
 ) AS ordered_list""" % (_('full name'), where_clause)
 
-		return ({'cmd': query, 'args': args})
+		return ({'sql': query, 'args': args})
 
 #============================================================
 def ask_for_patient():
@@ -1213,7 +1213,7 @@ if __name__ == '__main__':
 		q = searcher._generate_queries_from_dto(dto)[0]
 		print("dto:", dto)
 		print(" match on:", q['args'][0])
-		print(" query:", q['cmd'])
+		print(" query:", q['sql'])
 
 		input('press [ENTER] to continue')
 		print("============")
@@ -1223,7 +1223,7 @@ if __name__ == '__main__':
 		qs = searcher._generate_queries_de('Kirk, James')
 		for q in qs:
 			print(" match on:", q['args'][0])
-			print(" query   :", q['cmd'])
+			print(" query   :", q['sql'])
 			print(" args    :", q['args'])
 		input('press [ENTER] to continue')
 		print("============")
@@ -1231,7 +1231,7 @@ if __name__ == '__main__':
 		qs = searcher._generate_queries_de('müller')
 		for q in qs:
 			print(" match on:", q['args'][0])
-			print(" query   :", q['cmd'])
+			print(" query   :", q['sql'])
 			print(" args    :", q['args'])
 		input('press [ENTER] to continue')
 		print("============")
@@ -1239,7 +1239,7 @@ if __name__ == '__main__':
 		qs = searcher._generate_queries_de('özdemir')
 		for q in qs:
 			print(" match on:", q['args'][0])
-			print(" query   :", q['cmd'])
+			print(" query   :", q['sql'])
 			print(" args    :", q['args'])
 		input('press [ENTER] to continue')
 		print("============")
@@ -1247,7 +1247,7 @@ if __name__ == '__main__':
 		qs = searcher._generate_queries_de('Özdemir')
 		for q in qs:
 			print(" match on:", q['args'][0])
-			print(" query   :", q['cmd'])
+			print(" query   :", q['sql'])
 			print(" args    :", q['args'])
 		input('press [ENTER] to continue')
 		print("============")
@@ -1257,7 +1257,7 @@ if __name__ == '__main__':
 		q = searcher._generate_dumb_brute_query('Kirk, James Tiberius')
 		print(" match on:", q['args'][0])
 		print(" args:", q['args'])
-		print(" query:", q['cmd'])
+		print(" query:", q['sql'])
 
 
 		input('press [ENTER] to continue')
@@ -1311,7 +1311,7 @@ if __name__ == '__main__':
 			qs = searcher.generate_simple_query(fragment)
 			for q in qs:
 				print('')
-				print(" query   :", q['cmd'])
+				print(" query   :", q['sql'])
 				print(" match on:", q['args'])
 				print(gmPG2.run_ro_queries(queries = [q]))
 			input('press [ENTER] to continue')

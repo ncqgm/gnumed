@@ -33,7 +33,7 @@ conn = gmPG2.get_connection()
 cmd = """select * from dem.v_staff where db_user = CURRENT_USER"""
 
 try:
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], verbose = True)
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}], verbose = True)
 	for row in rows:
 		_log.info(row)
 	print rows

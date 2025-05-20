@@ -38,7 +38,7 @@ def create_relationship_type(relationship=None, genetic=None):
 				OR
 			_(description) = %(rel)s
 	"""
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	if len(rows) > 0:
 		return rows[0]
 
@@ -53,7 +53,7 @@ def create_relationship_type(relationship=None, genetic=None):
 		)
 		RETURNING *
 	"""
-	rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	rows = gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}], return_data = True)
 	return rows[0]
 
 #============================================================
@@ -126,7 +126,7 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 			'item': self._payload['pk_family_history'],
 			'code': pk_code
 		}
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 		return
 
 	#--------------------------------------------------------
@@ -137,7 +137,7 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 			'item': self._payload['pk_family_history'],
 			'code': pk_code
 		}
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 		return True
 
 	#--------------------------------------------------------
@@ -211,7 +211,7 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 
 		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code = ANY(%(pks)s)'
 		args = {'pks': self._payload['pk_generic_codes']}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
 
 	def _set_generic_codes(self, pk_codes):
@@ -219,7 +219,7 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 		# remove all codes
 		if len(self._payload['pk_generic_codes']) > 0:
 			queries.append ({
-				'cmd': 'DELETE FROM clin.lnk_code2fhx WHERE fk_item = %(fhx)s AND fk_generic_code = ANY(%(codes)s)',
+				'sql': 'DELETE FROM clin.lnk_code2fhx WHERE fk_item = %(fhx)s AND fk_generic_code = ANY(%(codes)s)',
 				'args': {
 					'fhx': self._payload['pk_family_history'],
 					'codes': self._payload['pk_generic_codes']
@@ -228,7 +228,7 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 		# add new codes
 		for pk_code in pk_codes:
 			queries.append ({
-				'cmd': 'INSERT INTO clin.lnk_code2fhx (fk_item, fk_generic_code) VALUES (%(fhx)s, %(pk_code)s)',
+				'sql': 'INSERT INTO clin.lnk_code2fhx (fk_item, fk_generic_code) VALUES (%(fhx)s, %(pk_code)s)',
 				'args': {
 					'fhx': self._payload['pk_family_history'],
 					'pk_code': pk_code
@@ -263,7 +263,7 @@ def get_family_history(order_by=None, patient=None):
 			order_by = 'ORDER BY %s' % order_by
 
 	cmd = _SQL_get_family_history % ' AND '.join(where_parts) + ' ' + order_by
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	return [ cFamilyHistory(row = {'data': r, 'pk_field': 'pk_family_history'}) for r in rows ]
 
 #------------------------------------------------------------
@@ -291,14 +291,14 @@ def create_family_history(encounter=None, episode=None, condition=None, relation
 		)
 		RETURNING pk
 	"""
-	rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	rows = gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}], return_data = True)
 
 	return cFamilyHistory(aPK_obj = rows[0]['pk'])
 #------------------------------------------------------------
 def delete_family_history(pk_family_history=None):
 	args = {'pk': pk_family_history}
 	cmd = "DELETE FROM clin.family_history WHERE pk = %(pk)s"
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 	return True
 #============================================================
 # main

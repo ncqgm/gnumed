@@ -196,7 +196,7 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 		definition.
 		"""
 		cmd = 'SELECT data FROM ref.paperwork_templates WHERE pk = %(pk)s'
-		rows = gmPG2.run_ro_queries (queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj}}])
+		rows = gmPG2.run_ro_queries (queries = [{'sql': cmd, 'args': {'pk': self.pk_obj}}])
 		if len(rows) == 0:
 			raise gmExceptions.NoSuchBusinessObjectError('cannot retrieve data for template pk = %s' % self.pk_obj)
 
@@ -241,11 +241,11 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 				tmp_dir = sandbox_dir
 			)
 		data_query = {
-			'cmd': 'SELECT substring(data from %(start)s for %(size)s) FROM ref.paperwork_templates WHERE pk = %(pk)s',
+			'sql': 'SELECT substring(data from %(start)s for %(size)s) FROM ref.paperwork_templates WHERE pk = %(pk)s',
 			'args': {'pk': self.pk_obj}
 		}
 		data_size_query = {
-			'cmd': 'select octet_length(data) from ref.paperwork_templates where pk = %(pk)s',
+			'sql': 'select octet_length(data) from ref.paperwork_templates where pk = %(pk)s',
 			'args': {'pk': self.pk_obj}
 		}
 		result = gmPG2.bytea2file (
@@ -306,7 +306,7 @@ def get_form_template(name_long:str=None, external_version:str=None):
 	"""Load a form template from the backend based on name and version."""
 	cmd = 'select pk from ref.paperwork_templates where name_long = %(lname)s and external_version = %(ver)s'
 	args = {'lname': name_long, 'ver': external_version}
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	if len(rows) == 0:
 		_log.error('cannot load form template [%s - %s]', name_long, external_version)
 		return None
@@ -329,7 +329,7 @@ def get_form_templates(engine=None, active_only=False, template_types=None, excl
 		args['excl_types'] = excluded_types
 		where_parts.append('template_type <> ALL(%(excl_types)s)')
 	cmd = "SELECT * FROM ref.v_paperwork_templates WHERE %s ORDER BY in_use desc, name_long" % '\nAND '.join(where_parts)
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	if return_pks:
 		return [ r['pk_paperwork_template'] for r in rows ]
 
@@ -353,7 +353,7 @@ def create_form_template(template_type=None, name_short=None, name_long=None):
 		RETURNING pk
 	"""
 	args = {'type': template_type, 'nshort': name_short, 'nlong': name_long, 'ext_version': 'new'}
-	rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	rows = gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}], return_data = True)
 	template = cFormTemplate(aPK_obj = rows[0][0])
 	return template
 
@@ -361,7 +361,7 @@ def create_form_template(template_type=None, name_short=None, name_long=None):
 def delete_form_template(template=None):
 	gmPG2.run_rw_queries (
 		queries = [{
-			'cmd': 'DELETE FROM ref.paperwork_templates WHERE pk = %(pk)s',
+			'sql': 'DELETE FROM ref.paperwork_templates WHERE pk = %(pk)s',
 			'args': {'pk': template['pk_paperwork_template']}
 		}]
 	)
@@ -2068,7 +2068,7 @@ class cXSLTFormEngine(cFormEngine):
 				break
 
 		# retrieve data from backend
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': self._SQL_query, 'args': sql_parameters}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': self._SQL_query, 'args': sql_parameters}])
 
 		__header = '<?xml version="1.0" encoding="UTF-8"?>\n'
 		__body = rows[0][0]

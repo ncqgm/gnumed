@@ -99,7 +99,7 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 				reviewed_when desc
 			"""
 		args = {'pk_doc_obj': self.pk_obj}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
 		return rows
 
 	#--------------------------------------------------------
@@ -118,7 +118,7 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 			WHERE pk = %(pk_part)s
 		"""
 		args = {'pk_part': self.pk_obj, 'pk_incoming': pk_incoming}
-		gmPG2.run_rw_queries(link_obj = conn, queries = [{'cmd': SQL, 'args': args}], return_data = False)
+		gmPG2.run_rw_queries(link_obj = conn, queries = [{'sql': SQL, 'args': args}], return_data = False)
 		# must update XMIN now ...
 		self.refetch_payload(link_obj = conn)
 		return True
@@ -151,7 +151,7 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 				fk_reviewer = (SELECT pk FROM dem.staff WHERE db_user = current_user)
 		"""
 		args = {'pk_obj': self.pk_obj}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
 		# INSERT needed
 		if not rows:
 			cols = [
@@ -195,7 +195,7 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 		else:
 			raise AssertionError('more than one review by one reviewer for one particular row')
 
-		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 		return True
 
 	#--------------------------------------------------------
@@ -207,7 +207,7 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 		cmd = 'SELECT coalesce(max(seq_idx)+1, 1) FROM blobs.doc_obj WHERE fk_doc = %(doc_id)s'
 		rows = gmPG2.run_ro_queries (
 			queries = [{
-				'cmd': cmd,
+				'sql': cmd,
 				'args': {'doc_id': self._payload['pk_doc']}
 			}]
 		)
@@ -238,7 +238,7 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 			'pk_obj': self.pk_obj,
 			'xmin_doc_obj': self._payload['xmin_doc_obj']
 		}
-		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+		rows = gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}], return_data = True)
 		if len(rows) == 0:
 			return False
 		# The following should never hold true because the target
@@ -396,7 +396,7 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 			filename = gmTools.get_unique_filename()
 		success = gmPG2.bytea2file (
 			data_query = {
-				'cmd': 'SELECT substring(data FROM %(start)s for %(size)s) FROM blobs.doc_obj WHERE pk=%(pk)s',
+				'sql': 'SELECT substring(data FROM %(start)s for %(size)s) FROM blobs.doc_obj WHERE pk=%(pk)s',
 				'args': {'pk': self.pk_obj}
 			},
 			filename = filename,
@@ -460,7 +460,7 @@ def delete_document_part(part_pk=None, encounter_pk=None):
 			(SELECT 1 FROM clin.export_item WHERE fk_doc_obj = %(pk)s)
 	"""
 	args = {'pk': part_pk, 'enc': encounter_pk}
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 	return
 
 #============================================================
@@ -517,35 +517,35 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		else:
 			SQL = "SELECT pk, substring(text FROM 1 for %s) FROM blobs.doc_desc WHERE fk_doc = %%(pk_doc)s" % max_lng
 		args = {'pk_doc': self.pk_obj}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
 		return rows
 
 	#--------------------------------------------------------
 	def add_description(self, description=None):
 		SQL = 'INSERT INTO blobs.doc_desc (fk_doc, text) values (%(pk_doc)s, %(desc)s)'
 		args = {'pk_doc': self.pk_obj, 'desc': description}
-		gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'sql': SQL, 'args': args}])
 		return True
 
 	#--------------------------------------------------------
 	def update_description(self, pk=None, description=None):
 		cmd = "update blobs.doc_desc set text = %(desc)s WHERE fk_doc = %(doc)s and pk = %(pk_desc)s"
 		gmPG2.run_rw_queries(queries = [
-			{'cmd': cmd, 'args': {'doc': self.pk_obj, 'pk_desc': pk, 'desc': description}}
+			{'sql': cmd, 'args': {'doc': self.pk_obj, 'pk_desc': pk, 'desc': description}}
 		])
 		return True
 
 	#--------------------------------------------------------
 	def delete_description(self, pk=None):
 		cmd = "DELETE FROM blobs.doc_desc WHERE fk_doc = %(doc)s and pk = %(desc)s"
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'doc': self.pk_obj, 'desc': pk}}])
+		gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': {'doc': self.pk_obj, 'desc': pk}}])
 		return True
 
 	#--------------------------------------------------------
 	def _get_parts(self):
 		SQL = _SQL_get_document_part_fields % 'pk_doc = %(pk_doc)s ORDER BY seq_idx'
 		args = {'pk_doc': self.pk_obj}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
 		return [ cDocumentPart(row = {'pk_field': 'pk_obj', 'data': r}) for r in rows ]
 
 	parts = property(_get_parts)
@@ -564,7 +564,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 			) RETURNING pk"""
 		rows = gmPG2.run_rw_queries (
 			link_obj = link_obj,
-			queries = [{'cmd': cmd, 'args': {'doc_id': self.pk_obj}}],
+			queries = [{'sql': cmd, 'args': {'doc_id': self.pk_obj}}],
 			return_data = True
 		)
 		# init document part instance
@@ -574,7 +574,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 			_log.error('cannot import binary data from [%s] into document part' % file)
 			SQL = 'DELETE FROM blobs.doc_obj WHERE pk = %(pk_part)s'
 			args = {'pk_part': pk_part}
-			gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': SQL, 'args': args}])
+			gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'sql': SQL, 'args': args}])
 			return None
 
 		new_part['filename'] = file
@@ -628,7 +628,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 			) RETURNING pk
 		"""
 		args = {'doc_id': self.pk_obj}
-		rows = gmPG2.run_rw_queries(link_obj = conn, queries = [{'cmd': SQL, 'args': args}], return_data = True)
+		rows = gmPG2.run_rw_queries(link_obj = conn, queries = [{'sql': SQL, 'args': args}], return_data = True)
 		new_part = cDocumentPart(aPK_obj = rows[0]['pk'], link_obj = conn)
 		if not new_part.update_data_from_incoming(conn = conn, pk_incoming = pk_incoming):
 			return None
@@ -679,7 +679,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 
 		cmd = "SELECT EXISTS(SELECT 1 FROM blobs.v_obj4doc_no_data WHERE pk_doc = %(pk)s AND reviewed IS FALSE)"
 		args = {'pk': self.pk_obj}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		self.__has_unreviewed_parts = rows[0][0]
 		return self.__has_unreviewed_parts
 
@@ -862,7 +862,7 @@ def create_document(document_type=None, encounter=None, episode=None, link_obj=N
 	except (TypeError, ValueError): args['pk_enc'] = encounter['pk_encounter']
 	try: args['pk_epi'] = int(episode)
 	except (TypeError, ValueError): args['pk_epi'] = episode['pk_episode']
-	rows = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': SQL, 'args': args}], return_data = True)
+	rows = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'sql': SQL, 'args': args}], return_data = True)
 	doc = cDocument(aPK_obj = rows[0][0], link_obj = link_obj)
 	return doc
 
@@ -898,7 +898,7 @@ def search_for_documents(patient_id=None, type_id=None, external_reference=None,
 		args['pk_types'] = pk_types
 
 	cmd = _SQL_get_document_fields % ' AND '.join(where_parts)
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	return [ cDocument(row = {'data': r, 'pk_field': 'pk_doc'}) for r in rows ]
 
 #------------------------------------------------------------
@@ -906,7 +906,7 @@ def delete_document(document_id=None, encounter_id=None):
 	# cascades to doc_obj and doc_desc but not bill.bill
 	cmd = "SELECT blobs.delete_document(%(pk)s, %(enc)s)"
 	args = {'pk': document_id, 'enc': encounter_id}
-	rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	rows = gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}], return_data = True)
 	if not rows[0][0]:
 		_log.error('cannot delete document [%s]', document_id)
 		return False
@@ -930,7 +930,7 @@ WHERE
 """
 	args = {'new_type': target_type['pk_doc_type'], 'old_type': original_type['pk_doc_type']}
 
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 
 	return True
 
@@ -981,7 +981,7 @@ class cDocumentFolder:
 		# patient in demographic database ?
 		SQL = 'SELECT exists(SELECT 1 FROM dem.identity WHERE pk = %(pk_pat)s)'
 		args = {'pk_pat': self.pk_patient}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
 		if not rows[0][0]:
 			_log.error("patient [%s] not in demographic database" % self.pk_patient)
 			return None
@@ -1010,7 +1010,7 @@ class cDocumentFolder:
 			'typ': DOCUMENT_TYPE_PRESCRIPTION,
 			'ref': 'FreeDiams'
 		}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		if len(rows) == 0:
 			_log.info('no FreeDiams prescription available for patient [%s]' % self.pk_patient)
 			return None
@@ -1021,7 +1021,7 @@ class cDocumentFolder:
 	def get_latest_mugshot(self):
 		SQL = "SELECT pk_obj FROM blobs.v_latest_mugshot WHERE pk_patient = %(pk_pat)s"
 		args = {'pk_pat': self.pk_patient}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
 		if rows:
 			return cDocumentPart(aPK_obj = rows[0][0])
 
@@ -1077,7 +1077,7 @@ class cDocumentFolder:
 			except (TypeError, ValueError):
 				cmd = cmd % 'and vdm.pk_type = (SELECT pk FROM blobs.doc_type WHERE name = %(TYP)s)'
 
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		doc_ids = []
 		for row in rows:
 			doc_ids.append(row[0])
@@ -1104,7 +1104,7 @@ class cDocumentFolder:
 					reviewed IS FALSE
 			)
 			ORDER BY clin_when DESC"""
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		return [ cDocument(row = {'pk_field': 'pk_doc', 'data': r}) for r in rows ]
 
 	#--------------------------------------------------------
@@ -1136,7 +1136,7 @@ class cDocumentFolder:
 			order_by = 'clin_when'
 		order_by_clause = 'ORDER BY %s' % order_by
 		cmd = "%s\n%s" % (_SQL_get_document_fields % ' AND '.join(where_parts), order_by_clause)
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		return [ cDocument(row = {'pk_field': 'pk_doc', 'data': r}) for r in rows ]
 
 	documents = property(get_documents)
@@ -1162,7 +1162,7 @@ class cDocumentFolder:
 			'pk_org_unit IN (SELECT DISTINCT ON (pk_org_unit) pk_org_unit FROM blobs.v_doc_med WHERE pk_patient = %(pat)s)'
 		)
 		args = {'pat': self.pk_patient}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		return [ gmOrganization.cOrgUnit(row = {'data': r, 'pk_field': 'pk_org_unit'}) for r in rows ]
 
 	all_document_org_units = property(_get_all_document_org_units)
@@ -1193,10 +1193,10 @@ class cDocumentType(gmBusinessDBObject.cBusinessDBObject):
 			'tx': translation
 		}
 		queries = [{
-			'cmd': 'SELECT i18n.i18n(%(orig)s)',
+			'sql': 'SELECT i18n.i18n(%(orig)s)',
 			'args': args
 		}, {
-			'cmd': 'SELECT i18n.upd_tx((SELECT i18n.get_curr_lang()), %(orig)s, %(tx)s)',
+			'sql': 'SELECT i18n.upd_tx((SELECT i18n.get_curr_lang()), %(orig)s, %(tx)s)',
 			'args': args
 		}]
 		rows = gmPG2.run_rw_queries(queries = queries, return_data = True)
@@ -1209,7 +1209,7 @@ class cDocumentType(gmBusinessDBObject.cBusinessDBObject):
 #------------------------------------------------------------
 def get_document_types():
 	rows = gmPG2.run_ro_queries (
-		queries = [{'cmd': "SELECT * FROM blobs.v_doc_type"}]
+		queries = [{'sql': "SELECT * FROM blobs.v_doc_type"}]
 	)
 	doc_types = []
 	for row in rows:
@@ -1222,10 +1222,10 @@ def get_document_type_pk(document_type=None):
 	args = {'typ': document_type.strip()}
 
 	cmd = 'SELECT pk FROM blobs.doc_type WHERE name = %(typ)s'
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	if len(rows) == 0:
 		cmd = 'SELECT pk FROM blobs.doc_type WHERE _(name) = %(typ)s'
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 
 	if len(rows) == 0:
 		return None
@@ -1236,7 +1236,7 @@ def get_document_type_pk(document_type=None):
 def map_types2pk(document_types=None):
 	args = {'types': document_types}
 	cmd = 'SELECT pk_doc_type, coalesce(l10n_type, type) as desc FROM blobs.v_doc_type WHERE l10n_type = ANY(%(types)s) OR type = ANY(%(types)s)'
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	return rows
 
 #------------------------------------------------------------
@@ -1244,14 +1244,14 @@ def create_document_type(document_type:str=None) -> cDocumentType:
 	# check for potential dupes:
 	SQL = 'SELECT pk FROM blobs.doc_type WHERE name = %(doc_type)s'
 	args = {'doc_type': document_type}
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
 	if rows:
 		return cDocumentType(aPK_obj = rows[0][0])
 
 	_log.debug('creating document type [%s]', document_type)
 	SQL = "INSERT INTO blobs.doc_type (name) VALUES (%(doc_type)s) RETURNING pk"
 	args = {'doc_type': document_type}
-	rows = gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}], return_data = True)
+	rows = gmPG2.run_rw_queries(queries = [{'sql': SQL, 'args': args}], return_data = True)
 	return cDocumentType(aPK_obj = rows[0][0])
 
 #------------------------------------------------------------
@@ -1261,7 +1261,7 @@ def delete_document_type(document_type=None):
 
 	SQL = 'DELETE FROM blobs.doc_type WHERE pk = %(pk_doc_type)s'
 	args = {'pk_doc_type': document_type['pk_doc_type']}
-	gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}])
+	gmPG2.run_rw_queries(queries = [{'sql': SQL, 'args': args}])
 	return True
 
 #------------------------------------------------------------
@@ -1279,7 +1279,7 @@ def get_ext_ref():
 def check_mimetypes_in_archive():
 	mimetypes = {}
 	cmd = 'SELECT pk FROM blobs.doc_med'
-	doc_pks = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	doc_pks = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
 	print('Detecting mimetypes in document archive ...')
 	doc_idx = 0
 	part_count = 0

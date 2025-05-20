@@ -61,7 +61,7 @@ def format_loinc(loinc):
 def loinc2data(loinc):
 	cmd = 'SELECT * FROM ref.loinc WHERE code = %(loinc)s'
 	args = {'loinc': loinc}
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	if len(rows) == 0:
 		return None
 	return rows[0]
@@ -99,7 +99,7 @@ SELECT coalesce (
 	)
 )"""
 	args = {'loinc': loinc}
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 
 	if rows[0][0] is None:
 		return []
@@ -175,7 +175,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 	# clean out staging area
 	curs = conn.cursor()
 	cmd = """DELETE FROM staging.loinc_staging"""
-	gmPG2.run_rw_queries(link_obj = curs, queries = [{'cmd': cmd}])
+	gmPG2.run_rw_queries(link_obj = curs, queries = [{'sql': cmd}])
 	curs.close()
 	conn.commit()
 	_log.debug('staging table emptied')
@@ -190,7 +190,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 		if not first:
 			first = True
 			continue
-		gmPG2.run_rw_queries(link_obj = curs, queries = [{'cmd': cmd, 'args': loinc_line}])
+		gmPG2.run_rw_queries(link_obj = curs, queries = [{'sql': cmd, 'args': loinc_line}])
 	curs.close()
 	conn.commit()
 	csv_file.close()
@@ -203,7 +203,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 	args = {'ver': version, 'desc': desc, 'url': origin_url, 'name_long': name_long, 'name_short': name_short, 'lang': lang}
 	queries = [
 		# insert if not existing
-		{'args': args, 'cmd': """
+		{'args': args, 'sql': """
 			INSERT INTO ref.data_source (name_long, name_short, version) SELECT
 				%(name_long)s,
 				%(name_short)s,
@@ -218,7 +218,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 			)"""
 		},
 		# update non-unique fields
-		{'args': args, 'cmd': """
+		{'args': args, 'sql': """
 			UPDATE ref.data_source SET
 				description = %(desc)s,
 				source = %(url)s,
@@ -232,7 +232,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 			"""
 		},
 		# retrieve PK of data source
-		{'args': args, 'cmd': """SELECT pk FROM ref.data_source WHERE name_short = %(name_short)s AND version = %(ver)s"""}
+		{'args': args, 'sql': """SELECT pk FROM ref.data_source WHERE name_short = %(name_short)s AND version = %(ver)s"""}
 	]
 	curs = conn.cursor()
 	rows = gmPG2.run_rw_queries(link_obj = curs, queries = queries, return_data = True)
@@ -245,7 +245,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 	queries = []
 	queries.append ({
 		'args': args,
-		'cmd': """
+		'sql': """
 			INSERT INTO ref.loinc (
 				fk_data_source, term, code
 			)
@@ -286,7 +286,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 	})
 	queries.append ({
 		'args': args,
-		'cmd': """
+		'sql': """
 			UPDATE ref.loinc SET
 				comment = nullif(st_ls.comments, ''),
 				component = nullif(st_ls.component, ''),
@@ -362,7 +362,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 	# clean out staging area
 	curs = conn.cursor()
 	cmd = """DELETE FROM staging.loinc_staging"""
-	gmPG2.run_rw_queries(link_obj = curs, queries = [{'cmd': cmd}])
+	gmPG2.run_rw_queries(link_obj = curs, queries = [{'sql': cmd}])
 	curs.close()
 	conn.commit()
 	_log.debug('staging table emptied')

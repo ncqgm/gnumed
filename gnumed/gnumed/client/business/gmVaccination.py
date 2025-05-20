@@ -111,7 +111,7 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 	def _get_is_in_use(self):
 		cmd = 'SELECT EXISTS(SELECT 1 FROM clin.vaccination WHERE fk_vaccine = %(pk)s)'
 		args = {'pk': self._payload['pk_vaccine']}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		return rows[0][0]
 
 	is_in_use = property(_get_is_in_use)
@@ -122,7 +122,7 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 	@staticmethod
 	def atcs2indication_pks(atcs:list[str]=None) -> list[int]:
 		query = {
-			'cmd': 'SELECT pk FROM ref.vacc_indication WHERE atc = ANY(%(atcs)s)',
+			'sql': 'SELECT pk FROM ref.vacc_indication WHERE atc = ANY(%(atcs)s)',
 			'args': {'atcs': atcs}
 		}
 		rows = gmPG2.run_ro_queries(queries = [query])
@@ -137,7 +137,7 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 	@staticmethod
 	def targets2indication_pks(targets:list[str]=None) -> list[int]:
 		query = {
-			'cmd': 'SELECT pk FROM ref.vacc_indication WHERE atc = ANY(%(targets)s)',
+			'sql': 'SELECT pk FROM ref.vacc_indication WHERE atc = ANY(%(targets)s)',
 			'args': {'targets': targets}
 		}
 		rows = gmPG2.run_ro_queries(queries = [query])
@@ -162,7 +162,7 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 				_log.error('neither <pk_indication>, nor <atc>, nor <indication> given')
 				return False
 
-			rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+			rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
 			if not rows:
 				_log.error('indication [%s: %s] does not exist', atc, indication)
 				return False
@@ -179,7 +179,7 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 				SELECT 1 FROM ref.lnk_indic2vaccine WHERE fk_indication %(pk_ind)s = AND fk_vaccine = %(pk_vacc)s
 			)
 		"""
-		gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'sql': SQL, 'args': args}])
 		return True
 
 	#--------------------------------------------------------
@@ -189,13 +189,13 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 			'pk_vacc': self._payload['pk_vaccine']
 		}
 		SQL = 'DELETE FROM ref.lnk_indic2vaccine WHERE fk_indication %(pk_ind)s = AND fk_vaccine = %(pk_vacc)s'
-		gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'sql': SQL, 'args': args}])
 
 	#--------------------------------------------------------
 	def remove_indications(self):
 		args = {'pk_vacc': self._payload['pk_vaccine']}
 		SQL = 'DELETE FROM ref.lnk_indic2vaccine WHERE fk_vaccine = %(pk_vacc)s'
-		gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'sql': SQL, 'args': args}])
 
 	#--------------------------------------------------------
 	def set_indications(self, pk_indications:list[int]=None) -> bool:
@@ -207,12 +207,12 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 			return True
 
 		queries = [{
-			'cmd': 'DELETE FROM ref.lnk_indic2vaccine WHERE fk_vaccine = %(pk_vacc)s',
+			'sql': 'DELETE FROM ref.lnk_indic2vaccine WHERE fk_vaccine = %(pk_vacc)s',
 			'args': {'pk_vacc': self._payload['pk_vaccine']}
 		}]
 		for pk_ind in set(pk_indications):		# remove dupes
 			queries.append ({
-				'cmd': 'INSERT INTO ref.lnk_indic2vaccine (fk_indication, fk_vaccine) VALUES (%(pk_ind)s, %(pk_vacc)s)',
+				'sql': 'INSERT INTO ref.lnk_indic2vaccine (fk_indication, fk_vaccine) VALUES (%(pk_ind)s, %(pk_vacc)s)',
 				'args': {'pk_ind': pk_ind, 'pk_vacc': self._payload['pk_vaccine']}
 			})
 		gmPG2.run_rw_queries(queries = queries)
@@ -248,7 +248,7 @@ def create_vaccine_dummy_dose(link_obj=None) -> int:
 		'unit': 'dose',
 		'dose_unit': 'shot'
 	}
-	rows = gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}], link_obj = link_obj, return_data = True)
+	rows = gmPG2.run_rw_queries(queries = [{'sql': SQL, 'args': args}], link_obj = link_obj, return_data = True)
 	return rows[0]['pk']
 
 #------------------------------------------------------------
@@ -278,7 +278,7 @@ def create_vaccine(pk_drug_product=None, product_name=None, is_live=None):
 		'pk_drug_product': pk_drug_product,
 		'live': is_live
 	}
-	queries = [{'cmd': SQL, 'args': args}]
+	queries = [{'sql': SQL, 'args': args}]
 	rows = gmPG2.run_rw_queries(link_obj = conn, queries = queries, return_data = True, end_tx = True)
 	return cVaccine(aPK_obj = rows[0]['pk'], link_obj = conn)
 
@@ -287,20 +287,20 @@ def delete_vaccine(pk_vaccine:int=None, also_delete_product:bool=False) -> bool:
 	args = {'pk_vacc': pk_vaccine, 'pk_drug': None}
 	if also_delete_product:
 		SQL = 'SELECT fk_drug_product FROM ref.vaccine WHERE pk = %(pk_vacc)s'
-		q = {'cmd': SQL, 'args': args}
+		q = {'sql': SQL, 'args': args}
 		rows = gmPG2.run_ro_queries(queries = [q])
 		if rows:
 			args['pk_drug'] = rows[0]['fk_drug_product']
 	queries = []
 	SQL = 'DELETE FROM ref.lnk_indic2vaccine WHERE fk_vaccine = %(pk_vacc)s'
-	queries.append({'cmd': SQL, 'args': args})
+	queries.append({'sql': SQL, 'args': args})
 	SQL = 'DELETE FROM ref.vaccine WHERE pk = %(pk_vacc)s'
-	queries.append({'cmd': SQL, 'args': args})
+	queries.append({'sql': SQL, 'args': args})
 	if args['pk_drug']:
 		SQL = 'DELETE FROM ref.lnk_dose2drug WHERE fk_drug_product = %(pk_drug)s'
-		queries.append({'cmd': SQL, 'args': args})
+		queries.append({'sql': SQL, 'args': args})
 		SQL = 'DELETE FROM ref.drug_product WHERE pk = %(pk_drug)s'
-		queries.append({'cmd': SQL, 'args': args})
+		queries.append({'sql': SQL, 'args': args})
 	try:
 		gmPG2.run_rw_queries(queries = queries)
 	except gmPG2.dbapi.IntegrityError:
@@ -317,7 +317,7 @@ def get_vaccines(order_by=None, return_pks=False):
 	else:
 		cmd = _SQL_get_vaccine_fields % ('TRUE\nORDER BY %s' % order_by)
 
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
 	if return_pks:
 		return [ r['pk_vaccine'] for r in rows ]
 	return [ cVaccine(row = {'data': r, 'pk_field': 'pk_vaccine'}) for r in rows ]
@@ -327,7 +327,7 @@ def get_vaccination_indications(order_by=None):
 	SQL = 'SELECT * from ref.vacc_indication'
 	if order_by:
 		SQL += ' ORDER BY %s' % order_by
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': SQL}])
 	return rows
 
 #============================================================
@@ -468,7 +468,7 @@ def get_vaccinations(pk_identity=None, pk_episodes=None, pk_health_issues=None, 
 		_SQL_get_vaccination_fields % WHERE,
 		ORDER_BY
 	)
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
 	if return_pks:
 		return [ r['pk_vaccination'] for r in rows ]
 
@@ -532,15 +532,14 @@ def create_vaccination(encounter:int=None, episode:int=None, pk_vaccine:int=None
 		'pk_vacc': pk_vaccine,
 		'batch': batch_no
 	}
-	rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	rows = gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}], return_data = True)
 	return cVaccination(aPK_obj = rows[0][0])
 
 #------------------------------------------------------------
 def delete_vaccination(vaccination=None):
-	cmd = """DELETE FROM clin.vaccination WHERE pk = %(pk)s"""
+	SQL = 'DELETE FROM clin.vaccination WHERE pk = %(pk)s'
 	args = {'pk': vaccination}
-
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	gmPG2.run_rw_queries(queries = [{'sql': SQL, 'args': args}])
 
 #------------------------------------------------------------
 def format_latest_vaccinations(output_format='latex', emr=None):

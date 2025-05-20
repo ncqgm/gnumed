@@ -31,7 +31,7 @@ if __name__ == '__main__':
 	print 'dumping untranslated database strings'
 	# get strings
 	cmd = u'select lang, orig, english from i18n.v_missing_translations order by lang'
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
 	if rows is None:
 		_log.error('cannot retrieve untranslated strings')
 		sys.exit('cannot retrieve untranslated strings')

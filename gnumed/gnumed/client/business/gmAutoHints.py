@@ -148,7 +148,7 @@ def get_dynamic_hints(order_by=None, link_obj=None, return_pks=False):
 	else:
 		order_by = 'TRUE ORDER BY %s' % order_by
 	cmd = _SQL_get_dynamic_hints % order_by
-	rows = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd}])
+	rows = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'sql': cmd}])
 	if return_pks:
 		return [ r['pk_auto_hint'] for r in rows ]
 	return [ cDynamicHint(row = {'data': r, 'pk_field': 'pk_auto_hint'}) for r in rows ]
@@ -178,14 +178,14 @@ def create_dynamic_hint(link_obj=None, query=None, title=None, hint=None, source
 		)
 		RETURNING pk
 	"""
-	rows = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	rows = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'sql': cmd, 'args': args}], return_data = True)
 	return cDynamicHint(aPK_obj = rows[0]['pk'], link_obj = link_obj)
 
 #------------------------------------------------------------
 def delete_dynamic_hint(link_obj=None, pk_hint=None):
 	args = {'pk': pk_hint}
 	cmd = "DELETE FROM ref.auto_hint WHERE pk = %(pk)s"
-	gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
+	gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'sql': cmd, 'args': args}])
 	return True
 
 #------------------------------------------------------------
@@ -235,7 +235,7 @@ def suppress_dynamic_hint(pk_hint=None, rationale=None, pk_encounter=None):
 				)
 			)
 	"""
-	queries = [{'cmd': cmd, 'args': args}]
+	queries = [{'sql': cmd, 'args': args}]
 	cmd = """
 		INSERT INTO clin.suppressed_hint (
 			fk_encounter,
@@ -249,7 +249,7 @@ def suppress_dynamic_hint(pk_hint=None, rationale=None, pk_encounter=None):
 			(SELECT r_vah.md5_sum FROM ref.v_auto_hints r_vah WHERE r_vah.pk_auto_hint = %(hint)s)
 		)
 	"""
-	queries.append({'cmd': cmd, 'args': args})
+	queries.append({'sql': cmd, 'args': args})
 	gmPG2.run_rw_queries(queries = queries)
 	return True
 
@@ -309,7 +309,7 @@ def get_suppressed_hints(pk_identity=None, order_by=None, return_pks=False):
 	else:
 		order_by = ' ORDER BY %s' % order_by
 	cmd = (_SQL_get_suppressed_hints % where) + order_by
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	if return_pks:
 		return [ r['pk_suppressed_hint'] for r in rows ]
 	return [ cSuppressedHint(row = {'data': r, 'pk_field': 'pk_suppressed_hint'}) for r in rows ]
@@ -318,7 +318,7 @@ def get_suppressed_hints(pk_identity=None, order_by=None, return_pks=False):
 def delete_suppressed_hint(pk_suppressed_hint=None):
 	args = {'pk': pk_suppressed_hint}
 	cmd = "DELETE FROM clin.suppressed_hint WHERE pk = %(pk)s"
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 	return True
 
 #------------------------------------------------------------
@@ -345,7 +345,7 @@ def invalidate_hint_suppression(pk_hint=None, pk_encounter=None):
 					)
 			)
 	"""
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 	return True
 
 #============================================================

@@ -30,7 +30,7 @@ ORDER BY
 
 conn = gmPG2.get_connection()
 
-rows = gmPG2.run_ro_queries(link_obj=conn, queries=[{'cmd': cmd, 'args': {'pat': sys.argv[1]}}])
+rows = gmPG2.run_ro_queries(link_obj=conn, queries=[{'sql': cmd, 'args': {'pat': sys.argv[1]}}])
 
 f = open('emr-%s-narrative-dump.txt' % sys.argv[1], mode = 'wt', encoding = 'utf8', errors = 'strict')
 

@@ -113,11 +113,11 @@ def create_test_org(name=None, comment=None, pk_org_unit=None, link_obj=None):
 	# test org exists ?
 	args = {'pk_unit': pk_org_unit}
 	cmd = 'SELECT pk_test_org FROM clin.v_test_orgs WHERE pk_org_unit = %(pk_unit)s'
-	rows = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'sql': cmd, 'args': args}])
 
 	if len(rows) == 0:
 		cmd = 'INSERT INTO clin.test_org (fk_org_unit) VALUES (%(pk_unit)s) RETURNING pk'
-		rows = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True)
+		rows = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'sql': cmd, 'args': args}], return_data = True)
 
 	test_org = cTestOrg(link_obj = link_obj, aPK_obj = rows[0][0])
 	if comment is not None:
@@ -138,11 +138,11 @@ def delete_test_org(test_org=None):
 				AND
 			NOT EXISTS (SELECT 1 FROM clin.test_type WHERE fk_test_org = %(pk)s LIMIT 1)
 	"""
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 #------------------------------------------------------------
 def get_test_orgs(order_by='unit', return_pks=False):
 	cmd = 'SELECT * FROM clin.v_test_orgs ORDER BY %s' % order_by
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
 	if return_pks:
 		return [ r['pk_test_org'] for r in rows ]
 	return [ cTestOrg(row = {'pk_field': 'pk_test_org', 'data': r}) for r in rows ]
@@ -228,7 +228,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 			'tp': self._payload['pk_test_panel'],
 			'code': pk_code
 		}
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 		return True
 
 	#--------------------------------------------------------
@@ -239,7 +239,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 			'tp': self._payload['pk_test_panel'],
 			'code': pk_code
 		}
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 		return True
 
 	#--------------------------------------------------------
@@ -291,7 +291,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 			'pat': pk_patient,
 			'pks': [ tt['pk_test_type'] for tt in self._payload['test_types'] ]
 		}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		return [ cMeasurementType(row = {'pk_field': 'pk_test_type', 'data': r}) for r in rows ]
 
 	#--------------------------------------------------------
@@ -300,7 +300,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 			if loinc in self._payload['loincs']:
 				return
 		gmPG2.run_rw_queries(queries = [{
-			'cmd': 'INSERT INTO clin.lnk_loinc2test_panel (fk_test_panel, loinc) VALUES (%(pk_pnl)s, %(loinc)s)',
+			'sql': 'INSERT INTO clin.lnk_loinc2test_panel (fk_test_panel, loinc) VALUES (%(pk_pnl)s, %(loinc)s)',
 			'args': {'loinc': loinc, 'pk_pnl': self._payload['pk_test_panel']}
 		}])
 		return
@@ -312,7 +312,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 		if loinc not in self._payload['loincs']:
 			return
 		gmPG2.run_rw_queries(queries = [{
-			'cmd': 'DELETE FROM clin.lnk_loinc2test_panel WHERE fk_test_panel = %(pk_pnl)s AND loinc = %(loinc)s',
+			'sql': 'DELETE FROM clin.lnk_loinc2test_panel WHERE fk_test_panel = %(pk_pnl)s AND loinc = %(loinc)s',
 			'args': {'loinc': loinc, 'pk_pnl': self._payload['pk_test_panel']}
 		}])
 		return
@@ -330,7 +330,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 			cmd = 'DELETE FROM clin.lnk_loinc2test_panel WHERE fk_test_panel = %(pk_pnl)s'
 		else:
 			cmd = 'DELETE FROM clin.lnk_loinc2test_panel WHERE fk_test_panel = %(pk_pnl)s AND loinc <> ALL(%(loincs)s)'
-		queries.append({'cmd': cmd, 'args': {'loincs': loincs, 'pk_pnl': self._payload['pk_test_panel']}})
+		queries.append({'sql': cmd, 'args': {'loincs': loincs, 'pk_pnl': self._payload['pk_test_panel']}})
 		# add those not there yet
 		if len(loincs) > 0:
 			for loinc in loincs:
@@ -341,7 +341,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 							AND
 						loinc = %(loinc)s
 				)"""
-				queries.append({'cmd': cmd, 'args': {'loinc': loinc, 'pk_pnl': self._payload['pk_test_panel']}})
+				queries.append({'sql': cmd, 'args': {'loinc': loinc, 'pk_pnl': self._payload['pk_test_panel']}})
 		return gmPG2.run_rw_queries(queries = queries)
 
 	included_loincs = property(_get_included_loincs, _set_included_loincs)
@@ -353,7 +353,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 
 		rows = gmPG2.run_ro_queries (
 			queries = [{
-				'cmd': _SQL_get_test_types % 'pk_test_type = ANY(%(pks)s) ORDER BY unified_abbrev',
+				'sql': _SQL_get_test_types % 'pk_test_type = ANY(%(pks)s) ORDER BY unified_abbrev',
 				'args': {'pks': [ tt['pk_test_type'] for tt in self._payload['test_types'] ]}
 			}]
 		)
@@ -368,7 +368,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 
 		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code = ANY(%(pks)s)'
 		args = {'pks': self._payload['pk_generic_codes']}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
 
 	def _set_generic_codes(self, pk_codes):
@@ -376,7 +376,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 		# remove all codes
 		if len(self._payload['pk_generic_codes']) > 0:
 			queries.append ({
-				'cmd': 'DELETE FROM clin.lnk_code2tst_pnl WHERE fk_item = %(tp)s AND fk_generic_code = ANY(%(codes)s)',
+				'sql': 'DELETE FROM clin.lnk_code2tst_pnl WHERE fk_item = %(tp)s AND fk_generic_code = ANY(%(codes)s)',
 				'args': {
 					'tp': self._payload['pk_test_panel'],
 					'codes': self._payload['pk_generic_codes']
@@ -385,7 +385,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 		# add new codes
 		for pk_code in pk_codes:
 			queries.append ({
-				'cmd': 'INSERT INTO clin.lnk_code2test_panel (fk_item, fk_generic_code) VALUES (%(tp)s, %(pk_code)s)',
+				'sql': 'INSERT INTO clin.lnk_code2test_panel (fk_item, fk_generic_code) VALUES (%(tp)s, %(pk_code)s)',
 				'args': {
 					'tp': self._payload['pk_test_panel'],
 					'pk_code': pk_code
@@ -436,7 +436,7 @@ def get_test_panels(order_by=None, loincs=None, return_pks=False):
 		order_by = ' ORDER BY %s' % order_by
 
 	cmd = (_SQL_get_test_panels % ' AND '.join(where_parts)) + order_by
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': where_args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': where_args}])
 	if return_pks:
 		return [ r['pk_test_panel'] for r in rows ]
 	return [ cTestPanel(row = {'data': r, 'pk_field': 'pk_test_panel'}) for r in rows ]
@@ -450,7 +450,7 @@ def create_test_panel(description=None):
 		VALUES (gm.nullify_empty_string(%(desc)s))
 		RETURNING pk
 	"""
-	rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	rows = gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}], return_data = True)
 
 	return cTestPanel(aPK_obj = rows[0]['pk'])
 
@@ -458,7 +458,7 @@ def create_test_panel(description=None):
 def delete_test_panel(pk=None):
 	args = {'pk': pk}
 	cmd = "DELETE FROM clin.test_panel WHERE pk = %(pk)s"
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 	return True
 
 #============================================================
@@ -544,7 +544,7 @@ class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 				pk_meta_test_type = %(mttyp)s
 			ORDER BY clin_when DESC
 			LIMIT 1"""
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		if len(rows) == 0:
 			return None
 
@@ -564,7 +564,7 @@ class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 				pk_meta_test_type = %(mttyp)s
 			ORDER BY clin_when
 			LIMIT 1"""
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		if len(rows) == 0:
 			return None
 
@@ -593,14 +593,14 @@ class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 		# get earlier results by meta type
 		earlier_result = None
 		cmd = SQL % '<'
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		if len(rows) > 0:
 			earlier_result = cTestResult(row = {'pk_field': 'pk_test_result', 'data': rows[0]})
 
 		# get later results by meta type ?
 		later_result = None
 		cmd = SQL % '>'
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		if len(rows) > 0:
 			later_result = cTestResult(row = {'pk_field': 'pk_test_result', 'data': rows[0]})
 
@@ -621,7 +621,7 @@ class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 	def _get_included_test_types(self):
 		cmd = _SQL_get_test_types % 'pk_meta_test_type = %(pk_meta)s'
 		args = {'pk_meta': self._payload['pk']}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		return [ cMeasurementType(row = {'pk_field': 'pk_test_type', 'data': r}) for r in rows ]
 
 	included_test_types = property(_get_included_test_types)
@@ -646,12 +646,12 @@ def create_meta_type(name=None, abbreviation=None, return_existing=False):
 		'name': name.strip(),
 		'abbr': abbreviation.strip()
 	}
-	rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	rows = gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}], return_data = True)
 	if len(rows) == 0:
 		if not return_existing:
 			return None
 		cmd = "SELECT *, xmin FROM clin.meta_test_type WHERE name = %(name)s and %(abbr)s"
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 
 	return cMetaTestType(row = {'pk_field': 'pk', 'data': rows[0]})
 
@@ -667,12 +667,12 @@ def delete_meta_type(meta_type=None):
 				WHERE fk_meta_test_type = %(pk)s
 			)"""
 	args = {'pk': meta_type}
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 
 #------------------------------------------------------------
 def get_meta_test_types(return_pks=False):
 	cmd = 'SELECT *, xmin FROM clin.meta_test_type'
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
 	if return_pks:
 		return [ r['pk'] for r in rows ]
 	return [ cMetaTestType(row = {'pk_field': 'pk', 'data': r}) for r in rows ]
@@ -717,7 +717,7 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 	def _get_in_use(self):
 		cmd = 'SELECT EXISTS(SELECT 1 FROM clin.test_result WHERE fk_type = %(pk_type)s)'
 		args = {'pk_type': self._payload['pk_test_type']}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		return rows[0][0]
 
 	in_use = property(_get_in_use)
@@ -811,7 +811,7 @@ LIMIT 1"""
 			'unit': unit,
 			'clin_when': timestamp
 		}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		if len(rows) == 0:
 			return None
 		r = rows[0]
@@ -855,7 +855,7 @@ LIMIT 1"""
 			'pat': patient,
 			'clin_when': timestamp
 		}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		if len(rows) == 0:
 			return None
 		r = rows[0]
@@ -885,7 +885,7 @@ LIMIT 1"""
 			'pk_type': self._payload['pk_test_type'],
 			'clin_when': timestamp
 		}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		if len(rows) == 0:
 			return None
 		return rows[0]['val_unit']
@@ -967,7 +967,7 @@ def get_measurement_types(order_by=None, loincs=None, return_pks=False):
 		where_parts.append('TRUE')
 	WHERE_clause = ' AND '.join(where_parts)
 	cmd = (_SQL_get_test_types % WHERE_clause) + gmTools.coalesce(order_by, '', ' ORDER BY %s')
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	if return_pks:
 		return [ r['pk_test_type'] for r in rows ]
 	return [ cMeasurementType(row = {'pk_field': 'pk_test_type', 'data': r}) for r in rows ]
@@ -999,7 +999,7 @@ def find_measurement_type(lab=None, abbrev=None, name=None, link_obj=None):
 		cmd = "select * from clin.v_test_types where %s" % where_clause
 		args = {'lab': lab, 'abbrev': abbrev, 'name': name}
 
-		rows = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'sql': cmd, 'args': args}])
 
 		if len(rows) == 0:
 			return None
@@ -1011,7 +1011,7 @@ def find_measurement_type(lab=None, abbrev=None, name=None, link_obj=None):
 def delete_measurement_type(measurement_type=None):
 	cmd = 'delete from clin.test_type where pk = %(pk)s'
 	args = {'pk': measurement_type}
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 
 #------------------------------------------------------------
 def create_measurement_type(lab=None, abbrev=None, unit=None, name=None, link_obj=None):
@@ -1066,8 +1066,8 @@ def create_measurement_type(lab=None, abbrev=None, unit=None, name=None, link_ob
 	col_clause = ', '.join(cols)
 	val_clause = ', '.join(val_snippets)
 	queries = [
-		{'cmd': 'insert into clin.test_type (%s) values (%s)' % (col_clause, val_clause), 'args': vals},
-		{'cmd': "select * from clin.v_test_types where pk_test_type = currval(pg_get_serial_sequence('clin.test_type', 'pk'))"}
+		{'sql': 'insert into clin.test_type (%s) values (%s)' % (col_clause, val_clause), 'args': vals},
+		{'sql': "select * from clin.v_test_types where pk_test_type = currval(pg_get_serial_sequence('clin.test_type', 'pk'))"}
 	]
 	rows = gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, return_data = True)
 	ttype = cMeasurementType(row = {'pk_field': 'pk_test_type', 'data': rows[0]})
@@ -1576,7 +1576,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			'unit': self._payload['val_unit'],
 			'clin_when': self._payload['clin_when']
 		}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		if len(rows) == 0:
 			return None
 		return cTestResult(row = {'pk_field': 'pk_test_result', 'data': rows[0]})
@@ -1883,7 +1883,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 
 		if make_me_responsible is True:
 			cmd = "SELECT pk FROM dem.staff WHERE db_user = current_user"
-			rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+			rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
 			self['pk_intended_reviewer'] = rows[0][0]
 			self.save_payload()
 			return
@@ -1929,14 +1929,14 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		earlier_results = []
 		# by type
 		cmd = SQL % ('<', WHERE, desired_earlier_results)
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		if len(rows) > 0:
 			earlier_results.extend([ cTestResult(row = {'pk_field': 'pk_test_result', 'data': r}) for r in rows ])
 		# by meta type ?
 		missing_results = desired_earlier_results - len(earlier_results)
 		if  missing_results > 0:
 			cmd = SQL % ('<', WHERE_meta, missing_results)
-			rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+			rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 			if len(rows) > 0:
 				earlier_results.extend([ cTestResult(row = {'pk_field': 'pk_test_result', 'data': r}) for r in rows ])
 
@@ -1944,14 +1944,14 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		later_results = []
 		# by type
 		cmd = SQL % ('>', WHERE, desired_later_results)
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		if len(rows) > 0:
 			later_results.extend([ cTestResult(row = {'pk_field': 'pk_test_result', 'data': r}) for r in rows ])
 		# by meta type ?
 		missing_results = desired_later_results - len(later_results)
 		if  missing_results > 0:
 			cmd = SQL % ('>', WHERE_meta, missing_results)
-			rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+			rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 			if len(rows) > 0:
 				later_results.extend([ cTestResult(row = {'pk_field': 'pk_test_result', 'data': r}) for r in rows ])
 
@@ -1996,7 +1996,7 @@ INSERT INTO clin.reviewed_test_results (
 			'cmt': comment
 		}
 
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 
 	#--------------------------------------------------------
 	def __change_existing_review(self, technically_abnormal=None, clinically_relevant=None, comment=None):
@@ -2030,7 +2030,7 @@ WHERE
 	fk_reviewed_row = %%(pk_result)s
 """ % ',\n	'.join(set_parts)
 
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 
 #------------------------------------------------------------
 def get_test_results(pk_patient=None, encounters=None, episodes=None, order_by=None, return_pks=False):
@@ -2062,7 +2062,7 @@ def get_test_results(pk_patient=None, encounters=None, episodes=None, order_by=N
 		' AND '.join(where_parts),
 		order_by
 	)
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	if return_pks:
 		return [ r['pk_test_result'] for r in rows ]
 	tests = [ cTestResult(row = {'pk_field': 'pk_test_result', 'data': r}) for r in rows ]
@@ -2162,7 +2162,7 @@ def get_most_recent_results_for_panel(pk_patient=None, pk_panel=None, order_by=N
 					c_vtr.clin_when = latest_results.max_clin_when
 			"""
 	cmd += order_by
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'data': r}) for r in rows ]
 
 #------------------------------------------------------------
@@ -2199,7 +2199,7 @@ def get_result_at_timestamp(timestamp=None, test_type=None, loinc=None, toleranc
 			abs(extract(epoch from age(clin_when, %%(ts)s)))
 		LIMIT 1""" % ' AND '.join(where_parts)
 
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	if len(rows) == 0:
 		return None
 
@@ -2227,7 +2227,7 @@ def get_results_for_day(timestamp=None, patient=None, order_by=None):
 			abbrev_tt,
 			clin_when DESC
 	""" % ' AND '.join(where_parts)
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'data': r}) for r in rows ]
 
 #------------------------------------------------------------
@@ -2242,7 +2242,7 @@ def get_results_for_issue(pk_health_issue=None, order_by=None):
 			abbrev_tt,
 			clin_when DESC
 	""" % ' AND '.join(where_parts)
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'data': r}) for r in rows ]
 
 #------------------------------------------------------------
@@ -2257,7 +2257,7 @@ def get_results_for_episode(pk_episode=None):
 			abbrev_tt,
 			clin_when DESC
 	""" % ' AND '.join(where_parts)
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'data': r}) for r in rows ]
 
 #------------------------------------------------------------
@@ -2295,7 +2295,7 @@ def get_most_recent_results_in_loinc_group(loincs=None, max_no_of_results=1, pat
 		max_age_cond,
 		max_no_of_results
 	)
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	if len(rows) > 0:
 		return [ cTestResult(row = {'pk_field': 'pk_test_result', 'data': r}) for r in rows ]
 
@@ -2338,7 +2338,7 @@ def get_most_recent_results_in_loinc_group(loincs=None, max_no_of_results=1, pat
 		max_age_cond,
 		max_no_of_results
 	)
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'data': r}) for r in rows ]
 
 #------------------------------------------------------------
@@ -2360,7 +2360,7 @@ def get_most_recent_results_for_test_type(test_type=None, max_no_of_results=1, p
 			' AND '.join(where_parts),
 			max_no_of_results
 		)
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'data': r}) for r in rows ]
 
 #------------------------------------------------------------
@@ -2446,7 +2446,7 @@ def get_most_recent_result_for_test_types(pk_test_types=None, pk_patient=None, r
 			' AND '.join(where_parts),
 			order_by
 		)
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	if return_pks:
 		return [ r['pk_test_result'] for r in rows ]
 
@@ -2466,7 +2466,7 @@ def get_most_recent_results_for_patient(no_of_results=1, patient=None):
 			pk_patient = %%(pat)s
 		ORDER BY clin_when DESC
 		LIMIT %s""" % no_of_results
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'data': r}) for r in rows ]
 
 #------------------------------------------------------------
@@ -2494,7 +2494,7 @@ def get_oldest_result(test_type=None, loinc=None, patient=None):
 			%s
 		ORDER BY clin_when
 		LIMIT 1""" % ' AND '.join(where_parts)
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	if len(rows) == 0:
 		return None
 
@@ -2508,7 +2508,7 @@ def delete_test_result(result=None):
 		pk = result['pk_test_result']
 
 	cmd = 'DELETE FROM clin.test_result WHERE pk = %(pk)s'
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': pk}}])
+	gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': {'pk': pk}}])
 
 #------------------------------------------------------------
 def create_test_result(encounter=None, episode=None, type=None, intended_reviewer=None, val_num=None, val_alpha=None, unit=None, link_obj=None):
@@ -2545,8 +2545,8 @@ def create_test_result(encounter=None, episode=None, type=None, intended_reviewe
 	rows = gmPG2.run_rw_queries (
 		link_obj = link_obj,
 		queries = [
-			{'cmd': cmd1, 'args': args},
-			{'cmd': cmd2}
+			{'sql': cmd1, 'args': args},
+			{'sql': cmd2}
 		],
 		return_data = True
 	)

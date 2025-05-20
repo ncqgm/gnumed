@@ -20,13 +20,13 @@ cmd = """
 	WHERE NOT EXISTS (
 		SELECT 1 FROM clin.episode WHERE pk = clin.clin_root_item.fk_episode
 	)"""
-rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
 for row in rows:
 	print "=> dangling row:", row
 	print "   verifying corresponding child table row in [%s] ..." % row['src_table']
 	cmd = "SELECT * from %s WHERE pk_audit = %%(pk_audit)s" % row['src_table']
 	args = {'pk_audit': row['pk_audit']}
-	child_rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	child_rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	if len(child_rows) == 0:
 		print "NO CHILD TABLE ROW, SOMETHING IS BROKEN"
 	for child_row in child_rows:
@@ -39,7 +39,7 @@ for row in rows:
 		LIMIT 1
 	"""
 	args = {'pk_epi': row['fk_episode']}
-	audit_rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	audit_rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	for audit_row in audit_rows:
 		print '=> audited row:', audit_row
 
@@ -50,13 +50,13 @@ cmd = """
 	WHERE NOT EXISTS (
 		SELECT 1 FROM clin.encounter WHERE pk = clin.clin_root_item.fk_encounter
 	)"""
-rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
 for row in rows:
 	print "=> dangling row:", row
 	print "   verifying corresponding child table row in [%s] ..." % row['src_table']
 	cmd = "SELECT * from %s WHERE pk_audit = %%(pk_audit)s" % row['src_table']
 	args = {'pk_audit': row['pk_audit']}
-	child_rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	child_rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	if len(child_rows) == 0:
 		print "NO CHILD TABLE ROW, SOMETHING IS BROKEN"
 	for child_row in child_rows:
@@ -69,6 +69,6 @@ for row in rows:
 		LIMIT 1
 	"""
 	args = {'pk_enc': row['fk_encounter']}
-	audit_rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	audit_rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	for audit_row in audit_rows:
 		print '=> audited row:', audit_row

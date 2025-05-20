@@ -214,7 +214,7 @@ def get_allergy_state(pk_encounter:int=None, pk_patient:int=None) -> cAllergySta
 		"""
 	else:
 		SQL = 'SELECT pk_allergy_state FROM clin.v_pat_allergy_state WHERE pk_patient = %(pk_pat)s'
-	rows = gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}], return_data = True)
+	rows = gmPG2.run_rw_queries(queries = [{'sql': SQL, 'args': args}], return_data = True)
 	if not rows:
 		return None
 
@@ -246,8 +246,8 @@ def ensure_has_allergy_state(encounter=None) -> cAllergyState:
 	"""
 	rows = gmPG2.run_rw_queries (
 		queries = [
-			{'cmd': SQL_create, 'args': args},
-			{'cmd': SQL_search, 'args': args}
+			{'sql': SQL_create, 'args': args},
+			{'sql': SQL_search, 'args': args}
 		],
 		return_data = True
 	)
@@ -352,7 +352,7 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 		if attribute == 'pk_type':
 			if value in ['allergy', 'sensitivity']:
 				cmd = 'select pk from clin._enum_allergy_type where value = %(allg_type)s'
-				rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'allg_type': value}}])
+				rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': {'allg_type': value}}])
 				value = rows[0][0]
 		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
 
@@ -423,7 +423,7 @@ def create_allergy(allergene:str=None, allg_type=None, episode_id:int=None, enco
 			allergene = %(allergene)s
 	"""
 	args = {'enc': encounter_id, 'allergene': allergene}
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
 	if rows:
 		# don't implicitely change existing data, return existing allergy
 		return cAllergy(aPK_obj = rows[0][0])
@@ -451,9 +451,9 @@ def create_allergy(allergene:str=None, allg_type=None, episode_id:int=None, enco
 		'allergene': allergene,
 		'subst': allergene
 	}
-	queries.append({'cmd': SQL, 'args': args})
+	queries.append({'sql': SQL, 'args': args})
 	SQL = "select currval('clin.allergy_id_seq')"
-	queries.append({'cmd': SQL})
+	queries.append({'sql': SQL})
 	rows = gmPG2.run_rw_queries(queries = queries, return_data = True)
 	allergy = cAllergy(aPK_obj = rows[0][0])
 	return allergy

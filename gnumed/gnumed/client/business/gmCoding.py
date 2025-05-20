@@ -53,7 +53,7 @@ def get_generic_linked_codes(order_by=None):
 		order_by = 'true ORDER BY %s' % order_by
 
 	cmd = _SQL_get_generic_linked_codes % order_by
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
 	return [ cGenericLinkedCode(row = {'data': r, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
 
 #============================================================
@@ -74,7 +74,7 @@ def get_generic_codes(order_by=None):
 		order_by = 'true ORDER BY %s' % order_by
 
 	cmd = _SQL_get_generic_code % order_by
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
 	return [ cGenericCode(row = {'data': r, 'pk_field': 'pk_generic_code'}) for r in rows ]
 
 #============================================================
@@ -101,14 +101,14 @@ def get_coded_terms(coding_systems=None, languages=None, order_by=None):
 	if order_by is not None:
 		cmd += ' ORDER BY %s' % order_by
 
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 
 	return rows
 
 #============================================================
 def get_data_sources(order_by='name_long, lang, version'):
 	cmd = 'SELECT * FROM ref.data_source ORDER BY %s' % order_by
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
 	return rows
 
 #============================================================
@@ -123,7 +123,7 @@ def create_data_source(long_name=None, short_name=None, version=None, source=Non
 		}
 
 		cmd = "SELECT pk FROM ref.data_source WHERE name_long = %(lname)s AND name_short = %(sname)s AND version = %(ver)s"
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		if len(rows) > 0:
 			return rows[0]['pk']
 
@@ -138,7 +138,7 @@ def create_data_source(long_name=None, short_name=None, version=None, source=Non
 			)
 			RETURNING pk
 		"""
-		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+		rows = gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}], return_data = True)
 
 		return rows[0]['pk']
 

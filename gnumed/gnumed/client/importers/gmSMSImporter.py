@@ -46,8 +46,8 @@ def run_importer():
 #	cmd2 = u'select pk from dem.enum_ext_id_types where name = %(desc)s'
 #	rows = gmPG2.run_rw_queries (
 #		queries = [
-#			{'cmd': cmd1, 'args': args1},
-#			{'cmd': cmd2, 'args': args1}
+#			{'sql': cmd1, 'args': args1},
+#			{'sql': cmd2, 'args': args1}
 #		],
 #		return_data = True
 #	)
@@ -62,7 +62,7 @@ def run_importer():
 #	args = {'id': gsm, 'src': ext_id_pk}
 
 #	rows = gmPG2.run_ro_queries (
-#		queries = [{'cmd': cmd, 'args': args}],
+#		queries = [{'sql': cmd, 'args': args}],
 #		return_data = True
 #	)
 #	if len(rows) == 0:

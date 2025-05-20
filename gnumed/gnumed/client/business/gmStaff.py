@@ -56,7 +56,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 		if (aPK_obj is None) and (row is None):
 			cmd = _SQL_get_staff_fields % "db_user = CURRENT_USER"
 			try:
-				rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+				rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
 			except Exception:
 				_log.exception('cannot instantiate staff instance')
 				gmLog2.log_stack_trace()
@@ -89,7 +89,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 	def _get_db_lang(self):
 		rows = gmPG2.run_ro_queries (
 			queries = [{
-				'cmd': 'select i18n.get_curr_lang(%(usr)s)',
+				'sql': 'select i18n.get_curr_lang(%(usr)s)',
 				'args': {'usr': self._payload['db_user']}
 			}]
 		)
@@ -132,7 +132,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 		}
 		rows = gmPG2.run_rw_queries (
 			link_obj = conn,
-			queries = [{'cmd': cmd, 'args': args}],
+			queries = [{'sql': cmd, 'args': args}],
 			return_data = True,
 			end_tx = True
 		)
@@ -167,7 +167,7 @@ def get_staff_list(active_only=False):
 		cmd = _SQL_get_staff_fields % 'is_active ORDER BY can_login DESC, short_alias ASC'
 	else:
 		cmd = _SQL_get_staff_fields % 'TRUE ORDER BY can_login DESC, is_active DESC, short_alias ASC'
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
 	staff_list = []
 	for row in rows:
 		obj_row = {
@@ -187,8 +187,8 @@ def create_staff(conn=None, db_account=None, password=None, identity=None, short
 	}
 
 	queries = [
-		{'cmd': 'SELECT gm.create_user(%(pg_usr)s, %(pwd)s)', 'args': args},
-		{'cmd': """
+		{'sql': 'SELECT gm.create_user(%(pg_usr)s, %(pwd)s)', 'args': args},
+		{'sql': """
 			INSERT INTO dem.staff
 				(fk_identity, db_user, short_alias)
 			VALUES (
@@ -223,7 +223,7 @@ def create_staff(conn=None, db_account=None, password=None, identity=None, short
 #------------------------------------------------------------
 def delete_staff(conn=None, pk_staff=None):
 	deleted = False
-	queries = [{'cmd': 'DELETE FROM dem.staff WHERE pk = %(pk)s', 'args': {'pk': pk_staff}}]
+	queries = [{'sql': 'DELETE FROM dem.staff WHERE pk = %(pk)s', 'args': {'pk': pk_staff}}]
 	try:
 		gmPG2.run_rw_queries(link_obj = conn, queries = queries, end_tx = True)
 		deleted = True
@@ -256,7 +256,7 @@ def activate_staff(conn=None, pk_staff=None):
 		# password does not matter because PG account must already exist
 		'fake_pwd': 'flying wombat'
 	}
-	gmPG2.run_rw_queries(link_obj = conn, queries = [{'cmd': SQL, 'args': args}], end_tx = True)
+	gmPG2.run_rw_queries(link_obj = conn, queries = [{'sql': SQL, 'args': args}], end_tx = True)
 	return True
 
 #------------------------------------------------------------
@@ -269,7 +269,7 @@ def deactivate_staff(conn=None, pk_staff=None):
 	# 2) disable database account login
 	SQL = 'select gm.disable_user(%(db_user)s)'
 	args = {'db_user': staff['db_user']}
-	q = {'cmd': SQL, 'args': args}
+	q = {'sql': SQL, 'args': args}
 	gmPG2.run_rw_queries(link_obj = conn, queries = [q], end_tx = True)
 	return True
 

@@ -85,7 +85,7 @@ def run(conn=None):
 
 		# delete this template
 		cmd = u"""delete from ref.paperwork_templates where name_long = %(lname)s"""
-		gmPG2.run_rw_queries(link_obj = conn, queries = [{'cmd': cmd, 'args': args}], end_tx = False)
+		gmPG2.run_rw_queries(link_obj = conn, queries = [{'sql': cmd, 'args': args}], end_tx = False)
 
 		# and (re-)import it
 		# - template
@@ -109,7 +109,7 @@ def run(conn=None):
 				'I'::TEXT,
 				'image data missing'::BYTEA
 			)"""
-		gmPG2.run_rw_queries(link_obj = conn, queries = [{'cmd': cmd, 'args': args}], end_tx = False)
+		gmPG2.run_rw_queries(link_obj = conn, queries = [{'sql': cmd, 'args': args}], end_tx = False)
 
 		# - data
 		cmd = u"""

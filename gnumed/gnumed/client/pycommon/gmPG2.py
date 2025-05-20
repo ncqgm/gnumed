@@ -298,7 +298,8 @@ _TQueries = Sequence[
 _TSQL = str | PG_SQL.Composed
 _TArgs = MutableMapping[str, None | str | int | Sequence[None|str|int] ]
 _TQueryWithArgs = TypedDict('_TQueryWithArgs', {
-	'cmd': _TSQL,
+	'sql': _TSQL,
+#	'cmd': NotRequired[_TSQL],
 	'args': NotRequired[_TArgs]
 })
 #_TQueries = Sequence[_TQueryWithArgs]
@@ -521,7 +522,7 @@ def is_beginning_of_time(dt:pydt.datetime) -> bool:
 	global PG_BEGINNING_OF_TIME
 	if not PG_BEGINNING_OF_TIME:
 		SQL = "SELECT '-infinity'::TIMESTAMP WITH TIME ZONE AT TIME ZONE 'UTC' AS big_bang"
-		rows = run_ro_queries(queries = [{'cmd': SQL}])
+		rows = run_ro_queries(queries = [{'sql': SQL}])
 		PG_BEGINNING_OF_TIME = rows[0]['big_bang']
 		_log.debug("psycopg2 puts PG's Big Bang at: %s ('-infinity' at UTC)", PG_BEGINNING_OF_TIME)
 		pydt_bing_bang = pydt.datetime(1,1,1)
@@ -568,7 +569,7 @@ def get_schema_version(link_obj:_TLnkObj=None) -> int|str:
 def __get_schema_structure_by_gm_func(link_obj=None) -> str:
 	SQL = 'select gm.concat_table_structure()'
 	try:
-		rows = run_ro_queries(link_obj=link_obj, queries = [{'cmd': SQL}])
+		rows = run_ro_queries(link_obj=link_obj, queries = [{'sql': SQL}])
 		return rows[0][0]
 
 	except dbapi.errors.AmbiguousFunction as exc:			# type-x: ignore [attr-defined] # pylint: disable=no-member
@@ -582,8 +583,8 @@ def __get_schema_structure_by_gm_func(link_obj=None) -> str:
 #------------------------------------------------------------------------
 def __get_schema_structure_by_pg_temp_func() -> str:
 	queries = [
-		{'cmd': SQL__pg_temp_concat_table_structure_v19_and_up},
-		{'cmd': SQL__get_pg_temp_table_structure}
+		{'sql': SQL__pg_temp_concat_table_structure_v19_and_up},
+		{'sql': SQL__get_pg_temp_table_structure}
 	]
 	conn = get_connection(readonly = False)
 	try:
@@ -631,7 +632,7 @@ def __get_schema_hash_by_gm_func(link_obj=None, version=None) -> str:
 		SQL = 'SELECT md5(gm.concat_table_structure()) AS md5'
 	_log.debug('version: %s', version)
 	try:
-		rows = run_ro_queries(link_obj=link_obj, queries = [{'cmd': SQL, 'args': args}])
+		rows = run_ro_queries(link_obj=link_obj, queries = [{'sql': SQL, 'args': args}])
 		_log.debug('hash: %s', rows[0]['md5'])
 		return rows[0]['md5']
 
@@ -647,8 +648,8 @@ def __get_schema_hash_by_gm_func(link_obj=None, version=None) -> str:
 def __get_schema_hash_by_pg_temp_func() -> str:
 	conn = get_connection(readonly = False)
 	queries = [
-		{'cmd': SQL__pg_temp_concat_table_structure_v19_and_up},
-		{'cmd': SQL__md5_pg_temp_table_structure}
+		{'sql': SQL__pg_temp_concat_table_structure_v19_and_up},
+		{'sql': SQL__md5_pg_temp_table_structure}
 	]
 	try:
 		rows = run_rw_queries(link_obj = conn, queries = queries, return_data = True)
@@ -696,7 +697,7 @@ def get_schema_revision_history(link_obj:_TLnkObj=None) -> list[_TRow]:
 	else:
 		return []
 
-	rows = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd}])
+	rows = run_ro_queries(link_obj = link_obj, queries = [{'sql': cmd}])
 	return rows
 
 #------------------------------------------------------------------------
@@ -807,7 +808,7 @@ def run_fingerprint_tool() -> int:
 
 #------------------------------------------------------------------------
 def get_current_user() -> str:
-	rows = run_ro_queries(queries = [{'cmd': 'select CURRENT_USER'}])
+	rows = run_ro_queries(queries = [{'sql': 'select CURRENT_USER'}])
 	return rows[0][0]
 
 #------------------------------------------------------------------------
@@ -856,7 +857,7 @@ WHERE
 	rows = run_ro_queries (
 		link_obj = link_obj,
 		queries = [
-			{'cmd': cmd, 'args': args}
+			{'sql': cmd, 'args': args}
 		]
 	)
 
@@ -871,7 +872,7 @@ def get_index_name(indexed_table=None, indexed_column=None, link_obj=None):
 	}
 	rows = run_ro_queries (
 		link_obj = link_obj,
-		queries = [{'cmd': SQL_get_index_name, 'args': args}]
+		queries = [{'sql': SQL_get_index_name, 'args': args}]
 	)
 
 	return rows
@@ -890,7 +891,7 @@ def get_foreign_key_names(src_schema=None, src_table=None, src_column=None, targ
 
 	rows = run_ro_queries (
 		link_obj = link_obj,
-		queries = [{'cmd': SQL_foreign_key_name, 'args': args}]
+		queries = [{'sql': SQL_foreign_key_name, 'args': args}]
 	)
 
 	return rows
@@ -915,14 +916,14 @@ where
 				relname = %(table)s
 		)
 	)"""
-	rows = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': {'schema': schema, 'table': table}}])
+	rows = run_ro_queries(link_obj = link_obj, queries = [{'sql': cmd, 'args': {'schema': schema, 'table': table}}])
 	return rows
 
 #------------------------------------------------------------------------
 def schema_exists(link_obj:_TLnkObj=None, schema='gm') -> bool:
 	cmd = "SELECT EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = %(schema)s)"
 	args = {'schema': schema}
-	rows = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
+	rows = run_ro_queries(link_obj = link_obj, queries = [{'sql': cmd, 'args': args}])
 	return rows[0][0]
 
 #------------------------------------------------------------------------
@@ -936,7 +937,7 @@ select exists (
 		table_name = %(tbl)s and
 		table_type = 'BASE TABLE'
 )"""
-	rows = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': {'ns': schema, 'tbl': table}}])
+	rows = run_ro_queries(link_obj = link_obj, queries = [{'sql': cmd, 'args': {'ns': schema, 'tbl': table}}])
 	return rows[0][0]
 
 #------------------------------------------------------------------------
@@ -952,7 +953,7 @@ def function_exists(link_obj:_TLnkObj=None, schema=None, function=None):
 		'func': function,
 		'schema': schema
 	}
-	rows = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
+	rows = run_ro_queries(link_obj = link_obj, queries = [{'sql': cmd, 'args': args}])
 	return rows[0][0]
 
 #------------------------------------------------------------------------
@@ -976,7 +977,7 @@ def get_col_indices(cursor = None):
 #------------------------------------------------------------------------
 def get_col_defs(link_obj:_TLnkObj=None, schema='public', table=None):
 	args = {'schema': schema, 'table': table}
-	rows = run_ro_queries(link_obj = link_obj, queries = [{'cmd': SQL__col_defs4table, 'args': args}])
+	rows = run_ro_queries(link_obj = link_obj, queries = [{'sql': SQL__col_defs4table, 'args': args}])
 	col_names = []
 	col_type = {}
 	for row in rows:
@@ -995,7 +996,7 @@ def get_col_defs(link_obj:_TLnkObj=None, schema='public', table=None):
 def get_col_names(link_obj:_TLnkObj=None, schema='public', table=None):
 	"""Return column attributes of table"""
 	args = {'schema': schema, 'table': table}
-	rows = run_ro_queries(link_obj = link_obj, queries = [{'cmd': SQL__cols4table, 'args': args}])
+	rows = run_ro_queries(link_obj = link_obj, queries = [{'sql': SQL__cols4table, 'args': args}])
 	return [ row[0] for row in rows]
 
 #------------------------------------------------------------------------
@@ -1015,7 +1016,7 @@ def revalidate_constraints(link_obj:_TLnkObj=None) -> str | bool:
 	SQL = 'SELECT gm.revalidate_all_constraints();'
 	try:
 		try:
-			run_rw_queries(link_obj = link_obj, queries = [{'cmd': SQL}])
+			run_rw_queries(link_obj = link_obj, queries = [{'sql': SQL}])
 		except dbapi.errors.UndefinedFunction as exc:						# type-x: ignore [attr-defined] # pylint: disable=no-member
 			if 'gm.revalidate_all_constraints() does not exist' in exc.pgerror:
 				_log.error('gm.revalidate_all_constraints() does not exist')
@@ -1055,7 +1056,7 @@ def reindex_database(conn=None) -> str | bool:
 	conn.set_session(readonly = False, autocommit = True)
 	curs = conn.cursor()
 	try:
-		run_rw_queries(link_obj = curs, queries = [{'cmd': SQL}], end_tx = True)
+		run_rw_queries(link_obj = curs, queries = [{'sql': SQL}], end_tx = True)
 		return __MIND_MELD
 
 	except Exception:
@@ -1086,7 +1087,7 @@ def sanity_check_database_default_collation_version(conn=None) -> bool:
 	"""
 	SQL = 'SELECT *, pg_database_collation_actual_version(oid) FROM pg_database WHERE datname = current_database()'
 	try:
-		rows = run_ro_queries(link_obj = conn, queries = [{'cmd': SQL}])
+		rows = run_ro_queries(link_obj = conn, queries = [{'sql': SQL}])
 	except dbapi.errors.UndefinedFunction as pg_exc:			# type-x: ignore [attr-defined] # pylint: disable=no-member
 		_log.exception('cannot verify collation version, likely PG < 15')
 		gmConnectionPool.log_pg_exception_details(pg_exc)
@@ -1131,7 +1132,7 @@ def refresh_database_default_collation_version_information(conn=None, use_the_so
 	_log.debug('Kelvin: refreshing database default collation version information')
 	SQL = PG_SQL.SQL('ALTER DATABASE {} REFRESH COLLATION VERSION').format(PG_SQL.Identifier(conn.info.dbname))
 	try:
-		run_rw_queries(link_obj = conn, queries = [{'cmd': SQL}])
+		run_rw_queries(link_obj = conn, queries = [{'sql': SQL}])
 	except Exception:
 		_log.exception('failure to update default collation version information')
 		return False
@@ -1171,7 +1172,7 @@ def sanity_check_collation_versions(conn=None) -> bool:
 			collencoding = (SELECT encoding FROM pg_database WHERE datname = pg_catalog.current_database())
 	"""
 	try:
-		rows = run_ro_queries(link_obj = conn, queries = [{'cmd': SQL}])
+		rows = run_ro_queries(link_obj = conn, queries = [{'sql': SQL}])
 	except dbapi.errors.UndefinedFunction as pg_exc:				# type-x: ignore [attr-defined] # pylint: disable=no-member
 		_log.exception('cannot verify collation versions, likely PG < 15')
 		gmConnectionPool.log_pg_exception_details(pg_exc)
@@ -1220,7 +1221,7 @@ def refresh_collations_version_information(conn=None, use_the_source_luke=False)
 	SQL = 'SELECT gm.update_pg_collations();'
 	try:
 		try:
-			run_rw_queries(link_obj = conn, queries = [{'cmd': SQL}])
+			run_rw_queries(link_obj = conn, queries = [{'sql': SQL}])
 		except dbapi.errors.UndefinedFunction as exc:						# type-x: ignore [attr-defined] # pylint: disable=no-member
 			if 'gm.update_pg_collations() does not exist' in exc.pgerror:
 				_log.error('gm.update_pg_collations() does not exist')
@@ -1315,7 +1316,7 @@ def export_translations_from_database(filename=None):
 	tx_file.write('\\unset ON_ERROR_STOP\n\n')
 
 	cmd = 'SELECT lang, orig, trans FROM i18n.translations ORDER BY lang, orig'
-	rows = run_ro_queries(queries = [{'cmd': cmd}])
+	rows = run_ro_queries(queries = [{'sql': cmd}])
 	for row in rows:
 		line = "select i18n.upd_tx(E'%s', E'%s', E'%s');\n" % (
 			row['lang'].replace("'", "\\'"),
@@ -1334,7 +1335,7 @@ def export_translations_from_database(filename=None):
 def delete_translation_from_database(link_obj:_TLnkObj=None, language=None, original=None):
 	cmd = 'DELETE FROM i18n.translations WHERE lang = %(lang)s AND orig = %(orig)s'
 	args = {'lang': language, 'orig': original}
-	run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = False, end_tx = True)
+	run_rw_queries(link_obj = link_obj, queries = [{'sql': cmd, 'args': args}], return_data = False, end_tx = True)
 	return True
 
 #------------------------------------------------------------------------
@@ -1344,13 +1345,13 @@ def update_translation_in_database(language=None, original=None, translation=Non
 	else:
 		cmd = 'SELECT i18n.upd_tx(%(lang)s, %(orig)s, %(trans)s)'
 	args = {'lang': language, 'orig': original, 'trans': translation}
-	run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = False, link_obj = link_obj)
+	run_rw_queries(queries = [{'sql': cmd, 'args': args}], return_data = False, link_obj = link_obj)
 	return args
 
 #------------------------------------------------------------------------
 def get_translation_languages():
 	rows = run_ro_queries (
-		queries = [{'cmd': 'select distinct lang from i18n.translations'}]
+		queries = [{'sql': 'select distinct lang from i18n.translations'}]
 	)
 	return [ r[0] for r in rows ]
 
@@ -1418,7 +1419,7 @@ def get_database_translations(language=None, order_by=None):
 		)) AS translatable_strings
 		%s""" % order_by
 
-	rows = run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 
 	if rows is None:
 		_log.error('no translatable strings found')
@@ -1430,7 +1431,7 @@ def get_database_translations(language=None, order_by=None):
 #------------------------------------------------------------------------
 def get_current_user_language():
 	cmd = 'select i18n.get_curr_lang()'
-	rows = run_ro_queries(queries = [{'cmd': cmd}])
+	rows = run_ro_queries(queries = [{'sql': cmd}])
 	return rows[0][0]
 
 #------------------------------------------------------------------------
@@ -1444,15 +1445,15 @@ def set_user_language(user=None, language=None):
 	args = {'usr': user, 'lang': language}
 	if language is None:
 		if user is None:
-			queries = [{'cmd': 'select i18n.unset_curr_lang()'}]
+			queries = [{'sql': 'select i18n.unset_curr_lang()'}]
 		else:
-			queries = [{'cmd': 'select i18n.unset_curr_lang(%(usr)s)', 'args': args}]
-		queries.append({'cmd': 'select True'})
+			queries = [{'sql': 'select i18n.unset_curr_lang(%(usr)s)', 'args': args}]
+		queries.append({'sql': 'select True'})
 	else:
 		if user is None:
-			queries = [{'cmd': 'select i18n.set_curr_lang(%(lang)s)', 'args': args}]
+			queries = [{'sql': 'select i18n.set_curr_lang(%(lang)s)', 'args': args}]
 		else:
-			queries = [{'cmd': 'select i18n.set_curr_lang(%(lang)s, %(usr)s)', 'args': args}]
+			queries = [{'sql': 'select i18n.set_curr_lang(%(lang)s, %(usr)s)', 'args': args}]
 	rows = run_rw_queries(queries = queries, return_data = True)
 	if not rows[0][0]:
 		_log.error('cannot set database language to [%s] for user [%s]', language, user)
@@ -1468,7 +1469,7 @@ def force_user_language(language=None):
 	_log.info('forcing database language for current db user to [%s]', language)
 
 	run_rw_queries(queries = [{
-		'cmd': 'select i18n.force_curr_lang(%(lang)s)',
+		'sql': 'select i18n.force_curr_lang(%(lang)s)',
 		'args': {'lang': language}
 	}])
 
@@ -1477,22 +1478,22 @@ def force_user_language(language=None):
 # =======================================================================
 def send_maintenance_notification():
 	cmd = 'NOTIFY "db_maintenance_warning"'
-	run_rw_queries(queries = [{'cmd': cmd}], return_data = False)
+	run_rw_queries(queries = [{'sql': cmd}], return_data = False)
 
 #------------------------------------------------------------------------
 def send_maintenance_shutdown():
 	cmd = 'NOTIFY "db_maintenance_disconnect"'
-	run_rw_queries(queries = [{'cmd': cmd}], return_data = False)
+	run_rw_queries(queries = [{'sql': cmd}], return_data = False)
 
 #------------------------------------------------------------------------
 def is_pg_interval(candidate:str=None) -> bool:
 	cmd = 'SELECT %(candidate)s::interval'
 	try:
-		run_ro_queries(queries = [{'cmd': cmd, 'args': {'candidate': candidate}}])
+		run_ro_queries(queries = [{'sql': cmd, 'args': {'candidate': candidate}}])
 	except Exception:
 		cmd = 'SELECT %(candidate)s::text::interval'
 		try:
-			run_ro_queries(queries = [{'cmd': cmd, 'args': {'candidate': candidate}}])
+			run_ro_queries(queries = [{'sql': cmd, 'args': {'candidate': candidate}}])
 		except Exception:
 			return False
 
@@ -1529,7 +1530,7 @@ def lock_row(link_obj:_TLnkObj=None, table:str=None, pk:int=None, exclusive:bool
 		cmd = """SELECT pg_try_advisory_lock('%s'::regclass::oid::int, %s)""" % (table, pk)
 	else:
 		cmd = """SELECT pg_try_advisory_lock_shared('%s'::regclass::oid::int, %s)""" % (table, pk)
-	rows = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd}])
+	rows = run_ro_queries(link_obj = link_obj, queries = [{'sql': cmd}])
 	if rows[0][0]:
 		return True
 
@@ -1547,7 +1548,7 @@ def unlock_row(link_obj:_TLnkObj=None, table:str=None, pk:int=None, exclusive:bo
 		cmd = "SELECT pg_advisory_unlock('%s'::regclass::oid::int, %s)" % (table, pk)
 	else:
 		cmd = "SELECT pg_advisory_unlock_shared('%s'::regclass::oid::int, %s)" % (table, pk)
-	rows = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd}])
+	rows = run_ro_queries(link_obj = link_obj, queries = [{'sql': cmd}])
 	if rows[0][0]:
 		return True
 
@@ -1568,7 +1569,7 @@ def row_is_locked(table=None, pk=None) -> bool:
 				AND
 			locktype = 'advisory'
 	)""" % (table, pk)
-	rows = run_ro_queries(queries = [{'cmd': cmd}])
+	rows = run_ro_queries(queries = [{'sql': cmd}])
 	if rows[0][0]:
 		_log.debug('row is locked: [%s] [%s]', table, pk)
 		return True
@@ -1696,7 +1697,7 @@ def bytea2file (
 	Args:
 		data_query:
 
-		* data_query['cmd']:str, SQL to retrieve the BYTEA column (say, <data>),
+		* data_query['sql']:str, SQL to retrieve the BYTEA column (say, <data>),
 		  must contain '... SUBSTRING(data FROM %(start)s FOR %(size)s) ...',
 		  must return one row with one field of type bytea
 		* data_query['args']:dict, must contain selectors for the BYTEA row
@@ -1706,7 +1707,7 @@ def bytea2file (
 		data_size_query:
 
 		* only used when data_size is None
-		* dict {'cmd': ..., 'args': ...}
+		* dict {'sql': ..., 'args': ...}
 		* must return one row with one field with the octet_length() of the data field
 
 		link2cached: if the bytea data is found in the cache, whether to return a link
@@ -1770,7 +1771,7 @@ def bytea2file_object(
 	Args:
 		data_query:
 
-		* data_query['cmd']:str, SQL to retrieve the BYTEA column (say, <data>),
+		* data_query['sql']:str, SQL to retrieve the BYTEA column (say, <data>),
 		  must contain '... SUBSTRING(data FROM %(start)s FOR %(size)s) ...',
 		  must return one row with one field of type bytea
 		* data_query['args']:dict, must contain selectors for the BYTEA row
@@ -1781,7 +1782,7 @@ def bytea2file_object(
 		data_size_query:
 
 		* only used when data_size is None
-		* dict {'cmd': ..., 'args': ...}
+		* dict {'sql': ..., 'args': ...}
 		* must return one row with one field with the octet_length() of the data field
 
 	Returns:
@@ -1908,7 +1909,7 @@ def file2bytea(query:str=None, filename:str=None, args:dict=None, conn=None, fil
 		conn_close = lambda *x: None
 	rows = run_rw_queries (
 		link_obj = conn,
-		queries = [{'cmd': query, 'args': args}],
+		queries = [{'sql': query, 'args': args}],
 		end_tx = False,
 		return_data = (file_md5 is not None)
 	)
@@ -1957,7 +1958,7 @@ def file2lo(filename=None, conn=None, check_md5=False, file_md5=None):
 		return lo_oid
 	cmd = 'SELECT md5(lo_get(%(loid)s::oid))'
 	args = {'loid': lo_oid}
-	rows = run_ro_queries(link_obj = conn, queries = [{'cmd': cmd, 'args': args}])
+	rows = run_ro_queries(link_obj = conn, queries = [{'sql': cmd, 'args': args}])
 	db_md5 = rows[0][0]
 	if file_md5 == db_md5:
 		conn.commit()
@@ -1997,7 +1998,7 @@ def __file2bytea_lo(filename=None, conn=None, file_md5=None):
 		return lo_oid
 	cmd = 'SELECT md5(lo_get(%(loid)s::oid))'
 	args = {'loid': lo_oid}
-	rows = run_ro_queries(link_obj = conn, queries = [{'cmd': cmd, 'args': args}])
+	rows = run_ro_queries(link_obj = conn, queries = [{'sql': cmd, 'args': args}])
 	db_md5 = rows[0][0]
 	if file_md5 == db_md5:
 		conn.commit()
@@ -2011,7 +2012,7 @@ def __file2bytea_lo(filename=None, conn=None, file_md5=None):
 
 #------------------------------------------------------------------------
 def __file2bytea_copy_from(table=None, columns=None, filename=None, conn=None, md5_query=None, file_md5=None):
-	# md5_query: dict{'cmd': ..., 'args': ...}
+	# md5_query: dict{'sql': ..., 'args': ...}
 
 	# UNTESTED
 
@@ -2051,11 +2052,11 @@ def __file2bytea_overlay(query=None, args=None, filename=None, conn=None, md5_qu
 	"""Store data from a file into a bytea field.
 
 	The query must:
-	- 'cmd' must be in unicode
-	- 'cmd' must contain a format spec identifying the row (eg
+	- 'sql' must be in unicode
+	- 'sql' must contain a format spec identifying the row (eg
 	  a primary key) matching <args> if it is an UPDATE
-	- 'cmd' must contain "... SET ... <some_bytea_field> = OVERLAY(some_bytea_field PLACING %(data)s::bytea FROM %(start)s FOR %(size)s) ..."
-	- 'args' must be a dict matching 'cmd'
+	- 'sql' must contain "... SET ... <some_bytea_field> = OVERLAY(some_bytea_field PLACING %(data)s::bytea FROM %(start)s FOR %(size)s) ..."
+	- 'args' must be a dict matching 'sql'
 
 	The query CAN return the MD5 of the inserted data:
 		RETURNING md5(<field>) AS md5
@@ -2103,7 +2104,7 @@ def __file2bytea_overlay(query=None, args=None, filename=None, conn=None, md5_qu
 		args['data'] = memoryview(data_as_byte_string)
 		del(data_as_byte_string)
 		try:
-			rows = run_rw_queries(link_obj = conn, queries = [{'cmd': query, 'args': args}], end_tx = False, return_data = False)
+			rows = run_rw_queries(link_obj = conn, queries = [{'sql': query, 'args': args}], end_tx = False, return_data = False)
 		except Exception:
 			_log.exception('cannot write chunk [%s/%s] of size [%s], try decreasing chunk size', chunk_id+1, needed_chunks, chunk_size)
 			conn.rollback()
@@ -2120,7 +2121,7 @@ def __file2bytea_overlay(query=None, args=None, filename=None, conn=None, md5_qu
 		args['data'] = memoryview(data_as_byte_string)
 		del(data_as_byte_string)
 		try:
-			rows = run_rw_queries(link_obj = conn, queries = [{'cmd': query, 'args': args}], end_tx = False, return_data = False)
+			rows = run_rw_queries(link_obj = conn, queries = [{'sql': query, 'args': args}], end_tx = False, return_data = False)
 		except Exception:
 			_log.error('cannot retrieve remaining [%s] bytes' % remainder)
 			conn.rollback()
@@ -2133,7 +2134,7 @@ def __file2bytea_overlay(query=None, args=None, filename=None, conn=None, md5_qu
 		close_conn()
 		return True
 	# verify
-	rows = run_ro_queries(link_obj = conn, queries = [{'cmd': md5_query, 'args': args}])
+	rows = run_ro_queries(link_obj = conn, queries = [{'sql': md5_query, 'args': args}])
 	db_md5 = rows[0][0]
 	if file_md5 == db_md5:
 		conn.commit()
@@ -2161,7 +2162,7 @@ def read_all_rows_of_table(schema=None, table=None):
 	_log.debug('dumping <%s.%s>', schema, table)
 	conn = get_connection(readonly=True, verbose = False, pooled = True, connection_name = 'read_all_rows_of_table')
 	# get pk column name
-	rows = run_ro_queries(link_obj = conn, queries = [{'cmd': SQL_get_primary_key_name, 'args': {'schema': schema, 'table': table}}])
+	rows = run_ro_queries(link_obj = conn, queries = [{'sql': SQL_get_primary_key_name, 'args': {'schema': schema, 'table': table}}])
 	if rows:
 		_log.debug('primary key def: %s', rows)
 		if len(rows) > 1:
@@ -2183,7 +2184,7 @@ def read_all_rows_of_table(schema=None, table=None):
 		schema_table_pk = qualified_pk_name,
 		schema_table = qualified_table
 	))
-	rows = run_ro_queries(link_obj = conn, queries = [{'cmd': cmd}])
+	rows = run_ro_queries(link_obj = conn, queries = [{'sql': cmd}])
 	if not rows:
 		_log.debug('no rows to dump')
 		return True
@@ -2201,7 +2202,7 @@ def read_all_rows_of_table(schema=None, table=None):
 		args = {'pk_val': row[0]}
 		_log.debug('dumping row #%s with pk [%s]', idx, row[0])
 		try:
-			run_ro_queries(link_obj = conn, queries = [{'cmd': cmd, 'args': args}])
+			run_ro_queries(link_obj = conn, queries = [{'sql': cmd, 'args': args}])
 		except dbapi.InternalError:
 			found_errors = True
 			_log.exception('error dumping row')
@@ -2221,7 +2222,7 @@ def run_sql_script(sql_script, conn=None):
 
 	if psql.run(sql_script) == 0:
 		query = {
-			'cmd': 'select gm.log_script_insertion(%(name)s, %(ver)s)',
+			'sql': 'select gm.log_script_insertion(%(name)s, %(ver)s)',
 			'args': {'name': sql_script, 'ver': 'current'}
 		}
 		run_rw_queries(link_obj = conn, queries = [query])
@@ -2296,7 +2297,7 @@ def run_ro_queries (
 		link_obj: a psycopg2 cursor or connection, can be used to continue transactions, or None
 		queries: a list of dicts:
 			[
-				{'cmd': <SQL string with %(name)s placeholders>, 'args': <dict>},
+				{'sql': <SQL string with %(name)s placeholders>, 'args': <dict>},
 				{...},
 				...
 			]
@@ -2337,9 +2338,14 @@ def run_ro_queries (
 		except KeyError:	args = None
 		if isinstance(args, list):
 			_log.debug('arguments-as-list depreciated:')
-			_log.debug(query['cmd'])
+			_log.debug(query['sql'])
 		try:
-			curs.execute(query['cmd'], args)
+			SQL = query['sql']
+		except KeyError:
+			SQL = query['cmd']
+			#_log.debug("depreciated: SQL keyed as ['cmd'] rather than ['sql']: %s", SQL)
+		try:
+			curs.execute(SQL, args)
 		except PG_ERROR_EXCEPTION as pg_exc:
 			_log.error('query failed in RO connection')
 			gmConnectionPool.log_pg_exception_details(pg_exc)
@@ -2436,7 +2442,7 @@ def run_rw_queries (
 		link_obj: None, cursor, connection
 		queries:
 
-		* a list of dicts [{'cmd': <string>, 'args': <dict> or <tuple>)
+		* a list of dicts [{'sql': <SQL string>, 'args': <dict>)
 		* to be executed as a single transaction
 		* the last query may usefully return rows, such as:
 
@@ -2502,7 +2508,12 @@ def run_rw_queries (
 		try:				args = query['args']
 		except KeyError:	args = None
 		try:
-			curs.execute(query['cmd'], args)
+			SQL = query['sql']
+		except KeyError:
+			SQL = query['cmd']
+			#_log.debug("depreciated: SQL keyed as ['cmd'] rather than ['sql']: %s", SQL)
+		try:
+			curs.execute(SQL, args)
 		except dbapi.Error as pg_exc:			# DB related exceptions
 			_log.error('query failed in RW connection')
 			gmConnectionPool.log_pg_exception_details(pg_exc)
@@ -2601,7 +2612,7 @@ def log_pg_exception(exc:Exception, msg:str=None):
 def log_database_access(action=None):
 	args = {'action': action}
 	SQL = "INSERT INTO gm.access_log (user_action) VALUES (%(action)s)"
-	run_rw_queries(queries = [{'cmd': SQL, 'args': args}])
+	run_rw_queries(queries = [{'sql': SQL, 'args': args}])
 
 #-----------------------------------------------------------------------
 def sanity_check_time_skew(tolerance:int=60) -> bool:
@@ -2616,7 +2627,7 @@ def sanity_check_time_skew(tolerance:int=60) -> bool:
 	conn = get_raw_connection(readonly = True)
 	curs = conn.cursor()
 	start = time.time()
-	rows = run_ro_queries(link_obj = curs, queries = [{'cmd': cmd}])
+	rows = run_ro_queries(link_obj = curs, queries = [{'sql': cmd}])
 	end = time.time()
 	client_now_as_utc = pydt.datetime.utcnow()
 	curs.close()
@@ -2694,7 +2705,7 @@ def sanity_check_database_settings(hipaa:bool=True) -> tuple:
 	cmd = 'SELECT name, setting FROM pg_settings WHERE name = ANY(%(settings)s)'
 	rows = run_ro_queries (
 		link_obj = conn,
-		queries = [{'cmd': cmd, 'args': {'settings': list(options2check)}}]
+		queries = [{'sql': cmd, 'args': {'settings': list(options2check)}}]
 	)
 	found_error = False
 	found_problem = False
@@ -2744,7 +2755,7 @@ def sanity_check_database_settings(hipaa:bool=True) -> tuple:
 		curs.close()
 	# preloaded libraries
 #	SQL = "SELECT name, setting from pg_settings where name = 'shared_preload_libraries';"
-#	rows = run_ro_queries (link_obj = conn, queries = [{'cmd': SQL, 'args': None}])
+#	rows = run_ro_queries (link_obj = conn, queries = [{'sql': SQL, 'args': None}])
 #	if rows:
 #		value_found = rows[0]['setting']
 #	else:
@@ -2792,8 +2803,8 @@ if __name__ == "__main__":
 		pool = gmConnectionPool.gmConnectionPool()
 		pool.credentials = creds
 		run_rw_queries(queries = [
-			{'cmd': 'drop table if exists test_bytea'},
-			{'cmd': 'create table test_bytea (data bytea)'}
+			{'sql': 'drop table if exists test_bytea'},
+			{'sql': 'create table test_bytea (data bytea)'}
 		])
 		try:
 			file2bytea(query = 'insert into test_bytea values (%(data)s::bytea)', filename = sys.argv[2])
@@ -2801,7 +2812,7 @@ if __name__ == "__main__":
 			_log.exception('error')
 
 		run_rw_queries(queries = [
-			{'cmd': 'drop table test_bytea'}
+			{'sql': 'drop table test_bytea'}
 		])
 
 	#--------------------------------------------------------------------
@@ -2817,7 +2828,7 @@ if __name__ == "__main__":
 #		print(lo_oid)
 #		if lo_oid != -1:
 #			run_rw_queries(queries = [
-#				{'cmd': u'select lo_unlink(%(loid)s::oid)', 'args': {'loid': lo_oid}}
+#				{'sql': u'select lo_unlink(%(loid)s::oid)', 'args': {'loid': lo_oid}}
 #			])
 
 	#--------------------------------------------------------------------
@@ -2827,13 +2838,13 @@ if __name__ == "__main__":
 #		pool.credentials = creds
 #
 #		run_rw_queries(queries = [
-#			{'cmd': 'drop table if exists test_bytea'},
-#			{'cmd': 'create table test_bytea (pk serial primary key, data bytea)'},
-#			{'cmd': "insert into test_bytea (data) values (NULL::bytea)"}
+#			{'sql': 'drop table if exists test_bytea'},
+#			{'sql': 'create table test_bytea (pk serial primary key, data bytea)'},
+#			{'sql': "insert into test_bytea (data) values (NULL::bytea)"}
 #		])
 #
 #		md5_query = {
-#			'cmd': 'select md5(data) AS md5 FROM test_bytea WHERE pk = %(pk)s',
+#			'sql': 'select md5(data) AS md5 FROM test_bytea WHERE pk = %(pk)s',
 #			'args': {'pk': 1}
 #		}
 #
@@ -2846,7 +2857,7 @@ if __name__ == "__main__":
 #		)
 #
 #		run_rw_queries(queries = [
-#			{'cmd': 'drop table if exists test_bytea'}
+#			{'sql': 'drop table if exists test_bytea'}
 #		])
 
 #	#--------------------------------------------------------------------
@@ -2856,9 +2867,9 @@ if __name__ == "__main__":
 #		pool.credentials = creds
 #
 #		run_rw_queries(queries = [
-#			{'cmd': 'drop table if exists test_bytea'},
-#			{'cmd': 'create table test_bytea (pk serial primary key, data bytea)'},
-#			{'cmd': "insert into test_bytea (data) values (NULL::bytea)"}
+#			{'sql': 'drop table if exists test_bytea'},
+#			{'sql': 'create table test_bytea (pk serial primary key, data bytea)'},
+#			{'sql': "insert into test_bytea (data) values (NULL::bytea)"}
 #		])
 #
 #		cmd = """
@@ -2884,7 +2895,7 @@ if __name__ == "__main__":
 #		)
 #
 #		run_rw_queries(queries = [
-#			{'cmd': 'drop table test_bytea'}
+#			{'sql': 'drop table test_bytea'}
 #		])
 
 	#--------------------------------------------------------------------
@@ -2978,9 +2989,9 @@ if __name__ == "__main__":
 		pool.credentials = creds
 		conn = get_connection(readonly = False)
 		queries = [
-			{'cmd': 'create table staging.test (ts timestamp with time zone)'},
-			{'cmd': "INSERT INTO staging.test (ts) values (%(inf)s::TIMESTAMP WITH TIME ZONE AT TIME ZONE 'UTC')", 'args': {'inf': '-infinity'}},
-			{'cmd': 'SELECT FROM staging.test'}
+			{'sql': 'create table staging.test (ts timestamp with time zone)'},
+			{'sql': "INSERT INTO staging.test (ts) values (%(inf)s::TIMESTAMP WITH TIME ZONE AT TIME ZONE 'UTC')", 'args': {'inf': '-infinity'}},
+			{'sql': 'SELECT FROM staging.test'}
 		]
 		print(run_rw_queries(queries = queries, link_obj = conn))
 		conn.rollback()
@@ -2993,7 +3004,7 @@ if __name__ == "__main__":
 		conn = get_connection(readonly = True)
 		while True:
 			SQL = input('Enter SQL:')
-			data = run_ro_queries(link_obj = conn, queries = [{'cmd': SQL}], return_data = True, verbose = True)
+			data = run_ro_queries(link_obj = conn, queries = [{'sql': SQL}], return_data = True, verbose = True)
 			print(data)
 
 	#--------------------------------------------------------------------
@@ -3007,21 +3018,21 @@ if __name__ == "__main__":
 		#dsn = 'dbname=gnumed_v22 user=any-doc password=any-doc'
 		conn = get_connection(readonly = True)
 
-		data = run_ro_queries(link_obj=conn, queries=[{'cmd': 'SELECT version()'}], return_data=True, verbose=True)
+		data = run_ro_queries(link_obj=conn, queries=[{'sql': 'SELECT version()'}], return_data=True, verbose=True)
 		print(data)
-		data = run_ro_queries(link_obj=conn, queries=[{'cmd': 'SELECT 1'}], return_data=True)
+		data = run_ro_queries(link_obj=conn, queries=[{'sql': 'SELECT 1'}], return_data=True)
 		print(data)
 
 		curs = conn.cursor()
 
-		data = run_ro_queries(link_obj=curs, queries=[{'cmd': 'SELECT version()'}], return_data=True, verbose=True)
+		data = run_ro_queries(link_obj=curs, queries=[{'sql': 'SELECT version()'}], return_data=True, verbose=True)
 		print(data)
 
-		data = run_ro_queries(link_obj=curs, queries=[{'cmd': 'SELECT 1'}], return_data=True, verbose=True)
+		data = run_ro_queries(link_obj=curs, queries=[{'sql': 'SELECT 1'}], return_data=True, verbose=True)
 		print(data)
 
 		try:
-			data = run_ro_queries(link_obj=curs, queries=[{'cmd': 'selec 1'}], return_data=True, verbose=True)
+			data = run_ro_queries(link_obj=curs, queries=[{'sql': 'selec 1'}], return_data=True, verbose=True)
 			print(data)
 		except dbapi.ProgrammingError:
 			print('SUCCESS: run_ro_queries("selec 1") failed as expected')
@@ -3197,7 +3208,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	) AS foofoo
 ) AS foo"""
 		cmd = u"SELECT 'infinity'::timestamp with time zone"
-		rows = run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		print(rows)
 		print(rows[0])
 		print(rows[0][0])
@@ -3287,7 +3298,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 		pool = gmConnectionPool.gmConnectionPool()
 		pool.credentials = creds
 		#conn = get_connection()
-		run_rw_queries(queries = [{'cmd': 'SELEC 1'}])
+		run_rw_queries(queries = [{'sql': 'SELEC 1'}])
 
 	#--------------------------------------------------------------------
 	def test_log_settings():
@@ -3381,8 +3392,8 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 		request_login_params(setup_pool = True)
 		conn = get_connection(readonly = False)
 		queries = [
-			{'cmd': SQL__pg_temp_concat_table_structure_v19_and_up},
-			{'cmd': SQL__get_pg_temp_table_structure}
+			{'sql': SQL__pg_temp_concat_table_structure_v19_and_up},
+			{'sql': SQL__get_pg_temp_table_structure}
 		]
 		rows = run_rw_queries(link_obj = conn, queries = queries, return_data = True)
 		conn.rollback()
@@ -3452,7 +3463,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 
 	#SQL = 'select 1 as one, 2 as two'
 	#SQL = 'SELECT pg_sleep(4)'
-	#rows = run_ro_queries(queries = [{'cmd': SQL}])
+	#rows = run_ro_queries(queries = [{'sql': SQL}])
 	#print(type(idx))
 	#print(type(rows))
 	#r = rows[0]
@@ -3470,7 +3481,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#check_all_collations()
 
 #	try:
-#		run_ro_queries(queries = [{'cmd': 'select no_function(1)'}])
+#		run_ro_queries(queries = [{'sql': 'select no_function(1)'}])
 #	except dbapi.errors.UndefinedFunction as e:
 #		print(type(e))
 #		for s in dir(e.diag):

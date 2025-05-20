@@ -376,11 +376,11 @@ class cSubstance(gmBusinessDBObject.cBusinessDBObject):
 				SELECT 1 from ref.lnk_loinc2substance WHERE fk_substance = %(pk_subst)s AND loinc = %(loinc)s
 			)"""
 			args['loinc'] = loinc
-			gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+			gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 
 		# delete old entries
 		cmd = 'DELETE FROM ref.lnk_loinc2substance WHERE fk_substance = %(pk_subst)s AND loinc <> ALL(%(loincs)s)'
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 
 	loincs = property(lambda x:x, _set_loincs)
 
@@ -395,7 +395,7 @@ class cSubstance(gmBusinessDBObject.cBusinessDBObject):
 			)"""
 		args = {'pk': self.pk_obj}
 
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		return rows[0][0]
 
 	is_in_use_by_patients = property(_get_is_in_use_by_patients)
@@ -411,7 +411,7 @@ class cSubstance(gmBusinessDBObject.cBusinessDBObject):
 			)"""
 		args = {'pk': self.pk_obj}
 
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		return rows[0][0]
 
 	is_drug_component = property(_get_is_drug_component)
@@ -431,7 +431,7 @@ def get_substances(order_by:str='', return_pks:bool=False, substance:str=None) -
 		order_by = ' ORDER BY %s' % order_by
 	SQL = _SQL_get_substance % WHERE
 	SQL += order_by
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
 	if return_pks:
 		return [ r['pk_substance'] for r in rows ]
 
@@ -446,7 +446,7 @@ def create_substance(substance=None, atc=None, link_obj=None):
 		'atc': atc
 	}
 	cmd = "SELECT pk FROM ref.substance WHERE lower(description) = lower(%(desc)s)"
-	rows = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'sql': cmd, 'args': args}])
 	if len(rows) == 0:
 		cmd = """
 			INSERT INTO ref.substance (description, atc) VALUES (
@@ -456,7 +456,7 @@ def create_substance(substance=None, atc=None, link_obj=None):
 					(SELECT code FROM ref.atc WHERE term = %(desc)s LIMIT 1)
 				)
 			) RETURNING pk"""
-		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, link_obj = link_obj)
+		rows = gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}], return_data = True, link_obj = link_obj)
 	if atc:
 		gmATC.propagate_atc(link_obj = link_obj, substance = substance.strip(), atc = atc)
 	return cSubstance(aPK_obj = rows[0]['pk'], link_obj = link_obj)
@@ -477,7 +477,7 @@ def create_substance_by_atc(substance=None, atc=None, link_obj=None):
 	}
 	# in case the substance already exists: add ATC
 	cmd = "UPDATE ref.substance SET atc = %(atc)s WHERE lower(description) = lower(%(desc)s) AND atc IS NULL"
-	queries.append({'cmd': cmd, 'args': args})
+	queries.append({'sql': cmd, 'args': args})
 	# or else INSERT the substance
 	cmd = """
 		INSERT INTO ref.substance (description, atc)
@@ -488,11 +488,11 @@ def create_substance_by_atc(substance=None, atc=None, link_obj=None):
 				SELECT 1 FROM ref.substance WHERE atc = %(atc)s
 			)
 		RETURNING pk"""
-	queries.append({'cmd': cmd, 'args': args})
+	queries.append({'sql': cmd, 'args': args})
 	rows = gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, return_data = True)
 	if len(rows) == 0:
 		cmd = "SELECT pk FROM ref.substance WHERE atc = %(atc)s LIMIT 1"
-		rows = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'sql': cmd, 'args': args}])
 
 	return cSubstance(aPK_obj = rows[0]['pk'], link_obj = link_obj)
 
@@ -517,7 +517,7 @@ def delete_substance(pk_substance=None):
 				LIMIT 1
 			)
 	"""
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 	return True
 
 #============================================================
@@ -596,7 +596,7 @@ class cSubstanceDose(gmBusinessDBObject.cBusinessDBObject):
 			)"""
 		args = {'pk': self.pk_obj}
 
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		return rows[0][0]
 
 	is_in_use_by_patients = property(_get_is_in_use_by_patients)
@@ -611,7 +611,7 @@ class cSubstanceDose(gmBusinessDBObject.cBusinessDBObject):
 				LIMIT 1
 			)"""
 		args = {'pk': self.pk_obj}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		return rows[0][0]
 
 	is_drug_component = property(_get_is_drug_component)
@@ -640,7 +640,7 @@ def get_substance_doses(order_by=None, return_pks=False):
 	else:
 		order_by = 'true ORDER BY %s' % order_by
 	cmd = _SQL_get_substance_dose % order_by
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
 	if return_pks:
 		return [ r['pk_dose'] for r in rows ]
 	return [ cSubstanceDose(row = {'data': r, 'pk_field': 'pk_dose'}) for r in rows ]
@@ -675,7 +675,7 @@ def create_substance_dose(link_obj=None, pk_substance=None, substance=None, atc=
 				AND
 			dose_unit IS NOT DISTINCT FROM gm.nullify_empty_string(%(dose_unit)s)
 		"""
-	rows = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'sql': cmd, 'args': args}])
 
 	if len(rows) == 0:
 		cmd = """
@@ -685,7 +685,7 @@ def create_substance_dose(link_obj=None, pk_substance=None, substance=None, atc=
 				gm.nullify_empty_string(%(unit)s),
 				gm.nullify_empty_string(%(dose_unit)s)
 			) RETURNING pk"""
-		rows = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True)
+		rows = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'sql': cmd, 'args': args}], return_data = True)
 
 	return cSubstanceDose(aPK_obj = rows[0]['pk'], link_obj = link_obj)
 
@@ -725,7 +725,7 @@ def delete_substance_dose(pk_dose=None):
 				LIMIT 1
 			)
 	"""
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 	return True
 
 #------------------------------------------------------------
@@ -1468,7 +1468,7 @@ class cDrugComponent(gmBusinessDBObject.cBusinessDBObject):
 #------------------------------------------------------------
 def get_drug_components(return_pks=False):
 	cmd = _SQL_get_drug_components % 'true ORDER BY product, substance'
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
 	if return_pks:
 		return [ r['pk_component'] for r in rows ]
 	return [ cDrugComponent(row = {'data': r, 'pk_field': 'pk_component'}) for r in rows ]
@@ -1723,7 +1723,7 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 			)"""
 		for pk_dose in pk_doses2keep:
 			args['pk_dose'] = pk_dose
-			queries.append({'cmd': cmd, 'args': args.copy()})
+			queries.append({'sql': cmd, 'args': args.copy()})
 
 		# DELETE those that don't belong anymore
 		args['doses2keep'] = pk_doses2keep
@@ -1733,7 +1733,7 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 				fk_drug_product = %(pk_drug_product)s
 					AND
 				fk_dose <> ALL(%(doses2keep)s)"""
-		queries.append({'cmd': cmd, 'args': args})
+		queries.append({'sql': cmd, 'args': args})
 		gmPG2.run_rw_queries(link_obj = link_obj, queries = queries)
 		self.refetch_payload(link_obj = link_obj)
 		return True
@@ -1764,7 +1764,7 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 						AND
 					fk_dose = %(pk_dose)s
 			)"""
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 		self.refetch_payload()
 
 	#------------------------------------------------------------
@@ -1796,7 +1796,7 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 							LIMIT 1
 						)"""
 
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 		self.refetch_payload()
 		return True
 
@@ -1832,7 +1832,7 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 				)
 			)
 		RETURNING *"""
-		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+		rows = gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}], return_data = True)
 		if len(rows) == 0:
 			_log.debug('cannot delete vaccine on: %s', self)
 			return False
@@ -1857,7 +1857,7 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 	def _get_components(self):
 		SQL = _SQL_get_drug_components % 'pk_drug_product = %(pk_product)s'
 		args = {'pk_product': self._payload['pk_drug_product']}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
 		return [ cDrugComponent(row = {'data': r, 'pk_field': 'pk_component'}) for r in rows ]
 
 	components = property(_get_components)
@@ -1869,7 +1869,7 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 			return []
 		cmd = _SQL_get_substance_dose % 'pk_dose = ANY(%(pks)s)'
 		args = {'pks': pk_doses}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		return [ cSubstanceDose(row = {'data': r, 'pk_field': 'pk_dose'}) for r in rows ]
 
 	components_as_doses = property(_get_components_as_doses)
@@ -1881,7 +1881,7 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 			return []
 		cmd = _SQL_get_substance % 'pk_substance = ANY(%(pks)s)'
 		args = {'pks': pk_substances}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		return [ cSubstance(row = {'data': r, 'pk_field': 'pk_substance'}) for r in rows ]
 
 	components_as_substances = property(_get_components_as_substances)
@@ -1912,7 +1912,7 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 
 		SQL = 'SELECT EXISTS(SELECT 1 FROM clin.vaccination WHERE fk_vaccine = (SELECT pk FROM ref.vaccine WHERE fk_drug_product = %(pk)s))'
 		args = {'pk': self.pk_obj}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
 		return rows[0][0]
 
 	is_in_use_as_vaccine = property(_get_is_in_use_as_vaccine)
@@ -1920,7 +1920,7 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 #------------------------------------------------------------
 def get_drug_products(return_pks=False):
 	cmd = _SQL_get_drug_product % 'TRUE ORDER BY product'
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
 	if return_pks:
 		return [ r['pk_drug_product'] for r in rows ]
 	return [ cDrugProduct(row = {'data': r, 'pk_field': 'pk_drug_product'}) for r in rows ]
@@ -1929,7 +1929,7 @@ def get_drug_products(return_pks=False):
 def get_drug_by_name(product_name=None, preparation=None, link_obj=None):
 	args = {'prod_name': product_name, 'prep': preparation}
 	cmd = 'SELECT * FROM ref.v_drug_products WHERE lower(product) = lower(%(prod_name)s) AND lower(preparation) = lower(%(prep)s)'
-	rows = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'sql': cmd, 'args': args}])
 	if len(rows) == 0:
 		return None
 	return cDrugProduct(row = {'data': rows[0], 'pk_field': 'pk_drug_product'})
@@ -1938,7 +1938,7 @@ def get_drug_by_name(product_name=None, preparation=None, link_obj=None):
 def get_drug_by_atc(atc=None, preparation=None, link_obj=None):
 	args = {'atc': atc, 'prep': preparation}
 	cmd = 'SELECT * FROM ref.v_drug_products WHERE lower(atc) = lower(%(atc)s) AND lower(preparation) = lower(%(prep)s)'
-	rows = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'sql': cmd, 'args': args}])
 	if len(rows) == 0:
 		return None
 	return cDrugProduct(row = {'data': rows[0], 'pk_field': 'pk_drug_product'}, link_obj = link_obj)
@@ -1963,7 +1963,7 @@ def create_drug_product(product_name=None, preparation=None, return_existing=Fal
 		conn_close = lambda *x: None
 	cmd = 'INSERT INTO ref.drug_product (description, preparation) VALUES (%(prod_name)s, %(prep)s) RETURNING pk'
 	args = {'prod_name': product_name, 'prep': preparation}
-	rows = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	rows = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'sql': cmd, 'args': args}], return_data = True)
 	product = cDrugProduct(aPK_obj = rows[0]['pk'], link_obj = link_obj)
 	if doses or pk_doses:
 		product.set_substance_doses_as_components (
@@ -2007,16 +2007,16 @@ def delete_drug_product(pk_drug_product:int=None) -> bool:
 	args = {'pk': pk_drug_product}
 	SQL = 'SELECT EXISTS(SELECT 1 FROM clin.vaccination WHERE fk_vaccine = (SELECT pk FROM ref.vaccine WHERE fk_drug_product = %(pk)s))'
 	args = {'pk': pk_drug_product}
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
 	if rows and rows[0][0]:
 		_log.error('cannot delete drug product [%s], it is used as a vaccine')
 		return False
 
 	queries = []
 	SQL = 'DELETE FROM ref.lnk_dose2drug WHERE fk_drug_product = %(pk)s'
-	queries.append({'cmd': SQL, 'args': args})
+	queries.append({'sql': SQL, 'args': args})
 	SQL = 'DELETE FROM ref.drug_product WHERE pk = %(pk)s'
-	queries.append({'cmd': SQL, 'args': args})
+	queries.append({'sql': SQL, 'args': args})
 	gmPG2.run_rw_queries(queries = queries)
 	return True
 
@@ -2385,7 +2385,7 @@ def get_intakes_with_regimens (
 		'\nAND '.join(where_parts),
 		order_by
 	))
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	return [ cIntakeWithRegimen(row = {
 		'data': r,
 		'pk_obj': {'pk_intake_regimen': r['pk_intake_regimen'], 'pk_intake': r['pk_intake']}
@@ -2561,7 +2561,7 @@ def get_intake_regimens(order_by:str=None, pk_intake:int=None, ongoing_only:bool
 	cmd = _SQL_get_intake_regimens % '\nAND '.join(where_parts)
 	if order_by:
 		cmd += ' ORDER BY %s' % order_by
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], link_obj = link_obj)
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}], link_obj = link_obj)
 	if as_instance:
 		return [ cIntakeRegimen(row = {'data': r, 'pk_field': 'pk_intake_regimen'}, link_obj = link_obj) for r in rows ]
 
@@ -2618,14 +2618,14 @@ def create_intake_regimen (
 		)
 		RETURNING pk
 	""" % (', '.join(cols), ', '.join(placeholders))
-	rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': query_args}], return_data = True, link_obj = link_obj)
+	rows = gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': query_args}], return_data = True, link_obj = link_obj)
 	return cIntakeRegimen(aPK_obj = rows[0]['pk'], link_obj = link_obj)
 
 #------------------------------------------------------------
 def delete_intake_regimen(pk_intake_regimen:int=None, link_obj=None) -> bool:
 	args = {'pk': pk_intake_regimen}
 	cmd = 'DELETE FROM clin.intake_regimen WHERE pk = %(pk)s'
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], link_obj = link_obj)
+	gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}], link_obj = link_obj)
 	return True
 
 #============================================================
@@ -2914,7 +2914,7 @@ def get_substance_intakes(pk_patient:int=None, return_pks:bool=False, pk_substan
 		args['pk_substances'] = pk_substances
 		where_parts.append('pk_substance = ANY(%(pk_substances)s)')
 	SQL = _SQL_get_substance_intake % '\nAND '.join(where_parts)
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}], link_obj = link_obj)
+	rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}], link_obj = link_obj)
 	if return_pks:
 		return [ r['pk_intake'] for r in rows ]
 
@@ -2948,7 +2948,7 @@ def substance_intake_exists(pk_identity:int=None, pk_substance:int=None, substan
 			%s
 		LIMIT 1
 	)""" % '\nAND\n'.join(where_parts)
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	return rows[0][0]
 
 #------------------------------------------------------------
@@ -2974,7 +2974,7 @@ def substance_intake_exists_by_atc(pk_identity=None, atc=None):
 		)
 	""" % '\nAND\n'.join(where_parts)
 
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	return rows[0][0]
 
 #------------------------------------------------------------
@@ -2996,7 +2996,7 @@ def create_substance_intake(pk_encounter=None, pk_episode=None, pk_substance=Non
 		)
 		RETURNING pk
 	"""
-	rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, link_obj = link_obj)
+	rows = gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}], return_data = True, link_obj = link_obj)
 	return cSubstanceIntakeEntry(aPK_obj = rows[0][0], link_obj = link_obj)
 
 #------------------------------------------------------------
@@ -3005,11 +3005,11 @@ def delete_substance_intake(pk_intake:int=None, delete_regimen:bool=False, link_
 	queries = []
 	if delete_regimen:
 		queries.append ({
-			'cmd': 'DELETE FROM clin.intake_regimen c_ir WHERE fk_intake = %(pk_intake)s',
+			'sql': 'DELETE FROM clin.intake_regimen c_ir WHERE fk_intake = %(pk_intake)s',
 			'args': args
 		})
 	queries.append ({
-		'cmd': 'DELETE FROM clin.intake WHERE pk = %(pk_intake)s',
+		'sql': 'DELETE FROM clin.intake WHERE pk = %(pk_intake)s',
 		'args': args
 	})
 	gmPG2.run_rw_queries(queries = queries, link_obj = link_obj)

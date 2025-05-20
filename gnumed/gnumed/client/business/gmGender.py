@@ -89,7 +89,7 @@ class cGenderDef(gmBusinessDBObject.cBusinessDBObject):
 	def _get_is_in_use(self):
 		SQL = 'SELECT EXISTS (SELECT 1 FROM dem.identity WHERE dem.identity.gender = %(tag)s)'
 		args = {'tag': self._payload['tag']}
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
 		return rows[0][0]
 
 	is_in_use = property(_get_is_in_use)
@@ -102,7 +102,7 @@ def get_genders(as_instance:bool=False, order_by:str=None) -> list:
 		SQL = _SQL_get_gender_defs
 		if order_by:
 			SQL += ' ORDER BY %s' % order_by
-		__LIST__gender_defs = gmPG2.run_ro_queries(queries = [{'cmd': SQL}])
+		__LIST__gender_defs = gmPG2.run_ro_queries(queries = [{'sql': SQL}])
 		_log.debug('gender definitions in database: %s' % __LIST__gender_defs)
 	if not as_instance:
 		return __LIST__gender_defs
@@ -126,7 +126,7 @@ def create_gender_def(tag:str=None, name:str=None, comment:str=None, symbol:str=
 		)
 		RETURNING pk
 	"""
-	rows = gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}], return_data = True)
+	rows = gmPG2.run_rw_queries(queries = [{'sql': SQL, 'args': args}], return_data = True)
 	invalidate_genders_cache()
 	return cGenderDef(aPK_obj = rows[0]['pk'])
 
@@ -134,7 +134,7 @@ def create_gender_def(tag:str=None, name:str=None, comment:str=None, symbol:str=
 def delete_gender_def(pk_gender_label=None):
 	args = {'pk': pk_gender_label}
 	SQL = 'DELETE FROM dem.gender_label WHERE pk = %(pk)s'
-	gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}])
+	gmPG2.run_rw_queries(queries = [{'sql': SQL, 'args': args}])
 	invalidate_genders_cache()
 	return True
 
@@ -251,7 +251,7 @@ def map_firstnames2gender(firstnames=None):
 
 	SQL = 'SELECT gender FROM dem.name_gender_map WHERE name ILIKE %(fn)s LIMIT 1'
 	args = {'fn': firstnames}
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
 	if not rows:
 		return None
 

@@ -466,8 +466,8 @@ class cOrthancServer:
 		target_dicomdir_name = os.path.join(sandbox_dir, 'DICOMDIR')
 		gmTools.remove_file(target_dicomdir_name, log_error = False)	# better safe than sorry
 		_log.debug('generating [%s]', target_dicomdir_name)
-		cmd = '%(cmd)s %(DICOMDIR)s %(startdir)s' % {
-			'cmd': external_cmd,
+		cmd = '%(exe)s %(DICOMDIR)s %(startdir)s' % {
+			'exe': external_cmd,
 			'DICOMDIR': target_dicomdir_name,
 			'startdir': sandbox_dir
 		}

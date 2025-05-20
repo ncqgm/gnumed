@@ -138,7 +138,7 @@ def get_external_care_items(order_by=None, pk_identity=None, pk_health_issue=Non
 		)
 
 	cmd = _SQL_get_external_care_items % where
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	if return_pks:
 		return [ r['pk_external_care'] for r in rows ]
 
@@ -168,7 +168,7 @@ def create_external_care_item(pk_health_issue=None, issue=None, pk_org_unit=None
 			%(pk_org_unit)s
 		)
 		RETURNING pk"""
-	rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	rows = gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}], return_data = True)
 
 	return cExternalCareItem(aPK_obj = rows[0]['pk'])
 
@@ -176,7 +176,7 @@ def create_external_care_item(pk_health_issue=None, issue=None, pk_org_unit=None
 def delete_external_care_item(pk_external_care=None):
 	args = {'pk': pk_external_care}
 	cmd = "DELETE FROM clin.external_care WHERE pk = %(pk)s"
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 	return True
 
 #============================================================

@@ -51,9 +51,9 @@ def propagate_atc(substance=None, atc=None, link_obj=None):
 
 	args = {'atc': atc, 'term': substance.strip()}
 	queries = [
-		{'cmd': "UPDATE ref.substance SET atc = %(atc)s WHERE lower(description) = lower(%(term)s) AND atc IS NULL",
+		{'sql': "UPDATE ref.substance SET atc = %(atc)s WHERE lower(description) = lower(%(term)s) AND atc IS NULL",
 		 'args': args},
-		{'cmd': "UPDATE ref.drug_product SET atc_code = %(atc)s WHERE lower(description) = lower(%(term)s) AND atc_code IS NULL",
+		{'sql': "UPDATE ref.drug_product SET atc_code = %(atc)s WHERE lower(description) = lower(%(term)s) AND atc_code IS NULL",
 		 'args': args}
 	]
 	gmPG2.run_rw_queries(link_obj = link_obj, queries = queries)
@@ -104,7 +104,7 @@ def text2atc(text=None, fuzzy=False, link_obj=None):
 			ORDER BY atc_code
 		"""
 
-	rows = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'sql': cmd, 'args': args}])
 
 	_log.debug('term: %s => ATCs: %s (fuzzy: %s)', text, rows, fuzzy)
 
@@ -114,13 +114,13 @@ def text2atc(text=None, fuzzy=False, link_obj=None):
 def exists_as_atc(substance):
 	args = {'term': substance}
 	cmd = 'SELECT EXISTS (SELECT 1 FROM ref.atc WHERE lower(term) = lower(%(term)s))'
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	return rows[0][0]
 
 #============================================================
 def get_reference_atcs(order_by='atc, term, lang'):
 	cmd = 'SELECT * FROM ref.v_atc ORDER BY %s' % order_by
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
 	return rows
 
 #============================================================
@@ -148,7 +148,7 @@ def atc_import(cfg_fname=None, conn=None):
 
 	# find or create data source record
 	cmd = u"select pk from ref.data_source where name_short = %(name_short)s and version = %(ver)s"
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	if len(rows) > 0:
 		data_src_pk = rows[0][0]
 		_log.debug('ATC data source record existed, pk is #%s, refreshing fields', data_src_pk)
@@ -162,7 +162,7 @@ def atc_import(cfg_fname=None, conn=None):
 			WHERE
 				pk = %(pk)s
 		"""
-		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows = gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 	else:
 		_log.debug('ATC data source record not found, creating')
 		# create
@@ -174,7 +174,7 @@ def atc_import(cfg_fname=None, conn=None):
 			%(lang)s,
 			%(url)s
 		) returning pk"""
-		rows = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+		rows = gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}], return_data = True)
 		data_src_pk = rows[0][0]
 		_log.debug('ATC data source record created, pk is #%s', data_src_pk)
 
@@ -185,7 +185,7 @@ def atc_import(cfg_fname=None, conn=None):
 	# clean out staging area
 	curs = conn.cursor()
 	cmd = """delete from ref.atc_staging"""
-	gmPG2.run_rw_queries(link_obj = curs, queries = [{'cmd': cmd}])
+	gmPG2.run_rw_queries(link_obj = curs, queries = [{'sql': cmd}])
 	curs.close()
 	conn.commit()
 	_log.debug('ATC staging table emptied')
@@ -232,7 +232,7 @@ def atc_import(cfg_fname=None, conn=None):
 			comment
 		]
 
-		gmPG2.run_rw_queries(link_obj = curs, queries = [{'cmd': cmd, 'args': args}])
+		gmPG2.run_rw_queries(link_obj = curs, queries = [{'sql': cmd, 'args': args}])
 
 	curs.close()
 	conn.commit()
@@ -263,7 +263,7 @@ def atc_import(cfg_fname=None, conn=None):
 				select 1 FROM ref.atc WHERE fk_data_source = %(src_pk)s AND code = ref.atc_staging.atc
 			)
 	"""
-	queries.append({'cmd': cmd, 'args': args})
+	queries.append({'sql': cmd, 'args': args})
 	# update records so pre-existing ones are refreshed
 	cmd = u"""
 		UPDATE ref.atc SET
@@ -276,7 +276,7 @@ def atc_import(cfg_fname=None, conn=None):
 		WHERE
 			fk_data_source = %(src_pk)s
 	"""
-	queries.append({'cmd': cmd, 'args': args})
+	queries.append({'sql': cmd, 'args': args})
 	curs = conn.cursor()
 	gmPG2.run_rw_queries(link_obj = curs, queries = queries)
 	curs.close()
@@ -286,7 +286,7 @@ def atc_import(cfg_fname=None, conn=None):
 	# clean out staging area
 	curs = conn.cursor()
 	cmd = """delete from ref.atc_staging"""
-	gmPG2.run_rw_queries(link_obj = curs, queries = [{'cmd': cmd}])
+	gmPG2.run_rw_queries(link_obj = curs, queries = [{'sql': cmd}])
 	curs.close()
 	conn.commit()
 	_log.debug('ATC staging table emptied')
