@@ -2432,6 +2432,23 @@ def __perhaps_reraise_as_permissions_error(pg_exc, curs):
 	)
 
 #------------------------------------------------------------------------
+def run_rw_query (
+	link_obj:_TLnkObj=None,
+	sql:_TSQL=None,
+	args:_TArgs=None,
+	end_tx:bool=False,
+	return_data:bool=None,
+	verbose:bool=False
+) -> list[_TRow] | None:
+	return run_rw_queries (
+		link_obj = link_obj,
+		queries = [{'sql': sql, 'args': args}],
+		end_tx = end_tx,
+		return_data = return_data,
+		verbose = verbose
+	)
+
+#------------------------------------------------------------------------
 def run_rw_queries (
 	link_obj:_TLnkObj=None,
 	queries:_TQueries=None,

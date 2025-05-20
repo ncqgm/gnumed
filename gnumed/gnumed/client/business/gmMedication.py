@@ -2558,10 +2558,10 @@ def get_intake_regimens(order_by:str=None, pk_intake:int=None, ongoing_only:bool
 		args['pk_substance'] = pk_substance
 	if ongoing_only:
 		where_parts.append('discontinued IS NULL')
-	cmd = _SQL_get_intake_regimens % '\nAND '.join(where_parts)
+	SQL = _SQL_get_intake_regimens % '\nAND '.join(where_parts)
 	if order_by:
-		cmd += ' ORDER BY %s' % order_by
-	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}], link_obj = link_obj)
+		SQL += ' ORDER BY %s' % order_by
+	rows = gmPG2.run_ro_query(sql = SQL, args = args, link_obj = link_obj)
 	if as_instance:
 		return [ cIntakeRegimen(row = {'data': r, 'pk_field': 'pk_intake_regimen'}, link_obj = link_obj) for r in rows ]
 
@@ -2610,7 +2610,7 @@ def create_intake_regimen (
 		cols.append('discontinued')
 		placeholders.append('%(discontinued)s')
 		query_args['discontinued'] = discontinued
-	cmd = """
+	SQL = """
 		INSERT INTO clin.intake_regimen (
 			%s
 		) VALUES (
@@ -2618,14 +2618,14 @@ def create_intake_regimen (
 		)
 		RETURNING pk
 	""" % (', '.join(cols), ', '.join(placeholders))
-	rows = gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': query_args}], return_data = True, link_obj = link_obj)
+	rows = gmPG2.run_rw_query(sql = SQL, args = query_args, return_data = True, link_obj = link_obj)
 	return cIntakeRegimen(aPK_obj = rows[0]['pk'], link_obj = link_obj)
 
 #------------------------------------------------------------
 def delete_intake_regimen(pk_intake_regimen:int=None, link_obj=None) -> bool:
+	SQL = 'DELETE FROM clin.intake_regimen WHERE pk = %(pk)s'
 	args = {'pk': pk_intake_regimen}
-	cmd = 'DELETE FROM clin.intake_regimen WHERE pk = %(pk)s'
-	gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}], link_obj = link_obj)
+	gmPG2.run_rw_query(sql = SQL, args = args, link_obj = link_obj)
 	return True
 
 #============================================================
