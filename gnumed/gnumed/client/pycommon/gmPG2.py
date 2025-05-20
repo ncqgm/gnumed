@@ -522,7 +522,7 @@ def is_beginning_of_time(dt:pydt.datetime) -> bool:
 	global PG_BEGINNING_OF_TIME
 	if not PG_BEGINNING_OF_TIME:
 		SQL = "SELECT '-infinity'::TIMESTAMP WITH TIME ZONE AT TIME ZONE 'UTC' AS big_bang"
-		rows = run_ro_queries(queries = [{'sql': SQL}])
+		rows = run_ro_query(sql= SQL)
 		PG_BEGINNING_OF_TIME = rows[0]['big_bang']
 		_log.debug("psycopg2 puts PG's Big Bang at: %s ('-infinity' at UTC)", PG_BEGINNING_OF_TIME)
 		pydt_bing_bang = pydt.datetime(1,1,1)
@@ -808,7 +808,7 @@ def run_fingerprint_tool() -> int:
 
 #------------------------------------------------------------------------
 def get_current_user() -> str:
-	rows = run_ro_queries(queries = [{'sql': 'select CURRENT_USER'}])
+	rows = run_ro_query(sql = 'SELECT CURRENT_USER')
 	return rows[0][0]
 
 #------------------------------------------------------------------------
@@ -865,16 +865,11 @@ WHERE
 
 #------------------------------------------------------------------------
 def get_index_name(indexed_table=None, indexed_column=None, link_obj=None):
-
 	args = {
 		'idx_tbl': indexed_table,
 		'idx_col': indexed_column
 	}
-	rows = run_ro_queries (
-		link_obj = link_obj,
-		queries = [{'sql': SQL_get_index_name, 'args': args}]
-	)
-
+	rows = run_ro_query(link_obj = link_obj, sql = SQL_get_index_name, args = args)
 	return rows
 
 #------------------------------------------------------------------------

@@ -323,11 +323,11 @@ def get_vaccines(order_by=None, return_pks=False):
 	return [ cVaccine(row = {'data': r, 'pk_field': 'pk_vaccine'}) for r in rows ]
 
 #------------------------------------------------------------
-def get_vaccination_indications(order_by=None):
+def get_vaccination_indications(order_by:str=None):
 	SQL = 'SELECT * from ref.vacc_indication'
 	if order_by:
 		SQL += ' ORDER BY %s' % order_by
-	rows = gmPG2.run_ro_queries(queries = [{'sql': SQL}])
+	rows = gmPG2.run_ro_query(sql = SQL)
 	return rows
 
 #============================================================
@@ -468,7 +468,7 @@ def get_vaccinations(pk_identity=None, pk_episodes=None, pk_health_issues=None, 
 		_SQL_get_vaccination_fields % WHERE,
 		ORDER_BY
 	)
-	rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
+	rows = gmPG2.run_ro_query(sql = SQL, args = args)
 	if return_pks:
 		return [ r['pk_vaccination'] for r in rows ]
 
