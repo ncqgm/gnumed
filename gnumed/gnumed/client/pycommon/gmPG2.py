@@ -2285,6 +2285,16 @@ def __safely_close_cursor_and_rollback_close_conn(close_cursor=None, rollback_tx
 			gmConnectionPool.log_pg_exception_details(pg_exc)
 
 #------------------------------------------------------------------------
+def run_ro_query(link_obj:_TLnkObj=None, sql:_TSQL=None, args:_TArgs=None, verbose:bool=False, return_data:bool=True) -> list[_TRow] | None:
+	"""Run one ready-only query via run_ro_queries()."""
+	return run_ro_queries (
+		link_obj = link_obj,
+		queries = [{'sql': sql, 'args': args}],
+		verbose = verbose,
+		return_data = return_data
+	)
+
+#------------------------------------------------------------------------
 def run_ro_queries (
 	link_obj:_TLnkObj=None,
 	queries:list[_TQueryWithArgs]=None,
