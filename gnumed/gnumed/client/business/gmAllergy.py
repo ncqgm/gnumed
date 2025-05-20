@@ -351,8 +351,8 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 	def __setitem__(self, attribute, value):
 		if attribute == 'pk_type':
 			if value in ['allergy', 'sensitivity']:
-				cmd = 'select pk from clin._enum_allergy_type where value=%s'
-				rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [value]}])
+				cmd = 'select pk from clin._enum_allergy_type where value = %(allg_type)s'
+				rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'allg_type': value}}])
 				value = rows[0][0]
 		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
 

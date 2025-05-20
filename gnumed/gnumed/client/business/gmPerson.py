@@ -739,7 +739,10 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		"""
 		if self._payload['preferred'] == nickname:
 			return True
-		gmPG2.run_rw_queries(queries = [{'cmd': "SELECT dem.set_nickname(%s, %s)", 'args': [self.ID, nickname]}])
+
+		SQL = 'SELECT dem.set_nickname(%(pk_pat)s, %(nick)s)'
+		args = {'pk_pat': self.ID, 'nick': nickname}
+		gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}])
 		# setting nickname doesn't change dem.identity, so other fields
 		# of dem.v_active_persons do not get changed as a consequence of
 		# setting the nickname, hence locally setting nickname matches
@@ -1569,22 +1572,17 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	# comms API
 	#--------------------------------------------------------
-	def get_comm_channels(self, comm_medium=None):
-		cmd = "select * from dem.v_person_comms where pk_identity = %s"
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
-
+	def get_comm_channels(self, comm_medium:str=None) -> list:
+		SQL = 'select * from dem.v_person_comms where pk_identity = %(pk_pat)s'
+		args = {'pk_pat': self.pk_obj}
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
 		filtered = rows
-
-		if comm_medium is not None:
-			filtered = []
-			for row in rows:
-				if row['comm_type'] == comm_medium:
-					filtered.append(row)
-
+		if comm_medium:
+			rows = [ r for r in rows if r['comm_type'] == comm_medium ]
 		return [ gmDemographicRecord.cCommChannel(row = {
 					'pk_field': 'pk_lnk_identity2comm',
 					'data': r
-				}) for r in filtered
+				}) for r in rows
 			]
 
 	comm_channels = property(get_comm_channels)
@@ -1912,8 +1910,9 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 	#----------------------------------------------------------------------
 	def get_last_encounter(self):
-		cmd = 'select * from clin.v_most_recent_encounters where pk_patient=%s'
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self._payload['pk_identity']]}])
+		SQL = 'select * from clin.v_most_recent_encounters where pk_patient = %(pk_pat)s'
+		args = {'pk_pat': self._payload['pk_identity']}
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
 		if rows:
 			return rows[0]
 
@@ -2449,29 +2448,34 @@ def create_name(pk_person, firstnames, lastnames, active=False) -> cPersonName:
 	return name
 
 #============================================================
-def create_identity(gender=None, dob=None, lastnames=None, firstnames=None, comment=None):
+def create_identity(gender=None, dob=None, lastnames:str=None, firstnames:str=None, comment:str=None):
 
-	cmd1 = "INSERT INTO dem.identity (gender, dob, comment) VALUES (%s, %s, %s)"
-	cmd2 = """
-INSERT INTO dem.names (
-	id_identity, lastnames, firstnames
-) VALUES (
-	currval('dem.identity_pk_seq'), coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, 'xxxDEFAULTxxx')
-) RETURNING id_identity"""
-#	cmd2 = u"select dem.add_name(currval('dem.identity_pk_seq')::integer, coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, 'xxxDEFAULTxxx'), True)"
+	SQL = "INSERT INTO dem.identity (gender, dob, comment) VALUES (%(gender)s, %(dob)s, %(cmt)s)"
+	args = {
+		'gender': gender,
+		'dob': dob,
+		'cmt': comment
+	}
+	queries = [{'cmd': SQL, 'args': args}]
+	SQL = """
+		INSERT INTO dem.names (
+			id_identity,
+			lastnames,
+			firstnames
+		) VALUES (
+			currval('dem.identity_pk_seq'),
+			coalesce(%(last)s, 'xxxDEFAULTxxx'),
+			coalesce(%(first)s, 'xxxDEFAULTxxx')
+		) RETURNING id_identity"""
+	args = {'last': lastnames, 'first': firstnames}
+	queries.append({'cmd': SQL, 'args': args})
 	try:
-		rows = gmPG2.run_rw_queries (
-			queries = [
-				{'cmd': cmd1, 'args': [gender, dob, comment]},
-				{'cmd': cmd2, 'args': [lastnames, firstnames]}
-				#{'cmd': cmd2, 'args': [firstnames, lastnames]}
-			],
-			return_data = True
-		)
+		rows = gmPG2.run_rw_queries(queries = queries, return_data = True)
 	except Exception:
 		_log.exception('cannot create identity')
 		gmLog2.log_stack_trace()
 		return None
+
 	ident = cPerson(aPK_obj = rows[0][0])
 	gmHooks.run_hook_script(hook = 'post_person_creation')
 	return ident

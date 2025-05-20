@@ -279,10 +279,11 @@ def create_narrative_item(narrative=None, soap_cat=None, episode_id=None, encoun
 	raise Exception('retrieving known-to-exist narrative row returned 0 or >1 result: %s' % len(rows))
 
 #------------------------------------------------------------
-def delete_clin_narrative(narrative=None):
+def delete_clin_narrative(narrative:int=None):
 	"""Deletes a clin.clin_narrative row by it's PK."""
-	cmd = "DELETE FROM clin.clin_narrative WHERE pk=%s"
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [narrative]}])
+	SQL = 'DELETE FROM clin.clin_narrative WHERE pk = %(pk_narr)s'
+	args = {'pk_narr': narrative}
+	gmPG2.run_rw_queries(queries = [{'cmd': SQL, 'args': args}])
 	return True
 
 #------------------------------------------------------------

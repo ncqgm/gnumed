@@ -902,8 +902,9 @@ class cClinicalRecord(object):
 			issues
 				- list of health issues whose allergies are to be retrieved
         """
-		cmd = "SELECT * FROM clin.v_pat_allergies WHERE pk_patient=%s order by descriptor"
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
+		SQL = "SELECT * FROM clin.v_pat_allergies WHERE pk_patient = %(pk_pat)s ORDER BY descriptor"
+		args = {'pk_pat': self.pk_patient}
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
 		filtered_allergies = []
 		for r in rows:
 			filtered_allergies.append(gmAllergy.cAllergy(row = {'data': r, 'pk_field': 'pk_allergy'}))
@@ -1502,26 +1503,25 @@ WHERE
 			workplace = _here.active_workplace,
 			default = '1 hour 30 minutes'
 		)
-		cmd = gmEMRStructItems.SQL_get_encounters % """pk_encounter = (
+		SQL = gmEMRStructItems.SQL_get_encounters % """-- look for "very recent" encounter
+		pk_encounter = (
 			SELECT pk_encounter
 			FROM clin.v_most_recent_encounters
 			WHERE
-				pk_patient = %s
+				pk_patient = %(pk_pat)s
 					and
-				last_affirmed > (now() - %s::interval)
+				last_affirmed > (now() - %(min)s::interval)
 			ORDER BY
 				last_affirmed DESC
 			LIMIT 1
 		)"""
-		enc_rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient, min_ttl]}])
-
-		# none found
-		if len(enc_rows) == 0:
+		args = {'pk_pat': self.pk_patient, 'min': min_ttl}
+		enc_rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+		if not enc_rows:
 			_log.debug('no <very recent> encounter (younger than [%s]) found' % min_ttl)
 			return False
 
 		_log.debug('"very recent" encounter [%s] found and re-activated' % enc_rows[0]['pk_encounter'])
-
 		# attach to existing
 		self.current_encounter = gmEMRStructItems.cEncounter(row = {'data': enc_rows[0], 'pk_field': 'pk_encounter'})
 		return True
@@ -1538,23 +1538,26 @@ WHERE
 			workplace = _here.active_workplace,
 			default = '6 hours'
 		)
-
 		# do we happen to have a "fairly recent" candidate ?
-		cmd = gmEMRStructItems.SQL_get_encounters % """pk_encounter = (
+		SQL = gmEMRStructItems.SQL_get_encounters % """-- look for "fairly recent" encounter
+		pk_encounter = (
 			SELECT pk_encounter
 			FROM clin.v_most_recent_encounters
 			WHERE
-				pk_patient=%s
+				pk_patient = %(pk_pat)s
 					AND
-				last_affirmed BETWEEN (now() - %s::interval) AND (now() - %s::interval)
+				last_affirmed BETWEEN (now() - %(max)s::interval) AND (now() - %(min)s::interval)
 			ORDER BY
 				last_affirmed DESC
 			LIMIT 1
 		)"""
-		enc_rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient, max_ttl, min_ttl]}])
-
-		# none found
-		if len(enc_rows) == 0:
+		args = {
+			'pk_pat': self.pk_patient,
+			'max': max_ttl,
+			'min': min_ttl
+		}
+		enc_rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+		if not enc_rows:
 			_log.debug('no <fairly recent> encounter (between [%s] and [%s] old) found' % (min_ttl, max_ttl))
 			return None
 
@@ -1587,7 +1590,8 @@ WHERE
 #				last_affirmed DESC
 #			LIMIT 1
 #		)"""
-#		enc_rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient, max_ttl, min_ttl]}])
+#		xxxxx FIXME: rework as dict
+#		xxxxx enc_rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': xxxxxxxx[self.pk_patient, max_ttl, min_ttl]}])
 #
 #		# none found
 #		if len(enc_rows) == 0:
@@ -1633,7 +1637,8 @@ WHERE
 #				last_affirmed BETWEEN (now() - %s::interval) AND (now() - %s::interval)
 #			ORDER BY
 #				last_affirmed DESC"""
-#		enc_rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient, max_ttl, min_ttl]}])
+#		xxxxx FIXME: rework as dict
+#		enc_rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': xxxxxxx[self.pk_patient, max_ttl, min_ttl]}])
 #		# none found
 #		if len(enc_rows) == 0:
 #			_log.debug('no <fairly recent> encounter (between [%s] and [%s] old) found' % (min_ttl, max_ttl))
@@ -1646,7 +1651,8 @@ WHERE
 #		cmd = u"""
 #			SELECT title, firstnames, lastnames, gender, dob
 #			FROM dem.v_all_persons WHERE pk_identity=%s"""
-#		pats = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
+#		xxxxx FIXME: rework as dict
+#		pats = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': xxxxxxx[self.pk_patient]}])
 #		pat = pats[0]
 #		pat_str = u'%s %s %s (%s), %s  [#%s]' % (
 #			gmTools.coalesce(pat[0], u'')[:5],

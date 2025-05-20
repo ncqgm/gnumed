@@ -177,8 +177,9 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def get_episodes(self) -> list['cEpisode']:
 		"""The episodes linked to this health issue."""
-		cmd = "SELECT * FROM clin.v_pat_episodes WHERE pk_health_issue = %(pk)s"
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj}}])
+		SQL = 'SELECT * FROM clin.v_pat_episodes WHERE pk_health_issue = %(pk)s'
+		args = {'pk': self.pk_obj}
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
 		return [ cEpisode(row = {'data': r, 'pk_field': 'pk_episode'})  for r in rows ]
 
 	episodes = property(get_episodes)
@@ -219,7 +220,8 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def get_open_episode(self) -> 'cEpisode':
 		SQL = "select pk FROM clin.episode WHERE fk_health_issue = %(pk_issue)s AND is_open IS True LIMIT 1"
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': {'pk_issue': self.pk_obj}}])
+		args = {'pk_issue': self.pk_obj}
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
 		if rows:
 			return cEpisode(aPK_obj = rows[0][0])
 
@@ -1773,7 +1775,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 	health_issue = property(_get_health_issue)
 
 #============================================================
-def create_episode(pk_health_issue=None, episode_name=None, is_open=False, allow_dupes=False, encounter=None, link_obj=None):
+def create_episode(pk_health_issue:int=None, episode_name:str=None, is_open:bool=False, allow_dupes:bool=False, encounter:int=None, link_obj=None):
 	"""Creates a new episode for a given patient's health issue.
 
 	pk_health_issue - given health issue PK
@@ -1787,10 +1789,16 @@ def create_episode(pk_health_issue=None, episode_name=None, is_open=False, allow
 		except gmExceptions.ConstructorError:
 			pass
 	queries = []
-	cmd = "INSERT INTO clin.episode (fk_health_issue, description, is_open, fk_encounter) VALUES (%s, %s, %s::boolean, %s)"
-	queries.append({'cmd': cmd, 'args': [pk_health_issue, episode_name, is_open, encounter]})
+	SQL = "INSERT INTO clin.episode (fk_health_issue, description, is_open, fk_encounter) VALUES (%(pk_hi)s, %(epi_name)s, %(open)s::boolean, %(pk_enc)s)"
+	args = {
+		'pk_hi': pk_health_issue,
+		'epi_name': episode_name,
+		'open': is_open,
+		'pk_enc': encounter
+	}
+	queries.append({'cmd': SQL, 'args': args})
 	queries.append({'cmd': cEpisode._cmd_fetch_payload % "currval('clin.episode_pk_seq')"})
-	rows = gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, return_data=True)
+	rows = gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, return_data = True)
 	return cEpisode(row = {'data': rows[0], 'pk_field': 'pk_episode'})
 
 #-----------------------------------------------------------
@@ -1801,7 +1809,6 @@ def delete_episode(episode=None):
 		pk = int(episode)
 
 	cmd = 'DELETE FROM clin.episode WHERE pk = %(pk)s'
-
 	try:
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': pk}}])
 	except gmPG2.dbapi.IntegrityError:
@@ -3229,13 +3236,14 @@ def get_encounter_types():
 	return rows
 
 #-----------------------------------------------------------
-def get_encounter_type(description=None):
-	cmd = "SELECT * from clin.encounter_type where description = %s"
-	rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [description]}])
+def get_encounter_type(description:str=None):
+	SQL = 'SELECT * from clin.encounter_type where description = %(desc)s'
+	args = {'desc': description}
+	rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
 	return rows
 
 #-----------------------------------------------------------
-def delete_encounter_type(description=None):
+def delete_encounter_type(description:str=None):
 	deleted = False
 	cmd = "delete from clin.encounter_type where description = %(desc)s"
 	args = {'desc': description}

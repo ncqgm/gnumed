@@ -250,12 +250,13 @@ def activate_staff(conn=None, pk_staff=None):
 	staff['is_active'] = True
 	staff.save_payload(conn=conn)				# FIXME: error handling
 	# 2) enable database account login
-	gmPG2.run_rw_queries (
-		link_obj = conn,
+	SQL = 'select gm.create_user(%(db_user)s, %(fake_pwd)s)'
+	args = {
+		'db_user': staff['db_user'],
 		# password does not matter because PG account must already exist
-		queries = [{'cmd': 'select gm.create_user(%s, %s)', 'args': [staff['db_user'], 'flying wombat']}],
-		end_tx = True
-	)
+		'fake_pwd': 'flying wombat'
+	}
+	gmPG2.run_rw_queries(link_obj = conn, queries = [{'cmd': SQL, 'args': args}], end_tx = True)
 	return True
 
 #------------------------------------------------------------
@@ -266,11 +267,10 @@ def deactivate_staff(conn=None, pk_staff=None):
 	staff['is_active'] = False
 	staff.save_payload(conn = conn)				# FIXME: error handling
 	# 2) disable database account login
-	gmPG2.run_rw_queries (
-		link_obj = conn,
-		queries = [{'cmd': 'select gm.disable_user(%s)', 'args': [staff['db_user']]}],
-		end_tx = True
-	)
+	SQL = 'select gm.disable_user(%(db_user)s)'
+	args = {'db_user': staff['db_user']}
+	q = {'cmd': SQL, 'args': args}
+	gmPG2.run_rw_queries(link_obj = conn, queries = [q], end_tx = True)
 	return True
 
 #------------------------------------------------------------

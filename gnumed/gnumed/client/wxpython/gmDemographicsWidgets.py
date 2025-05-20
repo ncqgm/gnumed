@@ -1084,14 +1084,15 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl, 
 		Matches are fetched from existing records in backend.
 		"""
 		pk_curr_type = self._PRW_type.GetData()
-		if pk_curr_type is None:
+		if not pk_curr_type:
 			return True
-		rows = gmPG2.run_ro_queries(queries = [{
-			'cmd': "SELECT issuer FROM dem.enum_ext_id_types WHERE pk = %s",
-			'args': [pk_curr_type]
-		}])
-		if len(rows) == 0:
+
+		SQL = 'SELECT issuer FROM dem.enum_ext_id_types WHERE pk = %(pk)s'
+		args = {'pk': pk_curr_type}
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+		if not rows:
 			return True
+
 		wx.CallAfter(self._PRW_issuer.SetText, rows[0][0])
 		return True
 

@@ -1065,10 +1065,10 @@ class cEMRJournalExporter:
 				(SELECT rank FROM clin.soap_cat_ranks WHERE soap_cat = vemrj.soap_cat) AS scr,
 				to_char(vemrj.modified_when, 'YYYY-MM-DD HH24:MI') AS date_modified
 			FROM clin.v_emr_journal vemrj
-			WHERE pk_patient = %s
+			WHERE pk_patient = %(pk_pat)s
 			ORDER BY date, pk_episode, scr, src_table
 		"""
-		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [patient['pk_identity']]}])
+		rows = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk_pat': patient['pk_identity']}}])
 
 		# write data
 		prev_date = ''
