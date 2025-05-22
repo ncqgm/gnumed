@@ -1048,7 +1048,7 @@ class cDocumentFolder:
 					and dobj.fk_doc = vdm.pk_doc
 			"""
 		args = {'pk_pat': self.pk_patient}
-		rows = gmPG2.run_ro_queries(queries = [{'SQL': cmd, 'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'SQL': SQL, 'args': args}])
 		return rows
 
 	#--------------------------------------------------------

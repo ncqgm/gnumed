@@ -1576,7 +1576,6 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		SQL = 'select * from dem.v_person_comms where pk_identity = %(pk_pat)s'
 		args = {'pk_pat': self.pk_obj}
 		rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
-		filtered = rows
 		if comm_medium:
 			rows = [ r for r in rows if r['comm_type'] == comm_medium ]
 		return [ gmDemographicRecord.cCommChannel(row = {
