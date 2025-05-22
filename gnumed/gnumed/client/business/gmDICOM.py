@@ -959,258 +959,268 @@ class cOrthancServer:
 	#--------------------------------------------------------
 	# helper functions
 	#--------------------------------------------------------
-	def get_studies_list_by_orthanc_patient_list(self, orthanc_patients=None):
+	def __setup_patient_dict_from_orthanc_patient(self, orthanc_patient=None) -> dict:
+		pat_dict = {
+			'orthanc_id': orthanc_patient['ID'],
+			'name': None,
+			'external_id': None,
+			'date_of_birth': None,
+			'gender': None,
+			'studies': []
+		}
+		try:
+			pat_dict['name'] = orthanc_patient['MainDicomTags']['PatientName'].strip()
+		except KeyError:
+			pass
+		try:
+			pat_dict['external_id'] = orthanc_patient['MainDicomTags']['PatientID'].strip()
+		except KeyError:
+			pass
+		try:
+			pat_dict['date_of_birth'] = orthanc_patient['MainDicomTags']['PatientBirthDate'].strip()
+		except KeyError:
+			pass
+		try:
+			pat_dict['gender'] = orthanc_patient['MainDicomTags']['PatientSex'].strip()
+		except KeyError:
+			pass
+		for key in pat_dict:
+			if pat_dict[key] in ['unknown', '(null)', '']:
+				pat_dict[key] = None
+			pat_dict[key] = cleanup_dicom_string(pat_dict[key])
+		return pat_dict
 
+	#--------------------------------------------------------
+	def __setup_study_dict_from_orthanc_study(self, orthanc_study=None, orthanc_patient=None) -> dict:
 		study_keys2hide =  ['ModifiedFrom', 'Type', 'ID', 'ParentPatient', 'Series']
+		study_dict:dict[str, str|list|dict] = {
+			'orthanc_id': orthanc_study['ID'],
+			'date': None,
+			'time': None,
+			'description': None,
+			'referring_doc': None,
+			'requesting_doc': None,
+			'requesting_org': None,
+			'performing_doc': None,
+			'operator_name': None,
+			'radiographer_code': None,
+			'radiology_org': None,
+			'radiology_dept': None,
+			'radiology_org_addr': None,
+			'station_name': None,
+			'series': []
+		}
+		try:
+			study_dict['date'] = orthanc_study['MainDicomTags']['StudyDate'].strip()
+		except KeyError:
+			pass
+		try:
+			study_dict['time'] = orthanc_study['MainDicomTags']['StudyTime'].strip()
+		except KeyError:
+			pass
+		try:
+			study_dict['description'] = orthanc_study['MainDicomTags']['StudyDescription'].strip()
+		except KeyError:
+			pass
+		try:
+			study_dict['referring_doc'] = orthanc_study['MainDicomTags']['ReferringPhysicianName'].strip()
+		except KeyError:
+			pass
+		try:
+			study_dict['requesting_doc'] = orthanc_study['MainDicomTags']['RequestingPhysician'].strip()
+		except KeyError:
+			pass
+		try:
+			study_dict['requesting_org'] = orthanc_study['MainDicomTags']['RequestingService'].strip()
+		except KeyError:
+			pass
+		try:
+			study_dict['radiology_org_addr'] = orthanc_study['MainDicomTags']['InstitutionAddress'].strip()
+		except KeyError:
+			pass
+		try:
+			study_dict['radiology_org'] = orthanc_study['MainDicomTags']['InstitutionName'].strip()
+			if study_dict['radiology_org_addr']:
+				if study_dict['radiology_org'] in study_dict['radiology_org_addr']:
+					study_dict['radiology_org'] = None
+		except KeyError:
+			pass
+		try:
+			study_dict['radiology_dept'] = orthanc_study['MainDicomTags']['InstitutionalDepartmentName'].strip()
+			if study_dict['radiology_org']:
+				if study_dict['radiology_dept'] in study_dict['radiology_org']:
+					study_dict['radiology_dept'] = None
+			if study_dict['radiology_org_addr']:
+				if study_dict['radiology_dept'] in study_dict['radiology_org_addr']:
+					study_dict['radiology_dept'] = None
+		except KeyError:
+			pass
+		try:
+			study_dict['station_name'] = orthanc_study['MainDicomTags']['StationName'].strip()
+			if study_dict['radiology_org'] is not None:
+				if study_dict['station_name'] in study_dict['radiology_org']:
+					study_dict['station_name'] = None
+			if study_dict['radiology_org_addr'] is not None:
+				if study_dict['station_name'] in study_dict['radiology_org_addr']:
+					study_dict['station_name'] = None
+			if study_dict['radiology_dept'] is not None:
+				if study_dict['station_name'] in study_dict['radiology_dept']:
+					study_dict['station_name'] = None
+		except KeyError:
+			pass
+		for key in study_dict:
+			if study_dict[key] in ['unknown', '(null)', '']:
+				study_dict[key] = None
+			study_dict[key] = cleanup_dicom_string(study_dict[key])
+		study_dict['all_tags'] = {}
+		try:
+			orthanc_study['PatientMainDicomTags']
+		except KeyError:
+			orthanc_study['PatientMainDicomTags'] = orthanc_patient['MainDicomTags']
+		for key in orthanc_study:
+			if key == 'MainDicomTags':
+				for mkey in orthanc_study['MainDicomTags']:
+					study_dict['all_tags'][mkey] = orthanc_study['MainDicomTags'][mkey].strip()
+				continue
+			if key == 'PatientMainDicomTags':
+				for pkey in orthanc_study['PatientMainDicomTags']:
+					study_dict['all_tags'][pkey] = orthanc_study['PatientMainDicomTags'][pkey].strip()
+				continue
+			study_dict['all_tags'][key] = orthanc_study[key]
+		_log.debug('study: %s', list(study_dict['all_tags']))
+		for key in study_keys2hide:
+			try:
+				del study_dict['all_tags'][key]
+			except KeyError: pass
+		return study_dict
+
+	#--------------------------------------------------------
+	def __setup_series_dict_from_orthanc_series(self, orthanc_series=None, study_dict:dict=None) -> dict:
 		series_keys2hide = ['ModifiedFrom', 'Type', 'ID', 'ParentStudy',   'Instances']
+		ordered_slices = self.__run_GET(url = '%s/series/%s/ordered-slices' % (self.__server_url, orthanc_series['ID']))
+		if ordered_slices is False:
+			slices = orthanc_series['Instances']
+		else:
+			slices = [ s[0] for s in ordered_slices['SlicesShort'] ]
+		series_dict = {
+			'orthanc_id': orthanc_series['ID'],
+			'instances': slices,
+			'modality': None,
+			'date': None,
+			'time': None,
+			'description': None,
+			'body_part': None,
+			'protocol': None,
+			'performed_procedure_step_description': None,
+			'acquisition_device_processing_description': None,
+			'operator_name': None,
+			'radiographer_code': None,
+			'performing_doc': None
+		}
+		try:
+			series_dict['modality'] = orthanc_series['MainDicomTags']['Modality'].strip()
+		except KeyError:
+			pass
+		try:
+			series_dict['date'] = orthanc_series['MainDicomTags']['SeriesDate'].strip()
+		except KeyError:
+			pass
+		try:
+			series_dict['description'] = orthanc_series['MainDicomTags']['SeriesDescription'].strip()
+		except KeyError:
+			pass
+		try:
+			series_dict['time'] = orthanc_series['MainDicomTags']['SeriesTime'].strip()
+		except KeyError:
+			pass
+		try:
+			series_dict['body_part'] = orthanc_series['MainDicomTags']['BodyPartExamined'].strip()
+		except KeyError:
+			pass
+		try:
+			series_dict['protocol'] = orthanc_series['MainDicomTags']['ProtocolName'].strip()
+		except KeyError:
+			pass
+		try:
+			series_dict['performed_procedure_step_description'] = orthanc_series['MainDicomTags']['PerformedProcedureStepDescription'].strip()
+		except KeyError:
+			pass
+		try:
+			series_dict['acquisition_device_processing_description'] = orthanc_series['MainDicomTags']['AcquisitionDeviceProcessingDescription'].strip()
+		except KeyError:
+			pass
+		try:
+			series_dict['operator_name'] = orthanc_series['MainDicomTags']['OperatorsName'].strip()
+		except KeyError:
+			pass
+		try:
+			series_dict['radiographer_code'] = orthanc_series['MainDicomTags']['RadiographersCode'].strip()
+		except KeyError:
+			pass
+		try:
+			series_dict['performing_doc'] = orthanc_series['MainDicomTags']['PerformingPhysicianName'].strip()
+		except KeyError:
+			pass
+		for key in series_dict:
+			if series_dict[key] in ['unknown', '(null)', '']:
+				series_dict[key] = None
+		if series_dict['description'] == series_dict['protocol']:
+			_log.debug('<series description> matches <series protocol>, ignoring protocol')
+			series_dict['protocol'] = None
+		if series_dict['performed_procedure_step_description'] in [series_dict['description'], series_dict['protocol']]:
+			series_dict['performed_procedure_step_description'] = None
+		if series_dict['performed_procedure_step_description']:
+			# weed out "numeric" only
+			if regex.match (r'[.,/\|\-\s\d]+', series_dict['performed_procedure_step_description'], flags = regex.UNICODE):
+				series_dict['performed_procedure_step_description'] = None
+		if series_dict['acquisition_device_processing_description'] in [series_dict['description'], series_dict['protocol']]:
+			series_dict['acquisition_device_processing_description'] = None
+		if series_dict['acquisition_device_processing_description']:
+			# weed out "numeric" only
+			if regex.match (r'[.,/\|\-\s\d]+', series_dict['acquisition_device_processing_description'], flags = regex.UNICODE):
+				series_dict['acquisition_device_processing_description'] = None
+		if series_dict['date'] == study_dict['date']:
+			_log.debug('<series date> matches <study date>, ignoring date')
+			series_dict['date'] = None
+		if series_dict['time'] == study_dict['time']:
+			_log.debug('<series time> matches <study time>, ignoring time')
+			series_dict['time'] = None
+		for key in series_dict:
+			series_dict[key] = cleanup_dicom_string(series_dict[key])
+		series_dict['all_tags'] = {}
+		for key in orthanc_series:
+			if key == 'MainDicomTags':
+				for mkey in orthanc_series['MainDicomTags']:
+					series_dict['all_tags'][mkey] = orthanc_series['MainDicomTags'][mkey].strip()
+				continue
+			series_dict['all_tags'][key] = orthanc_series[key]
+		_log.debug('series: %s', list(series_dict['all_tags']))
+		for key in series_keys2hide:
+			try: del series_dict['all_tags'][key]
+			except KeyError: pass
+		return series_dict
 
+	#--------------------------------------------------------
+	def get_studies_list_by_orthanc_patient_list(self, orthanc_patients:list=None) -> list[dict]:
 		studies_by_patient = []
-
-		# loop over patients
-		for pat in orthanc_patients:
-			pat_dict = {
-				'orthanc_id': pat['ID'],
-				'name': None,
-				'external_id': None,
-				'date_of_birth': None,
-				'gender': None,
-				'studies': []
-			}
-			try:
-				pat_dict['name'] = pat['MainDicomTags']['PatientName'].strip()
-			except KeyError:
-				pass
-			try:
-				pat_dict['external_id'] = pat['MainDicomTags']['PatientID'].strip()
-			except KeyError:
-				pass
-			try:
-				pat_dict['date_of_birth'] = pat['MainDicomTags']['PatientBirthDate'].strip()
-			except KeyError:
-				pass
-			try:
-				pat_dict['gender'] = pat['MainDicomTags']['PatientSex'].strip()
-			except KeyError:
-				pass
-			for key in pat_dict:
-				if pat_dict[key] in ['unknown', '(null)', '']:
-					pat_dict[key] = None
-				pat_dict[key] = cleanup_dicom_string(pat_dict[key])
+		for orth_pat in orthanc_patients:
+			pat_dict = self.__setup_patient_dict_from_orthanc_patient(orthanc_patient = orth_pat)
 			studies_by_patient.append(pat_dict)
-
-			# loop over studies of patient
-			orth_studies = self.__run_GET(url = '%s/patients/%s/studies' % (self.__server_url, pat['ID']))
+			orth_studies = self.__run_GET(url = '%s/patients/%s/studies' % (self.__server_url, orth_pat['ID']))
 			if orth_studies is False:
 				_log.error('cannot retrieve studies')
 				return []
-			for orth_study in orth_studies:
-				study_dict = {
-					'orthanc_id': orth_study['ID'],
-					'date': None,
-					'time': None,
-					'description': None,
-					'referring_doc': None,
-					'requesting_doc': None,
-					'requesting_org': None,
-					'performing_doc': None,
-					'operator_name': None,
-					'radiographer_code': None,
-					'radiology_org': None,
-					'radiology_dept': None,
-					'radiology_org_addr': None,
-					'station_name': None,
-					'series': []
-				}
-				try:
-					study_dict['date'] = orth_study['MainDicomTags']['StudyDate'].strip()
-				except KeyError:
-					pass
-				try:
-					study_dict['time'] = orth_study['MainDicomTags']['StudyTime'].strip()
-				except KeyError:
-					pass
-				try:
-					study_dict['description'] = orth_study['MainDicomTags']['StudyDescription'].strip()
-				except KeyError:
-					pass
-				try:
-					study_dict['referring_doc'] = orth_study['MainDicomTags']['ReferringPhysicianName'].strip()
-				except KeyError:
-					pass
-				try:
-					study_dict['requesting_doc'] = orth_study['MainDicomTags']['RequestingPhysician'].strip()
-				except KeyError:
-					pass
-				try:
-					study_dict['requesting_org'] = orth_study['MainDicomTags']['RequestingService'].strip()
-				except KeyError:
-					pass
-				try:
-					study_dict['radiology_org_addr'] = orth_study['MainDicomTags']['InstitutionAddress'].strip()
-				except KeyError:
-					pass
-				try:
-					study_dict['radiology_org'] = orth_study['MainDicomTags']['InstitutionName'].strip()
-					if study_dict['radiology_org_addr'] is not None:
-						if study_dict['radiology_org'] in study_dict['radiology_org_addr']:
-							study_dict['radiology_org'] = None
-				except KeyError:
-					pass
-				try:
-					study_dict['radiology_dept'] = orth_study['MainDicomTags']['InstitutionalDepartmentName'].strip()
-					if study_dict['radiology_org'] is not None:
-						if study_dict['radiology_dept'] in study_dict['radiology_org']:
-							study_dict['radiology_dept'] = None
-					if study_dict['radiology_org_addr'] is not None:
-						if study_dict['radiology_dept'] in study_dict['radiology_org_addr']:
-							study_dict['radiology_dept'] = None
-				except KeyError:
-					pass
-				try:
-					study_dict['station_name'] = orth_study['MainDicomTags']['StationName'].strip()
-					if study_dict['radiology_org'] is not None:
-						if study_dict['station_name'] in study_dict['radiology_org']:
-							study_dict['station_name'] = None
-					if study_dict['radiology_org_addr'] is not None:
-						if study_dict['station_name'] in study_dict['radiology_org_addr']:
-							study_dict['station_name'] = None
-					if study_dict['radiology_dept'] is not None:
-						if study_dict['station_name'] in study_dict['radiology_dept']:
-							study_dict['station_name'] = None
-				except KeyError:
-					pass
-				for key in study_dict:
-					if study_dict[key] in ['unknown', '(null)', '']:
-						study_dict[key] = None
-					study_dict[key] = cleanup_dicom_string(study_dict[key])
-				study_dict['all_tags'] = {}
-				try:
-					orth_study['PatientMainDicomTags']
-				except KeyError:
-					orth_study['PatientMainDicomTags'] = pat['MainDicomTags']
-				for key in orth_study:
-					if key == 'MainDicomTags':
-						for mkey in orth_study['MainDicomTags']:
-							study_dict['all_tags'][mkey] = orth_study['MainDicomTags'][mkey].strip()
-						continue
-					if key == 'PatientMainDicomTags':
-						for pkey in orth_study['PatientMainDicomTags']:
-							study_dict['all_tags'][pkey] = orth_study['PatientMainDicomTags'][pkey].strip()
-						continue
-					study_dict['all_tags'][key] = orth_study[key]
-				_log.debug('study: %s', list(study_dict['all_tags']))
-				for key in study_keys2hide:
-					try: del study_dict['all_tags'][key]
-					except KeyError: pass
-				pat_dict['studies'].append(study_dict)
 
-				# loop over series in study
+			for orth_study in orth_studies:
+				study_dict = self.__setup_study_dict_from_orthanc_study(orthanc_study = orth_study, orthanc_patient = orth_pat)
+				pat_dict['studies'].append(study_dict)
 				for orth_series_id in orth_study['Series']:
 					orth_series = self.__run_GET(url = '%s/series/%s' % (self.__server_url, orth_series_id))
-					ordered_slices = self.__run_GET(url = '%s/series/%s/ordered-slices' % (self.__server_url, orth_series_id))
-					if ordered_slices is False:
-						slices = orth_series['Instances']
-					else:
-						slices = [ s[0] for s in ordered_slices['SlicesShort'] ]
 					if orth_series is False:
 						_log.error('cannot retrieve series')
 						return []
-					series_dict = {
-						'orthanc_id': orth_series['ID'],
-						'instances': slices,
-						'modality': None,
-						'date': None,
-						'time': None,
-						'description': None,
-						'body_part': None,
-						'protocol': None,
-						'performed_procedure_step_description': None,
-						'acquisition_device_processing_description': None,
-						'operator_name': None,
-						'radiographer_code': None,
-						'performing_doc': None
-					}
-					try:
-						series_dict['modality'] = orth_series['MainDicomTags']['Modality'].strip()
-					except KeyError:
-						pass
-					try:
-						series_dict['date'] = orth_series['MainDicomTags']['SeriesDate'].strip()
-					except KeyError:
-						pass
-					try:
-						series_dict['description'] = orth_series['MainDicomTags']['SeriesDescription'].strip()
-					except KeyError:
-						pass
-					try:
-						series_dict['time'] = orth_series['MainDicomTags']['SeriesTime'].strip()
-					except KeyError:
-						pass
-					try:
-						series_dict['body_part'] = orth_series['MainDicomTags']['BodyPartExamined'].strip()
-					except KeyError:
-						pass
-					try:
-						series_dict['protocol'] = orth_series['MainDicomTags']['ProtocolName'].strip()
-					except KeyError:
-						pass
-					try:
-						series_dict['performed_procedure_step_description'] = orth_series['MainDicomTags']['PerformedProcedureStepDescription'].strip()
-					except KeyError:
-						pass
-					try:
-						series_dict['acquisition_device_processing_description'] = orth_series['MainDicomTags']['AcquisitionDeviceProcessingDescription'].strip()
-					except KeyError:
-						pass
-					try:
-						series_dict['operator_name'] = orth_series['MainDicomTags']['OperatorsName'].strip()
-					except KeyError:
-						pass
-					try:
-						series_dict['radiographer_code'] = orth_series['MainDicomTags']['RadiographersCode'].strip()
-					except KeyError:
-						pass
-					try:
-						series_dict['performing_doc'] = orth_series['MainDicomTags']['PerformingPhysicianName'].strip()
-					except KeyError:
-						pass
-					for key in series_dict:
-						if series_dict[key] in ['unknown', '(null)', '']:
-							series_dict[key] = None
-					if series_dict['description'] == series_dict['protocol']:
-						_log.debug('<series description> matches <series protocol>, ignoring protocol')
-						series_dict['protocol'] = None
-					if series_dict['performed_procedure_step_description'] in [series_dict['description'], series_dict['protocol']]:
-						series_dict['performed_procedure_step_description'] = None
-					if series_dict['performed_procedure_step_description'] is not None:
-						# weed out "numeric" only
-						if regex.match (r'[.,/\|\-\s\d]+', series_dict['performed_procedure_step_description'], flags = regex.UNICODE):
-							series_dict['performed_procedure_step_description'] = None
-					if series_dict['acquisition_device_processing_description'] in [series_dict['description'], series_dict['protocol']]:
-						series_dict['acquisition_device_processing_description'] = None
-					if series_dict['acquisition_device_processing_description'] is not None:
-						# weed out "numeric" only
-						if regex.match (r'[.,/\|\-\s\d]+', series_dict['acquisition_device_processing_description'], flags = regex.UNICODE):
-							series_dict['acquisition_device_processing_description'] = None
-					if series_dict['date'] == study_dict['date']:
-						_log.debug('<series date> matches <study date>, ignoring date')
-						series_dict['date'] = None
-					if series_dict['time'] == study_dict['time']:
-						_log.debug('<series time> matches <study time>, ignoring time')
-						series_dict['time'] = None
-					for key in series_dict:
-						series_dict[key] = cleanup_dicom_string(series_dict[key])
-					series_dict['all_tags'] = {}
-					for key in orth_series:
-						if key == 'MainDicomTags':
-							for mkey in orth_series['MainDicomTags']:
-								series_dict['all_tags'][mkey] = orth_series['MainDicomTags'][mkey].strip()
-							continue
-						series_dict['all_tags'][key] = orth_series[key]
-					_log.debug('series: %s', list(series_dict['all_tags']))
-					for key in series_keys2hide:
-						try: del series_dict['all_tags'][key]
-						except KeyError: pass
+
+					series_dict = self.__setup_series_dict_from_orthanc_series(orthanc_series = orth_series, study_dict = study_dict)
 					study_dict['operator_name'] = series_dict['operator_name']			# will collapse all operators into that of the last series
 					study_dict['radiographer_code'] = series_dict['radiographer_code']	# will collapse all into that of the last series
 					study_dict['performing_doc'] = series_dict['performing_doc']		# will collapse all into that of the last series
@@ -1428,7 +1438,7 @@ class cOrthancServer:
 	server_url = property(_get_server_url)
 
 #------------------------------------------------------------
-def cleanup_dicom_string(dicom_str:str) -> str:
+def cleanup_dicom_string(dicom_str) -> str:
 	if not isinstance(dicom_str, str):
 		return dicom_str
 
