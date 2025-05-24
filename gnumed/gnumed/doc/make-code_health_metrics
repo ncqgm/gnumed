@@ -35,8 +35,8 @@ echo "=== maintainability -- $(date): radon mi (lower = better, A/B not shown) =
 radon mi ${DIRS} | egrep '\-\s[^AB]$' &>> source-maintainability.log
 
 
-echo "=== cyclic complexity -- $(date) - radon cc (lower = better, A/B/C/D/E not shown) ==========" > source-cyclic_complexity.log
-radon cc ${DIRS} | egrep '(\-\s[^ABCDE])|(.py)$' &>> source-cyclic_complexity.log
+echo "=== cyclic complexity -- $(date) - radon cc (lower = better, A/B/C/D not shown) ==========" > source-cyclic_complexity.log
+radon cc ${DIRS} | egrep '(\-\s[^ABCD])|(.py)$' &>> source-cyclic_complexity.log
 
 
 DIRS="../client/pycommon ../client/business"

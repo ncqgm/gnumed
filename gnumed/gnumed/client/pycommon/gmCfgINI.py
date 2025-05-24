@@ -1,4 +1,32 @@
 """GNUmed INI style configuration handling.
+
+Am Thu, May 22, 2025 at 11:45:31PM -0400 schrieb Grant Edwards via Python-list:
+
+There is sort of a traditional set of locations where
+applications look to find a config file:
+
+  $HOME/
+  $HOME/.config/
+  $HOME/.config/<appname>/
+  /etc/
+  /etc/<appname>/
+  /usr/local/etc/
+  /usr/local/etc/<appname>/
+  <location specified by command line argument>
+  <location specified by ENV variable>
+
+The last two overried all of the others.
+
+Config files that reside in $HOME/ usually start with a dot. Often
+they end in 'rc'.  Config files in other directories usually don't
+start with a dot.
+
+There's usually an <appname> directory only when an app needs multiple
+config files. If an app only has one config file, tradition is that
+you don't need a directory for it.
+
+Many applications will parse two config files: a global one from /etc
+or /usr/local/ and a user-one from somewhere under $HOME.
 """
 #==================================================================
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"

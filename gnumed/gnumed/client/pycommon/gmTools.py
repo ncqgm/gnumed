@@ -406,6 +406,8 @@ def copy_tree_content(directory:str, target_directory:str) -> str:
 class gmPaths(gmBorg.cBorg):
 	"""Singleton class providing standard paths.
 
+	Consider using "platformdirs" from pypi.
+
 	- .home_dir: user home
 
 	- .local_base_dir: script installation dir
