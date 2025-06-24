@@ -2292,6 +2292,19 @@ if __name__ == '__main__':
 			print ("  ==>", str2interval(str_interval=interval_as_str))
 
 		return True
+
+	#-------------------------------------------------
+	def test_local_tz():
+		tz = cPlatformLocalTimezone()
+		print ("local timezone instance:", tz)
+		print (" (total) UTC offset:", tz.utcoffset(pyDT.datetime.now()))
+		print (" DST adjustment:", tz.dst(pyDT.datetime.now()))
+		print (" timezone name:", tz.tzname(pyDT.datetime.now()))
+		print('SECOND:', tz._SECOND)
+		print('non-DST offset:', tz._nonDST_OFFSET_FROM_UTC)
+		print('DST offset:', tz._DST_OFFSET_FROM_UTC)
+		print('shift:', tz._DST_SHIFT)
+
 	#-------------------------------------------------
 	def test_date_time():
 		print ("DST currently in effect:", dst_currently_in_effect)
@@ -2471,7 +2484,7 @@ if __name__ == '__main__':
 	init()
 	#test_date_time()
 	#test_str2fuzzy_timestamp_matches()
-	test_str2pydt_matches()
+	#test_str2pydt_matches()
 	#test_get_date_of_weekday_in_week_of_date()
 	#test_cFuzzyTimeStamp()
 	#test_get_pydt()
@@ -2482,5 +2495,6 @@ if __name__ == '__main__':
 	#test_calculate_apparent_age()
 	#test_is_leap_year()
 	#test__numbers_only()
+	test_local_tz()
 
 #===========================================================================
