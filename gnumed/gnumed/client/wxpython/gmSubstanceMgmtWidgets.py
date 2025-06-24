@@ -1541,7 +1541,14 @@ class cSingleComponentGenericDrugEAPnl(wxgSingleComponentGenericDrugEAPnl.wxgSin
 			self.StatusText = _('Amount is missing.')
 			self._TCTRL_amount.SetFocus()
 		else:
-			self.display_tctrl_as_valid(tctrl = self._TCTRL_amount, valid = True)
+			converted, amount = gmTools.input2decimal(self._TCTRL_amount.Value.strip())
+			if converted:
+				self.display_tctrl_as_valid(tctrl = self._TCTRL_amount, valid = True)
+			else:
+				validity = False
+				self.display_tctrl_as_valid(tctrl = self._TCTRL_amount, valid = False)
+				self.StatusText = _('Amount must be a number.')
+				self._TCTRL_amount.SetFocus()
 
 		if self._PRW_substance.GetData() is None:
 			val = self._PRW_substance.Value.strip()

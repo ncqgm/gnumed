@@ -11,6 +11,7 @@
 FIX: SOAP: auto-resizing input text field [thanks Maria]
 FIX: SOAP: tabbing in auto-resizing STC [thanks Maria]
 FIX: medication: adding substance dose [thanks Maria]
+FIX: medication: adding intake [thanks vboxuser]
 
 IMPROVED: EMR presentations naming (tabs/menu items) [thanks Maria]
 IMPROVED: i18n: added translatable strings [thanks Maria]
