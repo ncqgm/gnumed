@@ -991,10 +991,9 @@ class cOrthancServer:
 		return pat_dict
 
 	#--------------------------------------------------------
-	def __setup_study_dict_from_orthanc_study(self, orthanc_study=None, orthanc_patient=None) -> dict:
-		study_keys2hide =  ['ModifiedFrom', 'Type', 'ID', 'ParentPatient', 'Series']
-		study_dict:dict[str, str|list|dict] = {
-			'orthanc_id': orthanc_study['ID'],
+	def __get_new_study_dict(self) -> dict[str, str|list|dict]:
+		return {
+			'orthanc_id': None,
 			'date': None,
 			'time': None,
 			'description': None,
@@ -1010,34 +1009,26 @@ class cOrthancServer:
 			'station_name': None,
 			'series': []
 		}
-		try:
-			study_dict['date'] = orthanc_study['MainDicomTags']['StudyDate'].strip()
-		except KeyError:
-			pass
-		try:
-			study_dict['time'] = orthanc_study['MainDicomTags']['StudyTime'].strip()
-		except KeyError:
-			pass
-		try:
-			study_dict['description'] = orthanc_study['MainDicomTags']['StudyDescription'].strip()
-		except KeyError:
-			pass
-		try:
-			study_dict['referring_doc'] = orthanc_study['MainDicomTags']['ReferringPhysicianName'].strip()
-		except KeyError:
-			pass
-		try:
-			study_dict['requesting_doc'] = orthanc_study['MainDicomTags']['RequestingPhysician'].strip()
-		except KeyError:
-			pass
-		try:
-			study_dict['requesting_org'] = orthanc_study['MainDicomTags']['RequestingService'].strip()
-		except KeyError:
-			pass
-		try:
-			study_dict['radiology_org_addr'] = orthanc_study['MainDicomTags']['InstitutionAddress'].strip()
-		except KeyError:
-			pass
+
+	#--------------------------------------------------------
+	def __setup_study_dict_from_orthanc_study(self, orthanc_study=None, orthanc_patient=None) -> dict:
+		study_keys2hide =  ['ModifiedFrom', 'Type', 'ID', 'ParentPatient', 'Series']
+		study_dict = self.__get_new_study_dict()
+		study_dict['orthanc_id'] = orthanc_study['ID']
+		src2target_key_map = [
+			('StudyDate', 'date'),
+			('StudyTime', 'time'),
+			('StudyDescription', 'description'),
+			('ReferringPhysicianName', 'referring_doc'),
+			('RequestingPhysician', 'requesting_doc'),
+			('RequestingService', 'requesting_org'),
+			('InstitutionAddress', 'radiology_org_addr')
+		]
+		for src_key, target_key in src2target_key_map:
+			try:
+				study_dict[target_key] = orthanc_study['MainDicomTags'][src_key].strip()
+			except KeyError:
+				pass
 		try:
 			study_dict['radiology_org'] = orthanc_study['MainDicomTags']['InstitutionName'].strip()
 			if study_dict['radiology_org_addr']:
@@ -1754,30 +1745,31 @@ if __name__ == "__main__":
 				print("user cancelled patient search")
 				break
 
-			pats = orthanc.get_patients_by_external_id(external_id = entered_name)
-			if len(pats) > 0:
-				print('Patients found:')
-				for pat in pats:
-					print(' -> ', pat)
-				continue
+#			pats = orthanc.get_patients_by_external_id(external_id = entered_name)
+#			if len(pats) > 0:
+#				print('Patients found:')
+#				for pat in pats:
+#					print(' -> ', pat)
+#				continue
 
-			pats = orthanc.get_patients_by_name(name_parts = entered_name.split(), fuzzy = True)
-			print('Patients found:')
-			for pat in pats:
-				print(' -> ', pat)
-				print('  verifying ...')
-				bad_data = orthanc.verify_patient_data(pat['ID'])
-				print('  bad data:')
-				for bad in bad_data:
-					print('  -> ', bad)
-				continue
+#			pats = orthanc.get_patients_by_name(name_parts = entered_name.split(), fuzzy = True)
+#			print('Patients found:')
+#			for pat in pats:
+#				print(' -> ', pat)
+#				print('  verifying ...')
+#				bad_data = orthanc.verify_patient_data(pat['ID'])
+#				print('  bad data:')
+#				for bad in bad_data:
+#					print('  -> ', bad)
+#				continue
 
-			continue
+#			continue
 
 			pats = orthanc.get_studies_list_by_patient_name(name_parts = entered_name.split(), fuzzy = True)
 			print('Patients found from studies list:')
 			for pat in pats:
 				print(' -> ', pat['name'])
+				input()
 				for study in pat['studies']:
 					print(' ', gmTools.format_dict_like(study, relevant_keys = ['orthanc_id', 'date', 'time'], template = 'study [%%(orthanc_id)s] at %%(date)s %%(time)s contains %s series' % len(study['series'])))
 #					for series in study['series']:
@@ -1913,7 +1905,9 @@ if __name__ == "__main__":
 		#print(orthanc.get_patients_by_name_parts(name_parts = ['Seb'], fuzzy = True))
 		#return
 
-		print(orthanc.get_patient('bc107806-098880eb-95529338-0f54c681-c4b5ccc4'))
+		pat = orthanc.get_patient('bc107806-098880eb-95529338-0f54c681-c4b5ccc4')
+		for key in pat:
+			print(key, pat[key])
 		#input()
 		#print(orthanc.get_patient('1cff9d34-96047a5a-afb97dd0-33a84dc7-a710ef8f'))
 		return
@@ -1995,11 +1989,11 @@ if __name__ == "__main__":
 	#sys.exit
 
 	_connect()
-	#run_console()
+	run_console()
 	#test_verify_instance()
 	#test_modify_patient_id()
 	#test_upload_files()
 	#test_upload_file()
 	#test_get_instance_preview()
 	#test_get_instance_tags()
-	test_patient()
+	#test_patient()
