@@ -1308,11 +1308,14 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def format_maximum_information(self, patient=None):
 		if patient is None:
-			from Gnumed.business.gmPerson import gmCurrentPatient, cPerson
-			if self._payload['pk_patient'] == gmCurrentPatient().ID:
-				patient = gmCurrentPatient()
+			from Gnumed.business.gmPerson import gmCurrentPatient, cPatient
+			if not gmCurrentPatient().connected:
+				patient = cPatient(self._payload['pk_patient'])
 			else:
-				patient = cPerson(self._payload['pk_patient'])
+				if self._payload['pk_patient'] == gmCurrentPatient().ID:
+					patient = gmCurrentPatient()
+				else:
+					patient = cPatient(self._payload['pk_patient'])
 
 		return self.format (
 			patient = patient,
@@ -1330,6 +1333,77 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 	#--------------------------------------------------------
+	def __format_encounters(self, left_margin=0, emr=None):
+		lines = []
+
+		encs = emr.get_encounters(episodes = [self._payload['pk_episode']])
+		if encs is None:
+			return [_('Error retrieving encounters for this episode.')]
+
+		if len(encs) == 0:
+			#lines.append(_('There are no encounters for this issue.'))
+			return []
+
+		first_encounter = emr.get_first_encounter(episode_id = self._payload['pk_episode'])
+		last_encounter = emr.get_last_encounter(episode_id = self._payload['pk_episode'])
+		lines.append(_('Last worked on: %s\n') % last_encounter['last_affirmed_original_tz'].strftime('%Y-%m-%d %H:%M'))
+		if len(encs) < 4:
+			line = _('%s encounter(s) (%s - %s):')
+		else:
+			line = _('1st and (up to 3) most recent (of %s) encounters (%s - %s):')
+		lines.append(line % (
+			len(encs),
+			first_encounter['started'].strftime('%m/%Y'),
+			last_encounter['last_affirmed'].strftime('%m/%Y')
+		))
+		lines.append(' %s - %s (%s):%s' % (
+			first_encounter['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
+			first_encounter['last_affirmed_original_tz'].strftime('%H:%M'),
+			first_encounter['l10n_type'],
+			gmTools.coalesce (
+				first_encounter['assessment_of_encounter'],
+				gmTools.coalesce (
+					first_encounter['reason_for_encounter'],
+					'',
+					' \u00BB%s\u00AB' + (' (%s)' % _('RFE'))
+				),
+				' \u00BB%s\u00AB' + (' (%s)' % _('AOE'))
+			)
+		))
+		if len(encs) > 4:
+			lines.append(_(' %s %s skipped %s') % (
+				gmTools.u_ellipsis,
+				(len(encs) - 4),
+				gmTools.u_ellipsis
+			))
+		for enc in encs[1:][-3:]:
+			lines.append(' %s - %s (%s):%s' % (
+				enc['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
+				enc['last_affirmed_original_tz'].strftime('%H:%M'),
+				enc['l10n_type'],
+				gmTools.coalesce (
+					enc['assessment_of_encounter'],
+					gmTools.coalesce (
+						enc['reason_for_encounter'],
+						'',
+						' \u00BB%s\u00AB' + (' (%s)' % _('RFE'))
+					),
+					' \u00BB%s\u00AB' + (' (%s)' % _('AOE'))
+				)
+			))
+		# spell out last encounter
+		if last_encounter:
+			lines.append('')
+			lines.append(_('Progress notes in most recent encounter:'))
+			lines.extend(last_encounter.format_soap (
+				episodes = [ self._payload['pk_episode'] ],
+				left_margin = left_margin,
+				soap_cats = 'soapu',
+				emr = emr
+			))
+		return lines
+
+	#--------------------------------------------------------
 	def format(self, left_margin=0, patient=None,
 		with_summary=True,
 		with_codes=True,
@@ -1343,8 +1417,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		with_health_issue=False,
 		return_list=False
 	):
-
-		if patient is not None:
+		if patient:
 			if patient.ID != self._payload['pk_patient']:
 				msg = '<patient>.ID = %s but episode %s belongs to patient %s' % (
 					patient.ID,
@@ -1410,91 +1483,10 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 						subsequent_indent = '  '
 					)
 				)
-
-		# codes
-		if with_codes:
-			codes = self.generic_codes
-			if len(codes) > 0:
-				lines.append('')
-			for c in codes:
-				lines.append(' %s: %s (%s - %s)' % (
-					c['code'],
-					c['term'],
-					c['name_short'],
-					c['version']
-				))
-			del codes
-
 		lines.append('')
-
 		# encounters
 		if with_encounters:
-			encs = emr.get_encounters(episodes = [self._payload['pk_episode']])
-			if encs is None:
-				lines.append(_('Error retrieving encounters for this episode.'))
-			elif len(encs) == 0:
-				#lines.append(_('There are no encounters for this issue.'))
-				pass
-			else:
-				first_encounter = emr.get_first_encounter(episode_id = self._payload['pk_episode'])
-				last_encounter = emr.get_last_encounter(episode_id = self._payload['pk_episode'])
-				lines.append(_('Last worked on: %s\n') % last_encounter['last_affirmed_original_tz'].strftime('%Y-%m-%d %H:%M'))
-				if len(encs) < 4:
-					line = _('%s encounter(s) (%s - %s):')
-				else:
-					line = _('1st and (up to 3) most recent (of %s) encounters (%s - %s):')
-				lines.append(line % (
-					len(encs),
-					first_encounter['started'].strftime('%m/%Y'),
-					last_encounter['last_affirmed'].strftime('%m/%Y')
-				))
-				lines.append(' %s - %s (%s):%s' % (
-					first_encounter['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
-					first_encounter['last_affirmed_original_tz'].strftime('%H:%M'),
-					first_encounter['l10n_type'],
-					gmTools.coalesce (
-						first_encounter['assessment_of_encounter'],
-						gmTools.coalesce (
-							first_encounter['reason_for_encounter'],
-							'',
-							' \u00BB%s\u00AB' + (' (%s)' % _('RFE'))
-						),
-						' \u00BB%s\u00AB' + (' (%s)' % _('AOE'))
-					)
-				))
-				if len(encs) > 4:
-					lines.append(_(' %s %s skipped %s') % (
-						gmTools.u_ellipsis,
-						(len(encs) - 4),
-						gmTools.u_ellipsis
-					))
-				for enc in encs[1:][-3:]:
-					lines.append(' %s - %s (%s):%s' % (
-						enc['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
-						enc['last_affirmed_original_tz'].strftime('%H:%M'),
-						enc['l10n_type'],
-						gmTools.coalesce (
-							enc['assessment_of_encounter'],
-							gmTools.coalesce (
-								enc['reason_for_encounter'],
-								'',
-								' \u00BB%s\u00AB' + (' (%s)' % _('RFE'))
-							),
-							' \u00BB%s\u00AB' + (' (%s)' % _('AOE'))
-						)
-					))
-				del encs
-				# spell out last encounter
-				if last_encounter is not None:
-					lines.append('')
-					lines.append(_('Progress notes in most recent encounter:'))
-					lines.extend(last_encounter.format_soap (
-						episodes = [ self._payload['pk_episode'] ],
-						left_margin = left_margin,
-						soap_cats = 'soapu',
-						emr = emr
-					))
-
+			lines.extend(self.__format_encounters(left_margin = left_margin, emr = emr))
 		# documents
 		if with_documents:
 			doc_folder = patient.get_document_folder()
@@ -3973,6 +3965,7 @@ if __name__ == '__main__':
 
 	gmI18N.activate_locale()
 	gmI18N.install_domain('gnumed')
+
 	#--------------------------------------------------------
 	# define tests
 	#--------------------------------------------------------
@@ -4016,17 +4009,20 @@ if __name__ == '__main__':
 		#print(h_issue.formatted_revision_history)
 		print(h_issue.format())
 
-	#--------------------------------------------------------	
+	#--------------------------------------------------------
 	def test_episode():
 		print("episode test")
+		gmPraxis.gmCurrentPraxisBranch.from_first_branch()
 		for i in range(1,15):
 			print("------------")
 			episode = cEpisode(aPK_obj = i)#322) #1674) #1354) #1461) #1299)
-
-			print(episode['description'])
-			print(' start:', episode.best_guess_clinical_start_date)
-			print(' end  :', episode.best_guess_clinical_end_date)
+			#print(episode['description'])
+			#print(' start:', episode.best_guess_clinical_start_date)
+			#print(' end  :', episode.best_guess_clinical_end_date)
 			#print(' dura :', get_formatted_clinical_duration(pk_episode = i))
+			for line in episode.format_maximum_information():
+				print(line)
+			input('ENTER to continue')
 		return
 
 		print(episode)
@@ -4121,11 +4117,11 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	gmPG2.request_login_params(setup_pool = True)
 
-	#test_episode()
+	test_episode()
 	#test_episode_encounters()
 	#test_problem()
 	#test_encounter()
-	test_health_issue()
+	#test_health_issue()
 	#test_hospital_stay()
 	#test_performed_procedure()
 	#test_diagnostic_certainty_classification_map()
