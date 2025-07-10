@@ -1185,7 +1185,7 @@ if __name__ == "__main__":
 	#test_cVaccinePhraseWheel()
 
 #	gmPG2.request_login_params(setup_pool = True, force_tui = True)
-#	gmPraxis.activate_first_praxis_branch()
+#	gmPraxis.gmCurrentPraxisBranch.from_first_branch()
 #	gmStaff.set_current_provider_to_logged_on_user()
 #	gmPerson.set_active_patient(patient = 12)
 #

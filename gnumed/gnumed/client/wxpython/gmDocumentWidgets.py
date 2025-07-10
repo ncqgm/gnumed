@@ -4165,6 +4165,6 @@ if __name__ == '__main__':
 
 	gmPG2.request_login_params(setup_pool = True)
 	gmStaff.set_current_provider_to_logged_on_user()
-	gmPraxis.activate_first_praxis_branch()
+	gmPraxis.gmCurrentPraxisBranch.from_first_branch()
 
 	test_failsafe_list()

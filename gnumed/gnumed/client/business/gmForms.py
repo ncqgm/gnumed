@@ -2384,7 +2384,7 @@ if __name__ == '__main__':
 	#set_template_from_file()
 
 	gmPG2.request_login_params(setup_pool = True)
-	if not gmPraxis.activate_first_praxis_branch():
+	if not gmPraxis.gmCurrentPraxisBranch.from_first_branch():
 		print('no praxis')
 	test_latex_form()
 	#test_pdf_form()

@@ -34,7 +34,7 @@ _log = logging.getLogger('gm.guitest')
 def test_widget(widget_class, *widget_args, patient:int=-1, size=None, setup_db:bool=True, **widget_kwargs):
 	if setup_db:
 		gmPG2.request_login_params(setup_pool = True, force_tui = True)
-	gmPraxis.activate_first_praxis_branch()
+	gmPraxis.gmCurrentPraxisBranch.from_first_branch()
 	if not __activate_patient(patient = patient):
 		sys.exit()
 
@@ -79,7 +79,7 @@ def setup_widget_test_env(patient=-1):
 	gmPG2.request_login_params(setup_pool = True, force_tui = True)
 	if not __activate_patient(patient = patient):
 		sys.exit()
-	gmPraxis.activate_first_praxis_branch()
+	gmPraxis.gmCurrentPraxisBranch.from_first_branch()
 	gmStaff.set_current_provider_to_logged_on_user()
 
 	app = inspection.InspectableApp()

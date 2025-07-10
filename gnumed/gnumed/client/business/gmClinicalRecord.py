@@ -2525,7 +2525,7 @@ if __name__ == "__main__":
 
 	gmPG2.request_login_params(setup_pool = True)
 	from Gnumed.business import gmPraxis
-	gmPraxis.activate_first_praxis_branch()
+	gmPraxis.gmCurrentPraxisBranch.from_first_branch()
 
 	#test_allergy_state()
 	#test_is_allergic_to()

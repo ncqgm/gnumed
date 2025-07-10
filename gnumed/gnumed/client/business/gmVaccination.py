@@ -735,7 +735,7 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_format_latest_vaccinations():
 		from Gnumed.business import gmPraxis
-		gmPraxis.activate_first_praxis_branch()
+		gmPraxis.gmCurrentPraxisBranch.from_first_branch()
 		from Gnumed.business import gmClinicalRecord
 		emr = gmClinicalRecord.cClinicalRecord(12)
 		shots = emr.latest_vaccinations

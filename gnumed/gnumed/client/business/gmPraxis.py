@@ -615,10 +615,6 @@ where
 
 	user_email = property(_get_user_email, _set_user_email)
 
-#------------------------------------------------------------
-def activate_first_praxis_branch():
-	return gmCurrentPraxisBranch.from_first_branch()
-
 #============================================================
 if __name__ == '__main__':
 

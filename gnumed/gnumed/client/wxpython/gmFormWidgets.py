@@ -1250,14 +1250,14 @@ if __name__ == '__main__':
 		#gmStaff.set_current_provider_to_logged_on_user()
 		from Gnumed.pycommon import gmPG2
 		gmPG2.request_login_params(setup_pool = True)
-		gmPraxis.activate_first_praxis_branch()
+		gmPraxis.gmCurrentPraxisBranch.from_first_branch()
 		print_generic_document()	#parent=None, jobtype=None, episode=None
 
 	#----------------------------------------
 	def test_generate_failsafe_form_wrapper():
 		from Gnumed.pycommon import gmPG2
 		gmPG2.request_login_params(setup_pool = True)
-		gmPraxis.activate_first_praxis_branch()
+		gmPraxis.gmCurrentPraxisBranch.from_first_branch()
 		header, footer = generate_failsafe_form_wrapper(pk_patient = 12, max_width = 80)
 		print('\n'.join(header))
 		print('   HERE GOES THE FORM')
