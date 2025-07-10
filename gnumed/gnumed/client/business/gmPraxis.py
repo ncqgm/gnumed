@@ -375,6 +375,7 @@ def delete_praxis_branches(pk_praxis_branches=None, except_pk_praxis_branches=No
 #============================================================
 class gmCurrentPraxisBranch(gmBorg.cBorg):
 
+	#--------------------------------------------------------
 	def __init__(self, branch=None):
 		try:
 			self.has_been_initialized
@@ -401,6 +402,17 @@ class gmCurrentPraxisBranch(gmBorg.cBorg):
 		_log.debug('current praxis branch now: %s', self.branch)
 
 		return None
+
+	#--------------------------------------------------------
+	@classmethod
+	def from_first_branch(cls) -> 'gmCurrentPraxisBranch':
+		"""Initialize from 'first' branch of praxis."""
+		_log.debug('activating first praxis branch as current branch')
+		branches = get_praxis_branches()
+		if branches:
+			return cls(branch = branches[0])
+
+		raise ValueError('no praxis branches found')
 
 	#--------------------------------------------------------
 	# __getattr__ handling
@@ -605,12 +617,7 @@ where
 
 #------------------------------------------------------------
 def activate_first_praxis_branch():
-	_log.debug('activating first praxis branch as current')
-	branches = get_praxis_branches()
-	if not branches:
-		return None
-
-	return gmCurrentPraxisBranch(branch = branches[0])
+	return gmCurrentPraxisBranch.from_first_branch()
 
 #============================================================
 if __name__ == '__main__':
@@ -665,4 +672,9 @@ if __name__ == '__main__':
 			input()
 
 	#--------------------------------------------------------
+	def test_from_first_branch():
+		print(gmCurrentPraxisBranch.from_first_branch())
+
+	#--------------------------------------------------------
 	#test_mecard()
+	test_from_first_branch()
