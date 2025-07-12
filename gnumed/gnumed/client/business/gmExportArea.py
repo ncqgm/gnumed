@@ -1441,19 +1441,19 @@ class cExportArea(object):
 	#--------------------------------------------------------
 	def _create_readme(self, patient, directory):
 		_README_CONTENT = (
-			'This is a patient data excerpt created by the GNUmed Electronic Medical Record.\n'
+			'Patient data collection created with the GNUmed Electronic Medical Record.\n'
 			'\n'
 			'Patient: %s\n'
 			'\n'
-			'Please display <frontpage.html> to browse patient data.\n'
+			'Please open <frontpage.html> to browse patient data.\n'
 			'\n'
 			'Individual documents are stored in the subdirectory\n'
 			'\n'
 			'	documents/\n'
 			'\n'
 			'\n'
-			'Data may need to be decrypted with either GNU Privacy\n'
-			'Guard or 7zip/WinZip.\n'
+			'Data may be encrypted. It can be decrypted with either\n'
+			' GNU Privacy Guard or 7zip/WinZip.\n'
 			'\n'
 			'.asc:\n'
 			'	https://gnupg.org\n'
@@ -1462,8 +1462,8 @@ class cExportArea(object):
 			'	https://www.7-zip.org\n'
 			'	https://www.winzip.com\n'
 			'\n'
-			'To obtain any needed keys you will have to get in touch with\n'
-			'the creator or the owner of this patient media excerpt.\n'
+			'To obtain decryption keys you will have to get in touch\n'
+			'with the creator or owner of this patient media.\n'
 		)
 		readme_fname = os.path.join(directory, 'README')
 		readme_file = open(readme_fname, mode = 'wt', encoding = 'utf8')
