@@ -1086,16 +1086,10 @@ class cOrthancServer:
 		return study_dict
 
 	#--------------------------------------------------------
-	def __setup_series_dict_from_orthanc_series(self, orthanc_series=None, study_dict:dict=None) -> dict:
-		series_keys2hide = ['ModifiedFrom', 'Type', 'ID', 'ParentStudy',   'Instances']
-		ordered_slices = self.__run_GET(url = '%s/series/%s/ordered-slices' % (self.__server_url, orthanc_series['ID']))
-		if ordered_slices is False:
-			slices = orthanc_series['Instances']
-		else:
-			slices = [ s[0] for s in ordered_slices['SlicesShort'] ]
-		series_dict = {
-			'orthanc_id': orthanc_series['ID'],
-			'instances': slices,
+	def __get_new_series_dict(self) -> dict:
+		return {
+			'orthanc_id': None,
+			'instances': None,
 			'modality': None,
 			'date': None,
 			'time': None,
@@ -1108,50 +1102,36 @@ class cOrthancServer:
 			'radiographer_code': None,
 			'performing_doc': None
 		}
-		try:
-			series_dict['modality'] = orthanc_series['MainDicomTags']['Modality'].strip()
-		except KeyError:
-			pass
-		try:
-			series_dict['date'] = orthanc_series['MainDicomTags']['SeriesDate'].strip()
-		except KeyError:
-			pass
-		try:
-			series_dict['description'] = orthanc_series['MainDicomTags']['SeriesDescription'].strip()
-		except KeyError:
-			pass
-		try:
-			series_dict['time'] = orthanc_series['MainDicomTags']['SeriesTime'].strip()
-		except KeyError:
-			pass
-		try:
-			series_dict['body_part'] = orthanc_series['MainDicomTags']['BodyPartExamined'].strip()
-		except KeyError:
-			pass
-		try:
-			series_dict['protocol'] = orthanc_series['MainDicomTags']['ProtocolName'].strip()
-		except KeyError:
-			pass
-		try:
-			series_dict['performed_procedure_step_description'] = orthanc_series['MainDicomTags']['PerformedProcedureStepDescription'].strip()
-		except KeyError:
-			pass
-		try:
-			series_dict['acquisition_device_processing_description'] = orthanc_series['MainDicomTags']['AcquisitionDeviceProcessingDescription'].strip()
-		except KeyError:
-			pass
-		try:
-			series_dict['operator_name'] = orthanc_series['MainDicomTags']['OperatorsName'].strip()
-		except KeyError:
-			pass
-		try:
-			series_dict['radiographer_code'] = orthanc_series['MainDicomTags']['RadiographersCode'].strip()
-		except KeyError:
-			pass
-		try:
-			series_dict['performing_doc'] = orthanc_series['MainDicomTags']['PerformingPhysicianName'].strip()
-		except KeyError:
-			pass
+
+	#--------------------------------------------------------
+	def __setup_series_dict_from_orthanc_series(self, orthanc_series=None, study_dict:dict=None) -> dict:
+		series_keys2hide = ['ModifiedFrom', 'Type', 'ID', 'ParentStudy',   'Instances']
+		ordered_slices = self.__run_GET(url = '%s/series/%s/ordered-slices' % (self.__server_url, orthanc_series['ID']))
+		if ordered_slices is False:
+			slices = orthanc_series['Instances']
+		else:
+			slices = [ s[0] for s in ordered_slices['SlicesShort'] ]
+		series_dict = self.__get_new_series_dict()
+		series_dict['orthanc_id'] = orthanc_series['ID']
+		series_dict['instances'] = slices
+		src2target_key_map = [
+			('Modality', 'modality'),
+			('SeriesDate', 'date'),
+			('SeriesTime', 'time'),
+			('SeriesDescription', 'description'),
+			('BodyPartExamined', 'body_part'),
+			('ProtocolName', 'protocol'),
+			('PerformedProcedureStepDescription', 'performed_procedure_step_description'),
+			('AcquisitionDeviceProcessingDescription', 'acquisition_device_processing_description'),
+			('OperatorsName', 'operator_name'),
+			('RadiographersCode', 'radiographer_code'),
+			('PerformingPhysicianName', 'performing_doc')
+		]
+		for src_key, target_key in src2target_key_map:
+			try:
+				series_dict[target_key] = orthanc_series['MainDicomTags'][src_key].strip()
+			except KeyError:
+				pass
 		for key in series_dict:
 			if series_dict[key] in ['unknown', '(null)', '']:
 				series_dict[key] = None
