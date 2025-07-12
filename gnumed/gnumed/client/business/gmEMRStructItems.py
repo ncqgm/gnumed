@@ -315,6 +315,52 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		return left_margin + eol_w_margin.join(lines) + '\n'
 
 	#--------------------------------------------------------
+	def __format_episodes_for_clinical_data(self, emr) -> list:
+		epis = self.get_episodes()
+		if epis is None:
+			return [_('Error retrieving episodes for this health issue.')]
+
+		if len(epis) == 0:
+			return [_('There are no episodes for this health issue.')]
+
+		line = _('Episodes: %s (most recent: %s%s%s)') % (
+			len(epis),
+			gmTools.u_left_double_angle_quote,
+			emr.get_most_recent_episode(issue = self._payload['pk_health_issue'])['description'],
+			gmTools.u_right_double_angle_quote
+		)
+		lines = [line]
+		for epi in epis:
+			lines.append(' \u00BB%s\u00AB (%s)' % (
+				epi['description'],
+				gmTools.bool2subst(epi['episode_open'], _('ongoing'), _('closed'))
+			))
+		lines.append('')
+		return lines
+
+	#--------------------------------------------------------
+	def __format_encounters_for_clinical_data(self, emr) -> list:
+		first_encounter = emr.get_first_encounter(issue_id = self._payload['pk_health_issue'])
+		if not first_encounter:
+			return [_('No encounters found for this health issue.')]
+
+		last_encounter = emr.get_last_encounter(issue_id = self._payload['pk_health_issue'])
+		encs = emr.get_encounters(issues = [self._payload['pk_health_issue']])
+		lines = []
+		line = _('Encounters: %s (%s - %s):') % (
+			len(encs),
+			first_encounter['started_original_tz'].strftime('%m/%Y'),
+			last_encounter['last_affirmed_original_tz'].strftime('%m/%Y')
+		)
+		lines.append(line)
+		line = _(' Most recent: %s - %s') % (
+			last_encounter['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
+			last_encounter['last_affirmed_original_tz'].strftime('%H:%M')
+		)
+		lines.append(line)
+		return lines
+
+	#--------------------------------------------------------
 	def __format_clinical_data(self, left_margin=0, patient=None,
 		with_episodes=True,
 		with_encounters=True,
@@ -341,45 +387,10 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		lines = []
 		# episodes
 		if with_episodes:
-			epis = self.get_episodes()
-			if epis is None:
-				lines.append(_('Error retrieving episodes for this health issue.'))
-			elif len(epis) == 0:
-				lines.append(_('There are no episodes for this health issue.'))
-			else:
-				lines.append (
-					_('Episodes: %s (most recent: %s%s%s)') % (
-						len(epis),
-						gmTools.u_left_double_angle_quote,
-						emr.get_most_recent_episode(issue = self._payload['pk_health_issue'])['description'],
-						gmTools.u_right_double_angle_quote
-					)
-				)
-				for epi in epis:
-					lines.append(' \u00BB%s\u00AB (%s)' % (
-						epi['description'],
-						gmTools.bool2subst(epi['episode_open'], _('ongoing'), _('closed'))
-					))
-			lines.append('')
-
+			lines.extend(self.__format_episodes_for_clinical_data(emr))
 		# encounters
 		if with_encounters:
-			first_encounter = emr.get_first_encounter(issue_id = self._payload['pk_health_issue'])
-			last_encounter = emr.get_last_encounter(issue_id = self._payload['pk_health_issue'])
-
-			if first_encounter is None or last_encounter is None:
-				lines.append(_('No encounters found for this health issue.'))
-			else:
-				encs = emr.get_encounters(issues = [self._payload['pk_health_issue']])
-				lines.append(_('Encounters: %s (%s - %s):') % (
-					len(encs),
-					first_encounter['started_original_tz'].strftime('%m/%Y'),
-					last_encounter['last_affirmed_original_tz'].strftime('%m/%Y')
-				))
-				lines.append(_(' Most recent: %s - %s') % (
-					last_encounter['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
-					last_encounter['last_affirmed_original_tz'].strftime('%H:%M')
-				))
+			lines.extend(self.__format_encounters_for_clinical_data(emr))
 
 		# medications
 		if with_medications:
@@ -4117,11 +4128,11 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	gmPG2.request_login_params(setup_pool = True)
 
-	test_episode()
+	#test_episode()
 	#test_episode_encounters()
 	#test_problem()
 	#test_encounter()
-	#test_health_issue()
+	test_health_issue()
 	#test_hospital_stay()
 	#test_performed_procedure()
 	#test_diagnostic_certainty_classification_map()
