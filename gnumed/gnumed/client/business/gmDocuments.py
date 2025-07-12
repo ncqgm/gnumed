@@ -824,7 +824,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_procedures(self):
-		from Gnumed.business.gmEMRStructItems import get_procedures4document
+		from Gnumed.business.gmPerformedProcedure import get_procedures4document
 		return get_procedures4document(pk_document = self.pk_obj)
 
 	procedures = property(_get_procedures)

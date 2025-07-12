@@ -31,6 +31,7 @@ from Gnumed.business import gmProviderInbox
 from Gnumed.business import gmExternalCare
 from Gnumed.business import gmAutoHints
 from Gnumed.business import gmMedication
+from Gnumed.business import gmPerformedProcedure
 
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmDemographicsWidgets
@@ -767,7 +768,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		if isinstance(data, gmEMRStructItems.cHospitalStay):
 			return data.format()
 
-		if isinstance(data, gmEMRStructItems.cPerformedProcedure):
+		if isinstance(data, gmPerformedProcedure.cPerformedProcedure):
 			return data.format(include_episode = True, include_codes = False, include_address = True, include_comm = True)
 
 		if isinstance(data, gmVaccination.cVaccination):
@@ -807,7 +808,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			if isinstance(data, gmEMRStructItems.cHospitalStay):
 				gmHospitalStayWidgets.edit_hospital_stay(parent = self, hospital_stay = data)
 				return
-			if isinstance(data, gmEMRStructItems.cPerformedProcedure):
+			if isinstance(data, gmPerformedProcedure.cPerformedProcedure):
 				gmProcedureWidgets.edit_procedure(parent = self, procedure = data)
 				return
 			if isinstance(data, gmVaccination.cVaccination):
@@ -824,7 +825,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		if isinstance(data, gmEMRStructItems.cHospitalStay):
 			gmHospitalStayWidgets.manage_hospital_stays(parent = self)
 			return
-		if isinstance(data, gmEMRStructItems.cPerformedProcedure):
+		if isinstance(data, gmPerformedProcedure.cPerformedProcedure):
 			gmProcedureWidgets.manage_performed_procedures(parent = self)
 			return
 		if isinstance(data, gmVaccination.cVaccination):

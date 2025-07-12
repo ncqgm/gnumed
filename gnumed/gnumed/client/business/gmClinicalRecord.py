@@ -40,6 +40,7 @@ from Gnumed.business import gmFamilyHistory
 from Gnumed.business import gmExternalCare
 from Gnumed.business import gmOrganization
 from Gnumed.business import gmAutoHints
+from Gnumed.business import gmPerformedProcedure
 from Gnumed.business.gmDemographicRecord import get_occupations
 
 
@@ -76,7 +77,7 @@ _map_table2class = {
 	'clin.substance_intake': gmMedication.cSubstanceIntakeEntry,
 	'clin.intake_regimen': gmMedication.cIntakeRegimen,
 	'clin.hospital_stay': gmEMRStructItems.cHospitalStay,
-	'clin.procedure': gmEMRStructItems.cPerformedProcedure,
+	'clin.procedure': gmPerformedProcedure.cPerformedProcedure,
 	'clin.allergy': gmAllergy.cAllergy,
 	'clin.allergy_state': gmAllergy.cAllergyState,
 	'clin.family_history': gmFamilyHistory.cFamilyHistory,
@@ -410,7 +411,7 @@ class cClinicalRecord(object):
 	#--------------------------------------------------------
 	def get_performed_procedures(self, episodes=None, issues=None):
 
-		procs = gmEMRStructItems.get_performed_procedures(patient = self.pk_patient)
+		procs = gmPerformedProcedure.get_performed_procedures(patient = self.pk_patient)
 
 		if episodes is not None:
 			procs = [ p for p in procs if p['pk_episode'] in episodes ]
@@ -421,18 +422,23 @@ class cClinicalRecord(object):
 		return procs
 
 	performed_procedures = property(get_performed_procedures)
+
 	#--------------------------------------------------------
 	def get_latest_performed_procedure(self):
-		return gmEMRStructItems.get_latest_performed_procedure(patient = self.pk_patient)
+		return gmPerformedProcedure.get_latest_performed_procedure(patient = self.pk_patient)
+
+	latest_performed_procedure = property(get_latest_performed_procedure)
+
 	#--------------------------------------------------------
 	def add_performed_procedure(self, episode=None, location=None, hospital_stay=None, procedure=None):
-		return gmEMRStructItems.create_performed_procedure (
+		return gmPerformedProcedure.create_performed_procedure (
 			encounter = self.current_encounter['pk_encounter'],
 			episode = episode,
 			location = location,
 			hospital_stay = hospital_stay,
 			procedure = procedure
 		)
+
 	#--------------------------------------------------------
 	def get_procedure_locations_as_org_units(self):
 		where = 'pk_org_unit IN (SELECT DISTINCT pk_org_unit FROM clin.v_procedures_not_at_hospital WHERE pk_patient = %(pat)s)'
@@ -734,7 +740,7 @@ class cClinicalRecord(object):
 		if stats['procedures'] == 0:
 			txt += '\n'
 		else:
-			txt += _(', most recently:\n%s\n') % self.get_latest_performed_procedure().format(left_margin = 3)
+			txt += _(', most recently:\n%s\n') % self.latest_performed_procedure.format(left_margin = 3)
 
 		txt += '\n'
 		txt += _('Allergies and Intolerances\n')

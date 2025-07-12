@@ -17,7 +17,7 @@ from Gnumed.business.gmEMRStructItems import cHealthIssue
 from Gnumed.business.gmEMRStructItems import cEpisode
 from Gnumed.business.gmEMRStructItems import cEncounter
 from Gnumed.business.gmEMRStructItems import cHospitalStay
-from Gnumed.business.gmEMRStructItems import cPerformedProcedure
+from Gnumed.business.gmPerformedProcedure import cPerformedProcedure
 from Gnumed.business.gmPathLab import cTestResult
 from Gnumed.business.gmMedication import cSubstanceIntakeEntry
 from Gnumed.business.gmMedication import cIntakeWithRegimen

@@ -22,6 +22,7 @@ from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmMatchProvider
 
 from Gnumed.business import gmEMRStructItems
+from Gnumed.business import gmPerformedProcedure
 from Gnumed.business import gmPerson
 
 from Gnumed.wxpython import gmListWidgets
@@ -55,7 +56,7 @@ def manage_performed_procedures(parent=None):
 
 	#-----------------------------------------
 	def delete(procedure=None):
-		if gmEMRStructItems.delete_performed_procedure(procedure = procedure['pk_procedure']):
+		if gmPerformedProcedure.delete_performed_procedure(procedure = procedure['pk_procedure']):
 			return True
 
 		gmDispatcher.send (
