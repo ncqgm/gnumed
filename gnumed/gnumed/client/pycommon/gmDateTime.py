@@ -42,13 +42,30 @@ __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later (details at https://www.gnu.org)"
 
 # stdlib
-import sys, datetime as pyDT, time, os, re as regex, logging
+import sys
+import datetime as pyDT
+import time
+import os
+import re as regex
+import logging
 from typing import Callable
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	# we are the main script, setup a fake _() for now,
+	# such that it can be used in module level definitions
 	_ = lambda x:x
+else:
+	# we are being imported from elsewhere, say, mypy or some such
+	try:
+		# do we already have _() ?
+		_
+	except NameError:
+		# no, setup i18n handling
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
 
 
 _log = logging.getLogger('gm.datetime')
@@ -487,25 +504,16 @@ def wxDate2py_dt(wxDate=None):
 #===========================================================================
 # interval related
 #---------------------------------------------------------------------------
-def __get_time_part_tags (
-	verbose:bool=False,
-	years:int=None,
-	months:int=None,
-	weeks:int=None,
-	days:int=None,
-	hours:int=None,
-	minutes:int=None,
-	seconds:int=None
-) -> dict[str,str]:
+def __get_time_part_tags(verbose:bool=False, time_parts:dict[str,int]=None) -> dict[str,str]:
 	if verbose:
 		return {
-			'years': ' ' + (_('year') if years == 1 else _('years')),
-			'months': ' ' + (_('month') if months == 1 else _('months')),
-			'weeks': ' ' + (_('week') if weeks == 1 else _('weeks')),
-			'days': ' ' + (_('day') if days == 1 else _('days')),
-			'hours': ' ' + (_('hour') if hours == 1 else _('hours')),
-			'minutes': ' ' + (_('minute') if minutes == 1 else _('minutes')),
-			'seconds': ' ' + (_('second') if seconds == 1 else _('seconds'))
+			'years': ' ' + (_('year') if time_parts['years'] == 1 else _('years')),
+			'months': ' ' + (_('month') if time_parts['months'] == 1 else _('months')),
+			'weeks': ' ' + (_('week') if time_parts['weeks'] == 1 else _('weeks')),
+			'days': ' ' + (_('day') if time_parts['days'] == 1 else _('days')),
+			'hours': ' ' + (_('hour') if time_parts['hours'] == 1 else _('hours')),
+			'minutes': ' ' + (_('minute') if time_parts['minutes'] == 1 else _('minutes')),
+			'seconds': ' ' + (_('second') if time_parts['seconds'] == 1 else _('seconds'))
 		}
 
 	return {
@@ -519,6 +527,54 @@ def __get_time_part_tags (
 	}
 
 #---------------------------------------------------------------------------
+def __split_up_interval(interval) -> dict[str,int]:
+	parts = {}
+	parts['years'], leftover_days = divmod(interval.days, AVG_DAYS_PER_GREGORIAN_YEAR)
+	parts['months'], leftover_days = divmod(leftover_days, AVG_DAYS_PER_GREGORIAN_MONTH)
+	parts['weeks'], leftover_days = divmod(leftover_days, DAYS_PER_WEEK)
+	leftover_seconds = (leftover_days * AVG_SECONDS_PER_DAY) + interval.seconds
+	parts['days'], leftover_secs = divmod(leftover_seconds, AVG_SECONDS_PER_DAY)
+	parts['hours'], leftover_secs = divmod(leftover_secs, 3600)
+	parts['mins'], parts['secs'] = divmod(leftover_secs, 60)
+	return parts
+
+#---------------------------------------------------------------------------
+def __format_interval__special_cases (
+	parts:dict[str,int],
+	tags:dict[str,str],
+	accuracy_wanted:int,
+	verbose:bool=False
+) -> str | None:
+	if parts['years'] == 0:
+		if accuracy_wanted < ACC_MONTHS:
+			return _('0 years') if verbose else '0%s' % tags['years']
+
+	if parts['years'] + parts['months'] == 0:
+		if accuracy_wanted < ACC_WEEKS:
+			return _('0 months') if verbose else '0%s' % tags['months']
+
+	if parts['years'] + parts['months'] + parts['weeks'] == 0:
+		if accuracy_wanted < ACC_DAYS:
+			return _('0 weeks') if verbose else '0%s' % tags['weeks']
+
+	if parts['years'] + parts['months'] + parts['weeks'] + parts['days'] == 0:
+		if accuracy_wanted < ACC_HOURS:
+			return _('0 days') if verbose else '0%s' % tags['days']
+
+	if parts['years'] + parts['months'] + parts['weeks'] + parts['days'] + parts['hours'] == 0:
+		if accuracy_wanted < ACC_MINUTES:
+			return _('0 hours') if verbose else '0/24'
+
+	if parts['years'] + parts['months'] + parts['weeks'] + parts['days'] + parts['hours'] + parts['mins'] == 0:
+		if accuracy_wanted < ACC_SECONDS:
+			return _('0 minutes') if verbose else '0/60'
+
+	if parts['years'] + parts['months'] + parts['weeks'] + parts['days'] + parts['hours'] + parts['mins'] + parts['secs'] == 0:
+		return _('0 seconds') if verbose else '0s'
+
+	return None
+
+#---------------------------------------------------------------------------
 def format_interval(interval=None, accuracy_wanted:int=None, none_string:str=None, verbose:bool=False) -> str:
 	"""Formats an interval.
 	"""
@@ -527,84 +583,47 @@ def format_interval(interval=None, accuracy_wanted:int=None, none_string:str=Non
 
 	if accuracy_wanted is None:
 		accuracy_wanted = ACC_SECONDS
-	years, days = divmod(interval.days, AVG_DAYS_PER_GREGORIAN_YEAR)
-	months, days = divmod(days, AVG_DAYS_PER_GREGORIAN_MONTH)
-	weeks, days = divmod(days, DAYS_PER_WEEK)
-	days, secs = divmod((days * AVG_SECONDS_PER_DAY) + interval.seconds, AVG_SECONDS_PER_DAY)
-	hours, secs = divmod(secs, 3600)
-	mins, secs = divmod(secs, 60)
-	tags = __get_time_part_tags (
-		verbose = verbose,
-		years = years,
-		months = months,
-		weeks = weeks,
-		days = days,
-		hours = hours,
-		minutes = mins,
-		seconds = secs
-	)
+	parts = __split_up_interval(interval)
+	tags = __get_time_part_tags(verbose = verbose, time_parts = parts)
 	# special cases
-	if years == 0:
-		if accuracy_wanted < ACC_MONTHS:
-			return _('0 years') if verbose else '0%s' % tags['years']
-
-	if years + months == 0:
-		if accuracy_wanted < ACC_WEEKS:
-			return _('0 months') if verbose else '0%s' % tags['months']
-
-	if years + months + weeks == 0:
-		if accuracy_wanted < ACC_DAYS:
-			return _('0 weeks') if verbose else '0%s' % tags['weeks']
-
-	if years + months + weeks + days == 0:
-		if accuracy_wanted < ACC_HOURS:
-			return _('0 days') if verbose else '0%s' % tags['days']
-
-	if years + months + weeks + days + hours == 0:
-		if accuracy_wanted < ACC_MINUTES:
-			return _('0 hours') if verbose else '0/24'
-
-	if years + months + weeks + days + hours + mins == 0:
-		if accuracy_wanted < ACC_SECONDS:
-			return _('0 minutes') if verbose else '0/60'
-
-	if years + months + weeks + days + hours + mins + secs == 0:
-		return _('0 seconds') if verbose else '0s'
+	special_case_formatted = __format_interval__special_cases(parts, tags, accuracy_wanted)
+	if special_case_formatted:
+		return special_case_formatted
 
 	# normal cases
 	formatted_intv = ''
-	if years > 0:
-		formatted_intv += '%s%s' % (int(years), tags['years'])
+	if parts['years'] > 0:
+		formatted_intv += '%s%s' % (int(parts['years']), tags['years'])
 	if accuracy_wanted < ACC_MONTHS:
 		return formatted_intv.strip()
 
-	if months > 0:
-		formatted_intv += ' %s%s' % (int(months), tags['months'])
+	if parts['months'] > 0:
+		formatted_intv += ' %s%s' % (int(parts['months']), tags['months'])
 	if accuracy_wanted < ACC_WEEKS:
 		return formatted_intv.strip()
 
-	if weeks > 0:
-		formatted_intv += ' %s%s' % (int(weeks), tags['weeks'])
+	if parts['weeks'] > 0:
+		formatted_intv += ' %s%s' % (int(parts['weeks']), tags['weeks'])
 	if accuracy_wanted < ACC_DAYS:
 		return formatted_intv.strip()
 
-	if days > 0:
-		formatted_intv += ' %s%s' % (int(days), tags['days'])
+	if parts['days'] > 0:
+		formatted_intv += ' %s%s' % (int(parts['days']), tags['days'])
 	if accuracy_wanted < ACC_HOURS:
 		return formatted_intv.strip()
 
-	if hours > 0:
-		formatted_intv += ' %s%s' % (int(hours), tags['hours'])
+	if parts['hours'] > 0:
+		formatted_intv += ' %s%s' % (int(parts['hours']), tags['hours'])
 	if accuracy_wanted < ACC_MINUTES:
 		return formatted_intv.strip()
 
-	if mins > 0:
-		formatted_intv += ' %s%s' % (int(mins), tags['minutes'])
+	if parts['mins'] > 0:
+		formatted_intv += ' %s%s' % (int(parts['mins']), tags['minutes'])
 	if accuracy_wanted < ACC_SECONDS:
 		return formatted_intv.strip()
 
-	if secs > 0:
-		formatted_intv += ' %s%s' % (int(secs), tags['seconds'])
+	if parts['secs'] > 0:
+		formatted_intv += ' %s%s' % (int(parts['secs']), tags['seconds'])
 	return formatted_intv.strip()
 
 #---------------------------------------------------------------------------
@@ -2165,8 +2184,8 @@ if __name__ == '__main__':
 	if sys.argv[1] != "test":
 		sys.exit()
 
-	from Gnumed.pycommon import gmI18N
 	del _
+	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 
@@ -2489,12 +2508,12 @@ if __name__ == '__main__':
 	#test_cFuzzyTimeStamp()
 	#test_get_pydt()
 	#test_str2interval()
-	#test_format_interval()
+	test_format_interval()
 	#test_format_interval_medically()
 	#test_pydt_strftime()
 	#test_calculate_apparent_age()
 	#test_is_leap_year()
 	#test__numbers_only()
-	test_local_tz()
+	#test_local_tz()
 
 #===========================================================================
