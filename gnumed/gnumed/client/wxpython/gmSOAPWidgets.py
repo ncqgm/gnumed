@@ -1103,7 +1103,7 @@ if __name__ == "__main__":
 		@param pk_health_issue An integer instance
 
 		@param pk_encounter The id of the encounter to obtain the narratives for.
-		@type A gmEMRStructItems.cEncounter instance.
+		@type A gmEncounter.cEncounter instance.
 
 		@param default_labels: The user customized labels for each
 		soap category.
@@ -1202,7 +1202,7 @@ if __name__ == "__main__":
 #	# soap widget displaying all narratives for an issue along an encounter
 #	print 'testing soap editor for encounter narratives...'
 #	episode = gmEMRStructItems.cEpisode(aPK_obj=1)
-#	encounter = gmEMRStructItems.cEncounter(aPK_obj=1)
+#	encounter = gmEncounter.cEncounter(aPK_obj=1)
 #	narrative = get_narrative(pk_encounter = encounter['pk_encounter'], pk_health_issue = episode['pk_health_issue'])
 #	default_labels = {'s':'Subjective', 'o':'Objective', 'a':'Assesment', 'p':'Plan'}
 #	app = wx.PyWidgetTester(size=(300,500))		

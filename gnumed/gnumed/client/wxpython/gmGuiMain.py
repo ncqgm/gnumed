@@ -74,6 +74,7 @@ from Gnumed.business import gmPerson
 from Gnumed.business import gmClinicalRecord
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmEMRStructItems
+from Gnumed.business import gmEncounter
 from Gnumed.business import gmArriba
 from Gnumed.business import gmStaff
 from Gnumed.business import gmAutoFileImport
@@ -1809,7 +1810,7 @@ class gmTopLevelFrame(wx.Frame):
 
 	#----------------------------------------------
 	def __on_cfg_enc_default_type(self, evt):
-		enc_types = gmEMRStructItems.get_encounter_types()
+		enc_types = gmEncounter.get_encounter_types()
 		msg = _(
 			'Select the default type for new encounters.\n'
 			'\n'

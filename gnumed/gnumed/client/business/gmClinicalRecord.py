@@ -34,6 +34,7 @@ from Gnumed.business import gmLOINC
 from Gnumed.business import gmClinNarrative
 from Gnumed.business import gmSoapDefs
 from Gnumed.business import gmEMRStructItems
+from Gnumed.business import gmEncounter
 from Gnumed.business import gmMedication
 from Gnumed.business import gmVaccination
 from Gnumed.business import gmFamilyHistory
@@ -67,7 +68,7 @@ from Gnumed.business.gmDocuments import cDocument
 from Gnumed.business.gmProviderInbox import cInboxMessage
 
 _map_table2class = {
-	'clin.encounter': gmEMRStructItems.cEncounter,
+	'clin.encounter': gmEncounter.cEncounter,
 	'clin.episode': gmEMRStructItems.cEpisode,
 	'clin.health_issue': gmEMRStructItems.cHealthIssue,
 	'clin.external_care': gmExternalCare.cExternalCareItem,
@@ -244,7 +245,7 @@ class cClinicalRecord(object):
 
 		# get the current encounter as an extra instance
 		# from the database to check for changes
-		curr_enc_in_db = gmEMRStructItems.cEncounter(aPK_obj = self.current_encounter['pk_encounter'])
+		curr_enc_in_db = gmEncounter.cEncounter(aPK_obj = self.current_encounter['pk_encounter'])
 
 		# the encounter just retrieved and the active encounter
 		# have got the same transaction ID so there's no change
@@ -570,7 +571,7 @@ class cClinicalRecord(object):
 			if len(encounters) == 0:
 				args['encs'] = []
 			else:
-				if isinstance(encounters[0], gmEMRStructItems.cEncounter):
+				if isinstance(encounters[0], gmEncounter.cEncounter):
 					args['encs'] = [ e['pk_encounter'] for e in encounters ]
 				elif isinstance(encounters[0], int):
 					args['encs'] = encounters
@@ -1509,7 +1510,7 @@ WHERE
 			workplace = _here.active_workplace,
 			default = '1 hour 30 minutes'
 		)
-		SQL = gmEMRStructItems.SQL_get_encounters % """-- look for "very recent" encounter
+		SQL = gmEncounter.SQL_get_encounters % """-- look for "very recent" encounter
 		pk_encounter = (
 			SELECT pk_encounter
 			FROM clin.v_most_recent_encounters
@@ -1529,7 +1530,7 @@ WHERE
 
 		_log.debug('"very recent" encounter [%s] found and re-activated' % enc_rows[0]['pk_encounter'])
 		# attach to existing
-		self.current_encounter = gmEMRStructItems.cEncounter(row = {'data': enc_rows[0], 'pk_field': 'pk_encounter'})
+		self.current_encounter = gmEncounter.cEncounter(row = {'data': enc_rows[0], 'pk_field': 'pk_encounter'})
 		return True
 
 	#------------------------------------------------------------------
@@ -1545,7 +1546,7 @@ WHERE
 			default = '6 hours'
 		)
 		# do we happen to have a "fairly recent" candidate ?
-		SQL = gmEMRStructItems.SQL_get_encounters % """-- look for "fairly recent" encounter
+		SQL = gmEncounter.SQL_get_encounters % """-- look for "fairly recent" encounter
 		pk_encounter = (
 			SELECT pk_encounter
 			FROM clin.v_most_recent_encounters
@@ -1568,7 +1569,7 @@ WHERE
 			return None
 
 		_log.debug('"fairly recent" encounter [%s] found', enc_rows[0]['pk_encounter'])
-		return gmEMRStructItems.cEncounter(row = {'data': enc_rows[0], 'pk_field': 'pk_encounter'})
+		return gmEncounter.cEncounter(row = {'data': enc_rows[0], 'pk_field': 'pk_encounter'})
 
 #	#------------------------------------------------------------------
 #	def __check_for_fairly_recent_encounter(self):
@@ -1585,7 +1586,7 @@ WHERE
 #		)
 #
 #		# do we happen to have a "fairly recent" candidate ?
-#		cmd = gmEMRStructItems.SQL_get_encounters % u"""pk_encounter = (
+#		cmd = gmEncounter.SQL_get_encounters % u"""pk_encounter = (
 #			SELECT pk_encounter
 #			FROM clin.v_most_recent_encounters
 #			WHERE
@@ -1605,7 +1606,7 @@ WHERE
 #			return
 #
 #		_log.debug('"fairly recent" encounter [%s] found', enc_rows[0]['pk_encounter'])
-#		fairly_recent_enc = gmEMRStructItems.cEncounter(row = {'data': enc_rows[0], 'pk_field': 'pk_encounter'})
+#		fairly_recent_enc = gmEncounter.cEncounter(row = {'data': enc_rows[0], 'pk_field': 'pk_encounter'})
 #		gmDispatcher.send(u'ask_for_encounter_continuation', current = self.__encounter, fairly_recent_encounter = fairly_recent_enc)
 
 #	#------------------------------------------------------------------
@@ -1652,7 +1653,7 @@ WHERE
 #
 #		_log.debug('"fairly recent" encounter [%s] found', enc_rows[0][0])
 #
-#		encounter = gmEMRStructItems.cEncounter(aPK_obj=enc_rows[0][0])
+#		encounter = gmEncounter.cEncounter(aPK_obj=enc_rows[0][0])
 #		# ask user whether to attach or not
 #		cmd = u"""
 #			SELECT title, firstnames, lastnames, gender, dob
@@ -1711,10 +1712,10 @@ WHERE
 			workplace = _here.active_workplace
 		)
 		if enc_type is None:
-			enc_type = gmEMRStructItems.get_most_commonly_used_encounter_type()
+			enc_type = gmEncounter.get_most_commonly_used_encounter_type()
 		if enc_type is None:
 			enc_type = 'in surgery'
-		enc = gmEMRStructItems.create_encounter(fk_patient = self.pk_patient, enc_type = enc_type)
+		enc = gmEncounter.create_encounter(fk_patient = self.pk_patient, enc_type = enc_type)
 		enc['pk_org_unit'] = _here['pk_org_unit']
 		enc.save()
 		self.current_encounter = enc
@@ -1800,7 +1801,7 @@ WHERE
 			limit
 		)
 		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
-		encounters = [ gmEMRStructItems.cEncounter(row = {'data': r, 'pk_field': 'pk_encounter'}) for r in rows ]
+		encounters = [ gmEncounter.cEncounter(row = {'data': r, 'pk_field': 'pk_encounter'}) for r in rows ]
 
 		# we've got the encounters, start filtering
 		filtered_encounters = []
@@ -1985,13 +1986,13 @@ SELECT MIN(earliest) FROM (
 				# yes
 				return None
 			# no
-			return gmEMRStructItems.cEncounter(row = {'data': rows[0], 'pk_field': 'pk_encounter'})
+			return gmEncounter.cEncounter(row = {'data': rows[0], 'pk_field': 'pk_encounter'})
 
 		# more than one encounter
 		if rows[0]['pk_encounter'] == self.current_encounter['pk_encounter']:
-			return gmEMRStructItems.cEncounter(row = {'data': rows[1], 'pk_field': 'pk_encounter'})
+			return gmEncounter.cEncounter(row = {'data': rows[1], 'pk_field': 'pk_encounter'})
 
-		return gmEMRStructItems.cEncounter(row = {'data': rows[0], 'pk_field': 'pk_encounter'})
+		return gmEncounter.cEncounter(row = {'data': rows[0], 'pk_field': 'pk_encounter'})
 
 	last_but_one_encounter = property(get_last_but_one_encounter)
 

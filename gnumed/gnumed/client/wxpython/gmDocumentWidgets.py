@@ -2413,8 +2413,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 	#--------------------------------------------------------
 	def __edit_encounter_details(self, evt):
-		enc = gmEMRStructItems.cEncounter(aPK_obj = self.__curr_node_data['pk_encounter'])
-		gmEncounterWidgets.edit_encounter(parent = self, encounter = enc)
+		gmEncounterWidgets.edit_encounter(parent = self, encounter = self.__curr_node_data.encounter)
 
 	#--------------------------------------------------------
 	def __process_doc(self, action=None, l10n_action=None):

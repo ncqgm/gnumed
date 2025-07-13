@@ -27,6 +27,7 @@ from Gnumed.exporters import gmPatientExporter
 
 from Gnumed.business import gmGenericEMRItem
 from Gnumed.business import gmEMRStructItems
+from Gnumed.business import gmEncounter
 from Gnumed.business import gmPerson
 from Gnumed.business import gmGender
 from Gnumed.business import gmPersonSearch
@@ -200,7 +201,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			return 'issue::%s' % node_data['pk_health_issue']
 		if isinstance(node_data, gmEMRStructItems.cEpisode):
 			return 'episode::%s' % node_data['pk_episode']
-		if isinstance(node_data, gmEMRStructItems.cEncounter):
+		if isinstance(node_data, gmEncounter.cEncounter):
 			return 'encounter::%s' % node_data['pk_encounter']
 		# unassociated episodes
 		if isinstance(node_data, dict):
@@ -352,7 +353,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			self.__update_text_for_episode_node(node_data)
 			return
 
-		if isinstance(node_data, gmEMRStructItems.cEncounter):
+		if isinstance(node_data, gmEncounter.cEncounter):
 			self.__update_text_for_encounter_node(node_data)
 			return
 
@@ -463,7 +464,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			self.PopupMenu(self.__epi_context_popup, pos)
 			return True
 
-		if isinstance(self.__curr_node_data, gmEMRStructItems.cEncounter):
+		if isinstance(self.__curr_node_data, gmEncounter.cEncounter):
 			self.PopupMenu(self.__enc_context_popup, pos)
 			return True
 
@@ -1201,7 +1202,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			self.__expand_pseudo_issue_node(fake_issue_node = node)
 			return
 
-		if isinstance(node_data, gmEMRStructItems.cEncounter):
+		if isinstance(node_data, gmEncounter.cEncounter):
 			self.__expand_encounter_node(encounter_node = node)
 			return
 
@@ -1232,7 +1233,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 #			if flags == wx.TREE_HITTEST_ONITEMLABEL:
 #				data = self.GetItemData(item)
 #
-#				if not isinstance(data, gmEMRStructItems.cEncounter):
+#				if not isinstance(data, gmEncounter.cEncounter):
 #					return
 #
 #				self.SetToolTip(u'%s  %s  %s - %s\n\nRFE: %s\nAOE: %s' % (
@@ -1253,7 +1254,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			return
 
 		data = self.GetItemData(item)
-		if isinstance(data, gmEMRStructItems.cEncounter):
+		if isinstance(data, gmEncounter.cEncounter):
 			tt = self.__calc_encounter_tooltip(data)
 		elif isinstance(data, gmEMRStructItems.cEpisode):
 			tt = self.__calc_episode_tooltip(data)
@@ -1317,7 +1318,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			return 1
 
 		# encounters: reverse chronologically
-		if isinstance(item1, gmEMRStructItems.cEncounter):
+		if isinstance(item1, gmEncounter.cEncounter):
 			if item1['started'] == item2['started']:
 				return 0
 			if item1['started'] > item2['started']:

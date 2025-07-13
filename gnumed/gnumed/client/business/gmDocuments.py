@@ -20,6 +20,7 @@ from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmWorkerThread
 
 from Gnumed.business import gmOrganization
+from Gnumed.business import gmEncounter
 
 
 _log = logging.getLogger('gm.docs')
@@ -107,6 +108,12 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 		return cDocument(aPK_obj = self._payload['pk_doc'])
 
 	containing_document = property(__get_containing_document)
+
+	#--------------------------------------------------------
+	def __get_encounter(self):
+		return gmEncounter.cEncounter(aPK_obj = self._payload['pk_encounter'])
+
+	encounter = property(__get_encounter)
 
 	#--------------------------------------------------------
 	# store data
@@ -835,6 +842,12 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		return get_bills4document(pk_document = self.pk_obj)
 
 	bills = property(_get_bills)
+
+	#--------------------------------------------------------
+	def __get_encounter(self):
+		return gmEncounter.cEncounter(aPK_obj = self._payload['pk_encounter'])
+
+	encounter = property(__get_encounter)
 
 #------------------------------------------------------------
 def create_document(document_type=None, encounter=None, episode=None, link_obj=None):

@@ -32,6 +32,7 @@ from Gnumed.business import gmExternalCare
 from Gnumed.business import gmAutoHints
 from Gnumed.business import gmMedication
 from Gnumed.business import gmPerformedProcedure
+from Gnumed.business import gmEncounter
 
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmDemographicsWidgets
@@ -564,7 +565,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 	#-----------------------------------------------------
 	def _calc_encounters_list_item_tooltip(self, data):
-		if isinstance(data, gmEMRStructItems.cEncounter):
+		if isinstance(data, gmEncounter.cEncounter):
 			return data.format (
 				with_vaccinations = False,
 				with_tests = False,
@@ -588,7 +589,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		if data is not None:
 			# <ctrl> down ?
 			if wx.GetKeyState(wx.WXK_CONTROL):
-				if isinstance(data, gmEMRStructItems.cEncounter):
+				if isinstance(data, gmEncounter.cEncounter):
 					gmEncounterWidgets.edit_encounter(parent = self, encounter = data)
 					return
 
@@ -648,7 +649,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		]
 		for issue in issues:
 			last_encounter = emr.get_last_encounter(issue_id = issue['pk_health_issue'])
-			linked_encounter = gmEMRStructItems.cEncounter(issue['pk_encounter'])
+			linked_encounter = issue.encounter
 			when_candidates = [issue['modified_when'], linked_encounter['last_affirmed']]
 			if last_encounter is not None:
 				when_candidates.append(last_encounter['last_affirmed'])
@@ -677,8 +678,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			sort_key = '%s::%s' % (relevant_date.strftime(date_format4sorting), issue['pk_health_issue'])
 			relevant_date_str = relevant_date.strftime('%Y %b')
 			if issue['age_noted'] is None:
-				encounter = gmEMRStructItems.cEncounter(issue['pk_encounter'])
-				age = _(' (entered %s ago)') % gmDateTime.format_interval_medically(now - encounter['started'])
+				age = _(' (entered %s ago)') % gmDateTime.format_interval_medically(now - issue.encounter['started'])
 			else:
 				age = ' (@ %s)' % gmDateTime.format_interval_medically(issue['age_noted'])
 			sort_key_list.append(sort_key)

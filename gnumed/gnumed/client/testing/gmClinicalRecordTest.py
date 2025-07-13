@@ -9,7 +9,7 @@ __license__ = "GPL"
 import unittest, time
 
 from Gnumed.pycommon import gmExceptions
-from Gnumed.business import gmClinicalRecord, gmEMRStructItems, gmAllergy, gmVaccination, gmPathLab
+from Gnumed.business import gmClinicalRecord, gmEMRStructItems, gmAllergy, gmVaccination, gmPathLab, gmEncounter
 
 #============================================================
 class EMR_StructureTests(unittest.TestCase):
@@ -88,7 +88,7 @@ class EMR_StructureTests(unittest.TestCase):
 	#--------------------------------------------------------
 	def testGetActiveEncounter(self):
 		"""Check that active encounter can be obtained"""
-		self.assertEqual(isinstance(self.emr.active_encounter, gmEMRStructItems.cEncounter), True)
+		self.assertEqual(isinstance(self.emr.active_encounter, gmEncounter.cEncounter), True)
 	#def testAttachToEncounter(self):
 		#"""Check that a concrete encounter can be attached to"""
 		#active_encounter = self.emr.active_encounter
