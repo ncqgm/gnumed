@@ -97,21 +97,19 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 		if source_episode['pk_episode'] == target_episode['pk_episode']:
 			return True
 
-		cmd = """
+		SQL = """
 			UPDATE clin.clin_root_item
 			SET fk_episode = %(trg)s
  			WHERE
 				fk_encounter = %(enc)s AND
 				fk_episode = %(src)s
 			"""
-		gmPG2.run_rw_queries(queries = [{
-			'sql': cmd,
-			'args': {
-				'trg': target_episode['pk_episode'],
-				'enc': self.pk_obj,
-				'src': source_episode['pk_episode']
-			}
-		}])
+		args = {
+			'trg': target_episode['pk_episode'],
+			'enc': self.pk_obj,
+			'src': source_episode['pk_episode']
+		}
+		gmPG2.run_rw_queries(queries = [{'sql': SQL, 'args': args}])
 		self.refetch_payload()
 		return True
 
@@ -119,12 +117,13 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 	def transfer_all_data_to_another_encounter(self, pk_target_encounter=None):
 		if pk_target_encounter == self.pk_obj:
 			return True
-		cmd = "SELECT clin.transfer_all_encounter_data(%(src)s, %(trg)s)"
+
+		SQL = "SELECT clin.transfer_all_encounter_data(%(src)s, %(trg)s)"
 		args = {
 			'src': self.pk_obj,
 			'trg': pk_target_encounter
 		}
-		gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'sql': SQL, 'args': args}])
 		return True
 
 	#--------------------------------------------------------
@@ -192,43 +191,31 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 				return False
 
 		return True
+
 	#--------------------------------------------------------
 	def has_clinical_data(self):
-		cmd = """
-select exists (
-	select 1 from clin.v_pat_items where pk_patient = %(pat)s and pk_encounter = %(enc)s
-		union all
-	select 1 from blobs.v_doc_med where pk_patient = %(pat)s and pk_encounter = %(enc)s
-)"""
+		SQL = """SELECT EXISTS (
+			SELECT 1 FROM clin.v_pat_items WHERE pk_patient = %(pat)s and pk_encounter = %(enc)s
+				UNION ALL
+			SELECT 1 FROM blobs.v_doc_med WHERE pk_patient = %(pat)s and pk_encounter = %(enc)s
+		)"""
 		args = {
 			'pat': self._payload['pk_patient'],
 			'enc': self.pk_obj
 		}
-		rows = gmPG2.run_ro_queries (
-			queries = [{
-				'sql': cmd,
-				'args': args
-			}]
-		)
+		rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
 		return rows[0][0]
 
 	#--------------------------------------------------------
 	def has_narrative(self):
-		cmd = """
-select exists (
-	select 1 from clin.v_pat_items where pk_patient=%(pat)s and pk_encounter=%(enc)s
-)"""
+		SQL = "SELECT EXISTS (SELECT 1 FROM clin.v_pat_items WHERE pk_patient=%(pat)s and pk_encounter=%(enc)s)"
 		args = {
 			'pat': self._payload['pk_patient'],
 			'enc': self.pk_obj
 		}
-		rows = gmPG2.run_ro_queries (
-			queries = [{
-				'sql': cmd,
-				'args': args
-			}]
-		)
+		rows = gmPG2.run_ro_queries(queries = [{'sql': SQL,	'args': args}])
 		return rows[0][0]
+
 	#--------------------------------------------------------
 	def has_soap_narrative(self, soap_cats=None):
 		"""soap_cats: <space> = admin category"""
@@ -245,76 +232,63 @@ select exists (
 				continue
 			if cat == ' ':
 				cats.append(None)
-
-		cmd = """
-			SELECT EXISTS (
-				SELECT 1 FROM clin.clin_narrative
-				WHERE
-					fk_encounter = %(enc)s
-						AND
-					soap_cat = ANY(%(cats)s)
-				LIMIT 1
-			)
-		"""
+		SQL = """SELECT EXISTS (
+			SELECT 1 FROM clin.clin_narrative
+			WHERE
+				fk_encounter = %(enc)s
+					AND
+				soap_cat = ANY(%(cats)s)
+			LIMIT 1
+		)"""
 		args = {'enc': self._payload['pk_encounter'], 'cats': cats}
-		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd,'args': args}])
+		rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
 		return rows[0][0]
+
 	#--------------------------------------------------------
 	def has_documents(self):
-		cmd = """
-select exists (
-	select 1 from blobs.v_doc_med where pk_patient = %(pat)s and pk_encounter = %(enc)s
-)"""
+		SQL = "SELECT EXISTS (SELECT 1 FROM blobs.v_doc_med WHERE pk_patient = %(pat)s and pk_encounter = %(enc)s)"
 		args = {
 			'pat': self._payload['pk_patient'],
 			'enc': self.pk_obj
 		}
-		rows = gmPG2.run_ro_queries (
-			queries = [{
-				'sql': cmd,
-				'args': args
-			}]
-		)
+		rows = gmPG2.run_ro_queries (queries = [{'sql': SQL,'args': args}])
 		return rows[0][0]
+
 	#--------------------------------------------------------
 	def get_latest_soap(self, soap_cat=None, episode=None):
 
 		if soap_cat is not None:
 			soap_cat = soap_cat.casefold()
-
 		if episode is None:
 			epi_part = 'fk_episode is null'
 		else:
 			epi_part = 'fk_episode = %(epi)s'
-
-		cmd = """
-select narrative
-from clin.clin_narrative
-where
-	fk_encounter = %%(enc)s
-		and
-	soap_cat = %%(cat)s
-		and
-	%s
-order by clin_when desc
-limit 1
-		""" % epi_part
-
+		SQL = """
+			SELECT narrative
+			FROM clin.clin_narrative
+			where
+				fk_encounter = %%(enc)s
+					and
+				soap_cat = %%(cat)s
+					and
+				%s
+			order by clin_when desc
+			limit 1""" % epi_part
 		args = {'enc': self.pk_obj, 'cat': soap_cat, 'epi': episode}
-
-		rows = gmPG2.run_ro_queries (
-			queries = [{
-				'sql': cmd,
-				'args': args
-			}]
-		)
+		rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
 		if len(rows) == 0:
 			return None
 
 		return rows[0][0]
 	#--------------------------------------------------------
 	def get_episodes(self, exclude=None):
-		cmd = """
+		"""exclude: list of episode PKs to exclude"""
+		args = {'enc': self.pk_obj}
+		extra_where_parts = ''
+		if exclude is not None:
+			extra_where_parts = 'AND pk_episode <> ALL(%(excluded_pks)s)'
+			args['excluded_pks'] = exclude
+		SQL = """
 			SELECT * FROM clin.v_pat_episodes
 			WHERE pk_episode IN (
 					SELECT DISTINCT fk_episode
@@ -326,25 +300,19 @@ limit 1
 					SELECT DISTINCT fk_episode
 					FROM blobs.doc_med
 					WHERE fk_encounter = %%(enc)s
-			) %s"""
-		args = {'enc': self.pk_obj}
-		if exclude is not None:
-			cmd = cmd % 'AND pk_episode <> ALL(%(excluded)s)'
-			args['excluded'] = exclude
-		else:
-			cmd = cmd % ''
-		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
+			) %s""" % extra_where_parts
+		rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
 		return [ cEpisode(row = {'data': r, 'pk_field': 'pk_episode'})  for r in rows ]
 
 	episodes = property(get_episodes)
 
 	#--------------------------------------------------------
 	def add_code(self, pk_code=None, field=None):
-		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
+		"""<pk_code> must be a value FROM ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
 		if field == 'rfe':
-			cmd = "INSERT INTO clin.lnk_code2rfe (fk_item, fk_generic_code) values (%(item)s, %(code)s)"
+			cmd = "INSERT INTO clin.lnk_code2rfe (fk_item, fk_generic_code) VALUES (%(item)s, %(code)s)"
 		elif field == 'aoe':
-			cmd = "INSERT INTO clin.lnk_code2aoe (fk_item, fk_generic_code) values (%(item)s, %(code)s)"
+			cmd = "INSERT INTO clin.lnk_code2aoe (fk_item, fk_generic_code) VALUES (%(item)s, %(code)s)"
 		else:
 			raise ValueError('<field> must be one of "rfe" or "aoe", not "%s"', field)
 		args = {
@@ -356,7 +324,7 @@ limit 1
 
 	#--------------------------------------------------------
 	def remove_code(self, pk_code=None, field=None):
-		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
+		"""<pk_code> must be a value FROM ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
 		if field == 'rfe':
 			cmd = "DELETE FROM clin.lnk_code2rfe WHERE fk_item = %(item)s AND fk_generic_code = %(code)s"
 		elif field == 'aoe':
@@ -1023,9 +991,9 @@ def create_encounter(fk_patient=None, enc_type=None):
 				%(pat)s,
 				%(prax)s,
 				coalesce (
-					(select pk from clin.encounter_type where description = %(typ)s),
+					(SELECT pk FROM clin.encounter_type WHERE description = %(typ)s),
 					-- pick the first available
-					(select pk from clin.encounter_type limit 1)
+					(SELECT pk FROM clin.encounter_type limit 1)
 				)
 			) RETURNING pk"""
 	praxis = gmPraxis.gmCurrentPraxisBranch()
@@ -1036,7 +1004,7 @@ def create_encounter(fk_patient=None, enc_type=None):
 
 #------------------------------------------------------------
 def lock_encounter(pk_encounter, exclusive=False, link_obj=None):
-	"""Used to protect against deletion of active encounter from another client."""
+	"""Used to protect against deletion of active encounter FROM another client."""
 	return gmPG2.lock_row(link_obj = link_obj, table = 'clin.encounter', pk = pk_encounter, exclusive = exclusive)
 
 #------------------------------------------------------------
@@ -1067,15 +1035,17 @@ def delete_encounter(pk_encounter):
 	if not lock_encounter(pk_encounter, exclusive = True, link_obj = conn):
 		_log.debug('cannot lock encounter [%s] for deletion, it seems in use', pk_encounter)
 		return False
-	cmd = """DELETE FROM clin.encounter WHERE pk = %(enc)s"""
+
+	SQL = "DELETE FROM clin.encounter WHERE pk = %(enc)s"
 	args = {'enc': pk_encounter}
 	try:
-		gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'sql': SQL, 'args': args}])
 	except gmPG2.PG_ERROR_EXCEPTION as exc:
 		_log.exception('cannot delete encounter [%s]', pk_encounter)
 		gmPG2.log_pg_exception_details(exc)
 		unlock_encounter(pk_encounter, exclusive = True, link_obj = conn)
 		return False
+
 	unlock_encounter(pk_encounter, exclusive = True, link_obj = conn)
 	return True
 
@@ -1083,20 +1053,14 @@ def delete_encounter(pk_encounter):
 # encounter types handling
 #-----------------------------------------------------------
 def update_encounter_type(description=None, l10n_description=None):
-
-	rows = gmPG2.run_rw_queries(
-		queries = [{
-		'sql': "select i18n.upd_tx(%(desc)s, %(l10n_desc)s)",
-		'args': {'desc': description, 'l10n_desc': l10n_description}
-		}],
-		return_data = True
-	)
-
+	SQL = "SELECT i18n.upd_tx(%(desc)s, %(l10n_desc)s)"
+	args = {'desc': description, 'l10n_desc': l10n_description}
+	rows = gmPG2.run_rw_queries(queries = [{'sql': SQL, 'args': args}], return_data = True)
 	success = rows[0][0]
 	if not success:
 		_log.warning('updating encounter type [%s] to [%s] failed', description, l10n_description)
-
 	return {'description': description, 'l10n_description': l10n_description}
+
 #-----------------------------------------------------------
 def create_encounter_type(description=None, l10n_description=None):
 	"""This will attempt to create a NEW encounter type."""
@@ -1113,7 +1077,7 @@ def create_encounter_type(description=None, l10n_description=None):
 	_log.debug('creating encounter type: %s, %s', description, l10n_description)
 
 	# does it exist already ?
-	cmd = "select description, _(description) from clin.encounter_type where description = %(desc)s"
+	cmd = "SELECT description, _(description) FROM clin.encounter_type WHERE description = %(desc)s"
 	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 
 	# yes
@@ -1125,7 +1089,7 @@ def create_encounter_type(description=None, l10n_description=None):
 
 		# or maybe there just wasn't a translation to
 		# the current language for this type yet ?
-		cmd = "select exists (select 1 from i18n.translations where orig = %(desc)s and lang = i18n.get_curr_lang())"
+		cmd = "SELECT EXISTS (SELECT 1 FROM i18n.translations WHERE orig = %(desc)s and lang = i18n.get_curr_lang())"
 		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 
 		# there was, so fail
@@ -1134,14 +1098,14 @@ def create_encounter_type(description=None, l10n_description=None):
 			return None
 
 		# else set it
-		cmd = "select i18n.upd_tx(%(desc)s, %(l10n_desc)s)"
+		cmd = "SELECT i18n.upd_tx(%(desc)s, %(l10n_desc)s)"
 		rows = gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
 		return {'description': description, 'l10n_description': l10n_description}
 
 	# no
 	queries = [
-		{'sql': "insert into clin.encounter_type (description) values (%(desc)s)", 'args': args},
-		{'sql': "select i18n.upd_tx(%(desc)s, %(l10n_desc)s)", 'args': args}
+		{'sql': "INSERT INTO clin.encounter_type (description) VALUES (%(desc)s)", 'args': args},
+		{'sql': "SELECT i18n.upd_tx(%(desc)s, %(l10n_desc)s)", 'args': args}
 	]
 	rows = gmPG2.run_rw_queries(queries = queries)
 
@@ -1149,7 +1113,7 @@ def create_encounter_type(description=None, l10n_description=None):
 
 #-----------------------------------------------------------
 def get_most_commonly_used_encounter_type():
-	cmd = """
+	SQL = """
 		SELECT
 			COUNT(*) AS type_count,
 			fk_type
@@ -1158,14 +1122,15 @@ def get_most_commonly_used_encounter_type():
 		ORDER BY type_count DESC
 		LIMIT 1
 	"""
-	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': SQL}])
 	if len(rows) == 0:
 		return None
+
 	return rows[0]['fk_type']
 
 #-----------------------------------------------------------
 def get_encounter_types():
-	cmd = """
+	SQL = """
 		SELECT
 			_(description) AS l10n_description,
 			description
@@ -1174,12 +1139,12 @@ def get_encounter_types():
 		ORDER BY
 			l10n_description
 	"""
-	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': SQL}])
 	return rows
 
 #-----------------------------------------------------------
 def get_encounter_type(description:str=None):
-	SQL = 'SELECT * from clin.encounter_type where description = %(desc)s'
+	SQL = 'SELECT * FROM clin.encounter_type WHERE description = %(desc)s'
 	args = {'desc': description}
 	rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
 	return rows
@@ -1187,10 +1152,10 @@ def get_encounter_type(description:str=None):
 #-----------------------------------------------------------
 def delete_encounter_type(description:str=None):
 	deleted = False
-	cmd = "delete from clin.encounter_type where description = %(desc)s"
+	SQL = "DELETE FROM clin.encounter_type WHERE description = %(desc)s"
 	args = {'desc': description}
 	try:
-		gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
+		gmPG2.run_rw_queries(queries = [{'sql': SQL, 'args': args}])
 		deleted = True
 	except gmPG2.dbapi.IntegrityError as e:
 		if e.pgcode != gmPG2.PG_error_codes.FOREIGN_KEY_VIOLATION:
