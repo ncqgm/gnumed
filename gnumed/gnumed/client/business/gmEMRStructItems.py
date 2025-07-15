@@ -72,7 +72,6 @@ laterality2str = {
 class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one health issue."""
 
-	#_cmd_fetch_payload = u"select *, xmin_health_issue from clin.v_health_issues where pk_health_issue=%s"
 	_cmd_fetch_payload = "select * from clin.v_health_issues where pk_health_issue = %s"
 	_cmds_store_payload = [
 		"""update clin.health_issue set
@@ -2242,131 +2241,6 @@ def reclass_problem(problem=None):
 	raise exc
 
 #============================================================
-_SQL_get_hospital_stays = "select * from clin.v_hospital_stays where %s"
-
-class cHospitalStay(gmBusinessDBObject.cBusinessDBObject):
-
-	_cmd_fetch_payload = _SQL_get_hospital_stays % "pk_hospital_stay = %s"
-	_cmds_store_payload = [
-		"""UPDATE clin.hospital_stay SET
-				clin_when = %(admission)s,
-				discharge = %(discharge)s,
-				fk_org_unit = %(pk_org_unit)s,
-				narrative = gm.nullify_empty_string(%(comment)s),
-				fk_episode = %(pk_episode)s,
-				fk_encounter = %(pk_encounter)s
-			WHERE
-				pk = %(pk_hospital_stay)s
-					AND
-				xmin = %(xmin_hospital_stay)s
-			RETURNING
-				xmin AS xmin_hospital_stay
-			"""
-	]
-	_updatable_fields = [
-		'admission',
-		'discharge',
-		'pk_org_unit',
-		'pk_episode',
-		'pk_encounter',
-		'comment'
-	]
-
-	#--------------------------------------------------------
-	def format_maximum_information(self, patient=None):
-		return self.format (
-			include_procedures = True,
-			include_docs = True
-		).split('\n')
-
-	#-------------------------------------------------------
-	def format(self, left_margin=0, include_procedures=False, include_docs=False, include_episode=True):
-
-		if self._payload['discharge']:
-			discharge = ' - %s' % self._payload['discharge'].strftime('%Y %b %d')
-		else:
-			discharge = ''
-
-		episode = ''
-		if include_episode:
-			episode = ': %s%s%s' % (
-				gmTools.u_left_double_angle_quote,
-				self._payload['episode'],
-				gmTools.u_right_double_angle_quote
-			)
-
-		lines = ['%s%s%s (%s@%s)%s' % (
-			' ' * left_margin,
-			self._payload['admission'].strftime('%Y %b %d'),
-			discharge,
-			self._payload['ward'],
-			self._payload['hospital'],
-			episode
-		)]
-
-		if include_docs:
-			for doc in self.documents:
-				lines.append('%s%s: %s\n' % (
-					' ' * left_margin,
-					_('Document'),
-					doc.format(single_line = True)
-				))
-
-		return '\n'.join(lines)
-
-	#--------------------------------------------------------
-	def _get_documents(self):
-		return [ gmDocuments.cDocument(aPK_obj = pk_doc) for pk_doc in  self._payload['pk_documents'] ]
-
-	documents = property(_get_documents)
-
-#-----------------------------------------------------------
-def get_latest_patient_hospital_stay(patient=None):
-	cmd = _SQL_get_hospital_stays % "pk_patient = %(pat)s ORDER BY admission DESC LIMIT 1"
-	queries = [{
-		# this assumes non-overarching stays
-		#'sql': u'SELECT * FROM clin.v_hospital_stays WHERE pk_patient = %(pat)s ORDER BY admission DESC LIMIT 1',
-		'sql': cmd,
-		'args': {'pat': patient}
-	}]
-	rows = gmPG2.run_ro_queries(queries = queries)
-	if len(rows) == 0:
-		return None
-	return cHospitalStay(row = {'data': rows[0], 'pk_field': 'pk_hospital_stay'})
-
-#-----------------------------------------------------------
-def get_patient_hospital_stays(patient=None, ongoing_only=False, return_pks=False):
-	args = {'pat': patient}
-	if ongoing_only:
-		cmd = _SQL_get_hospital_stays % "pk_patient = %(pat)s AND discharge is NULL ORDER BY admission"
-	else:
-		cmd = _SQL_get_hospital_stays % "pk_patient = %(pat)s ORDER BY admission"
-
-	queries = [{'sql': cmd, 'args': args}]
-	rows = gmPG2.run_ro_queries(queries = queries)
-	if return_pks:
-		return [ r['pk_hospital_stay'] for r in rows ]
-	return [ cHospitalStay(row = {'data': r, 'pk_field': 'pk_hospital_stay'})  for r in rows ]
-
-#-----------------------------------------------------------
-def create_hospital_stay(encounter=None, episode=None, fk_org_unit=None):
-
-	queries = [{
-		 'sql': 'INSERT INTO clin.hospital_stay (fk_encounter, fk_episode, fk_org_unit) VALUES (%(enc)s, %(epi)s, %(fk_org_unit)s) RETURNING pk',
-		 'args': {'enc': encounter, 'epi': episode, 'fk_org_unit': fk_org_unit}
-	}]
-	rows = gmPG2.run_rw_queries(queries = queries, return_data = True)
-
-	return cHospitalStay(aPK_obj = rows[0][0])
-
-#-----------------------------------------------------------
-def delete_hospital_stay(stay=None):
-	cmd = 'DELETE FROM clin.hospital_stay WHERE pk = %(pk)s'
-	args = {'pk': stay}
-	gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
-	return True
-
-#============================================================
 #============================================================
 def export_emr_structure(patient=None, filename=None):
 
@@ -2675,7 +2549,6 @@ if __name__ == '__main__':
 	#test_episode_encounters()
 	#test_problem()
 	test_health_issue()
-	#test_hospital_stay()
 	#test_diagnostic_certainty_classification_map()
 	#test_episode_codes()
 

@@ -21,6 +21,7 @@ from Gnumed.pycommon import gmWorkerThread
 
 from Gnumed.business import gmOrganization
 from Gnumed.business import gmEncounter
+from Gnumed.business import gmHospitalStay
 
 
 _log = logging.getLogger('gm.docs')
@@ -817,7 +818,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		if self._payload['pk_hospital_stay'] is None:
 			return None
 		from Gnumed.business import gmEMRStructItems
-		return gmEMRStructItems.cHospitalStay(self._payload['pk_hospital_stay'])
+		return gmHospitalStay.cHospitalStay(self._payload['pk_hospital_stay'])
 
 	hospital_stay = property(_get_hospital_stay)
 

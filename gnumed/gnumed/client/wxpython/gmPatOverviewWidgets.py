@@ -32,6 +32,7 @@ from Gnumed.business import gmExternalCare
 from Gnumed.business import gmAutoHints
 from Gnumed.business import gmMedication
 from Gnumed.business import gmPerformedProcedure
+from Gnumed.business import gmHospitalStay
 from Gnumed.business import gmEncounter
 
 from Gnumed.wxpython import gmRegetMixin
@@ -765,7 +766,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		if isinstance(data, gmFamilyHistory.cFamilyHistory):
 			return data.format(include_episode = True, include_comment = True)
 
-		if isinstance(data, gmEMRStructItems.cHospitalStay):
+		if isinstance(data, gmHospitalStay.cHospitalStay):
 			return data.format()
 
 		if isinstance(data, gmPerformedProcedure.cPerformedProcedure):
@@ -805,7 +806,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			if isinstance(data, gmFamilyHistory.cFamilyHistory):
 				gmFamilyHistoryWidgets.edit_family_history(parent = self, family_history = data)
 				return
-			if isinstance(data, gmEMRStructItems.cHospitalStay):
+			if isinstance(data, gmHospitalStay.cHospitalStay):
 				gmHospitalStayWidgets.edit_hospital_stay(parent = self, hospital_stay = data)
 				return
 			if isinstance(data, gmPerformedProcedure.cPerformedProcedure):
@@ -822,7 +823,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		if isinstance(data, gmFamilyHistory.cFamilyHistory):
 			gmFamilyHistoryWidgets.manage_family_history(parent = self)
 			return
-		if isinstance(data, gmEMRStructItems.cHospitalStay):
+		if isinstance(data, gmHospitalStay.cHospitalStay):
 			gmHospitalStayWidgets.manage_hospital_stays(parent = self)
 			return
 		if isinstance(data, gmPerformedProcedure.cPerformedProcedure):
@@ -970,7 +971,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	#-----------------------------------------------------
 	def _calc_contacts_list_item_tooltip(self, data):
 
-		if isinstance(data, gmEMRStructItems.cHospitalStay):
+		if isinstance(data, gmHospitalStay.cHospitalStay):
 			return data.format()
 
 		if isinstance(data, gmExternalCare.cExternalCareItem):
@@ -1031,7 +1032,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		if data is not None:
 			# <ctrl> down ?
 			if wx.GetKeyState(wx.WXK_CONTROL):
-				if isinstance(data, gmEMRStructItems.cHospitalStay):
+				if isinstance(data, gmHospitalStay.cHospitalStay):
 					gmHospitalStayWidgets.edit_hospital_stay(parent = self, hospital_stay = data)
 					return
 				if isinstance(data, gmDemographicRecord.cPatientAddress):

@@ -28,6 +28,7 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmBusinessDBObject
 
 from Gnumed.business import gmEMRStructItems
+from Gnumed.business import gmHospitalStay
 from Gnumed.business import gmCoding
 from Gnumed.business import gmOrganization
 from Gnumed.business import gmDocuments
@@ -183,7 +184,7 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 		if self._payload['pk_hospital_stay'] is None:
 			return None
 
-		return gmEMRStructItems.cHospitalStay(aPK_obj = self._payload['pk_hospital_stay'])
+		return gmHospitalStay.cHospitalStay(aPK_obj = self._payload['pk_hospital_stay'])
 
 	hospital_stay = property(_get_stay)
 

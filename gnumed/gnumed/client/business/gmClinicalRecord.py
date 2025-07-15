@@ -42,6 +42,7 @@ from Gnumed.business import gmExternalCare
 from Gnumed.business import gmOrganization
 from Gnumed.business import gmAutoHints
 from Gnumed.business import gmPerformedProcedure
+from Gnumed.business import gmHospitalStay
 from Gnumed.business.gmDemographicRecord import get_occupations
 
 
@@ -77,7 +78,7 @@ _map_table2class = {
 	'clin.test_result': gmPathLab.cTestResult,
 	'clin.substance_intake': gmMedication.cSubstanceIntakeEntry,
 	'clin.intake_regimen': gmMedication.cIntakeRegimen,
-	'clin.hospital_stay': gmEMRStructItems.cHospitalStay,
+	'clin.hospital_stay': gmHospitalStay.cHospitalStay,
 	'clin.procedure': gmPerformedProcedure.cPerformedProcedure,
 	'clin.allergy': gmAllergy.cAllergy,
 	'clin.allergy_state': gmAllergy.cAllergyState,
@@ -452,7 +453,7 @@ class cClinicalRecord(object):
 	# API: hospitalizations
 	#--------------------------------------------------------
 	def get_hospital_stays(self, episodes=None, issues=None, ongoing_only=False):
-		stays = gmEMRStructItems.get_patient_hospital_stays(patient = self.pk_patient, ongoing_only = ongoing_only)
+		stays = gmHospitalStay.get_patient_hospital_stays(patient = self.pk_patient, ongoing_only = ongoing_only)
 		if episodes is not None:
 			stays = [ s for s in stays if s['pk_episode'] in episodes ]
 		if issues is not None:
@@ -460,16 +461,21 @@ class cClinicalRecord(object):
 		return stays
 
 	hospital_stays = property(get_hospital_stays)
+
 	#--------------------------------------------------------
 	def get_latest_hospital_stay(self):
-		return gmEMRStructItems.get_latest_patient_hospital_stay(patient = self.pk_patient)
+		return gmHospitalStay.get_latest_patient_hospital_stay(patient = self.pk_patient)
+
+	latest_hospital_stay = property(get_latest_hospital_stay)
+
 	#--------------------------------------------------------
-	def add_hospital_stay(self, episode=None, fk_org_unit=None):
-		return gmEMRStructItems.create_hospital_stay (
+	def add_hospital_stay(self, episode:int=None, fk_org_unit:int=None):
+		return gmHospitalStay.create_hospital_stay (
 			encounter = self.current_encounter['pk_encounter'],
 			episode = episode,
 			fk_org_unit = fk_org_unit
 		)
+
 	#--------------------------------------------------------
 	def get_hospital_stay_stats_by_hospital(self, cover_period=None):
 		args = {'pat': self.pk_patient, 'range': cover_period}
@@ -488,6 +494,7 @@ class cClinicalRecord(object):
 
 		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		return rows
+
 	#--------------------------------------------------------
 	def get_attended_hospitals_as_org_units(self):
 		where = 'pk_org_unit IN (SELECT DISTINCT pk_org_unit FROM clin.v_hospital_stays WHERE pk_patient = %(pat)s)'

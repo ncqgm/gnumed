@@ -25,7 +25,7 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmMatchProvider
 
-from Gnumed.business import gmEMRStructItems
+from Gnumed.business import gmHospitalStay
 from Gnumed.business import gmPerson
 
 from Gnumed.wxpython import gmPhraseWheel
@@ -61,8 +61,9 @@ def manage_hospital_stays(parent=None):
 
 	#-----------------------------------------
 	def delete(stay=None):
-		if gmEMRStructItems.delete_hospital_stay(stay = stay['pk_hospital_stay']):
+		if gmHospitalStay.delete_hospital_stay(stay = stay['pk_hospital_stay']):
 			return True
+
 		gmDispatcher.send (
 			signal = 'statustext',
 			msg = _('Cannot delete hospitalization.'),
@@ -220,55 +221,52 @@ class cHospitalWardPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.selection_only = True
 
 #----------------------------------------------------------------
+__SQL_hospital_stay_match_provider = """-- PRW: retrieve matching hospital stays
+	SELECT
+		pk_hospital_stay,
+		descr
+	FROM (
+		SELECT DISTINCT ON (pk_hospital_stay)
+			pk_hospital_stay,
+			descr
+		FROM
+			(SELECT
+				pk_hospital_stay,
+				(
+					to_char(admission, 'YYYY-Mon-DD')
+					|| ' (' || ward || ' @ ' || hospital || '):'
+					|| episode
+					|| coalesce((' (' || health_issue || ')'), '')
+				) AS descr
+			 FROM
+			 	clin.v_hospital_stays
+			 WHERE
+				%(ctxt_pat)s (
+					hospital %(fragment_condition)s
+						OR
+					ward %(fragment_condition)s
+						OR
+					episode %(fragment_condition)s
+						OR
+					health_issue %(fragment_condition)s
+				)
+			) AS the_stays
+	) AS distinct_stays
+	ORDER BY descr
+	LIMIT 25
+"""
+
 class cHospitalStayPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Phrasewheel to allow selection of a hospital-type org_unit."""
 	def __init__(self, *args, **kwargs):
-
 		gmPhraseWheel.cPhraseWheel.__init__ (self, *args, **kwargs)
-
 		ctxt = {'ctxt_pat': {'where_part': '(pk_patient = %(pat)s) AND', 'placeholder': 'pat'}}
-
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
-			queries = [
-"""
-SELECT
-	pk_hospital_stay,
-	descr
-FROM (
-	SELECT DISTINCT ON (pk_hospital_stay)
-		pk_hospital_stay,
-		descr
-	FROM
-		(SELECT
-			pk_hospital_stay,
-			(
-				to_char(admission, 'YYYY-Mon-DD')
-				|| ' (' || ward || ' @ ' || hospital || '):'
-				|| episode
-				|| coalesce((' (' || health_issue || ')'), '')
-			) AS descr
-		 FROM
-		 	clin.v_hospital_stays
-		 WHERE
-			%(ctxt_pat)s (
-				hospital %(fragment_condition)s
-					OR
-				ward %(fragment_condition)s
-					OR
-				episode %(fragment_condition)s
-					OR
-				health_issue %(fragment_condition)s
-			)
-		) AS the_stays
-) AS distinct_stays
-ORDER BY descr
-LIMIT 25
-"""			],
+			queries = [__SQL_hospital_stay_match_provider],
 			context = ctxt
 		)
 		mp.setThresholds(3, 4, 6)
 		mp.set_context('pat', gmPerson.gmCurrentPatient().ID)
-
 		self.matcher = mp
 		self.selection_only = True
 
