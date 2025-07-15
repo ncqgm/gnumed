@@ -7,10 +7,8 @@ license: GPL v2 or later
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, <karsten.hilbert@gmx.net>"
 
 import sys
-import datetime
 import logging
 import inspect
-import os
 
 
 if __name__ == '__main__':
@@ -21,16 +19,11 @@ from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmBusinessDBObject
-from Gnumed.pycommon import gmExceptions
-from Gnumed.pycommon import gmMatchProvider
 
-from Gnumed.business import gmClinNarrative
 from Gnumed.business import gmSoapDefs
 from Gnumed.business import gmCoding
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmOrganization
-from Gnumed.business import gmExternalCare
-from Gnumed.business import gmDocuments
 
 
 _log = logging.getLogger('gm.emr.enc')
@@ -302,6 +295,7 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 					WHERE fk_encounter = %%(enc)s
 			) %s""" % extra_where_parts
 		rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
+		from Gnumed.business.gmEMRStructItems import cEpisode
 		return [ cEpisode(row = {'data': r, 'pk_field': 'pk_episode'})  for r in rows ]
 
 	episodes = property(get_episodes)
@@ -423,6 +417,7 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 				gmTools.tex_escape_string(self._payload['assessment_of_encounter'])
 			)
 
+		from Gnumed.business.gmEMRStructItems import diagnostic_certainty_classification2str
 		for epi in self.get_episodes():
 			soaps = epi.get_narrative(soap_cats = soap_cats, encounters = [self.pk_obj], order_by = soap_order)
 			if len(soaps) == 0:
@@ -586,6 +581,7 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 		if episodes is None:
 			episodes = [ e['pk_episode'] for e in self.episodes ]
 
+		from Gnumed.business.gmEMRStructItems import cEpisode
 		for pk in episodes:
 			epi = cEpisode(aPK_obj = pk)
 			lines.append(_('\nEpisode %s%s%s%s:') % (

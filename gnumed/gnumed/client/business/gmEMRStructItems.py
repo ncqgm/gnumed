@@ -9,7 +9,6 @@ __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, <karsten.hilbert@gmx.net>"
 import sys
 import datetime
 import logging
-import inspect
 import os
 
 
@@ -28,7 +27,6 @@ from Gnumed.business import gmClinNarrative
 from Gnumed.business import gmSoapDefs
 from Gnumed.business import gmCoding
 from Gnumed.business import gmPraxis
-from Gnumed.business import gmOrganization
 from Gnumed.business import gmExternalCare
 from Gnumed.business import gmDocuments
 
@@ -518,7 +516,8 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			lines.append(_(' contributed to death of patient'))
 			lines.append('')
 
-		enc = gmEncounter.cEncounter(aPK_obj = self._payload['pk_encounter'])
+		from Gnumed.business.gmEncounter import cEncounter
+		enc = cEncounter(aPK_obj = self._payload['pk_encounter'])
 		lines.append (_(' Created during encounter: %s (%s - %s)   [#%s]') % (
 			enc['l10n_type'],
 			enc['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
@@ -586,7 +585,8 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 	# properties
 	#--------------------------------------------------------
 	def _get_encounter(self):
-		return gmEncounter.cEncounter(aPK_obj = self._payload['pk_encounter'])
+		from Gnumed.business.gmEncounter import cEncounter
+		return cEncounter(aPK_obj = self._payload['pk_encounter'])
 
 	encounter = property(_get_encounter)
 
@@ -1463,7 +1463,8 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 			self._payload['pk_episode']
 		))
 
-		enc = gmEncounterc.Encounter(aPK_obj = self._payload['pk_encounter'])
+		from Gnumed.business.gmEncounter import cEncounter
+		enc = cEncounter(aPK_obj = self._payload['pk_encounter'])
 		lines.append (' ' + _('Created during encounter: %s (%s - %s)   [#%s]') % (
 			enc['l10n_type'],
 			enc['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
