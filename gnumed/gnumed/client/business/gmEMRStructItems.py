@@ -2501,16 +2501,6 @@ if __name__ == '__main__':
 		input('ENTER to continue')
 
 	#--------------------------------------------------------
-	def test_hospital_stay():
-		stay = create_hospital_stay(encounter = 1, episode = 2, fk_org_unit = 1)
-#		stay['hospital'] = u'Starfleet Galaxy General Hospital'
-#		stay.save_payload()
-		print(stay)
-		for s in get_patient_hospital_stays(12):
-			print(s)
-		delete_hospital_stay(stay['pk_hospital_stay'])
-		stay = create_hospital_stay(encounter = 1, episode = 4, fk_org_unit = 1)
-	#--------------------------------------------------------
 	def test_diagnostic_certainty_classification_map():
 		tests = [None, 'A', 'B', 'C', 'D', 'E']
 

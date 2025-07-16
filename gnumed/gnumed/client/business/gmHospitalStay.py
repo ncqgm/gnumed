@@ -7,9 +7,7 @@ license: GPL v2 or later
 __author__ = "<karsten.hilbert@gmx.net>"
 
 import sys
-import datetime
 import logging
-import os
 
 
 if __name__ == '__main__':
@@ -18,16 +16,8 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmBusinessDBObject
-from Gnumed.pycommon import gmExceptions
-from Gnumed.pycommon import gmMatchProvider
 
-from Gnumed.business import gmClinNarrative
-from Gnumed.business import gmSoapDefs
-from Gnumed.business import gmCoding
-from Gnumed.business import gmPraxis
-from Gnumed.business import gmExternalCare
 from Gnumed.business import gmDocuments
 
 

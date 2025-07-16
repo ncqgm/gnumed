@@ -27,7 +27,6 @@ from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmBusinessDBObject
 
-from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmHospitalStay
 from Gnumed.business import gmCoding
 from Gnumed.business import gmOrganization

@@ -21,7 +21,6 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmMatchProvider
 
-from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmPerformedProcedure
 from Gnumed.business import gmPerson
 from Gnumed.wxpython import gmHospitalStay

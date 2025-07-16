@@ -817,7 +817,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 	def _get_hospital_stay(self):
 		if self._payload['pk_hospital_stay'] is None:
 			return None
-		from Gnumed.business import gmEMRStructItems
+
 		return gmHospitalStay.cHospitalStay(self._payload['pk_hospital_stay'])
 
 	hospital_stay = property(_get_hospital_stay)
