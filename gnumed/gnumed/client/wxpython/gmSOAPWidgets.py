@@ -16,6 +16,7 @@ import wx
 from Gnumed.pycommon import gmDispatcher, gmExceptions, gmTools, gmCfgDB
 from Gnumed.wxpython import gmResizingWidgets, gmEMRStructWidgets, gmGuiHelpers, gmRegetMixin, gmEditArea, gmPatSearchWidgets, gmVaccWidgets
 from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter, gmPraxis, gmPersonSearch, gmStaff
+from Gnumed.business import gmEpisode
 
 _log = logging.getLogger('gm.ui')
 if __name__ == '__main__':
@@ -125,6 +126,7 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 		self.__pat = gmPerson.gmCurrentPatient()
 		self.__do_layout()
 		self.__register_interests()
+
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------
@@ -137,22 +139,16 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 		problem_to_add = problem
 
 		# determine label
-		if problem_to_add is None:
+		if problem is None:
 			label = _('new problem')
+			problem_to_add = None
 		else:
-			# normalize problem type
-			emr = self.__pat.emr
-			if isinstance(problem_to_add, gmEMRStructItems.cEpisode):
-				problem_to_add = emr.episode2problem(episode = problem_to_add)
-			elif isinstance(problem_to_add, gmEMRStructItems.cHealthIssue):
-				problem_to_add = emr.health_issue2problem(issue = problem_to_add)
-			if not isinstance(problem_to_add, gmEMRStructItems.cProblem):
-				raise TypeError('cannot open progress note editor for [%s]' % problem_to_add)
-			label = problem_to_add['problem']
-			# FIXME: configure maximum length
-			if len(label) > 23:
-				label = label[:21] + gmTools.u_ellipsis
+			problem_to_add = gmEMRStructItems.cProblem.from_issue_or_episode(problem)
+			if not isinstance(problem, gmEMRStructItems.cProblem):
+				raise TypeError('cannot open progress note editor for [%s]' % problem)
 
+			# FIXME: configure maximum length
+			label = gmTools.shorten_text(text = problem_to_add['problem'],	max_length = 23)
 		if allow_same_problem:
 			new_page = cResizingSoapPanel(parent = self, problem = problem_to_add)
 			result = self.AddPage (
@@ -216,6 +212,7 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 		)
 
 		return result
+
 	#--------------------------------------------------------
 	def close_current_editor(self):
 
@@ -494,7 +491,7 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 					last = last_encounter['last_affirmed'].strftime('%m/%Y')
 				label = '%s: %s "%s"' % (last, problem['l10n_type'], problem['problem'])
 			elif problem['type'] == 'episode':
-				epi = gmEMRStructItems.cEpisode.from_problem(problem)
+				epi = gmEpisode.cEpisode.from_problem(problem)
 				last_encounter = emr.get_last_encounter(episode_id = epi['pk_episode'])
 				if last_encounter is None:
 					last = epi['episode_modified_when'].strftime('%m/%Y')
@@ -715,8 +712,8 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 		gmResizingWidgets.cResizingWindow.__init__(self, parent, id=-1, size=size)
 
 		self.__problem = problem
-		if isinstance(problem, gmEMRStructItems.cEpisode):
-			self.__problem = gmEMRStructItems.episode2problem(episode = problem)
+		if isinstance(problem, gmEpisode.cEpisode):
+			self.__problem = gmEpisode.episode2problem(episode = problem)
 		elif isinstance(problem, gmEMRStructItems.cHealthIssue):
 			self.__problem = gmEMRStructItems.health_issue2problem(issue = problem)
 		self.__pat = gmPerson.gmCurrentPatient()
@@ -883,14 +880,14 @@ class cResizingSoapPanel(wx.Panel):
 		@param parent: the parent widget
 
 		@param episode: the episode to create the SOAP editor for.
-		@type episode gmEMRStructItems.cEpisode instance or None (to create an
+		@type episode gmEpisode.cEpisode instance or None (to create an
 		unassociated progress note). A gmEMRStructItems.cProblem instance is 
 		also allowed to be passed, as the widget will obtain the related cEpisode.
 
 		@param input_defs: the display and associated data for each displayed narrative
 		@type input_defs: a list of cSOAPLineDef instances
 		"""
-		if not isinstance(problem, (gmEMRStructItems.cHealthIssue, gmEMRStructItems.cEpisode, gmEMRStructItems.cProblem, type(None))):
+		if not isinstance(problem, (gmEMRStructItems.cHealthIssue, gmEpisode.cEpisode, gmEMRStructItems.cProblem, type(None))):
 			raise gmExceptions.ConstructorError('problem [%s] is of type %s, must be issue, episode, problem or None' % (str(problem), type(problem)))
 
 		self.__is_saved = False
@@ -1201,7 +1198,7 @@ if __name__ == "__main__":
 
 #	# soap widget displaying all narratives for an issue along an encounter
 #	print 'testing soap editor for encounter narratives...'
-#	episode = gmEMRStructItems.cEpisode(aPK_obj=1)
+#	episode = gmEpisode.cEpisode(aPK_obj=1)
 #	encounter = gmEncounter.cEncounter(aPK_obj=1)
 #	narrative = get_narrative(pk_encounter = encounter['pk_encounter'], pk_health_issue = episode['pk_health_issue'])
 #	default_labels = {'s':'Subjective', 'o':'Objective', 'a':'Assesment', 'p':'Plan'}

@@ -34,6 +34,7 @@ from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmMatchProvider
 
 from Gnumed.business import gmEMRStructItems
+from Gnumed.business import gmEpisode
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmPerson
 
@@ -52,12 +53,14 @@ def emr_access_spinner(time2spin=0):
 	"""Spin time in seconds but let wx go on."""
 	if time2spin == 0:
 		return
+
 	sleep_time = 0.1			# 100ms
 	total_rounds = int(time2spin / sleep_time)
 	if total_rounds < 1:
 		wx.Yield()
 		time.sleep(sleep_time)
 		return
+
 	rounds = 0
 	while rounds < total_rounds:
 		wx.Yield()
@@ -73,9 +76,7 @@ def edit_episode(parent=None, episode=None, single_entry=True):
 	ea.mode = gmTools.coalesce(episode, 'new', 'edit')
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(episode, _('Adding a new episode'), _('Editing an episode')))
-	if dlg.ShowModal() == wx.ID_OK:
-		return True
-	return False
+	return dlg.ShowModal() == wx.ID_OK
 
 #----------------------------------------------------------------
 def manage_episodes(parent=None):
@@ -90,7 +91,7 @@ def manage_episodes(parent=None):
 		return edit_episode(parent = parent, episode = episode)
 	#-----------------------------------------
 	def delete(episode=None):
-		if gmEMRStructItems.delete_episode(episode = episode):
+		if gmEpisode.delete_episode(episode = episode):
 			return True
 		gmDispatcher.send (
 			signal = 'statustext',
@@ -420,7 +421,7 @@ class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			self.__patient_id = None
 			self.use_current_patient = True
 
-		mp = gmEMRStructItems.cEpisodeMatchProvider()
+		mp = gmEpisode.cEpisodeMatchProvider()
 		if self.use_current_patient:
 			self.__register_patient_change_signals()
 			pat = gmPerson.gmCurrentPatient()
@@ -473,7 +474,7 @@ class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	#--------------------------------------------------------
 	def _data2instance(self, link_obj=None):
-		return gmEMRStructItems.cEpisode(aPK_obj = self.GetData())
+		return gmEpisode.cEpisode(aPK_obj = self.GetData())
 
 	#--------------------------------------------------------
 	# internal API
@@ -555,7 +556,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 						issue['description']
 					)
 				)
-				gmEMRStructItems.delete_episode(episode = epi)
+				gmEpisode.delete_episode(episode = epi)
 				return False
 
 		epi.save()

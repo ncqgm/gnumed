@@ -35,6 +35,7 @@ from Gnumed.business import gmClinNarrative
 from Gnumed.business import gmSoapDefs
 from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmEncounter
+from Gnumed.business import gmEpisode
 from Gnumed.business import gmMedication
 from Gnumed.business import gmVaccination
 from Gnumed.business import gmFamilyHistory
@@ -70,7 +71,7 @@ from Gnumed.business.gmProviderInbox import cInboxMessage
 
 _map_table2class = {
 	'clin.encounter': gmEncounter.cEncounter,
-	'clin.episode': gmEMRStructItems.cEpisode,
+	'clin.episode': gmEpisode.cEpisode,
 	'clin.health_issue': gmEMRStructItems.cHealthIssue,
 	'clin.external_care': gmExternalCare.cExternalCareItem,
 	'clin.vaccination': gmVaccination.cVaccination,
@@ -521,17 +522,21 @@ class cClinicalRecord(object):
 		return True
 
 	#--------------------------------------------------------
-	def add_clin_narrative(self, note='', soap_cat='s', episode=None, link_obj=None):
+	def add_clin_narrative(self, note:str='', soap_cat:str='s', episode:gmEpisode.cEpisode=None, pk_episode:int=None, link_obj=None):
+		if episode and pk_episode:
+			assert episode['pk_episode'] == pk_episode, 'must not pass in <episode> AND <pk_episode> unless equal'
+
 		if note.strip() == '':
 			_log.info('will not create empty clinical note')
 			return None
-		if isinstance(episode, gmEMRStructItems.cEpisode):
-			episode = episode['pk_episode']
+
+		if episode:
+			pk_episode = episode['pk_episode']
 		instance = gmClinNarrative.create_narrative_item (
 			link_obj = link_obj,
 			narrative = note,
 			soap_cat = soap_cat,
-			episode_id = episode,
+			episode_id = pk_episode,
 			encounter_id = self.current_encounter['pk_encounter']
 		)
 		return instance
@@ -551,39 +556,30 @@ class cClinicalRecord(object):
 		"""
 		where_parts = ['pk_patient = %(pat)s']
 		args = {'pat': self.pk_patient}
-		if issues is not None:
+		if issues:
 			where_parts.append('pk_health_issue = ANY(%(issues)s)')
-			if len(issues) == 0:
-				args['issues'] = []
+			if isinstance(issues[0], gmEMRStructItems.cHealthIssue):
+				args['issues'] = [ i['pk_health_issue'] for i in issues ]
+			elif isinstance(issues[0], int):
+				args['issues'] = issues
 			else:
-				if isinstance(issues[0], gmEMRStructItems.cHealthIssue):
-					args['issues'] = [ i['pk_health_issue'] for i in issues ]
-				elif isinstance(issues[0], int):
-					args['issues'] = issues
-				else:
-					raise ValueError('<issues> must be list of type int (=pk) or cHealthIssue, but 1st issue is: %s' % issues[0])
-		if episodes is not None:
+				raise ValueError('<issues> must be list of type int (=pk) or cHealthIssue, but 1st issue is: %s' % issues[0])
+		if episodes:
 			where_parts.append('pk_episode = ANY(%(epis)s)')
-			if len(episodes) == 0:
-				args['epis'] = []
+			if isinstance(episodes[0], gmEpisode.cEpisode):
+				args['epis'] = [ e['pk_episode'] for e in episodes ]
+			elif isinstance(episodes[0], int):
+				args['epis'] = episodes
 			else:
-				if isinstance(episodes[0], gmEMRStructItems.cEpisode):
-					args['epis'] = [ e['pk_episode'] for e in episodes ]
-				elif isinstance(episodes[0], int):
-					args['epis'] = episodes
-				else:
-					raise ValueError('<episodes> must be list of type int (=pk) or cEpisode, but 1st episode is: %s' % episodes[0])
-		if encounters is not None:
+				raise ValueError('<episodes> must be list of type int (=pk) or cEpisode, but 1st episode is: %s' % episodes[0])
+		if encounters:
 			where_parts.append('pk_encounter = ANY(%(encs)s)')
-			if len(encounters) == 0:
-				args['encs'] = []
+			if isinstance(encounters[0], gmEncounter.cEncounter):
+				args['encs'] = [ e['pk_encounter'] for e in encounters ]
+			elif isinstance(encounters[0], int):
+				args['encs'] = encounters
 			else:
-				if isinstance(encounters[0], gmEncounter.cEncounter):
-					args['encs'] = [ e['pk_encounter'] for e in encounters ]
-				elif isinstance(encounters[0], int):
-					args['encs'] = encounters
-				else:
-					raise ValueError('<encounters> must be list of type int (=pk) or cEncounter, but 1st encounter is: %s' % encounters[0])
+				raise ValueError('<encounters> must be list of type int (=pk) or cEncounter, but 1st encounter is: %s' % encounters[0])
 		if soap_cats is not None:
 			where_parts.append('c_vn.soap_cat = ANY(%(cats)s)')
 			args['cats'] = gmSoapDefs.soap_cats_str2list(soap_cats)
@@ -1091,7 +1087,7 @@ WHERE
 			order_by
 		)
 		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
-		return [ gmEMRStructItems.cEpisode(row = {'data': r, 'pk_field': 'pk_episode'}) for r in rows ]
+		return [ gmEpisode.cEpisode(row = {'data': r, 'pk_field': 'pk_episode'}) for r in rows ]
 
 	episodes = property(get_episodes)
 	#------------------------------------------------------------------
@@ -1121,7 +1117,7 @@ WHERE
 
 		- silently returns if episode already exists
 		"""
-		episode = gmEMRStructItems.create_episode (
+		episode = gmEpisode.create_episode (
 			link_obj = link_obj,
 			pk_health_issue = pk_health_issue,
 			episode_name = episode_name,
@@ -1160,7 +1156,7 @@ WHERE pk = (
 			{'sql': cmd, 'args': {'pat': self.pk_patient, 'issue': issue}}
 		])
 		if len(rows) != 0:
-			return gmEMRStructItems.cEpisode(aPK_obj=rows[0][0])
+			return gmEpisode.cEpisode(aPK_obj=rows[0][0])
 
 		# no clinical items recorded, so try to find
 		# the youngest episode for this patient
@@ -1181,12 +1177,12 @@ WHERE
 			{'sql': cmd, 'args': {'pat': self.pk_patient, 'issue': issue}}
 		])
 		if len(rows) != 0:
-			return gmEMRStructItems.cEpisode(aPK_obj=rows[0][0])
+			return gmEpisode.cEpisode(aPK_obj=rows[0][0])
 
 		return None
 	#--------------------------------------------------------
 	def episode2problem(self, episode=None):
-		return gmEMRStructItems.episode2problem(episode=episode)
+		return gmEpisode.episode2problem(episode = episode)
 	#--------------------------------------------------------
 	# API: problems
 	#--------------------------------------------------------

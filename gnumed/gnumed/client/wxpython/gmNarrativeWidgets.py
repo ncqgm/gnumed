@@ -24,6 +24,7 @@ from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmSoapDefs
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmPersonSearch
+from Gnumed.business import gmEpisode
 
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmEMRStructWidgets
@@ -97,7 +98,7 @@ class cMoveNarrativeDlg(wxgMoveNarrativeDlg.wxgMoveNarrativeDlg):
 			self._PRW_episode_selector.SetFocus()
 			return False
 
-		target_episode = gmEMRStructItems.cEpisode(aPK_obj=target_episode)
+		target_episode = gmEpisode.cEpisode(aPK_obj=target_episode)
 
 		self.encounter.transfer_clinical_data (
 			source_episode = self.source_episode,
@@ -211,7 +212,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 				list_items.append([last, problem['problem'], gmTools.u_left_arrow_with_tail])
 
 			elif problem['type'] == 'episode':
-				epi = gmEMRStructItems.cEpisode.from_problem(problem)
+				epi = gmEpisode.cEpisode.from_problem(problem)
 				last_encounter = emr.get_last_encounter(episode_id = epi['pk_episode'])
 				if last_encounter is None:
 					last = epi['episode_modified_when'].strftime('%m/%Y')
@@ -788,8 +789,8 @@ class cSoapNoteInputNotebook(wx.Notebook):
 			label = _('new problem')
 		else:
 			# normalize problem type
-			if isinstance(problem_to_add, gmEMRStructItems.cEpisode):
-				problem_to_add = gmEMRStructItems.episode2problem(episode = problem_to_add, allow_closed = True)
+			if isinstance(problem_to_add, gmEpisode.cEpisode):
+				problem_to_add = gmEpisode.episode2problem(episode = problem_to_add, allow_closed = True)
 
 			elif isinstance(problem_to_add, gmEMRStructItems.cHealthIssue):
 				problem_to_add = gmEMRStructItems.health_issue2problem(health_issue = problem_to_add, allow_irrelevant = True)
@@ -1182,7 +1183,7 @@ class cSimpleSoapPluginPnl(wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl, gmRege
 		epi = self._LCTRL_problems.get_selected_item_data(only_one = True)
 		if epi is None:
 			return
-		if not gmEMRStructItems.delete_episode(episode = epi):
+		if not gmEpisode.delete_episode(episode = epi):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete problem. There is still clinical data recorded for it.'))
 	#-----------------------------------------------------
 	def _on_save_soap_button_pressed(self, event):

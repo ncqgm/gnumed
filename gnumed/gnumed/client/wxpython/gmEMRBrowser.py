@@ -33,6 +33,7 @@ from Gnumed.business import gmGender
 from Gnumed.business import gmPersonSearch
 from Gnumed.business import gmSoapDefs
 from Gnumed.business import gmClinicalRecord
+from Gnumed.business import gmEpisode
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmEMRStructWidgets
@@ -199,7 +200,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		if isinstance(node_data, gmEMRStructItems.cHealthIssue):
 			return 'issue::%s' % node_data['pk_health_issue']
-		if isinstance(node_data, gmEMRStructItems.cEpisode):
+		if isinstance(node_data, gmEpisode.cEpisode):
 			return 'episode::%s' % node_data['pk_episode']
 		if isinstance(node_data, gmEncounter.cEncounter):
 			return 'encounter::%s' % node_data['pk_encounter']
@@ -349,7 +350,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			self.__update_text_for_pseudo_issue_node(node_data)
 			return
 
-		if isinstance(node_data, gmEMRStructItems.cEpisode):
+		if isinstance(node_data, gmEpisode.cEpisode):
 			self.__update_text_for_episode_node(node_data)
 			return
 
@@ -460,7 +461,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			self.PopupMenu(self.__issue_context_popup, pos)
 			return True
 
-		if isinstance(self.__curr_node_data, gmEMRStructItems.cEpisode):
+		if isinstance(self.__curr_node_data, gmEpisode.cEpisode):
 			self.PopupMenu(self.__epi_context_popup, pos)
 			return True
 
@@ -526,7 +527,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		if result != wx.ID_YES:
 			return
 
-		if not gmEMRStructItems.delete_episode(episode = self.__curr_node_data):
+		if not gmEpisode.delete_episode(episode = self.__curr_node_data):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete episode. There is still clinical data recorded for it.'))
 
 	#--------------------------------------------------------
@@ -1193,7 +1194,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			self.__expand_issue_node(issue_node = node)
 			return
 
-		if isinstance(node_data, gmEMRStructItems.cEpisode):
+		if isinstance(node_data, gmEpisode.cEpisode):
 			self.__expand_episode_node(episode_node = node)
 			return
 
@@ -1256,7 +1257,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		data = self.GetItemData(item)
 		if isinstance(data, gmEncounter.cEncounter):
 			tt = self.__calc_encounter_tooltip(data)
-		elif isinstance(data, gmEMRStructItems.cEpisode):
+		elif isinstance(data, gmEpisode.cEpisode):
 			tt = self.__calc_episode_tooltip(data)
 		elif isinstance(data, gmEMRStructItems.cHealthIssue):
 			tt = self.__calc_issue_tooltip(data)
@@ -1326,7 +1327,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			return 1
 
 		# episodes: open, then reverse chronologically
-		if isinstance(item1, gmEMRStructItems.cEpisode):
+		if isinstance(item1, gmEpisode.cEpisode):
 			# open episodes first
 			if item1['episode_open']:
 				return -1

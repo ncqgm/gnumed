@@ -23,6 +23,7 @@ from Gnumed.business import gmPerson
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmClinNarrative
+from Gnumed.business import gmEpisode
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmTextCtrl
@@ -190,7 +191,7 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 			episode = None
 		else:
 			issue = self.problem['pk_health_issue']
-			episode = gmEMRStructItems.cEpisode.from_problem(self.problem)
+			episode = gmEpisode.cEpisode.from_problem(self.problem)
 
 		wx.CallAfter (
 			gmVisualProgressNoteWidgets.edit_visual_progress_note,
@@ -214,7 +215,7 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 				return False
 		# existing episode
 		else:
-			episode = gmEMRStructItems.cEpisode.from_problem(self.problem)
+			episode = gmEpisode.cEpisode.from_problem(self.problem)
 
 		if encounter is None:
 			encounter = emr.current_encounter['pk_encounter']

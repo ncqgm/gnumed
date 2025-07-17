@@ -9,7 +9,7 @@ __license__ = "GPL"
 import unittest, time
 
 from Gnumed.pycommon import gmExceptions
-from Gnumed.business import gmClinicalRecord, gmEMRStructItems, gmAllergy, gmVaccination, gmPathLab, gmEncounter
+from Gnumed.business import gmClinicalRecord, gmEMRStructItems, gmAllergy, gmVaccination, gmPathLab, gmEncounter, gmEpisode
 
 #============================================================
 class EMR_StructureTests(unittest.TestCase):
@@ -59,14 +59,14 @@ class EMR_StructureTests(unittest.TestCase):
 	#--------------------------------------------------------	 
 	def testGetEpisodes(self):
 		"""Check that patient episodes can be obtained"""
-		self.assertEqual(isinstance(self.emr.get_episodes()[0], gmEMRStructItems.cEpisode), True)
+		self.assertEqual(isinstance(self.emr.get_episodes()[0], gmEpisode.cEpisode), True)
 
 	def testAddEpisode(self):
 		""" Check that a new episode can be created"""
 		# create new episode
 		h_issue = self.emr.get_health_issues()[0]
 		new_episode = self.emr.add_episode(episode_name = 'TEST Episode', pk_health_issue = h_issue['id'])
-		self.assertEqual(isinstance(new_episode, gmEMRStructItems.cEpisode), True)
+		self.assertEqual(isinstance(new_episode, gmEpisode.cEpisode), True)
 		self.assertEqual(new_episode['id_patient'], patient_id)
 		# delete test episode
 		queries = []

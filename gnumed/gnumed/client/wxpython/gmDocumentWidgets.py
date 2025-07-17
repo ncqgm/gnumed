@@ -50,6 +50,7 @@ from Gnumed.business import gmPraxis
 from Gnumed.business import gmDICOM
 from Gnumed.business import gmProviderInbox
 from Gnumed.business import gmOrganization
+from Gnumed.business import gmEpisode
 
 
 from Gnumed.wxpython import gmGuiHelpers
@@ -2003,7 +2004,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 				_log.debug('node data dict holds pseudo-issue for unattributed episodes, ignoring')
 				issue = None
 			try:
-				episode = gmEMRStructItems.cEpisode(aPK_obj = self.__curr_node_data['pk_episode'])
+				episode = gmEpisode.cEpisode(aPK_obj = self.__curr_node_data['pk_episode'])
 			except KeyError:
 				episode = None
 			self.__show_details_callback(issue = issue, episode = episode)
@@ -2333,7 +2334,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 				emr.add_clin_narrative (
 					soap_cat = None,
 					note =  _('document part handed over to email program: %s') % self.__curr_node_data.format(single_line = True),
-					episode = self.__curr_node_data['pk_episode']
+					pk_episode = self.__curr_node_data['pk_episode']
 				)
 	#--------------------------------------------------------
 	def __print_part(self, evt):

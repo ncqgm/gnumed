@@ -37,6 +37,7 @@ from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmForms
 from Gnumed.business import gmDocuments
+from Gnumed.business import gmEpisode
 
 from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmGuiHelpers
@@ -309,7 +310,7 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 		doc_part.set_reviewed(technically_abnormal = False, clinically_relevant = True)
 		return None
 
-	if not isinstance(episode, gmEMRStructItems.cEpisode):
+	if not isinstance(episode, gmEpisode.cEpisode):
 		if episode is None:
 			episode = _('visual progress notes')
 		pat = gmPerson.gmCurrentPatient()

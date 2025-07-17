@@ -53,6 +53,7 @@ from Gnumed.pycommon import gmDateTime
 from Gnumed.business import gmATC
 from Gnumed.business import gmAllergy
 from Gnumed.business import gmEMRStructItems
+from Gnumed.business import gmEpisode
 
 
 _log = logging.getLogger('gm.meds')
@@ -3571,7 +3572,7 @@ def format_substance_intake(emr=None, output_format='latex', table_type='by-prod
 # convenience functions
 #------------------------------------------------------------
 def create_default_medication_history_episode(pk_health_issue=None, encounter=None, link_obj=None):
-	return gmEMRStructItems.create_episode (
+	return gmEpisode.create_episode (
 		pk_health_issue = pk_health_issue,
 		episode_name = DEFAULT_MEDICATION_HISTORY_EPISODE,
 		is_open = False,

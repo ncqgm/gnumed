@@ -34,6 +34,7 @@ from Gnumed.business import gmMedication
 from Gnumed.business import gmPerformedProcedure
 from Gnumed.business import gmHospitalStay
 from Gnumed.business import gmEncounter
+from Gnumed.business import gmEpisode
 
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmDemographicsWidgets
@@ -1072,7 +1073,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 					last = last_encounter['last_affirmed'].strftime('%m/%Y')
 				list_items.append('%s: %s' % (problem['problem'], last))
 			elif problem['type'] == 'episode':
-				epi = gmEMRStructItems.cEpisode.from_problem(problem)
+				epi = gmEpisode.cEpisode.from_problem(problem)
 				last_encounter = emr.get_last_encounter(episode_id = epi['pk_episode'])
 				if last_encounter is None:
 					last = epi['episode_modified_when'].strftime('%m/%Y')
@@ -1126,7 +1127,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			return tt
 
 		if data['type'] == 'episode':
-			epi = gmEMRStructItems.cEpisode.from_problem(data)
+			epi = gmEpisode.cEpisode.from_problem(data)
 			tt = epi.format (
 				patient = gmPerson.gmCurrentPatient(),
 				with_encounters = False,
@@ -1153,7 +1154,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 					return
 
 				if data['type'] == 'episode':
-					gmEMRStructWidgets.edit_episode(parent = self, episode = gmEMRStructItems.cEpisode.from_problem(data))
+					gmEMRStructWidgets.edit_episode(parent = self, episode = gmEpisode.cEpisode.from_problem(data))
 					return
 
 		gmDispatcher.send(signal = 'display_widget', name = 'gmEMRBrowserPlugin')
