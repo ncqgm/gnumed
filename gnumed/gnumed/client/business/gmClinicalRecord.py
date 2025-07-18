@@ -1180,9 +1180,7 @@ WHERE
 			return gmEpisode.cEpisode(aPK_obj=rows[0][0])
 
 		return None
-	#--------------------------------------------------------
-	def episode2problem(self, episode=None):
-		return gmEpisode.episode2problem(episode = episode)
+
 	#--------------------------------------------------------
 	# API: problems
 	#--------------------------------------------------------

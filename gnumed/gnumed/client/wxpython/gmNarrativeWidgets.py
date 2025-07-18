@@ -790,14 +790,9 @@ class cSoapNoteInputNotebook(wx.Notebook):
 		else:
 			# normalize problem type
 			if isinstance(problem_to_add, gmEpisode.cEpisode):
-				problem_to_add = gmEpisode.episode2problem(episode = problem_to_add, allow_closed = True)
-
+				problem_to_add = gmEMRStructItems.cProblem.from_episode(problem_to_add, allow_closed = True)
 			elif isinstance(problem_to_add, gmEMRStructItems.cHealthIssue):
-				problem_to_add = gmEMRStructItems.health_issue2problem(health_issue = problem_to_add, allow_irrelevant = True)
-
-			if not isinstance(problem_to_add, gmEMRStructItems.cProblem):
-				raise TypeError('cannot open progress note editor for [%s]' % problem_to_add)
-
+				problem_to_add = gmEMRStructItems.cProblem.from_health_issue(problem_to_add, allow_irrelevant = True)
 			label = problem_to_add['problem']
 			# FIXME: configure maximum length
 			if len(label) > 23:

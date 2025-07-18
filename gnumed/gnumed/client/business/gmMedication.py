@@ -52,7 +52,6 @@ from Gnumed.pycommon import gmDateTime
 
 from Gnumed.business import gmATC
 from Gnumed.business import gmAllergy
-from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmEpisode
 
 

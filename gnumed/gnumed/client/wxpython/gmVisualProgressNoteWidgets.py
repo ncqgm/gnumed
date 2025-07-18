@@ -33,7 +33,6 @@ from Gnumed.pycommon import gmWorkerThread
 from Gnumed.pycommon import gmPG2
 
 from Gnumed.business import gmPerson
-from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmForms
 from Gnumed.business import gmDocuments

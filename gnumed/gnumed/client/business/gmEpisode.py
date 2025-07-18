@@ -7,9 +7,7 @@ license: GPL v2 or later
 __author__ = "<karsten.hilbert@gmx.net>"
 
 import sys
-import datetime
 import logging
-import os
 
 
 if __name__ == '__main__':
@@ -27,9 +25,6 @@ from Gnumed.business import gmClinNarrative
 from Gnumed.business import gmSoapDefs
 from Gnumed.business import gmCoding
 from Gnumed.business import gmPraxis
-from Gnumed.business import gmExternalCare
-from Gnumed.business import gmDocuments
-from Gnumed.business.gmEMRStructItems import diagnostic_certainty_classification2str
 
 _log = logging.getLogger('gm.emr')
 
@@ -102,12 +97,11 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 	# external API
 	#--------------------------------------------------------
 	@classmethod
-	def from_problem(cls, problem:'cProblem') -> 'cEpisode':
+	def from_problem(cls, problem) -> 'cEpisode':
 		"""Initialize episode from episody-type problem."""
 		if isinstance(problem, cEpisode):
 			return problem
 
-		assert isinstance(problem, cProblem), 'cannot convert [%s] to episode' % problem
 		assert problem['type'] == 'episode', 'cannot convert [%s] to episode' % problem
 		return cls(aPK_obj = problem['pk_episode'])
 
@@ -395,6 +389,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 			range_str, range_str_verb, duration_str = self.formatted_clinical_duration
 			lines.append(_(' Duration: %s (%s)') % (duration_str, range_str_verb))
 
+		from Gnumed.business.gmEMRStructItems import diagnostic_certainty_classification2str
 		lines.append(' ' + _('Status') + ': %s%s' % (
 			gmTools.bool2subst(self._payload['episode_open'], _('active'), _('finished')),
 			gmTools.coalesce (
@@ -592,6 +587,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_diagnostic_certainty_description(self):
+		from Gnumed.business.gmEMRStructItems import diagnostic_certainty_classification2str
 		return diagnostic_certainty_classification2str(self._payload['diagnostic_certainty_classification'])
 
 	diagnostic_certainty_description = property(_get_diagnostic_certainty_description)
@@ -700,7 +696,8 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 	def _get_health_issue(self):
 		if self._payload['pk_health_issue'] is None:
 			return None
-		return cHealthIssue(self._payload['pk_health_issue'])
+
+		return gmEMRStructItems.cHealthIssue(self._payload['pk_health_issue'])
 
 	health_issue = property(_get_health_issue)
 
@@ -747,17 +744,6 @@ def delete_episode(episode=None):
 		return False
 
 	return True
-
-#-----------------------------------------------------------
-def episode2problem(episode=None, allow_closed=False):
-	return gmEMRStructItems.cProblem (
-		aPK_obj = {
-			'pk_patient': episode['pk_patient'],
-			'pk_episode': episode['pk_episode'],
-			'pk_health_issue': episode['pk_health_issue']
-		},
-		try_potential_problems = allow_closed
-	)
 
 #-----------------------------------------------------------
 _SQL_best_guess_clinical_start_date_for_episode = """

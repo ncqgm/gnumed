@@ -21,7 +21,6 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmExceptions
-from Gnumed.pycommon import gmMatchProvider
 
 from Gnumed.business import gmClinNarrative
 from Gnumed.business import gmSoapDefs
@@ -29,6 +28,7 @@ from Gnumed.business import gmCoding
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmExternalCare
 from Gnumed.business import gmDocuments
+from Gnumed.business import gmEpisode
 
 
 _log = logging.getLogger('gm.emr')
@@ -177,7 +177,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		SQL = 'SELECT * FROM clin.v_pat_episodes WHERE pk_health_issue = %(pk)s'
 		args = {'pk': self.pk_obj}
 		rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
-		return [ cEpisode(row = {'data': r, 'pk_field': 'pk_episode'})  for r in rows ]
+		return [ gmEpisode.cEpisode(row = {'data': r, 'pk_field': 'pk_episode'})  for r in rows ]
 
 	episodes = property(get_episodes)
 
@@ -220,7 +220,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		args = {'pk_issue': self.pk_obj}
 		rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
 		if rows:
-			return cEpisode(aPK_obj = rows[0][0])
+			return gmEpisode.cEpisode(aPK_obj = rows[0][0])
 
 		return None
 
@@ -697,7 +697,8 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		if len(rows) == 0:
 			return None
-		return cEpisode(aPK_obj = rows[0]['pk_episode'])
+
+		return gmEpisode.cEpisode(aPK_obj = rows[0]['pk_episode'])
 
 	first_episode = property(_get_first_episode)
 
@@ -772,7 +773,8 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		if len(rows) == 0:
 			# there were no episodes for this issue
 			return None
-		return cEpisode(aPK_obj = rows[0]['pk_episode'])
+
+		return gmEpisode.cEpisode(aPK_obj = rows[0]['pk_episode'])
 
 	latest_episode = property(_get_latest_episode)
 
@@ -1177,7 +1179,7 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	@classmethod
-	def from_episode(cls, episode:'gmEpisode.cEpisode', allow_closed:bool=False) -> cProblem:
+	def from_episode(cls, episode:'gmEpisode.cEpisode', allow_closed:bool=False) -> 'cProblem':
 		"""Initialize problem from episode"""
 		return cls (
 			aPK_obj = {
@@ -1190,7 +1192,7 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	@classmethod
-	def from_health_issue(cls, health_issue:'cHealthIssue', allow_irrelevant:bool=False) -> cProblem:
+	def from_health_issue(cls, health_issue:'cHealthIssue', allow_irrelevant:bool=False) -> 'cProblem':
 		"""Initialize problem from health issue."""
 		return cls (
 			aPK_obj = {
@@ -1203,7 +1205,10 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	@classmethod
-	def from_issue_or_episode(cls, issue_or_episode, allow_all:bool=False) -> cProblem:
+	def from_issue_or_episode(cls, issue_or_episode, allow_all:bool=False) -> 'cProblem':
+		if isinstance(issue_or_episode, cProblem):
+			return issue_or_episode
+
 		pk_obj = {
 			'pk_patient': issue_or_episode['pk_patient'],
 			'pk_health_issue': issue_or_episode['pk_health_issue']
@@ -1289,7 +1294,7 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 def reclass_problem(problem=None):
 	"""Transform given problem into either episode or health issue instance.
 	"""
-	if isinstance(problem, (cEpisode, cHealthIssue)):
+	if isinstance(problem, (gmEpisode.cEpisode, cHealthIssue)):
 		return problem
 
 	exc = TypeError('cannot reclass [%s] instance to either episode or health issue' % type(problem))
@@ -1299,7 +1304,7 @@ def reclass_problem(problem=None):
 		raise exc
 
 	if problem['type'] == 'episode':
-		return cEpisode(aPK_obj = problem['pk_episode'])
+		return gmEpisode.cEpisode(aPK_obj = problem['pk_episode'])
 
 	if problem['type'] == 'issue':
 		return cHealthIssue(aPK_obj = problem['pk_health_issue'])
@@ -1528,60 +1533,12 @@ if __name__ == '__main__':
 		print(h_issue.format())
 
 	#--------------------------------------------------------
-	def test_episode():
-		print("episode test")
-		gmPraxis.gmCurrentPraxisBranch.from_first_branch()
-		for i in range(1,15):
-			print("------------")
-			episode = cEpisode(aPK_obj = i)#322) #1674) #1354) #1461) #1299)
-			#print(episode['description'])
-			#print(' start:', episode.best_guess_clinical_start_date)
-			#print(' end  :', episode.best_guess_clinical_end_date)
-			#print(' dura :', get_formatted_clinical_duration(pk_episode = i))
-			for line in episode.format_maximum_information():
-				print(line)
-			input('ENTER to continue')
-		return
-
-		print(episode)
-		fields = episode.get_fields()
-		for field in fields:
-			print(field, ':', episode[field])
-		print("updatable:", episode.get_updatable_fields())
-		input('ENTER to continue')
-
-		desc = '1-%s' % episode['description']
-		print("==> renaming to", desc)
-		successful = episode.rename (
-			description = desc
-		)
-		if not successful:
-			print("error")
-		else:
-			print("success")
-			for field in fields:
-				print(field, ':', episode[field])
-
-		print(episode.formatted_revision_history)
-
-		input('ENTER to continue')
-
-	#--------------------------------------------------------
 	def test_diagnostic_certainty_classification_map():
 		tests = [None, 'A', 'B', 'C', 'D', 'E']
 
 		for t in tests:
 			print(type(t), t)
 			print(type(diagnostic_certainty_classification2str(t)), diagnostic_certainty_classification2str(t))
-	#--------------------------------------------------------
-	def test_episode_codes():
-		epi = cEpisode(aPK_obj = 2)
-		print(epi)
-		print(epi.generic_codes)
-	#--------------------------------------------------------
-	def test_episode_encounters():
-		epi = cEpisode(aPK_obj = 1638)
-		print(epi.format())
 
 	#--------------------------------------------------------
 	def test_export_emr_structure():
@@ -1592,11 +1549,6 @@ if __name__ == '__main__':
 		#pat = gmPerson.gmCurrentPatient(gmPerson.cPatient(aPK_obj = 138))
 		#fname = os.path.expanduser(u'~/gnumed/emr_structure-%s.txt' % pat.subdir_name)
 		#print export_emr_structure(patient = pat, filename = fname)
-
-	#--------------------------------------------------------
-	def test_cEpisodeMatchProvider():
-		mp = cEpisodeMatchProvider()
-		print(mp._find_matches('no patient'))
 
 	#--------------------------------------------------------
 	gmPG2.request_login_params(setup_pool = True)
