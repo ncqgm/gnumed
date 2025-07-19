@@ -172,7 +172,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		return True
 
 	#--------------------------------------------------------
-	def get_episodes(self) -> list['cEpisode']:
+	def get_episodes(self) -> list[gmEpisode.cEpisode]:
 		"""The episodes linked to this health issue."""
 		SQL = 'SELECT * FROM clin.v_pat_episodes WHERE pk_health_issue = %(pk)s'
 		args = {'pk': self.pk_obj}
@@ -215,7 +215,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		return success_state
 
 	#--------------------------------------------------------
-	def get_open_episode(self) -> 'cEpisode':
+	def get_open_episode(self) -> gmEpisode.cEpisode:
 		SQL = "select pk FROM clin.episode WHERE fk_health_issue = %(pk_issue)s AND is_open IS True LIMIT 1"
 		args = {'pk_issue': self.pk_obj}
 		rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])

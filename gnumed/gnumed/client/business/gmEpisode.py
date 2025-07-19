@@ -697,7 +697,8 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		if self._payload['pk_health_issue'] is None:
 			return None
 
-		return gmEMRStructItems.cHealthIssue(self._payload['pk_health_issue'])
+		from Gnumed.business.gmEMRStructItems import cHealthIssue
+		return cHealthIssue(self._payload['pk_health_issue'])
 
 	health_issue = property(_get_health_issue)
 
