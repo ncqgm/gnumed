@@ -25,6 +25,7 @@ from Gnumed.business import gmSoapDefs
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmPersonSearch
 from Gnumed.business import gmEpisode
+from Gnumed.business import gmProblem
 
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmEMRStructWidgets
@@ -380,11 +381,11 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		pass
 	#--------------------------------------------------------
 	def _on_edit_issue(self, evt):
-		gmEMRStructWidgets.edit_health_issue(parent = self, issue = self.__focussed_problem.get_as_health_issue())
+		gmEMRStructWidgets.edit_health_issue(parent = self, issue = self.__focussed_problem.as_health_issue)
 
 	#--------------------------------------------------------
 	def _on_edit_episode(self, evt):
-		gmEMRStructWidgets.edit_episode(parent = self, episode = self.__focussed_problem.get_as_episode())
+		gmEMRStructWidgets.edit_episode(parent = self, episode = self.__focussed_problem.as_episode)
 
 	#--------------------------------------------------------
 	def _on_problem_selected(self, event):
@@ -782,22 +783,18 @@ class cSoapNoteInputNotebook(wx.Notebook):
 		The way <allow_same_problem> is currently used in callers
 		it only applies to unassociated episodes.
 		"""
-		problem_to_add = problem
-
 		# determine label
-		if problem_to_add is None:
+		if problem is None:
 			label = _('new problem')
+			problem_to_add = None
 		else:
 			# normalize problem type
-			if isinstance(problem_to_add, gmEpisode.cEpisode):
-				problem_to_add = gmEMRStructItems.cProblem.from_episode(problem_to_add, allow_closed = True)
-			elif isinstance(problem_to_add, gmEMRStructItems.cHealthIssue):
-				problem_to_add = gmEMRStructItems.cProblem.from_health_issue(problem_to_add, allow_irrelevant = True)
-			label = problem_to_add['problem']
-			# FIXME: configure maximum length
-			if len(label) > 23:
-				label = label[:21] + gmTools.u_ellipsis
+			problem_to_add = gmProblem.cProblem.from_issue_or_episode(problem)
+			if not isinstance(problem_to_add, gmProblem.cProblem):
+				raise TypeError('cannot open progress note editor for [%s]' % problem)
 
+			# FIXME: configure maximum length
+			label = gmTools.shorten_text(text = problem_to_add['problem'],	max_length = 23)
 		# new unassociated problem or dupes allowed
 		if allow_same_problem:
 			new_page = gmProgressNotesEAWidgets.cProgressNotesEAPnl(self, -1, problem = problem_to_add)
@@ -812,7 +809,6 @@ class cSoapNoteInputNotebook(wx.Notebook):
 		# - raise existing editor
 		for page_idx in range(self.GetPageCount()):
 			page = self.GetPage(page_idx)
-
 			if problem_to_add is None:
 				if page.problem is None:
 					self.SetSelection(page_idx)

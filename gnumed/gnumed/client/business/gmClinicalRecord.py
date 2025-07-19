@@ -36,6 +36,7 @@ from Gnumed.business import gmSoapDefs
 from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmEncounter
 from Gnumed.business import gmEpisode
+from Gnumed.business import gmProblem
 from Gnumed.business import gmMedication
 from Gnumed.business import gmVaccination
 from Gnumed.business import gmFamilyHistory
@@ -1217,7 +1218,7 @@ WHERE
 				'pk_health_issue': row['pk_health_issue'],
 				'pk_episode': row['pk_episode']
 			}
-			problems.append(gmEMRStructItems.cProblem(aPK_obj = pk_args, try_potential_problems = False))
+			problems.append(gmProblem.cProblem(aPK_obj = pk_args, try_potential_problems = False))
 
 		# include non-problems ?
 		other_rows = []
@@ -1238,7 +1239,7 @@ WHERE
 					'pk_health_issue': row['pk_health_issue'],
 					'pk_episode': row['pk_episode']
 				}
-				problems.append(gmEMRStructItems.cProblem(aPK_obj = pk_args, try_potential_problems = True))
+				problems.append(gmProblem.cProblem(aPK_obj = pk_args, try_potential_problems = True))
 
 		# filter
 		if issues is not None:
@@ -1247,10 +1248,6 @@ WHERE
 			problems = [ p for p in problems if p['pk_episode'] in episodes ]
 
 		return problems
-
-	#--------------------------------------------------------
-	def reclass_problem(self, problem):
-		return gmEMRStructItems.reclass_problem(problem = problem)
 
 	#--------------------------------------------------------
 	def get_candidate_diagnoses(self):
@@ -1295,9 +1292,6 @@ WHERE
 			patient = self.pk_patient,
 			link_obj = link_obj
 		)
-	#--------------------------------------------------------
-	def health_issue2problem(self, issue=None):
-		return gmEMRStructItems.health_issue2problem(health_issue = issue)
 
 	#--------------------------------------------------------
 	# API: substance intake

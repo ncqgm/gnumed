@@ -143,8 +143,8 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 			label = _('new problem')
 			problem_to_add = None
 		else:
-			problem_to_add = gmEMRStructItems.cProblem.from_issue_or_episode(problem)
-			if not isinstance(problem, gmEMRStructItems.cProblem):
+			problem_to_add = gmProblem.cProblem.from_issue_or_episode(problem)
+			if not isinstance(problem_to_add, gmProblem.cProblem):
 				raise TypeError('cannot open progress note editor for [%s]' % problem)
 
 			# FIXME: configure maximum length
@@ -711,7 +711,7 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 
 		gmResizingWidgets.cResizingWindow.__init__(self, parent, id=-1, size=size)
 
-		self.__problem = gmEMRStructItems.cProblem.from_issue_or_episode(problem)
+		self.__problem = gmProblem.cProblem.from_issue_or_episode(problem)
 		self.__pat = gmPerson.gmCurrentPatient()
 
 	#--------------------------------------------------------
@@ -878,13 +878,13 @@ class cResizingSoapPanel(wx.Panel):
 
 		@param episode: the episode to create the SOAP editor for.
 		@type episode gmEpisode.cEpisode instance or None (to create an
-		unassociated progress note). A gmEMRStructItems.cProblem instance is 
+		unassociated progress note). A gmProblem.cProblem instance is 
 		also allowed to be passed, as the widget will obtain the related cEpisode.
 
 		@param input_defs: the display and associated data for each displayed narrative
 		@type input_defs: a list of cSOAPLineDef instances
 		"""
-		if not isinstance(problem, (gmEMRStructItems.cHealthIssue, gmEpisode.cEpisode, gmEMRStructItems.cProblem, type(None))):
+		if not isinstance(problem, (gmEMRStructItems.cHealthIssue, gmEpisode.cEpisode, gmProblem.cProblem, type(None))):
 			raise gmExceptions.ConstructorError('problem [%s] is of type %s, must be issue, episode, problem or None' % (str(problem), type(problem)))
 
 		self.__is_saved = False
