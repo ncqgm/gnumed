@@ -1181,7 +1181,6 @@ def __run_emr_export_tool():
 	from Gnumed.business import gmPraxis
 	gmPraxis.gmCurrentPraxisBranch(branch = gmPraxis.get_praxis_branches()[0])
 	# setup exporters
-	from Gnumed.business import gmEMRStructItems
 	from Gnumed.exporters import gmTimelineExporter
 	from Gnumed.exporters import gmPatientExporter
 	# get patient

@@ -295,7 +295,7 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 					WHERE fk_encounter = %%(enc)s
 			) %s""" % extra_where_parts
 		rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
-		from Gnumed.business.gmEMRStructItems import cEpisode
+		from Gnumed.business.gmEpisode import cEpisode
 		return [ cEpisode(row = {'data': r, 'pk_field': 'pk_episode'})  for r in rows ]
 
 	episodes = property(get_episodes)
@@ -581,7 +581,7 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 		if episodes is None:
 			episodes = [ e['pk_episode'] for e in self.episodes ]
 
-		from Gnumed.business.gmEMRStructItems import cEpisode
+		from Gnumed.business.gmEpisode import cEpisode
 		for pk in episodes:
 			epi = cEpisode(aPK_obj = pk)
 			lines.append(_('\nEpisode %s%s%s%s:') % (
