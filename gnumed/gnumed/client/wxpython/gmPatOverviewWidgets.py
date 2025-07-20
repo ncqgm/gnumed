@@ -23,7 +23,7 @@ from Gnumed.pycommon import gmNetworkTools
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
 from Gnumed.business import gmDemographicRecord
-from Gnumed.business import gmEMRStructItems
+from Gnumed.business import gmHealthIssue
 from Gnumed.business import gmFamilyHistory
 from Gnumed.business import gmVaccination
 from Gnumed.business import gmDocuments
@@ -749,7 +749,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	#-----------------------------------------------------
 	def _calc_history_list_item_tooltip(self, data):
 
-		if isinstance(data, gmEMRStructItems.cHealthIssue):
+		if isinstance(data, gmHealthIssue.cHealthIssue):
 			return data.format (
 				patient = gmPerson.gmCurrentPatient(),
 				with_medications = False,
@@ -801,7 +801,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		# <ctrl> down ?
 		if wx.GetKeyState(wx.WXK_CONTROL):
-			if isinstance(data, gmEMRStructItems.cHealthIssue):
+			if isinstance(data, gmHealthIssue.cHealthIssue):
 				gmEMRStructWidgets.edit_health_issue(parent = self, issue = data)
 				return
 			if isinstance(data, gmFamilyHistory.cFamilyHistory):
@@ -818,7 +818,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				return
 			return
 
-		if isinstance(data, gmEMRStructItems.cHealthIssue):
+		if isinstance(data, gmHealthIssue.cHealthIssue):
 			gmDispatcher.send(signal = 'display_widget', name = 'gmEMRBrowserPlugin')
 			return
 		if isinstance(data, gmFamilyHistory.cFamilyHistory):
@@ -1063,7 +1063,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		list_data = []
 		for problem in problems:
 			if problem['type'] == 'issue':
-				issue = gmEMRStructItems.cHealthIssue.from_problem(problem)
+				issue = gmHealthIssue.cHealthIssue.from_problem(problem)
 				if issue['pk_health_issue'] in epi_issues:
 					continue	# skip duplicates (issue/episode)
 				last_encounter = emr.get_last_encounter(issue_id = issue['pk_health_issue'])
@@ -1113,7 +1113,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			return tt
 
 		if data['type'] == 'issue':
-			issue = gmEMRStructItems.cHealthIssue.from_problem(data)
+			issue = gmHealthIssue.cHealthIssue.from_problem(data)
 			tt = issue.format (
 				patient = gmPerson.gmCurrentPatient(),
 				with_medications = False,
@@ -1150,7 +1150,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			# <ctrl> down ?
 			if wx.GetKeyState(wx.WXK_CONTROL):
 				if data['type'] == 'issue':
-					gmEMRStructWidgets.edit_health_issue(parent = self, issue = gmEMRStructItems.cHealthIssue.from_problem(data))
+					gmEMRStructWidgets.edit_health_issue(parent = self, issue = gmHealthIssue.cHealthIssue.from_problem(data))
 					return
 
 				if data['type'] == 'episode':

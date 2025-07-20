@@ -25,7 +25,7 @@ from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
 
 from Gnumed.business import gmSoapDefs
-from Gnumed.business.gmEMRStructItems import cHealthIssue
+from Gnumed.business.gmHealthIssue import cHealthIssue
 from Gnumed.business.gmEpisode import cEpisode
 from Gnumed.business.gmEncounter import cEncounter
 from Gnumed.business.gmHospitalStay import cHospitalStay

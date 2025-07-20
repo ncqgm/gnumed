@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-"""GNUmed health related business object.
+"""GNUmed health issue related business object.
 
 license: GPL v2 or later
 """
 #============================================================
-__author__ = "Carlos Moro <cfmoro1976@yahoo.es>, <karsten.hilbert@gmx.net>"
+__author__ = "<karsten.hilbert@gmx.net>"
 
 import sys
 import datetime

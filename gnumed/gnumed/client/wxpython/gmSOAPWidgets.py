@@ -28,7 +28,7 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmCfgDB
 
 from Gnumed.business import gmPerson
-from Gnumed.business import gmEMRStructItems
+from Gnumed.business import gmHealthIssue
 from Gnumed.business import gmSOAPimporter
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmPersonSearch
@@ -503,7 +503,7 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 			if not problem['problem_active']:
 				continue
 			if problem['type'] == 'issue':
-				issue = gmEMRStructItems.cHealthIssue.from_problem(problem)
+				issue = gmHealthIssue.cHealthIssue.from_problem(problem)
 				last_encounter = emr.get_last_encounter(issue_id = issue['pk_health_issue'])
 				if last_encounter is None:
 					last = issue['modified_when'].strftime('%m/%Y')
@@ -826,7 +826,7 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 			new_episode = emr.add_episode(episode_name = epi_name[:45], pk_health_issue = None, is_open = True)
 
 			if self.__problem is not None:
-				issue = gmEMRStructItems.cHealthIssue.from_problem(self.__problem)
+				issue = gmHealthIssue.cHealthIssue.from_problem(self.__problem)
 				if not gmEMRStructWidgets.move_episode_to_issue(episode = new_episode, target_issue = issue, save_to_backend = True):
 					print("error moving episode to issue")
 
@@ -904,7 +904,7 @@ class cResizingSoapPanel(wx.Panel):
 		@param input_defs: the display and associated data for each displayed narrative
 		@type input_defs: a list of cSOAPLineDef instances
 		"""
-		if not isinstance(problem, (gmEMRStructItems.cHealthIssue, gmEpisode.cEpisode, gmProblem.cProblem, type(None))):
+		if not isinstance(problem, (gmHealthIssue.cHealthIssue, gmEpisode.cEpisode, gmProblem.cProblem, type(None))):
 			raise gmExceptions.ConstructorError('problem [%s] is of type %s, must be issue, episode, problem or None' % (str(problem), type(problem)))
 
 		self.__is_saved = False
@@ -1230,7 +1230,7 @@ if __name__ == "__main__":
 #	encounter = gmEncounter.cEncounter(aPK_obj=1)
 #	narrative = get_narrative(pk_encounter = encounter['pk_encounter'], pk_health_issue = episode['pk_health_issue'])
 #	default_labels = {'s':'Subjective', 'o':'Objective', 'a':'Assesment', 'p':'Plan'}
-#	app = wx.PyWidgetTester(size=(300,500))		
+#	app = wx.PyWidgetTester(size=(300,500))
 #	app.SetWidget(cResizingSoapPanel, episode, narrative)
 #	app.MainLoop()
 #	del app
@@ -1244,7 +1244,7 @@ if __name__ == "__main__":
 
 #	# soap progress note for problem
 #	print 'testing soap editor for problem...'
-#	problem = gmEMRStructItems.cProblem(aPK_obj={'pk_patient': 12, 'pk_health_issue': 1, 'pk_episode': 1})		
+#	problem = gmHealthIssue.cProblem(aPK_obj={'pk_patient': 12, 'pk_health_issue': 1, 'pk_episode': 1})
 #	app = wx.PyWidgetTester(size=(300,300))
 #	app.SetWidget(cResizingSoapPanel, problem)
 #	app.MainLoop()

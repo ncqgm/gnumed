@@ -21,7 +21,7 @@ from Gnumed.pycommon import gmDateTime
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
-from Gnumed.business import gmEMRStructItems
+from Gnumed.business import gmHealthIssue
 from Gnumed.business import gmClinNarrative
 from Gnumed.business import gmSoapDefs
 from Gnumed.business import gmProviderInbox
@@ -860,7 +860,7 @@ def select_narrative_from_episodes(parent=None, soap_cats=None):
 	while 1:
 		# 1) select health issues to select episodes from
 		all_issues = emr.get_health_issues()
-		all_issues.insert(0, gmEMRStructItems.get_dummy_health_issue())
+		all_issues.insert(0, gmHealthIssue.get_dummy_health_issue())
 		dlg = gmEMRStructWidgets.cIssueListSelectorDlg (
 			parent = parent,
 			id = -1,

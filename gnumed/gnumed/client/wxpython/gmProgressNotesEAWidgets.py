@@ -21,7 +21,7 @@ from Gnumed.pycommon import gmCfgDB
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmPraxis
-from Gnumed.business import gmEMRStructItems
+from Gnumed.business import gmHealthIssue
 from Gnumed.business import gmClinNarrative
 from Gnumed.business import gmEpisode
 
@@ -257,7 +257,7 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 				'(which will become a new, unassociated episode):\n'
 			)
 		else:
-			issue = gmEMRStructItems.cHealthIssue.from_problem(self.problem)
+			issue = gmHealthIssue.cHealthIssue.from_problem(self.problem)
 			msg = _(
 				'Enter a short working name for this new\n'
 				'episode under the existing health issue\n'
@@ -291,7 +291,7 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 		new_episode.save()
 
 		if self.problem is not None:
-			issue = gmEMRStructItems.cHealthIssue.from_problem(self.problem)
+			issue = gmHealthIssue.cHealthIssue.from_problem(self.problem)
 			if not gmEMRStructWidgets.move_episode_to_issue(episode = new_episode, target_issue = issue, save_to_backend = True):
 				gmGuiHelpers.gm_show_warning (
 					_(

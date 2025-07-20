@@ -20,7 +20,7 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmCfgDB
 
 from Gnumed.business import gmPerson
-from Gnumed.business import gmEMRStructItems
+from Gnumed.business import gmHealthIssue
 from Gnumed.business import gmSoapDefs
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmPersonSearch
@@ -203,7 +203,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 			active_problems.append(problem)
 
 			if problem['type'] == 'issue':
-				issue = gmEMRStructItems.cHealthIssue.from_problem(problem)
+				issue = gmHealthIssue.cHealthIssue.from_problem(problem)
 				last_encounter = emr.get_last_encounter(issue_id = issue['pk_health_issue'])
 				if last_encounter is None:
 					last = issue['modified_when'].strftime('%m/%Y')

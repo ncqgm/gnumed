@@ -389,7 +389,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 			range_str, range_str_verb, duration_str = self.formatted_clinical_duration
 			lines.append(_(' Duration: %s (%s)') % (duration_str, range_str_verb))
 
-		from Gnumed.business.gmEMRStructItems import diagnostic_certainty_classification2str
+		from Gnumed.business.gmHealthIssue import diagnostic_certainty_classification2str
 		lines.append(' ' + _('Status') + ': %s%s' % (
 			gmTools.bool2subst(self._payload['episode_open'], _('active'), _('finished')),
 			gmTools.coalesce (
@@ -587,7 +587,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_diagnostic_certainty_description(self):
-		from Gnumed.business.gmEMRStructItems import diagnostic_certainty_classification2str
+		from Gnumed.business.gmHealthIssue import diagnostic_certainty_classification2str
 		return diagnostic_certainty_classification2str(self._payload['diagnostic_certainty_classification'])
 
 	diagnostic_certainty_description = property(_get_diagnostic_certainty_description)
@@ -697,7 +697,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		if self._payload['pk_health_issue'] is None:
 			return None
 
-		from Gnumed.business.gmEMRStructItems import cHealthIssue
+		from Gnumed.business.gmHealthIssue import cHealthIssue
 		return cHealthIssue(self._payload['pk_health_issue'])
 
 	health_issue = property(_get_health_issue)

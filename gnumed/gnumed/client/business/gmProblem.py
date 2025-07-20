@@ -21,7 +21,7 @@ from Gnumed.pycommon import gmExceptions
 from Gnumed.business import gmCoding
 from Gnumed.business import gmDocuments
 from Gnumed.business import gmEpisode
-from Gnumed.business import gmEMRStructItems
+from Gnumed.business import gmHealthIssue
 
 _log = logging.getLogger('gm.emr')
 
@@ -153,14 +153,14 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 			_log.error('cannot convert problem [%s] of type [%s] to health issue' % (self._payload['problem'], self._payload['type']))
 			return None
 
-		return gmEMRStructItems.cHealthIssue(aPK_obj = self._payload['pk_health_issue'])
+		return gmHealthIssue.cHealthIssue(aPK_obj = self._payload['pk_health_issue'])
 
 	as_health_issue = property(__get_as_health_issue)
 
 	#--------------------------------------------------------
 	def get_visual_progress_notes(self, encounter_id:int=None):
 		if self._payload['type'] == 'issue':
-			latest = gmEMRStructItems.cHealthIssue(aPK_obj = self._payload['pk_health_issue']).latest_episode
+			latest = gmHealthIssue.cHealthIssue(aPK_obj = self._payload['pk_health_issue']).latest_episode
 			if latest is None:
 				return []
 
@@ -174,7 +174,7 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 	# properties
 	#--------------------------------------------------------
 	def get_diagnostic_certainty_description(self):
-		from Gnumed.business.gmEMRStructItems import diagnostic_certainty_classification2str
+		from Gnumed.business.gmHealthIssue import diagnostic_certainty_classification2str
 		return diagnostic_certainty_classification2str(self._payload['diagnostic_certainty_classification'])
 
 	diagnostic_certainty_description = property(get_diagnostic_certainty_description)

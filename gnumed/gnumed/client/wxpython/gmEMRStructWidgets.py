@@ -33,7 +33,7 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmMatchProvider
 
-from Gnumed.business import gmEMRStructItems
+from Gnumed.business import gmHealthIssue
 from Gnumed.business import gmEpisode
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmPerson
@@ -152,7 +152,7 @@ def promote_episode_to_issue(parent=None, episode=None, emr=None):
 	created_new_issue = False
 
 	try:
-		issue = gmEMRStructItems.cHealthIssue(name = episode['description'], patient = episode['pk_patient'])
+		issue = gmHealthIssue.cHealthIssue(name = episode['description'], patient = episode['pk_patient'])
 	except gmExceptions.NoSuchBusinessObjectError:
 		issue = None
 
@@ -212,7 +212,7 @@ def promote_episode_to_issue(parent=None, episode=None, emr=None):
 		# user cancelled the move so delete just-created issue
 		if created_new_issue:
 			# shouldn't fail as it is completely new
-			gmEMRStructItems.delete_health_issue(health_issue = issue)
+			gmHealthIssue.delete_health_issue(health_issue = issue)
 		return
 
 	return
@@ -546,7 +546,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 		issue_name = self._PRW_issue.GetValue().strip()
 		if len(issue_name) != 0:
 			epi['pk_health_issue'] = self._PRW_issue.GetData(can_create = True)
-			issue = gmEMRStructItems.cHealthIssue(aPK_obj = epi['pk_health_issue'])
+			issue = gmHealthIssue.cHealthIssue(aPK_obj = epi['pk_health_issue'])
 
 			if not move_episode_to_issue(episode = epi, target_issue = issue, save_to_backend = False):
 				gmDispatcher.send (
@@ -579,7 +579,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 			self.data['pk_health_issue'] = None
 		else:
 			self.data['pk_health_issue'] = self._PRW_issue.GetData(can_create = True)
-			issue = gmEMRStructItems.cHealthIssue(aPK_obj = self.data['pk_health_issue'])
+			issue = gmHealthIssue.cHealthIssue(aPK_obj = self.data['pk_health_issue'])
 
 			if not move_episode_to_issue(episode = self.data, target_issue = issue, save_to_backend = False):
 				gmDispatcher.send (
@@ -672,7 +672,7 @@ def select_health_issues(parent=None, emr=None):
 		return edit_health_issue(parent = parent, issue = issue)
 	#-----------------------------------------
 	def delete(issue=None):
-		if gmEMRStructItems.delete_health_issue(health_issue = issue):
+		if gmHealthIssue.delete_health_issue(health_issue = issue):
 			return True
 		gmDispatcher.send (
 			signal = 'statustext',
@@ -873,7 +873,7 @@ class cIssueSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			)
 	#--------------------------------------------------------
 	def _data2instance(self, link_obj=None):
-		return gmEMRStructItems.cHealthIssue(aPK_obj = self.GetData())
+		return gmHealthIssue.cHealthIssue(aPK_obj = self.GetData())
 	#--------------------------------------------------------
 	def _get_data_tooltip(self):
 		if self.GetData() is None:
@@ -1258,10 +1258,10 @@ class cDiagnosticCertaintyClassificationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		mp = gmMatchProvider.cMatchProvider_FixedList (
 			aSeq = [
-				{'data': 'A', 'list_label': gmEMRStructItems.diagnostic_certainty_classification2str('A'), 'field_label': gmEMRStructItems.diagnostic_certainty_classification2str('A'), 'weight': 1},
-				{'data': 'B', 'list_label': gmEMRStructItems.diagnostic_certainty_classification2str('B'), 'field_label': gmEMRStructItems.diagnostic_certainty_classification2str('B'), 'weight': 1},
-				{'data': 'C', 'list_label': gmEMRStructItems.diagnostic_certainty_classification2str('C'), 'field_label': gmEMRStructItems.diagnostic_certainty_classification2str('C'), 'weight': 1},
-				{'data': 'D', 'list_label': gmEMRStructItems.diagnostic_certainty_classification2str('D'), 'field_label': gmEMRStructItems.diagnostic_certainty_classification2str('D'), 'weight': 1}
+				{'data': 'A', 'list_label': gmHealthIssue.diagnostic_certainty_classification2str('A'), 'field_label': gmHealthIssue.diagnostic_certainty_classification2str('A'), 'weight': 1},
+				{'data': 'B', 'list_label': gmHealthIssue.diagnostic_certainty_classification2str('B'), 'field_label': gmHealthIssue.diagnostic_certainty_classification2str('B'), 'weight': 1},
+				{'data': 'C', 'list_label': gmHealthIssue.diagnostic_certainty_classification2str('C'), 'field_label': gmHealthIssue.diagnostic_certainty_classification2str('C'), 'weight': 1},
+				{'data': 'D', 'list_label': gmHealthIssue.diagnostic_certainty_classification2str('D'), 'field_label': gmHealthIssue.diagnostic_certainty_classification2str('D'), 'weight': 1}
 			]
 		)
 		mp.setThresholds(1, 2, 4)

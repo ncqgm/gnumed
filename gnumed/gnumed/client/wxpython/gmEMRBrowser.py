@@ -26,7 +26,7 @@ from Gnumed.pycommon import gmLog2
 from Gnumed.exporters import gmPatientExporter
 
 from Gnumed.business import gmGenericEMRItem
-from Gnumed.business import gmEMRStructItems
+from Gnumed.business import gmHealthIssue
 from Gnumed.business import gmEncounter
 from Gnumed.business import gmPerson
 from Gnumed.business import gmGender
@@ -198,7 +198,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			gmLog2.log_stack_trace()
 			return 'invalid item'
 
-		if isinstance(node_data, gmEMRStructItems.cHealthIssue):
+		if isinstance(node_data, gmHealthIssue.cHealthIssue):
 			return 'issue::%s' % node_data['pk_health_issue']
 		if isinstance(node_data, gmEpisode.cEpisode):
 			return 'episode::%s' % node_data['pk_episode']
@@ -341,7 +341,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			_log.error('node attributes: %s', dir(self.__curr_node))
 			gmLog2.log_stack_trace()
 
-		if isinstance(node_data, gmEMRStructItems.cHealthIssue):
+		if isinstance(node_data, gmHealthIssue.cHealthIssue):
 			self.__update_text_for_issue_node(node_data)
 			return
 
@@ -457,7 +457,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 	def __show_context_menu(self, pos=wx.DefaultPosition):
 		self.__curr_node_data = self.GetItemData(self.__curr_node)
 
-		if isinstance(self.__curr_node_data, gmEMRStructItems.cHealthIssue):
+		if isinstance(self.__curr_node_data, gmHealthIssue.cHealthIssue):
 			self.PopupMenu(self.__issue_context_popup, pos)
 			return True
 
@@ -822,7 +822,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		dlg.DestroyLater()
 
-		if not gmEMRStructItems.delete_health_issue(health_issue = self.__curr_node_data):
+		if not gmHealthIssue.delete_health_issue(health_issue = self.__curr_node_data):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete health issue. There is still clinical data recorded for it.'))
 
 	#--------------------------------------------------------
@@ -1190,7 +1190,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		node_data = self.GetItemData(node)
 
-		if isinstance(node_data, gmEMRStructItems.cHealthIssue):
+		if isinstance(node_data, gmHealthIssue.cHealthIssue):
 			self.__expand_issue_node(issue_node = node)
 			return
 
@@ -1259,7 +1259,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			tt = self.__calc_encounter_tooltip(data)
 		elif isinstance(data, gmEpisode.cEpisode):
 			tt = self.__calc_episode_tooltip(data)
-		elif isinstance(data, gmEMRStructItems.cHealthIssue):
+		elif isinstance(data, gmHealthIssue.cHealthIssue):
 			tt = self.__calc_issue_tooltip(data)
 		else:
 			tt = self.__root_tooltip
@@ -1342,7 +1342,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			return -1
 
 		# issues: alpha by grouping, no grouping at the bottom
-		if isinstance(item1, gmEMRStructItems.cHealthIssue):
+		if isinstance(item1, gmHealthIssue.cHealthIssue):
 
 			# no grouping below grouping
 			if item1['grouping'] is None:

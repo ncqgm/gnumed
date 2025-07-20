@@ -417,7 +417,7 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 				gmTools.tex_escape_string(self._payload['assessment_of_encounter'])
 			)
 
-		from Gnumed.business.gmEMRStructItems import diagnostic_certainty_classification2str
+		from Gnumed.business.gmHealthIssue import diagnostic_certainty_classification2str
 		for epi in self.get_episodes():
 			soaps = epi.get_narrative(soap_cats = soap_cats, encounters = [self.pk_obj], order_by = soap_order)
 			if len(soaps) == 0:

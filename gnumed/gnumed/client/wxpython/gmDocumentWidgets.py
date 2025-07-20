@@ -45,7 +45,7 @@ from Gnumed.pycommon import gmConnectionPool
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
 from Gnumed.business import gmDocuments
-from Gnumed.business import gmEMRStructItems
+from Gnumed.business import gmHealthIssue
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmDICOM
 from Gnumed.business import gmProviderInbox
@@ -1999,7 +1999,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 		if isinstance(self.__curr_node_data, dict):
 			try:
-				issue = gmEMRStructItems.cHealthIssue(aPK_obj = self.__curr_node_data['pk_health_issue'])
+				issue = gmHealthIssue.cHealthIssue(aPK_obj = self.__curr_node_data['pk_health_issue'])
 			except KeyError:
 				_log.debug('node data dict holds pseudo-issue for unattributed episodes, ignoring')
 				issue = None

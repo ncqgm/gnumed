@@ -9,7 +9,7 @@ __license__ = "GPL"
 import unittest, time
 
 from Gnumed.pycommon import gmExceptions
-from Gnumed.business import gmClinicalRecord, gmEMRStructItems, gmAllergy, gmVaccination, gmPathLab, gmEncounter, gmEpisode
+from Gnumed.business import gmClinicalRecord, gmHealthIssue, gmAllergy, gmVaccination, gmPathLab, gmEncounter, gmEpisode
 
 #============================================================
 class EMR_StructureTests(unittest.TestCase):
@@ -36,7 +36,7 @@ class EMR_StructureTests(unittest.TestCase):
 	#--------------------------------------------------------
 	def testGetHealthIssues(self):
 		"""Check that patient health issues can be obtained"""
-		self.assertEqual(isinstance(self.emr.get_health_issues()[0], gmEMRStructItems.cHealthIssue), True, 'cannot obtain valid active health issue from EMR')
+		self.assertEqual(isinstance(self.emr.get_health_issues()[0], gmHealthIssue.cHealthIssue), True, 'cannot obtain valid active health issue from EMR')
 
 	def testAddHealthIssue(self):
 		""" Check that a new health issue can be created"""

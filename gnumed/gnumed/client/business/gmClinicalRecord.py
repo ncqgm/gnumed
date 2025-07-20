@@ -33,7 +33,7 @@ from Gnumed.business import gmPathLab
 from Gnumed.business import gmLOINC
 from Gnumed.business import gmClinNarrative
 from Gnumed.business import gmSoapDefs
-from Gnumed.business import gmEMRStructItems
+from Gnumed.business import gmHealthIssue
 from Gnumed.business import gmEncounter
 from Gnumed.business import gmEpisode
 from Gnumed.business import gmProblem
@@ -73,7 +73,7 @@ from Gnumed.business.gmProviderInbox import cInboxMessage
 _map_table2class = {
 	'clin.encounter': gmEncounter.cEncounter,
 	'clin.episode': gmEpisode.cEpisode,
-	'clin.health_issue': gmEMRStructItems.cHealthIssue,
+	'clin.health_issue': gmHealthIssue.cHealthIssue,
 	'clin.external_care': gmExternalCare.cExternalCareItem,
 	'clin.vaccination': gmVaccination.cVaccination,
 	'clin.clin_narrative': gmClinNarrative.cNarrative,
@@ -607,7 +607,7 @@ class cClinicalRecord(object):
 		args = {'pat': self.pk_patient}
 		if issues:
 			where_parts.append('pk_health_issue = ANY(%(issues)s)')
-			if isinstance(issues[0], gmEMRStructItems.cHealthIssue):
+			if isinstance(issues[0], gmHealthIssue.cHealthIssue):
 				args['issues'] = [ i['pk_health_issue'] for i in issues ]
 			elif isinstance(issues[0], int):
 				args['issues'] = issues
@@ -1327,7 +1327,7 @@ WHERE
 
 		cmd = "SELECT *, xmin_health_issue FROM clin.v_health_issues WHERE pk_patient = %(pat)s ORDER BY description"
 		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': {'pat': self.pk_patient}}])
-		issues = [ gmEMRStructItems.cHealthIssue(row = {'data': r, 'pk_field': 'pk_health_issue'}) for r in rows ]
+		issues = [ gmHealthIssue.cHealthIssue(row = {'data': r, 'pk_field': 'pk_health_issue'}) for r in rows ]
 
 		if id_list is None:
 			return issues
@@ -1347,7 +1347,7 @@ WHERE
 	#------------------------------------------------------------------
 	def add_health_issue(self, issue_name=None, link_obj=None):
 		"""Adds patient health issue."""
-		return gmEMRStructItems.create_health_issue (
+		return gmHealthIssue.create_health_issue (
 			description = issue_name,
 			encounter = self.current_encounter['pk_encounter'],
 			patient = self.pk_patient,

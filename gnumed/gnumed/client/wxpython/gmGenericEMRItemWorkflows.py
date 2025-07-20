@@ -13,10 +13,10 @@ if __name__ == '__main__':
 
 from Gnumed.pycommon import gmDispatcher
 
-from Gnumed.business.gmEMRStructItems import cHealthIssue
-from Gnumed.business.gmEMRStructItems import cEpisode
-from Gnumed.business.gmEMRStructItems import cEncounter
-from Gnumed.business.gmEMRStructItems import cHospitalStay
+from Gnumed.business.gmHealthIssue import cHealthIssue
+from Gnumed.business.gmEpisode import cEpisode
+from Gnumed.business.gmEncounter import cEncounter
+from Gnumed.business.gmHospitalStay import cHospitalStay
 from Gnumed.business.gmPerformedProcedure import cPerformedProcedure
 from Gnumed.business.gmPathLab import cTestResult
 from Gnumed.business.gmMedication import cSubstanceIntakeEntry

@@ -73,7 +73,6 @@ from Gnumed.pycommon import gmWorkerThread
 from Gnumed.business import gmPerson
 from Gnumed.business import gmClinicalRecord
 from Gnumed.business import gmPraxis
-from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmEncounter
 from Gnumed.business import gmArriba
 from Gnumed.business import gmStaff

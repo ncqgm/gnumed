@@ -13,7 +13,7 @@ from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmI18N, gmPG, gmDispatcher, gmSignals
 from Gnumed.exporters import gmPatientExporter
-from Gnumed.business import gmEMRStructItems, gmPerson, gmPersonSearch
+from Gnumed.business import gmHealthIssue, gmPerson, gmPersonSearch
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.pycommon.gmPyCompat import *
 
@@ -104,16 +104,16 @@ class cEMRBrowserPanel(wx.wxPanel, gmRegetMixin.cRegetOnPaintMixin):
 		sel_item = event.GetItem()
 		sel_item_obj = self.__emr_tree.GetPyData(sel_item)
 	
-		if(isinstance(sel_item_obj, gmEMRStructItems.cEncounter)):
+		if(isinstance(sel_item_obj, gmEncounter.cEncounter)):
 			header = _('Encounter\n=========\n\n')
 			epi = self.__emr_tree.GetPyData(self.__emr_tree.GetItemParent(sel_item))
 			txt = self.__exporter.dump_encounter_info(episode=epi, encounter=sel_item_obj)
 
-		elif (isinstance(sel_item_obj, gmEMRStructItems.cEpisode)):
+		elif (isinstance(sel_item_obj, gmEpisode.cEpisode)):
 			header = _('Episode\n=======\n\n')
 			txt = self.__exporter.dump_episode_info(episode=sel_item_obj)
 
-		elif (isinstance(sel_item_obj, gmEMRStructItems.cHealthIssue)):
+		elif (isinstance(sel_item_obj, gmHealthIssue.cHealthIssue)):
 			header = _('Health Issue\n============\n\n')
 			txt = self.__exporter.dump_issue_info(issue=sel_item_obj)
 
@@ -242,13 +242,13 @@ class gmPopupMenuEMRBrowser(wx.wxMenu):
 		
 		sel_item_obj = self.__browser.get_EMR_item(sel_item)
 		
-		if(isinstance(sel_item_obj, gmEMRStructItems.cEncounter)):
+		if(isinstance(sel_item_obj, gmEncounter.cEncounter)):
 			header = _('Encounter\n=========\n\n')
 			
 			self.__append_new_encounter_menuitem(episode=self.__browser.get_parent_EMR_item(sel_item) )
 			
 			
-		elif (isinstance(sel_item_obj, gmEMRStructItems.cEpisode)):
+		elif (isinstance(sel_item_obj, gmEpisode.cEpisode)):
 			header = _('Episode\n=======\n\n')
 			
 			self.__append_new_encounter_menuitem(episode=self.__browser.get_EMR_item(sel_item) )
@@ -256,7 +256,7 @@ class gmPopupMenuEMRBrowser(wx.wxMenu):
 			self.__append_new_episode_menuitem(health_issue=self.__browser.get_parent_EMR_item(sel_item))
 			
 			
-		elif (isinstance(sel_item_obj, gmEMRStructItems.cHealthIssue)):
+		elif (isinstance(sel_item_obj, gmHealthIssue.cHealthIssue)):
 			header = _('Health Issue\n============\n\n')
 			
 			self.__append_new_episode_menuitem(health_issue=self.__browser.get_EMR_item(sel_item))
@@ -313,7 +313,7 @@ class NarrativeTreeItemMediator1:
 	def start_edit_child_node(self, start_edit_text):
 		root_node = self.get_emr_tree().GetSelection()
 		if start_edit_text == self.EPISODE_START_LABEL and \
-		isinstance(self.get_browser().get_EMR_item(root_node), gmEMRStructItems.cEpisode):
+		isinstance(self.get_browser().get_EMR_item(root_node), gmEpisode.cEpisode):
 			root_node = self.get_emr_tree().GetItemParent(root_node)
 
 		self.q_edit.put( (root_node, start_edit_text) )
@@ -433,7 +433,7 @@ class NarrativeTreeItemMediator1:
 		pat = gmPerson.gmCurrentPatient()
 		rec = pat.get_clinical_record()
 		issue = rec.add_health_issue( self.get_emr_tree().GetItemText(self.edit_node).strip() )
-		if not issue is None and isinstance(issue, gmEMRStructItems.cHealthIssue):
+		if not issue is None and isinstance(issue, gmHealthIssue.cHealthIssue):
 			self.get_emr_tree().SetPyData( self.edit_node, issue)
 			
 		 
@@ -447,7 +447,7 @@ class NarrativeTreeItemMediator1:
 		
 		episode = rec.add_episode( self.get_emr_tree().GetItemText(self.edit_node).strip(), self.get_browser().get_parent_EMR_item(self.edit_node).pk_obj )
 		 
-		if not episode is None and isinstance(episode, gmEMRStructItems.cEpisode):
+		if not episode is None and isinstance(episode, gmEpisode.cEpisode):
 			self.get_emr_tree().SetPyData( self.edit_node, episode)	
 		
 #================================================================
