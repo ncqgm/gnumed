@@ -4,19 +4,39 @@
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
-# std library
 import logging
+import sys
 
 
-# 3rd party
 import wx
 
 
-# GNUmed
-from Gnumed.pycommon import gmDispatcher, gmExceptions, gmTools, gmCfgDB
-from Gnumed.wxpython import gmResizingWidgets, gmEMRStructWidgets, gmGuiHelpers, gmRegetMixin, gmEditArea, gmPatSearchWidgets, gmVaccWidgets
-from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter, gmPraxis, gmPersonSearch, gmStaff
+# setup translation
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+	_ = lambda x:x
+else:
+	try:
+		_
+	except NameError:
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
+from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmExceptions
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmCfgDB
+
+from Gnumed.business import gmPerson
+from Gnumed.business import gmEMRStructItems
+from Gnumed.business import gmSOAPimporter
+from Gnumed.business import gmPraxis
+from Gnumed.business import gmPersonSearch
+from Gnumed.business import gmStaff
 from Gnumed.business import gmEpisode
+from Gnumed.business import gmProblem
+
+from Gnumed.wxpython import gmResizingWidgets, gmEMRStructWidgets, gmGuiHelpers, gmRegetMixin, gmEditArea, gmPatSearchWidgets, gmVaccWidgets
 
 _log = logging.getLogger('gm.ui')
 if __name__ == '__main__':
@@ -1084,7 +1104,17 @@ class cSingleBoxSOAPPanel(wx.Panel):
 #------------------------------------------------------------
 if __name__ == "__main__":
 
-	import sys
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
+
+	# setup a real translation
+	del _
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain('gnumed')
 
 	#--------------------------------------------------------
 	def get_narrative(pk_encounter=None, pk_health_issue = None, default_labels=None):
@@ -1181,6 +1211,7 @@ if __name__ == "__main__":
 	if patient is None:
 		print("No patient. Exiting gracefully...")
 		sys.exit(0)
+
 	gmPatSearchWidgets.set_active_patient(patient=patient)
 
 	#test_soap_notebook()

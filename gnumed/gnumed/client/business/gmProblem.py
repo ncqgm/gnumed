@@ -7,9 +7,7 @@ license: GPL v2 or later
 __author__ = "<karsten.hilbert@gmx.net>"
 
 import sys
-import datetime
 import logging
-import os
 
 
 if __name__ == '__main__':
@@ -17,19 +15,13 @@ if __name__ == '__main__':
 	_ = lambda x:x
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmI18N
-from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmExceptions
 
-from Gnumed.business import gmClinNarrative
-from Gnumed.business import gmSoapDefs
 from Gnumed.business import gmCoding
-from Gnumed.business import gmPraxis
-from Gnumed.business import gmExternalCare
 from Gnumed.business import gmDocuments
 from Gnumed.business import gmEpisode
-
+from Gnumed.business import gmEMRStructItems
 
 _log = logging.getLogger('gm.emr')
 
@@ -110,7 +102,7 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	@classmethod
-	def from_health_issue(cls, health_issue:'cHealthIssue', allow_irrelevant:bool=False) -> 'cProblem':
+	def from_health_issue(cls, health_issue, allow_irrelevant:bool=False) -> 'cProblem':
 		"""Initialize problem from health issue."""
 		return cls (
 			aPK_obj = {
@@ -161,14 +153,14 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 			_log.error('cannot convert problem [%s] of type [%s] to health issue' % (self._payload['problem'], self._payload['type']))
 			return None
 
-		return cHealthIssue(aPK_obj = self._payload['pk_health_issue'])
+		return gmEMRStructItems.cHealthIssue(aPK_obj = self._payload['pk_health_issue'])
 
 	as_health_issue = property(__get_as_health_issue)
 
 	#--------------------------------------------------------
-	def get_visual_progress_notes(self, encounter_id=None):
+	def get_visual_progress_notes(self, encounter_id:int=None):
 		if self._payload['type'] == 'issue':
-			latest = cHealthIssue(aPK_obj = self._payload['pk_health_issue']).latest_episode
+			latest = gmEMRStructItems.cHealthIssue(aPK_obj = self._payload['pk_health_issue']).latest_episode
 			if latest is None:
 				return []
 
