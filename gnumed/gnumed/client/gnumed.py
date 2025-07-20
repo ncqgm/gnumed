@@ -1147,8 +1147,7 @@ def run_tool():
 		return gmDocuments.check_mimetypes_in_archive()
 
 	if tool == 'check_enc_epi_xref':
-		from Gnumed.business import gmEMRStructItems
-		return gmEMRStructItems.check_fk_encounter_fk_episode_x_ref()
+		return gmPG2.check_fk_encounter_fk_episode_x_ref()
 
 	if tool == 'fingerprint_db':
 		return gmPG2.run_fingerprint_tool()
