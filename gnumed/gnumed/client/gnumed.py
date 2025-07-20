@@ -1192,7 +1192,7 @@ def __run_emr_export_tool():
 		print('patient:', pat.description_gender)
 		# as EMR structure
 		fname = os.path.expanduser('~/gnumed/gm-emr_structure-%s.txt' % pat.subdir_name)
-		print('EMR structure:', gmEMRStructItems.export_emr_structure(patient = pat, filename = fname))
+		print('EMR structure:', pat.emr.export_care_structure(filename = fname))
 		# as timeline
 		fname = os.path.expanduser('~/gnumed/gm-emr-%s.timeline' % pat.subdir_name)
 		try:

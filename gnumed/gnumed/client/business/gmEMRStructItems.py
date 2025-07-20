@@ -1104,54 +1104,6 @@ def get_dummy_health_issue():
 	return issue
 
 #============================================================
-#============================================================
-def export_emr_structure(patient=None, filename=None):
-
-	if filename is None:
-		filename = gmTools.get_unique_filename(prefix = 'gm-emr_struct-%s-' % patient.subdir_name, suffix = '.txt')
-
-	f = open(filename, 'w+', encoding = 'utf8')
-
-	f.write('patient [%s]\n' % patient.description_gender)
-	emr = patient.emr
-	for issue in emr.health_issues:
-		f.write('\n')
-		f.write('\n')
-		f.write('issue [%s] #%s\n' % (issue['description'], issue['pk_health_issue']))
-		f.write(' is active     : %s\n' % issue['is_active'])
-		f.write(' has open epi  : %s\n' % issue['has_open_episode'])
-		f.write(' possible start: %s\n' % issue.possible_start_date)
-		f.write(' safe start    : %s\n' % issue.safe_start_date)
-		end = issue.clinical_end_date
-		if end is None:
-			f.write(' end           : active and/or open episode\n')
-		else:
-			f.write(' end           : %s\n' % end)
-		f.write(' latest access : %s\n' % issue.latest_access_date)
-		first = issue.first_episode
-		if first is not None:
-			first = first['description']
-		f.write(' 1st episode   : %s\n' % first)
-		last = issue.latest_episode
-		if last is not None:
-			last = last['description']
-		f.write(' latest episode: %s\n' % last)
-		epis = sorted(issue.get_episodes(), key = lambda e: e.best_guess_clinical_start_date)
-		for epi in epis:
-			f.write('\n')
-			f.write(' episode [%s] #%s\n' % (epi['description'], epi['pk_episode']))
-			f.write('  is open         : %s\n' % epi['episode_open'])
-			f.write('  best guess start: %s\n' % epi.best_guess_clinical_start_date)
-			f.write('  best guess end  : %s\n' % epi.best_guess_clinical_end_date)
-			f.write('  latest access   : %s\n' % epi.latest_access_date)
-			f.write('  start 1st enc   : %s\n' % epi['started_first'])
-			f.write('  start last enc  : %s\n' % epi['started_last'])
-			f.write('  end last enc    : %s\n' % epi['last_affirmed'])
-
-	f.close()
-	return filename
-
-#============================================================
 # tools
 #------------------------------------------------------------
 def check_fk_encounter_fk_episode_x_ref():
@@ -1254,19 +1206,6 @@ def check_fk_encounter_fk_episode_x_ref():
 
 	return aggregate_result
 
-#------------------------------------------------------------
-def export_patient_emr_structure():
-	from Gnumed.business import gmPersonSearch
-	gmPraxis.gmCurrentPraxisBranch(branch = gmPraxis.get_praxis_branches()[0])
-	pat = gmPersonSearch.ask_for_patient()
-	while pat is not None:
-		print('patient:', pat.description_gender)
-		fname = os.path.expanduser('~/gnumed/gm-emr_structure-%s.txt' % pat.subdir_name)
-		print('exported into:', export_emr_structure(patient = pat, filename = fname))
-		pat = gmPersonSearch.ask_for_patient()
-
-	return 0
-
 #============================================================
 # main - unit testing
 #------------------------------------------------------------
@@ -1317,20 +1256,7 @@ if __name__ == '__main__':
 			print(type(diagnostic_certainty_classification2str(t)), diagnostic_certainty_classification2str(t))
 
 	#--------------------------------------------------------
-	def test_export_emr_structure():
-		export_patient_emr_structure()
-		#praxis = gmPraxis.gmCurrentPraxisBranch(branch = gmPraxis.get_praxis_branches()[0])
-		#from Gnumed.business import gmPerson
-		## 12 / 20 / 138 / 58 / 20 / 5 / 14
-		#pat = gmPerson.gmCurrentPatient(gmPerson.cPatient(aPK_obj = 138))
-		#fname = os.path.expanduser(u'~/gnumed/emr_structure-%s.txt' % pat.subdir_name)
-		#print export_emr_structure(patient = pat, filename = fname)
-
-	#--------------------------------------------------------
 	gmPG2.request_login_params(setup_pool = True)
 
-	test_health_issue()
-	#test_diagnostic_certainty_classification_map()
-	#test_export_emr_structure()
-
-#============================================================
+	#test_health_issue()
+	test_diagnostic_certainty_classification_map()

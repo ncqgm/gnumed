@@ -2580,6 +2580,12 @@ if __name__ == '__main__':
 	gmDateTime.init()
 
 	#--------------------------------------------------------
+	def test_description_gender():
+		ident = cPerson(12)
+		print(ident.description_gender)
+		print(ident.gender_symbol)
+
+	#--------------------------------------------------------
 	def test_set_active_pat():
 
 		ident = cPerson(1)
@@ -2796,5 +2802,6 @@ if __name__ == '__main__':
 	#test_assimilate_identity()
 	#test_get_person_duplicates()
 	#test_get_potential_person_dupes()
+	test_description_gender()
 
 #============================================================

@@ -2811,12 +2811,13 @@ class gmTopLevelFrame(wx.Frame):
 
 		wx.BeginBusyCursor()
 		try:
-			fname = gmEMRStructItems.export_emr_structure(patient = pat)
+			fname = pat.emr.export_care_structure()
 			pat.export_area.add_file(filename = fname, hint = _('EMR as care structure file'))
 		except Exception:
 			_log.exception('error adding EMR structure file to export area')
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export EMR.'))
-		wx.EndBusyCursor()
+		finally:
+			wx.EndBusyCursor()
 
 	#----------------------------------------------
 #	def __on_save_emr_by_last_mod(self, event):

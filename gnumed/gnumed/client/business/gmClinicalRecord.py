@@ -11,16 +11,16 @@ import datetime as pydt
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-
-from Gnumed.pycommon import gmI18N
-from Gnumed.pycommon import gmDateTime
-
-if __name__ == '__main__':
 	_ = lambda x:x
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
-	gmDateTime.init()
+else:
+	try:
+		_
+	except NameError:
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
 
+from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmDispatcher
@@ -295,6 +295,54 @@ class cClinicalRecord(object):
 		self.current_encounter.refetch_payload()
 		gmDispatcher.send('current_encounter_modified')
 		return True
+
+	#--------------------------------------------------------
+	# API: export
+	#--------------------------------------------------------
+	def export_care_structure(self, filename:str=None) -> str:
+
+		lines = []
+		patient = self.patient
+		lines.append('patient [%s]' % patient.description_gender)
+		for issue in self.health_issues:
+			lines.append('')
+			lines.append('')
+			lines.append('issue [%s] #%s' % (issue['description'], issue['pk_health_issue']))
+			lines.append(' is active     : %s' % issue['is_active'])
+			lines.append(' has open epi  : %s' % issue['has_open_episode'])
+			lines.append(' possible start: %s' % issue.possible_start_date)
+			lines.append(' safe start    : %s' % issue.safe_start_date)
+			end = issue.clinical_end_date
+			if end:
+				lines.append(' end           : %s' % end)
+			else:
+				lines.append(' end           : active and/or open episode')
+			lines.append(' latest access : %s' % issue.latest_access_date)
+			first = issue.first_episode
+			if first:
+				first = first['description']
+			lines.append(' 1st episode   : %s' % first)
+			last = issue.latest_episode
+			if last:
+				last = last['description']
+			lines.append(' latest episode: %s' % last)
+			epis = sorted(issue.get_episodes(), key = lambda e: e.best_guess_clinical_start_date)
+			for epi in epis:
+				lines.append('')
+				lines.append(' episode [%s] #%s' % (epi['description'], epi['pk_episode']))
+				lines.append('  is open         : %s' % epi['episode_open'])
+				lines.append('  best guess start: %s' % epi.best_guess_clinical_start_date)
+				lines.append('  best guess end  : %s' % epi.best_guess_clinical_end_date)
+				lines.append('  latest access   : %s' % epi.latest_access_date)
+				lines.append('  start 1st enc   : %s' % epi['started_first'])
+				lines.append('  start last enc  : %s' % epi['started_last'])
+				lines.append('  end last enc    : %s' % epi['last_affirmed'])
+
+		if not filename:
+			filename = gmTools.get_unique_filename(prefix = 'gm-emr_struct-%s-' % patient.subdir_name, suffix = '.txt')
+		with open(filename, 'w+', encoding = 'utf8') as f:
+			f.write('\n'.join(lines))
+		return filename
 
 	#--------------------------------------------------------
 	# API: family history
@@ -631,8 +679,21 @@ class cClinicalRecord(object):
 		return rows
 
 	#--------------------------------------------------------
+	def __get_patient(self):
+		from Gnumed.business import gmPerson
+		curr_pat = gmPerson.gmCurrentPatient()
+		if curr_pat.connected:
+			if curr_pat.ID == self.pk_patient:
+				return curr_pat
+
+		return gmPerson.cPatient(aPK_obj = self.pk_patient)
+
+	patient = property(__get_patient)
+
+	#--------------------------------------------------------
 	def get_patient_ID(self):
 		return self.pk_patient
+
 	#--------------------------------------------------------
 	def get_statistics(self):
 		union_query = '\n	union all\n'.join ([
@@ -2346,6 +2407,14 @@ if __name__ == "__main__":
 	if sys.argv[1] != 'test':
 		sys.exit()
 
+	del _
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain('gnumed')
+	gmDateTime.init()
+
+	#-----------------------------------------
+	#-----------------------------------------
 	def _do_delayed(*args, **kwargs):
 		print(args)
 		print(kwargs)
@@ -2353,6 +2422,7 @@ if __name__ == "__main__":
 
 	set_delayed_executor(_do_delayed)
 
+	#-----------------------------------------
 	#-----------------------------------------
 	def test_allergy_state():
 		emr = cClinicalRecord(aPKey=1)
@@ -2523,11 +2593,24 @@ if __name__ == "__main__":
 		pat = cPatient(aPK_obj = 12)
 		print(emr.format_as_journal(left_margin = 1, patient = pat))
 
+
+	#------------------------------------------------------------
+	def test_export_care_structure():
+		from Gnumed.business import gmPersonSearch
+		pat = gmPersonSearch.ask_for_patient()
+		while pat:
+			print('patient:', pat.description_gender)
+			print('exported into:', pat.emr.export_care_structure())
+			pat = gmPersonSearch.ask_for_patient()
+		return 0
+
 	#-----------------------------------------
 
 	gmPG2.request_login_params(setup_pool = True)
 	from Gnumed.business import gmPraxis
 	gmPraxis.gmCurrentPraxisBranch.from_first_branch()
+
+	test_export_care_structure()
 
 	#test_allergy_state()
 	#test_is_allergic_to()
@@ -2547,7 +2630,7 @@ if __name__ == "__main__":
 	#test_episodes()
 	#test_format_as_journal()
 	#test_get_abuses()
-	test_get_intakes()
+	#test_get_intakes()
 	#test_get_encounters()
 	#test_get_issues()
 	#test_get_dx()
