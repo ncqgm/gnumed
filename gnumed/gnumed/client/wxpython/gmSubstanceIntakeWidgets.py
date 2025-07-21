@@ -286,10 +286,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 				gfr['unified_abbrev'],
 				gfr['unified_val'],
 				gmTools.coalesce(gfr['abnormality_indicator'], '', ' (%s)'),
-				gmDateTime.pydt_strftime (
-					gfr['clin_when'],
-					format = '%Y %b %d'
-				)
+				gfr['clin_when'].strftime('%Y %b %d')
 			))
 			tt_lines.append(_('GFR reported by path lab'))
 

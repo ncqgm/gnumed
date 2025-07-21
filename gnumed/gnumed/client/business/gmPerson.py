@@ -1304,7 +1304,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 		dob = etree.SubElement(pat, 'DOB')
 		dob.set('format', dob_format)
-		dob.text = gmDateTime.pydt_strftime(self._payload['dob'], dob_format, none_str = '')
+		dob.text = gmDateTime.format_dob(self._payload['dob'], format = dob_format, none_string = '')
 
 		gender = etree.SubElement(pat, 'gender')
 		gender.set('comment', self.gender_string)
@@ -1395,7 +1395,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		# FIXME: dont know how to add gender_string after ';'
 		vc.gender.value = gmGender.map_gender2vcard[self._payload['gender']]#, self.gender_string
 		vc.add('bday')
-		vc.bday.value = gmDateTime.pydt_strftime(self._payload['dob'], dob_format, none_str = '')
+		vc.bday.value = gmDateTime.format_dob(self._payload['dob'], format = dob_format, none_string = '')
 
 		channels = self.get_comm_channels(comm_medium = 'homephone')
 		if len(channels) > 0:

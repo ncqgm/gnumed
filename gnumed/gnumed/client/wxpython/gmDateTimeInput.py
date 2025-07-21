@@ -258,11 +258,7 @@ class cDateMatchProvider(gmMatchProvider.cMatchProvider):
 				second = 11,
 				microsecond = 111111
 			)
-			list_label = gmDateTime.pydt_strftime (
-				data,
-				format = '%A, %d. %B %Y (%x)',
-				accuracy = gmDateTime.ACC_DAYS
-			)
+			list_label = data.strftime('%A, %d. %B %Y (%x)')
 			items.append ({
 				'data': data,
 				'field_label': match['label'],
@@ -691,10 +687,7 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 			template = _('%s\n%s\n%s ago')
 		txt = template % (
 			date.format_accurately(self.display_accuracy),
-			gmDateTime.pydt_strftime (
-				ts,
-				format = '%A, %B-%d %Y (%c)',
-			),
+			ts.strftime('%A, %B-%d %Y (%c)'),
 			gmDateTime.format_interval (
 				interval = intv,
 				accuracy_wanted = gmDateTime.ACC_DAYS,

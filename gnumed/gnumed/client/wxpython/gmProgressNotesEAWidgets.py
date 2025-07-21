@@ -128,13 +128,7 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 			return
 
 		# episode-level problem
-		caption = _('Synopsis (%s)') % (
-			gmDateTime.pydt_strftime (
-				self.problem['modified_when'],
-				format = '%B %Y',
-				accuracy = gmDateTime.ACC_DAYS
-			)
-		)
+		caption = _('Synopsis (%s)') % self.problem['modified_when'].strftime('%B %Y')
 		self._LBL_summary.SetLabel(caption)
 
 		if self.problem['summary'] is not None:

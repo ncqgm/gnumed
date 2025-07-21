@@ -219,13 +219,8 @@ class cClinicalCalculator(object):
 			edc_year = lmp.year
 
 		result.numeric_value = gmDateTime.pydt_replace(dt = lmp, year = edc_year, month = edc_month, strict = False) + pydt.timedelta(days = result.variables['parity_offset'])
-
-		result.message = _('EDC: %s') % gmDateTime.pydt_strftime (
-			result.numeric_value,
-			format = '%Y %b %d'
-		)
+		result.message = _('EDC: %s') % result.numeric_value.strftime('%Y %b %d')
 		result.date_valid = now
-
 		_log.debug('%s' % result)
 
 		return result
@@ -387,10 +382,7 @@ class cClinicalCalculator(object):
 		result.message = _('eGFR(MDRD): %.1f %s (%s) [4-vars, IDMS]') % (
 			result.numeric_value,
 			result.unit,
-			gmDateTime.pydt_strftime (
-				result.variables['serum_crea']['clin_when'],
-				format = '%Y %b %d'
-			)
+			result.variables['serum_crea']['clin_when'].strftime('%Y %b %d')
 		)
 		result.date_valid = result.variables['serum_crea']['clin_when']
 
@@ -485,10 +477,7 @@ class cClinicalCalculator(object):
 		result.message = _('eGFR(CKD-EPI): %.1f %s (%s)') % (
 			result.numeric_value,
 			result.unit,
-			gmDateTime.pydt_strftime (
-				result.variables['serum_crea']['clin_when'],
-				format = '%Y %b %d'
-			)
+			result.variables['serum_crea']['clin_when'].strftime('%Y %b %d')
 		)
 		result.date_valid = result.variables['serum_crea']['clin_when']
 
@@ -592,10 +581,7 @@ class cClinicalCalculator(object):
 		result.message = _('eGFR(CG): %.1f %s (%s)') % (
 			result.numeric_value,
 			result.unit,
-			gmDateTime.pydt_strftime (
-				result.variables['serum_crea']['clin_when'],
-				format = '%Y %b %d'
-			)
+			result.variables['serum_crea']['clin_when'].strftime('%Y %b %d')
 		)
 		result.date_valid = result.variables['serum_crea']['clin_when']
 
@@ -700,10 +686,7 @@ class cClinicalCalculator(object):
 		result.message = _('eGFR (Schwartz): %.1f %s (%s)') % (
 			result.numeric_value,
 			result.unit,
-			gmDateTime.pydt_strftime (
-				result.variables['serum_crea']['clin_when'],
-				format = '%Y %b %d'
-			)
+			result.variables['serum_crea']['clin_when'].strftime('%Y %b %d')
 		)
 		result.date_valid = result.variables['serum_crea']['clin_when']
 

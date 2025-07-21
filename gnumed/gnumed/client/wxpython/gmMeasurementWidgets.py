@@ -279,7 +279,7 @@ def browse_incoming(parent=None):
 			'%s, %s (%s) %s' % (
 				gmTools.coalesce(i['lastnames'], ''),
 				gmTools.coalesce(i['firstnames'], ''),
-				gmDateTime.pydt_strftime(dt = i['dob'], format = '%Y %b %d', none_str = _('unknown DOB')),
+				gmDateTime.format_dob(i['dob'], format = '%Y %b %d', none_str = _('unknown DOB')),
 				gmTools.coalesce(i['gender'], '')
 			),
 			gmTools.coalesce(i['external_data_id'], ''),
@@ -393,11 +393,7 @@ def manage_measurements(parent=None, single_selection=False, emr=None, measureme
 		else:
 			results = measurements2manage
 		items = [ [
-			gmDateTime.pydt_strftime (
-				r['clin_when'],
-				'%Y %b %d %H:%M',
-				accuracy = gmDateTime.ACC_MINUTES
-			),
+			r['clin_when'].strftime('%Y %b %d %H:%M'),
 			r['unified_abbrev'],
 			'%s%s%s%s' % (
 				gmTools.bool2subst (

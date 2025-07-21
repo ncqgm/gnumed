@@ -340,10 +340,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 			else:
 				msg = _('eGFR: %.1f (%s)') % (
 					gfr.numeric_value,
-					gmDateTime.pydt_strftime (
-						gfr.date_valid,
-						format = '%b %Y'
-					)
+					gfr.date_valid.strftime('%b %Y')
 				)
 				egfrs = calc.eGFRs
 				tts = []
@@ -367,10 +364,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 				gfr['unified_abbrev'],
 				gfr['unified_val'],
 				gmTools.coalesce(gfr['abnormality_indicator'], '', ' (%s)'),
-				gmDateTime.pydt_strftime (
-					gfr['clin_when'],
-					format = '%b %Y'
-				)
+				gfr['clin_when'].strftime('%b %Y')
 			)
 			tt = _('GFR reported by path lab')
 

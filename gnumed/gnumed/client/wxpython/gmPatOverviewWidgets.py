@@ -521,11 +521,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		if first is not None:
 			list_items.append (
 				_('first (in GMd): %s, %s') % (
-					gmDateTime.pydt_strftime (
-						first['started'],
-						format = '%Y %b %d',
-						accuracy = gmDateTime.ACC_DAYS
-					),
+					first['started'].strftime('%Y %b %d'),
 					first['l10n_type']
 				)
 			)
@@ -535,11 +531,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		if last is not None:
 			list_items.append (
 				_('last: %s, %s') % (
-					gmDateTime.pydt_strftime (
-						last['started'],
-						format = '%Y %b %d',
-						accuracy = gmDateTime.ACC_DAYS
-					),
+					last['started'].strftime('%Y %b %d'),
 					last['l10n_type']
 				)
 			)

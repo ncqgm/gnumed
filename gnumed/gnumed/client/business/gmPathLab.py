@@ -1155,10 +1155,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			' ' + gmTools.u_writing_hand
 		)
 		txt = '%s %s: %s%s%s%s%s%s' % (
-			gmDateTime.pydt_strftime (
-				self._payload['clin_when'],
-				date_format
-			),
+			self._payload['clin_when'].strftime(date_format),
 			self._payload['name_tt'],
 			self._payload['unified_val'],
 			gmTools.coalesce(self._payload['val_unit'], '', ' %s'),
