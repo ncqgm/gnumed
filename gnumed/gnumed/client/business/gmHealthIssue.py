@@ -9,12 +9,18 @@ __author__ = "<karsten.hilbert@gmx.net>"
 import sys
 import datetime
 import logging
-import os
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
+else:
+	try:
+		_
+	except NameError:
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmTools
@@ -25,9 +31,7 @@ from Gnumed.pycommon import gmExceptions
 from Gnumed.business import gmClinNarrative
 from Gnumed.business import gmSoapDefs
 from Gnumed.business import gmCoding
-from Gnumed.business import gmPraxis
 from Gnumed.business import gmExternalCare
-from Gnumed.business import gmDocuments
 from Gnumed.business import gmEpisode
 
 
@@ -1114,6 +1118,8 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
+	del _
+	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain('gnumed')
 
