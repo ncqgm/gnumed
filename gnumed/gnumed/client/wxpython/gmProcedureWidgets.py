@@ -23,7 +23,7 @@ from Gnumed.pycommon import gmMatchProvider
 
 from Gnumed.business import gmPerformedProcedure
 from Gnumed.business import gmPerson
-from Gnumed.wxpython import gmHospitalStay
+from Gnumed.business import gmHospitalStay
 
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmEditArea
