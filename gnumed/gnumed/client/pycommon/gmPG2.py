@@ -1669,21 +1669,12 @@ def __get_file_from_cache(filename, cache_key_data=None, data_size=None, link2ca
 	return False
 
 #------------------------------------------------------------------------
-#def bytea2file (
-#	data_query:dict=None,
-#	filename:str=None,
-#	chunk_size:int=0,
-#	data_size:int=None,
-#	data_size_query:dict=None,
-#	conn=None,
-#	link2cached:bool=True
-#) -> bool:
 def bytea2file (
-	data_query:_TQueryWithArgs=None,
+	data_query:dict=None,
 	filename:str=None,
 	chunk_size:int=0,
 	data_size:int=None,
-	data_size_query:_TQueryWithArgs=None,
+	data_size_query:dict=None,
 	conn=None,
 	link2cached:bool=True
 ) -> bool:
@@ -1752,13 +1743,12 @@ def bytea2file (
 	return result
 
 #------------------------------------------------------------------------
-#def bytea2file_object(data_query:dict=None, file_obj=None, chunk_size:int=0, data_size:int=None, data_size_query:dict=None, conn=None) -> bool:
-def bytea2file_object(
-	data_query:_TQueryWithArgs=None,
+def bytea2file_object (
+	data_query:dict=None,
 	file_obj=None,
 	chunk_size:int=0,
 	data_size:int=None,
-	data_size_query:_TQueryWithArgs=None,
+	data_size_query:dict=None,
 	conn:dbapi.extras.DictConnection|None=None
 ) -> bool:
 	"""Stream data from a bytea field into a file-like object.
@@ -2280,7 +2270,7 @@ def __safely_close_cursor_and_rollback_close_conn(close_cursor=None, rollback_tx
 			gmConnectionPool.log_pg_exception_details(pg_exc)
 
 #------------------------------------------------------------------------
-def run_ro_query(link_obj:_TLnkObj=None, sql:_TSQL=None, args:_TArgs=None, verbose:bool=False, return_data:bool=True) -> list[_TRow] | None:
+def run_ro_query(link_obj:_TLnkObj=None, sql:_TSQL=None, args:dict=None, verbose:bool=False, return_data:bool=True) -> list[_TRow] | None:
 	"""Run one ready-only query via run_ro_queries()."""
 	return run_ro_queries (
 		link_obj = link_obj,
@@ -2292,7 +2282,8 @@ def run_ro_query(link_obj:_TLnkObj=None, sql:_TSQL=None, args:_TArgs=None, verbo
 #------------------------------------------------------------------------
 def run_ro_queries (
 	link_obj:_TLnkObj=None,
-	queries:list[_TQueryWithArgs]=None,
+	#queries:list[_TQueryWithArgs]=None,
+	queries:list[dict]=None,
 	verbose:bool=False,
 	return_data:bool=True
 ) -> list[_TRow] | None:
@@ -2435,7 +2426,7 @@ def __perhaps_reraise_as_permissions_error(pg_exc, curs):
 def run_rw_query (
 	link_obj:_TLnkObj=None,
 	sql:_TSQL=None,
-	args:_TArgs=None,
+	args:dict=None,
 	end_tx:bool=False,
 	return_data:bool=None,
 	verbose:bool=False
@@ -2451,7 +2442,8 @@ def run_rw_query (
 #------------------------------------------------------------------------
 def run_rw_queries (
 	link_obj:_TLnkObj=None,
-	queries:_TQueries=None,
+	#queries:_TQueries=None,
+	queries:list[dict]=None,
 	end_tx:bool=False,
 	return_data:bool=None,
 	verbose:bool=False

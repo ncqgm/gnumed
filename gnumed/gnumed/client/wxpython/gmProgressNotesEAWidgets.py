@@ -16,7 +16,6 @@ if __name__ == '__main__':
 	_ = lambda x:x
 
 from Gnumed.pycommon import gmDispatcher
-from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmCfgDB
 
 from Gnumed.business import gmPerson
