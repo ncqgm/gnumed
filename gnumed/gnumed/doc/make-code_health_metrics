@@ -39,7 +39,7 @@ echo "=== cyclic complexity -- $(date) - radon cc (lower = better, A/B/C/D not s
 radon cc ${DIRS} | egrep '(\-\s[^ABCD])|(.py)$' &>> source-cyclic_complexity.log
 
 
-DIRS="../client/pycommon ../client/business"
+DIRS="../client/pycommon ../client/business ../client/wxpython"
 for DIR in ${DIRS} ; do
 	LOG=$(basename ${DIR})
 	echo "=== $(date): pylint ${DIR} ==========" > source-coding_errors-pylint_${LOG}.log
