@@ -656,7 +656,7 @@ class cSOAPLineDef:
 # FIXME: living elsewhere
 class cPopupDataHolder:
 
-	_data_savers = {}
+	_data_savers:dict = {}
 
 	def __init__(self):
 		self.__data = {}

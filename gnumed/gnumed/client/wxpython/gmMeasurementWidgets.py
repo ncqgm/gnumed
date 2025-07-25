@@ -524,7 +524,7 @@ def get_default_gnuplot_template(parent = None):
 	return default_template
 
 #----------------------------------------------------------------
-def plot_measurements(parent=None, tests:[]=None, format:str=None, show_year:bool=True, use_default_template:bool=False) -> bool:
+def plot_measurements(parent=None, tests:list=None, format:str=None, show_year:bool=True, use_default_template:bool=False) -> bool:
 	"""Plot measurement results with GNUplot.
 
 	Args:

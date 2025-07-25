@@ -14,7 +14,7 @@ import wx
 
 
 _log = logging.getLogger('gm.timers')
-_timers = []
+_timers:list['cTimer'] = []
 
 #===========================================================================
 def shutdown():

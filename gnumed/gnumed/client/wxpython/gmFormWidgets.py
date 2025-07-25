@@ -108,7 +108,7 @@ def print_generic_document(parent=None, jobtype:str=None, episode=None):
 			doc_file.write(adr.format(single_line = False, verbose = True, show_type = True))
 		doc_file.write('\n\n')
 		for chan in pat.get_comm_channels():
-			doc_file.werite(chan.format())
+			doc_file.write(chan.format())
 		doc_file.write('\n\n')
 	doc_file.write('Provider:\n')
 	doc_file.write('\n'.join(gmStaff.gmCurrentProvider().get_staff().format()))

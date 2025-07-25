@@ -16,10 +16,14 @@ from wx.lib.mixins import inspection
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-
-from Gnumed.pycommon import gmI18N
-gmI18N.activate_locale()
-gmI18N.install_domain()
+	_ = lambda x:x
+else:
+	try:
+		_
+	except NameError:
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
 from Gnumed.pycommon import gmPG2
 
 from Gnumed.business import gmPraxis
@@ -118,6 +122,12 @@ if __name__ == '__main__':
 
 	if sys.argv[1] != 'test':
 		sys.exit()
+
+	# setup a real translation
+	del _
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain('gnumed')
 
 	#--------------------------------------------------------------------------
 	def test__test_widget():

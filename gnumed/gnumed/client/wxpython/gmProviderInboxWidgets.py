@@ -423,7 +423,7 @@ from Gnumed.wxGladeWidgets import wxgProviderInboxPnl
 
 class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cRegetOnPaintMixin):
 
-	_item_handlers = {}
+	_item_handlers:dict = {}
 
 	#--------------------------------------------------------
 	def __init__(self, *args, **kwds):
