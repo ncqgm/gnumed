@@ -11,6 +11,7 @@ __license__ = "GPL v2 or later (details at https://www.gnu.org)"
 import sys
 import logging
 import urllib
+#from typing import overload
 
 
 import wx
@@ -340,7 +341,7 @@ from Gnumed.wxGladeWidgets import wxgVaccineEAPnl
 
 class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditAreaMixin):
 
-	def __init__(self, *args, **kwargs):
+	def __init__(self, *args, **kwargs) -> None:
 		try:
 			data = kwargs['vaccine']
 			del kwargs['vaccine']
@@ -661,7 +662,7 @@ def configure_vaccination_plans_url():
 	)
 
 #------------------------------------------------------------
-def generate_failsafe_vaccination_history(pk_patient:int=None, max_width:int=80, eol:str=None) -> str|list:
+def generate_failsafe_vaccination_history(pk_patient:int=None, max_width:int=80, eol:None|str=None) -> str|list[str]:
 	if not pk_patient:
 		pk_patient = gmPerson.gmCurrentPatient().ID
 	lines, footer = gmFormWidgets.generate_failsafe_form_wrapper (
