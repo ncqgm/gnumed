@@ -48,7 +48,7 @@ EMAIL_CHARS = "a-zA-Z0-9\-_@\."
 WEB_CHARS = "a-zA-Z0-9\.\-_/:"
 
 
-_timers = []
+_timers:list = []
 
 #============================================================
 def shutdown():
@@ -58,7 +58,7 @@ def shutdown():
 	for timer in _timers:
 		_log.debug('timer [%s]', timer)
 		timer.Stop()
-	_timers = []
+	_timers:list = []
 
 #------------------------------------------------------------
 class _cPRWTimer(wx.Timer):

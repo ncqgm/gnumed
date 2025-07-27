@@ -25,6 +25,7 @@ else:
 		gmI18N.activate_locale()
 		gmI18N.install_domain()
 from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmLog2
 
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmPerson
@@ -56,7 +57,7 @@ def test_widget(widget_class, *widget_args, patient:int=-1, size=None, setup_db:
 	try:
 		app.MainLoop()
 	except Exception:
-		_log.log_stack_trace(message = 'test failure')
+		gmLog2.log_stack_trace(message = 'test failure')
 	return widget
 
 #==============================================================================
