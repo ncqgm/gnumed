@@ -8,16 +8,6 @@ missing = False
 print("Checking for Python modules")
 print("===========================")
 
-print(" enchant...", end = " ")
-try:
-	import enchant
-	print("found")
-except ImportError:
-	missing = True
-	print("")
-	print("  ERROR: 'enchant' not installed")
-	print("  ERROR: this is used to handle spellchecking")
-
 print(" psycopg2...", end=' ')
 try:
 	import psycopg2
@@ -138,6 +128,16 @@ except ImportError:
 	print("  ERROR: packaging not installed")
 	print("  INFO : this is needed to check Orthanc versions")
 
+print(" mailcap...", end=' ')
+try:
+	import mailcap
+	print("found")
+except ImportError:
+	missing = True
+	print("")
+	print("  ERROR: mailcap not installed")
+	print("  INFO : this is needed to work with mimetypes")
+
 print(" vobject...", end=' ')
 try:
 	import vobject
@@ -219,7 +219,6 @@ except ImportError:
 	print("")
 	print("  ERROR: humblewx not installed")
 	print("  INFO : this is used to display the EMR timeline")
-
 
 #print "=> checking for Python module 'sane' ..."
 #try:
