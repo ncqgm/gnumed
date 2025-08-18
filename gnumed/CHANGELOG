@@ -2284,6 +2284,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v22
 ------------------------------------------------
 
+	22.32
+
+FIX: crash on bootstrapping v15+ servers [thanks Maria]
+
 	22.31
 
 FIX: crash on fingerprinting v15+ servers [thanks gm-dbo]

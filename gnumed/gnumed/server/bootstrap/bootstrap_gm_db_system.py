@@ -420,8 +420,21 @@ class db_server:
 		curs = self.conn.cursor()
 		curs.execute(u"select setting from pg_settings where name = 'lc_ctype'")
 		data = curs.fetchall()
-		lc_ctype = data[0][0]
-		_log.info(u'template database LC_CTYPE is [%s]', lc_ctype)
+		if data:
+			lc_ctype = data[0][0]
+			_log.info(u'template database LC_CTYPE is [%s]', lc_ctype)
+		else:
+			# PG17+: lc_ctype/lc_collate are per-database attrs, not GUCs
+			curs.execute("SELECT datcollate, datctype FROM pg_database WHERE datname = current_database()")
+			row = curs.fetchone()
+			if not row:
+				_log.error('Could not read datcollate/datctype for template DB')
+				return None
+
+			lc_collate, lc_ctype = row
+			_log.info(u'template database LC_COLLATE is [%s]', lc_collate)
+			_log.info(u'template database LC_CTYPE   is [%s]', lc_ctype)
+
 		lc_ctype = lc_ctype.lower()
 		if lc_ctype in ['c', 'posix']:
 			_log.warning('while this cluster setting allows to store databases')
@@ -448,6 +461,7 @@ class db_server:
 
 		_log.info(u"successfully connected to template database [%s]" % self.template_db)
 		return True
+
 	#--------------------------------------------------------------
 	# user and group related
 	#--------------------------------------------------------------
