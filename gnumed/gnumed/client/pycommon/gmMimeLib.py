@@ -18,7 +18,7 @@ import logging
 from typing import Callable
 try:
 	import mailcap as _mailcap
-except ImportError:		# Python 3.11 deprecated mailcap, in 3.13 it will be gone ...
+except (ImportError, ModuleNotFoundError):		# Python 3.11 deprecated mailcap, in 3.13 it is gone ...
 	import _mailcap__copy as _mailcap			# type: ignore
 
 
