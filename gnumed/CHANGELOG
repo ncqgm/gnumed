@@ -3,7 +3,7 @@
 *****************************************************************
 
 ------------------------------------------------
-# rel-1-8-patches
+# rel-1-8-maint
 ------------------------------------------------
 
 	1.8.22
@@ -13,6 +13,7 @@ FIX: SOAP: tabbing in auto-resizing STC [thanks Maria]
 FIX: medication: adding substance dose [thanks Maria]
 FIX: medication: adding intake [thanks vboxuser]
 FIX: backport mailcap import on Python 3.13 [thanks María]
+FIX: backport packaging.version import on Python 3.13 [thanks María]
 
 IMPROVED: EMR presentations naming (tabs/menu items) [thanks Maria]
 IMPROVED: i18n: added translatable strings [thanks Maria]

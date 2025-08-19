@@ -22,8 +22,15 @@ import datetime as pydt
 from urllib.parse import urlencode
 
 
+_log = logging.getLogger('gm.dicom')
+
+
 # 3rd party
-from packaging import version
+try:
+	from packaging import version as py_version
+except (ImportError, ModuleNotFoundError):
+	_log.error('please install the <packaging> python module which used to be in the stdlib')
+	py_version = None
 
 
 # GNUmed modules
@@ -35,8 +42,6 @@ from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmDateTime
 #from Gnumed.pycommon import gmHooks
 #from Gnumed.pycommon import gmDispatcher
-
-_log = logging.getLogger('gm.dicom')
 
 _map_gender_gm2dcm = {
 	'm': 'M',
@@ -86,8 +91,8 @@ class cOrthancServer:
 			self.connect_error += 'retrieving server identification failed'
 			return False
 
-		if expected_minimal_version is not None:
-			if version.parse(self.server_identification['Version']) < version.parse(expected_minimal_version):
+		if (expected_minimal_version is not None) and (py_version is not None):
+			if py_version.parse(self.server_identification['Version']) < py_version.parse(expected_minimal_version):
 				_log.error('server too old, needed [%s]', expected_minimal_version)
 				self.connect_error += 'server too old, needed version [%s]' % expected_minimal_version
 				return False
