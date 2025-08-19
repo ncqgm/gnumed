@@ -11,12 +11,15 @@ __license__ = "GPL"
 # stdlib
 import sys
 import os
-import mailcap
 import mimetypes
 import subprocess
 import shutil
 import logging
 import io
+try:
+	import mailcap as _mailcap
+except (ImportError, ModuleNotFoundError):		# Python 3.11 deprecated mailcap, in 3.13 it is gone ...
+	import _mailcap__copy as _mailcap
 
 
 # GNUmed
@@ -111,8 +114,8 @@ def get_viewer_cmd(aMimeType = None, aFileName = None, aToken = None):
 		# and hope for the best - we certainly don't want the module default "/dev/null"
 		aFileName = """%s"""
 
-	mailcaps = mailcap.getcaps()
-	(viewer, junk) = mailcap.findmatch(mailcaps, aMimeType, key = 'view', filename = '%s' % aFileName)
+	mailcaps = _mailcap.getcaps()
+	(viewer, junk) = _mailcap.findmatch(mailcaps, aMimeType, key = 'view', filename = '%s' % aFileName)
 	# FIXME: we should check for "x-token" flags
 
 	_log.debug("<%s> viewer: [%s]" % (aMimeType, viewer))
@@ -128,8 +131,8 @@ def get_editor_cmd(mimetype=None, filename=None):
 		# and hope for the best - we certainly don't want the module default "/dev/null"
 		filename = """%s"""
 
-	mailcaps = mailcap.getcaps()
-	(editor, junk) = mailcap.findmatch(mailcaps, mimetype, key = 'edit', filename = '%s' % filename)
+	mailcaps = _mailcap.getcaps()
+	(editor, junk) = _mailcap.findmatch(mailcaps, mimetype, key = 'edit', filename = '%s' % filename)
 
 	# FIXME: we should check for "x-token" flags
 
