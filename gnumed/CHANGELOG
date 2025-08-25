@@ -2367,6 +2367,7 @@ FIX: revoke CREATE from PUBLIC on schema PUBLIC (thanks PG)
 	22.32
 
 FIX: crash on bootstrapping v15+ servers [thanks Maria]
+FIX: bootstrapping: add WITH ADMIN to gm-dbo [thanks Maria]
 
 	22.30
 
