@@ -37,6 +37,12 @@ Requires psycopg 2.7.4 !
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL v2 or later"
 
+
+_GM_LOGINS_GROUP = 'gm-logins'
+_GM_DBO_ROLE = 'gm-dbo'
+_PG_SUPERUSER = 'postgres'
+
+
 # standard library
 import sys
 if sys.hexversion < 0x3000000:
@@ -228,6 +234,7 @@ def user_exists(cursor=None, user=None):
 		return True
 	_log.info(u"user [%s] does not exist", user)
 	return None
+
 #------------------------------------------------------------------
 def db_group_exists(cursor=None, group=None):
 	cmd = 'SELECT groname FROM pg_group WHERE groname = %(grp)s'
@@ -243,6 +250,7 @@ def db_group_exists(cursor=None, group=None):
 		return True
 	_log.info(u"group [%s] does not exist" % group)
 	return False
+
 #------------------------------------------------------------------
 def create_db_group(cursor=None, group=None):
 
@@ -262,6 +270,7 @@ def create_db_group(cursor=None, group=None):
 		return False
 
 	return True
+
 #==================================================================
 def connect(host, port, db, user, passwd, conn_name=None):
 	"""
@@ -343,7 +352,7 @@ class user:
 
 #==================================================================
 class db_server:
-	def __init__(self, aSrv_alias, auth_group):
+	def __init__(self, aSrv_alias, db_group):
 		_log.info(u"bootstrapping server [%s]" % aSrv_alias)
 
 		global _bootstrapped_servers
@@ -354,7 +363,7 @@ class db_server:
 
 		self.alias = aSrv_alias
 		self.section = "server %s" % self.alias
-		self.auth_group = auth_group
+		self.db_group = db_group
 		self.conn = None
 
 		if not self.__bootstrap():
@@ -495,25 +504,26 @@ class db_server:
 		cursor = self.conn.cursor()
 		# does this user already exist ?
 		name = cfg_get('user %s' % dbowner_alias, 'name')
-		if user_exists(cursor, name):
+		if user_exists(cursor, _GM_DBO_ROLE):
 			cmd = (
-				'alter group "gm-logins" add user "%s";'	# postgres
-				'alter group "gm-logins" add user "%s";'	# gm-dbo
-				'alter group "%s" add user "%s";'
-				'alter role "%s" createdb createrole;'
+				'GRANT "%s" TO "%s";'						# postgres in gm-logins (pg_dump/restore)
+				'GRANT "%s" TO "%s" WITH ADMIN OPTION;'		# gm-dbo in gm-logins; in v17 add: ", INHERIT FALSE, SET FALSE"
+				'GRANT "%s" TO "%s" WITH ADMIN OPTION;'		# gm-dbo in gnumed_vXX; in v17 add: ", INHERIT FALSE, SET FALSE"
+				'ALTER ROLE "%s" CREATEDB CREATEROLE;'
 			) % (
-				self.superuser.name,
-				name,
-				self.auth_group, name,
-				name,
+				_GM_LOGINS_GROUP, _PG_SUPERUSER,
+				_GM_LOGINS_GROUP, _GM_DBO_ROLE,
+				self.db_group, _GM_DBO_ROLE,
+				_GM_DBO_ROLE
 			)
 			try:
 				cursor.execute(cmd)
 			except:
 				_log.error(u">>>[%s]<<< failed." % cmd)
-				_log.exception(u"Cannot add GNUmed database owner [%s] to groups [gm-logins] and [%s]." % (name, self.auth_group))
+				_log.exception("Cannot add GNUmed database owner [%s] to groups [%s] and [%s]." % (_GM_DBO_ROLE, _GM_LOGINS_GROUP, self.db_group))
 				cursor.close()
 				return False
+
 			self.conn.commit()
 			cursor.close()
 			_dbowner = user(anAlias = dbowner_alias, aPassword = 'should not matter')
@@ -528,24 +538,33 @@ unless it is pre-defined in the configuration file.
 Make sure to remember the password for later use !
 """) % name)
 		_dbowner = user(anAlias = dbowner_alias, force_interactive = True)
+		SQLs = [
+			'CREATE ROLE "%s" WITH ENCRYPTED PASSWORD \'%s\' CREATEDB CREATEROLE;' % (_GM_DBO_ROLE, _dbowner.password),
+			# gm-dbo in gm-logins; in v17 add: ", INHERIT FALSE, SET FALSE"
+			'GRANT "%s" TO "%s" WITH ADMIN OPTION;' % (_GM_LOGINS_GROUP, _GM_DBO_ROLE),
+			# gm-dbo in gnumed_vXX; in v17 add: ", INHERIT FALSE, SET FALSE"
+			'GRANT "%s" TO "%s" WITH ADMIN OPTION;'	% (self.db_group, _GM_DBO_ROLE)
 
-		cmd = 'create user "%s" with password \'%s\' createdb createrole in group "%s", "gm-logins"' % (_dbowner.name, _dbowner.password, self.auth_group)
+		]
+#		SQL = 'CREATE ROLE "%s" WITH ENCRYPTED PASSWORD \'%s\' CREATEDB CREATEROLE IN GROUP "%s", "gm-logins"' % (_GM_DBO_ROLE, _dbowner.password, self.db_group)
 		try:
-			cursor.execute(cmd)
+			for SQL in SQLs:
+				cursor.execute(SQL)
 		except:
-			_log.error(u">>>[%s]<<< failed." % cmd)
-			_log.exception(u"Cannot create GNUmed database owner [%s]." % _dbowner.name)
+			_log.error(">>>[%s]<<< failed.", SQL)
+			_log.exception("Cannot create GNUmed database owner [%s]." % _GM_DBO_ROLE)
 			cursor.close()
 			return None
 
 		# paranoia is good
-		if not user_exists(cursor, _dbowner.name):
+		if not user_exists(cursor, _GM_DBO_ROLE):
 			cursor.close()
 			return None
 
 		self.conn.commit()
 		cursor.close()
 		return True
+
 	#--------------------------------------------------------------
 	def __create_groups(self, aSection = None):
 
@@ -557,9 +576,9 @@ Make sure to remember the password for later use !
 		groups = cfg_get(section, "groups")
 		if groups is None:
 			_log.error(u"Cannot load GNUmed group names from config file (section [%s])." % section)
-			groups = [self.auth_group]
+			groups = [self.db_group]
 		else:
-			groups.append(self.auth_group)
+			groups.append(self.db_group)
 
 		cursor = self.conn.cursor()
 		for group in groups:
@@ -570,6 +589,7 @@ Make sure to remember the password for later use !
 		self.conn.commit()
 		cursor.close()
 		return True
+
 #==================================================================
 class database:
 	def __init__(self, aDB_alias):
@@ -618,7 +638,7 @@ class database:
 			raise ConstructorError("database.__init__(): Cannot bootstrap database.")
 
 		# make sure server is bootstrapped
-		db_server(self.server_alias, auth_group = self.name)
+		db_server(self.server_alias, db_group = self.name)
 		self.server = _bootstrapped_servers[self.server_alias]
 
 		if not self.__bootstrap():
@@ -837,7 +857,6 @@ class database:
 		return self.conn and 1
 	#--------------------------------------------------------------
 	def __db_exists(self):
-		#cmd = "BEGIN; SELECT datname FROM pg_database WHERE datname='%s'" % self.name
 		cmd = "SELECT datname FROM pg_database WHERE datname='%s'" % self.name
 
 		aCursor = self.conn.cursor()
