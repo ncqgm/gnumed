@@ -265,6 +265,13 @@ def create_db_group(cursor=None, group=None):
 		_log.exception(u">>>[%s]<<< failed for group [%s]", cmd, group)
 		return False
 
+	cmd = 'GRANT "%s" to "%s" WITH ADMIN OPTION;' % (group, _GM_DBO_ROLE)
+	try:
+		cursor.execute(cmd)
+	except:
+		_log.exception(u">>>[%s]<<< failed for group [%s]", cmd, group)
+		return False
+
 	# paranoia is good
 	if not db_group_exists(cursor, group):
 		return False
