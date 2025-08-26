@@ -220,59 +220,63 @@ CREATE INDEX %(idx_name)s ON %(idx_schema)s.%(idx_table)s(%(idx_col)s);
 
 #==================================================================
 def user_exists(cursor=None, user=None):
-	cmd = "SELECT usename FROM pg_user WHERE usename = %(usr)s"
+	SQL = "SELECT usename FROM pg_user WHERE usename = %(usr)s"
 	args = {'usr': user}
 	try:
-		cursor.execute(cmd, args)
+		cursor.execute(SQL, args)
 	except:
-		_log.exception(u">>>[%s]<<< failed for user [%s]", cmd, user)
+		_log.exception(u">>>[%s]<<< failed for user [%s]", SQL, user)
 		return None
+
 	res = cursor.fetchone()
 	if cursor.rowcount == 1:
 		_log.info(u"user [%s] exists", user)
 		return True
+
 	_log.info(u"user [%s] does not exist", user)
 	return None
 
 #------------------------------------------------------------------
-def db_group_exists(cursor=None, group=None):
-	cmd = 'SELECT groname FROM pg_group WHERE groname = %(grp)s'
+def db_name_group_role_exists(cursor=None, group=None):
+	SQL = 'SELECT groname FROM pg_group WHERE groname = %(grp)s'
 	args = {'grp': group}
 	try:
-		cursor.execute(cmd, args)
+		cursor.execute(SQL, args)
 	except:
-		_log.exception(u">>>[%s]<<< failed for group [%s]", cmd, group)
+		_log.exception(">>>[%s]<<< failed for group [%s]", SQL, group)
 		return False
+
 	rows = cursor.fetchall()
-	if len(rows) > 0:
-		_log.info(u"group [%s] exists" % group)
+	if rows:
+		_log.info("group [%s] exists" % group)
 		return True
-	_log.info(u"group [%s] does not exist" % group)
+
+	_log.info("group [%s] does not exist" % group)
 	return False
 
 #------------------------------------------------------------------
-def create_db_group(cursor=None, group=None):
+def create_db_name_group_role(cursor=None, group=None):
 
 	# does this group already exist ?
-	if db_group_exists(cursor, group):
+	if db_name_group_role_exists(cursor, group):
 		return True
 
-	cmd = 'create group "%s"' % group
+	SQL = 'create group "%s"' % group
 	try:
-		cursor.execute(cmd)
+		cursor.execute(SQL)
 	except:
-		_log.exception(u">>>[%s]<<< failed for group [%s]", cmd, group)
+		_log.exception(u">>>[%s]<<< failed for group [%s]", SQL, group)
 		return False
 
-	cmd = 'GRANT "%s" to "%s" WITH ADMIN OPTION;' % (group, _GM_DBO_ROLE)
+	SQL = 'GRANT "%s" to "%s" WITH ADMIN OPTION;' % (group, _GM_DBO_ROLE)
 	try:
-		cursor.execute(cmd)
+		cursor.execute(SQL)
 	except:
-		_log.exception(u">>>[%s]<<< failed for group [%s]", cmd, group)
+		_log.exception(u">>>[%s]<<< failed for group [%s]", SQL, group)
 		return False
 
 	# paranoia is good
-	if not db_group_exists(cursor, group):
+	if not db_name_group_role_exists(cursor, group):
 		return False
 
 	return True
@@ -323,42 +327,47 @@ class user:
 			raise ConstructorError("cannot get user name")
 
 		self.password = aPassword
+		if self.password is not None:
+			return None
 
 		# password not passed in, try to get it from elsewhere
+		# look into config file
+		self.password = cfg_get(self.group, "password")
+		# undefined or commented out:
+		# this means the user does not need a password
+		# but connects via IDENT or TRUST
 		if self.password is None:
-			# look into config file
-			self.password = cfg_get(self.group, "password")
-			# undefined or commented out:
-			# this means the user does not need a password
-			# but connects via IDENT or TRUST
-			if self.password is None:
-				_log.info(u'password not defined, assuming connect via IDENT/TRUST')
-			# defined but empty:
-			# this means to ask the user if interactive
-			elif self.password == '':
-				if _interactive or force_interactive:
-					_log.info('password for [%s] defined as "", asking user', self.name)
-					print("I need the password for the database user [%s]." % self.name)
-					self.password = getpass.getpass("Please type the password: ")
-					_log.info('got password')
-					pwd4check = None
-					while pwd4check != self.password:
-						_log.info('asking for confirmation')
-						pwd2 = getpass.getpass("Please retype the password: ")
-						if pwd2 == self.password:
-							break
-						_log.error('password mismatch, asking again')
-						print('Password mismatch. Try again or CTRL-C to abort.')
-				else:
-					_log.warning('password for [%s] defined as "" (meaning <ask-user>), but running non-interactively, aborting', self.name)
-					_log.warning('cannot get password for database user [%s]', self.name)
-					raise ValueError('no password for user %s' % self.name)
+			_log.info(u'password not defined, assuming connect via IDENT/TRUST')
+			return None
 
-		return None
+		if self.password != '':
+			_log.info('password taken from config file')
+			return None
+
+		# defined but empty:
+		# this means to ask the user if interactive
+		if _interactive or force_interactive:
+			_log.info('password for [%s] defined as "", asking user', self.name)
+			print("I need the password for the database user [%s]." % self.name)
+			self.password = getpass.getpass("Please type the password: ")
+			_log.info('got password')
+			pwd4check = None
+			while pwd4check != self.password:
+				_log.info('asking for confirmation')
+				pwd2 = getpass.getpass("Please retype the password: ")
+				if pwd2 == self.password:
+					break
+				_log.error('password mismatch, asking again')
+				print('Password mismatch. Try again or CTRL-C to abort.')
+			return None
+
+		_log.warning('password for [%s] defined as "" (meaning <ask-user>), but running non-interactively, aborting', self.name)
+		_log.warning('cannot get password for database user [%s]', self.name)
+		raise ValueError('no password for user %s' % self.name)
 
 #==================================================================
 class db_server:
-	def __init__(self, aSrv_alias, db_group):
+	def __init__(self, aSrv_alias, db_name_group_role):
 		_log.info(u"bootstrapping server [%s]" % aSrv_alias)
 
 		global _bootstrapped_servers
@@ -369,7 +378,7 @@ class db_server:
 
 		self.alias = aSrv_alias
 		self.section = "server %s" % self.alias
-		self.db_group = db_group
+		self.db_name_group_role = db_name_group_role
 		self.conn = None
 
 		if not self.__bootstrap():
@@ -388,7 +397,7 @@ class db_server:
 			return None
 
 		# add users/groups
-		if not self.__bootstrap_db_users():
+		if not self.__bootstrap_roles():
 			_log.error(u"Cannot bootstrap database users.")
 			return None
 
@@ -480,12 +489,12 @@ class db_server:
 	#--------------------------------------------------------------
 	# user and group related
 	#--------------------------------------------------------------
-	def __bootstrap_db_users(self):
-		_log.info(u"bootstrapping database users and groups")
+	def __bootstrap_roles(self):
+		_log.info(u"bootstrapping database roles")
 
 		# insert standard groups
 		if not self.__create_groups():
-			_log.error(u"Cannot create GNUmed standard groups.")
+			_log.error(u"Cannot create GNUmed standard groups roles.")
 			return None
 
 		# create GNUmed owner
@@ -509,9 +518,8 @@ class db_server:
 
 		cursor = self.conn.cursor()
 		# does this user already exist ?
-		name = cfg_get('user %s' % dbowner_alias, 'name')
 		if user_exists(cursor, _GM_DBO_ROLE):
-			cmd = (
+			SQL = (
 				'GRANT "%s" TO "%s";'						# postgres in gm-logins (pg_dump/restore)
 				'GRANT "%s" TO "%s" WITH ADMIN OPTION;'		# gm-dbo in gm-logins; in v17 add: ", INHERIT FALSE, SET FALSE"
 				'GRANT "%s" TO "%s" WITH ADMIN OPTION;'		# gm-dbo in gnumed_vXX; in v17 add: ", INHERIT FALSE, SET FALSE"
@@ -519,14 +527,14 @@ class db_server:
 			) % (
 				_GM_LOGINS_GROUP, _PG_SUPERUSER,
 				_GM_LOGINS_GROUP, _GM_DBO_ROLE,
-				self.db_group, _GM_DBO_ROLE,
+				self.db_name_group_role, _GM_DBO_ROLE,
 				_GM_DBO_ROLE
 			)
 			try:
-				cursor.execute(cmd)
+				cursor.execute(SQL)
 			except:
-				_log.error(u">>>[%s]<<< failed." % cmd)
-				_log.exception("Cannot add GNUmed database owner [%s] to groups [%s] and [%s]." % (_GM_DBO_ROLE, _GM_LOGINS_GROUP, self.db_group))
+				_log.error(u">>>[%s]<<< failed." % SQL)
+				_log.exception("Cannot add GNUmed database owner [%s] to groups [%s] and [%s]." % (_GM_DBO_ROLE, _GM_LOGINS_GROUP, self.db_name_group_role))
 				cursor.close()
 				return False
 
@@ -536,23 +544,23 @@ class db_server:
 			return True
 
 		print_msg ((
-u"""The database owner [%s] will be created.
+"""The database owner [%s] will be created.
 
 You will have to provide a new password for it
 unless it is pre-defined in the configuration file.
 
 Make sure to remember the password for later use !
-""") % name)
+""") % _GM_DBO_ROLE)
 		_dbowner = user(anAlias = dbowner_alias, force_interactive = True)
 		SQLs = [
 			'CREATE ROLE "%s" WITH ENCRYPTED PASSWORD \'%s\' CREATEDB CREATEROLE;' % (_GM_DBO_ROLE, _dbowner.password),
 			# gm-dbo in gm-logins; in v17 add: ", INHERIT FALSE, SET FALSE"
 			'GRANT "%s" TO "%s" WITH ADMIN OPTION;' % (_GM_LOGINS_GROUP, _GM_DBO_ROLE),
 			# gm-dbo in gnumed_vXX; in v17 add: ", INHERIT FALSE, SET FALSE"
-			'GRANT "%s" TO "%s" WITH ADMIN OPTION;'	% (self.db_group, _GM_DBO_ROLE)
+			'GRANT "%s" TO "%s" WITH ADMIN OPTION;'	% (self.db_name_group_role, _GM_DBO_ROLE)
 
 		]
-#		SQL = 'CREATE ROLE "%s" WITH ENCRYPTED PASSWORD \'%s\' CREATEDB CREATEROLE IN GROUP "%s", "gm-logins"' % (_GM_DBO_ROLE, _dbowner.password, self.db_group)
+#		SQL = 'CREATE ROLE "%s" WITH ENCRYPTED PASSWORD \'%s\' CREATEDB CREATEROLE IN GROUP "%s", "gm-logins"' % (_GM_DBO_ROLE, _dbowner.password, self.db_name_group_role)
 		try:
 			for SQL in SQLs:
 				cursor.execute(SQL)
@@ -582,13 +590,13 @@ Make sure to remember the password for later use !
 		groups = cfg_get(section, "groups")
 		if groups is None:
 			_log.error(u"Cannot load GNUmed group names from config file (section [%s])." % section)
-			groups = [self.db_group]
+			groups = [self.db_name_group_role]
 		else:
-			groups.append(self.db_group)
+			groups.append(self.db_name_group_role)
 
 		cursor = self.conn.cursor()
 		for group in groups:
-			if not create_db_group(cursor, group):
+			if not create_db_name_group_role(cursor, group):
 				cursor.close()
 				return False
 
@@ -644,7 +652,7 @@ class database:
 			raise ConstructorError("database.__init__(): Cannot bootstrap database.")
 
 		# make sure server is bootstrapped
-		db_server(self.server_alias, db_group = self.name)
+		db_server(self.server_alias, db_name_group_role = self.name)
 		self.server = _bootstrapped_servers[self.server_alias]
 
 		if not self.__bootstrap():
@@ -665,8 +673,6 @@ class database:
 		if _dbowner is None:
 			_log.error(u"Cannot load GNUmed database owner name from config file.")
 			return None
-
-		self.owner = _dbowner
 
 		# connect as owner to template
 		if not self.__connect_superuser_to_template():
@@ -698,7 +704,7 @@ class database:
 		# create authentication group
 		_log.info(u'creating database-specific authentication group role')
 		curs = self.conn.cursor()
-		if not create_db_group(cursor = curs, group = self.name):
+		if not create_db_name_group_role(cursor = curs, group = self.name):
 			curs.close()
 			_log.error(u'cannot create authentication group role')
 			return False
@@ -707,7 +713,7 @@ class database:
 
 		# paranoia check
 		curs = self.conn.cursor()
-		if not db_group_exists(cursor = curs, group = self.name):
+		if not db_name_group_role_exists(cursor = curs, group = self.name):
 			curs.close()
 			_log.error(u'cannot find authentication group role')
 			return False
@@ -862,23 +868,23 @@ class database:
 
 		self.conn.cookie = 'database.__connect_owner_to_db via database.__connect_superuser_to_db'
 
-		_log.debug(u'setting session authorization to user %s', self.owner.name)
+		_log.debug('setting session authorization to user [%s]', _GM_DBO_ROLE)
 
 		curs = self.conn.cursor()
-		cmd = "set session authorization %(usr)s"
-		curs.execute(cmd, {'usr': self.owner.name})
+		SQL = "set session authorization %(usr)s"
+		curs.execute(SQL, {'usr': _GM_DBO_ROLE})
 		curs.close()
 
 		return self.conn and 1
 	#--------------------------------------------------------------
 	def __db_exists(self):
-		cmd = "SELECT datname FROM pg_database WHERE datname='%s'" % self.name
+		SQL = "SELECT datname FROM pg_database WHERE datname='%s'" % self.name
 
 		aCursor = self.conn.cursor()
 		try:
-			aCursor.execute(cmd)
+			aCursor.execute(SQL)
 		except:
-			_log.exception(u">>>[%s]<<< failed." % cmd)
+			_log.exception(u">>>[%s]<<< failed." % SQL)
 			return None
 
 		res = aCursor.fetchall()
@@ -914,16 +920,16 @@ class database:
 			if drop_existing:
 				print_msg("==> dropping pre-existing target database [%s] ..." % self.name)
 				_log.info(u'trying to drop target database')
-				cmd = 'DROP DATABASE "%s"' % self.name
+				SQL = 'DROP DATABASE "%s"' % self.name
 				# DROP DATABASE must be run outside transactions
 				self.conn.commit()
 				self.conn.set_session(readonly = False, autocommit = True)
 				cursor = self.conn.cursor()
 				try:
-					_log.debug(u'running SQL: %s', cmd)
-					cursor.execute(cmd)
+					_log.debug(u'running SQL: %s', SQL)
+					cursor.execute(SQL)
 				except:
-					_log.exception(u">>>[%s]<<< failed" % cmd)
+					_log.exception(u">>>[%s]<<< failed" % SQL)
 					_log.debug(u'conn state after failed DROP: %s', gmConnectionPool.log_conn_state(self.conn))
 					return False
 				finally:
@@ -945,25 +951,25 @@ class database:
 		# locale = "C.UTF-8"
 		# builtin_locale = "C.UTF-8"
 		if tablespace is None:
-			create_db_cmd = """
+			create_db_SQL = """
 				CREATE DATABASE \"%s\" with
 					owner = \"%s\"
 					template = \"%s\"
 					encoding = 'unicode'
-				;""" % (self.name, self.owner.name, self.template_db)
+				;""" % (self.name, _GM_DBO_ROLE, self.template_db)
 		else:
-			create_db_cmd = """
+			create_db_SQL = """
 				CREATE DATABASE \"%s\" with
 					owner = \"%s\"
 					template = \"%s\"
 					encoding = 'unicode'
 					tablespace = '%s'
-				;""" % (self.name, self.owner.name, self.template_db, tablespace)
+				;""" % (self.name, _GM_DBO_ROLE, self.template_db, tablespace)
 
 		# get size
 		cursor = self.conn.cursor()
-		size_cmd = "SELECT pg_size_pretty(pg_database_size('%s'))" % self.template_db
-		cursor.execute(size_cmd)
+		size_SQL = "SELECT pg_size_pretty(pg_database_size('%s'))" % self.template_db
+		cursor.execute(size_SQL)
 		size = cursor.fetchone()[0]
 		cursor.close()
 
@@ -974,9 +980,9 @@ class database:
 		self.conn.set_session(readonly = False, autocommit = True)
 		cursor = self.conn.cursor()
 		try:
-			cursor.execute(create_db_cmd)
+			cursor.execute(create_db_SQL)
 		except:
-			_log.exception(u">>>[%s]<<< failed" % create_db_cmd)
+			_log.exception(u">>>[%s]<<< failed" % create_db_SQL)
 			return False
 		finally:
 			cursor.close()
@@ -1957,6 +1963,7 @@ def main():
 	print("Done bootstrapping GNUmed database: We very likely succeeded.")
 	print('log:', gmLog2._logfile_name)
 
+#==================================================================
 #==================================================================
 if __name__ != "__main__":
 	print("This currently is not intended to be used as a module.")
