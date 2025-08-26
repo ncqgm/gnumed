@@ -40,7 +40,7 @@ class cBaseConnector:
 
 		try:
 			_log.info('GNUmed slave XML-RPC server version: %s' % self.__gm_server.version())
-		except socket.error, e:
+		except socket.error as e:
 			# FIXME: differentiate between already-attached and not-there
 			_log.exception('cannot attach to GNUmed instance at https://localhost:%s: %s' % (port, e))
 			# try starting GNUmed
