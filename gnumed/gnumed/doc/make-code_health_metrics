@@ -24,7 +24,7 @@ if test "${PYFILE}" != "" ; then
 fi ;
 
 
-DIRS="../client/pycommon ../client/business ../client/wxpython"
+DIRS="../client/pycommon ../client/business ../client/wxpython ../server/bootstrap"
 echo "=== $(date): pyflakes3 '${DIRS}' ==========" > source-coding_errors.log
 pyflakes3 ${DIRS} &>> tmp-pyflakes3.log
 grep --invert-match "undefined name '_'" tmp-pyflakes3.log &>> source-coding_errors.log
@@ -39,7 +39,7 @@ echo "=== cyclic complexity -- $(date) - radon cc (lower = better, A/B/C/D not s
 radon cc ${DIRS} | egrep '(\-\s[^ABCD])|(.py)$' &>> source-cyclic_complexity.log
 
 
-DIRS="../client/pycommon ../client/business ../client/wxpython"
+DIRS="../client/pycommon ../client/business ../client/wxpython ../server/bootstrap"
 for DIR in ${DIRS} ; do
 	LOG=$(basename ${DIR})
 	echo "=== $(date): pylint ${DIR} ==========" > source-coding_errors-pylint_${LOG}.log
