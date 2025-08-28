@@ -238,7 +238,7 @@ def user_exists(cursor=None, user=None):
 	return None
 
 #------------------------------------------------------------------
-def db_name_group_role_exists(cursor=None, group=None):
+def db_named_group_role_exists(cursor=None, group=None):
 	SQL = 'SELECT groname FROM pg_group WHERE groname = %(grp)s'
 	args = {'grp': group}
 	try:
@@ -256,10 +256,10 @@ def db_name_group_role_exists(cursor=None, group=None):
 	return False
 
 #------------------------------------------------------------------
-def create_db_name_group_role(cursor=None, group=None):
+def create_db_named_group_role(cursor=None, group=None):
 
 	# does this group already exist ?
-	if db_name_group_role_exists(cursor, group):
+	if db_named_group_role_exists(cursor, group):
 		return True
 
 	SQL = 'create group "%s"' % group
@@ -277,7 +277,7 @@ def create_db_name_group_role(cursor=None, group=None):
 		return False
 
 	# paranoia is good
-	if not db_name_group_role_exists(cursor, group):
+	if not db_named_group_role_exists(cursor, group):
 		return False
 
 	return True
@@ -368,7 +368,7 @@ class user:
 
 #==================================================================
 class db_server:
-	def __init__(self, aSrv_alias, db_name_group_role):
+	def __init__(self, aSrv_alias, db_named_group_role):
 		_log.info(u"bootstrapping server [%s]" % aSrv_alias)
 
 		global _bootstrapped_servers
@@ -379,7 +379,7 @@ class db_server:
 
 		self.alias = aSrv_alias
 		self.section = "server %s" % self.alias
-		self.db_name_group_role = db_name_group_role
+		self.db_named_group_role = db_named_group_role
 		self.conn = None
 
 		if not self.__bootstrap():
@@ -528,14 +528,14 @@ class db_server:
 			) % (
 				_GM_LOGINS_GROUP, _PG_SUPERUSER,
 				_GM_LOGINS_GROUP, _GM_DBO_ROLE,
-				self.db_name_group_role, _GM_DBO_ROLE,
+				self.db_named_group_role, _GM_DBO_ROLE,
 				_GM_DBO_ROLE
 			)
 			try:
 				cursor.execute(SQL)
 			except:
 				_log.error(u">>>[%s]<<< failed." % SQL)
-				_log.exception("Cannot add GNUmed database owner [%s] to groups [%s] and [%s]." % (_GM_DBO_ROLE, _GM_LOGINS_GROUP, self.db_name_group_role))
+				_log.exception("Cannot add GNUmed database owner [%s] to groups [%s] and [%s]." % (_GM_DBO_ROLE, _GM_LOGINS_GROUP, self.db_named_group_role))
 				cursor.close()
 				return False
 
@@ -558,10 +558,10 @@ Make sure to remember the password for later use !
 			# gm-dbo in gm-logins; in v17 add: ", INHERIT FALSE, SET FALSE"
 			'GRANT "%s" TO "%s" WITH ADMIN OPTION;' % (_GM_LOGINS_GROUP, _GM_DBO_ROLE),
 			# gm-dbo in gnumed_vXX; in v17 add: ", INHERIT FALSE, SET FALSE"
-			'GRANT "%s" TO "%s" WITH ADMIN OPTION;'	% (self.db_name_group_role, _GM_DBO_ROLE)
+			'GRANT "%s" TO "%s" WITH ADMIN OPTION;'	% (self.db_named_group_role, _GM_DBO_ROLE)
 
 		]
-#		SQL = 'CREATE ROLE "%s" WITH ENCRYPTED PASSWORD \'%s\' CREATEDB CREATEROLE IN GROUP "%s", "gm-logins"' % (_GM_DBO_ROLE, _dbowner.password, self.db_name_group_role)
+#		SQL = 'CREATE ROLE "%s" WITH ENCRYPTED PASSWORD \'%s\' CREATEDB CREATEROLE IN GROUP "%s", "gm-logins"' % (_GM_DBO_ROLE, _dbowner.password, self.db_named_group_role)
 		try:
 			for SQL in SQLs:
 				cursor.execute(SQL)
@@ -591,13 +591,13 @@ Make sure to remember the password for later use !
 		groups = cfg_get(section, "groups")
 		if groups is None:
 			_log.error(u"Cannot load GNUmed group names from config file (section [%s])." % section)
-			groups = [self.db_name_group_role]
+			groups = [self.db_named_group_role]
 		else:
-			groups.append(self.db_name_group_role)
+			groups.append(self.db_named_group_role)
 
 		cursor = self.conn.cursor()
 		for group in groups:
-			if not create_db_name_group_role(cursor, group):
+			if not create_db_named_group_role(cursor, group):
 				cursor.close()
 				return False
 
@@ -653,7 +653,7 @@ class database:
 			raise ConstructorError("database.__init__(): Cannot bootstrap database.")
 
 		# make sure server is bootstrapped
-		db_server(self.server_alias, db_name_group_role = self.name)
+		db_server(self.server_alias, db_named_group_role = self.name)
 		self.server = _bootstrapped_servers[self.server_alias]
 
 		if not self.__bootstrap():
@@ -705,7 +705,7 @@ class database:
 		# create authentication group
 		_log.info(u'creating database-specific authentication group role')
 		curs = self.conn.cursor()
-		if not create_db_name_group_role(cursor = curs, group = self.name):
+		if not create_db_named_group_role(cursor = curs, group = self.name):
 			curs.close()
 			_log.error(u'cannot create authentication group role')
 			return False
@@ -714,7 +714,7 @@ class database:
 
 		# paranoia check
 		curs = self.conn.cursor()
-		if not db_name_group_role_exists(cursor = curs, group = self.name):
+		if not db_named_group_role_exists(cursor = curs, group = self.name):
 			curs.close()
 			_log.error(u'cannot find authentication group role')
 			return False
