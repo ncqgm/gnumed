@@ -227,7 +227,7 @@ def user_exists(cursor=None, user=None):
 		_log.exception(u">>>[%s]<<< failed for user [%s]", SQL, user)
 		return None
 
-	res = cursor.fetchone()
+	cursor.fetchone()
 	if cursor.rowcount == 1:
 		_log.info(u"user [%s] exists", user)
 		return True
@@ -886,7 +886,7 @@ class database:
 			_log.exception(u">>>[%s]<<< failed." % SQL)
 			return None
 
-		res = aCursor.fetchall()
+		aCursor.fetchall()
 		tmp = aCursor.rowcount
 		aCursor.close()
 		if tmp == 1:
@@ -1119,7 +1119,7 @@ class database:
 		_log.info(u'hba file: %s', hba_file)
 
 		try:
-			f = open(hba_file, mode = 'rt').close()
+			open(hba_file, mode = 'rt').close()
 		except Exception:
 			_log.exception(u'cannot check pg_hba.conf for authentication information - not readable')
 			return
