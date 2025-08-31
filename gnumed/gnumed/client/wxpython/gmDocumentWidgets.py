@@ -3104,9 +3104,9 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		self.__patient = gmPerson.gmCurrentPatient()
 		self.__orthanc_patient = None
 		self.__image_data = None
-
 		self.__init_ui()
 		self.__register_interests()
+		self.__connect()
 
 	#--------------------------------------------------------
 	# internal helpers
@@ -3259,14 +3259,15 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		self.__orthanc_patient = None
 		self.__set_button_states()
 		self.__reset_server_identification()
-
 		host = self._TCTRL_host.Value.strip()
 		port = self._TCTRL_port.Value.strip()[:6]
 		if port == '':
 			self._LBL_PACS_identification.SetLabel(_('Cannot connect without port (try 8042).'))
 			return False
+
 		if len(port) < 4:
 			return False
+
 		try:
 			int(port)
 		except ValueError:
@@ -3280,7 +3281,6 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		password = self._TCTRL_password.Value
 		if password == '':
 			password = None
-
 		pacs = gmDICOM.cOrthancServer()
 		if not pacs.connect(host = host, port = port, user = user, password = password):		#, expected_aet = 'another AET'
 			self._LBL_PACS_identification.SetLabel(_('Cannot connect to PACS.'))
@@ -3295,9 +3295,9 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			#pacs.server_identification['ApiVersion'],
 			pacs.server_identification['DatabaseVersion']
 		))
-
 		self.__pacs = pacs
 		self.__set_button_states()
+		self.__refresh_patient_data()
 		return True
 
 	#--------------------------------------------------------
@@ -3310,7 +3310,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			self.__set_button_states()
 			return True
 
-		if not self.__connect():
+		if not self.__pacs:
 			return False
 
 		tt_lines = [_('Known PACS IDs:')]
@@ -4086,6 +4086,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
+		self.__connect()
 		self._schedule_data_reget()
 
 	#--------------------------------------------------------
