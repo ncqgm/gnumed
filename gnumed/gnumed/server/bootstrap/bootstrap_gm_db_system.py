@@ -52,7 +52,6 @@ import os.path
 import fileinput
 import os
 import getpass
-import glob
 import re as regex
 import tempfile
 import logging

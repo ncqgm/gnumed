@@ -20,7 +20,8 @@ audited table.
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL v2 or later"		# (details at https://www.gnu.org)
 
-import sys, os.path, string, logging, io
+import sys
+import logging
 
 
 from Gnumed.pycommon import gmPG2
@@ -402,8 +403,8 @@ def create_audit_ddl(aCursor):
 if __name__ == "__main__" :
 	tmp = ''
 	try:
-		tmp = raw_input("audit trail parent table [%s]: " % AUDIT_TRAIL_PARENT_TABLE)
-	except KeyboardError:
+		tmp = input("audit trail parent table [%s]: " % AUDIT_TRAIL_PARENT_TABLE)
+	except KeyboardInterrupt:
 		pass
 	if tmp != '':
 		AUDIT_TRAIL_PARENT_TABLE = tmp

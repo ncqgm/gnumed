@@ -40,7 +40,7 @@ def generate_pruning_dml(filename=None):
 	idx = 1
 
 	for line in  backup_file:
-		print idx
+		print(idx)
 		idx += 1
 		# reproduce configuration
 		if line.startswith('SET '):

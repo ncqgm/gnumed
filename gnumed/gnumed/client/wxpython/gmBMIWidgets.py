@@ -20,6 +20,7 @@ __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later (details at https://www.gnu.org)"
 
+import sys
 import os.path
 
 import wx
