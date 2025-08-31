@@ -13,7 +13,7 @@ if test "${PYFILE}" != "" ; then
 
 	LOG=$(basename ${PYFILE})
 	echo "=== $(date): pylint ${PYFILE} ==========" > source-coding_errors-pylint_${LOG}.log
-	pylint --errors-only ${PYFILE} &>> source-coding_errors-pylint_${LOG}.log
+	pylint --errors-only --extension-pkg-whitelist=wx ${PYFILE} &>> source-coding_errors-pylint_${LOG}.log
 
 	echo "=== $(date): mypy ==========" > source-type_checking.log
 	echo "${MYPY_CMD}" &>> source-type_checking.log
@@ -43,7 +43,7 @@ DIRS="../client/pycommon ../client/business ../client/wxpython ../server/bootstr
 for DIR in ${DIRS} ; do
 	LOG=$(basename ${DIR})
 	echo "=== $(date): pylint ${DIR} ==========" > source-coding_errors-pylint_${LOG}.log
-	pylint --errors-only ${DIR}/*.py &>> source-coding_errors-pylint_${LOG}.log
+	pylint --errors-only --extension-pkg-whitelist wx ${DIR}/*.py &>> source-coding_errors-pylint_${LOG}.log
 done
 
 

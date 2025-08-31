@@ -12,7 +12,7 @@ for ADOC in website/*.adoc ; do
 done;
 
 read -p "Hit [ENTER] for uploading website updates "
-rsync --verbose --progress --checksum --human-readable html/*.html gnumed.de:gm-website/
+rsync --verbose --progress --checksum --human-readable html/*.html gm-vm:gm-website/
 RESULT="$?"
 if test "${RESULT}" != "0" ; then
 	echo "Cannot upload html files (${RESULT}). Aborting."
