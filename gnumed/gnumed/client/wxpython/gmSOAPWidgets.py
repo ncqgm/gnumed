@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
 #============================================================
 def create_issue_popup(parent, pos, size, style, data_sink):
-	ea = gmEMRStructWidgets.cHealthIssueEditArea (
+	ea = gmEMRStructWidgets.cHealthIssueEditAreaPnl (
 		parent,
 		-1,
 		wx.DefaultPosition,

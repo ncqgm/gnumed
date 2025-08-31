@@ -1407,7 +1407,7 @@ class cActivePatientSelector(cPersonSearchCtrl):
 			_log.warning("dismissing patient before patient search")
 			self._set_person_as_active_patient(-1)
 
-		super(self.__class__, self)._on_enter(search_term=search_term)
+		super()._on_enter(search_term=search_term)
 
 		if self.person is None:
 			return
@@ -1416,7 +1416,7 @@ class cActivePatientSelector(cPersonSearchCtrl):
 	#----------------------------------------------
 	def _on_char(self, evt):
 
-		success = super(self.__class__, self)._on_char(evt)
+		success = super()._on_char(evt)
 		if success:
 			self._set_person_as_active_patient(self.person)
 

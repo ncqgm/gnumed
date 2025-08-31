@@ -8,10 +8,26 @@ import logging
 import sys
 
 
+# setup translation
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	# we are the main script, setup a fake _() for now,
+	# such that it can be used in module level definitions
+	_ = lambda x:x
+else:
+	# we are being imported from elsewhere, say, mypy or some such
+	try:
+		# do we already have _() ?
+		_
+	except NameError:
+		# no, setup i18n handling
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
 from Gnumed.pycommon import gmMatchProvider
+
 from Gnumed.business import gmMedication
+
 from Gnumed.wxpython import gmPhraseWheel
 
 
@@ -186,7 +202,7 @@ class cProductOrSubstancePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		if entry_type == 1:
 			return gmMedication.cDrugProduct(aPK_obj = pk)
 		if entry_type == 2:
-			return gmMedication.cConsumableSubstance(aPK_obj = pk)
+			return gmMedication.cSubstance(aPK_obj = pk)
 		if entry_type == 3:
 			return gmMedication.cDrugComponent(aPK_obj = pk)
 		raise ValueError('entry type must be 1=drug product or 2=substance or 3=component')
@@ -270,6 +286,11 @@ if __name__ == '__main__':
 
 	if sys.argv[1] != 'test':
 		sys.exit()
+
+	del _
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain('gnumed')
 
 	from Gnumed.wxpython import gmGuiTest
 	#----------------------------------------

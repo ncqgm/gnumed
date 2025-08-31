@@ -24,6 +24,18 @@ import os.path
 
 import wx
 
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+	_ = lambda x:x
+else:
+	try:
+		_
+	except NameError:
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
+
+
 #===========================================================================
 class BMI_Colour_Scale(wx.Window):
 
@@ -531,6 +543,13 @@ class BMI_Frame(wx.Frame):#, BMICalc_Panel):
 
 #== if run as standalone =======================================================
 if __name__ == '__main__':
+
+	# setup a real translation
+	del _
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain('gnumed')
+
 	# set up dummy app
 	class TestApp (wx.App):
 		def OnInit (self):

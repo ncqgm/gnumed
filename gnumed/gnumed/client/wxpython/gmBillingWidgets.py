@@ -394,8 +394,7 @@ def get_invoice_template(parent=None, with_vat=True):
 
 	template = gmCfgDB.get4user (
 		option = option,
-		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-		bias = 'user'
+		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 	)
 
 	if template is None:

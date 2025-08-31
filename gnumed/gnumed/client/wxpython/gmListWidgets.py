@@ -3757,7 +3757,7 @@ if __name__ == '__main__':
 	def test_item_picker_dlg():
 		#app = wx.PyWidgetTester(size = (200, 50))
 		#app = 
-		wx.App(size = (200, 50))
+		wx.App((200, 50))
 		dlg = cItemPickerDlg(None, -1, msg = 'Pick a few items:')
 		dlg.set_columns(['Plugins'], ['Load in workplace', 'dummy'])
 		#dlg.set_columns(['Plugins'], [])

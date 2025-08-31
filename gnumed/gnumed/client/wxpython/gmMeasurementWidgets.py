@@ -279,7 +279,7 @@ def browse_incoming(parent=None):
 			'%s, %s (%s) %s' % (
 				gmTools.coalesce(i['lastnames'], ''),
 				gmTools.coalesce(i['firstnames'], ''),
-				gmDateTime.format_dob(i['dob'], format = '%Y %b %d', none_str = _('unknown DOB')),
+				gmDateTime.format_dob(i['dob'], format = '%Y %b %d', none_string = _('unknown DOB')),
 				gmTools.coalesce(i['gender'], '')
 			),
 			gmTools.coalesce(i['external_data_id'], ''),

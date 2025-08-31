@@ -1455,8 +1455,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			'type': '',
 			'tmpl': _('%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_region)s, %(l10n_country)s')
 		}
+
 		opts = self._parse_ph_options (
-			option_data = data,
+			options_data = data,
 			kwd_defaults = kwds,
 			pos_default = pos
 		)
@@ -2553,7 +2554,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return None
 
 		defaults = {'msg': None, 'yes': None, 'no': ''}
-		msg, yes_txt, no_txt = self.__parse_ph_options(option_defs = defaults, options_string = data)
+		msg, yes_txt, no_txt = self._parse_ph_options(option_defs = defaults, options_string = data)
 		if None in [msg, yes_txt]:
 			return self._escape(u'YES_NO lacks proper definition')
 
@@ -2892,7 +2893,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 			Keywords: Must contain an option name, followed by a '=', followed by a value. Think 'template=%s'. The value _can_ contain more '='s.
 
-			Positionals: Options which contain only a value. Their name is defined by their _position_ within the option the options data.
+			Positionals: Options which contain only a value. Their name is defined by their _position_ within the options data.
 
 		Note:
 			* Positional defaults override keyword defaults override switch defaults of the same name.
@@ -3216,7 +3217,7 @@ class cMacroPrimitives:
 
 		searcher = gmPersonSearch.cPatientSearcher_SQL()
 		if type(search_params) == dict:
-			idents = searcher.get_identities(search_dict = search_params)
+			#idents = searcher.get_identities(search_dict = search_params)
 			raise Exception("must use dto, not search_dict")
 
 		else:

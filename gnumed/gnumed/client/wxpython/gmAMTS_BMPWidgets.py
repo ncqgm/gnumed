@@ -34,7 +34,7 @@ def import_amts_bmp_for_patient(parent=None, patient=None):
 	# check xml files for bmp
 	# check bmps for potentially belonging to patient
 	bmp_filename = 'current_pat_bmp.xml'
-	import_amts_bmp(parent = parent, bmp_file = bmp_filename)
+	import_amts_bmp(parent = parent, bmp_filename = bmp_filename)
 
 #----------------------------------------------------------------
 

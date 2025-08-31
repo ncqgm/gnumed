@@ -805,7 +805,7 @@ class cDrugComponentEAPnl(wxgDrugComponentEAPnl.wxgDrugComponentEAPnl, gmEditAre
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 		# save the data as a new instance
-		data = 1
+		data = {}
 		data[''] = 1
 		data[''] = 1
 #		data.save()
