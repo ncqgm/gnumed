@@ -603,21 +603,21 @@ if __name__ == "__main__":
 	from Gnumed.wxpython import gmPatSearchWidgets
 
 	#-----------------------------------------------
-	def test_allergy_edit_area_dlg():
-		app = wx.PyWidgetTester(size = (600, 600))
-		dlg = cAllergyEditAreaDlg(parent=app.frame, id=-1)
-		dlg.ShowModal()
+#	def test_allergy_edit_area_dlg():
+#		app = wx.PyWidgetTester(size = (600, 600))
+#		dlg = cAllergyEditAreaDlg(parent=app.frame, id=-1)
+#		dlg.ShowModal()
 #		emr = pat.emr
 #		allergy = emr.get_allergies()[0]
 #		dlg = cAllergyEditAreaDlg(parent=app.frame, id=-1, allergy=allergy)
 #		dlg.ShowModal()
-		return
+#		return
 	#-----------------------------------------------
-	def test_allergy_manager_dlg():
-		app = wx.PyWidgetTester(size = (800, 600))
-		dlg = cAllergyManagerDlg(parent=app.frame, id=-1)
-		dlg.ShowModal()
-		return
+#	def test_allergy_manager_dlg():
+#		app = wx.PyWidgetTester(size = (800, 600))
+#		dlg = cAllergyManagerDlg(parent=app.frame, id=-1)
+#		dlg.ShowModal()
+#		return
 	#-----------------------------------------------
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
 
@@ -627,7 +627,7 @@ if __name__ == "__main__":
 		gmPatSearchWidgets.set_active_patient(pat)
 
 		#test_allergy_edit_area_dlg()
-		test_allergy_manager_dlg()
+#		test_allergy_manager_dlg()
 
 #		app = wxPyWidgetTester(size = (600, 600))
 #		app.SetWidget(cAllergyPanel, -1)

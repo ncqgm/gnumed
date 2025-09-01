@@ -2030,44 +2030,44 @@ if __name__ == "__main__":
 	from Gnumed.wxpython import gmGuiTest
 
 	#--------------------------------------------------------
-	def test_organizer_pnl():
-		app = wx.PyWidgetTester(size = (600, 400))
-		app.SetWidget(cKOrganizerSchedulePnl)
-		app.MainLoop()
+#	def test_organizer_pnl():
+#		app = wx.PyWidgetTester(size = (600, 400))
+#		app.SetWidget(cKOrganizerSchedulePnl)
+#		app.MainLoop()
 	#--------------------------------------------------------
-	def test_person_names_pnl():
-		app = wx.PyWidgetTester(size = (600, 400))
-		widget = cPersonNamesManagerPnl(app.frame, -1)
-		widget.identity = activate_patient()
-		app.frame.Show(True)
-		app.MainLoop()
+#	def test_person_names_pnl():
+#		app = wx.PyWidgetTester(size = (600, 400))
+#		widget = cPersonNamesManagerPnl(app.frame, -1)
+#		widget.identity = activate_patient()
+#		app.frame.Show(True)
+#		app.MainLoop()
 	#--------------------------------------------------------
-	def test_person_ids_pnl():
-		app = wx.PyWidgetTester(size = (600, 400))
-		widget = cPersonIDsManagerPnl(app.frame, -1)
-		widget.identity = activate_patient()
-		app.frame.Show(True)
-		app.MainLoop()
+#	def test_person_ids_pnl():
+#		app = wx.PyWidgetTester(size = (600, 400))
+#		widget = cPersonIDsManagerPnl(app.frame, -1)
+#		widget.identity = activate_patient()
+#		app.frame.Show(True)
+#		app.MainLoop()
 	#--------------------------------------------------------
-	def test_pat_ids_pnl():
-		app = wx.PyWidgetTester(size = (600, 400))
-		widget = cPersonIdentityManagerPnl(app.frame, -1)
-		widget.identity = activate_patient()
-		app.frame.Show(True)
-		app.MainLoop()
+#	def test_pat_ids_pnl():
+#		app = wx.PyWidgetTester(size = (600, 400))
+#		widget = cPersonIdentityManagerPnl(app.frame, -1)
+#		widget.identity = activate_patient()
+#		app.frame.Show(True)
+#		app.MainLoop()
 	#--------------------------------------------------------
-	def test_name_ea_pnl():
-		app = wx.PyWidgetTester(size = (600, 400))
-		app.SetWidget(cPersonNameEAPnl, name = activate_patient().get_active_name())
-		app.MainLoop()
+#	def test_name_ea_pnl():
+#		app = wx.PyWidgetTester(size = (600, 400))
+#		app.SetWidget(cPersonNameEAPnl, name = activate_patient().get_active_name())
+#		app.MainLoop()
 	#--------------------------------------------------------
-	def test_cPersonDemographicsEditorNb():
-		app = wx.PyWidgetTester(size = (600, 400))
-		widget = cPersonDemographicsEditorNb(app.frame, -1)
-		widget.identity = activate_patient()
-		widget.refresh()
-		app.frame.Show(True)
-		app.MainLoop()
+#	def test_cPersonDemographicsEditorNb():
+#		app = wx.PyWidgetTester(size = (600, 400))
+#		widget = cPersonDemographicsEditorNb(app.frame, -1)
+#		widget.identity = activate_patient()
+#		widget.refresh()
+#		app.frame.Show(True)
+#		app.MainLoop()
 	#--------------------------------------------------------
 	def activate_patient():
 		patient = gmPersonSearch.ask_for_patient()

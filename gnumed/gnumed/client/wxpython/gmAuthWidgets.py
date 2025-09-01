@@ -920,8 +920,6 @@ if __name__ == "__main__":
 	#-----------------------------------------------
 	#-----------------------------------------------
 	def test():
-		#app = 
-		wx.PyWidgetTester(size = (300,400))
 		#show the login panel in a main window
 #		app.SetWidget(cLoginPanel, -1)
 		#and pop the login dialog up modally

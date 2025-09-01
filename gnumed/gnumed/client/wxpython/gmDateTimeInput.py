@@ -485,7 +485,7 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		if len(self._data) == 0:
 			self._set_data_to_first_match()
 
-		return super(self.__class__, self).GetData()
+		return super().GetData()
 
 	#--------------------------------------------------------
 	def is_valid_timestamp(self, empty_is_valid=True):
@@ -772,15 +772,15 @@ if __name__ == '__main__':
 				print(match['data'])
 				print("---------------")
 	#--------------------------------------------------------
-	def test_fuzzy_picker():
-		app = wx.PyWidgetTester(size = (300, 40))
-		app.SetWidget(cFuzzyTimestampInput, id=-1, size=(180,20), pos=(10,20))
-		app.MainLoop()
+#	def test_fuzzy_picker():
+#		app = wx.PyWidgetTester(size = (300, 40))
+#		app.SetWidget(cFuzzyTimestampInput, id=-1, size=(180,20), pos=(10,20))
+#		app.MainLoop()
 	#--------------------------------------------------------
-	def test_picker():
-		app = wx.PyWidgetTester(size = (300, 40))
-		app.SetWidget(cDateInputPhraseWheel, id=-1, size=(180,20), pos=(10,20))
-		app.MainLoop()
+#	def test_picker():
+#		app = wx.PyWidgetTester(size = (300, 40))
+#		app.SetWidget(cDateInputPhraseWheel, id=-1, size=(180,20), pos=(10,20))
+#		app.MainLoop()
 	#--------------------------------------------------------
 	#test_cli()
 	#test_fuzzy_picker()

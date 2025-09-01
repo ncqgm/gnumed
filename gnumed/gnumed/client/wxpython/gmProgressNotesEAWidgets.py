@@ -398,12 +398,12 @@ if __name__ == '__main__':
 	from Gnumed.business import gmPersonSearch
 
 	#----------------------------------------
-	def test_cProgressNotesEAPnl():
-		gmPersonSearch.ask_for_patient()
-		application = wx.PyWidgetTester(size=(800,500))
-		#soap_input = cProgressNotesEAPnl(application.frame, -1)
-		application.frame.Show(True)
-		application.MainLoop()
+#	def test_cProgressNotesEAPnl():
+#		gmPersonSearch.ask_for_patient()
+#		application = wx.PyWidgetTester(size=(800,500))
+#		#soap_input = cProgressNotesEAPnl(application.frame, -1)
+#		application.frame.Show(True)
+#		application.MainLoop()
 	#----------------------------------------
 
-	test_cProgressNotesEAPnl()
+#	test_cProgressNotesEAPnl()

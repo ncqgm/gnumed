@@ -14,10 +14,17 @@ import shutil
 
 import wx
 
-
+# setup translation
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
+else:
+	try:
+		_
+	except NameError:
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
 from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
@@ -1213,16 +1220,24 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 #------------------------------------------------------------
 if __name__ == '__main__':
 
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
+
+	del _
+	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
-	gmI18N.install_domain(domain = 'gnumed')
+	gmI18N.install_domain('gnumed')
 
 	#----------------------------------------
-	def test_cFormTemplateEAPnl():
-		app = wx.PyWidgetTester(size = (400, 300))
-		cFormTemplateEAPnl(app.frame, -1, template = gmForms.cFormTemplate(aPK_obj=4))
-		app.frame.Show(True)
-		app.MainLoop()
-		return
+#	def test_cFormTemplateEAPnl():
+#		app = wx.PyWidgetTester(size = (400, 300))
+#		cFormTemplateEAPnl(app.frame, -1, template = gmForms.cFormTemplate(aPK_obj=4))
+#		app.frame.Show(True)
+#		app.MainLoop()
+#		return
 
 	#----------------------------------------
 	def test_form_template():
@@ -1264,10 +1279,9 @@ if __name__ == '__main__':
 		print('\n'.join(footer))
 
 	#----------------------------------------
-	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
-		#test_cFormTemplateEAPnl()
-		#test_print_generic_document()
-		#test_generate_failsafe_form_wrapper()
-		test_form_template()
+	#test_cFormTemplateEAPnl()
+	#test_print_generic_document()
+	#test_generate_failsafe_form_wrapper()
+	test_form_template()
 
 #============================================================

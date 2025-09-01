@@ -510,14 +510,14 @@ if __name__ == '__main__':
 	gmI18N.install_domain(domain='gnumed')
 
 	#-----------------------------------------------
-	def test_gm_textctrl():
-		app = wx.PyWidgetTester(size = (200, 50))
-		#tc = 
-		cTextCtrl(app.frame, -1)
-		#tc.enable_keyword_expansions()
-		#tc.Enable(False)
-		app.frame.Show(True)
-		app.MainLoop()
-		return True
+#	def test_gm_textctrl():
+#		app = wx.PyWidgetTester(size = (200, 50))
+#		#tc = 
+#		cTextCtrl(app.frame, -1)
+#		#tc.enable_keyword_expansions()
+#		#tc.Enable(False)
+#		app.frame.Show(True)
+#		app.MainLoop()
+#		return True
 	#-----------------------------------------------
-	test_gm_textctrl()
+#	test_gm_textctrl()

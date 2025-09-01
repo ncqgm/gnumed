@@ -599,18 +599,18 @@ if __name__ == '__main__':
 	gmDateTime.init()
 
 	#------------------------------------------------------------
-	def test_pat_list_ctrl():
-		app = wx.PyWidgetTester(size = (400, 500))
-		lst = cPatientListingCtrl(app.frame, patient_key = 0)
-		lst.set_columns(['name', 'comment'])
-		lst.set_string_items([
-			['Kirk', 'Kirk by name'],
-			['#12', 'Kirk by ID'],
-			['unknown', 'unknown patient']
-		])
-#		app.SetWidget(cPatientListingCtrl, patient_key = 0)
-		app.frame.Show()
-		app.MainLoop()
+#	def test_pat_list_ctrl():
+#		app = wx.PyWidgetTester(size = (400, 500))
+#		lst = cPatientListingCtrl(app.frame, patient_key = 0)
+#		lst.set_columns(['name', 'comment'])
+#		lst.set_string_items([
+#			['Kirk', 'Kirk by name'],
+#			['#12', 'Kirk by ID'],
+#			['unknown', 'unknown patient']
+#		])
+##		app.SetWidget(cPatientListingCtrl, patient_key = 0)
+#		app.frame.Show()
+#		app.MainLoop()
 	#------------------------------------------------------------
 
-	test_pat_list_ctrl()
+#	test_pat_list_ctrl()

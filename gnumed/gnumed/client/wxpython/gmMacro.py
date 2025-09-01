@@ -1459,7 +1459,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		opts = self._parse_ph_options (
 			options_data = data,
 			kwd_defaults = kwds,
-			pos_default = pos
+			pos_defaults = pos
 		)
 		adr_type = opts['type']
 		orig_type = adr_type
@@ -2553,10 +2553,12 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if data is None:
 			return None
 
-		defaults = {'msg': None, 'yes': None, 'no': ''}
-		msg, yes_txt, no_txt = self._parse_ph_options(option_defs = defaults, options_string = data)
+		msg, yes_txt, no_txt = self._parse_ph_options (
+			options_data = data,
+			kwd_defaults = {'msg': None, 'yes': None, 'no': ''}
+		)
 		if None in [msg, yes_txt]:
-			return self._escape(u'YES_NO lacks proper definition')
+			return self._escape('YES_NO lacks proper definition')
 
 		yes = gmGuiHelpers.gm_show_question(question = msg, cancel_button = False, title = 'Placeholder question')
 		if yes:

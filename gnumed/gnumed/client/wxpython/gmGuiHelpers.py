@@ -728,24 +728,24 @@ if __name__ == '__main__':
 		print(img.Height)
 		print(img.Width)
 	#------------------------------------------------------------------
-	def test_sql_logic_prw():
-		app = wx.PyWidgetTester(size = (200, 50))
-		cThreeValuedLogicPhraseWheel(app.frame, -1)
-		app.frame.Show(True)
-		app.MainLoop()
-
-		return True
+#	def test_sql_logic_prw():
+#		app = wx.PyWidgetTester(size = (200, 50))
+#		cThreeValuedLogicPhraseWheel(app.frame, -1)
+#		app.frame.Show(True)
+#		app.MainLoop()
+#
+#		return True
 	#------------------------------------------------------------------
-	def test_clipboard():
-		wx.PyWidgetTester(size = (200, 50))
-		result = clipboard2file()
-		if result is False:
-			print("problem opening clipboard")
-			return
-		if result is None:
-			print("no data in clipboard")
-			return
-		print("file:", result)
+#	def test_clipboard():
+#		wx.PyWidgetTester(size = (200, 50))
+#		result = clipboard2file()
+#		if result is False:
+#			print("problem opening clipboard")
+#			return
+#		if result is None:
+#			print("no data in clipboard")
+#			return
+#		print("file:", result)
 
 	#------------------------------------------------------------------
 	def test_take_screenshot():

@@ -462,9 +462,9 @@ if __name__ == '__main__':
 	from Gnumed.wxpython import gmPatSearchWidgets
 
 	#----------------------------------------------------------------
-	def test_edit_procedure():
-		app = wx.PyWidgetTester(size = (200, 300))
-		edit_procedure(parent=app.frame)
+#	def test_edit_procedure()
+#		app = wx.PyWidgetTester(size = (200, 300))
+#		edit_procedure(parent=app.frame)
 
 	#================================================================
 	# obtain patient
@@ -474,4 +474,4 @@ if __name__ == '__main__':
 		sys.exit(0)
 	gmPatSearchWidgets.set_active_patient(patient=pat)
 
-	test_edit_procedure()
+#	test_edit_procedure()

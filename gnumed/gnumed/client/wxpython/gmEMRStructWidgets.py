@@ -1331,19 +1331,19 @@ if __name__ == '__main__':
 				self.ExitMainLoop ()
 
 	#----------------------------------------------------------------
-	def test_epsiode_edit_area_pnl():
-		app = wx.PyWidgetTester(size = (200, 300))
-		#emr = pat.emr
-		#epi = emr.get_episodes()[0]
-		#pnl = cEpisodeEditAreaPnl(app.frame, -1, episode=epi)
-		app.frame.Show(True)
-		app.MainLoop()
+#	def test_epsiode_edit_area_pnl():
+#		app = wx.PyWidgetTester(size = (200, 300))
+#		#emr = pat.emr
+#		#epi = emr.get_episodes()[0]
+#		#pnl = cEpisodeEditAreaPnl(app.frame, -1, episode=epi)
+#		app.frame.Show(True)
+#		app.MainLoop()
 	#----------------------------------------------------------------
-	def test_episode_edit_area_dialog():
-		app = wx.PyWidgetTester(size = (200, 300))
-		emr = pat.emr
-		epi = emr.get_episodes()[0]
-		edit_episode(parent=app.frame, episode=epi)
+#	def test_episode_edit_area_dialog():
+#		app = wx.PyWidgetTester(size = (200, 300))
+#		emr = pat.emr
+#		epi = emr.get_episodes()[0]
+#		edit_episode(parent=app.frame, episode=epi)
 
 	#----------------------------------------------------------------
 	def test_episode_selection_prw():
@@ -1356,15 +1356,15 @@ if __name__ == '__main__':
 		wx.GetApp().MainLoop()
 
 	#----------------------------------------------------------------
-	def test_health_issue_edit_area_dlg():
-		app = wx.PyWidgetTester(size = (200, 300))
-		edit_health_issue(parent=app.frame, issue=None)
+#	def test_health_issue_edit_area_dlg():
+#		app = wx.PyWidgetTester(size = (200, 300))
+#		edit_health_issue(parent=app.frame, issue=None)
 
 	#----------------------------------------------------------------
-	def test_health_issue_edit_area_pnl():
-		app = wx.PyWidgetTester(size = (200, 300))
-		app.SetWidget(cHealthIssueEditAreaPnl, id=-1, size = (400,400))
-		app.MainLoop()
+#	def test_health_issue_edit_area_pnl():
+#		app = wx.PyWidgetTester(size = (200, 300))
+#		app.SetWidget(cHealthIssueEditAreaPnl, id=-1, size = (400,400))
+#		app.MainLoop()
 
 	#================================================================
 

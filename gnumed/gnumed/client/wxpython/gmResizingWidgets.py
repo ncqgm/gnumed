@@ -909,7 +909,7 @@ if __name__ == '__main__':
 		)
 		for arg in args:
 			msg = msg + "\narg ==> %s" % arg
-		for key in kwargs():
+		for key in kwargs:
 			msg = msg + "\n%s ==> %s" % (key, kwargs[key])
 		gmGuiHelpers.gm_show_info (
 			info = msg,

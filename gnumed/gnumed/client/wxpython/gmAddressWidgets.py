@@ -1217,62 +1217,62 @@ if __name__ == '__main__':
 	#from Gnumed.business import gmPersonSearch
 
 	#--------------------------------------------------------
-	def test_country_prw():
-		app = wx.PyWidgetTester(size = (200, 50))
-		cCountryPhraseWheel(app.frame, -1)
-		app.frame.Show(True)
-		app.MainLoop()
+#	def test_country_prw():
+#		app = wx.PyWidgetTester(size = (200, 50))
+#		cCountryPhraseWheel(app.frame, -1)
+#		app.frame.Show(True)
+#		app.MainLoop()
 	#--------------------------------------------------------
-	def test_region_prw():
-		app = wx.PyWidgetTester(size = (200, 50))
-		pw = cStateSelectionPhraseWheel(app.frame, -1)
-		pw.set_context(context = 'zip', val = '04318')
-		pw.set_context(context = 'country', val = 'Deutschland')
-		app.frame.Show(True)
-		app.MainLoop()
+#	def test_region_prw():
+#		app = wx.PyWidgetTester(size = (200, 50))
+#		pw = cStateSelectionPhraseWheel(app.frame, -1)
+#		pw.set_context(context = 'zip', val = '04318')
+#		pw.set_context(context = 'country', val = 'Deutschland')
+#		app.frame.Show(True)
+#		app.MainLoop()
 	#--------------------------------------------------------
-	def test_zipcode_prw():
-		app = wx.PyWidgetTester(size = (200, 50))
-		cZipcodePhraseWheel(app.frame, -1)
-		app.frame.Show(True)
-		app.MainLoop()
+#	def test_zipcode_prw():
+#		app = wx.PyWidgetTester(size = (200, 50))
+#		cZipcodePhraseWheel(app.frame, -1)
+#		app.frame.Show(True)
+#		app.MainLoop()
 	#--------------------------------------------------------
-	def test_street_prw():
-		app = wx.PyWidgetTester(size = (200, 50))
-		cStreetPhraseWheel(app.frame, -1)
-#		pw.set_context(context = u'zip', val = u'04318')
-		app.frame.Show(True)
-		app.MainLoop()
+#	def test_street_prw():
+#		app = wx.PyWidgetTester(size = (200, 50))
+#		cStreetPhraseWheel(app.frame, -1)
+##		pw.set_context(context = u'zip', val = u'04318')
+#		app.frame.Show(True)
+#		app.MainLoop()
 	#--------------------------------------------------------
-	def test_suburb_prw():
-		app = wx.PyWidgetTester(size = (200, 50))
-		cSuburbPhraseWheel(app.frame, -1)
-		app.frame.Show(True)
-		app.MainLoop()
+#	def test_suburb_prw():
+#		app = wx.PyWidgetTester(size = (200, 50))
+#		cSuburbPhraseWheel(app.frame, -1)
+#		app.frame.Show(True)
+#		app.MainLoop()
 	#--------------------------------------------------------
-	def test_urb_prw():
-		app = wx.PyWidgetTester(size = (200, 50))
-		pw = cUrbPhraseWheel(app.frame, -1)
-		app.frame.Show(True)
-		pw.set_context(context = 'zip', val = '04317')
-		app.MainLoop()
+#	def test_urb_prw():
+#		app = wx.PyWidgetTester(size = (200, 50))
+#		pw = cUrbPhraseWheel(app.frame, -1)
+#		app.frame.Show(True)
+#		pw.set_context(context = 'zip', val = '04317')
+#		app.MainLoop()
 	#--------------------------------------------------------
-	def test_address_type_prw():
-		app = wx.PyWidgetTester(size = (200, 50))
-		cAddressTypePhraseWheel(app.frame, -1)
-		app.frame.Show(True)
-		app.MainLoop()
+#	def test_address_type_prw():
+#		app = wx.PyWidgetTester(size = (200, 50))
+#		cAddressTypePhraseWheel(app.frame, -1)
+#		app.frame.Show(True)
+#		app.MainLoop()
 	#--------------------------------------------------------
-	def test_address_prw():
-		app = wx.PyWidgetTester(size = (200, 50))
-		cAddressPhraseWheel(app.frame, -1)
-		app.frame.Show(True)
-		app.MainLoop()
+#	def test_address_prw():
+#		app = wx.PyWidgetTester(size = (200, 50))
+#		cAddressPhraseWheel(app.frame, -1)
+#		app.frame.Show(True)
+#		app.MainLoop()
 	#--------------------------------------------------------
-	def test_address_ea_pnl():
-		app = wx.PyWidgetTester(size = (600, 400))
-		app.SetWidget(cAddressEAPnl, address = gmDemographicRecord.cAddress(aPK_obj = 1))
-		app.MainLoop()
+#	def test_address_ea_pnl():
+#		app = wx.PyWidgetTester(size = (600, 400))
+#		app.SetWidget(cAddressEAPnl, address = gmDemographicRecord.cAddress(aPK_obj = 1))
+#		app.MainLoop()
 	#--------------------------------------------------------
 	#test_address_type_prw()
 	#test_zipcode_prw()
@@ -1282,6 +1282,6 @@ if __name__ == '__main__':
 	#test_country_prw()
 	#test_urb_prw()
 	#test_address_ea_pnl()
-	test_address_prw()
+#	test_address_prw()
 
 #================================================================
