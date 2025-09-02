@@ -84,6 +84,7 @@ IMPROVED: EMR presentations naming (tabs/menu items) [thanks Maria]
 IMPROVED: i18n: added translatable strings [thanks Maria]
 IMPROVED: GUI: detection of dark theme [thanks Maria]
 IMPROVED: dependancy checker
+IMPROVED: PACS: support SSL connection with Orhanc PACS
 
 	1.8.21
 
