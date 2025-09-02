@@ -248,11 +248,11 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_generic_codes_prw():
 		gmPG2.get_connection()
-		app = wx.PyWidgetTester(size = (500, 40))
+#		app = wx.PyWidgetTester(size = (500, 40))
 		#pw = cGenericCodesPhraseWheel(app.frame, -1)
 		#pw.set_context(context = u'zip', val = u'04318')
-		app.frame.Show(True)
-		app.MainLoop()
+#		app.frame.Show(True)
+#		app.MainLoop()
 	#--------------------------------------------------------
 	test_generic_codes_prw()
 

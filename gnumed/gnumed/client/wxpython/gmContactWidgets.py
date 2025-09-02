@@ -322,11 +322,11 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_person_comms_pnl():
 		pat = gmPersonSearch.ask_for_patient()
-		app = wx.PyWidgetTester(size = (600, 400))
-		widget = cCommChannelsManagerPnl(app.frame, -1)
-		widget.identity = pat
-		app.frame.Show(True)
-		app.MainLoop()
+#		app = wx.PyWidgetTester(size = (600, 400))
+#		widget = cCommChannelsManagerPnl(app.frame, -1)
+#		widget.identity = pat
+#		app.frame.Show(True)
+#		app.MainLoop()
 	#--------------------------------------------------------
 	test_person_comms_pnl()
 
