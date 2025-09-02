@@ -63,70 +63,115 @@ class cOrthancServer:
 #		self.__server_url = None
 
 	#--------------------------------------------------------
+	def __setup_cache_dir(self):
+		cache_dir = os.path.join(gmTools.gmPaths().user_tmp_dir, '.orthanc2gm-cache')
+		gmTools.mkdir(cache_dir, 0o700)
+		_log.debug('using cache directory: %s', cache_dir)
+		return cache_dir
+
+	#--------------------------------------------------------
+	def __try_httpS(self, host, port):
+		try:
+			import ssl
+		except ModuleNotFoundError:
+			_log.exception('no SSL support compiled into this Python')
+			return False
+
+		try:
+			self.__server_url = str('https://%s:%s' % (host, port))
+		except Exception:
+			_log.exception('cannot create server url from: host [%s] and port [%s]', host, port)
+			self.__server_url = None
+			return False
+
+		_log.info('trying connection as [%s] to Orthanc server at [%s]', self.__user, self.__server_url)
+		ident = self.server_identification
+		if not ident:
+			_log.error('HTTPS failure ?')
+			self.__server_url = None
+			return False
+
+		_log.debug('connected to server: %s', ident)
+		return True
+
+	#--------------------------------------------------------
+	def __try_http(self, host, port):
+		try:
+			self.__server_url = str('http://%s:%s' % (host, port))
+		except Exception:
+			_log.exception('cannot create server url from: host [%s] and port [%s]', host, port)
+			self.__server_url = None
+			return False
+
+		_log.info('trying connection as [%s] to Orthanc server at [%s]', self.__user, self.__server_url)
+		ident = self.server_identification
+		if not ident:
+			_log.error('HTTP connect failure ?')
+			self.__server_url = None
+			return False
+
+		_log.debug('connected to server: %s', ident)
+		return True
+
+	#--------------------------------------------------------
 	def connect(self, host, port, user, password, expected_minimal_version=None, expected_name=None, expected_aet=None) -> bool:
 		try:
 			int(port)
 		except Exception:
 			_log.error('invalid port [%s]', port)
 			return False
+
 		if (host is None) or (host.strip() == ''):
 			host = 'localhost'
-		try:
-			self.__server_url = str('http://%s:%s' % (host, port))
-		except Exception:
-			_log.exception('cannot create server url from: host [%s] and port [%s]', host, port)
-			return False
-
+		cache_dir = self.__setup_cache_dir()
 		self.__user = user
 		self.__password = password
-		_log.info('connecting as [%s] to Orthanc server at [%s]', self.__user, self.__server_url)
-		cache_dir = os.path.join(gmTools.gmPaths().user_tmp_dir, '.orthanc2gm-cache')
-		gmTools.mkdir(cache_dir, 0o700)
-		_log.debug('using cache directory: %s', cache_dir)
 		self.__conn = httplib2.Http(cache = cache_dir)
 		self.__conn.add_credentials(self.__user, self.__password)
-		_log.debug('connected to server: %s', self.server_identification)
-		self.connect_error = ''
-		if self.server_identification is False:
-			self.connect_error += 'retrieving server identification failed'
-			return False
+		self.__server_url = None
+		if not self.__try_httpS(host, port):
+			if not self.__try_http(host, port):
+				_log.error('unable to connect')
+				self.connect_error = 'retrieving server identification failed'
+				return False
 
 		if (expected_minimal_version is not None) and (py_version is not None):
 			if py_version.parse(self.server_identification['Version']) < py_version.parse(expected_minimal_version):
 				_log.error('server too old, needed [%s]', expected_minimal_version)
-				self.connect_error += 'server too old, needed version [%s]' % expected_minimal_version
+				self.connect_error = 'server too old, needed version [%s]' % expected_minimal_version
 				return False
 
 		if expected_name is not None:
 			if self.server_identification['Name'] != expected_name:
 				_log.error('wrong server name, expected [%s]', expected_name)
-				self.connect_error += 'wrong server name, expected [%s]' % expected_name
+				self.connect_error = 'wrong server name, expected [%s]' % expected_name
 				return False
 
 		if expected_aet is not None:
 			if self.server_identification['DicomAet'] != expected_name:
 				_log.error('wrong server AET, expected [%s]', expected_aet)
-				self.connect_error += 'wrong server AET, expected [%s]' % expected_aet
+				self.connect_error = 'wrong server AET, expected [%s]' % expected_aet
 				return False
 
+		self.connect_error = ''
 		return True
 
 	#--------------------------------------------------------
 	def _get_server_identification(self):
 		try:
 			return self.__server_identification
+
 		except AttributeError:
 			pass
 		system_data = self.__run_GET(url = '%s/system' % self.__server_url)
 		if system_data is False:
 			_log.error('unable to get server identification')
 			return False
+
 		_log.debug('server: %s', system_data)
 		self.__server_identification = system_data
-
 		self.__initial_orthanc_encoding = self.__run_GET(url = '%s/tools/default-encoding' % self.__server_url)
 		_log.debug('initial Orthanc encoding: %s', self.__initial_orthanc_encoding)
-
 		# check time skew
 		tolerance = 60 # seconds
 		client_now_as_utc = pydt.datetime.utcnow()
@@ -149,7 +194,6 @@ class cOrthancServer:
 			_log.info('GNUmed/Orthanc time skew: %s', real_skew)
 			if real_skew > pydt.timedelta(seconds = tolerance):
 				_log.error('GNUmed/Orthanc time skew > tolerance (may be due to timezone differences on Orthanc < v1.3.2)')
-
 		return self.__server_identification
 
 	server_identification = property(_get_server_identification, lambda x:x)
@@ -1524,9 +1568,8 @@ if __name__ == "__main__":
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-#	if __name__ == '__main__':
-#		sys.path.insert(0, '../../')
 	from Gnumed.pycommon import gmLog2
+	gmLog2.print_logfile_name()
 
 	#--------------------------------------------------------
 	def orthanc_console(host, port):
@@ -1725,9 +1768,11 @@ if __name__ == "__main__":
 
 		global orthanc
 		orthanc = cOrthancServer()
-		if not orthanc.connect(host, port, user = None, password = None, expected_minimal_version = '1'):		#, expected_aet = 'another AET'
+#		if not orthanc.connect(host, port, user = None, password = None, expected_minimal_version = '1'):		#, expected_aet = 'another AET'
+		if not orthanc.connect(host, port, user = 'any-doc', password = '?', expected_minimal_version = '1'):		#, expected_aet = 'another AET'
 			print('error connecting to server:', orthanc.connect_error)
 			sys.exit(-1)
+
 		print('Connected to Orthanc server "%s" (AET [%s] - version [%s] - DB [%s])' % (
 			orthanc.server_identification['Name'],
 			orthanc.server_identification['DicomAet'],
