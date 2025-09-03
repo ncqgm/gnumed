@@ -65,7 +65,7 @@ def create_issue_popup(parent, pos, size, style, data_sink):
 	return popup
 #============================================================
 def create_vacc_popup(parent, pos, size, style, data_sink):
-	ea = gmVaccWidgets.cVaccinationEditArea (
+	ea = gmVaccWidgets.cVaccinationEAPnl (
 		parent = parent,
 		id = -1,
       	pos = pos,
@@ -687,7 +687,7 @@ class cPopupDataHolder:
 	def save(self):
 		for popup_type in self.__data:
 			try:
-				saver_func = self.__data_savers[popup_type]
+				saver_func = self._data_savers[popup_type]
 			except KeyError:
 				_log.exception('no saver for popup data type [%s] configured', popup_type)
 				return False
@@ -1191,19 +1191,19 @@ if __name__ == "__main__":
 	#--------------------------------------------------------
 	def test_soap_notebook():
 		print('testing notebooked soap input...')
-		application = wx.PyWidgetTester(size=(800,500))
+#		application = wx.PyWidgetTester(size=(800,500))
 		#soap_input = 
-		cProgressNoteInputNotebook(application.frame, -1)
-		application.frame.Show(True)
-		application.MainLoop()
+#		cProgressNoteInputNotebook(application.frame, -1)
+#		application.frame.Show(True)
+#		application.MainLoop()
 	#--------------------------------------------------------
 	def test_soap_notebook_panel():
 		print('testing notebooked soap panel...')
-		application = wx.PyWidgetTester(size=(800,500))
+#		application = wx.PyWidgetTester(size=(800,500))
 		#soap_input = 
-		cNotebookedProgressNoteInputPanel(application.frame, -1)
-		application.frame.Show(True)
-		application.MainLoop()
+#		cNotebookedProgressNoteInputPanel(application.frame, -1)
+#		application.frame.Show(True)
+#		application.MainLoop()
 	#--------------------------------------------------------
 
 	# obtain patient

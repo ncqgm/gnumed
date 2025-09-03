@@ -1047,7 +1047,8 @@ def runTest(frame, nb):
 
 	ed.SetText('abcdefgs')
 
-	if wx.USE_UNICODE:
+	if True:
+	#if wx.USE_UNICODE:
 		import codecs
 		decode = codecs.lookup("utf-8")[1]
 
@@ -1185,11 +1186,11 @@ if __name__ == '__main__':
 
 	#-----------------------------------------------
 	def test_stc():
-		app = wx.PyWidgetTester(size = (600, 600))
+#		app = wx.PyWidgetTester(size = (600, 600))
 		wx.lib.colourdb.updateColourDB()
 		#print wx.lib.colourdb.getColourList()
-		app.SetWidget(cSoapSTC, -1, (100,50))
-		app.MainLoop()
+#		app.SetWidget(cSoapSTC, -1, (100,50))
+#		app.MainLoop()
 		return True
 
 #		app = wx.PyWidgetTester(size = (200, 50))

@@ -133,10 +133,10 @@ class cLabWheel(gmPhraseWheel.cPhraseWheel):
 		self.matcher = mp
 #=========================================================
 # FIXME: is this really lab specific ?
-class cLabIDListCtrl(wx.ListCtrl, wx.ListCtrlAutoWidthMixin):
+class cLabIDListCtrl(wx.ListCtrl):#, wx.ListCtrlAutoWidthMixin):
 	def __init__(self, parent, id, pos=wx.DefaultPosition, size=wx.DefaultSize, style=0):
 		wx.ListCtrl.__init__(self, parent, id, pos, size, style)
-		wx.ListCtrlAutoWidthMixin.__init__(self)
+#		wx.ListCtrlAutoWidthMixin.__init__(self)
 
 #=========================================================
 class cLabJournalNB(wx.Notebook):

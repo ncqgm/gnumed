@@ -270,20 +270,20 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------
 	def test_person_adrs_pnl():
-		app = wx.PyWidgetTester(size = (600, 400))
+#		app = wx.PyWidgetTester(size = (600, 400))
 		#widget = 
-		cPersonAddressesManagerPnl(app.frame, -1)
+#		cPersonAddressesManagerPnl(app.frame, -1)
 		#widget.identity = activate_patient()
-		app.frame.Show(True)
-		app.MainLoop()
+#		app.frame.Show(True)
+#		app.MainLoop()
 	#--------------------------------------------------------
-	def test_pat_contacts_pnl():
-		app = wx.PyWidgetTester(size = (600, 400))
+#	def test_pat_contacts_pnl():
+#		app = wx.PyWidgetTester(size = (600, 400))
 		#widget = 
-		cPersonContactsManagerPnl(app.frame, -1)
+#		cPersonContactsManagerPnl(app.frame, -1)
 		#widget.identity = activate_patient()
-		app.frame.Show(True)
-		app.MainLoop()
+#		app.frame.Show(True)
+#		app.MainLoop()
 	#--------------------------------------------------------
 	#test_pat_contacts_pnl()
 	#test_person_adrs_pnl()

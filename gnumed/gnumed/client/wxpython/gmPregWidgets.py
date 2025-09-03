@@ -243,7 +243,7 @@ class cPregCalcFrame (wx.Frame):
 					# (if == 0): {calendar selection modifies LMP}
 					# (if == 1): {calendar selection modifies Ultrasound Date}
 
-		self.ustxt=wx.DateTime_Today()	# avoids problem - one would have if the user clicked on
+		self.ustxt=wx.DateTime.Today()	# avoids problem - one would have if the user clicked on
 						# ultrasound date
 						# BONUS: makes the preg. calculator useful for EDC calcs given
 						# 	a date and the gestation time
@@ -446,7 +446,7 @@ class cPregCalcFrame (wx.Frame):
 		# Add calendar (stuff on the left)
 		#------------------------------
 		self.lmp_cal = wx.calendar.CalendarCtrl (self, ID_LMP,style = wx.RAISED_BORDER)
-		wx.calendar.EVT_CALENDAR_SEL_CHANGED(self.lmp_cal, ID_LMP, self.OnCalcByLMP)
+		wx.lib.calendar.EVT_CALENDAR_SEL_CHANGED(self.lmp_cal, ID_LMP, self.OnCalcByLMP)
 
 		szr_main_lf = wx.BoxSizer(wx.VERTICAL)
 		szr_main_lf.Add(self.lmp_cal,0,wx.ALIGN_CENTRE_HORIZONTAL)
@@ -487,7 +487,7 @@ class cPregCalcFrame (wx.Frame):
 
 			#LMP = self.lmp_cal.GetDate ().GetTicks () - 18000 	# Standard Time Fix (?)
 			self.lmp = self.lmp_cal.GetDate ().GetTicks ()		# Correct for Day Light Saving Time
-			today = wx.DateTime_Today().GetTicks()
+			today = wx.DateTime.Today().GetTicks()
 			due = self.lmp + GESTATION
 			gest = today - self.lmp
 			self.ultrasound18_52 = self.lmp + US18_52
@@ -558,14 +558,14 @@ class cPregCalcFrame (wx.Frame):
 		self.txtdue.SetValue("")
 
 		self.txtdate.SetValue("")
-		self.ustxt=wx.DateTime_Today()
+		self.ustxt=wx.DateTime.Today()
 
 		self.txtweeks.SetValue(0)			# FIXME - MAKE IT RESET TO BLANK?
 		self.txtdays.SetValue(0)
 		self.txtnewedc.SetValue("")
 
 		self.xfer_cal_date_to=LMP_FIELD
-		self.lmp_cal.SetDate(wx.DateTime_Today())	# reset Calendar to current date
+		self.lmp_cal.SetDate(wx.DateTime.Today())	# reset Calendar to current date
 
 	#-----------------------------------------
 	def EvtPrint(self, event):

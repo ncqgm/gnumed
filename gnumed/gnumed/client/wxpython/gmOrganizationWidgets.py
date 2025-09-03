@@ -918,28 +918,28 @@ if __name__ == "__main__":
 	from Gnumed.pycommon import gmPG2
 
 	#--------------------------------------------------------
-	def test_org_prw():
-		app = wx.PyWidgetTester(size = (200, 50))
+#	def test_org_prw():
+#		app = wx.PyWidgetTester(size = (200, 50))
 		#pw = 
-		cOrganizationPhraseWheel(app.frame, -1)
-		app.frame.Show(True)
-		app.MainLoop()
+#		cOrganizationPhraseWheel(app.frame, -1)
+#		app.frame.Show(True)
+#		app.MainLoop()
 	#--------------------------------------------------------
-	def test_org_unit_prw():
-		app = wx.PyWidgetTester(size = (200, 50))
+#	def test_org_unit_prw():
+#		app = wx.PyWidgetTester(size = (200, 50))
 		#pw = 
-		cOrgUnitPhraseWheel(app.frame, -1)
-		app.frame.Show(True)
-		app.MainLoop()
+#		cOrgUnitPhraseWheel(app.frame, -1)
+#		app.frame.Show(True)
+#		app.MainLoop()
 	#--------------------------------------------------------
 	def test():
 		gmPG2.get_connection()
-		app = wx.PyWidgetTester(size = (600, 600))
-		dlg = cOrganizationManagerDlg(app.frame, -1, size = (600, 600))
-		dlg.SetSize((600, 600))
-		dlg.ShowModal()
+#		app = wx.PyWidgetTester(size = (600, 600))
+#		dlg = cOrganizationManagerDlg(app.frame, -1, size = (600, 600))
+#		dlg.SetSize((600, 600))
+#		dlg.ShowModal()
 	#	app.SetWidget(dlg, -1)
-		app.MainLoop()
+#		app.MainLoop()
 	#--------------------------------------------------------
 	#test_org_unit_prw()
 	#test_org_prw()

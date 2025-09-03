@@ -782,8 +782,8 @@ if __name__ == '__main__':
 #		app.SetWidget(cDateInputPhraseWheel, id=-1, size=(180,20), pos=(10,20))
 #		app.MainLoop()
 	#--------------------------------------------------------
-	#test_cli()
+	test_cli()
 	#test_fuzzy_picker()
-	test_picker()
+	#test_picker()
 
 #==================================================

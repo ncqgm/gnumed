@@ -398,9 +398,9 @@ if __name__ == '__main__':
 	gmPatSearchWidgets.set_active_patient(patient=pat)
 
 	#----------------------------------------------------------------
-	def test_hospital_stay_prw():
-		app = wx.PyWidgetTester(size = (400, 40))
-		app.SetWidget(cHospitalStayPhraseWheel, id=-1, size=(180,20), pos=(10,20))
-		app.MainLoop()
+#	def test_hospital_stay_prw():
+#		app = wx.PyWidgetTester(size = (400, 40))
+#		app.SetWidget(cHospitalStayPhraseWheel, id=-1, size=(180,20), pos=(10,20))
+#		app.MainLoop()
 
-	test_hospital_stay_prw()
+#	test_hospital_stay_prw()

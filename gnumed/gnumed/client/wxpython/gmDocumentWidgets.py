@@ -4143,13 +4143,13 @@ if __name__ == '__main__':
 	#from Gnumed.wxpython import gmGuiTest
 
 	#----------------------------------------------------------------
-	def test_document_prw():
-		app = wx.PyWidgetTester(size = (180, 20))
+	#def test_document_prw():
+		#app = wx.PyWidgetTester(size = (180, 20))
 		#pnl = cEncounterEditAreaPnl(app.frame, -1, encounter=enc)
-		prw = cDocumentPhraseWheel(app.frame, -1)
-		prw.set_context('pat', 12)
-		app.frame.Show(True)
-		app.MainLoop()
+		#prw = cDocumentPhraseWheel(app.frame, -1)
+		#prw.set_context('pat', 12)
+		#app.frame.Show(True)
+		#app.MainLoop()
 
 	#----------------------------------------------------------------
 	def test_plugin():

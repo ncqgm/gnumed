@@ -1212,10 +1212,10 @@ if __name__ == '__main__':
 			return
 		set_active_patient(patient=patient)
 
-		application = wx.PyWidgetTester(size=(800,500))
-		soap_input = cSoapPluginPnl(application.frame, -1)
-		application.frame.Show(True)
-		soap_input._schedule_data_reget()
-		application.MainLoop()
+#		application = wx.PyWidgetTester(size=(800,500))
+#		soap_input = cSoapPluginPnl(application.frame, -1)
+#		application.frame.Show(True)
+#		soap_input._schedule_data_reget()
+#		application.MainLoop()
 	#----------------------------------------
 	#test_cSoapPluginPnl()

@@ -1357,7 +1357,7 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	#--------------------------------------------------------
 	def test_prw_fixed_list():
-		app = wx.PyWidgetTester(size = (200, 50))
+#		app = wx.PyWidgetTester(size = (200, 50))
 
 		items = [	{'data': 1, 'list_label': "Bloggs", 'field_label': "Bloggs", 'weight': 0},
 					{'data': 2, 'list_label': "Baker", 'field_label': "Baker", 'weight': 0},
@@ -1371,18 +1371,18 @@ if __name__ == '__main__':
 		# do NOT treat "-" as a word separator here as there are names like "asa-sismussen"
 		mp.word_separators = '[ \t=+&:@]+'
 		global prw
-		prw = cPhraseWheel(app.frame, -1)
-		prw.matcher = mp
-		prw.capitalisation_mode = gmTools.CAPS_NAMES
-		prw.add_callback_on_set_focus(callback=display_values_set_focus)
-		prw.add_callback_on_modified(callback=display_values_modified)
-		prw.add_callback_on_lose_focus(callback=display_values_lose_focus)
-		prw.add_callback_on_selection(callback=display_values_selected)
+#		prw = cPhraseWheel(app.frame, -1)
+#		prw.matcher = mp
+#		prw.capitalisation_mode = gmTools.CAPS_NAMES
+#		prw.add_callback_on_set_focus(callback=display_values_set_focus)
+#		prw.add_callback_on_modified(callback=display_values_modified)
+#		prw.add_callback_on_lose_focus(callback=display_values_lose_focus)
+#		prw.add_callback_on_selection(callback=display_values_selected)
 
-		app.frame.Show(True)
-		app.MainLoop()
+#		app.frame.Show(True)
+#		app.MainLoop()
 
-		return True
+#		return True
 	#--------------------------------------------------------
 	def test_prw_sql2():
 		print("Do you want to test the database connected phrase wheel ?")
@@ -1393,14 +1393,14 @@ if __name__ == '__main__':
 		gmPG2.get_connection()
 		query = """SELECT code, code || ': ' || _(name), _(name) FROM dem.country WHERE _(name) %(fragment_condition)s"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = [query])
-		app = wx.PyWidgetTester(size = (400, 50))
-		global prw
+#		app = wx.PyWidgetTester(size = (400, 50))
+#		global prw
 		#prw = cPhraseWheel(app.frame, -1)
-		prw = cMultiPhraseWheel(app.frame, -1)
-		prw.matcher = mp
+#		prw = cMultiPhraseWheel(app.frame, -1)
+#		prw.matcher = mp
 
-		app.frame.Show(True)
-		app.MainLoop()
+#		app.frame.Show(True)
+#		app.MainLoop()
 
 		return True
 	#--------------------------------------------------------
@@ -1417,14 +1417,14 @@ if __name__ == '__main__':
 				firstnames || lastnames %(fragment_condition)s
 		"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = [query])
-		app = wx.PyWidgetTester(size = (500, 50))
-		global prw
-		prw = cPhraseWheel(app.frame, -1)
-		prw.matcher = mp
-		prw.selection_only = True
+#		app = wx.PyWidgetTester(size = (500, 50))
+#		global prw
+#		prw = cPhraseWheel(app.frame, -1)
+#		prw.matcher = mp
+#		prw.selection_only = True
 
-		app.frame.Show(True)
-		app.MainLoop()
+#		app.frame.Show(True)
+#		app.MainLoop()
 
 		return True
 
