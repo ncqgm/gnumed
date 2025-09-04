@@ -8,9 +8,7 @@ import sys
 import logging
 from lxml import etree
 
-
-import wx	#, wx.grid
-
+#import wx	#, wx.grid
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')

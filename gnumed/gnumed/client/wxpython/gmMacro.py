@@ -3345,8 +3345,6 @@ if __name__ == '__main__':
 
 		print('DOB (YYYY-MM-DD):', handler['date_of_birth::%Y-%m-%d'])
 
-		wx.PyWidgetTester(size = (200, 50))
-
 		ph = 'progress_notes::ap'
 		print('%s: %s' % (ph, handler[ph]))
 	#--------------------------------------------------------
@@ -3415,8 +3413,6 @@ if __name__ == '__main__':
 			input()
 
 #		print 'DOB (YYYY-MM-DD):', handler['date_of_birth::%Y-%m-%d']
-
-#		app = wx.PyWidgetTester(size = (200, 50))
 
 #		ph = 'progress_notes::ap'
 #		print '%s: %s' % (ph, handler[ph])
@@ -3750,7 +3746,6 @@ if __name__ == '__main__':
 			return
 		gmPatSearchWidgets.set_active_patient(patient = pat)
 
-		#app = wx.PyWidgetTester(size = (200, 50))
 		#handler.set_placeholder('form_name_long', 'ein Testformular')
 		for ph in phs:
 			print(ph)

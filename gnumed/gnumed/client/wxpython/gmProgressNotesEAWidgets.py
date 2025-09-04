@@ -395,7 +395,7 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	from Gnumed.business import gmPersonSearch
+#	from Gnumed.business import gmPersonSearch
 
 	#----------------------------------------
 #	def test_cProgressNotesEAPnl():

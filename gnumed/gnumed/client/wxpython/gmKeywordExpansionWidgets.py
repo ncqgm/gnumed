@@ -682,10 +682,11 @@ Summe   Rate großer Blutungen
 Bewertung: Summe = $[Summe ausrechnen und bewerten]$"""
 
 		#app = 
-		wx.PyWidgetTester(size = (600, 600))
+#		wx.PyWidgetTester(size = (600, 600))
 		dlg = cTextExpansionFillInDlg(None, -1)
 		dlg.expansion = expansion
 		dlg.ShowModal()
 		#app.MainLoop()
+
 	#----------------------------------------
 	test_fillin()

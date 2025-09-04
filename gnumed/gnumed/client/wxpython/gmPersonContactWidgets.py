@@ -269,7 +269,7 @@ if __name__ == "__main__":
 	gmPG2.get_connection()
 
 	#--------------------------------------------------------
-	def test_person_adrs_pnl():
+#	def test_person_adrs_pnl():
 #		app = wx.PyWidgetTester(size = (600, 400))
 		#widget = 
 #		cPersonAddressesManagerPnl(app.frame, -1)

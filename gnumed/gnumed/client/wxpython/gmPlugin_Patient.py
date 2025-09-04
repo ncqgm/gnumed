@@ -6,7 +6,7 @@
 ############################################################################
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 
-import cPickle, zlib
+import pickle, zlib
 
 import wx
 
@@ -57,7 +57,7 @@ class BasePlugin:
 		if icon_data is None:
 			return None
 		else:
-			return wx.BitmapFromXPMData(cPickle.loads(zlib.decompress(icon_data)))
+			return wx.BitmapFromXPMData(pickle.loads(zlib.decompress(icon_data)))
 	#-----------------------------------------------------
 	def GetIconData(self, anIconID = None):
 		# FIXME: in overriding methods need to be very careful about the

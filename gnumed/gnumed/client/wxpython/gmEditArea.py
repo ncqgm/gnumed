@@ -849,7 +849,7 @@ class cEditAreaField(wx.TextCtrl):
 		_decorate_editarea_field(self)
 #====================================================================
 class cEditArea(wx.Panel):
-	def __init__(self, parent, id, pos, size, style):
+	def __init__(self, parent, id, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.SIMPLE_BORDER):
 
 		print("class [%s] is deprecated, use cEditArea2 instead" % self.__class__.__name__)
 

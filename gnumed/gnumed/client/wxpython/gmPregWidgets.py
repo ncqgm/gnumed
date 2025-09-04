@@ -445,7 +445,7 @@ class cPregCalcFrame (wx.Frame):
 		#------------------------------
 		# Add calendar (stuff on the left)
 		#------------------------------
-		self.lmp_cal = wx.calendar.CalendarCtrl (self, ID_LMP,style = wx.RAISED_BORDER)
+		self.lmp_cal = wx.lib.calendar.CalendarCtrl (self, ID_LMP,style = wx.RAISED_BORDER)
 		wx.lib.calendar.EVT_CALENDAR_SEL_CHANGED(self.lmp_cal, ID_LMP, self.OnCalcByLMP)
 
 		szr_main_lf = wx.BoxSizer(wx.VERTICAL)

@@ -4879,21 +4879,21 @@ if __name__ == '__main__':
 	gmDateTime.init()
 
 	#------------------------------------------------------------
-	def test_grid():
-		pat = gmPersonSearch.ask_for_patient()
-		app = wx.PyWidgetTester(size = (500, 300))
-		lab_grid = cMeasurementsGrid(app.frame, -1)
-		lab_grid.patient = pat
-		app.frame.Show()
-		app.MainLoop()
+	#def test_grid():
+		#pat = gmPersonSearch.ask_for_patient()
+		#app = wx.PyWidgetTester(size = (500, 300))
+		#lab_grid = cMeasurementsGrid(app.frame, -1)
+		#lab_grid.patient = pat
+		#app.frame.Show()
+		#app.MainLoop()
 	#------------------------------------------------------------
 	def test_test_ea_pnl():
 		pat = gmPersonSearch.ask_for_patient()
 		gmPatSearchWidgets.set_active_patient(patient=pat)
-		app = wx.PyWidgetTester(size = (500, 300))
-		cMeasurementEditAreaPnl(app.frame, -1)
-		app.frame.Show()
-		app.MainLoop()
+		#app = wx.PyWidgetTester(size = (500, 300))
+		#cMeasurementEditAreaPnl(app.frame, -1)
+		#app.frame.Show()
+		#app.MainLoop()
 
 	#------------------------------------------------------------
 	def test_print_results():
