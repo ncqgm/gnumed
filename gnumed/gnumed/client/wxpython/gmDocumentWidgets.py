@@ -2629,7 +2629,10 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 #============================================================
 #============================================================
+#============================================================
 # PACS
+#============================================================
+#============================================================
 #============================================================
 from Gnumed.wxGladeWidgets.wxgPACSPluginPnl import wxgPACSPluginPnl
 
@@ -2827,14 +2830,20 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			_log.error('error connecting to server: %s', pacs.connect_error)
 			return False
 
-		#self._LBL_PACS_identification.SetLabel(_('PACS: Orthanc "%s" (AET "%s", Version %s, API v%s, DB v%s)') % (
-		self._LBL_PACS_identification.SetLabel(_('PACS: Orthanc "%s" (AET "%s", Version %s, DB v%s)') % (
-			pacs.server_identification['Name'],
-			pacs.server_identification['DicomAet'],
-			pacs.server_identification['Version'],
-			#pacs.server_identification['ApiVersion'],
-			pacs.server_identification['DatabaseVersion']
-		))
+		ident = pacs.server_identification
+		label = _('PACS (Orthanc): "%s" (AET "%s") [%s]') % (
+			ident['Name'],
+			ident['DicomAet'],
+			'SSL' if pacs.using_ssl else _('no SSL')
+		)
+		self._LBL_PACS_identification.SetLabel(label)
+		lines = [
+			_('SSL: in use') if pacs.using_ssl else _('SSL: NOT in use'),
+			'',
+			_('Server details:')
+		]
+		lines.extend([ ' %s: %s' % (key, val) for key, val in ident.items() ])
+		self._LBL_PACS_identification.SetToolTip('\n'.join(lines))
 		self.__pacs = pacs
 		self.__set_button_states()
 		self.__refresh_patient_data()
