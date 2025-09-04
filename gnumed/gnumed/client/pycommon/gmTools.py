@@ -138,6 +138,8 @@ u_arrow2right_until_black_diamond = '\u291e'	# ->*
 
 u_kanji_yen = '\u5186'							# Yen kanji
 u_replacement_character = '\ufffd'
+u_padlock_closed = '\u1f512'
+u_padlock_open = '\u1f513'
 u_link_symbol = '\u1f517'
 
 
@@ -2203,6 +2205,9 @@ second line\n
 	#-----------------------------------------------------------------------
 	def test_unicode():
 		print(u_link_symbol * 10)
+		print(u_padlock_open)
+		print(u_padlock_closed)
+		print('\u1F5DD')
 	#-----------------------------------------------------------------------
 	def test_xml_escape():
 		print(xml_escape_string('<'))
@@ -2474,11 +2479,11 @@ second line\n
 	#test_input2int()
 	#test_unwrap()
 	#test_md5()
-	#test_unicode()
+	test_unicode()
 	#test_xml_escape()
 	#test_strip_trailing_empty_lines()
 	#test_fname_stem()
-	test_tex_escape()
+	#test_tex_escape()
 	#test_rst2latex_snippet()
 	#test_dir_is_empty()
 	#test_compare_dicts()

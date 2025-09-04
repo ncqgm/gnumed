@@ -40,8 +40,7 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmDateTime
-#from Gnumed.pycommon import gmHooks
-#from Gnumed.pycommon import gmDispatcher
+
 
 _map_gender_gm2dcm = {
 	'm': 'M',
@@ -55,12 +54,19 @@ _map_gender_gm2dcm = {
 class cOrthancServer:
 	# REST API access to Orthanc DICOM servers
 
-#	def __init__(self):
-#		self.__server_identification = None
-#		self.__user = None
-#		self.__password = None
-#		self.__conn = None
-#		self.__server_url = None
+	def __init__(self):
+		self.__server_identification = None
+		self.__user = None
+		self.__password = None
+		self.__conn = None
+		self.__server_url = None
+		self.using_ssl = None
+
+	#--------------------------------------------------------
+	def __get_server_url():
+		return self.__server_url
+
+	server_url = property(__get_server_url)
 
 	#--------------------------------------------------------
 	def __setup_cache_dir(self):
@@ -129,7 +135,8 @@ class cOrthancServer:
 		self.__conn = httplib2.Http(cache = cache_dir)
 		self.__conn.add_credentials(self.__user, self.__password)
 		self.__server_url = None
-		if not self.__try_httpS(host, port):
+		self.using_ssl = self.__try_httpS(host, port)
+		if not self.using_ssl:
 			if not self.__try_http(host, port):
 				_log.error('unable to connect')
 				self.connect_error = 'retrieving server identification failed'
@@ -158,11 +165,9 @@ class cOrthancServer:
 
 	#--------------------------------------------------------
 	def _get_server_identification(self):
-		try:
+		if self.__server_identification:
 			return self.__server_identification
 
-		except AttributeError:
-			pass
 		system_data = self.__run_GET(url = '%s/system' % self.__server_url)
 		if system_data is False:
 			_log.error('unable to get server identification')
@@ -1769,7 +1774,8 @@ if __name__ == "__main__":
 		global orthanc
 		orthanc = cOrthancServer()
 #		if not orthanc.connect(host, port, user = None, password = None, expected_minimal_version = '1'):		#, expected_aet = 'another AET'
-		if not orthanc.connect(host, port, user = 'any-doc', password = '?', expected_minimal_version = '1'):		#, expected_aet = 'another AET'
+#		if not orthanc.connect(host, port, user = 'any-doc', password = '?', expected_minimal_version = '1'):		#, expected_aet = 'another AET'
+		if not orthanc.connect(host, port, user = None, password = None, expected_minimal_version = '1'):		#, expected_aet = 'another AET'
 			print('error connecting to server:', orthanc.connect_error)
 			sys.exit(-1)
 
