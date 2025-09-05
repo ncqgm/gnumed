@@ -64,7 +64,7 @@ class cOrthancServer:
 		self.using_ssl = None
 
 	#--------------------------------------------------------
-	def __get_server_url():
+	def __get_server_url(self):
 		return self.__server_url
 
 	server_url = property(__get_server_url)
@@ -81,6 +81,7 @@ class cOrthancServer:
 	def __try_httpS(self, host, port):
 		try:
 			import ssl
+			_log.debug('ssl: %s', ssl.OPENSSL_VERSION)
 		except ModuleNotFoundError:
 			_log.exception('no SSL support compiled into this Python')
 			return False
