@@ -1327,7 +1327,7 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	from Gnumed.pycommon import gmPG2, gmMatchProvider
+	#from Gnumed.pycommon import gmPG2, gmMatchProvider
 
 	prw = None				# used for access from display_values_*
 	#--------------------------------------------------------
