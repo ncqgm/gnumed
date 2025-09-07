@@ -30,6 +30,7 @@ from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmCrypto
+from Gnumed.pycommon import gmDispatcher
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmGender
@@ -3162,12 +3163,14 @@ class cMacroPrimitives:
 		"""Raise a notebook plugin within GNUmed."""
 		if not self.__attached:
 			return 0
+
 		if auth_cookie != self.__auth_cookie:
 			_log.error('non-authenticated raise_notebook_plugin()')
 			return 0
-		# FIXME: use semaphore
-		wx.CallAfter(gmPlugin.raise_notebook_plugin, a_plugin)
+
+		gmDispatcher.send(signal = 'display_widget', name = a_plugin)
 		return 1
+
 	#-----------------------------------------------------------------
 	def load_patient_from_external_source(self, auth_cookie = None):
 		"""Load external patient, perhaps create it.

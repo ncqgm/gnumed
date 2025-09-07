@@ -79,7 +79,7 @@ insert into cfg.cfg_str_array
 	(fk_item, value)
 values (
 	currval('cfg.cfg_item_pk_seq'),
-	'{"gmShowLab","gmLabJournal","gmConfigRegistry"}'
+	'{"gmShowLab","gmConfigRegistry"}'
 );
 
 -- Arbeitsplatz (Dokumenten)archiv
@@ -111,7 +111,7 @@ insert into cfg.cfg_str_array
 	(fk_item, value)
 values (
 	currval('cfg.cfg_item_pk_seq'),
-	'{"gmShowLab","gmLabJournal","gmShowMedDocs","gmIndexMedDocs","gmScanMedDocs","gmConfigRegistry"}'
+	'{"gmShowLab","gmShowMedDocs","gmIndexMedDocs","gmScanMedDocs","gmConfigRegistry"}'
 );
 
 -- Arbeitsplatz Kinderarzt
@@ -143,7 +143,7 @@ insert into cfg.cfg_str_array
 	(fk_item, value)
 values (
 	currval('cfg.cfg_item_pk_seq'),
-	'{"gmOffice","gmShowMedDocs","gmShowLab","gmLabJournal","gmVaccinationsPlugin","gmAllergiesPlugin","gmConfigRegistry"}'
+	'{"gmOffice","gmShowMedDocs","gmShowLab","gmVaccinationsPlugin","gmAllergiesPlugin","gmConfigRegistry"}'
 );
 
 -- Arbeitsplatz Impfbrowser

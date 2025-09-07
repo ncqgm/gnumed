@@ -56,7 +56,6 @@ FILES_REMOVE=\
 "./gnumed-client.$CLIENTREV/client/wxpython/gmGP_Inbox.py "\
 "./gnumed-client.$CLIENTREV/client/wxpython/gmGP_PatientPicture.py "\
 "./gnumed-client.$CLIENTREV/client/wxpython/gmGP_SocialHistory.py "\
-"./gnumed-client.$CLIENTREV/client/wxpython/gmLabWidgets.py "\
 "./gnumed-client.$CLIENTREV/client/wxpython/gmListCtrlMapper.py "\
 "./gnumed-client.$CLIENTREV/client/wxpython/gmMultiColumnList.py "\
 "./gnumed-client.$CLIENTREV/client/wxpython/gmMultiSash.py "\
@@ -75,7 +74,6 @@ FILES_REMOVE=\
 "./gnumed-client.$CLIENTREV/client/wxpython/gui/gmDrugDisplay.py "\
 "./gnumed-client.$CLIENTREV/client/wxpython/gui/gmEMRTextDumpPlugin.py "\
 "./gnumed-client.$CLIENTREV/client/wxpython/gui/gmGuidelines.py "\
-"./gnumed-client.$CLIENTREV/client/wxpython/gui/gmLabJournal.py "\
 "./gnumed-client.$CLIENTREV/client/wxpython/gui/gmManual.py "\
 "./gnumed-client.$CLIENTREV/client/wxpython/gui/gmMultiSashedProgressNoteInputPlugin.py "\
 "./gnumed-client.$CLIENTREV/client/wxpython/gui/gmOffice.py "\
