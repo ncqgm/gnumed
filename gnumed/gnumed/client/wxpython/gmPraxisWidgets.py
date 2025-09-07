@@ -446,7 +446,7 @@ def __update_most_recently_selected_branch(branch):
 		option = 'most recently used praxis branch',
 		value = branch.format(one_line = True)
 	)
-	_cfg.reload_file_source(file = prefs_file)
+	_cfg.reload_file_source(filename = prefs_file)
 
 #============================================================
 def __get_most_recently_selected_branch():

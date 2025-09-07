@@ -127,7 +127,7 @@ def get_reference_atcs(order_by='atc, term, lang'):
 def atc_import(cfg_fname=None, conn=None):
 
 	# read meta data
-	_cfg.add_file_source(source = 'atc', file = cfg_fname, encoding = 'utf8')
+	_cfg.add_file_source(source = 'atc', filename = cfg_fname, encoding = 'utf8')
 
 	data_fname = os.path.join (
 		os.path.dirname(cfg_fname),

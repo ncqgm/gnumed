@@ -199,7 +199,7 @@ def load_data_packs_list():
 	if dpl_fname is None:
 		return (items, data)
 	try:
-		_cfg.add_file_source(source = 'data-packs', file = dpl_fname)
+		_cfg.add_file_source(source = 'data-packs', filename = dpl_fname)
 	except (UnicodeDecodeError):
 		_log.exception("cannot read data pack list from [%s]", dpl_fname)
 		return (items, data)

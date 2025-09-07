@@ -1901,7 +1901,7 @@ def main():
 	# read that conf file
 	_cfg.add_file_source (
 		source = 'file',
-		file = cfg_file
+		filename = cfg_file
 	)
 
 	# does it point to other conf files ?
@@ -1926,7 +1926,7 @@ def main():
 			# read that conf file
 			_cfg.add_file_source (
 				source = 'file',
-				file = cfg_file
+				filename = cfg_file
 			)
 			handle_cfg()
 

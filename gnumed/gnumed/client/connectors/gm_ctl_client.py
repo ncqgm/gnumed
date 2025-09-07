@@ -162,7 +162,7 @@ if __name__ == '__main__':
 
 	_cfg.add_file_source (
 		source = 'explicit',
-		file = _cfg.get(option = '--conf-file', source = [('cli', 'return')]),
+		filename = _cfg.get(option = '--conf-file', source = [('cli', 'return')]),
 		encoding = gmI18N.get_encoding()
 	)
 

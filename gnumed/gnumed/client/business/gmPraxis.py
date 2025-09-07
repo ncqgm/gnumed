@@ -611,7 +611,7 @@ where
 			option = 'user email',
 			value = val
 		)
-		_cfg.reload_file_source(file = prefs_file)
+		_cfg.reload_file_source(filename = prefs_file)
 
 	user_email = property(_get_user_email, _set_user_email)
 

@@ -3841,7 +3841,7 @@ class gmApp(wx.App):
 			option = 'last known workplaces',
 			value = wps
 		)
-		_cfg.reload_file_source(file = prefs_file)
+		_cfg.reload_file_source(filename = prefs_file)
 
 	#----------------------------------------------
 	def __setup_prefs_file(self):

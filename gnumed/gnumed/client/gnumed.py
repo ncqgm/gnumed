@@ -70,7 +70,7 @@ specify the base name of the file without the .mo extension.
 .B \--tool=TOOL
 Run the named TOOL instead of a GUI.
 
-Currently implemented tools:
+Using '--tool=' will list the currently implemented tools:
 
 %(tools)s
 .TP
@@ -461,6 +461,7 @@ def setup_console_encoding():
 		sys.stderr.reconfigure(errors = 'surrogateescape')
 		_pre_log_buffer.append('stdout/stderr reconfigured to use <surrogateescape> for encoding errors')
 		return
+
 	except AttributeError:
 		line = 'cannot reconfigure sys.stdout/stderr to use <errors="surrogateescape"> (needs Python 3.7+)'
 		_pre_log_buffer.append(line)
@@ -468,6 +469,7 @@ def setup_console_encoding():
 	try:
 		_pre_log_buffer.append('sys.stdout/stderr default to "${PYTHONIOENCODING}=%s"' % os.environ['PYTHONIOENCODING'])
 		return
+
 	except KeyError:
 		lines = [
 			'${PYTHONIOENCODING} is not set up, use <PYTHONIOENCODING=utf-8:surrogateescape> in the shell (for Python < 3.7)',
@@ -701,10 +703,13 @@ def setup_cli():
 
 	global _cfg
 	_cfg = gmCfgINI.gmCfgData()
-	_cfg.add_cli (
+	if not _cfg.add_cli (
 		short_options = _known_short_options,
 		long_options = _known_long_options
-	)
+	):
+		_log.error('cannot parse command line, aborting')
+		#print('GNUmed startup: error parsing command line')
+		handle_help_request(programmatically_requested = True) # does sys.exit()
 
 	val = _cfg.get(option = '--debug', source_order = [('cli', 'return')])
 	if val is None:
@@ -812,7 +817,7 @@ def generate_man_page(fname=None):
 	return fname
 
 #----------------------------------------------------------
-def handle_help_request():
+def handle_help_request(programmatically_requested:bool=False):
 	src = [('cli', 'return')]
 
 	help_requested = (
@@ -821,7 +826,7 @@ def handle_help_request():
 		_cfg.get(option = '-?', source_order = src)
 	)
 
-	if help_requested:
+	if help_requested or programmatically_requested:
 		input('\nHit <ENTER> to display commandline help\n')
 		if platform.system() == 'Windows':
 			for line in __doc__.split('\n'):
@@ -976,7 +981,7 @@ def setup_cfg():
 	for candidate in candidates:
 		_cfg.add_file_source (
 			source = candidate[0],
-			file = candidate[1],
+			filename = candidate[1],
 			encoding = enc
 		)
 
@@ -1012,12 +1017,12 @@ def setup_cfg():
 		_log.exception('error checking for [%s]', _old_user_mime)
 	_cfg.add_file_source (
 		source = 'user-mime',
-		file = user_mime,
+		filename = user_mime,
 		encoding = enc
 	)
 	_cfg.add_file_source (
 		source = 'system-mime',
-		file = os.path.join(paths.system_config_dir, fname),
+		filename = os.path.join(paths.system_config_dir, fname),
 		encoding = enc
 	)
 
