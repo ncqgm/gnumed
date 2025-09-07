@@ -30,10 +30,10 @@ from Gnumed.pycommon import gmPG2
 _log = logging.getLogger('gm.bootstrapper')
 
 
-LOG_TABLE_PREFIX = u'log_'						# the audit trail tables start with this prefix
-AUDIT_TRAIL_PARENT_TABLE = u'audit_trail'		# and inherit from this table
-AUDIT_FIELDS_TABLE = u'audit_fields'			# audited tables inherit these fields
-AUDIT_SCHEMA = u'audit'							# audit stuff lives in this schema
+LOG_TABLE_PREFIX = 'log_'						# the audit trail tables start with this prefix
+AUDIT_TRAIL_PARENT_TABLE = 'audit_trail'		# and inherit from this table
+AUDIT_FIELDS_TABLE = 'audit_fields'				# audited tables inherit these fields
+AUDIT_SCHEMA = 'audit'							# audit stuff lives in this schema
 
 #==================================================================
 # SQL statements for auditing setup script
@@ -42,7 +42,7 @@ AUDIT_SCHEMA = u'audit'							# audit stuff lives in this schema
 # reasonably sure they are executed last
 
 # insert
-SQL_TEMPLATE_INSERT = u"""DROP FUNCTION IF EXISTS audit.ft_ins_%(src_tbl)s() cascade;
+SQL_TEMPLATE_INSERT = """DROP FUNCTION IF EXISTS audit.ft_ins_%(src_tbl)s() cascade;
 
 CREATE FUNCTION audit.ft_ins_%(src_tbl)s()
 	RETURNS trigger
@@ -73,7 +73,7 @@ CREATE TRIGGER zt_ins_%(src_tbl)s
 	FOR EACH ROW EXECUTE PROCEDURE audit.ft_ins_%(src_tbl)s();
 """
 
-SQL_TEMPLATE_INSERT_NO_INSERTER_CHECK = u"""DROP FUNCTION IF EXISTS audit.ft_ins_%(src_tbl)s() cascade;
+SQL_TEMPLATE_INSERT_NO_INSERTER_CHECK = """DROP FUNCTION IF EXISTS audit.ft_ins_%(src_tbl)s() cascade;
 
 CREATE FUNCTION audit.ft_ins_%(src_tbl)s()
 	RETURNS trigger
@@ -93,7 +93,7 @@ CREATE TRIGGER zt_ins_%(src_tbl)s
 """
 
 # update
-SQL_TEMPLATE_UPDATE = u"""DROP FUNCTION IF EXISTS audit.ft_upd_%(src_tbl)s() cascade;
+SQL_TEMPLATE_UPDATE = """DROP FUNCTION IF EXISTS audit.ft_upd_%(src_tbl)s() cascade;
 
 CREATE FUNCTION audit.ft_upd_%(src_tbl)s()
 	RETURNS trigger
@@ -131,7 +131,7 @@ CREATE TRIGGER zt_upd_%(src_tbl)s
 	FOR EACH ROW EXECUTE PROCEDURE audit.ft_upd_%(src_tbl)s();
 """
 
-SQL_TEMPLATE_UPDATE_NO_UPDATER_CHECK = u"""DROP FUNCTION IF EXISTS audit.ft_upd_%(src_tbl)s() cascade;
+SQL_TEMPLATE_UPDATE_NO_UPDATER_CHECK = """DROP FUNCTION IF EXISTS audit.ft_upd_%(src_tbl)s() cascade;
 
 CREATE FUNCTION audit.ft_upd_%(src_tbl)s()
 	RETURNS trigger
@@ -158,7 +158,7 @@ CREATE TRIGGER zt_upd_%(src_tbl)s
 """
 
 # delete
-SQL_TEMPLATE_DELETE = u"""DROP FUNCTION IF EXISTS audit.ft_del_%(src_tbl)s() cascade;
+SQL_TEMPLATE_DELETE = """DROP FUNCTION IF EXISTS audit.ft_del_%(src_tbl)s() cascade;
 
 CREATE FUNCTION audit.ft_del_%(src_tbl)s()
 	RETURNS trigger
@@ -193,7 +193,7 @@ CREATE TRIGGER zt_del_%(src_tbl)s
 	FOR EACH ROW EXECUTE PROCEDURE audit.ft_del_%(src_tbl)s();
 """
 
-SQL_TEMPLATE_DELETE_NO_DELETER_CHECK = u"""DROP FUNCTION IF EXISTS audit.ft_del_%(src_tbl)s() cascade;
+SQL_TEMPLATE_DELETE_NO_DELETER_CHECK = """DROP FUNCTION IF EXISTS audit.ft_del_%(src_tbl)s() cascade;
 
 CREATE FUNCTION audit.ft_del_%(src_tbl)s()
 	RETURNS trigger
@@ -219,7 +219,7 @@ CREATE TRIGGER zt_del_%(src_tbl)s
 # we cannot do this because NOT VALID only applies to the time when
 # we add the constraint, the FK would still be enforced during later
 # INSERTs/UPDATEs
-#SQL_TEMPLATE_FK_MODIFIED_BY = u"""ALTER TABLE %(src_schema)s.%(src_tbl)s
+#SQL_TEMPLATE_FK_MODIFIED_BY = """ALTER TABLE %(src_schema)s.%(src_tbl)s
 #	DROP CONSTRAINT IF EXISTS fk_%(src_schema)s_%(src_tbl)s_fk_modified_by CASCADE;
 #
 #-- this is set NOT VALID because it only serves to tell pg_dump
@@ -233,12 +233,12 @@ CREATE TRIGGER zt_del_%(src_tbl)s
 #		ON DELETE RESTRICT
 #	NOT VALID;"""
 #
-#SQL_TEMPLATE_DEM_STAFF_FK = u"""
+#SQL_TEMPLATE_DEM_STAFF_FK = """
 #ALTER TABLE dem.staff
 #	DROP CONSTRAINT IF EXISTS fk_dem_staff_fk_modified_by CASCADE;
 #"""
 
-SQL_TEMPLATE_CREATE_AUDIT_TRAIL_TABLE = u"""
+SQL_TEMPLATE_CREATE_AUDIT_TRAIL_TABLE = """
 create table %(log_schema)s.%(log_tbl)s (
 	%(log_cols)s
 ) inherits (%(log_schema)s.%(log_base_tbl)s);
@@ -308,7 +308,7 @@ def audit_trail_table_ddl(aCursor=None, schema=None, table2audit=None):
 		'log_schema': AUDIT_SCHEMA,
 		'log_base_tbl': AUDIT_TRAIL_PARENT_TABLE,
 		'log_tbl': audit_trail_table,
-		'log_cols': u',\n	'.join(cols2really_audit)
+		'log_cols': ',\n	'.join(cols2really_audit)
 	}
 	return [SQL_TEMPLATE_CREATE_AUDIT_TRAIL_TABLE % args, '']
 
@@ -322,36 +322,36 @@ def trigger_ddl(aCursor='default', schema=AUDIT_SCHEMA, audited_table=None):
 	for column in target_columns:
 		if column not in columns2skip:
 			columns.append(column)
-			values.append(u'OLD.%s' % column)
+			values.append('OLD.%s' % column)
 
 	args = {
 		'src_tbl': audited_table,
 		'src_schema': schema,
-		'log_tbl': u'%s%s' % (LOG_TABLE_PREFIX, audited_table),
-		'cols_clause': u', '.join(columns),
-		'vals_clause': u', '.join(values)
+		'log_tbl': '%s%s' % (LOG_TABLE_PREFIX, audited_table),
+		'cols_clause': ', '.join(columns),
+		'vals_clause': ', '.join(values)
 	}
 
-	modified_by_func_exists = gmPG2.function_exists(link_obj = aCursor, schema = u'gm', function = u'account_is_dbowner_or_staff')
+	modified_by_func_exists = gmPG2.function_exists(link_obj = aCursor, schema = 'gm', function = 'account_is_dbowner_or_staff')
 
 	ddl = []
 	if modified_by_func_exists:
 		ddl.append(SQL_TEMPLATE_INSERT % args)
-		ddl.append(u'')
+		ddl.append('')
 		ddl.append(SQL_TEMPLATE_UPDATE % args)
-		ddl.append(u'')
+		ddl.append('')
 		ddl.append(SQL_TEMPLATE_DELETE % args)
-		#ddl.append(u'')
+		#ddl.append('')
 		#ddl.append(SQL_TEMPLATE_FK_MODIFIED_BY % args)
 	else:
 		# the *_NO_*_CHECK variants are needed for pre-v21 databases
 		# where gm.account_is_dbowner_or_staff() doesn't exist yet
 		ddl.append(SQL_TEMPLATE_INSERT_NO_INSERTER_CHECK % args)
-		ddl.append(u'')
+		ddl.append('')
 		ddl.append(SQL_TEMPLATE_UPDATE_NO_UPDATER_CHECK % args)
-		ddl.append(u'')
+		ddl.append('')
 		ddl.append(SQL_TEMPLATE_DELETE_NO_DELETER_CHECK % args)
-	ddl.append(u'')
+	ddl.append('')
 
 	return ddl
 
@@ -362,7 +362,7 @@ def create_audit_ddl(aCursor):
 	# but we would have to potentially parse down several levels
 	# of interitance (such as with clin.clin_root_item) to find
 	# the actual leaf table to audit
-	cmd = u"select schema, table_name from audit.audited_tables"
+	cmd = "select schema, table_name from audit.audited_tables"
 	rows = gmPG2.run_ro_queries(link_obj = aCursor, queries = [{'sql': cmd}])
 	if len(rows) == 0:
 		_log.info('no tables to audit')
