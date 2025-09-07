@@ -116,10 +116,10 @@ _cfg = gmCfgINI.gmCfgData()
 
 _interactive = None
 _bootstrapped_servers = {}
-_bootstrapped_dbs = {}
+_bootstrapped_dbs:dict[str, 'cDatabase'] = {}
 _dbowner = None
 cached_host = None
-cached_passwd = {}
+cached_passwd:dict[str, str] = {}
 _keep_temp_files = False
 
 conn_ref_count = []
@@ -604,7 +604,7 @@ Make sure to remember the password for later use !
 		return True
 
 #==================================================================
-class database:
+class cDatabase:
 	def __init__(self, aDB_alias):
 		_log.info("bootstrapping database [%s]" % aDB_alias)
 
@@ -1549,7 +1549,7 @@ class gmBundle:
 			return None
 		# bootstrap database
 		try:
-			database(aDB_alias = database_alias)
+			cDatabase(aDB_alias = database_alias)
 		except:
 			_log.exception("Cannot bootstrap bundle [%s].", self.alias)
 			return None
