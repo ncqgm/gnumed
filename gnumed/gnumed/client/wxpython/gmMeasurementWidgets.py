@@ -1914,7 +1914,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.__prev_label_row = None
 		self.__date_format = gmTools.strip_prefix (
 			_('lab_grid_date_format::%Y\n%b %d'),
-			lab_grid_date_format
+			'lab_grid_date_format'
 		).lstrip(':')
 		self.__init_ui()
 		self.__register_events()

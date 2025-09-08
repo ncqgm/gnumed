@@ -46,7 +46,6 @@ from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmNarrativeWorkflows
 from Gnumed.wxpython import gmPatSearchWidgets
 from Gnumed.wxpython import gmPersonContactWidgets
-from Gnumed.wxpython import gmPlugin
 from Gnumed.wxpython import gmEMRStructWidgets
 from Gnumed.wxpython import gmEncounterWidgets
 from Gnumed.wxpython import gmListWidgets

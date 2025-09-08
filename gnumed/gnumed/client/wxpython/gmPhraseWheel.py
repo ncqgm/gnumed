@@ -58,7 +58,7 @@ def shutdown():
 	for timer in _timers:
 		_log.debug('timer [%s]', timer)
 		timer.Stop()
-	_timers:list = []
+	_timers = []
 
 #------------------------------------------------------------
 class _cPRWTimer(wx.Timer):
