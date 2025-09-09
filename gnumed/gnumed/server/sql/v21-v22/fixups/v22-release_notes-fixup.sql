@@ -29,6 +29,7 @@ FIX: medication: adding intake [thanks vboxuser]
 FIX: backport mailcap import on Python 3.13 [thanks María]
 FIX: backport packaging.version import on Python 3.13 [thanks María]
 FIX: PACS plugin: better connect handling
+FIX: appstream: screenshot URL
 
 IMPROVED: EMR presentations naming (tabs/menu items) [thanks Maria]
 IMPROVED: i18n: added translatable strings [thanks Maria]
