@@ -17,29 +17,31 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.8.21 (database v22.31)',
-	'GNUmed 1.8.21 Release Notes:
+	'Release Notes for GNUmed 1.8.22 (database v22.32)',
+	'GNUmed 1.8.22 Release Notes:
 
-	1.8.21
+	1.8.22
 
-FIX: startup: crash on fingerprinting v15+ servers [thanks gm-dbo]
+FIX: SOAP: auto-resizing input text field [thanks Maria]
+FIX: SOAP: tabbing in auto-resizing STC [thanks Maria]
+FIX: medication: adding substance dose [thanks Maria]
+FIX: medication: adding intake [thanks vboxuser]
+FIX: backport mailcap import on Python 3.13 [thanks María]
+FIX: backport packaging.version import on Python 3.13 [thanks María]
+FIX: PACS plugin: better connect handling
 
-	1.8.20
+IMPROVED: EMR presentations naming (tabs/menu items) [thanks Maria]
+IMPROVED: i18n: added translatable strings [thanks Maria]
+IMPROVED: GUI: detection of dark theme [thanks Maria]
+IMPROVED: dependancy checker
+IMPROVED: PACS: support SSL connection with Orthanc PACS
 
-FIX: startup: crash on fingerprinting episodes in DB if gm-staff [thanks Maria]
-FIX: patient search: gm-staff shall not ensure patient-ness [thanks Maria]
+	22.32
 
-	22.31
-
-FIX: crash on fingerprinting v15+ servers [thanks gm-dbo]
-
-	22.30
-
-FIX: unique constraint on identity+name with multiple names per identity [thanks Maria]
-FIX: gm-staff permissions on dem.v_pat_addresses [thanks Maria]
-FIX: gm-staff permissions on dem.v_message_inbox [thanks Maria]
-FIX: permissions on org/unit tables/views
+FIX: crash on bootstrapping v15+ servers [thanks Maria]
+FIX: bootstrapping: add WITH ADMIN to gm-dbo [thanks Maria]
+FIX: upgrade: add WITH ADMIN to gm-dbo [thanks Maria]
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.31@1.8.21');
+select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.32@1.8.22');
