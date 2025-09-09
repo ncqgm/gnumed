@@ -198,6 +198,12 @@ fi
 appstreamcli validate --pedantic --verbose ./appdata.xml
 RESULT="$?"
 if test "${RESULT}" != "0" ; then
+	echo "appstreamcli: <appdata.xml> --pedantically suspicious (${RESULT})"
+	exit ${RESULT}
+fi
+appstreamcli validate ./appdata.xml
+RESULT="$?"
+if test "${RESULT}" != "0" ; then
 	echo "appstreamcli: <appdata.xml> invalid (${RESULT})"
 	exit ${RESULT}
 fi
