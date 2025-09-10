@@ -2,7 +2,7 @@
 
 === Most Recent Downloads
 
-https://www.gnumed.de/downloads/client/1.8/gnumed-client.1.8.21.tgz[Version 1.8.21] (database v22.31) released April 20th 2025
+https://www.gnumed.de/downloads/client/1.8/gnumed-client.1.8.22.tgz[Version 1.8.22] (database v22.32) released September 9th 2025
 
 https://github.com/ncqgm/gnumed/blob/master/gnumed/CHANGELOG[What's New] (https://github.com/ncqgm/gnumed/commits/master[commit log]) | https://www.gnumed.de/downloads/[Download Area]
 
