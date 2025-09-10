@@ -30,7 +30,6 @@
  </description>
  <screenshots>
 	<screenshot type="default">
-		<!-- image>https://screenshots.debian.net/shrine/screenshot/2117/simage/large-3a09d13e86595cc2d8c175d1a29a503e.png</image -->
 		<image>https://screenshots.debian.net/screenshot/gnumed-client/2117</image>
 		<caption>Main window showing progress notes entry during patient encounter</caption>
 	</screenshot>
