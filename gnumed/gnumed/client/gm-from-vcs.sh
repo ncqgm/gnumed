@@ -64,7 +64,7 @@ fi
 echo "-------------------------------------------------"
 echo "config file: ${CONF}"
 echo "options: ${DEV_OPTS}"
-echo "extra options: $@"
+echo "extra options: $*"
 #python3 gnumed.py ${CONF} ${DEV_OPTS} "$@"
 #python3 gnumed.py ${CONF} ${DEV_OPTS} "$@" |& tee gm-vcs-console_output.log
 python3 gnumed.py ${CONF} ${DEV_OPTS} "$@"
