@@ -139,9 +139,9 @@ FIXME: where do RedHat & friends put it
 For gnumed, pg_hba.conf must allow password authentication.
 For deveopment systems, I suggest the following
 
-local    template1 postgres                             ident sameuser
-local    gnumed    all                                  md5
-host     gnumed    all    127.0.0.1 255.255.255.255     md5
+local    template1 postgres                             peer
+local    gnumed    all                                  scram-sha-256
+host     gnumed    all    127.0.0.1 255.255.255.255     scram-sha-256
 
 For production systems, a different configuration will be
 required, but gnumed is not production ready.
@@ -1159,7 +1159,7 @@ class cDatabase:
 			print_msg('In many standard PostgreSQL installations this amounts to')
 			print_msg('adding (or uncommenting) the authentication directive:')
 			print_msg('')
-			print_msg('  "local   samerole    +gm-logins   md5"')
+			print_msg('  "local   samerole    +gm-logins   scram-sha-256"')
 			print_msg('')
 			print_msg('in the proper place of the file:')
 			print_msg('')
@@ -1886,9 +1886,9 @@ def main():
 	global quiet
 	quiet = bool(_cfg.get(option = '--quiet', source_order = [('cli', 'return')]))
 
-	print_msg("=======================================")
-	print_msg("Bootstrapping GNUmed database system...")
-	print_msg("=======================================")
+	print_msg("===========================================")
+	print_msg("= Bootstrapping GNUmed database system... =")
+	print_msg("===========================================")
 
 	# get initial conf file from CLI
 	cfg_file = _cfg.get(option = '--conf-file', source_order = [('cli', 'return')])
@@ -1896,7 +1896,7 @@ def main():
 		_log.error("no config file specified on command line")
 		exit_with_msg('Cannot bootstrap without config file. Use --conf-file=<FILE>.')
 
-	_log.info('initial config file: %s', cfg_file)
+	_log.info('primary config file: %s', cfg_file)
 
 	# read that conf file
 	_cfg.add_file_source (
