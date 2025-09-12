@@ -12,13 +12,16 @@ There's a special user called "gm-dbo" who owns all the
 database objects.
 
 For all this to work you must be able to access the database
-server as the standard "postgres" superuser.
+server as the standard "postgres" superuser. Typically
+IDENT/PEER authentication is configured for that account.
+You may need to setup a .pgpass file and/or the PGPASSFILE
+environment variable if "postgres" requires a password.
 
 This script does NOT set up user specific configuration options.
 
 All definitions are loaded from a config file.
 
-Please consult the User Manual in the GNUmed CVS for
+Please consult the User Manual in the GNUmed VCS for
 further details.
 
 --quiet
@@ -40,8 +43,9 @@ __license__ = "GPL v2 or later"
 
 _GM_LOGINS_GROUP = 'gm-logins'
 _GM_DBO_ROLE = 'gm-dbo'
-_PG_SUPERUSER = 'postgres'
-
+_PG_DEMON_USER = None
+_PG_DEMON_UID = None
+_PG_SUPERUSER = None
 
 # standard library
 import sys
@@ -216,6 +220,48 @@ DROP INDEX IF EXISTS %(idx_schema)s.%(idx_name)s CASCADE;
 CREATE INDEX %(idx_name)s ON %(idx_schema)s.%(idx_table)s(%(idx_col)s);
 """
 
+#==================================================================
+def guesstimate_pg_superuser():
+	"""Try to find the PG superuser.
+
+	Typically, the PostgreSQL superuser is configured to
+	connect via IDENT/TRUST/PEER which is why it is
+	typically the same OS level user. Usually, the
+	PostgreSQL server also runs as that OS level user.
+
+	So, check /etc/passwd for candidates.
+
+	In case that user does need a password to log in that
+	needs to be set up using a .pgpass file or the
+	PGPASSWORD environment variable.
+	"""
+	candidates = ['postgres', 'pgsql', 'postgresql']
+	try:
+		import pwd
+	except ImportError:
+		_log.warning("running on broken OS -- can't import pwd module")
+		_log.info('falling back to "postgres" as PG demon user and PG superuser')
+		return None
+
+	global _PG_DEMON_USER
+	global _PG_DEMON_UID
+	global _PG_SUPERUSER
+	pg_demon_user_passwd_line = None
+	for candidate in candidates:
+		try:
+			pg_demon_user_passwd_line = pwd.getpwnam(candidate)
+			_PG_DEMON_USER = pg_demon_user_passwd_line[0]
+			_PG_DEMON_UID = pg_demon_user_passwd_line[2]
+			_log.debug('assuming PG demon user to be: %s [%s]', _PG_DEMON_USER, _PG_DEMON_UID)
+			_PG_SUPERUSER = _PG_DEMON_USER
+			return
+
+		except KeyError:
+			_log.warning('cannot find user [%s] in passwd file', candidate)
+			continue
+
+	_PG_DEMON_USER = 'postgres'
+	_PG_DEMON_UID = None
 
 #==================================================================
 def user_exists(cursor=None, user=None):
@@ -292,12 +338,15 @@ def connect(host, port, db, user, passwd, conn_name=None):
 			host, port = cached_host
 		else:
 			host = ''
+	global cached_passwd
 	if passwd == 'blank' or passwd is None or len(passwd) == 0:
 		if user in cached_passwd:
 			passwd = cached_passwd[user]
 		else:
 			passwd = ''
 	_log.info("trying DB connection to %s on %s as %s", db, host or 'localhost', user)
+	if passwd == '':
+		_log.info('assuming passwordless login (IDENT/TRUST/PEER/.pgpass/PGPASSFILE/PGPASSWORD/...)')
 	creds = gmConnectionPool.cPGCredentials()
 	creds.database = db
 	creds.host = host
@@ -388,8 +437,6 @@ class db_server:
 		_log.info('done bootstrapping server [%s]', aSrv_alias)
 	#--------------------------------------------------------------
 	def __bootstrap(self):
-		self.superuser = user(anAlias = cfg_get(self.section, "super user alias"))
-
 		# connect to server level template database
 		if not self.__connect_superuser_to_srv_template():
 			_log.error("Cannot connect to server template database.")
@@ -432,7 +479,7 @@ class db_server:
 			if self.conn.closed == 0:
 				self.conn.close()
 
-		self.conn = connect(self.name, self.port, self.template_db, self.superuser.name, self.superuser.password, conn_name = 'root@template.server')
+		self.conn = connect(self.name, self.port, self.template_db, _PG_SUPERUSER, '', conn_name = 'root@template.server')
 		if self.conn is None:
 			_log.error('Cannot connect.')
 			return None
@@ -772,8 +819,10 @@ class cDatabase:
 			self.server.name,
 			self.server.port,
 			self.template_db,
-			self.server.superuser.name,
-			self.server.superuser.password,
+			#self.server.superuser.name,
+			_PG_SUPERUSER,
+			#self.server.superuser.password,
+			'',
 			conn_name = 'postgres@template.db'
 		)
 
@@ -795,8 +844,8 @@ class cDatabase:
 			self.server.name,
 			self.server.port,
 			self.name,
-			self.server.superuser.name,
-			self.server.superuser.password,
+			_PG_SUPERUSER,
+			'',
 			conn_name = 'postgres@gnumed_vX'
 		)
 
@@ -1016,8 +1065,8 @@ class cDatabase:
 			self.server.name,
 			self.server.port,
 			self.template_db,
-			self.server.superuser.name,
-			self.server.superuser.password
+			_PG_SUPERUSER,
+			''
 		)
 		template_conn.cookie = 'check_data_plausibility: template'
 
@@ -1025,8 +1074,8 @@ class cDatabase:
 			self.server.name,
 			self.server.port,
 			self.name,
-			self.server.superuser.name,
-			self.server.superuser.password
+			_PG_SUPERUSER,
+			''
 		)
 		target_conn.cookie = 'check_data_plausibility: target'
 
@@ -1103,8 +1152,8 @@ class cDatabase:
 			self.server.name,
 			self.server.port,
 			self.name,
-			self.server.superuser.name,
-			self.server.superuser.password
+			_PG_SUPERUSER,
+			''
 		)
 		conn.cookie = 'holy auth check connection'
 
@@ -1788,29 +1837,16 @@ def become_pg_demon_user():
 	except:
 		running_as = None
 
-	pg_demon_user_passwd_line = None
-	try:
-		pg_demon_user_passwd_line = pwd.getpwnam('postgres')
-		# make sure we actually use this name to log in
-		_cfg.set_option(group = 'user postgres', option = 'name', value = 'postgres', source = 'file')
-	except KeyError:
-		try:
-			pg_demon_user_passwd_line = pwd.getpwnam ('pgsql')
-			_cfg.set_option(group = 'user postgres', option = 'name', value = 'pgsql', source = 'file')
-		except KeyError:
-			_log.warning('cannot find postgres user')
-			return None
-
 	if os.getuid() == 0: # we are the super-user
-		_log.info('switching to UNIX user [%s]' % pg_demon_user_passwd_line[0])
-		os.setuid(pg_demon_user_passwd_line[2])
+		_log.info('switching to UNIX user "%s" [%s]', _PG_DEMON_USER, _PG_DEMON_UID)
+		os.setuid(_PG_DEMON_UID)
 
-	elif running_as == pg_demon_user_passwd_line[0]: # we are the postgres user already
-		_log.info('I already am the UNIX user [%s]' % pg_demon_user_passwd_line[0])
+	elif running_as == _PG_DEMON_USER: # we are the postgres user already
+		_log.info('I already am the UNIX user "%s" [%s]', _PG_DEMON_USER, _PG_DEMON_UID)
 
 	else:
 		_log.warning('not running as root or postgres, cannot become postmaster demon user')
-		_log.warning('may have trouble connecting as gm-dbo if IDENT auth is forced upon us')
+		_log.warning('may have trouble connecting as gm-dbo if IDENT/PEER auth is forced upon us')
 		if _interactive:
 			print_msg("WARNING: This script may not work if not running as the system administrator.")
 
@@ -1828,6 +1864,7 @@ def handle_cfg():
 
 	_log.info('config file: %s', _cfg.source_files['file'])
 
+	guesstimate_pg_superuser()
 	become_pg_demon_user()
 
 	global _interactive
