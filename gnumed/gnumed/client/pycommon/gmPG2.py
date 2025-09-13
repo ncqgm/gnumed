@@ -809,10 +809,59 @@ def run_fingerprint_tool() -> int:
 	return -2
 
 #------------------------------------------------------------------------
+#------------------------------------------------------------------------
+def role_exists(role:str=None, link_obj=None) -> bool:
+	SQL = 'SELECT EXISTS(SELECT 1 FROM pg_roles WHERE rolname = %(role)s)'
+	args = {'role': role}
+	rows = run_ro_query(link_obj = link_obj, sql = SQL, args = args)
+	if rows[0][0]:
+		_log.debug('role [%s] exists', role)
+		return True
+
+	_log.info("role [%s] does not exist" % role)
+	return False
+
+#------------------------------------------------------------------------
+def user_role_exists(user_role:str=None, link_obj=None) -> bool:
+	return role_exists(role = user_role, link_obj = link_obj)
+
+#------------------------------------------------------------------------
+def group_role_exists(group_role:str=None, link_obj=None) -> bool:
+	return role_exists(role = group_role, link_obj = link_obj)
+
+#------------------------------------------------------------------------
+def create_group_role(group_role:str=None, admin_role:str=None, link_obj=None) -> bool:
+	queries = []
+	if role_exists(role = group_role, link_obj = link_obj):
+		if not admin_role:
+			return True
+
+	else:
+		queries.append({'sql': 'CREATE GROUP "%s"' % group_role})
+		_log.debug('creating group role "%s"', group_role)
+	if admin_role:
+		queries.append({'sql': 'GRANT "%s" to "%s" WITH ADMIN OPTION;' % (group_role, admin_role)})
+		_log.debug('adding admin "%s" to group role "%s"', admin_role, group_role)
+	run_rw_queries(link_obj = link_obj, queries = queries, return_data = False)
+	# paranoia is good
+	return role_exists(role = group_role, link_obj = link_obj)
+
+#------------------------------------------------------------------------
+def create_role(role:str=None, password:str=None, link_obj=None) -> bool:
+	if role_exists(role = role, link_obj = link_obj):
+		return True
+
+	_log.debug('creating role "%s"', role)
+	SQL = 'CREATE ROLE "%s" WITH ENCRYPTED PASSWORD \'%s\'' % (role, password)
+	run_rw_query(link_obj = link_obj, sql = SQL, return_data = False)
+	return role_exists(role = role, link_obj = link_obj)
+
+#------------------------------------------------------------------------
 def get_current_user() -> str:
 	rows = run_ro_query(sql = 'SELECT CURRENT_USER')
 	return rows[0][0]
 
+#------------------------------------------------------------------------
 #------------------------------------------------------------------------
 def get_foreign_keys2column(schema='public', table=None, column=None, link_obj=None):
 	"""Get the foreign keys pointing to schema.table.column.

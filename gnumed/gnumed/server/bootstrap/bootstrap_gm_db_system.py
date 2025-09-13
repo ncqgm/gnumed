@@ -43,8 +43,8 @@ __license__ = "GPL v2 or later"
 
 _GM_LOGINS_GROUP = 'gm-logins'
 _GM_DBO_ROLE = 'gm-dbo'
-_PG_DEMON_USER = None
-_PG_DEMON_UID = None
+_PM_DEMON_USER = None
+_PM_DEMON_UID = None
 _PG_SUPERUSER = None
 
 # standard library
@@ -235,7 +235,6 @@ def guesstimate_pg_superuser():
 	needs to be set up using a .pgpass file or the
 	PGPASSWORD environment variable.
 	"""
-	candidates = ['postgres', 'pgsql', 'postgresql']
 	try:
 		import pwd
 	except ImportError:
@@ -243,88 +242,30 @@ def guesstimate_pg_superuser():
 		_log.info('falling back to "postgres" as PG demon user and PG superuser')
 		return None
 
-	global _PG_DEMON_USER
-	global _PG_DEMON_UID
+	global _PM_DEMON_USER
+	global _PM_DEMON_UID
 	global _PG_SUPERUSER
 	pg_demon_user_passwd_line = None
+	candidates = ['postgres', 'pgsql', 'postgresql']
 	for candidate in candidates:
 		try:
 			pg_demon_user_passwd_line = pwd.getpwnam(candidate)
-			_PG_DEMON_USER = pg_demon_user_passwd_line[0]
-			_PG_DEMON_UID = pg_demon_user_passwd_line[2]
-			_log.debug('assuming PG demon user to be: %s [%s]', _PG_DEMON_USER, _PG_DEMON_UID)
-			_PG_SUPERUSER = _PG_DEMON_USER
+			_PM_DEMON_USER = pg_demon_user_passwd_line[0]
+			_PM_DEMON_UID = pg_demon_user_passwd_line[2]
+			_log.debug('assuming PG demon user to be: %s [%s]', _PM_DEMON_USER, _PM_DEMON_UID)
+			_PG_SUPERUSER = _PM_DEMON_USER
 			return
 
 		except KeyError:
 			_log.warning('cannot find user [%s] in passwd file', candidate)
 			continue
 
-	_PG_DEMON_USER = 'postgres'
-	_PG_DEMON_UID = None
+	_PM_DEMON_USER = 'postgres'
+	_PM_DEMON_UID = None
 
 #==================================================================
 def user_exists(cursor=None, user=None):
-	SQL = "SELECT usename FROM pg_user WHERE usename = %(usr)s"
-	args = {'usr': user}
-	try:
-		cursor.execute(SQL, args)
-	except:
-		_log.exception(">>>[%s]<<< failed for user [%s]", SQL, user)
-		return None
-
-	cursor.fetchone()
-	if cursor.rowcount == 1:
-		_log.info("user [%s] exists", user)
-		return True
-
-	_log.info("user [%s] does not exist", user)
-	return None
-
-#------------------------------------------------------------------
-def db_named_group_role_exists(cursor=None, group=None):
-	SQL = 'SELECT groname FROM pg_group WHERE groname = %(grp)s'
-	args = {'grp': group}
-	try:
-		cursor.execute(SQL, args)
-	except:
-		_log.exception(">>>[%s]<<< failed for group [%s]", SQL, group)
-		return False
-
-	rows = cursor.fetchall()
-	if rows:
-		_log.info("group [%s] exists" % group)
-		return True
-
-	_log.info("group [%s] does not exist" % group)
-	return False
-
-#------------------------------------------------------------------
-def create_db_named_group_role(cursor=None, group=None):
-
-	# does this group already exist ?
-	if db_named_group_role_exists(cursor, group):
-		return True
-
-	SQL = 'create group "%s"' % group
-	try:
-		cursor.execute(SQL)
-	except:
-		_log.exception(">>>[%s]<<< failed for group [%s]", SQL, group)
-		return False
-
-	SQL = 'GRANT "%s" to "%s" WITH ADMIN OPTION;' % (group, _GM_DBO_ROLE)
-	try:
-		cursor.execute(SQL)
-	except:
-		_log.exception(">>>[%s]<<< failed for group [%s]", SQL, group)
-		return False
-
-	# paranoia is good
-	if not db_named_group_role_exists(cursor, group):
-		return False
-
-	return True
+	return gmPG.user_role_exists(user_role=user, link_obj=cursor)
 
 #==================================================================
 def connect(host, port, db, user, passwd, conn_name=None):
@@ -355,7 +296,12 @@ def connect(host, port, db, user, passwd, conn_name=None):
 	creds.password = passwd
 	pool = gmConnectionPool.gmConnectionPool()
 	pool.credentials = creds
-	conn = pool.get_connection(readonly=False, pooled=False, verbose=True, connection_name = conn_name)
+	conn = pool.get_connection (
+		readonly = False,
+		pooled = False,
+		verbose = True,
+		connection_name = conn_name
+	)
 	cached_host = (host, port) # learn from past successes
 	cached_passwd[user] = passwd
 	conn_ref_count.append(conn)
@@ -363,7 +309,7 @@ def connect(host, port, db, user, passwd, conn_name=None):
 	return conn
 
 #==================================================================
-class user:
+class cUser:
 	def __init__(self, anAlias = None, aPassword = None, force_interactive=False):
 		if anAlias is None:
 			raise ConstructorError("need user alias")
@@ -435,6 +381,7 @@ class db_server:
 		_bootstrapped_servers[self.alias] = self
 
 		_log.info('done bootstrapping server [%s]', aSrv_alias)
+
 	#--------------------------------------------------------------
 	def __bootstrap(self):
 		# connect to server level template database
@@ -449,6 +396,7 @@ class db_server:
 
 		self.conn.close()
 		return True
+
 	#--------------------------------------------------------------
 	def __connect_superuser_to_srv_template(self):
 		_log.info("connecting to server template database")
@@ -537,20 +485,13 @@ class db_server:
 	#--------------------------------------------------------------
 	def __bootstrap_roles(self):
 		_log.info("bootstrapping database roles")
-
-		# insert standard groups
 		if not self.__create_groups():
 			_log.error("Cannot create GNUmed standard groups roles.")
 			return None
 
-		# create GNUmed owner
 		if self.__create_dbowner() is None:
 			_log.error("Cannot install GNUmed database owner.")
 			return None
-
-#		if not _import_schema(group=self.section, schema_opt='schema', conn=self.conn):
-#			_log.error("Cannot import schema definition for server [%s] into database [%s]." % (self.name, self.template_db))
-#			return None
 
 		return True
 	#--------------------------------------------------------------
@@ -562,34 +503,10 @@ class db_server:
 			_log.error("Cannot load GNUmed database owner name from config file.")
 			return None
 
-		cursor = self.conn.cursor()
-		# does this user already exist ?
-		if user_exists(cursor, _GM_DBO_ROLE):
-			SQL = (
-				'GRANT "%s" TO "%s";'						# postgres in gm-logins (pg_dump/restore)
-				'GRANT "%s" TO "%s" WITH ADMIN OPTION;'		# gm-dbo in gm-logins; in v17 add: ", INHERIT FALSE, SET FALSE"
-				'GRANT "%s" TO "%s" WITH ADMIN OPTION;'		# gm-dbo in gnumed_vXX; in v17 add: ", INHERIT FALSE, SET FALSE"
-				'ALTER ROLE "%s" CREATEDB CREATEROLE;'
-			) % (
-				_GM_LOGINS_GROUP, _PG_SUPERUSER,
-				_GM_LOGINS_GROUP, _GM_DBO_ROLE,
-				self.db_named_group_role, _GM_DBO_ROLE,
-				_GM_DBO_ROLE
-			)
-			try:
-				cursor.execute(SQL)
-			except:
-				_log.error(">>>[%s]<<< failed." % SQL)
-				_log.exception("Cannot add GNUmed database owner [%s] to groups [%s] and [%s]." % (_GM_DBO_ROLE, _GM_LOGINS_GROUP, self.db_named_group_role))
-				cursor.close()
-				return False
-
-			self.conn.commit()
-			cursor.close()
-			_dbowner = user(anAlias = dbowner_alias, aPassword = 'should not matter')
-			return True
-
-		print_msg ((
+		if gmPG2.user_role_exists(user_role = _GM_DBO_ROLE, link_obj = self.conn):
+			_dbowner = cUser(anAlias = dbowner_alias, aPassword = 'should_not_matter', force_interactive = False)
+		else:
+			print_msg ((
 """The database owner [%s] will be created.
 
 You will have to provide a new password for it
@@ -597,32 +514,32 @@ unless it is pre-defined in the configuration file.
 
 Make sure to remember the password for later use !
 """) % _GM_DBO_ROLE)
-		_dbowner = user(anAlias = dbowner_alias, force_interactive = True)
-		SQLs = [
-			'CREATE ROLE "%s" WITH ENCRYPTED PASSWORD \'%s\' CREATEDB CREATEROLE;' % (_GM_DBO_ROLE, _dbowner.password),
-			# gm-dbo in gm-logins; in v17 add: ", INHERIT FALSE, SET FALSE"
-			'GRANT "%s" TO "%s" WITH ADMIN OPTION;' % (_GM_LOGINS_GROUP, _GM_DBO_ROLE),
-			# gm-dbo in gnumed_vXX; in v17 add: ", INHERIT FALSE, SET FALSE"
-			'GRANT "%s" TO "%s" WITH ADMIN OPTION;'	% (self.db_named_group_role, _GM_DBO_ROLE)
+			_dbowner = cUser(anAlias = dbowner_alias, force_interactive = True)
+			if not gmPG2.create_role(role = _GM_DBO_ROLE, password = _dbowner.password, link_obj = self.conn):
+				return False
 
-		]
-#		SQL = 'CREATE ROLE "%s" WITH ENCRYPTED PASSWORD \'%s\' CREATEDB CREATEROLE IN GROUP "%s", "gm-logins"' % (_GM_DBO_ROLE, _dbowner.password, self.db_named_group_role)
+		SQL = (
+			'GRANT "%s" TO "%s";'						# postgres in gm-logins (pg_dump/restore)
+			'GRANT "%s" TO "%s" WITH ADMIN OPTION;'		# gm-dbo in gm-logins; in v17 add: ", INHERIT FALSE, SET FALSE"
+			'GRANT "%s" TO "%s" WITH ADMIN OPTION;'		# gm-dbo in gnumed_vXX; in v17 add: ", INHERIT FALSE, SET FALSE"
+			'ALTER ROLE "%s" CREATEDB CREATEROLE;'
+		) % (
+			_GM_LOGINS_GROUP, _PG_SUPERUSER,
+			_GM_LOGINS_GROUP, _GM_DBO_ROLE,
+			self.db_named_group_role, _GM_DBO_ROLE,
+			_GM_DBO_ROLE
+		)
+		cursor = self.conn.cursor()
 		try:
-			for SQL in SQLs:
-				cursor.execute(SQL)
+			cursor.execute(SQL)
 		except:
-			_log.error(">>>[%s]<<< failed.", SQL)
-			_log.exception("Cannot create GNUmed database owner [%s]." % _GM_DBO_ROLE)
+			_log.error(">>>[%s]<<< failed." % SQL)
+			_log.exception("Cannot add GNUmed database owner [%s] to groups [%s] and [%s]." % (_GM_DBO_ROLE, _GM_LOGINS_GROUP, self.db_named_group_role))
 			cursor.close()
-			return None
+			return False
 
-		# paranoia is good
-		if not user_exists(cursor, _GM_DBO_ROLE):
-			cursor.close()
-			return None
-
-		self.conn.commit()
 		cursor.close()
+		self.conn.commit()
 		return True
 
 	#--------------------------------------------------------------
@@ -639,10 +556,9 @@ Make sure to remember the password for later use !
 			groups = [self.db_named_group_role]
 		else:
 			groups.append(self.db_named_group_role)
-
 		cursor = self.conn.cursor()
 		for group in groups:
-			if not create_db_named_group_role(cursor, group):
+			if not gmPG2.create_group_role(group_role = group, link_obj = cursor):
 				cursor.close()
 				return False
 
@@ -714,7 +630,7 @@ class cDatabase:
 
 		# get owner
 		if _dbowner is None:
-			_dbowner = user(anAlias = cfg_get("GnuMed defaults", "database owner alias"))
+			_dbowner = cUser(anAlias = cfg_get("GnuMed defaults", "database owner alias"))
 
 		if _dbowner is None:
 			_log.error("Cannot load GNUmed database owner name from config file.")
@@ -749,21 +665,17 @@ class cDatabase:
 
 		# create authentication group
 		_log.info('creating database-specific authentication group role')
-		curs = self.conn.cursor()
-		if not create_db_named_group_role(cursor = curs, group = self.name):
-			curs.close()
+		created_group = gmPG2.create_group_role (
+			group_role = self.name,
+			admin_role = _GM_DBO_ROLE,
+			link_obj = self.conn
+		)
+		if not created_group:
+			self.conn.rollback()
 			_log.error('cannot create authentication group role')
 			return False
-		self.conn.commit()
-		curs.close()
 
-		# paranoia check
-		curs = self.conn.cursor()
-		if not db_named_group_role_exists(cursor = curs, group = self.name):
-			curs.close()
-			_log.error('cannot find authentication group role')
-			return False
-		curs.close()
+		self.conn.commit()
 
 		# reindex db so upgrade doesn't fail on broken index
 		llap = []
@@ -1813,7 +1725,7 @@ def print_msg(msg=None):
 	print(msg)
 
 #-----------------------------------------------------------------
-def become_pg_demon_user():
+def become_postmaster_demon_user():
 	"""Become "postgres" user.
 
 	On UNIX type systems, attempt to use setuid() to
@@ -1838,11 +1750,11 @@ def become_pg_demon_user():
 		running_as = None
 
 	if os.getuid() == 0: # we are the super-user
-		_log.info('switching to UNIX user "%s" [%s]', _PG_DEMON_USER, _PG_DEMON_UID)
-		os.setuid(_PG_DEMON_UID)
+		_log.info('switching to UNIX user "%s" [%s]', _PM_DEMON_USER, _PM_DEMON_UID)
+		os.setuid(_PM_DEMON_UID)
 
-	elif running_as == _PG_DEMON_USER: # we are the postgres user already
-		_log.info('I already am the UNIX user "%s" [%s]', _PG_DEMON_USER, _PG_DEMON_UID)
+	elif running_as == _PM_DEMON_USER: # we are the postgres user already
+		_log.info('I already am the UNIX user "%s" [%s]', _PM_DEMON_USER, _PM_DEMON_UID)
 
 	else:
 		_log.warning('not running as root or postgres, cannot become postmaster demon user')
@@ -1865,7 +1777,7 @@ def handle_cfg():
 	_log.info('config file: %s', _cfg.source_files['file'])
 
 	guesstimate_pg_superuser()
-	become_pg_demon_user()
+	become_postmaster_demon_user()
 
 	global _interactive
 	if _interactive is None:
