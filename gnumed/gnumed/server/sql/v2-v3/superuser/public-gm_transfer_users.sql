@@ -8,10 +8,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: public-gm_transfer_users.sql,v 1.1 2006-12-12 18:02:36 ncq Exp $
--- $Revision: 1.1 $
+set default_transaction_read_only to off;
 
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
@@ -47,8 +45,11 @@ BEGIN
 	-- loop over group member IDs
 	select into member_ids grolist from pg_group where groname = _source_group;
 	FOR idx IN coalesce(array_lower(member_ids, 1), 0) .. coalesce(array_upper(member_ids, 1), -1) LOOP
+		raise notice ''idx: %'', idx;
 		member_id := member_ids[idx];
+		raise notice ''user (group member) id: %'', member_id;
 		select into member_name usename from pg_user where usesysid = member_id;
+		raise notice ''name: %'', member_name;
 		tmp := ''gm_transfer_users(text): transferring "''
 				|| member_name || ''" (''
 				|| member_id || '') from group "''
@@ -65,8 +66,3 @@ BEGIN
 END;';
 
 -- ==============================================================
--- $Log: public-gm_transfer_users.sql,v $
--- Revision 1.1  2006-12-12 18:02:36  ncq
--- - add a way to sync users on database upgrades
---
---

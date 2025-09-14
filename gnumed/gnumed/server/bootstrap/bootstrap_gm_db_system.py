@@ -8,6 +8,14 @@ This will set up databases, tables, groups, permissions and
 possibly users. Most of this will be handled via SQL
 scripts, not directly in the bootstrapper itself.
 
+Default assumptions:
+
+- PostgreSQL running on localhost
+- PostgreSQL superuser: "postgres", "pgsql" or "postgresql"
+- Postmaster demon account: "postgres", "pgsql" or "postgresql"
+- database object owner: "gm-dbo"
+- database name: gnumed_vXX where XX is the current major version
+
 There's a special user called "gm-dbo" who owns all the
 database objects.
 
@@ -118,10 +126,10 @@ _log = logging.getLogger('gm.bootstrapper')
 _cfg = gmCfgINI.gmCfgData()
 
 
+_PG_CLUSTER = None
+
 _interactive = None
-_bootstrapped_servers = {}
 _bootstrapped_dbs:dict[str, 'cDatabase'] = {}
-_dbowner = None
 cached_host = None
 cached_passwd:dict[str, str] = {}
 _keep_temp_files = False
@@ -264,10 +272,6 @@ def guesstimate_pg_superuser():
 	_PM_DEMON_UID = None
 
 #==================================================================
-def user_exists(cursor=None, user=None):
-	return gmPG.user_role_exists(user_role=user, link_obj=cursor)
-
-#==================================================================
 def connect(host, port, db, user, passwd, conn_name=None):
 	"""
 	This is a wrapper to the database connect function.
@@ -308,6 +312,7 @@ def connect(host, port, db, user, passwd, conn_name=None):
 	_log.info('successfully connected')
 	return conn
 
+#==================================================================
 #==================================================================
 class cUser:
 	def __init__(self, anAlias = None, aPassword = None, force_interactive=False):
@@ -360,25 +365,21 @@ class cUser:
 		raise ValueError('no password for user %s' % self.name)
 
 #==================================================================
-class db_server:
-	def __init__(self, aSrv_alias, db_named_group_role):
+class cPostgresqlCluster:
+	def __init__(self, aSrv_alias):
 		_log.info("bootstrapping server [%s]" % aSrv_alias)
 
-		global _bootstrapped_servers
-
-		if aSrv_alias in _bootstrapped_servers:
-			_log.info("server [%s] already bootstrapped" % aSrv_alias)
-			return None
+		global _PG_CLUSTER
+		if _PG_CLUSTER:
+			_log.info("cluster already bootstrapped")
+			return _PG_CLUSTER
 
 		self.alias = aSrv_alias
 		self.section = "server %s" % self.alias
-		self.db_named_group_role = db_named_group_role
 		self.conn = None
 
 		if not self.__bootstrap():
-			raise ConstructorError("db_server.__init__(): Cannot bootstrap db server.")
-
-		_bootstrapped_servers[self.alias] = self
+			raise ConstructorError("cPostgresqlCluster.__init__(): Cannot bootstrap db server.")
 
 		_log.info('done bootstrapping server [%s]', aSrv_alias)
 
@@ -432,7 +433,7 @@ class db_server:
 			_log.error('Cannot connect.')
 			return None
 
-		self.conn.cookie = 'db_server.__connect_superuser_to_srv_template'
+		self.conn.cookie = 'cPostgresqlCluster.__connect_superuser_to_srv_template'
 
 		# verify encoding
 		curs = self.conn.cursor()
@@ -489,73 +490,20 @@ class db_server:
 			_log.error("Cannot create GNUmed standard groups roles.")
 			return None
 
-		if self.__create_dbowner() is None:
+		if self.__create_gm_dbo() is None:
 			_log.error("Cannot install GNUmed database owner.")
 			return None
 
 		return True
-	#--------------------------------------------------------------
-	def __create_dbowner(self):
-		global _dbowner
-
-		dbowner_alias = cfg_get("GnuMed defaults", "database owner alias")
-		if dbowner_alias is None:
-			_log.error("Cannot load GNUmed database owner name from config file.")
-			return None
-
-		if gmPG2.user_role_exists(user_role = _GM_DBO_ROLE, link_obj = self.conn):
-			_dbowner = cUser(anAlias = dbowner_alias, aPassword = 'should_not_matter', force_interactive = False)
-		else:
-			print_msg ((
-"""The database owner [%s] will be created.
-
-You will have to provide a new password for it
-unless it is pre-defined in the configuration file.
-
-Make sure to remember the password for later use !
-""") % _GM_DBO_ROLE)
-			_dbowner = cUser(anAlias = dbowner_alias, force_interactive = True)
-			if not gmPG2.create_role(role = _GM_DBO_ROLE, password = _dbowner.password, link_obj = self.conn):
-				return False
-
-		SQL = (
-			'GRANT "%s" TO "%s";'						# postgres in gm-logins (pg_dump/restore)
-			'GRANT "%s" TO "%s" WITH ADMIN OPTION;'		# gm-dbo in gm-logins; in v17 add: ", INHERIT FALSE, SET FALSE"
-			'GRANT "%s" TO "%s" WITH ADMIN OPTION;'		# gm-dbo in gnumed_vXX; in v17 add: ", INHERIT FALSE, SET FALSE"
-			'ALTER ROLE "%s" CREATEDB CREATEROLE;'
-		) % (
-			_GM_LOGINS_GROUP, _PG_SUPERUSER,
-			_GM_LOGINS_GROUP, _GM_DBO_ROLE,
-			self.db_named_group_role, _GM_DBO_ROLE,
-			_GM_DBO_ROLE
-		)
-		cursor = self.conn.cursor()
-		try:
-			cursor.execute(SQL)
-		except:
-			_log.error(">>>[%s]<<< failed." % SQL)
-			_log.exception("Cannot add GNUmed database owner [%s] to groups [%s] and [%s]." % (_GM_DBO_ROLE, _GM_LOGINS_GROUP, self.db_named_group_role))
-			cursor.close()
-			return False
-
-		cursor.close()
-		self.conn.commit()
-		return True
 
 	#--------------------------------------------------------------
-	def __create_groups(self, aSection = None):
-
-		if aSection is None:
-			section = "GnuMed defaults"
-		else:
-			section = aSection
-
+	def __create_groups(self):
+		section = "GnuMed defaults"
 		groups = cfg_get(section, "groups")
 		if groups is None:
 			_log.error("Cannot load GNUmed group names from config file (section [%s])." % section)
-			groups = [self.db_named_group_role]
-		else:
-			groups.append(self.db_named_group_role)
+			return True
+
 		cursor = self.conn.cursor()
 		for group in groups:
 			if not gmPG2.create_group_role(group_role = group, link_obj = cursor):
@@ -564,6 +512,43 @@ Make sure to remember the password for later use !
 
 		self.conn.commit()
 		cursor.close()
+		return True
+
+	#--------------------------------------------------------------
+	def __create_gm_dbo(self):
+		if not gmPG2.user_role_exists(user_role = _GM_DBO_ROLE, link_obj = self.conn):
+			print_msg ((
+"""The database owner [%s] will be created.
+
+You will have to provide a new password for it
+unless it is pre-defined in the configuration file.
+
+Make sure to remember the password for later use !
+""") % _GM_DBO_ROLE)
+			_gm_dbo = cUser(anAlias = 'GNUmed owner', force_interactive = True)
+			if not gmPG2.create_user_role(user_role = _GM_DBO_ROLE, password = _gm_dbo.password, link_obj = self.conn):
+				return False
+
+		SQL = (
+			'GRANT "%s" TO "%s";'						# postgres in gm-logins (pg_dump/restore)
+			'GRANT "%s" TO "%s" WITH ADMIN OPTION;'		# gm-dbo in gm-logins; in v17 add: ", INHERIT FALSE, SET FALSE"
+			'ALTER ROLE "%s" CREATEDB CREATEROLE;'
+		) % (
+			_GM_LOGINS_GROUP, _PG_SUPERUSER,
+			_GM_LOGINS_GROUP, _GM_DBO_ROLE,
+			_GM_DBO_ROLE
+		)
+		cursor = self.conn.cursor()
+		try:
+			cursor.execute(SQL)
+		except:
+			_log.error(">>>[%s]<<< failed." % SQL)
+			_log.exception("Cannot add GNUmed database owner [%s] to group [%s]." % (_GM_DBO_ROLE, _GM_LOGINS_GROUP))
+			cursor.close()
+			return False
+
+		cursor.close()
+		self.conn.commit()
 		return True
 
 #==================================================================
@@ -614,8 +599,7 @@ class cDatabase:
 			raise ConstructorError("database.__init__(): Cannot bootstrap database.")
 
 		# make sure server is bootstrapped
-		db_server(self.server_alias, db_named_group_role = self.name)
-		self.server = _bootstrapped_servers[self.server_alias]
+		self.cluster = cPostgresqlCluster(self.server_alias)
 
 		if not self.__bootstrap():
 			raise ConstructorError("database.__init__(): Cannot bootstrap database.")
@@ -623,20 +607,11 @@ class cDatabase:
 		_bootstrapped_dbs[aDB_alias] = self
 
 		return None
+
 	#--------------------------------------------------------------
 	def __bootstrap(self):
 
-		global _dbowner
-
-		# get owner
-		if _dbowner is None:
-			_dbowner = cUser(anAlias = cfg_get("GnuMed defaults", "database owner alias"))
-
-		if _dbowner is None:
-			_log.error("Cannot load GNUmed database owner name from config file.")
-			return None
-
-		# connect as owner to template
+		# connect as superuser to template
 		if not self.__connect_superuser_to_template():
 			_log.error("Cannot connect to template database.")
 			return False
@@ -653,18 +628,15 @@ class cDatabase:
 
 		self.conn.rollback()
 
-		# make sure db exists
 		if not self.__create_db():
 			_log.error("Cannot create database.")
 			return False
 
-		# reconnect as superuser to db
 		if not self.__connect_superuser_to_db():
 			_log.error("Cannot connect to database.")
 			return None
 
-		# create authentication group
-		_log.info('creating database-specific authentication group role')
+		_log.info('creating database-specific authentication group role "%s"', self.name)
 		created_group = gmPG2.create_group_role (
 			group_role = self.name,
 			admin_role = _GM_DBO_ROLE,
@@ -711,6 +683,7 @@ class cDatabase:
 		if not self.__connect_owner_to_db():
 			_log.error("Cannot connect to database.")
 			return None
+
 		if not _import_schema(group=self.section, schema_opt='schema', conn=self.conn):
 			_log.error("cannot import schema definition for database [%s]" % (self.name))
 			return None
@@ -728,12 +701,10 @@ class cDatabase:
 				self.conn.close()
 
 		self.conn = connect (
-			self.server.name,
-			self.server.port,
+			self.cluster.name,
+			self.cluster.port,
 			self.template_db,
-			#self.server.superuser.name,
 			_PG_SUPERUSER,
-			#self.server.superuser.password,
 			'',
 			conn_name = 'postgres@template.db'
 		)
@@ -753,8 +724,8 @@ class cDatabase:
 				self.conn.close()
 
 		self.conn = connect (
-			self.server.name,
-			self.server.port,
+			self.cluster.name,
+			self.cluster.port,
 			self.name,
 			_PG_SUPERUSER,
 			'',
@@ -974,8 +945,8 @@ class cDatabase:
 			return False
 
 		template_conn = connect (
-			self.server.name,
-			self.server.port,
+			self.cluster.name,
+			self.cluster.port,
 			self.template_db,
 			_PG_SUPERUSER,
 			''
@@ -983,8 +954,8 @@ class cDatabase:
 		template_conn.cookie = 'check_data_plausibility: template'
 
 		target_conn = connect (
-			self.server.name,
-			self.server.port,
+			self.cluster.name,
+			self.cluster.port,
 			self.name,
 			_PG_SUPERUSER,
 			''
@@ -1061,8 +1032,8 @@ class cDatabase:
 		holy_pattern_inactive = '#\s*local.*samerole.*\+gm-logins'
 
 		conn = connect (
-			self.server.name,
-			self.server.port,
+			self.cluster.name,
+			self.cluster.port,
 			self.name,
 			_PG_SUPERUSER,
 			''
