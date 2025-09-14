@@ -830,31 +830,45 @@ def group_role_exists(group_role:str=None, link_obj=None) -> bool:
 	return role_exists(role = group_role, link_obj = link_obj)
 
 #------------------------------------------------------------------------
-def create_group_role(group_role:str=None, admin_role:str=None, link_obj=None) -> bool:
-	queries = []
-	if role_exists(role = group_role, link_obj = link_obj):
-		if not admin_role:
-			return True
-
-	else:
-		queries.append({'sql': 'CREATE GROUP "%s"' % group_role})
-		_log.debug('creating group role "%s"', group_role)
-	if admin_role:
-		queries.append({'sql': 'GRANT "%s" to "%s" WITH ADMIN OPTION;' % (group_role, admin_role)})
-		_log.debug('adding admin "%s" to group role "%s"', admin_role, group_role)
-	run_rw_queries(link_obj = link_obj, queries = queries, return_data = False)
-	# paranoia is good
-	return role_exists(role = group_role, link_obj = link_obj)
-
-#------------------------------------------------------------------------
 def create_role(role:str=None, password:str=None, link_obj=None) -> bool:
 	if role_exists(role = role, link_obj = link_obj):
 		return True
 
-	_log.debug('creating role "%s"', role)
-	SQL = 'CREATE ROLE "%s" WITH ENCRYPTED PASSWORD \'%s\'' % (role, password)
+	if password:
+		_log.debug('creating role "%s" with password', role)
+		SQL = 'CREATE ROLE "%s" WITH ENCRYPTED PASSWORD \'%s\'' % (role, password)
+	else:
+		_log.debug('creating role "%s" withOUT password', role)
+		SQL = 'CREATE ROLE "%s"' % role
 	run_rw_query(link_obj = link_obj, sql = SQL, return_data = False)
 	return role_exists(role = role, link_obj = link_obj)
+
+#------------------------------------------------------------------------
+def create_group_role(group_role:str=None, admin_role:str=None, link_obj=None) -> bool:
+	if not create_role(role = group_role, link_obj = link_obj):
+		return False
+
+	if not admin_role:
+		return True
+
+	_log.debug('adding admin "%s" to group role "%s"', admin_role, group_role)
+	SQL = 'GRANT "%s" to "%s" WITH ADMIN OPTION;' % (group_role, admin_role)
+	run_rw_query(link_obj = link_obj, sql = SQL, return_data = False)
+	return True
+
+#------------------------------------------------------------------------
+def create_user_role(user_role:str=None, password:str=None, link_obj=None) -> bool:
+	if role_exists(role = user_role, link_obj = link_obj):
+		# make sure it is a user role (has LOGIN)
+		SQL = 'ALTER ROLE "%s" WITH LOGIN'
+		run_rw_query(link_obj = link_obj, sql = SQL, return_data = False)
+		return True
+
+	_log.debug('creating user (can_login) role "%s"', user_role)
+	# implies LOGIN
+	SQL = 'CREATE USER "%s" WITH ENCRYPTED PASSWORD \'%s\'' % (user_role, password)
+	run_rw_query(link_obj = link_obj, sql = SQL, return_data = False)
+	return role_exists(role = user_role, link_obj = link_obj)
 
 #------------------------------------------------------------------------
 def get_current_user() -> str:
