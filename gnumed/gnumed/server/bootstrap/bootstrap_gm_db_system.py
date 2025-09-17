@@ -4,17 +4,21 @@
 
 This script bootstraps a GNUmed database system.
 
-This will set up databases, tables, groups, permissions and
+It will set up databases, tables, groups, permissions and
 possibly users. Most of this will be handled via SQL
 scripts, not directly in the bootstrapper itself.
 
-Default assumptions:
+Assumptions:
 
 - PostgreSQL running on localhost
+- everything happening within one cluster
 - PostgreSQL superuser: "postgres", "pgsql" or "postgresql"
 - Postmaster demon account: "postgres", "pgsql" or "postgresql"
 - database object owner: "gm-dbo"
 - database name: gnumed_vXX where XX is the current major version
+- user running the bootstrapper must be able to become (SUID) the postmaster demon account user
+- postmaster demon account user must be able to connect to the template database without
+  providing a password (.pgpass / PGPASSFILE / IDENT / TRUST / PEER)
 
 There's a special user called "gm-dbo" who owns all the
 database objects.
@@ -105,6 +109,7 @@ try:
 except ImportError:
 	print("""Please make sure the GNUmed Python modules are in the Python path !""")
 	raise
+
 from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmPsql
 from Gnumed.pycommon import gmPG2
@@ -113,28 +118,19 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon.gmExceptions import ConstructorError
 
-
 # local imports
 import gmAuditSchemaGenerator
-aud_gen = gmAuditSchemaGenerator
 
 
 _log = logging.getLogger('gm.bootstrapper')
 #faulthandler.enable(file = gmLog2._logfile)
-
-
 _cfg = gmCfgINI.gmCfgData()
-
-
 _PG_CLUSTER = None
-
 _interactive = None
 _bootstrapped_dbs:dict[str, 'cDatabase'] = {}
-cached_host = None
-cached_passwd:dict[str, str] = {}
 _keep_temp_files = False
-
 conn_ref_count = []
+
 #==================================================================
 pg_hba_sermon = """
 I have found a connection to the database, but I am forbidden
@@ -160,57 +156,6 @@ required, but gnumed is not production ready.
 There is also a pg_hba.conf.example in this directory.
 
 You must then restart (or SIGHUP) your PostgreSQL server.
-"""
-
-no_server_sermon = """
-I cannot find a PostgreSQL server running on this machine.
-
-Try (as root):
-/etc/init.d/postgresql start
-
-if that fails, you can build a database from scratch:
-
-PGDATA=some directory you can use
-initdb
-cp pg_hba.conf.example $PGDATA/pg_hba.conf
-pg_ctl start 
-
-if none of these commands work, or you don't know what PostgreSQL
-is, go to the website to download for your OS at:
-
-http://www.postgresql.org/
-
-On the other hand, if you have a PostgreSQL server
-running somewhere strange, type hostname[:port]
-below, or press RETURN to quit.
-"""
-
-superuser_sermon = """
-I can't log on as the PostgreSQL database owner.
-Try running this script as the system administrator (user "root")
-to get the necessary permissions.
-
-NOTE: I expect the PostgreSQL database owner to be called "%s"
-If for some reason it is not, you need to adjust my configuration
-script, and run again as that user.
-"""
-
-no_clues = """
-Logging on to the PostgreSQL database returned this error
-%s
-on %s
-
-Please contact the GNUmed development team on gnumed-devel@gnu.org.
-Make sure you include this error message in your mail.
-"""
-
-welcome_sermon = """
-Welcome to the GNUmed server instllation script.
-
-You must have a PostgreSQL server running and
-administrator access.
-
-Please select a database configuration from the list below.
 """
 
 SQL_add_foreign_key = """
@@ -253,13 +198,13 @@ def guesstimate_pg_superuser():
 	global _PM_DEMON_USER
 	global _PM_DEMON_UID
 	global _PG_SUPERUSER
-	pg_demon_user_passwd_line = None
+	pm_demon_user_passwd_line = None
 	candidates = ['postgres', 'pgsql', 'postgresql']
 	for candidate in candidates:
 		try:
-			pg_demon_user_passwd_line = pwd.getpwnam(candidate)
-			_PM_DEMON_USER = pg_demon_user_passwd_line[0]
-			_PM_DEMON_UID = pg_demon_user_passwd_line[2]
+			pm_demon_user_passwd_line = pwd.getpwnam(candidate)
+			_PM_DEMON_USER = pm_demon_user_passwd_line[0]
+			_PM_DEMON_UID = pm_demon_user_passwd_line[2]
 			_log.debug('assuming PG demon user to be: %s [%s]', _PM_DEMON_USER, _PM_DEMON_UID)
 			_PG_SUPERUSER = _PM_DEMON_USER
 			return
@@ -271,33 +216,55 @@ def guesstimate_pg_superuser():
 	_PM_DEMON_USER = 'postgres'
 	_PM_DEMON_UID = None
 
+#-----------------------------------------------------------------
+def become_postmaster_demon_user():
+	"""Become "postgres" user.
+
+	On UNIX type systems, attempt to use setuid() to
+	become the postgres user if possible.
+
+	This is so we can use the IDENT method to get to
+	the database (NB by default, at least on Debian and
+	postgres source installs, this is the only way,
+	as the postgres user has no password [-- and TRUST
+	is not allowed -KH])
+	"""
+	try:
+		import pwd
+	except ImportError:
+		_log.warning("running on broken OS -- can't import pwd module")
+		return None
+
+	try:
+		running_as = pwd.getpwuid(os.getuid())[0]
+		_log.info('running as user [%s]' % running_as)
+	except:
+		running_as = None
+	if os.getuid() == 0: # we are the super-user
+		_log.info('switching to UNIX user "%s" [%s]', _PM_DEMON_USER, _PM_DEMON_UID)
+		os.setuid(_PM_DEMON_UID)
+	elif running_as == _PM_DEMON_USER: # we are the postgres user already
+		_log.info('I already am the UNIX user "%s" [%s]', _PM_DEMON_USER, _PM_DEMON_UID)
+	else:
+		_log.warning('not running as root or postgres, cannot become postmaster demon user')
+		_log.warning('may have trouble connecting as gm-dbo if IDENT/PEER auth is forced upon us')
+		if _interactive:
+			print_msg("WARNING: This script may not work if not running as the system administrator.")
+
 #==================================================================
-def connect(host, port, db, user, passwd, conn_name=None):
+def connect(host:str=None, port:int=5432, db:str=None, user:str=None, conn_name:str=None):
 	"""
 	This is a wrapper to the database connect function.
 	Will try to recover gracefully from connection errors where possible
 	"""
-	global cached_host
-	if len(host) == 0 or host == 'localhost':
-		if cached_host:
-			host, port = cached_host
-		else:
-			host = ''
-	global cached_passwd
-	if passwd == 'blank' or passwd is None or len(passwd) == 0:
-		if user in cached_passwd:
-			passwd = cached_passwd[user]
-		else:
-			passwd = ''
-	_log.info("trying DB connection to %s on %s as %s", db, host or 'localhost', user)
-	if passwd == '':
-		_log.info('assuming passwordless login (IDENT/TRUST/PEER/.pgpass/PGPASSFILE/PGPASSWORD/...)')
+	_log.info("trying DB connection to <%s> on %s:%s as <%s>", db, host or 'localhost', port, user)
+	_log.info('assuming passwordless login (IDENT/TRUST/PEER/.pgpass/PGPASSFILE/PGPASSWORD/...)')
 	creds = gmConnectionPool.cPGCredentials()
 	creds.database = db
 	creds.host = host
 	creds.port = port
 	creds.user = user
-	creds.password = passwd
+	creds.password = ''
 	pool = gmConnectionPool.gmConnectionPool()
 	pool.credentials = creds
 	conn = pool.get_connection (
@@ -306,78 +273,37 @@ def connect(host, port, db, user, passwd, conn_name=None):
 		verbose = True,
 		connection_name = conn_name
 	)
-	cached_host = (host, port) # learn from past successes
-	cached_passwd[user] = passwd
 	conn_ref_count.append(conn)
 	_log.info('successfully connected')
 	return conn
 
 #==================================================================
 #==================================================================
-class cUser:
-	def __init__(self, anAlias = None, aPassword = None, force_interactive=False):
-		if anAlias is None:
-			raise ConstructorError("need user alias")
-		self.alias = anAlias
-		self.group = "user %s" % self.alias
+#==================================================================
+def get_gm_dbo_password() -> str:
+	_log.info('getting password for [%s] from user', _GM_DBO_ROLE)
+	print("I need the password for the database user [%s]." % _GM_DBO_ROLE)
+	password = getpass.getpass("Please type the password: ")
+	_log.info('got password')
+	pwd4check = None
+	while pwd4check != password:
+		_log.info('asking for password confirmation')
+		pwd2 = getpass.getpass("Please retype the password: ")
+		if pwd2 == password:
+			break
+		_log.error('password mismatch, asking again')
+		print('Password mismatch. Try again or CTRL-C to abort.')
+	return password
 
-		self.name = cfg_get(self.group, "name")
-		if self.name is None:
-			raise ConstructorError("cannot get user name")
-
-		self.password = aPassword
-		if self.password is not None:
-			return None
-
-		# password not passed in, try to get it from elsewhere
-		# look into config file
-		self.password = cfg_get(self.group, "password")
-		# undefined or commented out:
-		# this means the user does not need a password
-		# but connects via IDENT or TRUST
-		if self.password is None:
-			_log.info('password not defined, assuming connect via IDENT/TRUST')
-			return None
-
-		if self.password != '':
-			_log.info('password taken from config file')
-			return None
-
-		# defined but empty:
-		# this means to ask the user if interactive
-		if _interactive or force_interactive:
-			_log.info('password for [%s] defined as "", asking user', self.name)
-			print("I need the password for the database user [%s]." % self.name)
-			self.password = getpass.getpass("Please type the password: ")
-			_log.info('got password')
-			pwd4check = None
-			while pwd4check != self.password:
-				_log.info('asking for confirmation')
-				pwd2 = getpass.getpass("Please retype the password: ")
-				if pwd2 == self.password:
-					break
-				_log.error('password mismatch, asking again')
-				print('Password mismatch. Try again or CTRL-C to abort.')
-			return None
-
-		_log.warning('password for [%s] defined as "" (meaning <ask-user>), but running non-interactively, aborting', self.name)
-		_log.warning('cannot get password for database user [%s]', self.name)
-		raise ValueError('no password for user %s' % self.name)
-
+#==================================================================
 #==================================================================
 class cPostgresqlCluster:
 	def __init__(self, aSrv_alias):
-		_log.info("bootstrapping server [%s]" % aSrv_alias)
-
-		global _PG_CLUSTER
-		if _PG_CLUSTER:
-			_log.info("cluster already bootstrapped")
-			return _PG_CLUSTER
-
+		_log.info("bootstrapping cluster [%s]" % aSrv_alias)
 		self.alias = aSrv_alias
 		self.section = "server %s" % self.alias
 		self.conn = None
-
+		self.hostname = None
 		if not self.__bootstrap():
 			raise ConstructorError("cPostgresqlCluster.__init__(): Cannot bootstrap db server.")
 
@@ -408,8 +334,8 @@ class cPostgresqlCluster:
 			_log.error("Need to know the template database name.")
 			return None
 
-		self.name = cfg_get(self.section, "name")
-		if self.name is None:
+		self.hostname = cfg_get(self.section, "name")
+		if self.hostname is None:
 			_log.error("Need to know the server name.")
 			return None
 
@@ -428,7 +354,13 @@ class cPostgresqlCluster:
 			if self.conn.closed == 0:
 				self.conn.close()
 
-		self.conn = connect(self.name, self.port, self.template_db, _PG_SUPERUSER, '', conn_name = 'root@template.server')
+		self.conn = connect (
+			host = self.hostname,
+			port = self.port,
+			db = self.template_db,
+			user = _PG_SUPERUSER,
+			conn_name = 'root@template.server'
+		)
 		if self.conn is None:
 			_log.error('Cannot connect.')
 			return None
@@ -443,7 +375,7 @@ class cPostgresqlCluster:
 			lc_ctype = data[0][0]
 			_log.info('template database LC_CTYPE is [%s]', lc_ctype)
 		else:
-			# PG17+: lc_ctype/lc_collate are per-database attrs, not GUCs
+			# PG16+: lc_ctype/lc_collate are per-database attrs, not GUCs
 			curs.execute("SELECT datcollate, datctype FROM pg_database WHERE datname = current_database()")
 			row = curs.fetchone()
 			if not row:
@@ -518,15 +450,14 @@ class cPostgresqlCluster:
 	def __create_gm_dbo(self):
 		if not gmPG2.user_role_exists(user_role = _GM_DBO_ROLE, link_obj = self.conn):
 			print_msg ((
-"""The database owner [%s] will be created.
+"""The database owner [%s] must be created.
 
-You will have to provide a new password for it
-unless it is pre-defined in the configuration file.
+You will have to provide a new password for it.
 
-Make sure to remember the password for later use !
+MAKE SURE to remember the password for later use !
 """) % _GM_DBO_ROLE)
-			_gm_dbo = cUser(anAlias = 'GNUmed owner', force_interactive = True)
-			if not gmPG2.create_user_role(user_role = _GM_DBO_ROLE, password = _gm_dbo.password, link_obj = self.conn):
+			_gm_dbo_pwd = get_gm_dbo_password()
+			if not gmPG2.create_user_role(user_role = _GM_DBO_ROLE, password = _gm_dbo_pwd, link_obj = self.conn):
 				return False
 
 		SQL = (
@@ -593,13 +524,15 @@ class cDatabase:
 			_log.error("Server alias missing.")
 			raise ConstructorError("database.__init__(): Cannot bootstrap database.")
 
+		# make sure server is bootstrapped
+		global _PG_CLUSTER
+		if not _PG_CLUSTER:
+			_PG_CLUSTER = cPostgresqlCluster(self.server_alias)
+
 		self.template_db = cfg_get(self.section, "template database")
 		if self.template_db is None:
 			_log.error("Template database name missing.")
 			raise ConstructorError("database.__init__(): Cannot bootstrap database.")
-
-		# make sure server is bootstrapped
-		self.cluster = cPostgresqlCluster(self.server_alias)
 
 		if not self.__bootstrap():
 			raise ConstructorError("database.__init__(): Cannot bootstrap database.")
@@ -701,11 +634,10 @@ class cDatabase:
 				self.conn.close()
 
 		self.conn = connect (
-			self.cluster.name,
-			self.cluster.port,
-			self.template_db,
-			_PG_SUPERUSER,
-			'',
+			host = _PG_CLUSTER.hostname,
+			port = _PG_CLUSTER.port,
+			db = self.template_db,
+			user = _PG_SUPERUSER,
 			conn_name = 'postgres@template.db'
 		)
 
@@ -724,11 +656,10 @@ class cDatabase:
 				self.conn.close()
 
 		self.conn = connect (
-			self.cluster.name,
-			self.cluster.port,
-			self.name,
-			_PG_SUPERUSER,
-			'',
+			host = _PG_CLUSTER.hostname,
+			port = _PG_CLUSTER.port,
+			db = self.name,
+			user = _PG_SUPERUSER,
 			conn_name = 'postgres@gnumed_vX'
 		)
 
@@ -945,20 +876,18 @@ class cDatabase:
 			return False
 
 		template_conn = connect (
-			self.cluster.name,
-			self.cluster.port,
-			self.template_db,
-			_PG_SUPERUSER,
-			''
+			host = _PG_CLUSTER.hostname,
+			port = _PG_CLUSTER.port,
+			db = self.template_db,
+			user = _PG_SUPERUSER,
 		)
 		template_conn.cookie = 'check_data_plausibility: template'
 
 		target_conn = connect (
-			self.cluster.name,
-			self.cluster.port,
-			self.name,
-			_PG_SUPERUSER,
-			''
+			host = _PG_CLUSTER.hostname,
+			port = _PG_CLUSTER.port,
+			db = self.name,
+			user = _PG_SUPERUSER,
 		)
 		target_conn.cookie = 'check_data_plausibility: target'
 
@@ -1032,11 +961,10 @@ class cDatabase:
 		holy_pattern_inactive = '#\s*local.*samerole.*\+gm-logins'
 
 		conn = connect (
-			self.cluster.name,
-			self.cluster.port,
-			self.name,
-			_PG_SUPERUSER,
-			''
+			host = _PG_CLUSTER.hostname,
+			port = _PG_CLUSTER.port,
+			db = self.name,
+			user = _PG_SUPERUSER,
 		)
 		conn.cookie = 'holy auth check connection'
 
@@ -1684,7 +1612,6 @@ def exit_with_msg(aMsg = None):
 	print('')
 	print(' ', gmLog2._logfile_name)
 	print('')
-
 	_log.error(aMsg)
 	_log.info('shutdown')
 	sys.exit(1)
@@ -1694,44 +1621,6 @@ def print_msg(msg=None):
 	if quiet:
 		return
 	print(msg)
-
-#-----------------------------------------------------------------
-def become_postmaster_demon_user():
-	"""Become "postgres" user.
-
-	On UNIX type systems, attempt to use setuid() to
-	become the postgres user if possible.
-
-	This is so we can use the IDENT method to get to
-	the database (NB by default, at least on Debian and
-	postgres source installs, this is the only way,
-	as the postgres user has no password [-- and TRUST
-	is not allowed -KH])
-	"""
-	try:
-		import pwd
-	except ImportError:
-		_log.warning("running on broken OS -- can't import pwd module")
-		return None
-
-	try:
-		running_as = pwd.getpwuid(os.getuid())[0]
-		_log.info('running as user [%s]' % running_as)
-	except:
-		running_as = None
-
-	if os.getuid() == 0: # we are the super-user
-		_log.info('switching to UNIX user "%s" [%s]', _PM_DEMON_USER, _PM_DEMON_UID)
-		os.setuid(_PM_DEMON_UID)
-
-	elif running_as == _PM_DEMON_USER: # we are the postgres user already
-		_log.info('I already am the UNIX user "%s" [%s]', _PM_DEMON_USER, _PM_DEMON_UID)
-
-	else:
-		_log.warning('not running as root or postgres, cannot become postmaster demon user')
-		_log.warning('may have trouble connecting as gm-dbo if IDENT/PEER auth is forced upon us')
-		if _interactive:
-			print_msg("WARNING: This script may not work if not running as the system administrator.")
 
 #==============================================================================
 def cfg_get(group=None, option=None):
@@ -1746,9 +1635,6 @@ def handle_cfg():
 	"""Bootstrap the source 'file' in _cfg."""
 
 	_log.info('config file: %s', _cfg.source_files['file'])
-
-	guesstimate_pg_superuser()
-	become_postmaster_demon_user()
 
 	global _interactive
 	if _interactive is None:
@@ -1799,6 +1685,7 @@ def handle_cfg():
 	return True
 
 #==================================================================
+#==================================================================
 def main():
 
 	_cfg.add_cli(long_options = ['conf-file=', 'log-file=', 'quiet'])
@@ -1817,22 +1704,17 @@ def main():
 		exit_with_msg('Cannot bootstrap without config file. Use --conf-file=<FILE>.')
 
 	_log.info('primary config file: %s', cfg_file)
-
-	# read that conf file
-	_cfg.add_file_source (
-		source = 'file',
-		filename = cfg_file
-	)
-
+	_cfg.add_file_source(source = 'file', filename = cfg_file)
 	# does it point to other conf files ?
 	cfg_files = _cfg.get (
 		group = 'installation',
 		option = 'config files',
 		source_order = [('file', 'return')]
 	)
-
 	if cfg_files is None:
 		_log.info('single-shot config file')
+		guesstimate_pg_superuser()
+		become_postmaster_demon_user()
 		handle_cfg()
 	else:
 		_log.info('aggregation of config files')
@@ -1842,19 +1724,14 @@ def main():
 			_interactive = False
 		else:
 			_interactive = True
+		guesstimate_pg_superuser()
+		become_postmaster_demon_user()
 		for cfg_file in cfg_files:
-			# read that conf file
-			_cfg.add_file_source (
-				source = 'file',
-				filename = cfg_file
-			)
+			_cfg.add_file_source(source = 'file', filename = cfg_file)
 			handle_cfg()
 
 	global _bootstrapped_dbs
-
 	db = next(iter(_bootstrapped_dbs.values()))
-	#db = _bootstrapped_dbs[_bootstrapped_dbs.keys()[0]]
-
 	if not db.verify_result_hash():
 		exit_with_msg("Bootstrapping failed: wrong result hash")
 
@@ -1862,7 +1739,6 @@ def main():
 		exit_with_msg("Bootstrapping failed: plausibility checks inconsistent")
 
 	db.check_holy_auth_line()
-
 	_log.info("shutdown")
 	print("Done bootstrapping GNUmed database: We very likely succeeded.")
 	print('log:', gmLog2._logfile_name)
