@@ -93,10 +93,6 @@ override name by = GM_CORE_DB
 # fast and/or RAIDed disk or an encrypted volume etc.
 tablespace = tablespace_gnumed
 
-# which [section] holds specifics about the server
-# hosting this database -> [server ...]
-server alias = local host
-
 # do we check for procedural language library
 # existence in the filesystem ?
 # set this to "no" if you want to bootstrap remote
@@ -130,7 +126,7 @@ $schema$
 
 
 #----------------------------------
-[server local host]
+[server localhost]
 
 # can be a host name or an IP address,
 # if left empty local UNIX domain sockets are used
@@ -143,10 +139,6 @@ port = 5432
 # the name of the template database on
 # the server
 template database = template1
-
-# which [section] lists particulars about the
-# database server super user -> [user ...]
-super user alias = postgres
 
 # you can put some schema files here,
 # they will be imported into the template database
@@ -209,38 +201,6 @@ $libdir/
 /usr/lib/pgsql/
 /usr/local/pgsql/lib
 $language library dirs$
-
-#----------------------------------
-# if the password is not given for any account the script
-# will ask the user to provide it given "interactive" is
-# true, otherwise it will fail
-#
-# - this account will own the GNUmed databases and all
-#   the objects in them
-# - it is not intended to be used as an everyday account
-# - it's also the one used to set up other GNUmed accounts
-[user GnuMed owner]
-name = gm-dbo
-
-# - if this option is commented out or missing it is
-#   assumed that no password is needed because IDENT
-#   or TRUST connects are attempted
-#
-# - if it is not commented out but set to be empty and
-#   interactive is "yes" the user will be asked for the
-#   password, if we are non-interactive we leave it empty
-#
-password = 
-
-# - this user will hardly ever need to be changed
-# - this group provides the details for the PostgreSQL
-#   super user (the database root, if you will) which was
-#   created when the database server was set up
-# - on most standard Linux systems this is user "postgres"
-#   and does not need a password on localhost
-# - don't change unless you know what you are doing
-[user postgres]
-name = postgres
 
 #----------------------------------
 # don't ask, this is deep magic ;-)
