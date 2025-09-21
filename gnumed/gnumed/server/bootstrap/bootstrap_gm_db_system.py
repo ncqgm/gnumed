@@ -299,15 +299,14 @@ def get_gm_dbo_password() -> str:
 #==================================================================
 class cPostgresqlCluster:
 	def __init__(self):
-		alias = 'localhost'
-		_log.info("bootstrapping cluster [%s]", alias)
-		self.section = "server %s" % alias
+		_log.info('bootstrapping cluster')
+		self.section = 'cluster'
 		self.conn = None
 		self.hostname = None
 		if not self.__bootstrap():
 			raise ConstructorError("cPostgresqlCluster.__init__(): Cannot bootstrap db server.")
 
-		_log.info('done bootstrapping server [%s]', alias)
+		_log.info('done bootstrapping cluster')
 
 	#--------------------------------------------------------------
 	def __bootstrap(self):
@@ -334,7 +333,7 @@ class cPostgresqlCluster:
 			_log.error("Need to know the template database name.")
 			return None
 
-		self.hostname = cfg_get(self.section, "name")
+		self.hostname = cfg_get(self.section, 'host name')
 		if self.hostname is None:
 			_log.error("Need to know the server name.")
 			return None

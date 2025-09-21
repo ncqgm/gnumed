@@ -126,7 +126,7 @@ $schema$
 
 
 #----------------------------------
-[server localhost]
+[cluster]
 
 # can be a host name or an IP address,
 # if left empty local UNIX domain sockets are used

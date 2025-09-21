@@ -2361,6 +2361,7 @@ NEW: support for gender symbols stored in DB
 
 IMPROVED: bootstrap script permissions warning
 IMRPOVED: clin.v_narrative4search: add some demographics (port from 1.8.6)
+IMPROVED: bootstrapper: code cleanup
 
 FIX: PG14 does not support IS OF anymore, use pg_typeof()
 FIX: revoke CREATE from PUBLIC on schema PUBLIC (thanks PG)
