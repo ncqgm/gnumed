@@ -301,7 +301,7 @@ class cPostgresqlCluster:
 	def __init__(self):
 		_log.info('bootstrapping cluster')
 		self.section = 'cluster'
-		self.conn = None
+		self.conn_pg_su_at_service_db = None
 		self.hostname = None
 		if not self.__bootstrap():
 			raise ConstructorError("cPostgresqlCluster.__init__(): Cannot bootstrap db server.")
@@ -311,7 +311,7 @@ class cPostgresqlCluster:
 	#--------------------------------------------------------------
 	def __bootstrap(self):
 		# connect to server level template database
-		if not self.__connect_superuser_to_srv_template():
+		if not self.__connect_superuser_to_service_db():
 			_log.error("Cannot connect to server template database.")
 			return None
 
@@ -320,15 +320,15 @@ class cPostgresqlCluster:
 			_log.error("Cannot bootstrap database users.")
 			return None
 
-		self.conn.close()
+		self.conn_pg_su_at_service_db.close()
 		return True
 
 	#--------------------------------------------------------------
-	def __connect_superuser_to_srv_template(self):
+	def __connect_superuser_to_service_db(self):
 		_log.info("connecting to server template database")
 
 		# sanity checks
-		self.template_db = cfg_get(self.section, "template database")
+		self.template_db = cfg_get(self.section, 'service database')
 		if self.template_db is None:
 			_log.error("Need to know the template database name.")
 			return None
@@ -349,25 +349,24 @@ class cPostgresqlCluster:
 			_log.error("Need to know the database server port address.")
 			return None
 
-		if self.conn is not None:
-			if self.conn.closed == 0:
-				self.conn.close()
-
-		self.conn = connect (
+		if self.conn_pg_su_at_service_db is not None:
+			if self.conn_pg_su_at_service_db.closed == 0:
+				self.conn_pg_su_at_service_db.close()
+		self.conn_pg_su_at_service_db = connect (
 			host = self.hostname,
 			port = self.port,
 			db = self.template_db,
 			user = _PG_SUPERUSER,
 			conn_name = 'root@template.server'
 		)
-		if self.conn is None:
+		if self.conn_pg_su_at_service_db is None:
 			_log.error('Cannot connect.')
 			return None
 
-		self.conn.cookie = 'cPostgresqlCluster.__connect_superuser_to_srv_template'
+		self.conn_pg_su_at_service_db.cookie = 'cPostgresqlCluster.__connect_superuser_to_service_db'
 
 		# verify encoding
-		curs = self.conn.cursor()
+		curs = self.conn_pg_su_at_service_db.cursor()
 		curs.execute("select setting from pg_settings where name = 'lc_ctype'")
 		data = curs.fetchall()
 		if data:
@@ -435,19 +434,19 @@ class cPostgresqlCluster:
 			_log.error("Cannot load GNUmed group names from config file (section [%s])." % section)
 			return True
 
-		cursor = self.conn.cursor()
+		cursor = self.conn_pg_su_at_service_db.cursor()
 		for group in groups:
 			if not gmPG2.create_group_role(group_role = group, link_obj = cursor):
 				cursor.close()
 				return False
 
-		self.conn.commit()
+		self.conn_pg_su_at_service_db.commit()
 		cursor.close()
 		return True
 
 	#--------------------------------------------------------------
 	def __create_gm_dbo(self):
-		if not gmPG2.user_role_exists(user_role = _GM_DBO_ROLE, link_obj = self.conn):
+		if not gmPG2.user_role_exists(user_role = _GM_DBO_ROLE, link_obj = self.conn_pg_su_at_service_db):
 			print_msg ((
 """The database owner [%s] must be created.
 
@@ -456,7 +455,7 @@ You will have to provide a new password for it.
 MAKE SURE to remember the password for later use !
 """) % _GM_DBO_ROLE)
 			_gm_dbo_pwd = get_gm_dbo_password()
-			if not gmPG2.create_user_role(user_role = _GM_DBO_ROLE, password = _gm_dbo_pwd, link_obj = self.conn):
+			if not gmPG2.create_user_role(user_role = _GM_DBO_ROLE, password = _gm_dbo_pwd, link_obj = self.conn_pg_su_at_service_db):
 				return False
 
 		SQL = (
@@ -468,7 +467,7 @@ MAKE SURE to remember the password for later use !
 			_GM_LOGINS_GROUP, _GM_DBO_ROLE,
 			_GM_DBO_ROLE
 		)
-		cursor = self.conn.cursor()
+		cursor = self.conn_pg_su_at_service_db.cursor()
 		try:
 			cursor.execute(SQL)
 		except:
@@ -478,7 +477,7 @@ MAKE SURE to remember the password for later use !
 			return False
 
 		cursor.close()
-		self.conn.commit()
+		self.conn_pg_su_at_service_db.commit()
 		return True
 
 #==================================================================
@@ -534,7 +533,7 @@ class cDatabase:
 	def __bootstrap(self):
 
 		# connect as superuser to template
-		if not self.__connect_superuser_to_template_db():
+		if not self.__connect_superuser_to_old_gnumed_deb():
 			_log.error("Cannot connect to template database.")
 			return False
 
@@ -617,7 +616,7 @@ class cDatabase:
 		return True
 
 	#--------------------------------------------------------------
-	def __connect_superuser_to_template_db(self):
+	def __connect_superuser_to_old_gnumed_deb(self):
 		if self.conn is not None:
 			if self.conn.closed == 0:
 				self.conn.close()
@@ -627,10 +626,10 @@ class cDatabase:
 			port = _PG_CLUSTER.port,
 			db = self.template_db,
 			user = _PG_SUPERUSER,
-			conn_name = 'postgres@template.db'
+			conn_name = 'postgres@old_gnumed_db'
 		)
 
-		self.conn.cookie = 'database.__connect_superuser_to_template_db'
+		self.conn.cookie = 'database.__connect_superuser_to_old_gnumed_deb'
 
 		curs = self.conn.cursor()
 		curs.execute("set lc_messages to 'C'")
