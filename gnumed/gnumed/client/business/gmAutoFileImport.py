@@ -154,7 +154,7 @@ class cAutoImportDir:
 		return
 
 	#--------------------------------------------------------
-	# internal halpers
+	# internal helpers
 	#--------------------------------------------------------
 	def __import_files_from_dir(self, import_dir:str) -> bool:
 		if not os.path.isdir(import_dir):
