@@ -173,6 +173,14 @@ DROP INDEX IF EXISTS %(idx_schema)s.%(idx_name)s CASCADE;
 CREATE INDEX %(idx_name)s ON %(idx_schema)s.%(idx_table)s(%(idx_col)s);
 """
 
+__MSG_create_gm_dbo = """The database owner [%s] must be created.
+
+You will have to provide a new password for it.
+
+MAKE SURE to remember the password for later use !
+""") % _GM_DBO_ROLE)
+
+
 #==================================================================
 def guesstimate_pg_superuser():
 	"""Try to find the PG superuser.
@@ -447,13 +455,7 @@ class cPostgresqlCluster:
 	#--------------------------------------------------------------
 	def __create_gm_dbo(self):
 		if not gmPG2.user_role_exists(user_role = _GM_DBO_ROLE, link_obj = self.conn_pg_su_at_service_db):
-			print_msg ((
-"""The database owner [%s] must be created.
-
-You will have to provide a new password for it.
-
-MAKE SURE to remember the password for later use !
-""") % _GM_DBO_ROLE)
+			print_msg(__MSG_create_gm_dbo)
 			_gm_dbo_pwd = get_gm_dbo_password()
 			if not gmPG2.create_user_role(user_role = _GM_DBO_ROLE, password = _gm_dbo_pwd, link_obj = self.conn_pg_su_at_service_db):
 				return False
@@ -533,7 +535,7 @@ class cDatabase:
 	def __bootstrap(self):
 
 		# connect as superuser to template
-		if not self.__connect_superuser_to_old_gnumed_deb():
+		if not self.__connect_pg_superuser_to_old_gnumed_deb():
 			_log.error("Cannot connect to template database.")
 			return False
 
@@ -553,7 +555,7 @@ class cDatabase:
 			_log.error("Cannot create database.")
 			return False
 
-		if not self.__connect_superuser_to_gnumed_db():
+		if not self.__connect_pg_superuser_to_new_gnumed_db():
 			_log.error("Cannot connect to database.")
 			return None
 
@@ -616,7 +618,7 @@ class cDatabase:
 		return True
 
 	#--------------------------------------------------------------
-	def __connect_superuser_to_old_gnumed_deb(self):
+	def __connect_pg_superuser_to_old_gnumed_deb(self):
 		if self.conn is not None:
 			if self.conn.closed == 0:
 				self.conn.close()
@@ -628,17 +630,14 @@ class cDatabase:
 			user = _PG_SUPERUSER,
 			conn_name = 'postgres@old_gnumed_db'
 		)
-
-		self.conn.cookie = 'database.__connect_superuser_to_old_gnumed_deb'
-
+		self.conn.cookie = 'database.__connect_pg_superuser_to_old_gnumed_deb'
 		curs = self.conn.cursor()
 		curs.execute("set lc_messages to 'C'")
 		curs.close()
-
 		return self.conn and 1
 
 	#--------------------------------------------------------------
-	def __connect_superuser_to_gnumed_db(self):
+	def __connect_pg_superuser_to_new_gnumed_db(self):
 		if self.conn is not None:
 			if self.conn.closed == 0:
 				self.conn.close()
@@ -651,7 +650,7 @@ class cDatabase:
 			conn_name = 'postgres@gnumed_vX'
 		)
 
-		self.conn.cookie = 'database.__connect_superuser_to_gnumed_db'
+		self.conn.cookie = 'database.__connect_pg_superuser_to_new_gnumed_db'
 
 		curs = self.conn.cursor()
 		curs.execute('set default_transaction_read_only to off')
@@ -712,11 +711,11 @@ class cDatabase:
 		_log.debug('__connect_owner_to_gnumed_db')
 
 		# reconnect as superuser to db
-		if not self.__connect_superuser_to_gnumed_db():
+		if not self.__connect_pg_superuser_to_new_gnumed_db():
 			_log.error("Cannot connect to database.")
 			return False
 
-		self.conn.cookie = 'database.__connect_owner_to_gnumed_db via database.__connect_superuser_to_gnumed_db'
+		self.conn.cookie = 'database.__connect_owner_to_gnumed_db via database.__connect_pg_superuser_to_new_gnumed_db'
 
 		_log.debug('setting session authorization to user [%s]', _GM_DBO_ROLE)
 
@@ -1395,14 +1394,15 @@ class gmBundle:
 		if database_alias is None:
 			_log.error("Need to know database name to install bundle [%s]." % self.alias)
 			return None
+
 		# bootstrap database
 		try:
 			cDatabase(aDB_alias = database_alias)
 		except:
 			_log.exception("Cannot bootstrap bundle [%s].", self.alias)
 			return None
-		self.db = _bootstrapped_dbs[database_alias]
 
+		self.db = _bootstrapped_dbs[database_alias]
 		# check PostgreSQL version
 		if not self.__verify_pg_version():
 			_log.error("Wrong PostgreSQL version.")
