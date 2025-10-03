@@ -980,6 +980,18 @@ where
 	return rows
 
 #------------------------------------------------------------------------
+def database_exists(link_obj:_TLnkObj=None, database:str=None) -> bool:
+	SQL = "SELECT 1 FROM pg_database WHERE datname = '%s'" % database
+	args = {'db': database}
+	rows = run_ro_query(link_obj = link_obj, sql = SQL, args = args)
+	if rows:
+		_log.info('database [%s] exists', database)
+		return True
+
+	_log.info('database [%s] does not exist', database)
+	return False
+
+#------------------------------------------------------------------------
 def schema_exists(link_obj:_TLnkObj=None, schema='gm') -> bool:
 	cmd = "SELECT EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = %(schema)s)"
 	args = {'schema': schema}
