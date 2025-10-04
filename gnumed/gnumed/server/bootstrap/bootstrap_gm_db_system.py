@@ -17,8 +17,9 @@ Assumptions:
 - database object owner: "gm-dbo"
 - database name: gnumed_vXX where XX is the current major version
 - user running the bootstrapper must be able to become (SUID) the postmaster demon account user
-- postmaster demon account user must be able to connect to the template database without
-  providing a password (.pgpass / PGPASSFILE / IDENT / TRUST / PEER)
+- postmaster demon account user must be able to connect to the cluster service database
+  (usually template1 or template0) without providing a password (IOW .pgpass / PGPASSFILE /
+  IDENT / TRUST / PEER)
 
 There's a special user called "gm-dbo" who owns all the
 database objects.
@@ -318,9 +319,9 @@ class cPostgresqlCluster:
 
 	#--------------------------------------------------------------
 	def __bootstrap(self):
-		# connect to server level template database
+		# connect to server level service database (typically template1 or template0)
 		if not self.__connect_superuser_to_service_db():
-			_log.error("Cannot connect to server template database.")
+			_log.error("Cannot connect to cluster service database.")
 			return None
 
 		# add users/groups
@@ -333,12 +334,12 @@ class cPostgresqlCluster:
 
 	#--------------------------------------------------------------
 	def __connect_superuser_to_service_db(self):
-		_log.info("connecting to server template database")
+		_log.info("connecting to cluster service database")
 
 		# sanity checks
 		self.service_db = cfg_get(self.section, 'service database')
 		if self.service_db is None:
-			_log.error("Need to know the template database name.")
+			_log.error("Need to know the service database name.")
 			return None
 
 		self.hostname = cfg_get(self.section, 'host name')
@@ -379,18 +380,18 @@ class cPostgresqlCluster:
 		data = curs.fetchall()
 		if data:
 			lc_ctype = data[0][0]
-			_log.info('template database LC_CTYPE is [%s]', lc_ctype)
+			_log.info('service database LC_CTYPE is [%s]', lc_ctype)
 		else:
 			# PG16+: lc_ctype/lc_collate are per-database attrs, not GUCs
 			curs.execute("SELECT datcollate, datctype FROM pg_database WHERE datname = current_database()")
 			row = curs.fetchone()
 			if not row:
-				_log.error('Could not read datcollate/datctype for template DB')
+				_log.error('Could not read datcollate/datctype for service DB')
 				return None
 
 			lc_collate, lc_ctype = row
-			_log.info('template database LC_COLLATE is [%s]', lc_collate)
-			_log.info('template database LC_CTYPE   is [%s]', lc_ctype)
+			_log.info('service database LC_COLLATE is [%s]', lc_collate)
+			_log.info('service database LC_CTYPE   is [%s]', lc_ctype)
 
 		lc_ctype = lc_ctype.lower()
 		if lc_ctype in ['c', 'posix']:
@@ -416,7 +417,7 @@ class cPostgresqlCluster:
 		curs.execute("set lc_messages to 'C'")
 		curs.close()
 
-		_log.info("successfully connected to template database [%s]" % self.service_db)
+		_log.info("successfully connected to service database [%s]" % self.service_db)
 		return True
 
 	#--------------------------------------------------------------
@@ -488,20 +489,20 @@ class cDatabase:
 	def __init__(self, aDB_alias):
 		_log.info("bootstrapping database [%s]" % aDB_alias)
 		self.section = "database %s" % aDB_alias
-		self.new_gm_db_name = cfg_get(self.section, 'name')
-		if self.new_gm_db_name is None or str(self.new_gm_db_name).strip() == '':
+		self.target_db_name = cfg_get(self.section, 'name')
+		if self.target_db_name is None or str(self.target_db_name).strip() == '':
 			_log.error("Need to know database name.")
 			raise ConstructorError("database.__init__(): Cannot bootstrap database.")
 
 		# already bootstrapped ?
 		global _bootstrapped_dbs
 		if aDB_alias in _bootstrapped_dbs:
-			if _bootstrapped_dbs[aDB_alias].new_gm_db_name == self.new_gm_db_name:
-				_log.info("database [%s] already bootstrapped", self.new_gm_db_name)
+			if _bootstrapped_dbs[aDB_alias].target_db_name == self.target_db_name:
+				_log.info("database [%s] already bootstrapped", self.target_db_name)
 				return None
 
 		# no, so bootstrap from scratch
-		_log.info('bootstrapping database [%s] alias "%s"', self.new_gm_db_name, aDB_alias)
+		_log.info('bootstrapping database [%s] alias "%s"', self.target_db_name, aDB_alias)
 
 		for db in _bootstrapped_dbs.values():
 			if db.conn.closed == 0:
@@ -509,9 +510,9 @@ class cDatabase:
 		_bootstrapped_dbs = {}
 		self.conn = None
 
-		self.old_gm_db_name = cfg_get(self.section, "template database")
-		if self.old_gm_db_name is None:
-			_log.error("Template database name missing.")
+		self.source_db_name = cfg_get(self.section, 'source database')
+		if self.source_db_name is None:
+			_log.error("Source database name missing.")
 			raise ConstructorError("database.__init__(): Cannot bootstrap database.")
 
 		if not self.__bootstrap():
@@ -524,34 +525,34 @@ class cDatabase:
 	#--------------------------------------------------------------
 	def __bootstrap(self):
 
-		# connect as superuser to template
-		if not self.__connect_pg_superuser_to_old_gm_db():
-			_log.error("Cannot connect to template database.")
+		# connect as superuser to source DB
+		if not self.__connect_pg_superuser_to_source_db():
+			_log.error("Cannot connect to source database.")
 			return False
 
-		# fingerprint template/previous/old GNUmed db
+		# fingerprint source db (previous GNUmed version)
 		try:
 			gmLog2.log_multiline (
 				logging.INFO,
-				message = 'template database fingerprint',
+				message = 'source database fingerprint',
 				text = gmPG2.get_db_fingerprint(conn = self.conn, eol = '\n')
 			)
 		except Exception:
-			_log.exception('cannot fingerprint template database')
+			_log.exception('cannot fingerprint source database')
 
 		self.conn.rollback()
 
-		if not self.__create_new_gm_db():
+		if not self.__create_target_db():
 			_log.error("Cannot create database.")
 			return False
 
-		if not self.__connect_pg_superuser_to_new_gm_db():
+		if not self.__connect_pg_superuser_to_target_db():
 			_log.error("Cannot connect to database.")
 			return None
 
-		_log.info('creating database-specific authentication group role "%s"', self.new_gm_db_name)
+		_log.info('creating database-specific authentication group role "%s"', self.target_db_name)
 		created_group = gmPG2.create_group_role (
-			group_role = self.new_gm_db_name,
+			group_role = self.target_db_name,
 			admin_role = _GM_DBO_ROLE,
 			link_obj = self.conn
 		)
@@ -583,7 +584,7 @@ class cDatabase:
 		tmp = cfg_get(self.section, 'superuser schema')
 		if tmp is not None:
 			if not _import_schema(group=self.section, schema_opt='superuser schema', conn=self.conn):
-				_log.error("cannot import schema definition for database [%s]" % (self.new_gm_db_name))
+				_log.error("cannot import schema definition for database [%s]" % (self.target_db_name))
 				return False
 		del tmp
 
@@ -598,7 +599,7 @@ class cDatabase:
 			return None
 
 		if not _import_schema(group=self.section, schema_opt='schema', conn=self.conn):
-			_log.error("cannot import schema definition for database [%s]" % (self.new_gm_db_name))
+			_log.error("cannot import schema definition for database [%s]" % (self.target_db_name))
 			return None
 
 		# don't close this here, the  connection will
@@ -608,7 +609,7 @@ class cDatabase:
 		return True
 
 	#--------------------------------------------------------------
-	def __connect_pg_superuser_to_old_gm_db(self):
+	def __connect_pg_superuser_to_source_db(self):
 		if self.conn is not None:
 			if self.conn.closed == 0:
 				self.conn.close()
@@ -616,18 +617,18 @@ class cDatabase:
 		self.conn = connect (
 			host = _PG_CLUSTER.hostname,
 			port = _PG_CLUSTER.port,
-			db = self.old_gm_db_name,
+			db = self.source_db_name,
 			user = _PG_SUPERUSER,
 			conn_name = 'postgres@old_gnumed_db'
 		)
-		self.conn.cookie = 'database.__connect_pg_superuser_to_old_gm_db'
+		self.conn.cookie = 'database.__connect_pg_superuser_to_source_db'
 		curs = self.conn.cursor()
 		curs.execute("set lc_messages to 'C'")
 		curs.close()
 		return self.conn and 1
 
 	#--------------------------------------------------------------
-	def __connect_pg_superuser_to_new_gm_db(self):
+	def __connect_pg_superuser_to_target_db(self):
 		if self.conn is not None:
 			if self.conn.closed == 0:
 				self.conn.close()
@@ -635,24 +636,24 @@ class cDatabase:
 		self.conn = connect (
 			host = _PG_CLUSTER.hostname,
 			port = _PG_CLUSTER.port,
-			db = self.new_gm_db_name,
+			db = self.target_db_name,
 			user = _PG_SUPERUSER,
 			conn_name = 'postgres@gnumed_vX'
 		)
 
-		self.conn.cookie = 'database.__connect_pg_superuser_to_new_gm_db'
+		self.conn.cookie = 'database.__connect_pg_superuser_to_target_db'
 
 		curs = self.conn.cursor()
 		curs.execute('set default_transaction_read_only to off')
 		# we need English messages to detect errors
 		curs.execute("set lc_messages to 'C'")
-		curs.execute("alter database %s set lc_messages to 'C'" % self.new_gm_db_name)
+		curs.execute("alter database %s set lc_messages to 'C'" % self.target_db_name)
 		# we want READ ONLY default transactions for maximum patient data safety
-		curs.execute("alter database %s set default_transaction_read_only to on" % self.new_gm_db_name)
+		curs.execute("alter database %s set default_transaction_read_only to on" % self.target_db_name)
 		# we want checking of function bodies
-		curs.execute("alter database %s set check_function_bodies to on" % self.new_gm_db_name)
+		curs.execute("alter database %s set check_function_bodies to on" % self.target_db_name)
 		# we want checking of data checksums if available
-		curs.execute("alter database %s set ignore_checksum_failure to off" % self.new_gm_db_name)
+		curs.execute("alter database %s set ignore_checksum_failure to off" % self.target_db_name)
 		# tighten permissions on schema public
 		curs.execute("revoke create on schema public from public")
 		curs.close()
@@ -663,7 +664,7 @@ class cDatabase:
 		# so remove database specific setting
 		curs = self.conn.cursor()
 		try:
-			curs.execute("alter database %s set sql_inheritance to DEFAULT" % self.new_gm_db_name)
+			curs.execute("alter database %s set sql_inheritance to DEFAULT" % self.target_db_name)
 		except:
 			_log.exception('PostgreSQL 10 onwards: <sql_inheritance> hardwired')
 		curs.close()
@@ -673,7 +674,7 @@ class cDatabase:
 		# remove exception handler when 9.5 is default
 		curs = self.conn.cursor()
 		try:
-			curs.execute("alter database %s set track_commit_timestamp to on" % self.new_gm_db_name)
+			curs.execute("alter database %s set track_commit_timestamp to on" % self.target_db_name)
 		except:
 			_log.exception('PostgreSQL version < 9.5 does not support <track_commit_timestamp> OR <track_commit_timestamp> cannot be set at runtime')
 		curs.close()
@@ -701,11 +702,11 @@ class cDatabase:
 
 		_log.debug('__connect_owner_to_gm_db')
 		# reconnect as superuser to db
-		if not self.__connect_pg_superuser_to_new_gm_db():
+		if not self.__connect_pg_superuser_to_target_db():
 			_log.error("Cannot connect to database.")
 			return False
 
-		self.conn.cookie = 'database.__connect_owner_to_gm_db via database.__connect_pg_superuser_to_new_gm_db'
+		self.conn.cookie = 'database.__connect_owner_to_gm_db via database.__connect_pg_superuser_to_target_db'
 		_log.debug('setting session authorization to user [%s]', _GM_DBO_ROLE)
 		curs = self.conn.cursor()
 		SQL = "SET SESSION AUTHORIZATION %(usr)s"
@@ -714,29 +715,29 @@ class cDatabase:
 		return self.conn and 1
 
 	#--------------------------------------------------------------
-	def __create_new_gm_db(self):
+	def __create_target_db(self):
 		_log.info('creating database')
-		# verify template database hash
-		template_version = cfg_get(self.section, 'template version')
-		if template_version is None:
-			_log.warning('cannot check template database identity hash, no version specified')
+		# verify source database hash
+		source_db_version = cfg_get(self.section, 'source version')
+		if source_db_version is None:
+			_log.warning('cannot check source database identity hash, no version specified')
 		else:
-			converted, version = gmTools.input2int(template_version.lstrip('v'), 0)
+			converted, version = gmTools.input2int(source_db_version.lstrip('v'), 0)
 			if not converted:
-				_log.error('invalid template database definition: %s', template_version)
+				_log.error('invalid source database definition: %s', source_db_version)
 				return False
 
 			if not gmPG2.database_schema_compatible(link_obj = self.conn, version = version):
-				_log.error('invalid [%s] schema structure in GNUmed template database [%s]', template_version, self.old_gm_db_name)
+				_log.error('invalid [%s] schema structure in GNUmed source database [%s]', source_db_version, self.source_db_name)
 				return False
 
 		# check for target database
-		if gmPG2.database_exists(link_obj = self.conn, database = self.new_gm_db_name):
+		if gmPG2.database_exists(link_obj = self.conn, database = self.target_db_name):
 			drop_existing = bool(int(cfg_get(self.section, 'drop target database')))
 			if drop_existing:
-				print_msg("==> dropping pre-existing target database [%s] ..." % self.new_gm_db_name)
+				print_msg("==> dropping pre-existing target database [%s] ..." % self.target_db_name)
 				_log.info('trying to drop target database')
-				SQL = 'DROP DATABASE "%s"' % self.new_gm_db_name
+				SQL = 'DROP DATABASE "%s"' % self.target_db_name
 				# DROP DATABASE must be run outside transactions
 				self.conn.commit()
 				self.conn.set_session(readonly = False, autocommit = True)
@@ -756,12 +757,12 @@ class cDatabase:
 				use_existing = bool(int(cfg_get(self.section, 'use existing target database')))
 				if use_existing:
 					# FIXME: verify that database is owned by "gm-dbo"
-					print_msg("==> using pre-existing target database [%s] ..." % self.new_gm_db_name)
-					_log.info('using existing database [%s]', self.new_gm_db_name)
+					print_msg("==> using pre-existing target database [%s] ..." % self.target_db_name)
+					_log.info('using existing database [%s]', self.target_db_name)
 					return True
 
 				else:
-					_log.info('not using existing database [%s]', self.new_gm_db_name)
+					_log.info('not using existing database [%s]', self.target_db_name)
 					return False
 
 		tablespace = cfg_get(self.section, 'tablespace')
@@ -774,7 +775,7 @@ class cDatabase:
 					owner = '%s'
 					template = \"%s\"
 					encoding = 'unicode'
-				;""" % (self.new_gm_db_name, _GM_DBO_ROLE, self.old_gm_db_name)
+				;""" % (self.target_db_name, _GM_DBO_ROLE, self.source_db_name)
 		else:
 			create_db_SQL = """
 				CREATE DATABASE \"%s\" with
@@ -782,17 +783,17 @@ class cDatabase:
 					template = \"%s\"
 					encoding = 'unicode'
 					tablespace = '%s'
-				;""" % (self.new_gm_db_name, _GM_DBO_ROLE, self.old_gm_db_name, tablespace)
+				;""" % (self.target_db_name, _GM_DBO_ROLE, self.source_db_name, tablespace)
 
 		# get size
 		cursor = self.conn.cursor()
-		size_SQL = "SELECT pg_size_pretty(pg_database_size('%s'))" % self.old_gm_db_name
+		size_SQL = "SELECT pg_size_pretty(pg_database_size('%s'))" % self.source_db_name
 		cursor.execute(size_SQL)
 		size = cursor.fetchone()[0]
 		cursor.close()
 
 		# create database by cloning
-		print_msg("==> [%s]: cloning (%s) as target database [%s] ..." % (self.old_gm_db_name, size, self.new_gm_db_name))
+		print_msg("==> [%s]: cloning (%s) as target database [%s] ..." % (self.source_db_name, size, self.target_db_name))
 		# CREATE DATABASE must be run outside transactions
 		self.conn.commit()
 		self.conn.set_session(readonly = False, autocommit = True)
@@ -806,16 +807,16 @@ class cDatabase:
 		finally:
 			cursor.close()
 			self.conn.set_session(readonly = False, autocommit = False)
-		if not gmPG2.database_exists(link_obj = self.conn, database = self.new_gm_db_name):
+		if not gmPG2.database_exists(link_obj = self.conn, database = self.target_db_name):
 			return None
 
-		_log.info("Successfully created GNUmed database [%s]." % self.new_gm_db_name)
+		_log.info("Successfully created GNUmed database [%s]." % self.target_db_name)
 		return True
 
 	#--------------------------------------------------------------
 	def check_data_plausibility(self):
 
-		print_msg("==> [%s]: checking migrated data for plausibility ..." % self.new_gm_db_name)
+		print_msg("==> [%s]: checking migrated data for plausibility ..." % self.target_db_name)
 
 		plausibility_queries = cfg_get(self.section, 'upgrade plausibility checks')
 		if plausibility_queries is None:
@@ -831,18 +832,18 @@ class cDatabase:
 			print_msg("    ... failed (configuration error)")
 			return False
 
-		template_conn = connect (
+		source_db_conn = connect (
 			host = _PG_CLUSTER.hostname,
 			port = _PG_CLUSTER.port,
-			db = self.old_gm_db_name,
+			db = self.source_db_name,
 			user = _PG_SUPERUSER,
 		)
-		template_conn.cookie = 'check_data_plausibility: template'
+		source_db_conn.cookie = 'check_data_plausibility: source'
 
 		target_conn = connect (
 			host = _PG_CLUSTER.hostname,
 			port = _PG_CLUSTER.port,
-			db = self.new_gm_db_name,
+			db = self.target_db_name,
 			user = _PG_SUPERUSER,
 		)
 		target_conn.cookie = 'check_data_plausibility: target'
@@ -874,7 +875,7 @@ class cDatabase:
 				continue
 			# run checks in old/new DB
 			try:
-				rows = gmPG2.run_ro_queries (link_obj = template_conn, queries = [{'sql': SQL__old_db}])
+				rows = gmPG2.run_ro_queries (link_obj = source_db_conn, queries = [{'sql': SQL__old_db}])
 				val_in_old_db = rows[0][0]
 			except:
 				_log.exception('error in plausibility check [%s] (old DB), aborting' % tag_of_check)
@@ -905,7 +906,7 @@ class cDatabase:
 			def_of_check = None
 			_log.info('plausibility check [%s] succeeded' % tag_of_check)
 
-		template_conn.close()
+		source_db_conn.close()
 		target_conn.close()
 
 		return all_tests_successful
@@ -919,7 +920,7 @@ class cDatabase:
 		conn = connect (
 			host = _PG_CLUSTER.hostname,
 			port = _PG_CLUSTER.port,
-			db = self.new_gm_db_name,
+			db = self.target_db_name,
 			user = _PG_SUPERUSER,
 		)
 		conn.cookie = 'holy auth check connection'
@@ -989,7 +990,7 @@ class cDatabase:
 	#--------------------------------------------------------------
 	def import_data(self):
 
-		print_msg("==> [%s]: upgrading reference data sets ..." % self.new_gm_db_name)
+		print_msg("==> [%s]: upgrading reference data sets ..." % self.target_db_name)
 
 		import_scripts = cfg_get(self.section, "data import scripts")
 		if (import_scripts is None) or (len(import_scripts) == 0):
@@ -1033,7 +1034,7 @@ class cDatabase:
 	#--------------------------------------------------------------
 	def verify_result_hash(self):
 
-		print_msg("==> [%s]: verifying target database schema ..." % self.new_gm_db_name)
+		print_msg("==> [%s]: verifying target database schema ..." % self.target_db_name)
 
 		target_version = cfg_get(self.section, 'target version')
 		if target_version == 'devel':
@@ -1055,7 +1056,7 @@ class cDatabase:
 
 	#--------------------------------------------------------------
 	def reindex_all(self):
-		print_msg("==> [%s]: reindexing target database (can take a while) ..." % self.new_gm_db_name)
+		print_msg("==> [%s]: reindexing target database (can take a while) ..." % self.target_db_name)
 		do_reindex = cfg_get(self.section, 'reindex')
 		if do_reindex is None:
 			do_reindex = True
@@ -1080,7 +1081,7 @@ class cDatabase:
 	#--------------------------------------------------------------
 	def revalidate_constraints(self):
 
-		print_msg("==> [%s]: revalidating constraints in target database (can take a while) ..." % self.new_gm_db_name)
+		print_msg("==> [%s]: revalidating constraints in target database (can take a while) ..." % self.target_db_name)
 
 		do_revalidate = cfg_get(self.section, 'revalidate')
 		if do_revalidate is None:
@@ -1110,7 +1111,7 @@ class cDatabase:
 
 	#--------------------------------------------------------------
 	def validate_collations(self, use_the_source_luke):
-		print_msg('==> [%s]: validating collations ...' % self.new_gm_db_name)
+		print_msg('==> [%s]: validating collations ...' % self.target_db_name)
 		sane_pg_database_collation = gmPG2.sanity_check_database_default_collation_version(conn = self.conn)
 		sane_pg_collations = gmPG2.sanity_check_collation_versions(conn = self.conn)
 		if sane_pg_database_collation and sane_pg_collations:
@@ -1137,7 +1138,7 @@ class cDatabase:
 
 	#--------------------------------------------------------------
 	def transfer_users(self) -> bool:
-		print_msg("==> [%s]: transferring users ..." % self.new_gm_db_name)
+		print_msg("==> [%s]: transferring users ..." % self.target_db_name)
 		do_user_transfer = cfg_get(self.section, 'transfer users')
 		if do_user_transfer is None:
 			_log.info('user transfer not defined')
@@ -1150,25 +1151,25 @@ class cDatabase:
 			print_msg("    ... skipped (disabled)")
 			return True
 
-		cmd = "select gm.transfer_users('%s'::text)" % self.old_gm_db_name
+		cmd = "select gm.transfer_users('%s'::text)" % self.source_db_name
 		try:
 			rows = gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'sql': cmd}], end_tx = True, return_data = True)
 		except gmPG2.dbapi.ProgrammingError:
 			# maybe an old database
 			_log.info('problem running gm.transfer_users(), trying gm_transfer_users()')
-			cmd = "select gm_transfer_users('%s'::text)" % self.old_gm_db_name
+			cmd = "select gm_transfer_users('%s'::text)" % self.source_db_name
 			rows = gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'sql': cmd}], end_tx = True, return_data = True)
 		if rows[0][0]:
-			_log.info('users properly transferred from [%s] to [%s]' % (self.old_gm_db_name, self.new_gm_db_name))
+			_log.info('users properly transferred from [%s] to [%s]' % (self.source_db_name, self.target_db_name))
 			return True
 
-		_log.error('error transferring user from [%s] to [%s]' % (self.old_gm_db_name, self.new_gm_db_name))
+		_log.error('error transferring user from [%s] to [%s]' % (self.source_db_name, self.target_db_name))
 		print_msg("    ... failed")
 		return False
 
 	#--------------------------------------------------------------
 	def ensure_some_security_settings(self) -> bool:
-		print_msg("==> [%s]: setting up security settings ..." % self.new_gm_db_name)
+		print_msg("==> [%s]: setting up security settings ..." % self.target_db_name)
 		SQL = 'REVOKE create ON SCHEMA public FROM public;'
 		gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'sql': SQL}])
 		if gmPG2.function_exists(link_obj = self.conn, schema = 'gm', function = 'adjust_view_options'):
@@ -1180,7 +1181,7 @@ class cDatabase:
 
 	#--------------------------------------------------------------
 	def setup_auditing(self) -> bool:
-		print_msg("==> [%s]: setting up auditing ..." % self.new_gm_db_name)
+		print_msg("==> [%s]: setting up auditing ..." % self.target_db_name)
 		# get audit trail configuration
 		tmp = cfg_get(self.section, 'audit disable')
 		# if this option is not given, assume we want auditing
@@ -1195,7 +1196,7 @@ class cDatabase:
 		audit_schema = gmAuditSchemaGenerator.create_audit_ddl(curs)
 		curs.close()
 		if audit_schema is None:
-			_log.error('cannot generate audit trail schema for GNUmed database [%s]' % self.new_gm_db_name)
+			_log.error('cannot generate audit trail schema for GNUmed database [%s]' % self.target_db_name)
 			return None
 
 		# write schema to file
@@ -1207,7 +1208,7 @@ class cDatabase:
 		# import auditing schema
 		psql = gmPsql.Psql(self.conn)
 		if psql.run(tmpfile) != 0:
-			_log.error("cannot import audit schema definition for database [%s]" % (self.new_gm_db_name))
+			_log.error("cannot import audit schema definition for database [%s]" % (self.target_db_name))
 			return None
 
 		if _keep_temp_files:
@@ -1223,7 +1224,7 @@ class cDatabase:
 	def setup_notifications(self):
 
 		# setup clin.clin_root_item child tables FK's
-		print_msg("==> [%s]: setting up encounter/episode FKs and IDXs ..." % self.new_gm_db_name)
+		print_msg("==> [%s]: setting up encounter/episode FKs and IDXs ..." % self.target_db_name)
 		child_tables = gmPG2.get_child_tables(link_obj = self.conn, schema = 'clin', table = 'clin_root_item')
 		_log.info('clin.clin_root_item child tables:')
 		for child in child_tables:
@@ -1319,7 +1320,7 @@ class cDatabase:
 
 		# re-create fk_encounter/fk_episode sanity check triggers on all tables
 		if gmPG2.function_exists(link_obj = curs, schema = 'gm', function = 'create_all_enc_epi_sanity_check_triggers'):
-			print_msg("==> [%s]: setting up encounter/episode FK sanity check triggers ..." % self.new_gm_db_name)
+			print_msg("==> [%s]: setting up encounter/episode FK sanity check triggers ..." % self.target_db_name)
 			_log.debug('attempting to set up sanity check triggers on all tables linking to encounter AND episode')
 			cmd = 'select gm.create_all_enc_epi_sanity_check_triggers()'
 			curs.execute(cmd)
@@ -1331,7 +1332,7 @@ class cDatabase:
 
 		# always re-create generic super signal (if exists)
 		if gmPG2.function_exists(link_obj = curs, schema = 'gm', function = 'create_all_table_mod_triggers'):
-			print_msg("==> [%s]: setting up generic notifications ..." % self.new_gm_db_name)
+			print_msg("==> [%s]: setting up generic notifications ..." % self.target_db_name)
 			_log.debug('attempting to create generic modification announcement triggers on all registered tables')
 
 			cmd = "SELECT gm.create_all_table_mod_triggers(True::boolean)"
