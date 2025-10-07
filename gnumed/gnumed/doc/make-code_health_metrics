@@ -6,54 +6,67 @@ MYPY_CMD="mypy --pretty --allow-redefinition --no-strict-optional --ignore-missi
 
 if test "${PYFILE}" != "" ; then
 
-	echo "=== $(date): pyflakes3 '${PYFILE}' ==========" > source-coding_errors.log
+	LOG="source-coding_errors.log"
+	git log -2 ${PYFILE} > ${LOG}
+	echo "=== $(date): pyflakes3 '${PYFILE}' ==========" &>> ${LOG}
 	pyflakes3 ${PYFILE} &>> tmp-pyflakes3.log
-	grep --invert-match "undefined name '_'" tmp-pyflakes3.log &>> source-coding_errors.log
+	grep --invert-match "undefined name '_'" tmp-pyflakes3.log &>> ${LOG}
 	rm tmp-pyflakes3.log
 
-	LOG=$(basename ${PYFILE})
-	echo "=== $(date): pylint ${PYFILE} ==========" > source-coding_errors-pylint_${LOG}.log
-	pylint ${PYFILE} &>> source-coding_errors-pylint_${LOG}.log
+	LOG="source-coding_errors-pylint_$(basename ${PYFILE}).log"
+	git log -2 ${PYFILE} > ${LOG}
+	echo "=== $(date): pylint ${PYFILE} ==========" &>> ${LOG}
+	pylint ${PYFILE} &>> ${LOG}
 
-	echo "=== $(date): mypy ==========" > source-type_checking.log
-	echo "${MYPY_CMD}" &>> source-type_checking.log
-	echo "----- ${PYFILE} --------------------------------------" &>> source-type_checking.log
-	${MYPY_CMD} ${PYFILE} | grep --invert-match "Success: no issues found in 1 source file" &>> source-type_checking.log
+	LOG="source-type_checking.log"
+	git log -2 ${PYFILE} > ${LOG}
+	echo "=== $(date): mypy ==========" &>> ${LOG}
+	echo "${MYPY_CMD}" &>> ${LOG}
+	echo "----- ${PYFILE} --------------------------------------" &>> ${LOG}
+	${MYPY_CMD} ${PYFILE} | grep --invert-match "Success: no issues found in 1 source file" &>> ${LOG}
 
 	exit
 fi ;
 
-
+LOG="source-coding_errors.log"
+git log -2 > ${LOG}
 DIRS="../client/pycommon ../client/business ../client/wxpython ../server/bootstrap"
-echo "=== $(date): pyflakes3 '${DIRS}' ==========" > source-coding_errors.log
+echo "=== $(date): pyflakes3 '${DIRS}' ==========" &>> ${LOG}
 pyflakes3 ${DIRS} &>> tmp-pyflakes3.log
-grep --invert-match "undefined name '_'" tmp-pyflakes3.log &>> source-coding_errors.log
+grep --invert-match "undefined name '_'" tmp-pyflakes3.log &>> ${LOG}
 rm tmp-pyflakes3.log
 
 
-echo "=== maintainability -- $(date): radon mi (lower = better, A/B not shown) ==========" > source-maintainability.log
-radon mi ${DIRS} | egrep '\-\s[^AB]$' &>> source-maintainability.log
+LOG="source-maintainability.log"
+git log -2 > ${LOG}
+echo "=== maintainability -- $(date): radon mi (lower = better, A/B not shown) ==========" &>> ${LOG}
+radon mi ${DIRS} | egrep '\-\s[^AB]$' &>> ${LOG}
 
 
-echo "=== cyclic complexity -- $(date) - radon cc (lower = better, A/B/C/D not shown) ==========" > source-cyclic_complexity.log
-radon cc ${DIRS} | egrep '(\-\s[^ABCD])|(.py)$' &>> source-cyclic_complexity.log
+LOG="source-cyclic_complexity.log"
+git log -2 > ${LOG}
+echo "=== cyclic complexity -- $(date) - radon cc (lower = better, A/B/C/D not shown) ==========" &>> ${LOG}
+radon cc ${DIRS} | egrep '(\-\s[^ABCD])|(.py)$' &>> ${LOG}
 
 
 DIRS="../client/pycommon ../client/business ../client/wxpython ../server/bootstrap"
 for DIR in ${DIRS} ; do
-	LOG=$(basename ${DIR})
-	echo "=== $(date): pylint ${DIR} ==========" > source-coding_errors-pylint_${LOG}.log
-	pylint ${DIR}/*.py &>> source-coding_errors-pylint_${LOG}.log
+	LOG="source-coding_errors-pylint_$(basename ${DIR}).log"
+	git log -2 ${DIR} > ${LOG}
+	echo "=== $(date): pylint ${DIR} ==========" &>> ${LOG}
+	pylint ${DIR}/*.py &>> ${LOG}
 done
 
 
-echo "=== $(date): mypy ==========" > source-type_checking.log
-echo "${MYPY_CMD}" &>> source-type_checking.log
+LOG="source-type_checking.log"
+git log -2 ${DIR} > ${LOG}
+echo "=== $(date): mypy ==========" &>> ${LOG}
+echo "${MYPY_CMD}" &>> ${LOG}
 for DIR in ${DIRS} ; do
-	echo "=== ${DIR} ==========" &>> source-type_checking.log
+	echo "=== ${DIR} ==========" &>> ${LOG}
 	for PYFILE in ${DIR}/*.py ; do
-		echo "----- ${PYFILE} --------------------------------------" &>> source-type_checking.log
-		${MYPY_CMD} ${PYFILE} | grep --invert-match "Success: no issues found in 1 source file" &>> source-type_checking.log
+		echo "----- ${PYFILE} --------------------------------------" &>> ${LOG}
+		${MYPY_CMD} ${PYFILE} | grep --invert-match "Success: no issues found in 1 source file" &>> ${LOG}
 	done
 done
 ##--warn-unreachable
