@@ -20,7 +20,40 @@
 #  no-check
 #  - do not use
 # ========================================================
+# ========================================================
+#
+# you may want/need to adjust the below:
 
+# if you need to adjust the host name you need to use to
+# connect to PostgreSQL you can use the environment
+# variable below
+# note that bootstrapping a non-local host has
+# not been tested to any considerable degree
+#
+#export GM_CLUSTER_HOSTNAME=""
+
+# if you need to adjust the port you want to use to
+# connect to PostgreSQL you can use the environment
+# variable below (this may be necessary if your PostgreSQL
+# server is running on a port different from the default 5432)
+#
+#export GM_CLUSTER_PORT="5432"
+
+# if you need to adjust the cluster service database
+# you can use the environment variable below (this will only
+# very rarely be necessary, typically it is either template1
+# or template0)
+#
+#export GM_CLUSTER_SERVICE_DB="template1"
+
+# if you need to adjust the cluster superuser account
+# you can use the environment variable below (this will only
+# sometimes be necessary, typically it is "postgres")
+#
+#export GM_CLUSTER_SUPERUSER="postgres"
+
+# ========================================================
+# ========================================================
 set -o pipefail
 
 PREV_VER="$1"
@@ -35,6 +68,7 @@ if test "$QUIET" != "quiet"; then
 	QUIET="$5"
 fi ;
 
+
 LOG_BASE="."
 FIXUP_LOG="${LOG_BASE}/fixup_db-v${PREV_VER}.log"
 FIXUP_CONF="fixup_db-v${PREV_VER}.conf"
@@ -42,57 +76,68 @@ UPGRADE_LOG="${LOG_BASE}/upgrade_db-v${PREV_VER}_v${NEXT_VER}.log"
 UPGRADE_CONF="upgrade_db-v${PREV_VER}_v${NEXT_VER}.conf"
 TS=$(date +%Y-%m-%d-%H-%M-%S)
 BAK_FILE="backup-upgrade_v${PREV_VER}_to_v${NEXT_VER}-$(hostname)-${TS}.tar"
-
-
-if test ! -f ${UPGRADE_CONF} ; then
-	echo ""
-	echo "Trying to upgrade from version <${PREV_VER}> to version <${NEXT_VER}> ..."
-	echo ""
-	echo "========================================="
-	echo "ERROR: The configuration file:"
-	echo "ERROR:"
-	echo "ERROR:  ${UPGRADE_CONF}"
-	echo "ERROR"
-	echo "ERROR: does not exist. Aborting."
-	echo "========================================="
-	echo ""
-	echo "USAGE: $0 x x+1"
-	echo "   x   - database version to upgrade from"
-	echo "   x+1 - database version to upgrade to (sequentially only)"
-	exit 1
-fi ;
-
-
-# if you need to adjust the database name to something
-# other than what the config file has you can use the
-# following environment variable:
-#export GM_CORE_DB="gnumed_v${NEXT_VER}"
-
-
-# if you need to adjust the port you want to use to
-# connect to PostgreSQL you can use the environment
-# variable below (this may be necessary if your PostgreSQL
-# server is running on a port different from the default 5432)
-#export GM_DB_PORT="5433"
-
-
-# tell libpq-based tools about the non-default port, if any
-if test -n "${GM_DB_PORT}" ; then
-	PORT_DEF="--port=${GM_DB_PORT}"
-	export PGPORT="${GM_DB_PORT}"
-else
-	PORT_DEF=""
-fi ;
-
-
+GM_DBO="gm-dbo"
 SYSTEM=$(uname -s)
 
 #--------------------------------------------------
-function echo_msg () {
+function perhaps_echo_msg () {
 	if test "$QUIET" == "quiet"; then
 		return
 	fi ;
 	echo $1 ;
+}
+
+#--------------------------------------------------
+function verify_upgrade_conf_available () {
+	if test ! -f ${UPGRADE_CONF} ; then
+		echo ""
+		echo "Trying to upgrade from version <${PREV_VER}> to version <${NEXT_VER}> ..."
+		echo ""
+		echo "========================================="
+		echo "ERROR: The configuration file:"
+		echo "ERROR:"
+		echo "ERROR:  ${UPGRADE_CONF}"
+		echo "ERROR"
+		echo "ERROR: does not exist. Aborting."
+		echo "========================================="
+		echo ""
+		echo "USAGE: $0 x x+1"
+		echo "   x   - database version to upgrade from"
+		echo "   x+1 - database version to upgrade to (sequentially only)"
+		exit 1
+	fi ;
+}
+
+#--------------------------------------------------
+function setup_connection_environment () {
+	# tell libpq-based tools about the non-default hostname, if any
+	if test -n "${GM_CLUSTER_HOSTNAME}" ; then
+		declare -g HOST_ARG="--host=${GM_CLUSTER_HOSTNAME}"
+		declare -g -x PGHOST="${GM_CLUSTER_HOSTNAME}"
+	else
+		declare -g HOST_ARG=""
+	fi ;
+	# tell libpq-based tools about the non-default port, if any
+	if test -n "${GM_CLUSTER_PORT}" ; then
+		declare -g PORT_ARG="--port=${GM_CLUSTER_PORT}"
+		declare -g -x PGPORT="${GM_CLUSTER_PORT}"
+	else
+		declare -g PORT_ARG=""
+	fi ;
+	# tell libpq-based tools about the non-default service db, if any
+	if test -n "${GM_CLUSTER_SERVICE_DB}" ; then
+		declare -g SERVICE_DB_ARG="--dbname=${GM_CLUSTER_SERVICE_DB}"
+		declare -g -x PGDATABASE="${GM_CLUSTER_SERVICE_DB}"
+	else
+		declare -g SERVICE_DB_ARG=""
+	fi ;
+	# tell libpq-based tools about the non-default superuser, if any
+	if test -n "${GM_CLUSTER_SUPERUSER}" ; then
+		declare -g SUPERUSER_ARG="--user=${GM_CLUSTER_SUPERUSER}"
+		declare -g -x PGUSER="${GM_CLUSTER_SUPERUSER}"
+	else
+		declare -g SUPERUSER_ARG=""
+	fi ;
 }
 
 #--------------------------------------------------
@@ -104,7 +149,8 @@ function assert_source_database_exists () {
 	fi ;
 	# Does source database exist ?
 	TEMPLATE_DB="gnumed_v${PREV_VER}"
-	VER_EXISTS=`su -c "psql -l ${PORT_DEF}" -l postgres | grep ${TEMPLATE_DB}`
+	#VER_EXISTS=`su -c "psql --list ${HOST_ARG} ${PORT_ARG} ${SERVICE_DB_ARG} ${SUPERUSER_ARG}" -l postgres | grep ${TEMPLATE_DB}`
+	VER_EXISTS=$(su -c "psql --list ${HOST_ARG} ${PORT_ARG} ${SERVICE_DB_ARG} ${SUPERUSER_ARG}" -l postgres | grep ${TEMPLATE_DB})
 	if test "${VER_EXISTS}" == "" ; then
 		echo ""
 		echo "Trying to upgrade from version <${PREV_VER}> to version <${NEXT_VER}> ..."
@@ -129,7 +175,8 @@ function warn_on_existing_target_database () {
 		return
 	fi ;
 	# Does TARGET database exist ?
-	VER_EXISTS=`su -c "psql -l ${PORT_DEF}" -l postgres | grep gnumed_v${NEXT_VER}`
+	#VER_EXISTS=`su -c "psql --list ${HOST_ARG} ${PORT_ARG} ${SERVICE_DB_ARG} ${SUPERUSER_ARG}" -l postgres | grep gnumed_v${NEXT_VER}`
+	VER_EXISTS=$(su -c "psql --list ${HOST_ARG} ${PORT_ARG} ${SERVICE_DB_ARG} ${SUPERUSER_ARG}" -l postgres | grep gnumed_v${NEXT_VER})
 	if test "${VER_EXISTS}" != "" ; then
 		echo ""
 		echo "WARNING: The target database"
@@ -183,18 +230,18 @@ function check_disk_space () {
 
 #--------------------------------------------------
 function perhaps_backup_source_database () {
-	echo_msg ""
+	perhaps_echo_msg ""
 	if test "$SKIP_BACKUP" == "no-backup" ; then
 		echo "   !!! SKIPPED backup !!!"
-		echo_msg ""
-		echo_msg "   This may prevent you from being able to restore your"
-		echo_msg "   database from an up-to-date backup should you need to."
+		perhaps_echo_msg ""
+		perhaps_echo_msg "   This may prevent you from being able to restore your"
+		perhaps_echo_msg "   database from an up-to-date backup should you need to."
 		return ;
 	fi;
-	echo_msg "1) creating backup of the database that is to be upgraded ..."
-	echo_msg "   This step may take a substantial amount of time and disk space."
-	echo_msg "   (you will be prompted if you need to type in the password for gm-dbo)"
-	pg_dump ${PORT_DEF} --username=gm-dbo --dbname=gnumed_v${PREV_VER} --format=tar --file=${BAK_FILE}
+	perhaps_echo_msg "1) creating backup of the database that is to be upgraded ..."
+	perhaps_echo_msg "   This step may take a substantial amount of time and disk space."
+	perhaps_echo_msg "   (you will be prompted if you need to type in the password for ${GM_DBO})"
+	pg_dump ${HOST_ARG} ${PORT_ARG} --username=${GM_DBO} --format=tar --file=${BAK_FILE} gnumed_v${PREV_VER}
 	ARCHIVED="$?"
 	if test "${ARCHIVED}" != "0" ; then
 		echo ""
@@ -216,14 +263,14 @@ function perhaps_backup_source_database () {
 
 #--------------------------------------------------
 function perhaps_verify_source_database_integrity () {
-	echo_msg ""
+	perhaps_echo_msg ""
 	if test "$SKIP_CHECK" == "no-check" ; then
 		echo "   !!! SKIPPED verification !!!"
-		echo_msg ""
-		echo_msg "   Be sure you really know what you are doing !"
+		perhaps_echo_msg ""
+		perhaps_echo_msg "   Be sure you really know what you are doing !"
 		return ;
 	fi;
-	echo_msg "1) Verifying data integrity CRCs in source database (can take a while) ..."
+	perhaps_echo_msg "1) Verifying data integrity CRCs in source database (can take a while) ..."
 	# dump to /dev/null for checksum verification
 	#--no-unlogged-table-data
 	#--no-acl
@@ -242,7 +289,7 @@ function perhaps_verify_source_database_integrity () {
 	#	reading any column of a row (unTOASTED columns, that is)
 	#	will effect reading the entire row, including OID, but
 	#	there's no need to output that value
-	pg_dump ${PORT_DEF} --username=gm-dbo --dbname=gnumed_v${PREV_VER} --compress=0 --no-sync --format=custom --file=/dev/null &> /dev/null
+	pg_dump ${HOST_ARG} ${PORT_ARG} --username=${GM_DBO} --compress=0 --no-sync --format=custom --file=/dev/null gnumed_v${PREV_VER} &> /dev/null
 	RETCODE="$?"
 	if test "$RETCODE" != "0" ; then
 		echo "Verifying data integrity CRCs on \"gnumed_v${PREV_VER}\" failed (${RETCODE})."
@@ -253,28 +300,28 @@ function perhaps_verify_source_database_integrity () {
 
 #--------------------------------------------------
 function explain_planned_upgrade () {
-	echo_msg ""
-	echo_msg "==========================================================="
-	echo_msg "Upgrading GNUmed database: v${PREV_VER} -> v${NEXT_VER}"
-	echo_msg ""
-	echo_msg "This will create a new GNUmed v${NEXT_VER} database from an"
-	echo_msg "existing v${PREV_VER} database. Patient data is transferred and"
-	echo_msg "transformed as necessary. The old v${PREV_VER} database will"
-	echo_msg "remain unscathed. For the upgrade to proceed there must"
-	echo_msg "not be any connections to it by other users, however."
-	echo_msg ""
-	echo_msg "The name of the new database will be \"gnumed_v${NEXT_VER}\". Note"
-	echo_msg "that any pre-existing v${NEXT_VER} database WILL BE DELETED"
-	echo_msg "during the upgrade !"
-	echo_msg ""
-	echo_msg "(this script usually needs to be run as <root>)"
-	echo_msg "==========================================================="
+	perhaps_echo_msg ""
+	perhaps_echo_msg "==========================================================="
+	perhaps_echo_msg "Upgrading GNUmed database: v${PREV_VER} -> v${NEXT_VER}"
+	perhaps_echo_msg ""
+	perhaps_echo_msg "This will create a new GNUmed v${NEXT_VER} database from an"
+	perhaps_echo_msg "existing v${PREV_VER} database. Patient data is transferred and"
+	perhaps_echo_msg "transformed as necessary. The old v${PREV_VER} database will"
+	perhaps_echo_msg "remain unscathed. For the upgrade to proceed there must"
+	perhaps_echo_msg "not be any connections to it by other users, however."
+	perhaps_echo_msg ""
+	perhaps_echo_msg "The name of the new database will be \"gnumed_v${NEXT_VER}\". Note"
+	perhaps_echo_msg "that any pre-existing v${NEXT_VER} database WILL BE DELETED"
+	perhaps_echo_msg "during the upgrade !"
+	perhaps_echo_msg ""
+	perhaps_echo_msg "(this script usually needs to be run as <root>)"
+	perhaps_echo_msg "==========================================================="
 }
 
 #--------------------------------------------------
 function apply_source_database_fixups () {
-	echo_msg ""
-	echo_msg "2) applying fixes to existing database"
+	perhaps_echo_msg ""
+	perhaps_echo_msg "2) applying fixes to existing database"
 	./bootstrap_gm_db_system.py --log-file=${FIXUP_LOG} --conf-file=${FIXUP_CONF} --${QUIET}
 	if test "$?" != "0" ; then
 		echo "Fixing \"gnumed_v${PREV_VER}\" did not finish successfully."
@@ -285,13 +332,13 @@ function apply_source_database_fixups () {
 
 #--------------------------------------------------
 function upgrade_source_to_target_database () {
-	echo_msg ""
-	echo_msg "2) upgrading to new database ..."
+	perhaps_echo_msg ""
+	perhaps_echo_msg "2) upgrading to new database ..."
 	# fixup for schema hash function
 	# - cannot be done inside bootstrapper
 	# - only needed for converting anything below v6 with a v6 bootstrapper
-	#echo_msg "==> fixup for database hashing (will probably ask for gm-dbo password) ..."
-	#psql --username=gm-dbo --dbname=gnumed_v${PREV_VER} ${PORT_DEF} -f ../sql/gmConcatTableStructureFutureStub.sql
+	#perhaps_echo_msg "==> fixup for database hashing (will probably ask for ${GM_DBO} password) ..."
+	#psql --username=${GM_DBO} --dbname=gnumed_v${PREV_VER} ${HOST_ARG} ${PORT_ARG} -f ../sql/gmConcatTableStructureFutureStub.sql
 	./bootstrap_gm_db_system.py --log-file=${UPGRADE_LOG} --conf-file=${UPGRADE_CONF} --${QUIET}
 	if test "$?" != "0" ; then
 		echo "Upgrading \"gnumed_v${PREV_VER}\" to \"gnumed_v${NEXT_VER}\" did not finish successfully."
@@ -302,15 +349,17 @@ function upgrade_source_to_target_database () {
 
 #--------------------------------------------------
 function vacuum_target_database () {
-	echo_msg ""
-	echo_msg "4) preparing new database for efficient use ..."
-	echo_msg "   If the database is large this may take quite a while!"
-	echo_msg "   You may need to type in the password for gm-dbo."
-	vacuumdb --full --analyze ${PORT_DEF} --username=gm-dbo --dbname=gnumed_v${NEXT_VER}
+	perhaps_echo_msg ""
+	perhaps_echo_msg "4) preparing new database for efficient use ..."
+	perhaps_echo_msg "   If the database is large this may take quite a while!"
+	perhaps_echo_msg "   You may need to type in the password for ${GM_DBO}."
+	vacuumdb --full --analyze ${HOST_ARG} ${PORT_ARG} ${SERVICE_DB_ARG} --username=${GM_DBO} gnumed_v${NEXT_VER}
 }
 
 #---------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------
+verify_upgrade_conf_available
+setup_connection_environment
 assert_source_database_exists
 explain_planned_upgrade
 warn_on_existing_target_database
@@ -322,11 +371,11 @@ upgrade_source_to_target_database
 #vacuum_target_database
 
 
-echo_msg ""
-echo_msg "=========================================================="
-echo_msg " Make sure to upgrade your database backup procedures to"
-echo_msg " appropriately refer to the new database \"gnumed_v${NEXT_VER}\" !"
-echo_msg "=========================================================="
+perhaps_echo_msg ""
+perhaps_echo_msg "=========================================================="
+perhaps_echo_msg " Make sure to upgrade your database backup procedures to"
+perhaps_echo_msg " appropriately refer to the new database \"gnumed_v${NEXT_VER}\" !"
+perhaps_echo_msg "=========================================================="
 
 
 exit 0

@@ -84,19 +84,4 @@ VERIFY_TAR=""
 # the compression level to use with bzip2 (1-9) (see: man bzip2)
 COMPRESSION_LEVEL="9"
 
-# set this to an email address which will receive
-# digitally signed replies from the GNotary server
-# notarizing the hash of the backup
-SIG_RECEIVER="$USER@localhost"
-
-# set this to the email address of the GNotary server
-# you want your hashes to be signed by
-GNOTARY_SERVER="gnotary@gnotary.de"
-
-# you will have to set the GNotary TAN here,
-# using "free" works but makes you a Freeloader,
-# as it is mainly intended for testing,
-# setting this to "" effectively disables notarizing
-GNOTARY_TAN="free"
-
 #============================================================

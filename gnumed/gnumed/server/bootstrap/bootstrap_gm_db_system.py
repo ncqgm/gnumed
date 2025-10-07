@@ -181,6 +181,23 @@ You will have to provide a new password for it.
 MAKE SURE to remember the password for later use !
 """ % _GM_DBO_ROLE
 
+#==================================================================
+def get_from_os_env(env_var:str, allow_empty:bool=False):
+	_log.info('cecking OS environment for [%s]', env_var)
+	val = os.getenv(env_var)
+	if val is None:
+		_log.debug('not set')
+		return None
+
+	_log.debug('[%s]: >>>%s<<<', env_var, val)
+	if val.strip() != '':
+		return val
+
+	if allow_empty:
+		_log.debug('empty env var allowed')
+		return val
+
+	return None
 
 #==================================================================
 def guesstimate_pg_superuser():
@@ -215,7 +232,9 @@ def guesstimate_pg_superuser():
 			_PM_DEMON_USER = pm_demon_user_passwd_line[0]
 			_PM_DEMON_UID = pm_demon_user_passwd_line[2]
 			_log.debug('assuming PG demon user to be: %s [%s]', _PM_DEMON_USER, _PM_DEMON_UID)
-			_PG_SUPERUSER = _PM_DEMON_USER
+			_PG_SUPERUSER = get_from_os_env(env_var = 'GM_CLUSTER_SUPERUSER')
+			if _PG_SUPERUSER is None:
+				_PG_SUPERUSER = _PM_DEMON_USER
 			return
 
 		except KeyError:
@@ -224,6 +243,9 @@ def guesstimate_pg_superuser():
 
 	_PM_DEMON_USER = 'postgres'
 	_PM_DEMON_UID = None
+	_PG_SUPERUSER = get_from_os_env(env_var = 'GM_CLUSTER_SUPERUSER')
+	if _PG_SUPERUSER is None:
+		_PG_SUPERUSER = _PM_DEMON_USER
 
 #-----------------------------------------------------------------
 def become_postmaster_demon_user():
@@ -262,10 +284,6 @@ def become_postmaster_demon_user():
 
 #==================================================================
 def connect(host:str=None, port:int=5432, db:str=None, user:str=None, conn_name:str=None):
-	"""
-	This is a wrapper to the database connect function.
-	Will try to recover gracefully from connection errors where possible
-	"""
 	_log.info("trying DB connection to <%s> on %s:%s as <%s>", db, host or 'localhost', port, user)
 	_log.info('assuming passwordless login (IDENT/TRUST/PEER/.pgpass/PGPASSFILE/PGPASSWORD/...)')
 	creds = gmConnectionPool.cPGCredentials()
@@ -336,27 +354,26 @@ class cPostgresqlCluster:
 	def __connect_superuser_to_service_db(self):
 		_log.info("connecting to cluster service database")
 
-		# sanity checks
-		self.service_db = cfg_get(self.section, 'service database')
-		if self.service_db is None:
-			_log.error("Need to know the service database name.")
-			return None
-
-		self.hostname = cfg_get(self.section, 'host name')
+		self.hostname = get_from_os_env('GM_CLUSTER_HOSTNAME', allow_empty = True)
 		if self.hostname is None:
-			_log.error("Need to know the server name.")
-			return None
+			self.hostname = cfg_get(self.section, 'host name')
+			if self.hostname is None:
+				_log.error("Need to know the hostname.")
+				return None
 
-		env_var = 'GM_DB_PORT'
-		self.port = os.getenv(env_var)
-		if self.port is None:
-			_log.info('environment variable [%s] is not set, using database port from config file' % env_var)
-			self.port = cfg_get(self.section, "port")
-		else:
-			_log.info('using database port [%s] from environment variable [%s]' % (self.port, env_var))
-		if self.port is None:
-			_log.error("Need to know the database server port address.")
-			return None
+		self.port = get_from_os_env('GM_CLUSTER_PORT')
+		if not self.port:
+			self.port = cfg_get(self.section, 'port')
+			if self.port is None:
+				_log.error("Need to know the cluster port.")
+				return None
+
+		self.service_db = get_from_os_env('GM_CLUSTER_SERVICE_DB')
+		if not self.service_db:
+			self.service_db = cfg_get(self.section, 'service database')
+			if self.service_db is None:
+				_log.error("Need to know the service database name.")
+				return None
 
 		if self.conn_superuser_at_service_db is not None:
 			if self.conn_superuser_at_service_db.closed == 0:
@@ -424,7 +441,7 @@ class cPostgresqlCluster:
 	# user and group related
 	#--------------------------------------------------------------
 	def __bootstrap_roles(self):
-		print_msg("==> setting up standard database roles ...")
+		print_msg("==> ensuring standard database roles ...")
 		_log.info("bootstrapping database roles")
 		if not self.__create_groups():
 			_log.error("Cannot create GNUmed standard groups roles.")

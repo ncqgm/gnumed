@@ -24,47 +24,27 @@ LOG_BASE="."
 LOG="${LOG_BASE}/fixup_db-v${VER}.log"
 CONF="fixup_db-v${VER}.conf"
 
+GM_DBO="gm-dbo"
 
-if test ! -f $CONF ; then
-	echo ""
-	echo "Trying to fix database version <${VER}> ..."
-	echo ""
-	echo "========================================="
-	echo "ERROR: The configuration file:"
-	echo "ERROR:"
-	echo "ERROR:  $CONF"
-	echo "ERROR"
-	echo "ERROR: does not exist. Aborting."
-	echo "========================================="
-	echo ""
-	echo "USAGE: $0 xx"
-	echo "   xx   - database version to fix"
-	exit
-fi ;
+#--------------------------------------------------
+function setup_connection_environment () {
+	# tell libpq-based tools about the non-default hostname, if any
+	if test -n "${GM_CLUSTER_HOSTNAME}" ; then
+		declare -g HOST_ARG="--host=${GM_CLUSTER_HOSTNAME}"
+		declare -g -x PGHOST="${GM_CLUSTER_HOSTNAME}"
+	else
+		declare -g HOST_ARG=""
+	fi ;
+	# tell libpq-based tools about the non-default port, if any
+	if test -n "${GM_CLUSTER_PORT}" ; then
+		declare -g PORT_ARG="--port=${GM_CLUSTER_PORT}"
+		declare -g -x PGPORT="${GM_CLUSTER_PORT}"
+	else
+		declare -g PORT_ARG=""
+	fi ;
+}
 
-
-# if you need to adjust the database name to something
-# other than what the config file has you can use the
-# following environment variable:
-#export GM_CORE_DB="gnumed_v${VER}"
-
-
-# if you need to adjust the port you want to use to
-# connect to PostgreSQL you can use the environment
-# variable below (this may be necessary if your PostgreSQL
-# server is running on a port different from the default 5432)
-#export GM_DB_PORT="5433"
-
-
-# tell libpq-based tools about the non-default port, if any
-if test -n "${GM_DB_PORT}" ; then
-	PORT_DEF="-p ${GM_DB_PORT}"
-	export PGPORT="${GM_DB_PORT}"
-else
-	PORT_DEF=""
-fi ;
-
-
+#--------------------------------------------------
 function echo_msg () {
 	if test "$QUIET" == "quiet"; then
 		return
@@ -72,6 +52,59 @@ function echo_msg () {
 	echo $1 ;
 }
 
+#--------------------------------------------------
+function verify_database_integrity () {
+	echo_msg ""
+	echo_msg "1) Verifying data integrity CRCs in database (can take a while) ..."
+	# dump to /dev/null for checksum verification
+	#--no-unlogged-table-data
+	#--no-acl
+	#--no-comments
+	#--no-publications
+	#--no-subscriptions
+	#--no-security-label
+	# --data-only
+	#	excluding that would forego detecting problems with disk space
+	#	used by unlogged tables (except we don't have any) and would not
+	#	exercise some system table columns thereby possibly not detecting
+	#	corruption in any of those (slim chance, however)
+	#--no-tablespaces
+	#	only relevant in plaintext dumps
+	#--oids
+	#	reading any column of a row (unTOASTED columns, that is)
+	#	will effect reading the entire row, including OID, but
+	#	there's no need to output that value
+	pg_dump ${HOST_ARG} ${PORT_ARG} --username="${GM_DBO}" --compress=0 --no-sync --format=custom --file=/dev/null gnumed_v${VER} &> /dev/null
+	RETCODE="$?"
+	if test "$RETCODE" != "0" ; then
+		echo "Verifying data integrity CRCs on \"gnumed_v${VER}\" failed (${RETCODE})."
+		read
+		exit 1
+	fi
+}
+
+#--------------------------------------------------
+function verify_fixup_conf_available () {
+	if test ! -f $CONF ; then
+		echo ""
+		echo "Trying to fix database version <${VER}> ..."
+		echo ""
+		echo "========================================="
+		echo "ERROR: The configuration file:"
+		echo "ERROR:"
+		echo "ERROR:  $CONF"
+		echo "ERROR"
+		echo "ERROR: does not exist. Aborting."
+		echo "========================================="
+		echo ""
+		echo "USAGE: $0 xx"
+		echo "   xx   - database version to fix"
+		exit 1
+	fi ;
+}
+
+#==================================================
+verify_fixup_conf_available
 
 echo_msg ""
 echo_msg "==========================================================="
@@ -81,35 +114,8 @@ echo_msg "This will apply fixups to an existing GNUmed database of"
 echo_msg "version ${VER} named \"gnumed_v${VER}\"."
 echo_msg "==========================================================="
 
-
-echo_msg ""
-echo_msg "1) Verifying data integrity CRCs in database (can take a while) ..."
-# dump to /dev/null for checksum verification
-#--no-unlogged-table-data
-#--no-acl
-#--no-comments
-#--no-publications
-#--no-subscriptions
-#--no-security-label
-# --data-only
-#	excluding that would forego detecting problems with disk space
-#	used by unlogged tables (except we don't have any) and would not
-#	exercise some system table columns thereby possibly not detecting
-#	corruption in any of those (slim chance, however)
-#--no-tablespaces
-#	only relevant in plaintext dumps
-#--oids
-#	reading any column of a row (unTOASTED columns, that is)
-#	will effect reading the entire row, including OID, but
-#	there's no need to output that value
-pg_dump ${PORT_DEF} --username=gm-dbo --dbname=gnumed_v${VER} --compress=0 --no-sync --format=custom --file=/dev/null &> /dev/null
-RETCODE="$?"
-if test "$RETCODE" != "0" ; then
-	echo "Verifying data integrity CRCs on \"gnumed_v${VER}\" failed (${RETCODE})."
-	read
-	exit 1
-fi
-
+setup_connection_environment
+verify_database_integrity
 
 echo_msg ""
 echo_msg "2) Applying fixes to database ..."
@@ -119,6 +125,5 @@ if test "$?" != "0" ; then
 	read
 	exit 1
 fi
-
 
 exit 0

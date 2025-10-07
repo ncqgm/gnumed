@@ -13,7 +13,7 @@
 .I VERSION
 .I VERSION+1
 [
-.I no-backup | no-compression
+.I no-backup | no-check
 ]
 [
 .I quiet
@@ -34,9 +34,8 @@ to the next version
 .B no-backup
 Do not create a database backup before upgrading (you got faith).
 .TP
-.B no-compression
-Create a backup but do not compress it. Useful if you got plenty
-of disk but are low on cycles.
+.B no-check
+Do not check data checksum in the existing database before upgrading.
 .TP
 .B quiet
 Display failures only, do not chatter about progress.
