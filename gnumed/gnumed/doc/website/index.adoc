@@ -52,6 +52,7 @@ Everyone is encouraged to contribute to GNUmed.
 ** link:code-smell/source-coding_errors-pylint_pycommon.log[code problems (pylint)]
 ** link:code-smell/source-coding_errors-pylint_business.log[code problems (pylint)]
 ** link:code-smell/source-coding_errors-pylint_wxpython.log[code problems (pylint)]
+** link:code-smell/source-coding_errors-pylint_bootstrap.log[code problems (pylint)]
 ** link:code-smell/source-type_checking.log[type checking]
 ** link:code-smell/source-cyclic_complexity.log[cyclic complexity]
 ** link:code-smell/source-maintainability.log[maintainability]
