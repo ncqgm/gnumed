@@ -11,37 +11,44 @@ scripts, not directly in the bootstrapper itself.
 Assumptions:
 
 - PostgreSQL running on localhost
+
 - everything happening within one cluster
-- PostgreSQL superuser: "postgres", "pgsql" or "postgresql"
-- Postmaster demon account: "postgres", "pgsql" or "postgresql"
-- database object owner: "gm-dbo"
+	* host: defaults to localhost, else $GM_CLUSTER_HOSTNAME
+	* port: defaults to 5432, else $GM_CLUSTER_PORT
+	* service database: defaults to "template1", else $GM_CLUSTER_SERVICE_DB
+
+- postmaster process demon account
+	* read from $GM_POSTMASTER_DEMON_USER or
+	* one of "postgres", "pgsql" or "postgresql"
+	* verified to exist, in that order, in /etc/passwd
+	* if not verifiable: assumed "postgres"
+
+- PostgreSQL superuser
+	* assumed identical to postmaster demon account
+	* can be overriden by environment variable $GM_CLUSTER_SUPERUSER
+
+- database/objects/... owner: "gm-dbo"
+
 - database name: gnumed_vXX where XX is the current major version
-- user running the bootstrapper must be able to become (SUID) the postmaster demon account user
-- postmaster demon account user must be able to connect to the cluster service database
-  (usually template1 or template0) without providing a password (IOW .pgpass / PGPASSFILE /
-  IDENT / TRUST / PEER)
 
-There's a special user called "gm-dbo" who owns all the
-database objects.
+- user running the bootstrapper must be able to become
+  (SUID) the postmaster demon account user
 
-For all this to work you must be able to access the database
-server as the standard "postgres" superuser. Typically
-IDENT/PEER authentication is configured for that account.
-You may need to setup a .pgpass file and/or the PGPASSFILE
-environment variable if "postgres" requires a password.
+- postmaster demon account user must be able to connect
+  to the cluster service database without providing a
+  password (IOW .pgpass / PGPASSFILE / IDENT / TRUST / PEER)
+
 
 This script does NOT set up user specific configuration options.
 
 All definitions are loaded from a config file.
 
-Please consult the User Manual in the GNUmed VCS for
-further details.
 
 --quiet
 --log-file=
 --conf-file=
 
-Requires psycopg 2.7.4 !
+Requires psycopg 2.7.4.
 """
 #==================================================================
 # TODO
@@ -225,7 +232,11 @@ def guesstimate_pg_superuser():
 	global _PM_DEMON_UID
 	global _PG_SUPERUSER
 	pm_demon_user_passwd_line = None
-	candidates = ['postgres', 'pgsql', 'postgresql']
+	_PM_DEMON_USER = get_from_os_env(env_var = 'GM_POSTMASTER_DEMON_USER')
+	if _PM_DEMON_USER is None:
+		candidates = ['postgres', 'pgsql', 'postgresql']
+	else:
+		candidates = [_PM_DEMON_USER]
 	for candidate in candidates:
 		try:
 			pm_demon_user_passwd_line = pwd.getpwnam(candidate)
@@ -267,14 +278,14 @@ def become_postmaster_demon_user():
 		return None
 
 	try:
-		running_as = pwd.getpwuid(os.getuid())[0]
-		_log.info('running as user [%s]' % running_as)
+		running_as_user = pwd.getpwuid(os.getuid())[0]
+		_log.info('running as user [%s]' % running_as_user)
 	except:
-		running_as = None
+		running_as_user = None
 	if os.getuid() == 0: # we are the super-user
 		_log.info('switching to UNIX user "%s" [%s]', _PM_DEMON_USER, _PM_DEMON_UID)
 		os.setuid(_PM_DEMON_UID)
-	elif running_as == _PM_DEMON_USER: # we are the postgres user already
+	elif running_as_user == _PM_DEMON_USER: # we are the postgres user already
 		_log.info('I already am the UNIX user "%s" [%s]', _PM_DEMON_USER, _PM_DEMON_UID)
 	else:
 		_log.warning('not running as root or postgres, cannot become postmaster demon user')

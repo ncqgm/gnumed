@@ -52,6 +52,12 @@
 #
 #export GM_CLUSTER_SUPERUSER="postgres"
 
+# if you need to adjust the OS-level postmaster demon user
+# you can use the environment variable below (this will only
+# sometimes be necessary, typically it is "postgres")
+#
+#export GM_POSTMASTER_DEMON_USER="postgres"
+
 # ========================================================
 # ========================================================
 set -o pipefail
