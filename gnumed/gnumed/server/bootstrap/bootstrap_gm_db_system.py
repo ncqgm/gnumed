@@ -15,7 +15,7 @@ Assumptions:
 - everything happening within one cluster
 	* host: defaults to localhost, else $GM_CLUSTER_HOSTNAME
 	* port: defaults to 5432, else $GM_CLUSTER_PORT
-	* service database: defaults to "template1", else $GM_CLUSTER_SERVICE_DB
+	* maintenance database: defaults to "template1", else $GM_CLUSTER_MAINTENANCE_DB
 
 - postmaster process demon account
 	* read from $GM_POSTMASTER_DEMON_USER or
@@ -35,7 +35,7 @@ Assumptions:
   (SUID) the postmaster demon account user
 
 - postmaster demon account user must be able to connect
-  to the cluster service database without providing a
+  to the cluster maintenance database without providing a
   password (IOW .pgpass / PGPASSFILE / IDENT / TRUST / PEER)
 
 
@@ -339,7 +339,7 @@ class cPostgresqlCluster:
 	def __init__(self):
 		_log.info('bootstrapping cluster')
 		self.section = 'cluster'
-		self.conn_superuser_at_service_db = None
+		self.conn_superuser_at_maintenance_db = None
 		self.hostname = None
 		if not self.__bootstrap():
 			raise ConstructorError("cPostgresqlCluster.__init__(): Cannot bootstrap db server.")
@@ -348,9 +348,9 @@ class cPostgresqlCluster:
 
 	#--------------------------------------------------------------
 	def __bootstrap(self):
-		# connect to server level service database (typically template1 or template0)
-		if not self.__connect_superuser_to_service_db():
-			_log.error("Cannot connect to cluster service database.")
+		# connect to server level maintenance database (typically template1 or template0)
+		if not self.__connect_superuser_to_maintenance_db():
+			_log.error("Cannot connect to cluster maintenance database.")
 			return None
 
 		# add users/groups
@@ -358,12 +358,12 @@ class cPostgresqlCluster:
 			_log.error("Cannot bootstrap database users.")
 			return None
 
-		self.conn_superuser_at_service_db.close()
+		self.conn_superuser_at_maintenance_db.close()
 		return True
 
 	#--------------------------------------------------------------
-	def __connect_superuser_to_service_db(self):
-		_log.info("connecting to cluster service database")
+	def __connect_superuser_to_maintenance_db(self):
+		_log.info("connecting to cluster maintenance database")
 
 		self.hostname = get_from_os_env('GM_CLUSTER_HOSTNAME', allow_empty = True)
 		if self.hostname is None:
@@ -379,47 +379,47 @@ class cPostgresqlCluster:
 				_log.error("Need to know the cluster port.")
 				return None
 
-		self.service_db = get_from_os_env('GM_CLUSTER_SERVICE_DB')
-		if not self.service_db:
-			self.service_db = cfg_get(self.section, 'service database')
-			if self.service_db is None:
-				_log.error("Need to know the service database name.")
+		self.maintenance_db = get_from_os_env('GM_CLUSTER_MAINTENANCE_DB')
+		if not self.maintenance_db:
+			self.maintenance_db = cfg_get(self.section, 'maintenance database')
+			if self.maintenance_db is None:
+				_log.error("Need to know the maintenance database name.")
 				return None
 
-		if self.conn_superuser_at_service_db is not None:
-			if self.conn_superuser_at_service_db.closed == 0:
-				self.conn_superuser_at_service_db.close()
-		self.conn_superuser_at_service_db = connect (
+		if self.conn_superuser_at_maintenance_db is not None:
+			if self.conn_superuser_at_maintenance_db.closed == 0:
+				self.conn_superuser_at_maintenance_db.close()
+		self.conn_superuser_at_maintenance_db = connect (
 			host = self.hostname,
 			port = self.port,
-			db = self.service_db,
+			db = self.maintenance_db,
 			user = _PG_SUPERUSER,
-			conn_name = 'pg superuser/root@server service DB'
+			conn_name = 'pg superuser/root@server maintenance DB'
 		)
-		if self.conn_superuser_at_service_db is None:
+		if self.conn_superuser_at_maintenance_db is None:
 			_log.error('Cannot connect.')
 			return None
 
-		self.conn_superuser_at_service_db.cookie = 'cPostgresqlCluster.__connect_superuser_to_service_db'
+		self.conn_superuser_at_maintenance_db.cookie = 'cPostgresqlCluster.__connect_superuser_to_maintenance_db'
 
 		# verify encoding
-		curs = self.conn_superuser_at_service_db.cursor()
+		curs = self.conn_superuser_at_maintenance_db.cursor()
 		curs.execute("select setting from pg_settings where name = 'lc_ctype'")
 		data = curs.fetchall()
 		if data:
 			lc_ctype = data[0][0]
-			_log.info('service database LC_CTYPE is [%s]', lc_ctype)
+			_log.info('maintenance database LC_CTYPE is [%s]', lc_ctype)
 		else:
 			# PG16+: lc_ctype/lc_collate are per-database attrs, not GUCs
 			curs.execute("SELECT datcollate, datctype FROM pg_database WHERE datname = current_database()")
 			row = curs.fetchone()
 			if not row:
-				_log.error('Could not read datcollate/datctype for service DB')
+				_log.error('Could not read datcollate/datctype for maintenance DB')
 				return None
 
 			lc_collate, lc_ctype = row
-			_log.info('service database LC_COLLATE is [%s]', lc_collate)
-			_log.info('service database LC_CTYPE   is [%s]', lc_ctype)
+			_log.info('maintenance database LC_COLLATE is [%s]', lc_collate)
+			_log.info('maintenance database LC_CTYPE   is [%s]', lc_ctype)
 
 		lc_ctype = lc_ctype.lower()
 		if lc_ctype in ['c', 'posix']:
@@ -445,7 +445,7 @@ class cPostgresqlCluster:
 		curs.execute("set lc_messages to 'C'")
 		curs.close()
 
-		_log.info("successfully connected to service database [%s]" % self.service_db)
+		_log.info("successfully connected to maintenance database [%s]" % self.maintenance_db)
 		return True
 
 	#--------------------------------------------------------------
@@ -472,22 +472,22 @@ class cPostgresqlCluster:
 			_log.error("Cannot load GNUmed group names from config file (section [%s])." % section)
 			return True
 
-		cursor = self.conn_superuser_at_service_db.cursor()
+		cursor = self.conn_superuser_at_maintenance_db.cursor()
 		for group in groups:
 			if not gmPG2.create_group_role(group_role = group, link_obj = cursor):
 				cursor.close()
 				return False
 
-		self.conn_superuser_at_service_db.commit()
+		self.conn_superuser_at_maintenance_db.commit()
 		cursor.close()
 		return True
 
 	#--------------------------------------------------------------
 	def __create_gm_dbo(self):
-		if not gmPG2.user_role_exists(user_role = _GM_DBO_ROLE, link_obj = self.conn_superuser_at_service_db):
+		if not gmPG2.user_role_exists(user_role = _GM_DBO_ROLE, link_obj = self.conn_superuser_at_maintenance_db):
 			print_msg(__MSG_create_gm_dbo)
 			_gm_dbo_pwd = get_gm_dbo_password()
-			if not gmPG2.create_user_role(user_role = _GM_DBO_ROLE, password = _gm_dbo_pwd, link_obj = self.conn_superuser_at_service_db):
+			if not gmPG2.create_user_role(user_role = _GM_DBO_ROLE, password = _gm_dbo_pwd, link_obj = self.conn_superuser_at_maintenance_db):
 				return False
 
 		SQL = (
@@ -499,7 +499,7 @@ class cPostgresqlCluster:
 			_GM_LOGINS_GROUP, _GM_DBO_ROLE,
 			_GM_DBO_ROLE
 		)
-		cursor = self.conn_superuser_at_service_db.cursor()
+		cursor = self.conn_superuser_at_maintenance_db.cursor()
 		try:
 			cursor.execute(SQL)
 		except:
@@ -509,7 +509,7 @@ class cPostgresqlCluster:
 			return False
 
 		cursor.close()
-		self.conn_superuser_at_service_db.commit()
+		self.conn_superuser_at_maintenance_db.commit()
 		return True
 
 #==================================================================

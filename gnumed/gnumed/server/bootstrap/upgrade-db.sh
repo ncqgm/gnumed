@@ -39,12 +39,12 @@
 #
 #export GM_CLUSTER_PORT="5432"
 
-# if you need to adjust the cluster service database
+# if you need to adjust the cluster maintenance database
 # you can use the environment variable below (this will only
 # very rarely be necessary, typically it is either template1
 # or template0)
 #
-#export GM_CLUSTER_SERVICE_DB="template1"
+#export GM_CLUSTER_MAINTENANCE_DB="template1"
 
 # if you need to adjust the cluster superuser account
 # you can use the environment variable below (this will only
@@ -130,12 +130,12 @@ function setup_connection_environment () {
 	else
 		declare -g PORT_ARG=""
 	fi ;
-	# tell libpq-based tools about the non-default service db, if any
-	if test -n "${GM_CLUSTER_SERVICE_DB}" ; then
-		declare -g SERVICE_DB_ARG="--dbname=${GM_CLUSTER_SERVICE_DB}"
-		declare -g -x PGDATABASE="${GM_CLUSTER_SERVICE_DB}"
+	# tell libpq-based tools about the non-default maintenance db, if any
+	if test -n "${GM_CLUSTER_MAINTENANCE_DB}" ; then
+		declare -g MAINTENANCE_DB_ARG="--dbname=${GM_CLUSTER_MAINTENANCE_DB}"
+		declare -g -x PGDATABASE="${GM_CLUSTER_MAINTENANCE_DB}"
 	else
-		declare -g SERVICE_DB_ARG=""
+		declare -g MAINTENANCE_DB_ARG=""
 	fi ;
 	# tell libpq-based tools about the non-default superuser, if any
 	if test -n "${GM_CLUSTER_SUPERUSER}" ; then
@@ -155,8 +155,8 @@ function assert_source_database_exists () {
 	fi ;
 	# Does source database exist ?
 	TEMPLATE_DB="gnumed_v${PREV_VER}"
-	#VER_EXISTS=`su -c "psql --list ${HOST_ARG} ${PORT_ARG} ${SERVICE_DB_ARG} ${SUPERUSER_ARG}" -l postgres | grep ${TEMPLATE_DB}`
-	VER_EXISTS=$(su -c "psql --list ${HOST_ARG} ${PORT_ARG} ${SERVICE_DB_ARG} ${SUPERUSER_ARG}" -l postgres | grep ${TEMPLATE_DB})
+	#VER_EXISTS=`su -c "psql --list ${HOST_ARG} ${PORT_ARG} ${MAINTENANCE_DB_ARG} ${SUPERUSER_ARG}" -l postgres | grep ${TEMPLATE_DB}`
+	VER_EXISTS=$(su -c "psql --list ${HOST_ARG} ${PORT_ARG} ${MAINTENANCE_DB_ARG} ${SUPERUSER_ARG}" -l postgres | grep ${TEMPLATE_DB})
 	if test "${VER_EXISTS}" == "" ; then
 		echo ""
 		echo "Trying to upgrade from version <${PREV_VER}> to version <${NEXT_VER}> ..."
@@ -181,8 +181,8 @@ function warn_on_existing_target_database () {
 		return
 	fi ;
 	# Does TARGET database exist ?
-	#VER_EXISTS=`su -c "psql --list ${HOST_ARG} ${PORT_ARG} ${SERVICE_DB_ARG} ${SUPERUSER_ARG}" -l postgres | grep gnumed_v${NEXT_VER}`
-	VER_EXISTS=$(su -c "psql --list ${HOST_ARG} ${PORT_ARG} ${SERVICE_DB_ARG} ${SUPERUSER_ARG}" -l postgres | grep gnumed_v${NEXT_VER})
+	#VER_EXISTS=`su -c "psql --list ${HOST_ARG} ${PORT_ARG} ${MAINTENANCE_DB_ARG} ${SUPERUSER_ARG}" -l postgres | grep gnumed_v${NEXT_VER}`
+	VER_EXISTS=$(su -c "psql --list ${HOST_ARG} ${PORT_ARG} ${MAINTENANCE_DB_ARG} ${SUPERUSER_ARG}" -l postgres | grep gnumed_v${NEXT_VER})
 	if test "${VER_EXISTS}" != "" ; then
 		echo ""
 		echo "WARNING: The target database"
@@ -359,7 +359,7 @@ function vacuum_target_database () {
 	perhaps_echo_msg "4) preparing new database for efficient use ..."
 	perhaps_echo_msg "   If the database is large this may take quite a while!"
 	perhaps_echo_msg "   You may need to type in the password for ${GM_DBO}."
-	vacuumdb --full --analyze ${HOST_ARG} ${PORT_ARG} ${SERVICE_DB_ARG} --username=${GM_DBO} gnumed_v${NEXT_VER}
+	vacuumdb --full --analyze ${HOST_ARG} ${PORT_ARG} ${MAINTENANCE_DB_ARG} --username=${GM_DBO} gnumed_v${NEXT_VER}
 }
 
 #---------------------------------------------------------------------------------

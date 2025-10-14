@@ -46,12 +46,12 @@ function setup_connection_environment () {
 	else
 		declare -g PORT_ARG=""
 	fi ;
-	# tell libpq-based tools about the non-default service db, if any
-	if test -n "${GM_CLUSTER_SERVICE_DB}" ; then
-		declare -g SERVICE_DB_ARG="--dbname=${GM_CLUSTER_SERVICE_DB}"
-		declare -g -x PGDATABASE="${GM_CLUSTER_SERVICE_DB}"
+	# tell libpq-based tools about the non-default maintenance db, if any
+	if test -n "${GM_CLUSTER_MAINTENANCE_DB}" ; then
+		declare -g MAINTENANCE_DB_ARG="--dbname=${GM_CLUSTER_MAINTENANCE_DB}"
+		declare -g -x PGDATABASE="${GM_CLUSTER_MAINTENANCE_DB}"
 	else
-		declare -g SERVICE_DB_ARG=""
+		declare -g MAINTENANCE_DB_ARG=""
 	fi ;
 	# tell libpq-based tools about the non-default superuser, if any
 	if test -n "${GM_CLUSTER_SUPERUSER}" ; then
@@ -66,7 +66,7 @@ function setup_connection_environment () {
 function verify_dropping_of_existing_databases () {
 	ALL_PREV_VERS="${VERSIONS_TO_DROP} ${PREV_VER} ${VER}"
 	for DB_VER in ${ALL_PREV_VERS} ; do
-		VER_EXISTS=$(su -c "psql --list ${HOST_ARG} ${PORT_ARG} ${SERVICE_DB_ARG} ${SUPERUSER_ARG}" -l postgres | grep gnumed_v${DB_VER})
+		VER_EXISTS=$(su -c "psql --list ${HOST_ARG} ${PORT_ARG} ${MAINTENANCE_DB_ARG} ${SUPERUSER_ARG}" -l postgres | grep gnumed_v${DB_VER})
 		if test "${VER_EXISTS}" != "" ; then
 			echo ""
 			echo "------------------------------------------------"
