@@ -51,11 +51,6 @@ All definitions are loaded from a config file.
 Requires psycopg 2.7.4.
 """
 #==================================================================
-# TODO
-# - perhaps create PGPASSFILE
-# - warn if empty password
-# - verify that pre-created database is owned by "gm-dbo"
-# - rework under assumption that there is only one DB
 #==================================================================
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL v2 or later"
@@ -140,32 +135,6 @@ _keep_temp_files = False
 conn_ref_count = []
 
 #==================================================================
-pg_hba_sermon = """
-I have found a connection to the database, but I am forbidden
-to connect due to the settings in pg_hba.conf. This is a
-PostgreSQL configuration file that controls who can connect
-to the database.
-
-Depending on your setup, it can be found in
-/etc/postgresql/pg_hba.conf (Debian)
-/usr/local/pgsql/pgdata/pg_hba.conf (FreeBSD, ?? Mac OS X)
-FIXME: where do RedHat & friends put it
- or whichever directory your database files are located.
-
-For gnumed, pg_hba.conf must allow password authentication.
-For deveopment systems, I suggest the following
-
-local    template1 postgres                             peer
-local    gnumed    all                                  scram-sha-256
-host     gnumed    all    127.0.0.1 255.255.255.255     scram-sha-256
-
-For production systems, a different configuration will be
-required, but gnumed is not production ready.
-There is also a pg_hba.conf.example in this directory.
-
-You must then restart (or SIGHUP) your PostgreSQL server.
-"""
-
 SQL_add_foreign_key = """
 ALTER TABLE %(src_schema)s.%(src_tbl)s
 	ADD FOREIGN KEY (%(src_col)s)
@@ -1763,31 +1732,3 @@ finally:
 _log.info('after main, before sys.exit(0)')
 
 sys.exit(0)
-
-
-#==================================================================
-#	pipe = popen2.Popen3(cmd, 1==1)
-#	pipe.tochild.write("%s\n" % aPassword)
-#	pipe.tochild.flush()
-#	pipe.tochild.close()
-
-#	result = pipe.wait()
-#	print(result)
-
-	# read any leftovers
-#	pipe.fromchild.flush()
-#	pipe.childerr.flush()
-#	tmp = pipe.fromchild.read()
-#	lines = tmp.split("\n")
-#	for line in lines:
-#		_log.debug("child stdout: [%s]" % line, gmLog.lCooked)
-#	tmp = pipe.childerr.read()
-#	lines = tmp.split("\n")
-#	for line in lines:
-#		_log.error("child stderr: [%s]" % line, gmLog.lCooked)
-
-#	pipe.fromchild.close()
-#	pipe.childerr.close()
-#	del pipe
-
-#==================================================================
