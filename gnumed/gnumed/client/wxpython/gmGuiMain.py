@@ -347,6 +347,8 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.__on_cfg_meds_lab_pnl, item)
 		item = menu_cfg_ui.Append(-1, _('General measurements'), _('Select the measurements panel to show in the top pane.'))
 		self.Bind(wx.EVT_MENU, self.__on_cfg_top_lab_pnl, item)
+		item = menu_cfg_ui.Append(-1, _('Tab position'), _("Select the main notebook's tab position (top/bottom)."))
+		self.Bind(wx.EVT_MENU, self.__on_cfg_nb_tab_pos, item)
 
 		# gnumed / config / ui / docs
 		menu_cfg_doc = wx.Menu()
@@ -1806,6 +1808,19 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_cfg_top_lab_pnl(self, evt):
 		gmMeasurementWidgets.configure_default_top_lab_panel(parent = self)
+
+	#----------------------------------------------
+	def __on_cfg_nb_tab_pos(self, evt):
+		gmCfgWidgets.configure_string_from_list_option (
+			parent = self,
+			message = _('Select the plugin tab position for the main notebook.'),
+			option = 'horstspace.notebook.tab_position',
+			bias = 'user',
+			default_value = 'bottom',
+			choices = [ _('Left'), _('Right'), _('Top'), _('Bottom') ],
+			columns = [_('Plugin tab position')],
+			data = [ 'left', 'right', 'top', 'bottom' ]
+		)
 
 	#----------------------------------------------
 	def __on_cfg_enc_default_type(self, evt):
