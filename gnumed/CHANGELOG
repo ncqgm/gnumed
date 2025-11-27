@@ -6,6 +6,10 @@
 # rel-1-8-maint
 ------------------------------------------------
 
+	1.8.23
+
+IMPROVED: UI: cfg: notebook tabs position [thanks María]
+
 	1.8.22
 
 FIX: SOAP: auto-resizing input text field [thanks Maria]

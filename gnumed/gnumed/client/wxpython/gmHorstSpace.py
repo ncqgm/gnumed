@@ -28,8 +28,24 @@ _log = logging.getLogger('gm.ui')
 class cHorstSpaceNotebook(wx.Notebook):			# wx.BestBook ?
 
 	def __init__(self, *args, **kwargs):
-
-		kwargs['style'] = wx.NB_BOTTOM
+		nb_tab_pos = gmCfg.cCfgSQL().get2 (
+			option = 'horstspace.notebook.tab_position',
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
+			bias = 'user',
+			default = 'bottom'
+		)
+		match nb_tab_pos:
+			case 'top':
+				nb_tab_pos = wx.NB_TOP
+			case 'bottom':
+				nb_tab_pos = wx.NB_BOTTOM
+			case 'left':
+				nb_tab_pos = wx.NB_LEFT
+			case 'right':
+				nb_tab_pos = wx.NB_RIGHT
+			case _:
+				nb_tab_pos = wx.NB_BOTTOM
+		kwargs['style'] = nb_tab_pos
 		kwargs['id'] = -1
 		wx.Notebook.__init__(self, *args, **kwargs)
 
