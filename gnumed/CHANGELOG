@@ -8,6 +8,8 @@
 
 	1.8.23
 
+FIX: hyphenated module names failing in newer Python versions [thanks María]
+
 IMPROVED: UI: cfg: notebook tabs position [thanks María]
 
 	1.8.22

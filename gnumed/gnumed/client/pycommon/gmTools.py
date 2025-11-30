@@ -24,6 +24,7 @@ import functools
 import json
 import shutil
 import zipfile
+import importlib
 import datetime as pydt
 import re as regex
 import xml.sax.saxutils as xml_tools
@@ -885,7 +886,8 @@ def import_module_from_directory(module_path=None, module_name=None, always_remo
 		module_name = module_name[:-3]
 
 	try:
-		module = __import__(module_name)
+		#module = __import__(module_name)
+		module = importlib.import_module(module_name)
 	except Exception:
 		_log.exception('cannot __import__() module [%s] from [%s]' % (module_name, module_path))
 		while module_path in sys.path:
@@ -2466,7 +2468,7 @@ second line\n
 	#-----------------------------------------------------------------------
 	#test_coalesce()
 	#test_capitalize()
-	#test_import_module()
+	test_import_module()
 	#test_mkdir()
 	#test_gmPaths()
 	#test_none_if()
@@ -2479,7 +2481,7 @@ second line\n
 	#test_input2int()
 	#test_unwrap()
 	#test_md5()
-	test_unicode()
+	#test_unicode()
 	#test_xml_escape()
 	#test_strip_trailing_empty_lines()
 	#test_fname_stem()
