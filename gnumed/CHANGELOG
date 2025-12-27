@@ -11,6 +11,7 @@
 FIX: hyphenated module names failing in newer Python versions [thanks María]
 
 IMPROVED: UI: cfg: notebook tabs position [thanks María]
+IMPROVED: DB: warn on non-SCRAM passwords
 
 	1.8.22
 
