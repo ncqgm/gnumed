@@ -2883,10 +2883,10 @@ def sanity_check_database_settings(hipaa:bool=True) -> tuple:
 		'fsync': [['on'], 'data loss/corruption', True],
 		'full_page_writes': [['on'], 'data loss/corruption', False],
 		'lc_messages': [['C'], 'suboptimal error detection', False],
-		'password_encryption': [['on', 'md5', 'scram-sha-256'], 'breach of confidentiality', False],
-		#'regex_flavor': [[u'advanced'], u'query breakage', False],					# 9.0 doesn't support this anymore, and default now "advanced" anyway
+		'password_encryption': [['scram-sha-256'], 'breach of confidentiality', False],
+		#u'regex_flavor': [[u'advanced'], u'query breakage', False],				# hardwired in PG9+
 		'synchronous_commit': [['on'], 'data loss/corruption', False],
-		'sql_inheritance': [['on'], 'query breakage, data loss/corruption', True],	# IF returned (<PG10): better be ON, if NOT returned (PG10): hardwired
+		#'sql_inheritance': [['on'], 'query breakage, data loss/corruption', True],	# hardwired in PG10+
 		'ignore_checksum_failure': [['off'], 'data loss/corruption', False],		# starting with PG 9.3
 		'track_commit_timestamp': [['on'], 'suboptimal auditing', False],			# starting with PG 9.3
 	}
@@ -3629,7 +3629,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_sanitize_pg_regex()
 	#test_is_pg_interval()
 	#test_sanity_check_time_skew()
-	#test_sanity_check_database_settings()
+	test_sanity_check_database_settings()
 	#test_get_foreign_key_details()
 	#test_get_index_name()
 	#test_set_user_language()
@@ -3680,7 +3680,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 #		print(type(e))
 #		for s in dir(e.diag):
 #			print(s, getattr(e.diag, s))
-	test_get_db_fingerprint()
+	#test_get_db_fingerprint()
 	#test_schema_compatible()
 	#test_get_schema_structure()
 	#test___get_schema_structure()
