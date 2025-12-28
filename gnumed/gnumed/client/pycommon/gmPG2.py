@@ -871,6 +871,14 @@ def create_user_role(user_role:str=None, password:str=None, link_obj=None) -> bo
 	return role_exists(role = user_role, link_obj = link_obj)
 
 #------------------------------------------------------------------------
+def user_needs_password_encryption_switch(user:str=None) -> bool:
+	SQL = 'SELECT gm.user_needs_md5_2_scramsha256_pwd_switch(%(usr)s)'
+	if not user:
+		user = 'CURRENT_USER'
+	rows = run_ro_query(sql = SQL, args = {'usr': user})
+	return rows[0][0]
+
+#------------------------------------------------------------------------
 def get_current_user() -> str:
 	rows = run_ro_query(sql = 'SELECT CURRENT_USER')
 	return rows[0][0]
@@ -3610,6 +3618,17 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 		print(is_beginning_of_time(pydt.datetime(1, 1, 1)))
 
 	#--------------------------------------------------------------------
+	def test_user_needs_password_encryption_switch(user:str=None):
+		users = [
+			sys.argv[2],
+			'any-staff',
+			None
+		]
+		request_login_params(setup_pool = True)
+		for user in users:
+			print('user [%s]' % user, user_needs_password_encryption_switch(user))
+
+	#--------------------------------------------------------------------
 	# run tests
 
 	run_collations_tool()
@@ -3629,7 +3648,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_sanitize_pg_regex()
 	#test_is_pg_interval()
 	#test_sanity_check_time_skew()
-	test_sanity_check_database_settings()
+	#test_sanity_check_database_settings()
 	#test_get_foreign_key_details()
 	#test_get_index_name()
 	#test_set_user_language()
@@ -3685,5 +3704,6 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_get_schema_structure()
 	#test___get_schema_structure()
 	#test_pg_temp_concat()
+	test_user_needs_password_encryption_switch()
 
 # ======================================================================
