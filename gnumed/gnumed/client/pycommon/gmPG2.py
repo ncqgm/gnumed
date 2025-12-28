@@ -730,12 +730,27 @@ def get_db_fingerprint(conn=None, fname=None, with_dump=False, eol=None):
 
 #------------------------------------------------------------------------
 def user_needs_password_encryption_switch(user:str=None) -> bool:
-	if not user:
-		user = 'CURRENT_USER'
-	SQL = 'SELECT gm.user_needs_md5_2_scramsha256_pwd_switch(%(usr)s)'
 	args = {'usr': user}
+	if not user:
+		SQL = 'SELECT gm.user_needs_md5_2_scramsha256_pwd_switch(CURRENT_USER)'
+	else:
+		SQL = 'SELECT gm.user_needs_md5_2_scramsha256_pwd_switch(%(usr)s)'
 	rows, idx = run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
-	return rows[0][0]
+	if not rows[0][0]:
+		return False
+
+	_log.debug('user [%s] uses md5 password', user)
+	SQL = 'SELECT setting = %(val)s FROM pg_settings WHERE name = %(opt)s'
+	args = {
+		'val': 'scram-sha-256',
+		'opt': 'password_encryption'
+	}
+	rows, idx = run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+	if not rows[0][0]:
+		return False
+
+	_log.debug('PostgreSQL cluster configured for SCRAM-SHA256 password encryption, re-encryption of user password recommended')
+	return True
 
 #------------------------------------------------------------------------
 def get_current_user():
