@@ -283,6 +283,15 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 			break
 
 		dlg.panel.save_state()
+		user_needs_pwd_enc_switch = gmPG2.user_needs_password_encryption_switch()
+		if user_needs_pwd_enc_switch:
+			gmGuiHelpers.warn (
+				title = _('Verifying password security'),
+				warning = _(
+					'For improved password security please\n'
+					'arrange for your password to be re-set.'
+				)
+			)
 		gmExceptionHandlingWidgets.set_is_public_database(_cfg.get(option = 'is_public_db'))
 		gmExceptionHandlingWidgets.set_helpdesk(_cfg.get(option = 'helpdesk'))
 		gmLog2.log_multiline (

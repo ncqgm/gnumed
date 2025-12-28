@@ -872,11 +872,26 @@ def create_user_role(user_role:str=None, password:str=None, link_obj=None) -> bo
 
 #------------------------------------------------------------------------
 def user_needs_password_encryption_switch(user:str=None) -> bool:
-	SQL = 'SELECT gm.user_needs_md5_2_scramsha256_pwd_switch(%(usr)s)'
 	if not user:
-		user = 'CURRENT_USER'
+		SQL = 'SELECT gm.user_needs_md5_2_scramsha256_pwd_switch(CURRENT_USER)'
+	else:
+		SQL = 'SELECT gm.user_needs_md5_2_scramsha256_pwd_switch(%(usr)s)'
 	rows = run_ro_query(sql = SQL, args = {'usr': user})
-	return rows[0][0]
+	if not rows[0][0]:
+		return False
+
+	_log.debug('user [%s] uses md5 password', user)
+	SQL = 'SELECT setting = %(val)s FROM pg_settings WHERE name = %(opt)s'
+	args = {
+		'opt': 'password_encryption',
+		'val': 'scram-sha-256'
+	}
+	rows, idx = run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+	if not rows[0][0]:
+		return False
+
+	_log.debug('PostgreSQL cluster configured for SCRAM-SHA256 password encryption, re-encryption of user password recommended')
+	return True
 
 #------------------------------------------------------------------------
 def get_current_user() -> str:
