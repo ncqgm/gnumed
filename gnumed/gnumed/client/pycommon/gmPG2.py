@@ -729,6 +729,15 @@ def get_db_fingerprint(conn=None, fname=None, with_dump=False, eol=None):
 	return fname
 
 #------------------------------------------------------------------------
+def user_needs_password_encryption_switch(user:str=None) -> bool:
+	if not user:
+		user = 'CURRENT_USER'
+	SQL = 'SELECT gm.user_needs_md5_2_scramsha256_pwd_switch(%(usr)s)'
+	args = {'usr': user}
+	rows, idx = run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+	return rows[0][0]
+
+#------------------------------------------------------------------------
 def get_current_user():
 	rows, idx = run_ro_queries(queries = [{'cmd': 'select CURRENT_USER'}])
 	return rows[0][0]
@@ -2864,6 +2873,17 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 			f.write(__get_schema_structure_by_pg_temp_func())
 
 	#--------------------------------------------------------------------
+	def test_user_needs_password_encryption_switch(user:str=None):
+		users = [
+			sys.argv[2],
+			'any-staff',
+			None
+		]
+		request_login_params(setup_pool = True)
+		for user in users:
+			print('user [%s]' % user, user_needs_password_encryption_switch(user))
+
+	#--------------------------------------------------------------------
 	# run tests
 
 	# legacy:
@@ -2881,7 +2901,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_sanitize_pg_regex()
 	#test_is_pg_interval()
 	#test_sanity_check_time_skew()
-	test_sanity_check_database_settings()
+	#test_sanity_check_database_settings()
 	#test_get_foreign_key_details()
 	#test_get_index_name()
 	#test_set_user_language()
@@ -2897,5 +2917,6 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_get_schema_structure()
 	#test___get_schema_structure()
 	#test_pg_temp_concat()
+	test_user_needs_password_encryption_switch()
 
 # ======================================================================

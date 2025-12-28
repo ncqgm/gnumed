@@ -26,6 +26,7 @@ BEGIN
 	IF NOT FOUND THEN
 		RETURN FALSE;
 	END IF;
+	RAISE NOTICE ''gm.user_needs_md5_2_scramsha256_pwd_switch: account [%] needs to re-set password for encryption method switch'', _user;
 	RETURN TRUE;
 END;';
 
