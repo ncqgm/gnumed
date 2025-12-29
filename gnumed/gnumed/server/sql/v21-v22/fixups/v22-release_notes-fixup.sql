@@ -17,32 +17,20 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.8.22 (database v22.32)',
-	'GNUmed 1.8.22 Release Notes:
+	'Release Notes for GNUmed 1.8.23 (database v22.33)',
+	'GNUmed 1.8.23 Release Notes:
 
-	1.8.22
+	1.8.23
 
-FIX: SOAP: auto-resizing input text field [thanks Maria]
-FIX: SOAP: tabbing in auto-resizing STC [thanks Maria]
-FIX: medication: adding substance dose [thanks Maria]
-FIX: medication: adding intake [thanks vboxuser]
-FIX: backport mailcap import on Python 3.13 [thanks María]
-FIX: backport packaging.version import on Python 3.13 [thanks María]
-FIX: PACS plugin: better connect handling
-FIX: appstream: screenshot URL
+FIX: hyphenated module names failing in newer Python versions [thanks María]
 
-IMPROVED: EMR presentations naming (tabs/menu items) [thanks Maria]
-IMPROVED: i18n: added translatable strings [thanks Maria]
-IMPROVED: GUI: detection of dark theme [thanks Maria]
-IMPROVED: dependancy checker
-IMPROVED: PACS: support SSL connection with Orthanc PACS
+IMPROVED: UI: cfg: notebook tabs position [thanks María]
+IMPROVED: DB: warn on non-SCRAM passwords
 
-	22.32
+	22.33
 
-FIX: crash on bootstrapping v15+ servers [thanks Maria]
-FIX: bootstrapping: add WITH ADMIN to gm-dbo [thanks Maria]
-FIX: upgrade: add WITH ADMIN to gm-dbo [thanks Maria]
+FIX: boostrapping: gm-dbo cannot GRANT ...  WITH ADMIN to itself
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.32@1.8.22');
+select gm.log_script_insertion('v22-release_notes-fixup.sql', '22.33@1.8.23');
