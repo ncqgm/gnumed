@@ -1755,6 +1755,7 @@ def run_file2dicom_tool(fname:str=None, dcm_template:str=None) -> str:
 		dcm_template_file = dcm_template
 	)
 	print('DCM file:', dcm)
+	return dcm
 
 #============================================================
 # main

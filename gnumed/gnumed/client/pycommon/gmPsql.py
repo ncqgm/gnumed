@@ -86,7 +86,7 @@ class Psql:
 
 			# \set
 			if self.match(r"^\\set (\S+) (\S+)"):
-				_log.debug('"\set" found: %s', self.groups)
+				_log.debug('"\\set" found: %s', self.groups)
 				self.vars[self.groups[0]] = self.groups[1]
 				if self.groups[0] == 'ON_ERROR_STOP':
 					# adjusting from string to int so that "1" -> 1 -> True

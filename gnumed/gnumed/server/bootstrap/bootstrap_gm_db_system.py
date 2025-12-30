@@ -911,8 +911,8 @@ class cDatabase:
 	#--------------------------------------------------------------
 	def check_holy_auth_line(self):
 
-		holy_pattern = 'local.*samerole.*\+gm-logins'
-		holy_pattern_inactive = '#\s*local.*samerole.*\+gm-logins'
+		holy_pattern = r'local.*samerole.*\+gm-logins'
+		holy_pattern_inactive = r'#\s*local.*samerole.*\+gm-logins'
 
 		conn = connect (
 			host = _PG_CLUSTER.hostname,

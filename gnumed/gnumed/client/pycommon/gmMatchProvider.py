@@ -27,12 +27,14 @@ _log = logging.getLogger('gm.ui')
 
 # these are stripped from the fragment passed to the
 # match provider before looking for matches:
-default_ignored_chars = "[?!.'\\(){}\[\]<>~#*$%^_]+" + '"'
+#default_ignored_chars = "[?!.'\\(){}\[\]<>~#*$%^_]+" + '"'
+default_ignored_chars = r"""[?!.'"\(){}\[\]<>~#*$%^_]+"""
 
 # these are used to detect word boundaries which is,
 # in turn, used to normalize word boundaries in the
 # input fragment
-default_word_separators = '[- \t=+&:@]+'
+default_word_separators = r'[- \t=+&:@]+'
+
 #============================================================
 class cMatchProvider(object):
 	"""Base class for match providing objects.

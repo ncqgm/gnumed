@@ -1514,6 +1514,7 @@ def __explicit_offset2py_dt(str2parse, offset_chars=None):
 	is_past = str2parse.startswith('-')
 	now = pydt_now_here()
 	ts = None
+	label = None
 
 	# hours
 	if offset_char == offset_chars[0]:

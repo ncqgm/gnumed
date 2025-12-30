@@ -1166,9 +1166,7 @@ def empty_str(text:str) -> bool:
 	"""Check "text" for emptiness.
 
 	Returns:
-
-	* True: None, '', '\w*'
-	* False: ' anything else 1234'
+		True on no-content or whitespace-only.
 	"""
 	if text: return False
 	# could still be '\w+'
@@ -1787,10 +1785,10 @@ def format_dict_likes_comparison(d1, d2, title_left=None, title_right=None, left
 
 	_log.info('comparing dict-likes: %s[%s] vs %s[%s]', coalesce(title_left, '', '"%s" '), type(d1), coalesce(title_right, '', '"%s" '), type(d2))
 	append_type = False
+	type_left = type(d1)
+	type_right = type(d2)
 	if None not in [title_left, title_right]:
 		append_type = True
-		type_left = type(d1)
-		type_right = type(d2)
 	if title_left is None:
 		title_left = '%s' % type_left
 	if title_right is None:
@@ -2615,7 +2613,7 @@ second line\n
 	def test_rst2latex_snippet():
 		tests = ['\\', '^', '~', '{', '}', '%',  '&', '#', '$', '_', u_euro, 'abc\ndef\n\n1234']
 		tests.append('  '.join(tests))
-		tests.append('C:\Windows\Programme\System 32\lala.txt')
+		tests.append(r'C:\Windows\Programme\System 32\lala.txt')
 		tests.extend([
 			'should be identical',
 			'text *some text* text',
@@ -2733,7 +2731,7 @@ second line\n
 
 	#-----------------------------------------------------------------------
 	def test_rm_dir():
-		rmdir('cx:\windows\system3__2xxxxxxxxxxxxx')
+		rmdir(r'cx:\windows\system3__2xxxxxxxxxxxxx')
 
 	#-----------------------------------------------------------------------
 	def test_rm_dir_content():
@@ -2746,7 +2744,9 @@ second line\n
 			('', '', ''),
 			('a', 'a', ''),
 			('GMd: a window title', _GM_TITLE_PREFIX + ':', 'a window title'),
-			('\.br\MICROCYTES+1\.br\SPHEROCYTES       present\.br\POLYCHROMASIAmoderate\.br\\', '\.br\\', 'MICROCYTES+1\.br\SPHEROCYTES       present\.br\POLYCHROMASIAmoderate\.br\\')
+			(r'\.br\MICROCYTES+1\.br\SPHEROCYTES       present\.br\POLYCHROMASIAmoderate\.br\\',
+			 r'\.br\\', 'MICROCYTES+1\.br\SPHEROCYTES       present\.br\POLYCHROMASIAmoderate\.br\\'
+			)
 		]
 		for test in tests:
 			text, prefix, expect = test

@@ -1421,7 +1421,7 @@ def export_translations_from_database(filename=None):
 		tx_file.write(line)
 	tx_file.write('\n')
 
-	tx_file.write('\set ON_ERROR_STOP 1\n')
+	tx_file.write('\\set ON_ERROR_STOP 1\n')
 	tx_file.close()
 
 	return True
@@ -2330,19 +2330,19 @@ def sanitize_pg_regex(expression=None, escape_all=False):
 		False: only escape those which are known to render the regex invalid
 	"""
 	return expression.replace (
-			'(', '\('
+			'(', r'\('
 		).replace (
-			')', '\)'
+			')', r'\)'
 		).replace (
-			'[', '\['
+			'[', r'\['
 		).replace (
-			'+', '\+'
+			'+', r'\+'
 		).replace (
-			'.', '\.'
+			'.', r'\.'
 		).replace (
-			'*', '\*'
+			'*', r'\*'
 		).replace (
-			'?', '\?'
+			'?', r'\?'
 		)
 		#']', '\]',			# not needed
 
@@ -2608,13 +2608,13 @@ def run_rw_queries (
 		tx_commit = lambda *x: None
 		tx_rollback = lambda *x: None
 		curs_close = lambda *x: None
+		notices_accessor = link_obj
 		if isinstance(link_obj, dbapi._psycopg.cursor):
 			curs = link_obj
 			notices_accessor = curs.connection
 		elif isinstance(link_obj, dbapi._psycopg.connection):
 			curs = link_obj.cursor()
 			curs_close = curs.close
-			notices_accessor = link_obj
 			if end_tx:
 				tx_commit = link_obj.commit
 				tx_rollback = link_obj.rollback

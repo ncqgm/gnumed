@@ -370,7 +370,7 @@ def create_audit_ddl(aCursor):
 	_log.debug('the following tables will be audited:')
 	_log.debug(rows)
 	ddl = []
-	ddl.append('\set check_function_bodies 1\n')
+	#ddl.append('\\set check_function_bodies 1\n')
 	ddl.append('set check_function_bodies to on;\n\n')
 
 	# for each marked table
