@@ -30,6 +30,7 @@ import logging
 import uuid
 import re as regex
 import datetime as pydt
+from typing import overload, Literal
 
 
 if __name__ == '__main__':
@@ -2897,6 +2898,14 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	as_amts_data = property(_get_as_amts_data)
 
 #------------------------------------------------------------
+@overload
+def get_substance_intakes(pk_patient:int=None, return_pks:Literal[False]=False, pk_substances:list[int]=None, link_obj=None) -> list[cSubstanceIntakeEntry]:
+	pass
+
+@overload
+def get_substance_intakes(pk_patient:int=None, return_pks:Literal[True]=False, pk_substances:list[int]=None, link_obj=None) -> list[int]:
+	pass
+
 def get_substance_intakes(pk_patient:int=None, return_pks:bool=False, pk_substances:list[int]=None, link_obj=None) -> list[cSubstanceIntakeEntry] | list[int]:
 	"""Retrieve substance intakes.
 
