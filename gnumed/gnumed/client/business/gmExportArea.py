@@ -1531,7 +1531,7 @@ class cExportArea(object):
 			'MusicFiles=no\r\n'
 			'\r\n'
 			'[IgnoreContentPaths]\r\n'
-			'\documents\r\n'
+			'\\documents\r\n'
 			'\r\n'
 			'[unused]\r\n'
 			'open=requires explicit executable\r\n'

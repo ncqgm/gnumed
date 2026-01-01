@@ -393,7 +393,7 @@ def load_persons_from_xdt():
 	candidates = []
 	drives = 'cdefghijklmnopqrstuvwxyz'
 	for drive in drives:
-		candidate = drive + ':\Winacs\TEMP\BDT*.tmp'
+		candidate = drive + r':\Winacs\TEMP\BDT*.tmp'
 		candidates.extend(glob.glob(candidate))
 	for candidate in candidates:
 		path, filename = os.path.split(candidate)
@@ -502,7 +502,7 @@ def load_persons_from_pracsoft_au():
 	candidates = []
 	drives = 'cdefghijklmnopqrstuvwxyz'
 	for drive in drives:
-		candidate = drive + ':\MDW2\PATIENTS.IN'
+		candidate = drive + r':\MDW2\PATIENTS.IN'
 		candidates.extend(glob.glob(candidate))
 	for candidate in candidates:
 		drive, filename = os.path.splitdrive(candidate)

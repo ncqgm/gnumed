@@ -119,7 +119,7 @@ def jump_to_ifap_deprecated(import_drugs=False, emr=None):
 	ifap_cmd = gmCfgDB.get4workplace (
 		option = 'external.ifap-win.shell_command',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-		default = 'wine "C:\Ifapwin\WIAMDB.EXE"'
+		default = r'wine "C:\Ifapwin\WIAMDB.EXE"'
 	)
 	found, binary = gmShellAPI.detect_external_binary(ifap_cmd)
 	if not found:

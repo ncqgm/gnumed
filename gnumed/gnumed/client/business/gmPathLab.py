@@ -2033,25 +2033,21 @@ WHERE
 def get_test_results(pk_patient=None, encounters=None, episodes=None, order_by=None, return_pks=False):
 
 	where_parts = []
-
-	if pk_patient is not None:
+	args = {}
+	if pk_patient:
 		where_parts.append('pk_patient = %(pat)s')
-		args = {'pat': pk_patient}
-#	if tests is not None:
-#		where_parts.append(u'pk_test_type = ANY(%(tests)s)')
-#		args['tests'] = tests
-	if encounters is not None:
+		args['pat'] = pk_patient
+	if encounters:
 		where_parts.append('pk_encounter = ANY(%(encs)s)')
 		args['encs'] = encounters
-	if episodes is not None:
+	if episodes:
 		where_parts.append('pk_episode = ANY(%(epis)s)')
 		args['epis'] = episodes
 	if order_by is None:
 		order_by = ''
 	else:
 		order_by = 'ORDER BY %s' % order_by
-
-	cmd = """
+	SQL = """
 		SELECT * FROM clin.v_test_results
 		WHERE %s
 		%s
@@ -2059,9 +2055,10 @@ def get_test_results(pk_patient=None, encounters=None, episodes=None, order_by=N
 		' AND '.join(where_parts),
 		order_by
 	)
-	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
+	rows = gmPG2.run_ro_query(sql = SQL, args = args)
 	if return_pks:
 		return [ r['pk_test_result'] for r in rows ]
+
 	tests = [ cTestResult(row = {'pk_field': 'pk_test_result', 'data': r}) for r in rows ]
 	return tests
 
@@ -3370,10 +3367,10 @@ if __name__ == '__main__':
 	#test_pending()
 	#test_meta_test_type()
 	#test_test_type()
-	test_format_test_results()
+	#test_format_test_results()
 	#test_calculate_bmi()
 	#test_test_panel()
-	#test_get_test_results()
+	test_get_test_results()
 	#test_get_most_recent_results_for_panel()
 	#test_get_most_recent_results_in_loinc_group()
 	#test_export_result_for_gnuplot()

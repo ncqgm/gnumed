@@ -3416,7 +3416,7 @@ if __name__ == "__main__":
 
 		#cmd = u"SELECT 'infinity'::timestamp with time zone"
 
-		cmd = """
+		cmd = r"""
 SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	SELECT REGEXP_REPLACE (
 		't1.130729.0902.tif',			-- string

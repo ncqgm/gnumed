@@ -117,7 +117,7 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 		)
 		if strict:
 			state = state[:31]
-		table_rows.append('\\multicolumn{11}{>{\\RaggedRight}p{27.9cm}}{\\rule{0pt}{4.5mm} \\fontsize{14pt}{16pt}\selectfont %s\label{AnchorAllergieDetails}}\\tabularnewline' % gmTools.tex_escape_string(state))
+		table_rows.append('\\multicolumn{11}{>{\\RaggedRight}p{27.9cm}}{\\rule{0pt}{4.5mm} \\fontsize{14pt}{16pt}\\selectfont %s\\label{AnchorAllergieDetails}}\\tabularnewline' % gmTools.tex_escape_string(state))
 		# Freitextzeile: 200 Zeichen, @..., \textwidth
 		if self['comment'] is not None:
 			if strict:

@@ -1508,7 +1508,7 @@ class gmTopLevelFrame(wx.Frame):
 			),
 			option = 'external.ifap-win.shell_command',
 			bias = 'workplace',
-			default_value = 'C:\Ifapwin\WIAMDB.EXE',
+			default_value = r'C:\Ifapwin\WIAMDB.EXE',
 			validator = is_valid
 		)
 	#----------------------------------------------

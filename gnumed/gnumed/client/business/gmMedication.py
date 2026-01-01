@@ -821,7 +821,7 @@ class cSubstanceDoseMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 			search_condition = """r_vsd.substance ~* %(subst)s
 				AND
 			r_vsd.amount::text ILIKE %(amount)s"""
-			self._args['subst'] = '\m%s' % subst
+			self._args['subst'] = r'\m%s' % subst
 			self._args['amount'] = '%s%%' % regex.sub(r'^\D+\s*', '', search_term)
 		else:
 			self._queries = [cSubstanceDoseMatchProvider._substance_query]
@@ -2528,7 +2528,7 @@ class cIntakeRegimen(gmBusinessDBObject.cBusinessDBObject):
 			'1/3-1-1-1',
 			'/4-1-1-1'
 		]
-		pattern = "^(\d\d|/\d|\d/\d|\d)[\s-]{1,5}\d{0,2}[\s-]{1,5}\d{0,2}[\s-]{1,5}\d{0,2}$"
+		pattern = r"^(\d\d|/\d|\d/\d|\d)[\s-]{1,5}\d{0,2}[\s-]{1,5}\d{0,2}[\s-]{1,5}\d{0,2}$"
 		for test in tests:
 			print(test.strip(), ":", regex.match(pattern, test.strip()))
 
@@ -2903,7 +2903,7 @@ def get_substance_intakes(pk_patient:int=None, return_pks:Literal[False]=False, 
 	pass
 
 @overload
-def get_substance_intakes(pk_patient:int=None, return_pks:Literal[True]=False, pk_substances:list[int]=None, link_obj=None) -> list[int]:
+def get_substance_intakes(pk_patient:int=None, return_pks:Literal[True]=True, pk_substances:list[int]=None, link_obj=None) -> list[int]:
 	pass
 
 def get_substance_intakes(pk_patient:int=None, return_pks:bool=False, pk_substances:list[int]=None, link_obj=None) -> list[cSubstanceIntakeEntry] | list[int]:
@@ -3045,9 +3045,9 @@ def format_substance_intake_as_amts_latex(intake=None, strict=True):
 			cells.append('\\mbox{%s}' % _esc(c['substance']))
 	else:
 		if strict:
-			cells.append('\\fontsize{10pt}{12pt}\selectfont %s ' % '\\newline '.join(['\\mbox{%s}' % _esc(c['substance'][:80]) for c in components]))
+			cells.append(r'\fontsize{10pt}{12pt}\selectfont %s ' % r'\newline '.join([r'\mbox{%s}' % _esc(c['substance'][:80]) for c in components]))
 		else:
-			cells.append('\\fontsize{10pt}{12pt}\selectfont %s ' % '\\newline '.join(['\\mbox{%s}' % _esc(c['substance']) for c in components]))
+			cells.append(r'\fontsize{10pt}{12pt}\selectfont %s ' % r'\newline '.join([r'\mbox{%s}' % _esc(c['substance']) for c in components]))
 	# product
 	if strict:
 		cells.append(_esc(intake['drug_product'][:50]))
@@ -3064,14 +3064,14 @@ def format_substance_intake_as_amts_latex(intake=None, strict=True):
 		cells.append(_esc(dose))
 	else:		# 2
 		if strict:
-			doses = '\\fontsize{10pt}{12pt}\selectfont %s ' % '\\newline\\ '.join ([
+			doses = r'\fontsize{10pt}{12pt}\selectfont %s ' % r'\newline\ '.join ([
 				_esc(('%s%s' % (
 					('%s' % c['amount']).replace('.', ','),
 					format_units(c['unit'], c['dose_unit'], short = True)
 				))[:11]) for c in components
 			])
 		else:
-			doses = '\\fontsize{10pt}{12pt}\selectfont %s ' % '\\newline\\ '.join ([
+			doses = r'\fontsize{10pt}{12pt}\selectfont %s ' % r'\newline\ '.join ([
 				_esc('%s%s' % (
 					('%s' % c['amount']).replace('.', ','),
 					format_units(c['unit'], c['dose_unit'], short = True)
@@ -3085,13 +3085,13 @@ def format_substance_intake_as_amts_latex(intake=None, strict=True):
 		cells.append(_esc(intake['l10n_preparation']))
 	# schedule - for now be simple - maybe later parse 1-1-1-1 etc
 	if intake['schedule'] is None:
-		cells.append('\\multicolumn{4}{p{3.2cm}|}{\\ }')
+		cells.append(r'\multicolumn{4}{p{3.2cm}|}{\ }')
 	else:
 		# spec says [:20] but implementation guide says: never trim
 		if len(intake['schedule']) > 20:
-			cells.append('\\multicolumn{4}{>{\\RaggedRight}p{3.2cm}|}{\\fontsize{10pt}{12pt}\selectfont %s}' % _esc(intake['schedule']))
+			cells.append(r'\multicolumn{4}{>{\RaggedRight}p{3.2cm}|}{\fontsize{10pt}{12pt}\selectfont %s}' % _esc(intake['schedule']))
 		else:
-			cells.append('\\multicolumn{4}{>{\\RaggedRight}p{3.2cm}|}{%s}' % _esc(intake['schedule']))
+			cells.append(r'\multicolumn{4}{>{\RaggedRight}p{3.2cm}|}{%s}' % _esc(intake['schedule']))
 	# Einheit to take
 	cells.append('')#[:20]
 	# notes
@@ -3101,7 +3101,7 @@ def format_substance_intake_as_amts_latex(intake=None, strict=True):
 		if strict:
 			cells.append(_esc(intake['notes'][:80]))
 		else:
-			cells.append('\\fontsize{10pt}{12pt}\selectfont %s ' % _esc(intake['notes']))
+			cells.append(r'\fontsize{10pt}{12pt}\selectfont %s ' % _esc(intake['notes']))
 	# aim
 	if intake['aim'] is None:
 		#cells.append(' ')
@@ -3110,10 +3110,10 @@ def format_substance_intake_as_amts_latex(intake=None, strict=True):
 		if strict:
 			cells.append(_esc(intake['aim'][:50]))
 		else:
-			cells.append('\\fontsize{10pt}{12pt}\selectfont %s ' % _esc(intake['aim']))
+			cells.append(r'\fontsize{10pt}{12pt}\selectfont %s ' % _esc(intake['aim']))
 
 	table_row = ' & '.join(cells)
-	table_row += '\\tabularnewline{}\n\\hline'
+	table_row += r'\tabularnewline{}\n\hline'
 
 	return table_row
 

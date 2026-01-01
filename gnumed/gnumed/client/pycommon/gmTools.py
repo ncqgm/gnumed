@@ -2744,8 +2744,9 @@ second line\n
 			('', '', ''),
 			('a', 'a', ''),
 			('GMd: a window title', _GM_TITLE_PREFIX + ':', 'a window title'),
-			(r'\.br\MICROCYTES+1\.br\SPHEROCYTES       present\.br\POLYCHROMASIAmoderate\.br\\',
-			 r'\.br\\', 'MICROCYTES+1\.br\SPHEROCYTES       present\.br\POLYCHROMASIAmoderate\.br\\'
+			(r'\.br\MICROCYTES+1\.br\SPHEROCYTES       present\.br\POLYCHROMASIAmoderate\.br\ ',
+			 r'\.br\ ',
+			 r'MICROCYTES+1\.br\SPHEROCYTES       present\.br\POLYCHROMASIAmoderate\.br\ '
 			)
 		]
 		for test in tests:

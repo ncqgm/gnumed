@@ -1883,8 +1883,8 @@ class cPDFForm(cFormEngine):
 			raw_str_val = raw_str_val[:-1]						# remove closing ")"
 
 			# work on FDF escapes
-			raw_str_val = raw_str_val.replace('\(', '(')		# remove escaping of "("
-			raw_str_val = raw_str_val.replace('\)', ')')		# remove escaping of ")"
+			raw_str_val = raw_str_val.replace(r'\(', '(')		# remove escaping of "("
+			raw_str_val = raw_str_val.replace(r'\)', ')')		# remove escaping of ")"
 
 			# by now raw_str_val should contain the actual
 			# string value, albeit encoded as UTF-16, so
@@ -2151,11 +2151,11 @@ class LaTeXFilter:
 					'\xa2': '\\^{A}',
 					#'\xa2':'cent'
 					#'\xa3':'\\~{A}',
-					'\xa3': '\pounds{}',
-					'\\xc5': '{\AA}',
-					'\xc7':'\\c{C}',
-					'\xc8':'\\`{E}',
-					'\xb5':'$\mu$',
+					'\xa3': r'\pounds{}',
+					'\xc5': r'{\AA}',
+					'\xc7': r'\c{C}',
+					'\xc8': r'\`{E}',
+					'\xb5': r'$\mu$',
 			}
 			for k, i in trans.items ():
 				item = item.replace (k, i)

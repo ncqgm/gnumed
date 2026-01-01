@@ -578,9 +578,9 @@ def generate_invoice_id(template=None, pk_patient=None, person=None, date_format
 	data['date'] = now.strftime(date_format).strip()
 	data['time'] = now.strftime(time_format).strip()
 	if person is None:
-		data['firstname'] = u'?'
-		data['lastname'] = u'?'
-		data['dob'] = u'?'
+		data['firstname'] = '?'
+		data['lastname'] = '?'
+		data['dob'] = '?'
 	else:
 		data['firstname'] = person['firstnames'].replace(' ', gmTools.u_space_as_open_box).strip()
 		data['lastname'] = person['lastnames'].replace(' ', gmTools.u_space_as_open_box).strip()
@@ -590,18 +590,18 @@ def generate_invoice_id(template=None, pk_patient=None, person=None, date_format
 			honor_estimation = False
 		).strip()
 	candidate_invoice_id = template % data
-	if u'#counter#' not in candidate_invoice_id:
-		if u'%(time)s' in template:
+	if '#counter#' not in candidate_invoice_id:
+		if '%(time)s' in template:
 			return candidate_invoice_id
 
-		candidate_invoice_id = candidate_invoice_id + u' [##counter#]'
+		candidate_invoice_id = candidate_invoice_id + ' [##counter#]'
 
 	_log.debug('invoice id candidate: %s', candidate_invoice_id)
 	# get existing invoice IDs consistent with candidate
-	search_term = u'^\s*%s\s*$' % gmPG2.sanitize_pg_regex(expression = candidate_invoice_id).replace(u'#counter#', '\d+')
-	cmd = u'SELECT invoice_id FROM bill.bill WHERE invoice_id ~* %(search_term)s UNION ALL SELECT invoice_id FROM audit.log_bill WHERE invoice_id ~* %(search_term)s'
+	search_term = '^\s*%s\s*$' % gmPG2.sanitize_pg_regex(expression = candidate_invoice_id).replace(u'#counter#', '\\d+')
+	SQL = 'SELECT invoice_id FROM bill.bill WHERE invoice_id ~* %(search_term)s UNION ALL SELECT invoice_id FROM audit.log_bill WHERE invoice_id ~* %(search_term)s'
 	args = {'search_term': search_term}
-	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
+	rows = gmPG2.run_ro_query(sql = SQL, args = args)
 	if len(rows) == 0:
 		return candidate_invoice_id.replace(u'#counter#', u'1')
 
@@ -939,12 +939,12 @@ if __name__ == "__main__":
 	#--------------------------------------------------
 
 	#test_generate_scan2pay_string()
-	test_generate_scan2pay_qrcode()
-	sys.exit()
+	#test_generate_scan2pay_qrcode()
+	#sys.exit()
 
 	gmPG2.request_login_params(setup_pool = True)
 
 	#test_me()
 	#test_default_address()
 	#test_get_scan2pay_data()
-	#test_generate_invoice_id()
+	test_generate_invoice_id()

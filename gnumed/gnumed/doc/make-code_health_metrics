@@ -2,6 +2,7 @@
 
 PYFILE="$1"
 
+FAULTY_="E0606: Possibly using variable '_' before assignment \(possibly-used-before-assignment\)"
 MYPY_CMD="mypy --pretty --allow-redefinition --no-strict-optional --ignore-missing-imports --follow-imports silent --show-error-codes --warn-unused-ignores"
 
 if test "${PYFILE}" != "" ; then
@@ -14,9 +15,10 @@ if test "${PYFILE}" != "" ; then
 	rm tmp-pyflakes3.log
 
 	LOG="source-coding_errors-pylint_$(basename ${PYFILE}).log"
-	git log -2 ${PYFILE} > ${LOG}
-	echo "=== $(date): pylint ${PYFILE} ==========" &>> ${LOG}
-	pylint ${PYFILE} &>> ${LOG}
+	git log -2 ${PYFILE} > ${LOG}.tmp
+	echo "=== $(date): pylint ${PYFILE} ==========" &>> ${LOG}.tmp
+	pylint ${PYFILE} &>> ${LOG}.tmp
+	grep --invert-match "${FAULTY_}" ${LOG}.tmp &> ${LOG}
 
 	LOG="source-type_checking.log"
 	git log -2 ${PYFILE} > ${LOG}
@@ -55,10 +57,11 @@ radon cc ${DIRS} | egrep '(\-\s[^ABCD])|(.py)$' &>> ${LOG}
 DIRS="../client/pycommon ../client/business ../client/wxpython ../server/bootstrap"
 for DIR in ${DIRS} ; do
 	LOG="source-coding_errors-pylint_$(basename ${DIR}).log"
-	git log -2 ${DIR} > ${LOG}
-	echo "===============================================================================" &>> ${LOG}
-	echo "=== $(date): pylint ${DIR} ==========" &>> ${LOG}
-	pylint ${DIR}/*.py &>> ${LOG}
+	git log -2 ${DIR} > ${LOG}.tmp
+	echo "===============================================================================" &>> ${LOG}.tmp
+	echo "=== $(date): pylint ${DIR} ==========" &>> ${LOG}.tmp
+	pylint ${DIR}/*.py &>> ${LOG}.tmp
+	grep --invert-match "${FAULTY_}" ${LOG}.tmp &> ${LOG}
 done
 
 
