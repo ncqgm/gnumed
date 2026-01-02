@@ -4110,8 +4110,8 @@ limit 25"""
 
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(1, 1, 2)
-		mp.ignored_chars = "[.'\\\[\]#$%_]+" + '"'
-		mp.word_separators = '[ \t&:]+'
+		mp.ignored_chars = r"""[\.'\[\]%_"]+"""
+		mp.word_separators = r'[ \t&:]+'
 		gmPhraseWheel.cPhraseWheel.__init__ (
 			self,
 			*args,

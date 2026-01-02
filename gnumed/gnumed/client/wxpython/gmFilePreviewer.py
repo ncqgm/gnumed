@@ -8,6 +8,7 @@ __license__ = "GPL v2 or later"
 
 import sys
 import logging
+from typing import Any
 
 
 import wx
@@ -123,7 +124,7 @@ class cFilePreviewPnl(wxgFilePreviewPnl):
 	#--------------------------------------------------------
 	# text preview
 	#--------------------------------------------------------
-	def _worker__convert_to_text(self, filename:str=None, cookie=None) -> str:
+	def _worker__convert_to_text(self, filename:str=None, cookie=None) -> tuple[Any, str]:
 		text_fname = gmMimeLib.convert_file_to_text(filename)
 		if text_fname:
 			with open(text_fname, mode = 'rt', encoding = 'utf-8', errors = 'replace') as txt_file:

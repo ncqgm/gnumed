@@ -1041,24 +1041,33 @@ def create_comm_channel(comm_medium=None, url=None, is_confidential=False, pk_ch
 		return cCommChannel(row = {'pk_field': view_pk, 'data': rows[0]})
 
 	return channel_class(row = {'pk_field': view_pk, 'data': rows[0]})
+
 #-------------------------------------------------------------------
 def delete_comm_channel(pk=None, pk_patient=None, pk_org_unit=None):
-	if pk_patient is not None:
+	query = None
+	if pk_patient:
 		query = {
 			'sql': "DELETE FROM dem.lnk_identity2comm WHERE pk = %(pk)s AND fk_identity = %(pat)s",
 			'args': {'pk': pk, 'pat': pk_patient}
 		}
-	if pk_org_unit is not None:
-		query = {
-			'sql': "DELETE FROM dem.lnk_org_unit2comm WHERE pk = %(pk)s AND fk_org_unit = %(unit)s",
-			'args': {'pk': pk, 'unit': pk_org_unit}
-		}
+	else:
+		if pk_org_unit:
+			query = {
+				'sql': "DELETE FROM dem.lnk_org_unit2comm WHERE pk = %(pk)s AND fk_org_unit = %(unit)s",
+				'args': {'pk': pk, 'unit': pk_org_unit}
+			}
+	if not query:
+		_log.debug('both <pk_patient> and <pk_org_unit> are None, cannot delete comm channel [#%s]', pk)
+		return
+
 	gmPG2.run_rw_queries(queries = [query])
+
 #-------------------------------------------------------------------
 def get_comm_channel_types():
 	cmd = "SELECT pk, _(description) AS l10n_description, description FROM dem.enum_comm_types"
 	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
 	return rows
+
 #-------------------------------------------------------------------
 def delete_comm_channel_type(pk_channel_type=None):
 	cmd = """

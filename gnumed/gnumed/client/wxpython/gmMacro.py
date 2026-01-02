@@ -1106,7 +1106,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				cats.append(c)
 			# '' -> SOAP + None
 			if cats == '':
-				cats = list('soapu').append(None)
+				cats = list('soapu')
+				cats.append(None)
 
 			# part[1]: template
 			if len(data_parts) > 1:
@@ -3471,8 +3472,8 @@ if __name__ == '__main__':
 			'$<allergy_list::%(descriptor)s, >$',
 
 			'\\noindent Patient: $<lastname>$, $<firstname>$',
-			'$<allergies::%(descriptor)s & %(l10n_type)s & {\\footnotesize %(reaction)s} \tabularnewline \hline >$',
-			'$<current_meds::		\item[%(substance)s] {\\footnotesize (%(product)s)} %(preparation)s %(amount)s%(unit)s: %(schedule)s >$'
+			r'$<allergies::%(descriptor)s & %(l10n_type)s & {\footnotesize %(reaction)s} \tabularnewline \hline >$',
+			r'$<current_meds::		\item[%(substance)s] {\footnotesize (%(product)s)} %(preparation)s %(amount)s%(unit)s: %(schedule)s >$'
 		]
 
 		tests = [

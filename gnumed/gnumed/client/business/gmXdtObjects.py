@@ -311,6 +311,7 @@ def split_xdt_file(aFile,patlst,cfg):
 		if strippedline[3:7] == '8000':
 			record_start_lines.append(fileinput.filelineno())
 	# loop over patient records
+	name = None
 	for aline in record_start_lines:
 		# WHY +2 ?!? 
 		line = linecache.getline(aFile,aline+2) 

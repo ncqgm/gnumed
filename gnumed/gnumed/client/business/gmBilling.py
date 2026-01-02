@@ -598,12 +598,12 @@ def generate_invoice_id(template=None, pk_patient=None, person=None, date_format
 
 	_log.debug('invoice id candidate: %s', candidate_invoice_id)
 	# get existing invoice IDs consistent with candidate
-	search_term = '^\s*%s\s*$' % gmPG2.sanitize_pg_regex(expression = candidate_invoice_id).replace(u'#counter#', '\\d+')
+	search_term = r'^\s*%s\s*$' % gmPG2.sanitize_pg_regex(expression = candidate_invoice_id).replace('#counter#', r'\d+')
 	SQL = 'SELECT invoice_id FROM bill.bill WHERE invoice_id ~* %(search_term)s UNION ALL SELECT invoice_id FROM audit.log_bill WHERE invoice_id ~* %(search_term)s'
 	args = {'search_term': search_term}
 	rows = gmPG2.run_ro_query(sql = SQL, args = args)
 	if len(rows) == 0:
-		return candidate_invoice_id.replace(u'#counter#', u'1')
+		return candidate_invoice_id.replace(u'#counter#', '1')
 
 	existing_invoice_ids = [ r['invoice_id'].strip() for r in rows ]
 	counter = None
@@ -619,7 +619,7 @@ def generate_invoice_id(template=None, pk_patient=None, person=None, date_format
 		_log.debug('exhausted uniqueness space of [%s] invoice IDs per template', counter_max)
 		counter = '>%s[%s]' % (counter_max, data['time'])
 
-	return candidate_invoice_id.replace(u'#counter#', '%s' % counter)
+	return candidate_invoice_id.replace('#counter#', '%s' % counter)
 
 #------------------------------------------------------------
 def __generate_invoice_id_lock_token(invoice_id):

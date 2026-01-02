@@ -44,8 +44,6 @@ default_phrase_separators = r';+'
 # those can be used by the <accepted_chars> phrasewheel parameter
 NUMERIC = '0-9'
 ALPHANUMERIC = 'a-zA-Z0-9'
-EMAIL_CHARS = "a-zA-Z0-9\-_@\."
-WEB_CHARS = "a-zA-Z0-9\.\-_/:"
 
 
 _timers:list = []

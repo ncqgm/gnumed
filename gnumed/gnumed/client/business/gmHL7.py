@@ -38,7 +38,7 @@ _log = logging.getLogger('gm.hl7')
 
 # constants
 HL7_EOL = '\r'
-HL7_BRK = '\.br\\'
+HL7_BRK = r'\.br\ '[:-1]
 
 HL7_SEGMENTS = 'FHS BHS MSH PID PV1 OBX NTE ORC OBR'.split()
 
@@ -1016,7 +1016,7 @@ def __import_single_PID_hl7_file(filename, emr=None):
 				val_alpha = None
 			else:
 				val_num = None
-				val_alpha = val_alpha.replace('\.br\\', '\n')
+				val_alpha = val_alpha.replace(HL7_BRK, '\n')
 			# determine test type
 			unit = seg[OBX_field__unit][0].strip()
 			if unit == '':
@@ -1077,7 +1077,7 @@ def __import_single_PID_hl7_file(filename, emr=None):
 			continue
 
 		if seg_type == 'NTE':
-			note = seg[NET_field__note][0].strip().replace('\.br\\', '\n')
+			note = seg[NET_field__note][0].strip().replace(HL7_BRK, '\n')
 			if note == '':
 				_log.debug('empty NTE segment')
 				previous_segment = seg_type			# maybe not ? (HL7 providers happen to use empty NTE segments to "structure" raw HL7 |-)

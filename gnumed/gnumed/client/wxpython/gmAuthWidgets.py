@@ -399,7 +399,7 @@ def change_gmdbowner_password():
 
 	# pwd2 == pwd1 at this point so no need to hide (again)
 
-	"""	On Mon, Mar 13, 2017 at 12:19:22PM -0400, Tom Lane wrote:
+	r"""	On Mon, Mar 13, 2017 at 12:19:22PM -0400, Tom Lane wrote:
 		> Date: Mon, 13 Mar 2017 12:19:22 -0400
 		> From: Tom Lane <tgl@sss.pgh.pa.us>
 		> To: Adrian Klaver <adrian.klaver@aklaver.com>

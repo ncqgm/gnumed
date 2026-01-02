@@ -1082,7 +1082,7 @@ class gmConnectionPool(gmBorg.cBorg):
 		# we need gmDateTime to be initialized
 		if gmDateTime.current_local_iso_numeric_timezone_string is None:
 			gmDateTime.init()
-		tz_candidates = [gmDateTime.current_local_timezone_name]
+		tz_candidates:list[str|None] = [gmDateTime.current_local_timezone_name]
 		try:
 			tz_candidates.append(os.environ['TZ'])
 		except KeyError:

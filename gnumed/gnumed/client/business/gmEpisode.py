@@ -348,6 +348,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		with_health_issue=False,
 		return_list=False
 	):
+		emr = None
 		if patient:
 			if patient.ID != self._payload['pk_patient']:
 				msg = '<patient>.ID = %s but episode %s belongs to patient %s' % (

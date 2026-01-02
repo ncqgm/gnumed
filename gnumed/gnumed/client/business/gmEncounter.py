@@ -574,8 +574,7 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def format_by_episode(self, episodes=None, issues=None, left_margin=0, patient=None, with_soap=False, with_tests=True, with_docs=True, with_vaccinations=True, with_family_history=True):
 
-		if patient is not None:
-			emr = patient.emr
+		emr = patient.emr if patient else None
 
 		lines = []
 		if episodes is None:
