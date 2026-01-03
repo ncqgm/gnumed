@@ -1102,7 +1102,7 @@ def manage_documents(parent=None, msg=None, single_selection=True, pk_types=None
 		if doc is None:
 			return
 		for fname in doc.save_parts_to_files():
-			gmMimeLib.call_viewer_on_file(aFile = fname, block = False)
+			gmMimeLib.call_viewer_on_file(fname, block = False)
 
 	#------------------------------------------------------------
 	return gmListWidgets.get_choices_from_list (

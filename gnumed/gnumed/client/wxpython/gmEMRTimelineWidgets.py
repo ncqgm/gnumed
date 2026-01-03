@@ -318,7 +318,7 @@ class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmR
 		if self.__tl_file is None:
 			return
 		tl_image_file = self._PNL_timeline.export_as_png()
-		gmMimeLib.call_viewer_on_file(aFile = tl_image_file, block = None)
+		gmMimeLib.call_viewer_on_file(tl_image_file, block = None)
 
 	#--------------------------------------------------------
 	def _on_export_area_button_pressed(self, event):

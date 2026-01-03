@@ -207,7 +207,7 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 		editor = gmMimeLib.get_editor_cmd(mimetype = mimetype, filename = filename)
 		if editor is None:
 			_log.error('no editor for mimetype <%s> configured, trying mimetype viewer', mimetype)
-			success, msg = gmMimeLib.call_viewer_on_file(aFile = filename, block = True)
+			success, msg = gmMimeLib.call_viewer_on_file(filename, block = True)
 			if not success:
 				_log.debug('problem running mimetype <%s> viewer', mimetype)
 				gmGuiHelpers.gm_show_error (
@@ -239,7 +239,7 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 
 	success = gmShellAPI.run_command_in_shell(editor, blocking = True)
 	if not success:
-		success, msg = gmMimeLib.call_viewer_on_file(aFile = filename, block = True)
+		success, msg = gmMimeLib.call_viewer_on_file(filename, block = True)
 		if not success:
 			_log.debug('problem running mimetype <%s> viewer', mimetype)
 			gmGuiHelpers.gm_show_error (

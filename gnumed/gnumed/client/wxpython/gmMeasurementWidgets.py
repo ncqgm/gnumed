@@ -85,7 +85,7 @@ def show_hl7_file(parent=None):
 		return_filename = True,
 		fix_hl7 = True
 	)
-	gmMimeLib.call_viewer_on_file(aFile = formatted_name, block = False)
+	gmMimeLib.call_viewer_on_file(formatted_name, block = False)
 	return True
 
 #================================================================
@@ -204,7 +204,7 @@ def browse_incoming(parent=None):
 		tmp_file.write('\n')
 		tmp_file.write(gmTools.coalesce(staged_item['comment'], ''))
 		tmp_file.close()
-		gmMimeLib.call_viewer_on_file(aFile = filename, block = False)
+		gmMimeLib.call_viewer_on_file(filename, block = False)
 		return False
 	#------------------------------------------------------------
 	def import_hl7(staged_item):

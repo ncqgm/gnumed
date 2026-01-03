@@ -733,28 +733,33 @@ def describe_file(filename, callback=None, cookie=None):
 	)
 
 #-----------------------------------------------------------------------------------
-def call_viewer_on_file(aFile = None, block=None):
-	"""Try to find an appropriate viewer with all tricks and call it.
+def call_viewer_on_file(filename:str=None, block:bool=None) -> tuple[bool, str]:
+	"""Try to find an appropriate viewer and call it.
 
-	block: try to detach from viewer or not, None means to use mailcap default
+		Args:
+			filename: the file to display
+			block: whether to detach from the viewer or not (no detach = block GNUmed client interface, None=use mailcap default
+
+		Returns:
+			True/False and potential error message
 	"""
-	if not os.path.isdir(aFile):
+	if not os.path.isdir(filename):
 		# is the file accessible at all ?
 		try:
-			open(aFile).close()
+			open(filename).close()
 		except Exception:
-			_log.exception('cannot read [%s]', aFile)
-			msg = _('[%s] is not a readable file') % aFile
+			_log.exception('cannot read [%s]', filename)
+			msg = _('[%s] is not a readable file') % filename
 			return False, msg
 
 	# try to detect any of the UNIX openers
-	found, startfile_cmd = _get_system_startfile_cmd(aFile)
+	found, startfile_cmd = _get_system_startfile_cmd(filename)
 	if found:
 		if gmShellAPI.run_command_in_shell(command = startfile_cmd, blocking = block):
 			return True, ''
 
-	mime_type = guess_mimetype(aFile)
-	viewer_cmd = get_viewer_cmd(mime_type, aFile)
+	mime_type = guess_mimetype(filename)
+	viewer_cmd = get_viewer_cmd(mime_type, filename)
 	if viewer_cmd is not None:
 		if gmShellAPI.run_command_in_shell(command = viewer_cmd, blocking = block):
 			return True, ''
@@ -762,41 +767,37 @@ def call_viewer_on_file(aFile = None, block=None):
 	_log.warning("no viewer found via standard mailcap system")
 	if os.name == "posix":
 		_log.warning("you should add a viewer for this mime type to your mailcap file")
-
 	_log.info("let's see what the OS can do about that")
-
 	# does the file already have an extension ?
-	(path_name, f_ext) = os.path.splitext(aFile)
+	(path_name, f_ext) = os.path.splitext(filename)
 	# no
 	if f_ext in ['', '.tmp']:
 		# try to guess one
 		f_ext = guess_ext_by_mimetype(mime_type)
 		if f_ext is None:
 			_log.warning("no suitable file extension found, trying anyway")
-			file_to_display = aFile
+			file_to_display = filename
 			f_ext = '?unknown?'
 		else:
-			file_to_display = aFile + f_ext
-			shutil.copyfile(aFile, file_to_display)
+			file_to_display = filename + f_ext
+			shutil.copyfile(filename, file_to_display)
 	# yes
 	else:
-		file_to_display = aFile
-
+		file_to_display = filename
 	file_to_display = os.path.normpath(file_to_display)
-	_log.debug("file %s <type %s> (ext %s) -> file %s" % (aFile, mime_type, f_ext, file_to_display))
-
+	_log.debug("file %s <type %s> (ext %s) -> file %s" % (filename, mime_type, f_ext, file_to_display))
 	try:
 		os.startfile(file_to_display)
 		return True, ''
+
 	except AttributeError:
 		_log.exception('os.startfile() does not exist on this platform')
 	except Exception:
 		_log.exception('os.startfile(%s) failed', file_to_display)
-
 	msg = _("Unable to display the file:\n\n"
 			" [%s]\n\n"
 			"Your system does not seem to have a (working)\n"
-			"viewer registered for the file type\n"
+			"viewer registered for file type:\n"
 			" [%s]"
 	) % (file_to_display, mime_type)
 	return False, msg
@@ -964,7 +965,7 @@ if __name__ == "__main__":
 #	print(get_editor_cmd('text/plain', filename))
 	#print(get_editor_cmd('text/x-tex', filename))
 	#print(guess_ext_by_mimetype(mimetype=filename))
-	#call_viewer_on_file(aFile = filename, block = True)
+	#call_viewer_on_file(filename = filename, block = True)
 	#call_editor_on_file(filename)
 	#test_describer()
 	#print(test_edit())

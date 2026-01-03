@@ -588,7 +588,7 @@ def show_placeholders():
 	ph_file.write('\n')
 
 	ph_file.close()
-	gmMimeLib.call_viewer_on_file(aFile = fname, block = False)
+	gmMimeLib.call_viewer_on_file(fname, block = False)
 
 #=====================================================================
 class gmPlaceholderHandler(gmBorg.cBorg):
