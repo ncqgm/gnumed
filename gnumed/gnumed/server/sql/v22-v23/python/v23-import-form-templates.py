@@ -27,4 +27,16 @@ def run(conn=None):
 	)
 	return True
 
+	# vaccination history
+	gmPG2.file2bytea (
+		query = u"""
+			UPDATE ref.paperwork_templates SET
+				data = %(data)s::bytea,
+				external_version = '23.0'
+			where
+				name_long = 'Vaccination history (GNUmed default)'""",
+		filename = os.path.join('..', 'sql', 'v22-v23', 'data', 'v23-GNUmed-default_vaccination_history_template.tex'),
+		conn = conn
+	)
+
 #==============================================================

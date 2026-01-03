@@ -1,0 +1,115 @@
+%------------------------------------------------------------------
+% Author: Karsten Hilbert
+% License: GPL v2 or later
+%------------------------------------------------------------------
+
+% %% $m[%_if_dbg==$1<if_debugging:://%::>1$]m$
+
+\documentclass[english]{article}
+\usepackage[T1]{fontenc}
+\usepackage[cjkjis,graphics]{ucs}
+\usepackage[utf8]{inputenc}
+\usepackage{marvosym}					% Symbole: Handy, Telefon, E-Mail
+%\usepackage{textcomp}					% Symbole für Textmodus zum Escapen
+\usepackage{xltabular}
+\usepackage{graphicx}
+\usepackage[space]{grffile}
+\usepackage[a4paper]{geometry}
+\usepackage{microtype}
+% debugging
+$m[%_if_dbg]m$\usepackage{interfaces}			% provides \papergraduate
+$m[%_if_dbg]m$\usepackage{showkeys}				% print labels (anchors and stuff) as margin notes
+$m[%_if_dbg]m$\usepackage[noframe]{showframe}	% show page margins as boxes
+$m[%_if_dbg]m$\usepackage[verbose]{layout}		% generate a page with the current layout
+$m[%_if_dbg]m$\usepackage[pass]{geometry}		% nicely display geometry in log file
+$m[%_if_dbg]m$\usepackage{afterpage}			% add stuff after next page break
+\usepackage{hyperref}
+
+
+% package setup:
+% - debugging
+\listfiles														% list all input files used
+\errorcontextlines 10000										% list lots of context lines with errors
+\RequirePackage[orthodox]{nag}									% show unorthodox/faulty/obsolete uses
+\hypersetup{debug=true}											% extra debugging log messages
+$m[%_if_dbg]m$\usetikz{basic}									% needed for \papergraduate from package interfaces
+$m[%_if_dbg]m$\overfullrule=2cm									% mark overfull horizontal boxes
+$m[%_if_dbg]m$\renewcommand\ShowFrameLinethickness{0.25pt}		% configure showframe
+$m[%_if_dbg]m$\renewcommand*\ShowFrameColor{\color{red}}		% configure showframe
+$m[%_if_dbg]m$\papergraduate									% show coordinate system on paper
+
+
+\geometry{verbose,lmargin=1cm}
+$m[%_if_dbg]m$\geometry{pass,verbose}							% put geometry into log file
+\pagestyle{empty}
+\setlength{\parskip}{\medskipamount}
+\setlength{\parindent}{0pt}
+
+\usepackage{babel}
+
+%------------------------------------------------------------------
+\begin{document}
+
+\footnotetext{\tiny \href{http://www.gnumed.org}{GNUmed} $<client_version::::>$ -- \href{http://www.gnumed.org}{www.gnumed.org}}
+\footnotetext{\tiny Template: $<form_name_long::::60>$ v$<form_version::::20>$}
+
+\noindent \begin{center}
+{\large Vaccination history (as of $<today::%Y %B %d::>$)}%
+\par\end{center}
+
+
+\noindent Patient: $<lastname::::>$, $<firstname::::>$ ($<date_of_birth::%Y %B %d::>$)
+
+
+{\footnotesize%
+	$2<if_not_empty::$<adr_street::home::>$//$<adr_street::home::>$ $<adr_number::home::>$ \\//::>2$
+	$2<if_not_empty::$<adr_location::home::>$//$<adr_postcode::home::>$ $<adr_location::home::>$//::>2$
+}
+
+\noindent \begin{center}
+$<patient_photo::\includegraphics[width=30mm]{%s}//image/png//.png::250>$
+\par\end{center}
+
+
+\newcolumntype{x}{>{\raggedright}X}
+\newcommand{\tn}{\tabularnewline}
+
+
+\begin{xltabular}{\textwidth}{lxx}
+\hline
+Given & Vaccine (batch) & Indications\tn
+\hline
+\endfirsthead
+\hline
+Given & Vaccine (batch) & Indications\tn
+\hline
+\endhead
+\multicolumn{3}{r}{{\small see next page\ldots}}\tn
+\endfoot
+\endlastfoot
+$<vaccination_history::%(date_given)s & %(vaccine)s {\footnotesize (%(batch_no)s) } & {\footnotesize %(l10n_indications)s }\tn \hline{}//%Y %b %d::>$
+\end{xltabular}
+
+
+\vfill{}
+
+
+\noindent Known allergies:
+
+\begin{tabular}{|l|l|l|}
+\hline
+Agent & Type & Reaction\\
+\hline
+\hline
+$<allergies::%(descriptor)s & %(l10n_type)s & {\footnotesize %(reaction)s}\\ \hline::>$
+\end{tabular}
+
+\medskip{}
+
+\noindent \begin{flushright}
+$<data_snippet::autograph-LMcC//\includegraphics[width=30mm]{%s}\\//image/png//.png::250>$
+\texttt{\textsl{\footnotesize Practice Stamp / Physician Signature}}
+\par\end{flushright}
+\end{document}
+
+%------------------------------------------------------------------

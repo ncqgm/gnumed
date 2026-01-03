@@ -582,7 +582,7 @@ def convert_file(filename=None, target_mime=None, target_filename=None, target_e
 		target_mime = target_mime_parts[0] + '/'
 
 	if source_mime.casefold().startswith(target_mime.casefold()):
-		_log.debug('source file [%s] already target mime type [%s]', filename, target_mime)
+		_log.debug('source file [%s] already is target mime type [%s]', filename, target_mime)
 		if target_filename is None:
 			return filename
 

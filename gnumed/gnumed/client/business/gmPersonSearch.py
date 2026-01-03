@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """GNUmed person search How-To
 
-	Assumed:
+	Details of patient stored in GNUmed:
 
 		name:     		Leonard Spock "Pointy-Ears" NIMOY-ZALDANA
 			firstnames:		Leonard Spock
@@ -12,37 +12,51 @@
 		ext ID:   		abcd-13d-4d
 		ext ID:   		#abcd-13d-4d
 
-	find patient by name (first, last, or nick):
+	Ways of searching for patient:
+
+	by name part(s) (first, last, nick)
 
 		'leon'
 		'spo'
 		'nimo'
 		'zald'
 		'pointy'
+		'leon nim'
+		'spo zal'
+		'leon nim zald'
+		'kirk, jam'
 
-	find patient by lastname-only search:
+	by LASTNAME only
+
+		capitalize complete search term or end it with a comma
 
 		'NIMO'
 		'ZALD'
 		'nIm,'
 		'Zal,'
 
-	find patient by firstname-only search:
+	by firstname only
+
+		start with comma
 
 		', spo'
 		',Leon'
 
-	find patient by nickname-only search:
+	by nickname only
+
+		start with '!'
 
 		'!point'
 		'!ear'
 
-	find patient by firstname-and-lastname-only search:
+	by first-and-lastname only
 
 		'Leonard NIMO'
 		'spock ZALDA'
 
-	find patient by fragment anywhere inside name:
+	by fragment anywhere inside name
+
+		start with three dots
 
 		'...ock'
 		'...ldan'
@@ -50,28 +64,32 @@
 		'...Nar'
 		'...Ear'
 
-	find patient by several name parts:
+	by date of birth:
 
-		'leon nim'
-		'spo zal'
-		'leon nim zald'
-		'kirk, jam'
+		enter a date-like search term
 
-	find patient by GNUmed ID:
+		'15101975' (will also search by GNUmed ID)
 
-		'12345678' (also searches by DOB)
-		'#12345678' (also searches by external ID)
+	by date of birth only:
 
-	find patient by DOB:
+		start with '*'
 
-		'15101975' (also searches for GNUmed ID)
 		'*15101975'
 		'*15/10/1975'
 		'*15-10-1975'
 		'*15.10.1975'
 		'*15 10 1975'
 
-	find patient by external ID:
+	by GNUmed ID:
+
+		enter numeric ID, possibly start with '#'
+
+		'12345678' (also searches by DOB, but not by external ID)
+		'#12345678' (also searches by external ID, but not by DOB)
+
+	by external ID only:
+
+		start with two '#'s
 
 		'##abcd-13d-4d'		(finds ID "abcd-13d-4d")
 		'## #abcd-13d-4d'	(finds ID "#abcd-13d-4d")

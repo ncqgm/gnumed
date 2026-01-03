@@ -2515,10 +2515,16 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if target_mime is None:
 			return template % saved_fname
 
-		converted_fname = gmMimeLib.convert_file(filename = saved_fname, target_mime = target_mime, target_extension = target_ext)
+		converted_fname = gmMimeLib.convert_file (
+			filename = saved_fname,
+			target_mime = target_mime,
+			target_extension = target_ext,
+			target_filename = '%s.%s' % (saved_fname, target_ext)
+		)
 		if converted_fname is None:
 			if self.debug:
 				return self._escape(_('cannot convert data of binary expansion keyword <%s>') % keyword)
+
 			# hoping that the target can cope:
 			return template % saved_fname
 
@@ -2899,7 +2905,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			Positionals: Options which contain only a value. Their name is defined by their _position_ within the options data.
 
 		Note:
-			* Positional defaults override keyword defaults override switch defaults of the same name.
+			* Positional defaults override keyword defaults which override switch defaults of the same name.
 
 			* Given switches override keyword defaults of the same name.
 
@@ -3313,6 +3319,7 @@ class cMacroPrimitives:
 			self.__user_answer = 0
 		self.__user_done = True
 		return 1
+
 #=====================================================================
 # main
 #=====================================================================
