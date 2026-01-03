@@ -71,6 +71,7 @@ from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmWorkerThread
 
 from Gnumed.business import gmPerson
+from Gnumed.business import gmPersonSearch
 from Gnumed.business import gmClinicalRecord
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmEncounter
@@ -788,12 +789,14 @@ class gmTopLevelFrame(wx.Frame):
 
 		# -- menu "Help" --------------
 		help_menu = wx.Menu()
-		help_menu.Append(-1, _('Documentation'), _('GNUmed documentation (online)'))
+		item = help_menu.Append(-1, _('Documentation'), _('GNUmed documentation (online)'))
 		self.Bind(wx.EVT_MENU, self.__on_display_wiki, item)
-		help_menu.Append(-1, _('User manual (www)'), _('Go to the User Manual on the web.'))
+		item = help_menu.Append(-1, _('User manual (www)'), _('Go to the User Manual on the web.'))
 		self.Bind(wx.EVT_MENU, self.__on_display_user_manual_online, item)
 #		item = help_menu.Append(-1, _('Menu reference (www)'), _('View the reference for menu items on the web.'))
 #		self.Bind(wx.EVT_MENU, self.__on_menu_reference, item)
+		item = help_menu.Append(-1, _('Patient search help'), _('Show help on patient search.'))
+		self.Bind(wx.EVT_MENU, self.__on_display_patient_search_help, item)
 
 		menu_log = wx.Menu()
 		item = menu_log.Append(-1, _('show'), _('Show log file in text viewer.'))
@@ -2467,6 +2470,7 @@ class gmTopLevelFrame(wx.Frame):
 			code = -9999,
 			details = _('This is a deliberate AccessDenied exception thrown to test the handling of access violations by means of a decorator.')
 		)
+
 	#----------------------------------------------
 	@gmAccessPermissionWidgets.verify_minimum_required_role('admin', activity = _('testing access check for non-existent <admin> role'))
 	def __on_test_access_checking(self, evt):
@@ -2476,19 +2480,30 @@ class gmTopLevelFrame(wx.Frame):
 			code = -9999,
 			details = _('This is a deliberate AccessDenied exception. You should not see this message because the role is checked in a decorator.')
 		)
+
 	#----------------------------------------------
 	def __on_invoke_inspector(self, evt):
 		import wx.lib.inspection
 		wx.lib.inspection.InspectionTool().Show()
+
 	#----------------------------------------------
 	def __on_display_bugtracker(self, evt):
 		gmNetworkTools.open_url_in_browser(url = 'https://bugs.launchpad.net/gnumed/')
+
 	#----------------------------------------------
 	def __on_display_wiki(self, evt):
 		gmNetworkTools.open_url_in_browser(url = 'https://www.gnumed.de/documentation/')
+
 	#----------------------------------------------
 	def __on_display_user_manual_online(self, evt):
 		gmNetworkTools.open_url_in_browser(url = 'https://www.gnumed.de/documentation/GNUmedManual.html')
+
+	#----------------------------------------------
+	def __on_display_patient_search_help(self, evt):
+		fname = gmTools.get_unique_filename()
+		with open(fname, 'wt', encoding = 'utf8') as help_file:
+			help_file.write(gmPersonSearch.get_person_search_help())
+		gmMimeLib.call_viewer_on_file(fname, block = False)
 
 #	#----------------------------------------------
 #	def __on_menu_reference(self, evt):

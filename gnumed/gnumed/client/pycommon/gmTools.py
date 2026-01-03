@@ -1035,7 +1035,7 @@ def get_unique_filename(prefix:str=None, suffix:str=None, tmp_dir:str=None, incl
 		include_timestamp: include current timestamp within the filename
 
 	Returns:
-		The full path of a unique file not existing at this moment.
+		The full path of a unique file NOT existing at this moment.
 
 	There is a TOCTOU race conditition between generating the
 	filename here and actually using the filename in callers.

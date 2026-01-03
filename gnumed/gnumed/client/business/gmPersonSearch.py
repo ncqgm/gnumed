@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
-"""GNUmed person searching code.
+"""GNUmed person search How-To
 
-	How-To search:
+	Assumed:
 
-		name:     Leonard Spock "Pointy-Ears" NIMOY-ZALDANA
-		DOB:      Oct 15 1975
-		ID:       12345678
-		ext ID:   abcd-13d-4d
-		ext ID:   #abcd-13d-4d
+		name:     		Leonard Spock "Pointy-Ears" NIMOY-ZALDANA
+			firstnames:		Leonard Spock
+			nickname:		Pointy-Ears
+			lastnames:		NIMOY-ZALDANA
+		DOB:      		Oct 15 1975
+		ID:       		12345678
+		ext ID:   		abcd-13d-4d
+		ext ID:   		#abcd-13d-4d
 
 	find patient by name (first, last, or nick):
 
@@ -17,24 +20,24 @@
 		'zald'
 		'pointy'
 
-	find patient by lastname:
+	find patient by lastname-only search:
 
 		'NIMO'
 		'ZALD'
 		'nIm,'
 		'Zal,'
 
-	find patient by firstname:
+	find patient by firstname-only search:
 
 		', spo'
 		',Leon'
 
-	find patient by nickname:
+	find patient by nickname-only search:
 
 		'!point'
 		'!ear'
 
-	find patient by firstname and lastname:
+	find patient by firstname-and-lastname-only search:
 
 		'Leonard NIMO'
 		'spock ZALDA'
@@ -1124,6 +1127,10 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 		return ({'sql': query, 'args': args})
 
 #============================================================
+def get_person_search_help():
+	return __doc__
+
+#============================================================
 def ask_for_patient():
 	"""Text mode UI function to ask for patient."""
 
@@ -1160,6 +1167,8 @@ def ask_for_patient():
 # main/testing
 #============================================================
 if __name__ == '__main__':
+
+	print(get_person_search_help())
 
 	if len(sys.argv) == 1:
 		sys.exit()
