@@ -2,7 +2,7 @@
 
 PYFILE="$1"
 
-FAULTY_="E0606: Possibly using variable '_' before assignment \(possibly-used-before-assignment\)"
+FAULTY_="E0606: Possibly using variable '_' before assignment"
 MYPY_CMD="mypy --pretty --allow-redefinition --no-strict-optional --ignore-missing-imports --follow-imports silent --show-error-codes --warn-unused-ignores"
 
 if test "${PYFILE}" != "" ; then

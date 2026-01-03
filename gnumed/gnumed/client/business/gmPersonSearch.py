@@ -232,7 +232,7 @@ class cPatientSearcher_SQL:
 		# FIXME: missing i/a/o - but uncommon in German
 		normalized = normalized.replace('v', '***DUMMY***')
 		normalized = normalized.replace('f', '***DUMMY***')
-		normalized = normalized.replace('ph', '***DUMMY***')	# now, this is *really* specific for German
+		normalized = normalized.replace('ph', '***DUMMY***')	# now, this is *really* specific to German
 		normalized = normalized.replace('***DUMMY***', '(v|f|ph)')
 
 		# silent characters (Thomas vs Tomas)
@@ -247,8 +247,8 @@ class cPatientSearcher_SQL:
 		normalized = normalized.replace('"', '***DUMMY***')
 		normalized = normalized.replace("'", '***DUMMY***')
 		normalized = normalized.replace('`', '***DUMMY***')
-		normalized = normalized.replace('***DUMMY***', """("|'|`|***DUMMY***|\s)*""")
-		normalized = normalized.replace('-', """(-|\s)*""")
+		normalized = normalized.replace('***DUMMY***', r"""("|'|`|***DUMMY***|\s)*""")
+		normalized = normalized.replace('-', r"""(-|\s)*""")
 		normalized = normalized.replace('|***DUMMY***|', '|-|')
 
 		if aggressive:
@@ -287,7 +287,7 @@ class cPatientSearcher_SQL:
 			) AS sorted_list"""
 		args = {
 			'match': _('first name'),
-			'first': '\m' + normalized
+			'first': r'\m' + normalized
 		}
 		return [{'sql': cmd, 'args': args}]
 
@@ -313,7 +313,7 @@ class cPatientSearcher_SQL:
 			) AS sorted_list"""
 		args = {
 			'match': _('last name'),
-			'last': '\m%s' % normalized
+			'last': r'\m%s' % normalized
 		}
 		return [{'sql': cmd, 'args': args}]
 
@@ -338,7 +338,7 @@ class cPatientSearcher_SQL:
 			) AS sorted_list"""
 		args = {
 			'match': _('last name'),
-			'last': '\m' + normalized
+			'last': r'\m' + normalized
 		}
 		return [{'sql': cmd, 'args': args}]
 
@@ -415,7 +415,7 @@ class cPatientSearcher_SQL:
 			) AS sorted_list"""
 		args = {
 			'match': _('name part'),
-			'name': '\m%s' % name
+			'name': r'\m%s' % name
 		}
 		return [{'sql': SQL, 'args': args}]
 
@@ -432,7 +432,7 @@ class cPatientSearcher_SQL:
 			return []
 
 		_log.debug("[%s]: several name parts" % parts)
-		parts = [ '\m' + self._normalize_soundalikes(p) for p in parts ]
+		parts = [ r'\m' + self._normalize_soundalikes(p) for p in parts ]
 		SQL = """-- find patients by name parts even inside multi-part names:
 			SELECT DISTINCT ON (pk_identity) * FROM (
 				SELECT *, %(match)s AS match_type FROM (
@@ -516,8 +516,8 @@ class cPatientSearcher_SQL:
 			) AS sorted_list"""
 		args = {
 			'match': _('LASTNAME and firstname'),
-			'last': '\m' + last,
-			'first': '\m' + first
+			'last': r'\m' + last,
+			'first': r'\m' + first
 		}
 		return [{'sql': cmd, 'args': args}]
 
