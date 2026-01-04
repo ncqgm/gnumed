@@ -808,7 +808,7 @@ class gmConnectionPool(gmBorg.cBorg):
 		_log.info('[%s]: first instantiation', self.__class__.__name__)
 		self.__ro_conn_pool:dict[str, psycopg2.extras.DictConnection] = {}	# keyed by "credentials::thread ID"
 		self.__SQL_set_client_timezone:str = None
-		self.__client_timezone = None
+		self.__client_timezone:str|None = None
 		self.__creds:cPGCredentials = None
 		self.__log_auth_environment()
 
