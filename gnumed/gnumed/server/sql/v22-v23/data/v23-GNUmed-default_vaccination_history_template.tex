@@ -6,9 +6,13 @@
 % %% $m[%_if_dbg==$1<if_debugging:://%::>1$]m$
 
 \documentclass[english]{article}
+
+
+% load packages
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}						% sans serif Latin Modern
 \usepackage[T1]{fontenc}
 \usepackage[cjkjis,graphics]{ucs}
-\usepackage[utf8]{inputenc}
 \usepackage{marvosym}					% Symbole: Handy, Telefon, E-Mail
 %\usepackage{textcomp}					% Symbole für Textmodus zum Escapen
 \usepackage{xltabular}
@@ -16,6 +20,7 @@
 \usepackage[space]{grffile}
 \usepackage[a4paper]{geometry}
 \usepackage{microtype}
+\usepackage{babel}
 % debugging
 $m[%_if_dbg]m$\usepackage{interfaces}			% provides \papergraduate
 $m[%_if_dbg]m$\usepackage{showkeys}				% print labels (anchors and stuff) as margin notes
@@ -23,6 +28,7 @@ $m[%_if_dbg]m$\usepackage[noframe]{showframe}	% show page margins as boxes
 $m[%_if_dbg]m$\usepackage[verbose]{layout}		% generate a page with the current layout
 $m[%_if_dbg]m$\usepackage[pass]{geometry}		% nicely display geometry in log file
 $m[%_if_dbg]m$\usepackage{afterpage}			% add stuff after next page break
+% always load last
 \usepackage{hyperref}
 
 
@@ -44,8 +50,6 @@ $m[%_if_dbg]m$\geometry{pass,verbose}							% put geometry into log file
 \pagestyle{empty}
 \setlength{\parskip}{\medskipamount}
 \setlength{\parindent}{0pt}
-
-\usepackage{babel}
 
 %------------------------------------------------------------------
 \begin{document}

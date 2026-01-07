@@ -57,7 +57,7 @@
 \usepackage{microtype}						% micro-adjustments to typesetting
 % debugging
 $m[%_if_dbg]m$\usepackage{interfaces}			% provides \papergraduate
-$m[%_if_dbg]m$\usepackage{showkeys}			% print labels (anchors and stuff) as margin notes
+$m[%_if_dbg]m$\usepackage{showkeys}				% print labels (anchors and stuff) as margin notes
 $m[%_if_dbg]m$\usepackage[noframe]{showframe}	% show page margins as boxes
 $m[%_if_dbg]m$\usepackage[verbose]{layout}		% generate a page with the current layout
 $m[%_if_dbg]m$\usepackage[pass]{geometry}		% nicely display geometry in log file
@@ -65,14 +65,12 @@ $m[%_if_dbg]m$\usepackage{afterpage}			% add stuff after next page break
 % load last:
 \usepackage{hyperref}						% aktive URLs, needs to be loaded last, most of the time
 
-
 % package setup:
 % - debugging
 \listfiles														% list all input files used
 \errorcontextlines 10000										% list lots of context lines with errors
-\RequirePackage[l2tabu, orthodox]{nag}							% show unorthodox/faulty/obsolete uses
+\RequirePackage[orthodox]{nag}									% show unorthodox/faulty/obsolete uses
 \hypersetup{debug=true}											% extra debugging log messages
-% %\tracingtabu=3												% trace tabu tables if using tabu package
 $m[%_if_dbg]m$\usetikz{basic}									% needed for \papergraduate from package interfaces
 $m[%_if_dbg]m$\overfullrule=2cm									% mark overfull horizontal boxes
 $m[%_if_dbg]m$\LoadLetterOption{visualize}						% visualize letter title page layout

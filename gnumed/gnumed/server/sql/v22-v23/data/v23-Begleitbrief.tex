@@ -36,7 +36,6 @@
 	pagenumber=footright					% where to place page number by default
 ]{scrlttr2}
 
-
 % package loading:
 \usepackage{scrlayer-scrpage}				% header and footer control
 \usepackage[ngerman]{babel}					% Deutsch und Trennung
@@ -57,13 +56,13 @@
 \usepackage{microtype}						% micro-adjustments to typesetting
 % debugging
 $m[%_if_dbg]m$\usepackage{interfaces}			% provides \papergraduate
-$m[%_if_dbg]m$\usepackage{showkeys}			% print labels (anchors and stuff) as margin notes
+$m[%_if_dbg]m$\usepackage{showkeys}				% print labels (anchors and stuff) as margin notes
 $m[%_if_dbg]m$\usepackage[noframe]{showframe}	% show page margins as boxes
 $m[%_if_dbg]m$\usepackage[verbose]{layout}		% generate a page with the current layout
 $m[%_if_dbg]m$\usepackage[pass]{geometry}		% nicely display geometry in log file
 $m[%_if_dbg]m$\usepackage{afterpage}			% add stuff after next page break
 % load last:
-\usepackage{hyperref}						% aktive URLs, needs to be loaded last, most of the time
+\usepackage{hyperref}							% aktive URLs, needs to be loaded last, most of the time
 
 
 % package setup:

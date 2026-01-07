@@ -25,7 +25,6 @@ def run(conn=None):
 		filename = os.path.join('..', 'sql', 'v22-v23', 'data', 'v23-Begleitbrief.tex'),
 		conn = conn
 	)
-	return True
 
 	# vaccination history
 	gmPG2.file2bytea (

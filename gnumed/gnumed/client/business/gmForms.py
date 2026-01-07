@@ -1093,6 +1093,19 @@ form_engines['T'] = cTextForm
 #================================================================
 # LaTeX template forms
 #----------------------------------------------------------------
+_LATEX_define_checkandloadpkg_cmd = r"""
+% defining new command for checked loading of packages
+\makeatletter
+\newcommand{\checkandloadpkg}[2]{
+	\makeatletter
+	\typeout{GNUmed: attempting to load <#1>}
+	\IfFileExists{#1}
+		{\typeout{GNUmed: found, loading}#2}
+		{\typeout{GNUmed: not found, aborting compilation}\stop}
+	\makeatother
+}\makeatother
+
+"""
 class cLaTeXForm(cFormEngine):
 	"""A forms engine wrapping LaTeX (pdflatex).
 
@@ -1137,7 +1150,9 @@ class cLaTeXForm(cFormEngine):
 	]
 	_macro_assign_regex = r'\$m\[[^[]+?==.*]m\$'			# greedy is OK because only one assignment per line allowed, but can be nested hence greedy is needed
 	_macro_use_regex = r'\$m\[[^=]+?]m\$'
+	_REGEX_LaTeX__usepackage__name = regex.compile(r'{\D+}')
 
+	#--------------------------------------------------------
 	def __init__(self, template_file=None):
 		# create sandbox for LaTeX to play in (and don't assume
 		# much of anything about the template_file except that it
@@ -1157,14 +1172,37 @@ class cLaTeXForm(cFormEngine):
 		return gmTools.rst2latex_snippet(text).strip()
 
 	#--------------------------------------------------------
+	def __mogrify__usepackage_cmd(self, input_filename:str) -> str:
+		output_filename = '%s.safe-usepackage.tex' % input_filename
+		_log.debug(' [%s] -> [%s]', input_filename, output_filename)
+		input_file = open(input_filename, mode = 'rt', encoding = 'utf-8-sig')
+		output_file = open(output_filename, mode = 'wt', encoding = 'utf8')
+		checkandloadpkg_defined = False
+		for line in input_file:
+			if not line.lstrip().startswith(r'\usepackage'):
+				output_file.write(line)
+				continue
+			_log.debug(r'\usepackage found')
+			if not checkandloadpkg_defined:
+				output_file.write(_LATEX_define_checkandloadpkg_cmd)
+				checkandloadpkg_defined = True
+			pkg_name = cLaTeXForm._REGEX_LaTeX__usepackage__name.findall(line)[0]
+			pkg_name = pkg_name[1:-1]
+			parts = line.split('%', 1)
+			use_cmd = parts[0].strip()
+			comment = ''
+			if len(parts) > 1:
+				comment = '\t\t%%%s' % parts[1]
+			output_file.write('\checkandloadpkg{%s.sty}{%s}%s\n' % (pkg_name, use_cmd, comment))
+		return output_filename
+
+	#--------------------------------------------------------
 	def substitute_placeholders(self, data_source=None):
 
 		_log.debug('macro assignment regex: >>>%s<<<', cLaTeXForm._macro_assign_regex)
 		_log.debug('macro use regex: >>>%s<<<', cLaTeXForm._macro_use_regex)
-
 		# debugging
 		data_source.debug = False
-
 		if self.template:
 			# pylint: disable=unsubscriptable-object
 			# inject placeholder values
@@ -1185,7 +1223,6 @@ class cLaTeXForm(cFormEngine):
 			f.close()
 		data_source.escape_function = gmTools.tex_escape_string
 		data_source.escape_style = 'latex'
-
 		macros_fname = self.__expand_macros(input_filename = self.template_filename)
 		path, fname = os.path.split(macros_fname)
 		input_fname = macros_fname
@@ -1206,6 +1243,7 @@ class cLaTeXForm(cFormEngine):
 		data_source.unset_placeholder('form_version')
 		data_source.unset_placeholder('form_version_internal')
 		data_source.unset_placeholder('form_last_modified')
+		output_fname = self.__mogrify__usepackage_cmd(input_fname)
 		self.re_editable_filenames = [output_fname]
 		self.instance_filename = output_fname
 		return
