@@ -769,6 +769,7 @@ class cPatientSearcher_SQL:
 		# parse into name/date parts
 		date_count = 0
 		name_parts = []
+		date_part = ''
 		for part in parts_list:
 			# any digit signifies a date,		 FIXME: what about "<40" ?
 			if regex.search(r"\d", part):
@@ -787,6 +788,7 @@ class cPatientSearcher_SQL:
 				# FIXME: either "name date" or "date date"
 				_log.error("don't know how to generate queries for [%s]" % part)
 				return []
+
 			# no date = "first last" or "last first"
 			queries = []
 			# assumption: first last

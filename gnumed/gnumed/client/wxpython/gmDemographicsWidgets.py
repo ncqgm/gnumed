@@ -1834,6 +1834,7 @@ class cPersonDemographicsEditorNb(wx.Notebook):
 		self.__identity = None
 		self.__do_layout()
 		self.SetSelection(0)
+
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------
@@ -1842,8 +1843,8 @@ class cPersonDemographicsEditorNb(wx.Notebook):
 		for page_idx in range(self.GetPageCount()):
 			page = self.GetPage(page_idx)
 			page.identity = self.__identity
-
 		return True
+
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------

@@ -1369,7 +1369,6 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 	This acts on the current patient.
 	"""
 	_sort_modes = ['age', 'review', 'episode', 'type', 'issue', 'org']
-	_root_node_labels = None
 
 	#--------------------------------------------------------
 	def __init__(self, parent, id, *args, **kwds):
@@ -1382,7 +1381,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 		tmp = _('available documents (%s)')
 		unsigned = _('unsigned (%s) on top') % '\u270D'
-		cDocTree._root_node_labels = {
+		self._root_node_labels = {
 			'age': tmp % _('most recent on top'),
 			'review': tmp % unsigned,
 			'episode': tmp % _('sorted by episode'),
@@ -1721,7 +1720,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		if self.root is not None:
 			self.DeleteAllItems()
 		self.__show_details_callback(document = None, part = None)
-		self.root = self.AddRoot(cDocTree._root_node_labels[self.__sort_mode], -1, -1)
+		self.root = self.AddRoot(self._root_node_labels[self.__sort_mode], -1, -1)
 		self.SetItemData(self.root, None)
 		self.SetItemHasChildren(self.root, False)
 		curr_pat = gmPerson.gmCurrentPatient()

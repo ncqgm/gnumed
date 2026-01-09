@@ -158,17 +158,13 @@ class gmTopLevelFrame(wx.Frame):
 		"""You'll have to browse the source to understand what the constructor does
 		"""
 		wx.Frame.__init__(self, parent, id, title, size, style = wx.DEFAULT_FRAME_STYLE)
-
 		self.__setup_font()
-
 		self.__gb = gmGuiBroker.GuiBroker()
 		self.__pre_exit_callbacks = []
 		self.bar_width = -1
 		self.menu_id2plugin = {}
-
 		_log.info('workplace is >>>%s<<<', gmPraxis.gmCurrentPraxisBranch().active_workplace)
-
-		self.setup_statusbar()
+		self.__setup_statusbar()
 		self.SetStatusText(_('You are logged in as %s%s.%s (%s). DB account <%s>.') % (
 			gmTools.coalesce(_provider['title'], ''),
 			_provider['firstnames'][:1],
@@ -177,25 +173,19 @@ class gmTopLevelFrame(wx.Frame):
 			_provider['db_user']
 		))
 		self.__setup_main_menu()
-
 		self.__set_window_title_template()
 		self.__update_window_title()
-
 		#icon_bundle = wx.IconBundle()
 		#icon_bundle.AddIcon(wx.Icon("my_icon_16_16.ico", wx.BITMAP_TYPE_ICO))
 		#icon_bundle.AddIcon(wx.Icon("my_icon_32_32.ico", wx.BITMAP_TYPE_ICO))
 		#self.SetIcons(icon_bundle)
 		self.SetIcon(gmTools.get_icon(wx = wx))
-
 		self.__register_events()
-
 		self.LayoutMgr = gmHorstSpace.cHorstSpaceLayoutMgr(self, -1)
 		self.vbox = wx.BoxSizer(wx.VERTICAL)
 		self.vbox.Add(self.LayoutMgr, 10, wx.EXPAND | wx.ALL, 1)
-
 		self.SetAutoLayout(True)
 		self.SetSizerAndFit(self.vbox)
-
 		# don't allow the window to get too small
 		# setsizehints only allows minimum size, therefore window can't become small enough
 		# effectively we need the font size to be configurable according to screen size
@@ -306,6 +296,7 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_*.Append(-1)
 		self.Bind(wx.EVT_MENU, self.__on_*, item)
 		"""
+		# if the following line is removed Python fails with UnboundLocalError - but why ?!?
 		global wx
 		self.mainmenu = wx.MenuBar()
 		self.__gb['main.mainmenu'] = self.mainmenu
@@ -3325,7 +3316,7 @@ class gmTopLevelFrame(wx.Frame):
 		return gmGuiHelpers.save_screenshot_to_file(filename = filename, widget = self, settle_time = 500)
 
 	#----------------------------------------------
-	def setup_statusbar(self):
+	def __setup_statusbar(self):
 		self.StatusBar = cStatusBar(self)
 		self.SetStatusText = self.StatusBar.SetStatusText
 		self.PushStatusText = self.StatusBar.PushStatusText

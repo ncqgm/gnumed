@@ -1193,7 +1193,8 @@ class cLaTeXForm(cFormEngine):
 			comment = ''
 			if len(parts) > 1:
 				comment = '\t\t%%%s' % parts[1]
-			output_file.write('\checkandloadpkg{%s.sty}{%s}%s\n' % (pkg_name, use_cmd, comment))
+			output_file.write(r'\checkandloadpkg{%s.sty}{%s}%s' % (pkg_name, use_cmd, comment))
+			output_file.write('\n')
 		return output_filename
 
 	#--------------------------------------------------------
