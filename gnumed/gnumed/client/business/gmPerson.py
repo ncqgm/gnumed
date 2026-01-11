@@ -1578,7 +1578,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
 		if comm_medium:
 			rows = [ r for r in rows if r['comm_type'] == comm_medium ]
-		return [ gmDemographicRecord.cCommChannel(row = {
+		return [ gmDemographicRecord.cPersonCommChannel(row = {
 					'pk_field': 'pk_lnk_identity2comm',
 					'data': r
 				}) for r in rows
@@ -1596,8 +1596,8 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		@param is_confidential Whether the data must be treated as confidential.
 		@type is_confidential A bool instance.
 		"""
-		comm_channel = gmDemographicRecord.create_comm_channel (
-			comm_medium = comm_medium,
+		comm_channel = gmDemographicRecord.create_person_comm_channel (
+			comm_type = comm_medium,
 			url = url,
 			is_confidential = is_confidential,
 			pk_channel_type = pk_channel_type,

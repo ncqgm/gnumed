@@ -977,7 +977,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		if isinstance(data, gmDemographicRecord.cPatientAddress):
 			return '\n'.join(data.format())
 
-		if isinstance(data, gmDemographicRecord.cCommChannel):
+		if isinstance(data, gmDemographicRecord.cPersonCommChannel):
 			parts = []
 			if data['is_confidential']:
 				parts.append(_('*** CONFIDENTIAL ***'))
@@ -1030,7 +1030,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 					return
 				if isinstance(data, gmDemographicRecord.cPatientAddress):
 					pass
-				if isinstance(data, gmDemographicRecord.cCommChannel):
+				if isinstance(data, gmDemographicRecord.cPersonCommChannel):
 					gmContactWidgets.edit_comm_channel(parent = self, comm_channel = data, channel_owner = gmPerson.gmCurrentPatient())
 					return
 				if isinstance(data, gmPerson.cPerson):

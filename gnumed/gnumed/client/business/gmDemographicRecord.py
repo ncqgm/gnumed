@@ -927,7 +927,7 @@ class cPatientAddress(gmBusinessDBObject.cBusinessDBObject):
 #===================================================================
 # communication channels API
 #-------------------------------------------------------------------
-class cCommChannel(gmBusinessDBObject.cBusinessDBObject):
+class cPersonCommChannel(gmBusinessDBObject.cBusinessDBObject):
 
 	_cmd_fetch_payload = "SELECT * FROM dem.v_person_comms WHERE pk_lnk_identity2comm = %s"
 	_cmds_store_payload = [
@@ -951,6 +951,50 @@ class cCommChannel(gmBusinessDBObject.cBusinessDBObject):
 		'is_confidential',
 		'comment'
 	]
+
+#-------------------------------------------------------------------
+def create_person_comm_channel(comm_type:str=None, url:str=None, is_confidential:bool=False, pk_channel_type:int=None, pk_identity:int=None) -> cPersonCommChannel:
+	"""Create a communications channel for a patient."""
+
+	if not url:
+		return None
+
+	args = {
+		'url': url,
+		'secret': is_confidential,
+		'pk_type': pk_channel_type,
+		'type': comm_type,
+		'pk_owner': pk_identity
+	}
+	if pk_channel_type is None:
+		SQL = """INSERT INTO dem.lnk_identity2comm (
+			fk_identity,
+			url,
+			fk_type,
+			is_confidential
+		) VALUES (
+			%%(pk_owner)s,
+			%%(url)s,
+			dem.create_comm_type(%%(type)s),
+			%%(secret)s
+		)"""
+	else:
+		SQL = """INSERT INTO dem.lnk_identity2comm (
+			fk_identity,
+			url,
+			fk_type,
+			is_confidential
+		) VALUES (
+			%%(pk_owner)s,
+			%%(url)s,
+			%%(pk_type)s,
+			%%(secret)s
+		)"""
+	queries = [{'sql': SQL, 'args': args}]
+	SQL = "SELECT * FROM dem.v_person_comms WHERE pk_lnk_identity2comm = currval(pg_get_serial_sequence('dem.lnk_identity2comm', 'pk'))"
+	queries.append({'sql': SQL})
+	rows = gmPG2.run_rw_queries(queries = queries, return_data = True)
+	return cPersonCommChannel(row = {'pk_field': view_pk, 'data': rows[0]})
 
 #-------------------------------------------------------------------
 class cOrgCommChannel(gmBusinessDBObject.cBusinessDBObject):
@@ -978,37 +1022,22 @@ class cOrgCommChannel(gmBusinessDBObject.cBusinessDBObject):
 	]
 
 #-------------------------------------------------------------------
-def create_comm_channel(comm_medium=None, url=None, is_confidential=False, pk_channel_type=None, pk_identity=None, pk_org_unit=None):
-	"""Create a communications channel for a patient."""
+def create_org_comm_channel(comm_type=None, url=None, is_confidential=False, pk_channel_type=None, pk_org_unit=None):
+	"""Create a communications channel for an org."""
 
-	if url is None:
+	if not url:
 		return None
 
 	args = {
 		'url': url,
 		'secret': is_confidential,
 		'pk_type': pk_channel_type,
-		'type': comm_medium
+		'type': comm_type,
+		'pk_owner': pk_org_unit
 	}
-
-	if pk_identity is not None:
-		args['pk_owner'] = pk_identity
-		tbl = 'dem.lnk_identity2comm'
-		col = 'fk_identity'
-		view = 'dem.v_person_comms'
-		view_pk = 'pk_lnk_identity2comm'
-		channel_class = cCommChannel
-	if pk_org_unit is not None:
-		args['pk_owner'] = pk_org_unit
-		tbl = 'dem.lnk_org_unit2comm'
-		col = 'fk_org_unit'
-		view = 'dem.v_org_unit_comms'
-		view_pk = 'pk_lnk_org_unit2comm'
-		channel_class = cOrgCommChannel
-
 	if pk_channel_type is None:
-		cmd = """INSERT INTO %s (
-			%s,
+		SQL = """INSERT INTO dem.lnk_org_unit2comm (
+			fk_org_unit,
 			url,
 			fk_type,
 			is_confidential
@@ -1017,10 +1046,10 @@ def create_comm_channel(comm_medium=None, url=None, is_confidential=False, pk_ch
 			%%(url)s,
 			dem.create_comm_type(%%(type)s),
 			%%(secret)s
-		)""" % (tbl, col)
+		)"""
 	else:
-		cmd = """INSERT INTO %s (
-			%s,
+		SQL = """INSERT INTO dem.lnk_org_unit2comm (
+			fk_org_unit,
 			url,
 			fk_type,
 			is_confidential
@@ -1029,18 +1058,12 @@ def create_comm_channel(comm_medium=None, url=None, is_confidential=False, pk_ch
 			%%(url)s,
 			%%(pk_type)s,
 			%%(secret)s
-		)""" % (tbl, col)
-
-	queries = [{'sql': cmd, 'args': args}]
-	cmd = "SELECT * FROM %s WHERE %s = currval(pg_get_serial_sequence('%s', 'pk'))" % (view, view_pk, tbl)
-	queries.append({'sql': cmd})
-
+		)"""
+	queries = [{'sql': SQL, 'args': args}]
+	SQL = "SELECT * FROM dem.v_org_unit_comms WHERE pk_lnk_org_unit2comm = currval(pg_get_serial_sequence('dem.lnk_org_unit2comm', 'pk'))"
+	queries.append({'sql': SQL})
 	rows = gmPG2.run_rw_queries(queries = queries, return_data = True)
-
-	if pk_identity is not None:
-		return cCommChannel(row = {'pk_field': view_pk, 'data': rows[0]})
-
-	return channel_class(row = {'pk_field': view_pk, 'data': rows[0]})
+	return cOrgCommChannel(row = {'pk_field': view_pk, 'data': rows[0]})
 
 #-------------------------------------------------------------------
 def delete_comm_channel(pk=None, pk_patient=None, pk_org_unit=None):
@@ -1084,21 +1107,11 @@ def delete_comm_channel_type(pk_channel_type=None):
 	gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': {'pk': pk_channel_type}}])
 	return True
 #===================================================================
-#-------------------------------------------------------------------
-
-#==============================================================================
-#----------------------------------------------------------------
-#----------------------------------------------------------------
-#------------------------------------------------------------------
-#----------------------------------------------------------------
-#-------------------------------------------------------------------------------
-#============================================================
 # callbacks
 #------------------------------------------------------------
 def _post_patient_selection(**kwargs):
 	print("received post_patient_selection notification")
 	print(kwargs['kwds'])
-#============================================================
 
 #============================================================
 # main

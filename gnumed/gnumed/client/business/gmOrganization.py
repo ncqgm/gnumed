@@ -218,8 +218,8 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 		@param is_confidential Whether the data must be treated as confidential.
 		@type is_confidential A bool instance.
 		"""
-		return gmDemographicRecord.create_comm_channel (
-			comm_medium = comm_medium,
+		return gmDemographicRecord.create_org_comm_channel (
+			comm_type = comm_medium,
 			url = url,
 			is_confidential = is_confidential,
 			pk_channel_type = pk_channel_type,
