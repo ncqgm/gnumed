@@ -994,7 +994,7 @@ def create_person_comm_channel(comm_type:str=None, url:str=None, is_confidential
 	SQL = "SELECT * FROM dem.v_person_comms WHERE pk_lnk_identity2comm = currval(pg_get_serial_sequence('dem.lnk_identity2comm', 'pk'))"
 	queries.append({'sql': SQL})
 	rows = gmPG2.run_rw_queries(queries = queries, return_data = True)
-	return cPersonCommChannel(row = {'pk_field': view_pk, 'data': rows[0]})
+	return cPersonCommChannel(row = {'pk_field': 'pk_lnk_identity2comm', 'data': rows[0]})
 
 #-------------------------------------------------------------------
 class cOrgCommChannel(gmBusinessDBObject.cBusinessDBObject):
@@ -1063,7 +1063,7 @@ def create_org_comm_channel(comm_type=None, url=None, is_confidential=False, pk_
 	SQL = "SELECT * FROM dem.v_org_unit_comms WHERE pk_lnk_org_unit2comm = currval(pg_get_serial_sequence('dem.lnk_org_unit2comm', 'pk'))"
 	queries.append({'sql': SQL})
 	rows = gmPG2.run_rw_queries(queries = queries, return_data = True)
-	return cOrgCommChannel(row = {'pk_field': view_pk, 'data': rows[0]})
+	return cOrgCommChannel(row = {'pk_field': 'pk_lnk_org_unit2comm', 'data': rows[0]})
 
 #-------------------------------------------------------------------
 def delete_comm_channel(pk=None, pk_patient=None, pk_org_unit=None):
