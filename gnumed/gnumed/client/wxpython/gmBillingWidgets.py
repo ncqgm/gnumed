@@ -1634,6 +1634,6 @@ if __name__ == '__main__':
 	gmI18N.install_domain(domain = 'gnumed')
 
 	#----------------------------------------
-	app = wx.PyWidgetTester(size = (600, 600))
+	#app = wx.PyWidgetTester(size = (600, 600))
 	#app.SetWidget(cXxxPhraseWheel, -1)
-	app.MainLoop()
+	#app.MainLoop()

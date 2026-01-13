@@ -1878,13 +1878,12 @@ if __name__ == '__main__':
 	gmPatSearchWidgets.set_active_patient(patient = patient)
 
 	# display standalone browser
-	application = wx.PyWidgetTester(size=(800,600))
+	#application = wx.PyWidgetTester(size=(800,600))
 	#emr_browser = cEMRBrowserPanel(application.frame, -1)
-	emr_browser = None
-	emr_browser.refresh_tree()
-
-	application.frame.Show(True)
-	application.MainLoop()
+	#emr_browser = None
+	#emr_browser.refresh_tree()
+	#application.frame.Show(True)
+	#application.MainLoop()
 
 	# clean up
 	if patient is not None:

@@ -168,6 +168,6 @@ if __name__ == '__main__':
 
 	#----------------------------------------
 	gmPG2.get_connection()
-	app = wx.PyWidgetTester(size = (600, 80))
-	app.SetWidget(cATCPhraseWheel, -1)
-	app.MainLoop()
+#	app = wx.PyWidgetTester(size = (600, 80))
+#	app.SetWidget(cATCPhraseWheel, -1)
+#	app.MainLoop()

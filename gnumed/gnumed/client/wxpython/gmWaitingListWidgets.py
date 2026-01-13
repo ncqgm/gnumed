@@ -500,8 +500,8 @@ if __name__ == '__main__':
 #	#--------------------------------------------------------
 #	test_generic_codes_prw()
 
-	app = wx.PyWidgetTester(size = (200, 40))
-	app.SetWidget(cWaitingListPnl, -1)
-	app.MainLoop()
+#	app = wx.PyWidgetTester(size = (200, 40))
+#	app.SetWidget(cWaitingListPnl, -1)
+#	app.MainLoop()
 
 #================================================================

@@ -21,7 +21,6 @@ from Gnumed.business import gmPerson
 from Gnumed.business import gmAllergy
 from Gnumed.business import gmPersonSearch
 
-from Gnumed.wxpython import gmTerryGuiParts
 from Gnumed.wxpython import gmRegetMixin
 
 
@@ -479,123 +478,6 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 		self.__refresh_details_ui()
 
 #======================================================================
-class cAllergyPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
-	"""Allergy details panel.
-
-		This panel will hold all the allergy details and
-		allow entry of those details via the editing area.
-	"""
-	#----------------------------------------------------
-	def __init__(self, parent, id=-1):
-		wx.Panel.__init__(self, parent, id, wx.DefaultPosition, wx.DefaultSize, wx.RAISED_BORDER)
-		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
-		self.__do_layout()
-		self.__pat = gmPerson.gmCurrentPatient()
-		self.__register_interests()
-		self.__reset_ui_content()
-	#----------------------------------------------------
-	def __do_layout(self):
-		# -- top part --
-		pnl_UpperCaption = gmTerryGuiParts.cHeadingCaption(self, -1, _("ALLERGIES"))
-		#self.editarea = gmAllergyEditArea(self, -1)
-		self.editarea = None
-
-		# -- middle part --
-		# divider headings below edit area
-		pnl_MiddleCaption = gmTerryGuiParts.cDividerCaption(self, -1, _("Allergy and Sensitivity - Summary"))
-#		self.sizer_divider_drug_generic = wx.BoxSizer(wxHORIZONTAL)
-#		self.sizer_divider_drug_generic.Add(pnl_MiddleCaption, 1, wxEXPAND)
-		self.LCTRL_allergies = wx.ListCtrl (
-			parent = self,
-			#id = ID_ALLERGY_LIST,
-			id = -1,
-			pos = wx.DefaultPosition,
-			size = wx.DefaultSize,
-			style = wx.LC_SINGLE_SEL | wx.LC_REPORT | wx.SUNKEN_BORDER | wx.LC_HRULES | wx.LC_VRULES | wx.VSCROLL
-		)
-		self.LCTRL_allergies.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL, False, ''))
-		self.LCTRL_allergies.InsertColumn(0, _("Type"))
-		self.LCTRL_allergies.InsertColumn(1, _("Status"))
-		self.LCTRL_allergies.InsertColumn(2, _("ATC/Class"))
-		self.LCTRL_allergies.InsertColumn(3, _("Substance"))
-		self.LCTRL_allergies.InsertColumn(4, _("Generics"))
-		self.LCTRL_allergies.InsertColumn(5, _("Reaction"))
-
-		# -- bottom part --
-		pnl_LowerCaption = gmTerryGuiParts.cDividerCaption(self, -1, _('Class notes'))
-		#add a richtext control or a wxTextCtrl multiline to display the class text information
-		#e.g. would contain say information re the penicillins
-		self.class_notes = wx.TextCtrl (
-			self,
-			-1,
-			"A member of a new class of nonsteroidal anti-inflammatory agents (COX-2 selective NSAIDs) which have a mechanism of action that inhibits prostaglandin synthesis primarily by inhibition of cyclooxygenase 2 (COX-2). At therapeutic doses these have no effect on prostanoids synthesised by activation of COX-1 thereby not interfering with normal COX-1 related physiological processes in tissues, particularly the stomach, intestine and platelets.",
-			size = (200, 100),
-			style = wx.TE_MULTILINE | wx.TE_READONLY
-		)
-		self.class_notes.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL, False, ''))
-
-		# -- add elements to main background sizer --
-		self.mainsizer = wx.BoxSizer(wx.VERTICAL)
-		self.mainsizer.Add(pnl_UpperCaption, 0, wx.EXPAND)
-		self.mainsizer.Add(self.editarea, 6, wx.EXPAND)
-#		self.mainsizer.Add(self.sizer_divider_drug_generic,0,wxEXPAND)
-		self.mainsizer.Add(pnl_MiddleCaption, 0, wx.EXPAND)
-		self.mainsizer.Add(self.LCTRL_allergies, 5, wx.EXPAND)
-		self.mainsizer.Add(pnl_LowerCaption, 0, wx.EXPAND)
-		self.mainsizer.Add(self.class_notes, 4, wx.EXPAND)
-
-		self.SetAutoLayout(True)
-		self.SetSizer(self.mainsizer)
-		self.mainsizer.Fit(self)
-	#-----------------------------------------------
-	def __register_interests(self):
-		self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self._on_allergy_activated)
-		#wx.EVT_LIST_ITEM_ACTIVATED(self, ID_ALLERGY_LIST, self._on_allergy_activated)
-
-		# client internal signals
-		gmDispatcher.connect(signal = 'post_patient_selection', receiver=self._schedule_data_reget)
-#		gmDispatcher.connect(signal = u'vaccinations_updated', receiver=self._schedule_data_reget)
-	#-----------------------------------------------
-	def __reset_ui_content(self):
-		self.editarea.set_data()
-		self.LCTRL_allergies.DeleteAllItems()
-	#-----------------------------------------------
-	def _populate_with_data(self):
-		if not self.__pat.connected:
-			return False
-
-		self.LCTRL_allergies.DeleteAllItems()
-
-		emr = self.__pat.emr
-		allergies = emr.get_allergies()
-		if allergies is None:
-			return False
-		for list_line in range(len(allergies)):
-			allg = allergies[list_line]
-			list_line = self.LCTRL_allergies.InsertItem(list_line, allg['l10n_type'])
-			# FIXME: check with Richard design specs
-			if allg['definite']:
-				self.LCTRL_allergies.SetItem(list_line, 1, _('definite'))
-			else:
-				self.LCTRL_allergies.SetItem(list_line, 1, _('likely'))
-			if allg['atc_code'] is not None:
-				self.LCTRL_allergies.SetItem(list_line, 2, allg['atc_code'])
-			self.LCTRL_allergies.SetItem(list_line, 3, allg['substance'])
-			if allg['generics'] is not None:
-				self.LCTRL_allergies.SetItem(list_line, 4, allg['generics'])
-			self.LCTRL_allergies.SetItem(list_line, 5, allg['reaction'])
-			self.LCTRL_allergies.SetItemData(list_line, allg['pk_allergy'])
-		for col in range(5):
-			self.LCTRL_allergies.SetColumnWidth(col, wx.LIST_AUTOSIZE)
-		# FIXME: resize event needed ?
-		return True
-	#-----------------------------------------------
-	def _on_allergy_activated(self, evt):
-		pk_allg = evt.GetData()
-		emr = self.__pat.emr
-		allgs = emr.get_allergies(ID_list=[pk_allg])
-		self.editarea.set_data(allergy = allgs[0])
-#======================================================================
 # main
 #----------------------------------------------------------------------
 if __name__ == "__main__":
@@ -628,8 +510,3 @@ if __name__ == "__main__":
 
 		#test_allergy_edit_area_dlg()
 #		test_allergy_manager_dlg()
-
-#		app = wxPyWidgetTester(size = (600, 600))
-#		app.SetWidget(cAllergyPanel, -1)
-#		app.MainLoop()
-#======================================================================

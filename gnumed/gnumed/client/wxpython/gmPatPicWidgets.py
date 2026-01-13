@@ -205,7 +205,7 @@ class cPatientPicture(wx.StaticBitmap):
 # main
 #----------------------------------------------------
 if __name__ == "__main__":
-	app = wx.PyWidgetTester(size = (200, 200))
-	app.SetWidget(cPatientPicture, -1)
-	app.MainLoop()
-#====================================================
+	#app = wx.PyWidgetTester(size = (200, 200))
+	#app.SetWidget(cPatientPicture, -1)
+	#app.MainLoop()
+	pass

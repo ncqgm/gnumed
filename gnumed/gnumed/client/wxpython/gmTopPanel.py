@@ -430,7 +430,8 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 
 #===========================================================	
 if __name__ == "__main__":
-	app = wx.PyWidgetTester(size = (400, 200))
+	#app = wx.PyWidgetTester(size = (400, 200))
 	#app.SetWidget(cMainTopPanel, -1)
-	app.SetWidget(cTopPnl, -1)
-	app.MainLoop()
+	#app.SetWidget(cTopPnl, -1)
+	#app.MainLoop()
+	pass
