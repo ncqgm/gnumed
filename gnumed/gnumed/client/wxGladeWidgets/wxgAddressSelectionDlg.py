@@ -32,7 +32,7 @@ class wxgAddressSelectionDlg(wx.Dialog):
 		self._PRW_address_searcher = cAddressPhraseWheel(self, wx.ID_ANY, "")
 		__szr_middle.Add(self._PRW_address_searcher, 1, wx.EXPAND | wx.RIGHT, 3)
 
-		self._BTN_manage_addresses = wx.Button(self, wx.ID_ANY, _("&Manage"), style=wx.BU_EXACTFIT)
+		self._BTN_manage_addresses = wx.Button(self, wx.ID_ANY, _("&Manage"))
 		self._BTN_manage_addresses.SetToolTip(_("Manage addresses."))
 		__szr_middle.Add(self._BTN_manage_addresses, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
