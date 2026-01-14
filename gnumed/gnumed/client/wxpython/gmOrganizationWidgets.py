@@ -250,7 +250,7 @@ class cOrgUnitsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		] for u in units ]
 
 		self._LCTRL_items.set_string_items(items)
-		self._LCTRL_items.set_column_widths(widths = [wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
+		self._LCTRL_items.set_column_widths()
 		self._LCTRL_items.set_data(units)
 
 		for idx in range(len(units)):
@@ -829,7 +829,7 @@ class cOrganizationsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		orgs = gmOrganization.get_orgs(order_by = 'organization, l10n_category')
 		items = [ [o['organization'], o['l10n_category'], o['pk_org']] for o in orgs ]
 		self._LCTRL_items.set_string_items(items)
-		self._LCTRL_items.set_column_widths(widths = [wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
+		self._LCTRL_items.set_column_widths()
 		self._LCTRL_items.set_data(orgs)
 
 		for idx in range(len(orgs)):

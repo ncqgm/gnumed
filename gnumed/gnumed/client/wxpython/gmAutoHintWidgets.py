@@ -341,7 +341,7 @@ class cDynamicHintListDlg(wxgDynamicHintListDlg.wxgDynamicHintListDlg):
 	#------------------------------------------------------------
 	def __init_ui(self):
 		self._LCTRL_hints.set_columns([_('Hint'), _('Source')])
-		self._LCTRL_hints.set_column_widths([wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
+		self._LCTRL_hints.set_column_widths()
 		self._LCTRL_hints.set_resize_column(column = 0)
 		self._LCTRL_hints.select_callback = self._on_hint_selected
 		self._LCTRL_hints.deselect_callback = self._on_hint_deselected

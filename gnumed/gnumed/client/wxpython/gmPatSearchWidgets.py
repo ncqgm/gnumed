@@ -237,7 +237,7 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 				self._LCTRL_persons.SetItem(row_num, 6, '??')
 
 		for col in range(len(self.__cols)):
-			self._LCTRL_persons.SetColumnWidth(col, wx.LIST_AUTOSIZE)
+			self._LCTRL_persons.SetColumnWidth(col, wx.LIST_AUTOSIZE_USEHEADER)
 
 		self._BTN_select.Enable(False)
 		self._LCTRL_persons.SetFocus()
@@ -317,7 +317,7 @@ class cSelectPersonDTOFromListDlg(wxgSelectPersonDTOFromListDlg.wxgSelectPersonD
 			self._LCTRL_persons.SetItem(row_num, 4, gmTools.coalesce(dto.gender, ''))
 
 		for col in range(len(self.__cols)):
-			self._LCTRL_persons.SetColumnWidth(col, wx.LIST_AUTOSIZE)
+			self._LCTRL_persons.SetColumnWidth(col, wx.LIST_AUTOSIZE_USEHEADER)
 
 		self._BTN_select.Enable(False)
 		self._LCTRL_persons.SetFocus()

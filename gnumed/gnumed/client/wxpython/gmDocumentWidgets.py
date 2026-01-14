@@ -496,8 +496,8 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 
 		if len(doc_types) > 0:
 			self._LCTRL_doc_type.set_data(data = doc_types)
-			self._LCTRL_doc_type.SetColumnWidth(0, wx.LIST_AUTOSIZE)
-			self._LCTRL_doc_type.SetColumnWidth(1, wx.LIST_AUTOSIZE)
+			self._LCTRL_doc_type.SetColumnWidth(0, wx.LIST_AUTOSIZE_USEHEADER)
+			self._LCTRL_doc_type.SetColumnWidth(1, wx.LIST_AUTOSIZE_USEHEADER)
 			self._LCTRL_doc_type.SetColumnWidth(2, wx.LIST_AUTOSIZE_USEHEADER)
 			self._LCTRL_doc_type.SetColumnWidth(3, wx.LIST_AUTOSIZE_USEHEADER)
 
@@ -2663,10 +2663,12 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		self._LCTRL_studies.set_columns(columns = [_('Date'), _('Description'), _('Organization'), _('Authority')])
 		self._LCTRL_studies.select_callback = self._on_studies_list_item_selected
 		self._LCTRL_studies.deselect_callback = self._on_studies_list_item_deselected
+		self._LCTRL_studies.set_column_widths()
 
 		self._LCTRL_series.set_columns(columns = [_('Time'), _('Method'), _('Body part'), _('Description')])
 		self._LCTRL_series.select_callback = self._on_series_list_item_selected
 		self._LCTRL_series.deselect_callback = self._on_series_list_item_deselected
+		self._LCTRL_series.set_column_widths()
 
 		self._LCTRL_details.set_columns(columns = [_('DICOM field'), _('Value')])
 		self._LCTRL_details.set_column_widths()
