@@ -275,7 +275,7 @@ class cExportAreaExportToMediaDlg(wxgExportAreaExportToMediaDlg.wxgExportAreaExp
 		)
 		self._LBL_header.Label = msg
 		self._LCTRL_removable_media.set_columns([_('Type'), _('Medium'), _('Details')])
-		self._LCTRL_removable_media.set_column_widths([wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
+		self._LCTRL_removable_media.set_column_widths()
 		self._LCTRL_removable_media.set_resize_column()
 		self._LCTRL_removable_media.select_callback = self._on_media_selected
 		self._LCTRL_removable_media.deselect_callback = self._on_media_deselected
@@ -1513,7 +1513,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 				i['description']
 			] for i in items
 		])
-		self._LCTRL_items.set_column_widths([wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
+		self._LCTRL_items.set_column_widths()
 		self._LCTRL_items.set_data(items)
 		self._LCTRL_items.RestoreItemSelection()
 		self._LCTRL_items.RestoreSortState()
@@ -1672,7 +1672,7 @@ class cPrintMgrPluginPnl(wxgPrintMgrPluginPnl.wxgPrintMgrPluginPnl, gmRegetMixin
 				] for p in printouts ]
 		self._LCTRL_printouts.set_columns(columns)
 		self._LCTRL_printouts.set_string_items(items)
-		self._LCTRL_printouts.set_column_widths([wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
+		self._LCTRL_printouts.set_column_widths()
 		self._LCTRL_printouts.set_data(printouts)
 		self._LCTRL_printouts.SetFocus()
 		return True
