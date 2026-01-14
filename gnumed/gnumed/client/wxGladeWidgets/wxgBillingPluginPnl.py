@@ -25,7 +25,7 @@ class wxgBillingPluginPnl(wx.ScrolledWindow):
 		self._PRW_billable = cBillablePhraseWheel(self, wx.ID_ANY, "")
 		self._TCTRL_factor = wx.TextCtrl(self, wx.ID_ANY, "")
 		self._TCTRL_details = wx.TextCtrl(self, wx.ID_ANY, "")
-		self._BTN_insert_item = wx.Button(self, wx.ID_ANY, _("&Insert"), style=wx.BU_EXACTFIT)
+		self._BTN_insert_item = wx.Button(self, wx.ID_ANY, _("&Insert"))
 
 		self.__set_properties()
 		self.__do_layout()
