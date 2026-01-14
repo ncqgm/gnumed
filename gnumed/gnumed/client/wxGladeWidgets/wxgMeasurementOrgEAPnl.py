@@ -20,7 +20,7 @@ class wxgMeasurementOrgEAPnl(wx.ScrolledWindow):
 		wx.ScrolledWindow.__init__(self, *args, **kwds)
 		from Gnumed.wxpython.gmOrganizationWidgets import cOrgUnitPhraseWheel
 		self._PRW_org_unit = cOrgUnitPhraseWheel(self, wx.ID_ANY, "")
-		self._BTN_manage_orgs = wx.Button(self, wx.ID_ANY, _("&Manage orgs"), style=wx.BU_EXACTFIT)
+		self._BTN_manage_orgs = wx.Button(self, wx.ID_ANY, _("&Manage orgs"))
 		self._TCTRL_contact = wx.TextCtrl(self, wx.ID_ANY, "")
 		self._TCTRL_comment = wx.TextCtrl(self, wx.ID_ANY, "")
 
