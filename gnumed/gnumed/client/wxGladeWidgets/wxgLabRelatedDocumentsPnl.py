@@ -19,8 +19,8 @@ class wxgLabRelatedDocumentsPnl(wx.Panel):
 		kwds["style"] = kwds.get("style", 0) | wx.TAB_TRAVERSAL
 		wx.Panel.__init__(self, *args, **kwds)
 		self._LBL_no_of_docs = wx.StaticText(self, wx.ID_ANY, _("Related documents: XX"))
-		self._BTN_list_documents = wx.Button(self, wx.ID_ANY, _("List"), style=wx.BU_EXACTFIT)
-		self._BTN_select_lab_doc_types = wx.Button(self, wx.ID_ANY, _("Select types"), style=wx.BU_EXACTFIT)
+		self._BTN_list_documents = wx.Button(self, wx.ID_ANY, _("List"))
+		self._BTN_select_lab_doc_types = wx.Button(self, wx.ID_ANY, _("Select types"))
 
 		self.__set_properties()
 		self.__do_layout()
