@@ -25,7 +25,7 @@ class wxgDrugProductEAPnl(wx.ScrolledWindow):
 		self._PRW_preparation = cSubstancePreparationPhraseWheel(self, wx.ID_ANY, "")
 		self._CHBOX_is_fake = wx.CheckBox(self, wx.ID_ANY, _("Fake product"))
 		self._TCTRL_components = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_MULTILINE | wx.TE_READONLY)
-		self._BTN_manage_components = wx.Button(self, wx.ID_ANY, _("&Manage"), style=wx.BU_EXACTFIT)
+		self._BTN_manage_components = wx.Button(self, wx.ID_ANY, _("&Manage"))
 		self._HL_atc_list = wx.adv.HyperlinkCtrl(self, wx.ID_ANY, _("ATC Code"), _("http://www.whocc.no/atc_ddd_index/"), style=wx.adv.HL_DEFAULT_STYLE)
 		from Gnumed.wxpython.gmATCWidgets import cATCPhraseWheel
 		self._PRW_atc = cATCPhraseWheel(self, wx.ID_ANY, "")
