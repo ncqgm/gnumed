@@ -54,7 +54,7 @@ class wxgPACSPluginPnl(wx.Panel):
 		self._TCTRL_password.SetToolTip(_("Enter the PACS password. It will not be shown."))
 		__szr_PACS_details.Add(self._TCTRL_password, 1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 
-		self._BTN_connect = wx.Button(self, wx.ID_ANY, _("&Connect"), style=wx.BU_EXACTFIT)
+		self._BTN_connect = wx.Button(self, wx.ID_ANY, _("&Connect"))
 		self._BTN_connect.SetToolTip(_("Connect to PACS."))
 		__szr_PACS_details.Add(self._BTN_connect, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 
@@ -95,12 +95,12 @@ class wxgPACSPluginPnl(wx.Panel):
 		__szr_prev_next = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_image_buttons_left.Add(__szr_prev_next, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
 
-		self._BTN_previous_image = wx.Button(self, wx.ID_ANY, _(u"◄"), style=wx.BU_EXACTFIT)
+		self._BTN_previous_image = wx.Button(self, wx.ID_ANY, _(u"◄"))
 		self._BTN_previous_image.SetToolTip(_("Review previous image."))
 		self._BTN_previous_image.Enable(False)
 		__szr_prev_next.Add(self._BTN_previous_image, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
 
-		self._BTN_next_image = wx.Button(self, wx.ID_ANY, _(u"►"), style=wx.BU_EXACTFIT)
+		self._BTN_next_image = wx.Button(self, wx.ID_ANY, _(u"►"))
 		self._BTN_next_image.SetToolTip(_("Preview next image."))
 		self._BTN_next_image.Enable(False)
 		__szr_prev_next.Add(self._BTN_next_image, 0, wx.ALIGN_CENTER_VERTICAL, 3)
