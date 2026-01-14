@@ -42,7 +42,7 @@ class wxgMeasurementsAsMostRecentListPnl(wx.Panel):
 		self._CHBOX_show_missing.SetToolTip(_("Check to show panel tests which lack results."))
 		__szr_panel_options.Add(self._CHBOX_show_missing, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 
-		self._BTN_manage_panels = wx.Button(self, wx.ID_ANY, _("Manage"), style=wx.BU_EXACTFIT)
+		self._BTN_manage_panels = wx.Button(self, wx.ID_ANY, _("Manage"))
 		self._BTN_manage_panels.SetToolTip(_("Manage test panels."))
 		__szr_panel_options.Add(self._BTN_manage_panels, 0, wx.ALIGN_CENTER_VERTICAL, 5)
 
