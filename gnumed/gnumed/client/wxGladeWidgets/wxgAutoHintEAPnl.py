@@ -25,7 +25,7 @@ class wxgAutoHintEAPnl(wx.ScrolledWindow):
 		self._TCTRL_query = cTextCtrl(self, wx.ID_ANY, "", style=wx.TE_MULTILINE)
 		self._TCTRL_recommendation_query = cTextCtrl(self, wx.ID_ANY, "", style=wx.TE_MULTILINE)
 		self._TCTRL_url = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_AUTO_URL)
-		self._BTN_check_url = wx.Button(self, wx.ID_ANY, _("Chec&k"), style=wx.BU_EXACTFIT)
+		self._BTN_check_url = wx.Button(self, wx.ID_ANY, _("Chec&k"))
 		self._CHBOX_is_active = wx.CheckBox(self, wx.ID_ANY, _("&Active"), style=wx.CHK_2STATE)
 		self._CHBOX_highlight = wx.CheckBox(self, wx.ID_ANY, _("&Highlight"), style=wx.CHK_2STATE)
 		self._RBTN_popup_none = wx.RadioButton(self, wx.ID_ANY, _("None"))
