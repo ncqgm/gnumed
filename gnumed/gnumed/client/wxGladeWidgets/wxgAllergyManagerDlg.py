@@ -101,15 +101,15 @@ class wxgAllergyManagerDlg(wx.Dialog):
 		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_details.Add(__szr_buttons, 0, wx.EXPAND, 5)
 
-		self._BTN_save_details = wx.Button(self, wx.ID_SAVE, "", style=wx.BU_EXACTFIT)
+		self._BTN_save_details = wx.Button(self, wx.ID_SAVE, "")
 		self._BTN_save_details.SetToolTip(_("Save the allergy details in the edit area as either a new allergy or as an update to the existing allergy selected above."))
 		__szr_buttons.Add(self._BTN_save_details, 0, wx.EXPAND | wx.RIGHT, 5)
 
-		self._BTN_clear = wx.Button(self, wx.ID_CLEAR, "", style=wx.BU_EXACTFIT)
+		self._BTN_clear = wx.Button(self, wx.ID_CLEAR, "")
 		self._BTN_clear.SetToolTip(_("Clear the fields of the edit area. Will discard unsaved data."))
 		__szr_buttons.Add(self._BTN_clear, 0, wx.EXPAND | wx.RIGHT, 5)
 
-		self._BTN_delete = wx.Button(self, wx.ID_DELETE, "", style=wx.BU_EXACTFIT)
+		self._BTN_delete = wx.Button(self, wx.ID_DELETE, "")
 		self._BTN_delete.SetToolTip(_("Delete the allergy selected in the list from the database."))
 		self._BTN_delete.Enable(False)
 		__szr_buttons.Add(self._BTN_delete, 0, wx.EXPAND, 5)
