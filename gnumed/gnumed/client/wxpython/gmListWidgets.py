@@ -1994,10 +1994,11 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 			return
 
 		# default policy !
-		if self.GetItemCount() == 0:
-			width_type = wx.LIST_AUTOSIZE_USEHEADER
-		else:
-			width_type = wx.LIST_AUTOSIZE
+		#if self.GetItemCount() == 0:
+		#	width_type = wx.LIST_AUTOSIZE_USEHEADER
+		#else:
+		#	width_type = wx.LIST_AUTOSIZE
+		width_type = wx.LIST_AUTOSIZE_USEHEADER
 		for idx in range(self.GetColumnCount()):
 			self.SetColumnWidth(idx, width_type)
 
