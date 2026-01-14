@@ -22,7 +22,7 @@ class wxgBillEAPnl(wx.ScrolledWindow):
 		from Gnumed.wxpython.gmDateTimeInput import cDateInputPhraseWheel
 		self._PRW_close_date = cDateInputPhraseWheel(self, wx.ID_ANY, "")
 		self._TCTRL_address = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_READONLY)
-		self._BTN_select_address = wx.Button(self, wx.ID_ANY, _("&Select"), style=wx.BU_EXACTFIT)
+		self._BTN_select_address = wx.Button(self, wx.ID_ANY, _("&Select"))
 		self._TCTRL_value = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_READONLY)
 		self._CHBOX_vat_applies = wx.CheckBox(self, wx.ID_ANY, _("&VAT applies"), style=wx.CHK_3STATE | wx.CHK_ALLOW_3RD_STATE_FOR_USER)
 		self._TCTRL_value_with_vat = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_READONLY)
