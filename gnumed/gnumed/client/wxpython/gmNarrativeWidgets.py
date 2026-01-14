@@ -331,16 +331,15 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	def __refresh_recent_notes(self, problem=None):
 		"""This refreshes the recent-notes part."""
 
-		if problem is None:
-			caption = '<?>'
-			txt = ''
-		elif problem['type'] == 'issue':
-			caption = problem['problem'][:35]
-			txt = self.__get_info_for_issue_problem(problem = problem, fancy = not self._RBTN_notes_only.GetValue())
-		elif problem['type'] == 'episode':
-			caption = problem['problem'][:35]
-			txt = self.__get_info_for_episode_problem(problem = problem, fancy = not self._RBTN_notes_only.GetValue())
-
+		caption = '<?>'
+		txt = ''
+		if problem is not None:
+			if problem['type'] == 'issue':
+				caption = problem['problem'][:35]
+				txt = self.__get_info_for_issue_problem(problem = problem, fancy = not self._RBTN_notes_only.GetValue())
+			elif problem['type'] == 'episode':
+				caption = problem['problem'][:35]
+				txt = self.__get_info_for_episode_problem(problem = problem, fancy = not self._RBTN_notes_only.GetValue())
 		self._TCTRL_recent_notes.SetValue(txt)
 		self._TCTRL_recent_notes.ShowPosition(self._TCTRL_recent_notes.GetLastPosition())
 		self._SZR_recent_notes.StaticBox.SetLabel(_('Most recent info on %s%s%s') % (
@@ -348,10 +347,9 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 			caption,
 			gmTools.u_right_double_angle_quote
 		))
-
 		self._TCTRL_recent_notes.Refresh()
-
 		return True
+
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------

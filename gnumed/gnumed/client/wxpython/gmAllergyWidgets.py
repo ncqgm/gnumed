@@ -21,8 +21,6 @@ from Gnumed.business import gmPerson
 from Gnumed.business import gmAllergy
 from Gnumed.business import gmPersonSearch
 
-from Gnumed.wxpython import gmRegetMixin
-
 
 _log = logging.getLogger('gm.ui')
 

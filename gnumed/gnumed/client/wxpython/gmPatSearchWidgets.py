@@ -772,7 +772,6 @@ def get_person_from_external_sources(parent=None, search_immediately=False, acti
 	dtos.extend(load_persons_from_pracsoft_au())
 	dtos.extend(load_persons_from_kvks())
 	dtos.extend(load_persons_from_ca_msva())
-
 	# no external persons
 	if len(dtos) == 0:
 		gmDispatcher.send(signal='statustext', msg=_('No patients found in external sources.'))
@@ -796,7 +795,6 @@ def get_person_from_external_sources(parent=None, search_immediately=False, acti
 	# one external person - look for internal match immediately ?
 	if (len(dtos) == 1) and search_immediately:
 		dto = dtos[0]['dto']
-
 	# several external persons
 	else:
 		if parent is None:
@@ -806,12 +804,13 @@ def get_person_from_external_sources(parent=None, search_immediately=False, acti
 		result = dlg.ShowModal()
 		if result == wx.ID_CANCEL:
 			return None
+
 		dto = dlg.get_selected_dto()['dto']
 		dlg.DestroyLater()
 
 	# search
-	idents = dto.get_candidate_identities(can_create=True)
-	if idents is None:
+	idents = dto.get_candidate_identities(can_create = True)
+	if not idents:
 		gmGuiHelpers.gm_show_info (_(
 			'Cannot create new patient:\n\n'
 			' [%s %s (%s), %s]'
@@ -825,9 +824,7 @@ def get_person_from_external_sources(parent=None, search_immediately=False, acti
 		)
 		return None
 
-	if len(idents) == 1:
-		ident = idents[0]
-
+	ident = idents[0]
 	if len(idents) > 1:
 		if parent is None:
 			parent = wx.GetApp().GetTopWindow()
@@ -856,7 +853,6 @@ def get_person_from_external_sources(parent=None, search_immediately=False, acti
 
 	dto.import_extra_data(identity = ident)
 	dto.delete_from_source()
-
 	return ident
 
 #============================================================

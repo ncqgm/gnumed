@@ -523,6 +523,8 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 					problem['problem'],
 					gmTools.coalesce(value2test = epi['health_issue'], return_instead = '', template4value = ' (%s)')
 				)
+			else:
+				label = '<should not happen>'
 			self.__LST_problems.Append(label, problem)
 		splitter_width = self.__splitter.GetSize()[0]
 		self.__splitter.SetSashPosition((splitter_width // 2), True)

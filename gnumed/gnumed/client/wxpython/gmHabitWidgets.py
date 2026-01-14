@@ -152,19 +152,20 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 
+		pk_substance = None
 		if self._RBTN_tobacco.GetValue() is True:
 			pk_substance = gmMedication.get_tobacco()['pk_substance']
-
 		elif self._RBTN_c2.GetValue() is True:
 			pk_substance = gmMedication.get_alcohol()['pk_substance']
-
 		elif self._RBTN_other_substance.GetValue() is True:
-			#xxxxxxxxx
-			#PRW_substance -> _dose
 			pk_substance = gmMedication.get_other_drug (
 				name = self._PRW_substance.GetValue().strip(),
 				pk_dose = self._PRW_substance.GetData()
 			)['pk_substance']
+		if not pk_substance:
+			# should not happen
+			_log.error('<pk_substance> is None')
+			return False
 
 		pk_encounter = self.__patient.emr.active_encounter['pk_encounter']
 		intake = gmMedication.create_substance_intake (
@@ -172,7 +173,6 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 			pk_episode = gmMedication.create_default_medication_history_episode(encounter = pk_encounter)['pk_episode'],
 			pk_substance = pk_substance
 		)
-
 		if self._RBTN_nonharmful_use.GetValue() is True:
 			intake['use_type'] = 0
 		elif self._RBTN_harmful_use.GetValue() is True:
@@ -185,9 +185,7 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 		if self._DPRW_quit_when.is_valid_timestamp(empty_is_valid = False):
 			intake['discontinued'] = self._DPRW_quit_when.date
 		intake.save()
-
 		self.data = intake
-
 		return True
 
 	#----------------------------------------------------------------
