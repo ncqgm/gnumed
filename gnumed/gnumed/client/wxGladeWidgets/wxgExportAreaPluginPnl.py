@@ -39,71 +39,71 @@ class wxgExportAreaPluginPnl(wx.Panel):
 
 		__szr_item_up_down.Add((20, 20), 2, wx.EXPAND, 0)
 
-		self._BTN_add_items = wx.Button(self, wx.ID_ANY, _(u"← &Files"), style=wx.BU_EXACTFIT | wx.BU_LEFT)
+		self._BTN_add_items = wx.Button(self, wx.ID_ANY, _(u"← &Files"), style=wx.BU_LEFT)
 		self._BTN_add_items.SetToolTip(_("Add document(s) from file(s)."))
 		__szr_buttons_right.Add(self._BTN_add_items, 0, wx.BOTTOM | wx.EXPAND, 3)
 
-		self._BTN_add_directory = wx.Button(self, wx.ID_ANY, _(u"← &Directory"), style=wx.BU_EXACTFIT | wx.BU_LEFT)
+		self._BTN_add_directory = wx.Button(self, wx.ID_ANY, _(u"← &Directory"), style=wx.BU_LEFT)
 		self._BTN_add_directory.SetToolTip(_("Add a local directory."))
 		__szr_buttons_right.Add(self._BTN_add_directory, 0, wx.BOTTOM | wx.EXPAND, 3)
 
-		self._BTN_add_from_archive = wx.Button(self, wx.ID_ANY, _(u"← &Archive"), style=wx.BU_EXACTFIT | wx.BU_LEFT)
+		self._BTN_add_from_archive = wx.Button(self, wx.ID_ANY, _(u"← &Archive"), style=wx.BU_LEFT)
 		self._BTN_add_from_archive.SetToolTip(_("Add document(s) from archive."))
 		__szr_buttons_right.Add(self._BTN_add_from_archive, 0, wx.BOTTOM | wx.EXPAND, 3)
 
-		self._BTN_scan_items = wx.Button(self, wx.ID_ANY, _(u"← S&can"), style=wx.BU_EXACTFIT | wx.BU_LEFT)
+		self._BTN_scan_items = wx.Button(self, wx.ID_ANY, _(u"← S&can"), style=wx.BU_LEFT)
 		self._BTN_scan_items.SetToolTip(_("Acquire images from image source (scanner, ...)."))
 		__szr_buttons_right.Add(self._BTN_scan_items, 0, wx.BOTTOM | wx.EXPAND, 3)
 
-		self._BTN_clipboard_items = wx.Button(self, wx.ID_ANY, _(u"← C&lipboard"), style=wx.BU_EXACTFIT | wx.BU_LEFT)
+		self._BTN_clipboard_items = wx.Button(self, wx.ID_ANY, _(u"← C&lipboard"), style=wx.BU_LEFT)
 		self._BTN_clipboard_items.SetToolTip(_("Acquire file or text from the clipboard."))
 		__szr_buttons_right.Add(self._BTN_clipboard_items, 0, wx.BOTTOM | wx.EXPAND, 3)
 
 		__szr_buttons_right.Add((20, 20), 0, wx.EXPAND, 0)
 
-		self._BTN_show_item = wx.Button(self, wx.ID_ANY, _("&View"), style=wx.BU_EXACTFIT)
+		self._BTN_show_item = wx.Button(self, wx.ID_ANY, _("&View"))
 		self._BTN_show_item.SetToolTip(_("Show the topmost selected document."))
 		__szr_buttons_right.Add(self._BTN_show_item, 0, wx.BOTTOM | wx.EXPAND, 3)
 
-		self._BTN_save_items = wx.Button(self, wx.ID_ANY, _("&Save as"), style=wx.BU_EXACTFIT)
+		self._BTN_save_items = wx.Button(self, wx.ID_ANY, _("&Save as"))
 		self._BTN_save_items.SetToolTip(_("Save selected/all items to disk."))
 		__szr_buttons_right.Add(self._BTN_save_items, 0, wx.BOTTOM | wx.EXPAND, 3)
 
-		self._BTN_export_items = wx.Button(self, wx.ID_ANY, _("E&xport"), style=wx.BU_EXACTFIT)
+		self._BTN_export_items = wx.Button(self, wx.ID_ANY, _("E&xport"))
 		self._BTN_export_items.SetToolTip(_("Export all/selected items to removable media (CD/DVD/USB)."))
 		__szr_buttons_right.Add(self._BTN_export_items, 0, wx.BOTTOM | wx.EXPAND, 3)
 
-		self._BTN_encrypt_items = wx.Button(self, wx.ID_ANY, _("Encrypt"), style=wx.BU_EXACTFIT)
+		self._BTN_encrypt_items = wx.Button(self, wx.ID_ANY, _("Encrypt"))
 		self._BTN_encrypt_items.SetToolTip(_("Encrypt selected items in-place."))
 		__szr_buttons_right.Add(self._BTN_encrypt_items, 0, wx.BOTTOM | wx.EXPAND, 3)
 
-		self._BTN_pdfjoin_items = wx.Button(self, wx.ID_ANY, _(u"⇶❭ PDF"), style=wx.BU_EXACTFIT)
+		self._BTN_pdfjoin_items = wx.Button(self, wx.ID_ANY, _(u"⇶❭ PDF"))
 		self._BTN_pdfjoin_items.SetToolTip(_("Join selected items into one PDF."))
 		__szr_buttons_right.Add(self._BTN_pdfjoin_items, 0, wx.BOTTOM | wx.EXPAND, 3)
 
-		self._BTN_archive_items = wx.Button(self, wx.ID_ANY, _(u"→ Archive"), style=wx.BU_EXACTFIT)
+		self._BTN_archive_items = wx.Button(self, wx.ID_ANY, _(u"→ Archive"))
 		self._BTN_archive_items.SetToolTip(_("Store selected/all documents in document archive."))
 		__szr_buttons_right.Add(self._BTN_archive_items, 0, wx.BOTTOM | wx.EXPAND, 3)
 
-		self._BTN_remove_items = wx.Button(self, wx.ID_ANY, _("&Remove"), style=wx.BU_EXACTFIT)
+		self._BTN_remove_items = wx.Button(self, wx.ID_ANY, _("&Remove"))
 		self._BTN_remove_items.SetToolTip(_("Remove the selected documents."))
 		__szr_buttons_right.Add(self._BTN_remove_items, 0, wx.EXPAND, 3)
 
 		__szr_buttons_right.Add((20, 20), 0, wx.EXPAND, 0)
 
-		self._BTN_print_items = wx.Button(self, wx.ID_ANY, _("&Print"), style=wx.BU_EXACTFIT)
+		self._BTN_print_items = wx.Button(self, wx.ID_ANY, _("&Print"))
 		self._BTN_print_items.SetToolTip(_("Print selected/all documents."))
 		__szr_buttons_right.Add(self._BTN_print_items, 0, wx.BOTTOM | wx.EXPAND, 3)
 
-		self._BTN_remote_print = wx.Button(self, wx.ID_ANY, _(u"→ &Print Mgr"), style=wx.BU_EXACTFIT)
+		self._BTN_remote_print = wx.Button(self, wx.ID_ANY, _(u"→ &Print Mgr"))
 		self._BTN_remote_print.SetToolTip(_("Put selected/all documents into remote print manager."))
 		__szr_buttons_right.Add(self._BTN_remote_print, 0, wx.BOTTOM | wx.EXPAND, 3)
 
-		self._BTN_mail_items = wx.Button(self, wx.ID_ANY, _("E-&Mail"), style=wx.BU_EXACTFIT)
+		self._BTN_mail_items = wx.Button(self, wx.ID_ANY, _("E-&Mail"))
 		self._BTN_mail_items.SetToolTip(_("E-mail selected/all documents."))
 		__szr_buttons_right.Add(self._BTN_mail_items, 0, wx.BOTTOM | wx.EXPAND, 3)
 
-		self._BTN_fax_items = wx.Button(self, wx.ID_ANY, _("&Fax"), style=wx.BU_EXACTFIT)
+		self._BTN_fax_items = wx.Button(self, wx.ID_ANY, _("&Fax"))
 		self._BTN_fax_items.SetToolTip(_("Fax selected/all documents."))
 		__szr_buttons_right.Add(self._BTN_fax_items, 0, wx.BOTTOM | wx.EXPAND, 3)
 
