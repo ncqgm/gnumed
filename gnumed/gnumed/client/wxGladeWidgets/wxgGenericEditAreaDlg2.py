@@ -43,7 +43,7 @@ class wxgGenericEditAreaDlg2(wx.Dialog):
 		self._BTN_save.SetToolTip(_("Save the entered data into the database and close the dialog."))
 		__szr_buttons.Add(self._BTN_save, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
 
-		self._BTN_extra_left = wx.Button(self, wx.ID_ANY, _("left extra"), style=wx.BU_EXACTFIT)
+		self._BTN_extra_left = wx.Button(self, wx.ID_ANY, _("left extra"))
 		self._BTN_extra_left.SetToolTip(_("Programmer forgot tooltip for left extra button."))
 		self._BTN_extra_left.Hide()
 		__szr_buttons.Add(self._BTN_extra_left, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
@@ -70,7 +70,7 @@ class wxgGenericEditAreaDlg2(wx.Dialog):
 		self._BTN_cancel.SetToolTip(_("Cancel editing the data and discard changes."))
 		__szr_buttons.Add(self._BTN_cancel, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
-		self._BTN_lucky = wx.Button(self, wx.ID_ANY, _("Lala !"), style=wx.BU_EXACTFIT)
+		self._BTN_lucky = wx.Button(self, wx.ID_ANY, _("Lala !"))
 		self._BTN_lucky.SetToolTip(_("Press me !\n\n(This will, of course, NOT modify any data.)"))
 		__szr_buttons.Add(self._BTN_lucky, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 5)
 
