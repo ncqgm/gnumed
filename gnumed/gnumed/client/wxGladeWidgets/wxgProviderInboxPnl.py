@@ -82,7 +82,7 @@ class wxgProviderInboxPnl(wx.ScrolledWindow):
 
 		__szr_items.Add((20, 20), 1, wx.EXPAND, 0)
 
-		self._BTN_add = wx.Button(self, wx.ID_ANY, _("&Add"), style=wx.BU_EXACTFIT)
+		self._BTN_add = wx.Button(self, wx.ID_ANY, _("&Add"))
 		self._BTN_add.SetToolTip(_("Add a new message."))
 		__szr_items.Add(self._BTN_add, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
 
