@@ -24,6 +24,7 @@ from Gnumed.pycommon import gmDispatcher, gmTools
 from Gnumed.business import gmXdtMappings, gmXdtObjects
 from Gnumed.wxGladeWidgets import wxgXdtListPnl
 from Gnumed.wxpython import gmAccessPermissionWidgets
+from Gnumed.wxpython import gmListWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -45,8 +46,8 @@ class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
 		self.__init_ui()
 	#--------------------------------------------------------------
 	def __init_ui(self):
-		for col in range(len(self.__cols)):
-			self._LCTRL_xdt.InsertColumn(col, self.__cols[col])
+		self._LCTRL_xdt.set_columns(columns=self.__cols)
+		self._LCTRL_xdt.set_column_widths()
 	#--------------------------------------------------------------
 	# external API
 	#--------------------------------------------------------------
