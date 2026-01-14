@@ -20,8 +20,8 @@ class wxgPersonIdentityManagerPnl(wx.ScrolledWindow):
 		wx.ScrolledWindow.__init__(self, *args, **kwds)
 		from Gnumed.wxpython.gmDemographicsWidgets import cIdentityEAPnl
 		self._PNL_identity = cIdentityEAPnl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.TAB_TRAVERSAL)
-		self._BTN_save_identity = wx.Button(self, wx.ID_SAVE, "", style=wx.BU_EXACTFIT)
-		self._BTN_reload_identity = wx.Button(self, wx.ID_REVERT_TO_SAVED, "", style=wx.BU_EXACTFIT)
+		self._BTN_save_identity = wx.Button(self, wx.ID_SAVE, "")
+		self._BTN_reload_identity = wx.Button(self, wx.ID_REVERT_TO_SAVED, "")
 		from Gnumed.wxpython.gmDemographicsWidgets import cPersonNamesManagerPnl
 		self._PNL_names = cPersonNamesManagerPnl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.TAB_TRAVERSAL)
 		from Gnumed.wxpython.gmDemographicsWidgets import cPersonIDsManagerPnl
