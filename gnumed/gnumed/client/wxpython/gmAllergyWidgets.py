@@ -375,12 +375,7 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 			self._RBTN_unknown.Enable(True)
 			self._RBTN_none.Enable(True)
 
-		self._LCTRL_allergies.set_column_widths (widths = [
-			wx.LIST_AUTOSIZE,
-			wx.LIST_AUTOSIZE,
-			wx.LIST_AUTOSIZE,
-			wx.LIST_AUTOSIZE
-		])
+		self._LCTRL_allergies.set_column_widths()
 
 		self._PNL_edit_area.clear()
 		self._BTN_delete.Enable(False)
