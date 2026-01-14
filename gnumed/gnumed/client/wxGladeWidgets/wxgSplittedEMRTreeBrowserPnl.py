@@ -26,7 +26,7 @@ class wxgSplittedEMRTreeBrowserPnl(wx.Panel):
 		self._RBTN_details = wx.RadioButton(self._PNL_right_side, wx.ID_ANY, _("S&ynopsis"))
 		self._RBTN_journal = wx.RadioButton(self._PNL_right_side, wx.ID_ANY, _("&Journal"))
 		self._RBTN_revisions = wx.RadioButton(self._PNL_right_side, wx.ID_ANY, _("Revisions"))
-		self._BTN_switch_browse_edit = wx.Button(self._PNL_right_side, wx.ID_ANY, _("&Edit"), style=wx.BU_EXACTFIT)
+		self._BTN_switch_browse_edit = wx.Button(self._PNL_right_side, wx.ID_ANY, _("&Edit"))
 		self._PNL_browse = wx.Panel(self._PNL_right_side, wx.ID_ANY, style=wx.BORDER_NONE | wx.TAB_TRAVERSAL)
 		self._TCTRL_item_details = wx.TextCtrl(self._PNL_browse, wx.ID_ANY, "", style=wx.HSCROLL | wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_WORDWRAP)
 		from Gnumed.wxpython.gmVisualProgressNoteWidgets import cVisualSoapPresenterPnl
