@@ -188,7 +188,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 			_('Born'),
 			_('Comment')
 		])
-		self._LCTRL_patients.set_column_widths(widths = [wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE_USEHEADER, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
+		self._LCTRL_patients.set_column_widths()
 		self._LCTRL_patients.item_tooltip_callback = self._on_get_list_tooltip
 		self._PRW_zone.add_callback_on_selection(callback = self._on_zone_selected)
 		self._PRW_zone.add_callback_on_lose_focus(callback = self._on_zone_selected)
