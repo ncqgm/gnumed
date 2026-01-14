@@ -24,9 +24,9 @@ class wxgGenericListManagerPnl(wx.Panel):
 		self._BTN_add = wx.Button(self, wx.ID_ADD, "")
 		self._BTN_edit = wx.Button(self, -1, _("&Edit"))
 		self._BTN_remove = wx.Button(self, wx.ID_REMOVE, "")
-		self._BTN_extra_left = wx.Button(self, wx.ID_ANY, _("left extra"), style=wx.BU_EXACTFIT)
-		self._BTN_extra_middle = wx.Button(self, wx.ID_ANY, _("middle extra"), style=wx.BU_EXACTFIT)
-		self._BTN_extra_right = wx.Button(self, wx.ID_ANY, _("right extra"), style=wx.BU_EXACTFIT)
+		self._BTN_extra_left = wx.Button(self, wx.ID_ANY, _("left extra"))
+		self._BTN_extra_middle = wx.Button(self, wx.ID_ANY, _("middle extra"))
+		self._BTN_extra_right = wx.Button(self, wx.ID_ANY, _("right extra"))
 
 		self.__set_properties()
 		self.__do_layout()
