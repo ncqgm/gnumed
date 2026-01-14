@@ -59,41 +59,41 @@ class wxgWaitingListPnl(wx.ScrolledWindow):
 
 		__szr_buttons.Add((20, 20), 2, wx.EXPAND, 0)
 
-		self._BTN_activate = wx.Button(self, wx.ID_ANY, _("&Activate"), style=wx.BU_EXACTFIT)
+		self._BTN_activate = wx.Button(self, wx.ID_ANY, _("&Activate"))
 		self._BTN_activate.SetToolTip(_("Activate patient but do not remove from waiting list."))
 		self._BTN_activate.Enable(False)
 		self._BTN_activate.SetDefault()
 		__szr_buttons.Add(self._BTN_activate, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 
-		self._BTN_activateplus = wx.Button(self, wx.ID_ANY, _(u"Activate²"), style=wx.BU_EXACTFIT)
+		self._BTN_activateplus = wx.Button(self, wx.ID_ANY, _(u"Activate²"))
 		self._BTN_activateplus.SetToolTip(_("Activate patient and remove from waiting list."))
 		self._BTN_activateplus.Enable(False)
 		__szr_buttons.Add(self._BTN_activateplus, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
 		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
 
-		self._BTN_add_patient = wx.Button(self, wx.ID_ADD, "", style=wx.BU_EXACTFIT)
+		self._BTN_add_patient = wx.Button(self, wx.ID_ADD, "")
 		self._BTN_add_patient.SetToolTip(_("Add the active patient to the waiting list."))
 		__szr_buttons.Add(self._BTN_add_patient, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 
-		self._BTN_remove = wx.Button(self, wx.ID_REMOVE, "", style=wx.BU_EXACTFIT)
+		self._BTN_remove = wx.Button(self, wx.ID_REMOVE, "")
 		self._BTN_remove.SetToolTip(_("Remove selected patient from the waiting list."))
 		self._BTN_remove.Enable(False)
 		__szr_buttons.Add(self._BTN_remove, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 
-		self._BTN_edit = wx.Button(self, wx.ID_ANY, _("&Edit"), style=wx.BU_EXACTFIT)
+		self._BTN_edit = wx.Button(self, wx.ID_ANY, _("&Edit"))
 		self._BTN_edit.SetToolTip(_("Edit details of the waiting list entry."))
 		self._BTN_edit.Enable(False)
 		__szr_buttons.Add(self._BTN_edit, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
 		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
 
-		self._BTN_up = wx.Button(self, wx.ID_UP, "", style=wx.BU_EXACTFIT)
+		self._BTN_up = wx.Button(self, wx.ID_UP, "")
 		self._BTN_up.SetToolTip(_("Move patient up."))
 		self._BTN_up.Enable(False)
 		__szr_buttons.Add(self._BTN_up, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
 
-		self._BTN_down = wx.Button(self, wx.ID_DOWN, "", style=wx.BU_EXACTFIT)
+		self._BTN_down = wx.Button(self, wx.ID_DOWN, "")
 		self._BTN_down.SetToolTip(_("Move patient down."))
 		self._BTN_down.Enable(False)
 		__szr_buttons.Add(self._BTN_down, 0, wx.ALIGN_CENTER_VERTICAL, 0)
