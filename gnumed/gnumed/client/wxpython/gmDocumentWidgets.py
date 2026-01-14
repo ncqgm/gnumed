@@ -496,8 +496,8 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 
 		if len(doc_types) > 0:
 			self._LCTRL_doc_type.set_data(data = doc_types)
-			self._LCTRL_doc_type.SetColumnWidth(0, wx.LIST_AUTOSIZE)
-			self._LCTRL_doc_type.SetColumnWidth(1, wx.LIST_AUTOSIZE)
+			self._LCTRL_doc_type.SetColumnWidth(0, wx.LIST_AUTOSIZE_USEHEADER)
+			self._LCTRL_doc_type.SetColumnWidth(1, wx.LIST_AUTOSIZE_USEHEADER)
 			self._LCTRL_doc_type.SetColumnWidth(2, wx.LIST_AUTOSIZE_USEHEADER)
 			self._LCTRL_doc_type.SetColumnWidth(3, wx.LIST_AUTOSIZE_USEHEADER)
 
