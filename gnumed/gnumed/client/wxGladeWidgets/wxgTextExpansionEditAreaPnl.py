@@ -20,7 +20,7 @@ class wxgTextExpansionEditAreaPnl(wx.ScrolledWindow):
 		wx.ScrolledWindow.__init__(self, *args, **kwds)
 		self._TCTRL_keyword = wx.TextCtrl(self, wx.ID_ANY, "")
 		self._LBL_data = wx.StaticText(self, wx.ID_ANY, _("File"))
-		self._BTN_select_data_file = wx.Button(self, wx.ID_ANY, _("Se&lect"), style=wx.BU_EXACTFIT)
+		self._BTN_select_data_file = wx.Button(self, wx.ID_ANY, _("Se&lect"))
 		self._TCTRL_data_file = wx.TextCtrl(self, wx.ID_ANY, "")
 		self._CHBOX_is_encrypted = wx.CheckBox(self, wx.ID_ANY, _("Encrypted"))
 		self._LBL_text = wx.StaticText(self, wx.ID_ANY, _("Text"))
