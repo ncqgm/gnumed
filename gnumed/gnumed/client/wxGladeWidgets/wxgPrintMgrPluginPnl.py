@@ -22,10 +22,10 @@ class wxgPrintMgrPluginPnl(wx.Panel):
 		self._RBTN_active_patient_only = wx.RadioButton(self, wx.ID_ANY, _("&Active patient only"))
 		from Gnumed.wxpython.gmListWidgets import cReportListCtrl
 		self._LCTRL_printouts = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
-		self._BTN_view_printout = wx.Button(self, wx.ID_ANY, _("&View"), style=wx.BU_EXACTFIT)
-		self._BTN_print_printouts = wx.Button(self, wx.ID_PRINT, "", style=wx.BU_EXACTFIT)
-		self._BTN_export_printouts = wx.Button(self, wx.ID_ANY, _("&Export"), style=wx.BU_EXACTFIT)
-		self._BTN_delete_printouts = wx.Button(self, wx.ID_DELETE, "", style=wx.BU_EXACTFIT)
+		self._BTN_view_printout = wx.Button(self, wx.ID_ANY, _("&View"))
+		self._BTN_print_printouts = wx.Button(self, wx.ID_PRINT, "")
+		self._BTN_export_printouts = wx.Button(self, wx.ID_ANY, _("&Export"))
+		self._BTN_delete_printouts = wx.Button(self, wx.ID_DELETE, "")
 
 		self.__set_properties()
 		self.__do_layout()
