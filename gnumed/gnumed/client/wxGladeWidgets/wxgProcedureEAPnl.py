@@ -27,13 +27,13 @@ class wxgProcedureEAPnl(wx.ScrolledWindow):
 		self.static_line_1 = wx.StaticLine(self, wx.ID_ANY)
 		from Gnumed.wxpython.gmOrganizationWidgets import cOrgUnitPhraseWheel
 		self._PRW_location = cOrgUnitPhraseWheel(self, wx.ID_ANY, "")
-		self._BTN_add_location = wx.Button(self, wx.ID_ANY, _("+"), style=wx.BU_EXACTFIT)
+		self._BTN_add_location = wx.Button(self, wx.ID_ANY, _("+"))
 		from Gnumed.wxpython.gmEMRStructWidgets import cEpisodeSelectionPhraseWheel
 		self._PRW_episode = cEpisodeSelectionPhraseWheel(self, wx.ID_ANY, "")
 		self.static_line_2 = wx.StaticLine(self, wx.ID_ANY)
 		from Gnumed.wxpython.gmHospitalStayWidgets import cHospitalStayPhraseWheel
 		self._PRW_hospital_stay = cHospitalStayPhraseWheel(self, wx.ID_ANY, "")
-		self._BTN_add_stay = wx.Button(self, wx.ID_ANY, _("+"), style=wx.BU_EXACTFIT)
+		self._BTN_add_stay = wx.Button(self, wx.ID_ANY, _("+"))
 		self._LBL_hospital_details = wx.StaticText(self, wx.ID_ANY, "")
 		from Gnumed.wxpython.gmTextCtrl import cTextCtrl
 		self._TCTRL_comment = cTextCtrl(self, wx.ID_ANY, "")
