@@ -23,10 +23,10 @@ class wxgTestPanelEAPnl(wx.ScrolledWindow):
 		self._TCTRL_description = wx.TextCtrl(self, wx.ID_ANY, "")
 		self._TCTRL_comment = wx.TextCtrl(self, wx.ID_ANY, "")
 		self._PRW_loinc = cLOINCPhraseWheel(self, wx.ID_ANY, "")
-		self._BTN_add_loinc = wx.Button(self, wx.ID_ANY, _("&Add"), style=wx.BU_EXACTFIT)
+		self._BTN_add_loinc = wx.Button(self, wx.ID_ANY, _("&Add"))
 		self._LBL_loinc = wx.StaticText(self, wx.ID_ANY, "")
 		self._LCTRL_loincs = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
-		self._BTN_remove_loinc = wx.Button(self, wx.ID_ANY, _("&Remove"), style=wx.BU_EXACTFIT)
+		self._BTN_remove_loinc = wx.Button(self, wx.ID_ANY, _("&Remove"))
 
 		self.__set_properties()
 		self.__do_layout()
