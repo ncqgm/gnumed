@@ -119,7 +119,7 @@ def manage_tag_images(parent=None):
 			t['pk_tag_image']
 		] for t in tags ]
 		lctrl.set_string_items(items)
-		lctrl.set_column_widths(widths = [wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE_USEHEADER, wx.LIST_AUTOSIZE_USEHEADER, wx.LIST_AUTOSIZE])
+		lctrl.set_column_widths()
 		lctrl.set_data(tags)
 
 	#------------------------------------------------------------
