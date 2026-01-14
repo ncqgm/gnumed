@@ -858,7 +858,7 @@ class cMeasurementsAsListPnl(wxgMeasurementsAsListPnl, gmRegetMixin.cRegetOnPain
 			data.append({'data': r, 'formatted': r.format(with_source_data = True)})
 
 		self._LCTRL_results.set_string_items(items)
-		self._LCTRL_results.set_column_widths([wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
+		self._LCTRL_results.set_column_widths()
 		self._LCTRL_results.set_data(data)
 		if len(items) > 0:
 			self._LCTRL_results.Select(idx = 0, on = 1)
@@ -1077,7 +1077,7 @@ class cMeasurementsByDayPnl(wxgMeasurementsByDayPnl, gmRegetMixin.cRegetOnPaintM
 
 		self._LCTRL_results.set_string_items(items)
 		self._LCTRL_results.set_column_label(1, _('Test (%s%s)') % (gmTools.u_sum, len(items)))
-		self._LCTRL_results.set_column_widths([wx.LIST_AUTOSIZE_USEHEADER, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
+		self._LCTRL_results.set_column_widths()
 		self._LCTRL_results.set_data(data)
 		self._LCTRL_results.Select(idx = 0, on = 1)
 
@@ -1242,7 +1242,7 @@ class cMeasurementsByIssuePnl(wxgMeasurementsByIssuePnl, gmRegetMixin.cRegetOnPa
 			data.append({'data': r, 'formatted': r.format(with_source_data = True)})
 
 		self._LCTRL_results.set_string_items(items)
-		self._LCTRL_results.set_column_widths([wx.LIST_AUTOSIZE_USEHEADER, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
+		self._LCTRL_results.set_column_widths()
 		self._LCTRL_results.set_data(data)
 		self._LCTRL_results.Select(idx = 0, on = 1)
 		self._TCTRL_measurements.SetValue(self._LCTRL_results.get_item_data(item_idx = 0)['formatted'])
@@ -1504,7 +1504,7 @@ class cMeasurementsAsMostRecentListPnl(wxgMeasurementsAsMostRecentListPnl, gmReg
 			data.append({'data': r, 'formatted': tt})
 
 		self._LCTRL_results.set_string_items(items)
-		self._LCTRL_results.set_column_widths([wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
+		self._LCTRL_results.set_column_widths()
 		self._LCTRL_results.set_data(data)
 
 		if len(items) > 0:
@@ -4698,7 +4698,7 @@ class cTestPanelEAPnl(wxgTestPanelEAPnl.wxgTestPanelEAPnl, gmEditArea.cGenericEd
 	#----------------------------------------------------------------
 	def __init_ui(self):
 		self._LCTRL_loincs.set_columns([_('LOINC'), _('Term'), _('Units')])
-		self._LCTRL_loincs.set_column_widths(widths = [wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
+		self._LCTRL_loincs.set_column_widths()
 		#self._LCTRL_loincs.set_resize_column(column = 2)
 		self._LCTRL_loincs.delete_callback = self._remove_loincs_from_list
 		self.__refresh_loinc_list()
