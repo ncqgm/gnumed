@@ -21,7 +21,7 @@ class wxgEMRJournalPluginPnl(wx.ScrolledWindow):
 		wx.ScrolledWindow.__init__(self, *args, **kwds)
 		self._RBTN_by_encounter = wx.RadioButton(self, wx.ID_ANY, _("&Encounter"))
 		self._RBTN_by_last_modified = wx.RadioButton(self, wx.ID_ANY, _("&Last modification time"))
-		self._BTN_search = wx.Button(self, wx.ID_FIND, "", style=wx.BU_EXACTFIT)
+		self._BTN_search = wx.Button(self, wx.ID_FIND, "")
 		self._SLINE_top = wx.StaticLine(self, wx.ID_ANY)
 		self._TCTRL_journal = cTextCtrl(self, wx.ID_ANY, "", style=wx.TE_MULTILINE | wx.TE_READONLY)
 
