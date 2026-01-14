@@ -22,7 +22,7 @@ class wxgMeasurementsByBatteryPnl(wx.Panel):
 		from Gnumed.wxpython.gmMeasurementWidgets import cTestPanelPRW
 		self._PRW_panel = cTestPanelPRW(self, wx.ID_ANY, "")
 		self._TCTRL_panel_comment = wx.TextCtrl(self, wx.ID_ANY, "")
-		self._BTN_manage_panels = wx.Button(self, wx.ID_ANY, _("Manage"), style=wx.BU_EXACTFIT)
+		self._BTN_manage_panels = wx.Button(self, wx.ID_ANY, _("Manage"))
 		from Gnumed.wxpython.gmMeasurementWidgets import cMeasurementsGrid
 		self._GRID_results_battery = cMeasurementsGrid(self, wx.ID_ANY, size=(1, 1))
 
