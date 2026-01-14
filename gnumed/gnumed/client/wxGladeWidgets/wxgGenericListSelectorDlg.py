@@ -48,32 +48,32 @@ class wxgGenericListSelectorDlg(wx.Dialog):
 
 		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
 
-		self._BTN_new = wx.Button(self, wx.ID_ADD, "", style=wx.BU_EXACTFIT)
+		self._BTN_new = wx.Button(self, wx.ID_ADD, "")
 		self._BTN_new.SetToolTip(_("Add a new item to the list above."))
 		self._BTN_new.Enable(False)
 		__szr_buttons.Add(self._BTN_new, 0, wx.EXPAND | wx.RIGHT, 5)
 
-		self._BTN_edit = wx.Button(self, wx.ID_ANY, _("&Edit"), style=wx.BU_EXACTFIT)
+		self._BTN_edit = wx.Button(self, wx.ID_ANY, _("&Edit"))
 		self._BTN_edit.SetToolTip(_("Edit the (first or only) item selected in the list above."))
 		self._BTN_edit.Enable(False)
 		__szr_buttons.Add(self._BTN_edit, 0, wx.EXPAND | wx.RIGHT, 5)
 
-		self._BTN_delete = wx.Button(self, wx.ID_DELETE, "", style=wx.BU_EXACTFIT)
+		self._BTN_delete = wx.Button(self, wx.ID_DELETE, "")
 		self._BTN_delete.SetToolTip(_("Delete - if possible - the (first or only) item selected in the list above."))
 		self._BTN_delete.Enable(False)
 		__szr_buttons.Add(self._BTN_delete, 0, wx.EXPAND, 0)
 
 		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
 
-		self._BTN_extra_left = wx.Button(self, wx.ID_ANY, _("1"), style=wx.BU_EXACTFIT)
+		self._BTN_extra_left = wx.Button(self, wx.ID_ANY, _("1"))
 		self._BTN_extra_left.Enable(False)
 		__szr_buttons.Add(self._BTN_extra_left, 0, wx.EXPAND | wx.RIGHT, 5)
 
-		self._BTN_extra_middle = wx.Button(self, wx.ID_ANY, _("2"), style=wx.BU_EXACTFIT)
+		self._BTN_extra_middle = wx.Button(self, wx.ID_ANY, _("2"))
 		self._BTN_extra_middle.Enable(False)
 		__szr_buttons.Add(self._BTN_extra_middle, 0, wx.EXPAND | wx.RIGHT, 5)
 
-		self._BTN_extra_right = wx.Button(self, wx.ID_ANY, _("3"), style=wx.BU_EXACTFIT)
+		self._BTN_extra_right = wx.Button(self, wx.ID_ANY, _("3"))
 		self._BTN_extra_right.Enable(False)
 		__szr_buttons.Add(self._BTN_extra_right, 0, wx.EXPAND, 5)
 
