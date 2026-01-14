@@ -32,7 +32,7 @@ class wxgDynamicHintListDlg(wx.Dialog):
 		self._TCTRL_previous_rationale = cTextCtrl(self, wx.ID_ANY, "", style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_WORDWRAP)
 		self._BTN_OK = wx.Button(self, wx.ID_OK, "")
 		self._BTN_suppress = wx.Button(self, wx.ID_ANY, _("&Suppress"))
-		self._BTN_manage_hints = wx.Button(self, wx.ID_ANY, _("&Manage"), style=wx.BU_EXACTFIT)
+		self._BTN_manage_hints = wx.Button(self, wx.ID_ANY, _("&Manage"))
 
 		self.__set_properties()
 		self.__do_layout()
