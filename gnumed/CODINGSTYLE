@@ -119,16 +119,21 @@ if __name__ == "__main__":
 	...
 
 #=== snip =========================================================================
+					LaTeX:
+#==================================================================================
 
+	use {} after commands generated from Python code to prevent run-in with surrounding text
 
+	use % at end of lines where appropriate
 
-LaTeX:
-
-	use {} after commands to prevent run-in with surrounding text
+	set up conditional debugging output
+		% %% $m[%_if_dbg==$1<if_debugging:://%::>1$]m$
+		...
+		$m[%_if_dbg]m$\usepackage[an option]{a package name}
 
 
 #=== snip =========================================================================
-# SQL
+					SQL
 #==================================================================================
 
 DML
