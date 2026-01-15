@@ -59,6 +59,7 @@ IMPROVED: PACS: show new patients following a DICOM import
 IMPROVED: safe patient data into gnumed/patients/ instead of gnumed/
 IMPROVED: forms: vaccination history LaTeX template
 IMPROVED: lists: make minimum column width policy configurable [thanks María]
+IMPROVED: buttons: make shrinking to label size configurable [thanks María]
 
 FIX: CLI: --wxp= not needed anymore
 FIX: CLI: --ui= not needed anymore

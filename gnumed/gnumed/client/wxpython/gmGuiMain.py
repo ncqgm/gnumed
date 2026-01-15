@@ -3719,13 +3719,33 @@ class gmApp(wx.App):
 
 	#----------------------------------------------
 	def __setup_wx_gui_preferences(self):
-		gmListWidgets.set_minimum_column_width_policy (
-			policy = _cfg.get (
-				group = 'client',
-				option = 'list column minimum width policy'
-			)
+		min_col_width_policy = _cfg.get (
+			group = 'client',
+			option = 'list column minimum width policy',
+			source_order = [
+				('explicit', 'return'),
+				('workbase', 'return'),
+				('local', 'return'),
+				('user', 'return'),
+				('system', 'return')
+			]
 		)
-		#button_size_policy = _cfg.get(group = 'client', option = 'button size policy')
+		gmListWidgets.set_minimum_column_width_policy(policy = min_col_width_policy)
+		button_size_EXACTFIT_allowed = _cfg.get (
+			group = 'client',
+			option = 'button size can fit button label',
+			source_order = [
+				('explicit', 'return'),
+				('workbase', 'return'),
+				('local', 'return'),
+				('user', 'return'),
+				('system', 'return')
+			]
+		)
+		if button_size_EXACTFIT_allowed == 'no':
+			_BU_EXACTFIT_DISALLOWED = 0
+			_log.info('disabling wx.BU_EXACTFIT by re-setting it from %s to %s', wx.BU_EXACTFIT, _BU_EXACTFIT_DISALLOWED)
+			wx.BU_EXACTFIT = _BU_EXACTFIT_DISALLOWED
 
 	#----------------------------------------------
 	def __setup_wx_app_identifiers(self):
