@@ -43,12 +43,24 @@ from Gnumed.wxpython.gmGuiHelpers import decorate_window_title, undecorate_windo
 
 _log = logging.getLogger('gm.list_ui')
 
+
+_MINIMUM_COLUMN_WIDTH_POLICY = 'content'
 #================================================================
 try:
 	_WX__LIST_HITTEST_ONITEMRIGHT = wx.LIST_HITTEST_ONITEMRIGHT
 except AttributeError:
 	_WX__LIST_HITTEST_ONITEMRIGHT = -1
-	_log.debug('this platform does not support <wx.LIST_HITTEST_ONITEMRIGHT>')
+	_log.debug('this platform does not support <wx.LIST_HITTEST_ONITEMRIGHT>, defaulting to -1')
+
+#================================================================
+def set_minimum_column_width_policy(policy:str='content'):
+	if policy not in ['header', 'content']:
+		_log.error('invalid minimum column width policy: %s (valid: "header" or "content")', policy)
+		policy = 'content'
+	_log.debug('setting minimum column width policy to: %s', policy)
+	global _MINIMUM_COLUMN_WIDTH_POLICY
+	_MINIMUM_COLUMN_WIDTH_POLICY = policy
+	return
 
 #================================================================
 # FIXME: configurable callback on double-click action
@@ -1980,24 +1992,27 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 
 		This means there is no way to *revert* to the default policy :-(
 		"""
+		# explicit policy
 		if widths:
-			# explicit policy ?
 			self.__widths = widths
 			for idx in range(len(self.__widths)):
 				self.SetColumnWidth(idx, self.__widths[idx])
 			return
 
-		# previous policy ?
+		# previous policy
 		if self.__widths:
 			for idx in range(len(self.__widths)):
 				self.SetColumnWidth(idx, self.__widths[idx])
 			return
 
-		# default policy !
-		if self.GetItemCount() == 0:
+		# default policy
+		if _MINIMUM_COLUMN_WIDTH_POLICY == 'header':
 			width_type = wx.LIST_AUTOSIZE_USEHEADER
 		else:
-			width_type = wx.LIST_AUTOSIZE
+			if self.GetItemCount() == 0:
+				width_type = wx.LIST_AUTOSIZE_USEHEADER
+			else:
+				width_type = wx.LIST_AUTOSIZE
 		for idx in range(self.GetColumnCount()):
 			self.SetColumnWidth(idx, width_type)
 

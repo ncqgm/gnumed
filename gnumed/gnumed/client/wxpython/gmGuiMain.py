@@ -3512,6 +3512,7 @@ class gmApp(wx.App):
 		wx.ToolTip.SetAutoPop(3000)		# show tooltips for x msecs
 		gmExceptionHandlingWidgets.install_wx_exception_handler()
 		gmExceptionHandlingWidgets.set_client_version(_cfg.get(option = 'client_version'))
+		self.__setup_wx_gui_preferences()
 		self.__setup_wx_app_identifiers()
 		gmTools.gmPaths(app_name = 'gnumed', wx = wx)
 		self.__log_display_properties()
@@ -3717,6 +3718,16 @@ class gmApp(wx.App):
 		print('---=== GNUmed startup ===---')
 
 	#----------------------------------------------
+	def __setup_wx_gui_preferences(self):
+		gmListWidgets.set_minimum_column_width_policy (
+			policy = _cfg.get (
+				group = 'client',
+				option = 'list column minimum width policy'
+			)
+		)
+		#button_size_policy = _cfg.get(group = 'client', option = 'button size policy')
+
+	#----------------------------------------------
 	def __setup_wx_app_identifiers(self):
 		# set this so things like "wx.StandardPaths.GetDataDir()" work as expected
 		self.SetAppName('gnumed')
@@ -3886,7 +3897,6 @@ class gmApp(wx.App):
 				break
 			except IOError:
 				continue
-
 		if prefs_file is None:
 			msg = _(
 				'Cannot find configuration file in any of:\n'
@@ -3901,7 +3911,6 @@ class gmApp(wx.App):
 
 		_cfg.set_option(option = 'user_preferences_file', value = prefs_file)
 		_log.info('user preferences file: %s', prefs_file)
-
 		return True
 
 	#----------------------------------------------
