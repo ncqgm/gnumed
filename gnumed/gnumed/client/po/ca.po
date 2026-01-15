@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-24 16:02+0200\n"
+"POT-Creation-Date: 2026-01-03 12:59+0100\n"
 "PO-Revision-Date: 2012-06-01 01:20+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Catalan <ca@li.org>\n"
@@ -2446,7 +2446,7 @@ msgid ""
 " [%s]\n"
 "\n"
 "Your system does not seem to have a (working)\n"
-"viewer registered for the file type\n"
+"viewer registered for file type:\n"
 " [%s]"
 msgstr ""
 
@@ -2577,6 +2577,9 @@ msgid "interval_format_tag::weeks::w"
 msgstr ""
 
 msgid "interval_format_tag::days::d"
+msgstr ""
+
+msgid "interval_format_tag::seconds::s"
 msgstr ""
 
 #, fuzzy
@@ -7121,6 +7124,40 @@ msgstr "No hi ha entrades per aquest episodi"
 msgid "Nest under"
 msgstr ""
 
+#, fuzzy
+msgid "The name for this gender definition."
+msgstr "Carrega l'informació de la plantilla des d'un fitxer."
+
+msgid "Translation of name into your language."
+msgstr ""
+
+msgid "An abbreviation for this gender definition."
+msgstr ""
+
+#, fuzzy
+msgid "Translation:"
+msgstr "Vacunació"
+
+msgid "Translation of abbreviation into your language."
+msgstr ""
+
+msgid "Symbol"
+msgstr ""
+
+msgid "Symbolic representation for this gender."
+msgstr ""
+
+#, fuzzy
+msgid "Alternative:"
+msgstr "Administratiu"
+
+msgid "Symbol for this gender appropriate to your culture."
+msgstr ""
+
+#, fuzzy
+msgid "A descriptive comment on this gender definition."
+msgstr "Un nom llarg i descriptiu per aquesta plantilla."
+
 msgid "Generic multi line text entry dialog"
 msgstr ""
 
@@ -8712,6 +8749,86 @@ msgstr ""
 msgid "Result dates: %s"
 msgstr "Resultats de les proves"
 
+#, fuzzy
+msgid "Clinical data generated during encounters within this episode:"
+msgstr "No hi ha entrades per aquest episodi"
+
+msgid "Error retrieving encounters for this episode."
+msgstr "Error recuperant visities d'aquest episodi."
+
+#, python-format
+msgid "Last worked on: %s\n"
+msgstr ""
+
+#, python-format
+msgid "%s encounter(s) (%s - %s):"
+msgstr ""
+
+#, python-format
+msgid "1st and (up to 3) most recent (of %s) encounters (%s - %s):"
+msgstr ""
+
+msgid "RFE"
+msgstr ""
+
+msgid "AOE"
+msgstr ""
+
+#, fuzzy, python-format
+msgid " %s %s skipped %s"
+msgstr "%s la setmana passada (%s of %s)"
+
+msgid "Progress notes in most recent encounter:"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Episode %s%s%s   [#%s]"
+msgstr "episodi : %s"
+
+#, python-format
+msgid "Created during encounter: %s (%s - %s)   [#%s]"
+msgstr ""
+
+#, fuzzy, python-format
+msgid " Duration: %s (%s)"
+msgstr "Pacient:  , No:\n"
+
+msgid "finished"
+msgstr "finalitzat"
+
+msgid "none associated"
+msgstr ""
+
+#, python-format
+msgid "Documents: %s"
+msgstr "Documents: %s"
+
+#, fuzzy, python-format
+msgid "Hospitalizations: %s"
+msgstr "Estades hospitalàries"
+
+#, python-format
+msgid "Procedures performed: %s"
+msgstr ""
+
+#, python-format
+msgid "Family History: %s"
+msgstr ""
+
+msgid "Measurements and Results:"
+msgstr "Medicions i Resultats:"
+
+msgid "Vaccinations:"
+msgstr "Vacunacions:"
+
+#, fuzzy, python-format
+msgid "Episode: %s%s%s"
+msgstr "episodi : %s"
+
+#, python-format
+msgid "%s so far"
+msgstr ""
+
 #, python-format
 msgid ""
 "This item points to a directory on the computer named:\n"
@@ -9047,6 +9164,21 @@ msgstr "al·lèrgies/intoleràncies"
 msgid "Allergy detail: %s"
 msgstr "Detalls de l'al·lèrgia"
 
+msgid "male"
+msgstr "home"
+
+msgid "female"
+msgstr "dona"
+
+msgid "unknown gender"
+msgstr "gènere desconegut"
+
+msgid "Mr"
+msgstr "Sr"
+
+msgid "Mrs"
+msgstr "Sra"
+
 msgid "expired"
 msgstr ""
 
@@ -9095,6 +9227,91 @@ msgid ""
 "\n"
 "The account was deactivated instead."
 msgstr ""
+
+msgid "A: Sign"
+msgstr "A: Signes"
+
+msgid "B: Cluster of signs"
+msgstr "B: Agrupació de signes"
+
+msgid "C: Syndromic diagnosis"
+msgstr "C: Diagnosis sindròmica"
+
+msgid "D: Scientific diagnosis"
+msgstr "D: Diagnosi científica"
+
+#, python-format
+msgid "<%s>: unknown diagnostic certainty classification"
+msgstr ""
+
+msgid "bilateral"
+msgstr "bilateral"
+
+msgid "Clinical data generated during encounters under this health issue:"
+msgstr ""
+
+msgid "Error retrieving episodes for this health issue."
+msgstr "Error recuperant episodis per aquest assumpte mèdic."
+
+msgid "There are no episodes for this health issue."
+msgstr "No hi ha episodis per aquest assumpte mèdic."
+
+#, python-format
+msgid "Episodes: %s (most recent: %s%s%s)"
+msgstr ""
+
+msgid "ongoing"
+msgstr "en curs"
+
+msgid "closed"
+msgstr "tancat"
+
+msgid "No encounters found for this health issue."
+msgstr "No s'han trobat visites per aquest assumpte mèdic"
+
+#, python-format
+msgid "Encounters: %s (%s - %s):"
+msgstr "Visites: %s (%s - %s):"
+
+#, python-format
+msgid " Most recent: %s - %s"
+msgstr " Més recent: %s - %s"
+
+#, fuzzy, python-format
+msgid "Measurements and Results: %s"
+msgstr "Medicions i Resultats:"
+
+#, python-format
+msgid "Health Issue %s%s%s%s   [#%s]"
+msgstr "Assumpte Mèdic %s%s%s%s [#%s]"
+
+msgid " ***** CONFIDENTIAL *****"
+msgstr " ***** CONFIDENCIAL *****"
+
+msgid " contributed to death of patient"
+msgstr " contribuí a la mort del pacient"
+
+#, fuzzy, python-format
+msgid " Created during encounter: %s (%s - %s)   [#%s]"
+msgstr " Creat durant la visita:"
+
+#, python-format
+msgid " Noted at age: %s"
+msgstr ""
+
+msgid "not clinically relevant"
+msgstr "clinicament no rellevant"
+
+#, fuzzy
+msgid "External care:"
+msgstr "Identificació pacient extern"
+
+#, fuzzy, python-format
+msgid "Health issue: %s%s%s"
+msgstr "Assumpte mèdic:"
+
+msgid "Unattributed episodes"
+msgstr "Episodis no atribuïts"
 
 msgid "SOAP_char_S=S"
 msgstr ""
@@ -9277,9 +9494,6 @@ msgstr "Assumpte mèdic:"
 msgid "open"
 msgstr ""
 
-msgid "closed"
-msgstr "tancat"
-
 #, fuzzy, python-format
 msgid "Episode: %s"
 msgstr "episodi : %s"
@@ -9393,21 +9607,6 @@ msgstr ""
 #, python-format
 msgid "invalid age: DOB [%s] after reference date [%s] (%s)"
 msgstr ""
-
-msgid "male"
-msgstr "home"
-
-msgid "female"
-msgstr "dona"
-
-msgid "unknown gender"
-msgstr "gènere desconegut"
-
-msgid "Mr"
-msgstr "Sr"
-
-msgid "Mrs"
-msgstr "Sra"
 
 msgid "empty status"
 msgstr ""
@@ -9540,26 +9739,6 @@ msgid ""
 msgstr "Comentari"
 
 #, python-format
-msgid "Result from %s             \n"
-msgstr ""
-
-#, python-format
-msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
-msgstr ""
-
-#, python-format
-msgid "%(sso)sResult: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "Status: %s\n"
-msgstr "Documents: %s"
-
-#, python-format
-msgid "Grouping: %s\n"
-msgstr ""
-
-#, python-format
 msgid "%.1f %% of the normal lower limit"
 msgstr ""
 
@@ -9589,34 +9768,6 @@ msgstr ""
 
 #, python-format
 msgid "%.0f times the target upper limit"
-msgstr ""
-
-#, python-format
-msgid "Standard normal range: %s\n"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "Clinical target range: %s\n"
-msgstr "Cínicament rellevant."
-
-#, python-format
-msgid "Reference group: %s\n"
-msgstr ""
-
-#, python-format
-msgid "Episode: %s\n"
-msgstr ""
-
-#, python-format
-msgid "Issue: %s\n"
-msgstr ""
-
-#, python-format
-msgid "Material: %s\n"
-msgstr ""
-
-#, python-format
-msgid "Details: %s\n"
 msgstr ""
 
 msgid "not yet"
@@ -9649,6 +9800,54 @@ msgstr ""
 
 #, python-format
 msgid " Clinically relevant: %(relevant)s\n"
+msgstr ""
+
+#, python-format
+msgid "Result from %s             \n"
+msgstr ""
+
+#, python-format
+msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
+msgstr ""
+
+#, python-format
+msgid "%(sso)sResult: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Status: %s\n"
+msgstr "Documents: %s"
+
+#, python-format
+msgid "Grouping: %s\n"
+msgstr ""
+
+#, python-format
+msgid "Standard normal range: %s\n"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Clinical target range: %s\n"
+msgstr "Cínicament rellevant."
+
+#, python-format
+msgid "Reference group: %s\n"
+msgstr ""
+
+#, python-format
+msgid "Episode: %s\n"
+msgstr ""
+
+#, python-format
+msgid "Issue: %s\n"
+msgstr ""
+
+#, python-format
+msgid "Material: %s\n"
+msgstr ""
+
+#, python-format
+msgid "Details: %s\n"
 msgstr ""
 
 msgid "Test type details:\n"
@@ -9795,6 +9994,39 @@ msgstr ""
 #, fuzzy, python-format
 msgid "From: %s @ %s"
 msgstr "Pacient"
+
+#, fuzzy
+msgid " (ongoing)"
+msgstr "en curs"
+
+#, fuzzy
+msgid "Comment: "
+msgstr "Comentaris:"
+
+#, python-format
+msgid "  your time: %s - %s  (@%s = %s%s)\n"
+msgstr ""
+
+msgid "daylight savings time in effect"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Location: %s (%s)"
+msgstr "Pacient:  , No:\n"
+
+#, fuzzy, python-format
+msgid ""
+"\n"
+"Episode %s%s%s%s:"
+msgstr "episodi : %s"
+
+#, python-format
+msgid "%s other episodes touched upon during this encounter:"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Encounter: %s%s%s"
+msgstr "Visites: %s (%s - %s):"
 
 msgid "Cannot run [arriba] !"
 msgstr ""
@@ -10089,201 +10321,6 @@ msgstr "La teva revisió"
 #, python-format
 msgid "Organization: %s (%s)"
 msgstr ""
-
-msgid "A: Sign"
-msgstr "A: Signes"
-
-msgid "B: Cluster of signs"
-msgstr "B: Agrupació de signes"
-
-msgid "C: Syndromic diagnosis"
-msgstr "C: Diagnosis sindròmica"
-
-msgid "D: Scientific diagnosis"
-msgstr "D: Diagnosi científica"
-
-#, python-format
-msgid "<%s>: unknown diagnostic certainty classification"
-msgstr ""
-
-msgid "bilateral"
-msgstr "bilateral"
-
-msgid "Clinical data generated during encounters under this health issue:"
-msgstr ""
-
-#, python-format
-msgid "Health Issue %s%s%s%s   [#%s]"
-msgstr "Assumpte Mèdic %s%s%s%s [#%s]"
-
-msgid " ***** CONFIDENTIAL *****"
-msgstr " ***** CONFIDENCIAL *****"
-
-msgid " contributed to death of patient"
-msgstr " contribuí a la mort del pacient"
-
-#, fuzzy, python-format
-msgid " Created during encounter: %s (%s - %s)   [#%s]"
-msgstr " Creat durant la visita:"
-
-#, python-format
-msgid " Noted at age: %s"
-msgstr ""
-
-msgid "not clinically relevant"
-msgstr "clinicament no rellevant"
-
-msgid "Error retrieving episodes for this health issue."
-msgstr "Error recuperant episodis per aquest assumpte mèdic."
-
-msgid "There are no episodes for this health issue."
-msgstr "No hi ha episodis per aquest assumpte mèdic."
-
-#, python-format
-msgid "Episodes: %s (most recent: %s%s%s)"
-msgstr ""
-
-msgid "ongoing"
-msgstr "en curs"
-
-msgid "No encounters found for this health issue."
-msgstr "No s'han trobat visites per aquest assumpte mèdic"
-
-#, python-format
-msgid "Encounters: %s (%s - %s):"
-msgstr "Visites: %s (%s - %s):"
-
-#, python-format
-msgid " Most recent: %s - %s"
-msgstr " Més recent: %s - %s"
-
-#, fuzzy, python-format
-msgid "Hospitalizations: %s"
-msgstr "Estades hospitalàries"
-
-#, python-format
-msgid "Procedures performed: %s"
-msgstr ""
-
-#, python-format
-msgid "Family History: %s"
-msgstr ""
-
-#, python-format
-msgid "Documents: %s"
-msgstr "Documents: %s"
-
-#, fuzzy, python-format
-msgid "Measurements and Results: %s"
-msgstr "Medicions i Resultats:"
-
-msgid "Vaccinations:"
-msgstr "Vacunacions:"
-
-#, fuzzy
-msgid "External care:"
-msgstr "Identificació pacient extern"
-
-#, fuzzy, python-format
-msgid "Health issue: %s%s%s"
-msgstr "Assumpte mèdic:"
-
-msgid "Unattributed episodes"
-msgstr "Episodis no atribuïts"
-
-#, fuzzy
-msgid "Clinical data generated during encounters within this episode:"
-msgstr "No hi ha entrades per aquest episodi"
-
-#, fuzzy, python-format
-msgid "Episode %s%s%s   [#%s]"
-msgstr "episodi : %s"
-
-#, python-format
-msgid "Created during encounter: %s (%s - %s)   [#%s]"
-msgstr ""
-
-#, fuzzy, python-format
-msgid " Duration: %s (%s)"
-msgstr "Pacient:  , No:\n"
-
-msgid "finished"
-msgstr "finalitzat"
-
-msgid "none associated"
-msgstr ""
-
-msgid "Error retrieving encounters for this episode."
-msgstr "Error recuperant visities d'aquest episodi."
-
-#, python-format
-msgid "Last worked on: %s\n"
-msgstr ""
-
-#, python-format
-msgid "%s encounter(s) (%s - %s):"
-msgstr ""
-
-#, python-format
-msgid "1st and (up to 3) most recent (of %s) encounters (%s - %s):"
-msgstr ""
-
-msgid "RFE"
-msgstr ""
-
-msgid "AOE"
-msgstr ""
-
-#, fuzzy, python-format
-msgid " %s %s skipped %s"
-msgstr "%s la setmana passada (%s of %s)"
-
-msgid "Progress notes in most recent encounter:"
-msgstr ""
-
-msgid "Measurements and Results:"
-msgstr "Medicions i Resultats:"
-
-#, fuzzy, python-format
-msgid "Episode: %s%s%s"
-msgstr "episodi : %s"
-
-#, python-format
-msgid "%s so far"
-msgstr ""
-
-#, python-format
-msgid "  your time: %s - %s  (@%s = %s%s)\n"
-msgstr ""
-
-msgid "daylight savings time in effect"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "Location: %s (%s)"
-msgstr "Pacient:  , No:\n"
-
-#, fuzzy, python-format
-msgid ""
-"\n"
-"Episode %s%s%s%s:"
-msgstr "episodi : %s"
-
-#, python-format
-msgid "%s other episodes touched upon during this encounter:"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "Encounter: %s%s%s"
-msgstr "Visites: %s (%s - %s):"
-
-#, fuzzy
-msgid " (ongoing)"
-msgstr "en curs"
-
-#, fuzzy
-msgid "Comment: "
-msgstr "Comentaris:"
 
 #, fuzzy
 msgid "Care Period"
@@ -11319,21 +11356,6 @@ msgstr ""
 msgid "Enlisting person as user."
 msgstr ""
 
-msgid "Decrypt"
-msgstr ""
-
-msgid "Set pass phrase"
-msgstr ""
-
-msgid "This is not correctly encrypted text!"
-msgstr ""
-
-msgid "Please enter your pass phrase:"
-msgstr ""
-
-msgid "Pass phrase expired"
-msgstr ""
-
 msgid "Regenerating generic vaccines"
 msgstr ""
 
@@ -12183,9 +12205,6 @@ msgstr ""
 msgid "Four Es"
 msgstr ""
 
-msgid "Symbol"
-msgstr ""
-
 msgid "Snellen Chart"
 msgstr ""
 
@@ -12856,46 +12875,6 @@ msgstr ""
 msgid "initialize input fields for new entry"
 msgstr ""
 
-msgid "Laterality"
-msgstr ""
-
-msgid "Progress Note"
-msgstr ""
-
-msgid "N/A"
-msgstr ""
-
-msgid "L"
-msgstr ""
-
-msgid "R"
-msgstr ""
-
-msgid "both"
-msgstr ""
-
-msgid "significant"
-msgstr ""
-
-msgid "Specialty"
-msgstr ""
-
-msgid "Meds"
-msgstr ""
-
-msgid "Past Hx"
-msgstr ""
-
-#, python-format
-msgid "%(number)s %(street)s, %(urb)s %(postcode)s"
-msgstr ""
-
-msgid "must have a recipient"
-msgstr ""
-
-msgid "must select address"
-msgstr ""
-
 msgid "Ok"
 msgstr "D'acord"
 
@@ -13185,140 +13164,6 @@ msgid ""
 "Supposedly there are conflicting vaccinations\n"
 "for patient [%s]. However, I cannot find\n"
 "that patient in the GNUmed database."
-msgstr ""
-
-msgid "choose which lab will process the probe with the specified ID"
-msgstr ""
-
-msgid "lab config"
-msgstr ""
-
-msgid "add new request for current patient"
-msgstr ""
-
-msgid "Specimen ID"
-msgstr ""
-
-msgid "save lab request"
-msgstr ""
-
-msgid "associate chosen lab and ID with current patient"
-msgstr ""
-
-msgid "date"
-msgstr ""
-
-msgid "lab"
-msgstr ""
-
-msgid "sample id"
-msgstr ""
-
-msgid "patient"
-msgstr ""
-
-msgid "status"
-msgstr ""
-
-msgid "pending requests"
-msgstr ""
-
-msgid "noticed when"
-msgstr ""
-
-msgid "problem"
-msgstr ""
-
-msgid "solution"
-msgstr ""
-
-msgid "context"
-msgstr ""
-
-msgid "lab errors"
-msgstr ""
-
-msgid "reviewed"
-msgstr ""
-
-msgid "facility"
-msgstr ""
-
-msgid "analysis"
-msgstr ""
-
-msgid "result"
-msgstr ""
-
-msgid "range"
-msgstr ""
-
-msgid "info provided by lab"
-msgstr ""
-
-msgid "select all requests"
-msgstr ""
-
-msgid "mark selected requests as reviewed"
-msgstr ""
-
-msgid "unreviewed results"
-msgstr ""
-
-msgid ""
-"Cannot load lab journal.\n"
-"You first need to select a patient."
-msgstr ""
-
-msgid "loading lab journal"
-msgstr ""
-
-msgid "pending"
-msgstr ""
-
-msgid "More unreviewed results available. Review some to see more."
-msgstr ""
-
-msgid ""
-"You must type in a request ID !\n"
-"\n"
-"Usually you will find the request ID written on\n"
-"the barcode sticker on your probe container."
-msgstr ""
-
-msgid "saving request id"
-msgstr ""
-
-msgid "Cannot save lab request."
-msgstr ""
-
-msgid "No results marked as reviewed."
-msgstr ""
-
-#, python-format
-msgid ""
-"Cannot mark results as \"reviewed\":\n"
-"%s"
-msgstr ""
-
-msgid "update result status"
-msgstr ""
-
-msgid ""
-"Cannot load lab data.\n"
-"You first need to select a patient."
-msgstr ""
-
-msgid "loading lab data"
-msgstr ""
-
-#, python-format
-msgid ""
-"Error loading lab data for patient\n"
-"[%s %s]."
-msgstr ""
-
-msgid "No lab data available."
 msgstr ""
 
 #, fuzzy
@@ -15166,20 +15011,6 @@ msgstr ""
 msgid "<type here to search patient>"
 msgstr ""
 
-msgid "EDC (!?!):"
-msgstr ""
-
-#, fuzzy
-msgid "EDC:"
-msgstr "Pacient"
-
-#, fuzzy, python-format
-msgid "%.1f (%s ago)"
-msgstr "Documents: %s"
-
-msgid "eGFR:"
-msgstr ""
-
 #, fuzzy
 msgid " - abnormal"
 msgstr "Pacient"
@@ -15203,9 +15034,23 @@ msgstr ""
 msgid "Problems:"
 msgstr ""
 
+msgid "EDC (!?!):"
+msgstr ""
+
+#, fuzzy
+msgid "EDC:"
+msgstr "Pacient"
+
 #, fuzzy, python-format
 msgid "No test result for: %s (%s)"
 msgstr "estat de la prova desconegut [%s]"
+
+#, fuzzy, python-format
+msgid "%.1f (%s ago)"
+msgstr "Documents: %s"
+
+msgid "eGFR:"
+msgstr ""
 
 #, python-format
 msgid "eGFR: %.1f (%s)"
@@ -16552,8 +16397,21 @@ msgid "Cannot connect to PACS."
 msgstr "no es pot connectar al servei [%s]"
 
 #, python-format
-msgid "PACS: Orthanc \"%s\" (AET \"%s\", Version %s, DB v%s)"
+msgid "PACS (Orthanc): \"%s\" (AET \"%s\") [%s]"
 msgstr ""
+
+msgid "no SSL"
+msgstr ""
+
+msgid "SSL: in use"
+msgstr ""
+
+msgid "SSL: NOT in use"
+msgstr ""
+
+#, fuzzy
+msgid "Server details:"
+msgstr "Detalls de l'al·lèrgia"
 
 msgid "Known PACS IDs:"
 msgstr ""
@@ -16898,6 +16756,12 @@ msgstr "Detalls de la mesura"
 #, fuzzy
 msgid "Select the measurements panel to show in the top pane."
 msgstr "Comprava-ho si vols editar la teva revisió."
+
+msgid "Tab position"
+msgstr ""
+
+msgid "Select the main notebook's tab position (top/bottom)."
+msgstr ""
 
 msgid "Review dialog"
 msgstr ""
@@ -17263,6 +17127,10 @@ msgstr ""
 msgid "Import demographics from clipboard (vCard) as patient"
 msgstr ""
 
+#, fuzzy
+msgid "&Import\\u2026"
+msgstr "Informe"
+
 msgid "Export demographics of currently active person as GDT into clipboard."
 msgstr ""
 
@@ -17285,6 +17153,10 @@ msgstr ""
 
 msgid "\\u2192 &File as\\u2026"
 msgstr ""
+
+#, fuzzy
+msgid "E&xport\\u2026"
+msgstr "Informe"
 
 msgid "&Merge persons"
 msgstr ""
@@ -17309,6 +17181,10 @@ msgstr ""
 
 msgid "Enlist current person as GNUmed user"
 msgstr ""
+
+#, fuzzy
+msgid "&Person"
+msgstr "Nom"
 
 msgid "&Past history (health issue / PMH)"
 msgstr ""
@@ -17776,6 +17652,14 @@ msgstr ""
 msgid "Go to the User Manual on the web."
 msgstr ""
 
+#, fuzzy
+msgid "Patient search help"
+msgstr "Pacient"
+
+#, fuzzy
+msgid "Show help on patient search."
+msgstr "Pacient"
+
 msgid "show"
 msgstr ""
 
@@ -18190,6 +18074,17 @@ msgstr ""
 msgid "Datenbank"
 msgstr ""
 
+msgid "Select the plugin tab position for the main notebook."
+msgstr ""
+
+#, fuzzy
+msgid "Right"
+msgstr "dreta"
+
+#, fuzzy
+msgid "Plugin tab position"
+msgstr "Descripció"
+
 msgid ""
 "Select the default type for new encounters.\n"
 "\n"
@@ -18469,6 +18364,9 @@ msgid "Billable items"
 msgstr ""
 
 msgid "Reference data sources"
+msgstr ""
+
+msgid "Gender definitions"
 msgstr ""
 
 msgid "Master data management"
@@ -19635,6 +19533,9 @@ msgstr "Descripció"
 msgid "Amount is missing."
 msgstr "Descripció"
 
+msgid "Amount must be a number."
+msgstr ""
+
 #, fuzzy
 msgid "Substance is missing."
 msgstr "Descripció"
@@ -20592,6 +20493,29 @@ msgstr ""
 msgid "Disabling person"
 msgstr ""
 
+msgid "Abbreviation needed for gender definition."
+msgstr ""
+
+#, fuzzy
+msgid "Name needed for gender definition."
+msgstr "Carrega l'informació de la plantilla des d'un fitxer."
+
+#, fuzzy
+msgid "Adding new gender definition"
+msgstr "Llistat de vacunes buit"
+
+#, fuzzy
+msgid "Editing gender definition"
+msgstr "Vacunació"
+
+#, fuzzy
+msgid "Managing gender definitions"
+msgstr "Vacunació"
+
+#, python-format
+msgid "Current language (database): %s"
+msgstr ""
+
 msgid "Type or select a last name (family name/surname)."
 msgstr ""
 
@@ -20868,6 +20792,14 @@ msgstr ""
 msgid "Connecting to backend"
 msgstr ""
 
+msgid "Verifying password security"
+msgstr ""
+
+msgid ""
+"For improved password security please\n"
+"arrange for your password to be re-set."
+msgstr ""
+
 msgid "<restricted procedure>"
 msgstr ""
 
@@ -21088,12 +21020,6 @@ msgid "Appointments"
 msgstr ""
 
 msgid "&Appointments"
-msgstr ""
-
-msgid "lab journal"
-msgstr ""
-
-msgid "Show &lab journal"
 msgstr ""
 
 msgid "&PACS"
@@ -21566,10 +21492,6 @@ msgstr "Interromput  i no connectat a GNUmed"
 
 #~ msgid "Associate to episode:"
 #~ msgstr "Associa a l'episodi:"
-
-#, fuzzy
-#~ msgid "Organization:"
-#~ msgstr "Vacunació"
 
 #, fuzzy
 #~ msgid "Load from clipboard"
@@ -22119,10 +22041,6 @@ msgstr "Interromput  i no connectat a GNUmed"
 #~ msgid "Visualize"
 #~ msgstr "Visualitza"
 
-#, fuzzy
-#~ msgid "Save the form template definition."
-#~ msgstr "Carrega l'informació de la plantilla des d'un fitxer."
-
 #~ msgid "Last modified:"
 #~ msgstr "Darrera modificació:"
 
@@ -22135,10 +22053,6 @@ msgstr "Interromput  i no connectat a GNUmed"
 
 #~ msgid "Save the entered data into the database."
 #~ msgstr "Guarda la informació entrada a la base de dades."
-
-#, fuzzy
-#~ msgid "About active:"
-#~ msgstr "Administratiu"
 
 #~ msgid "abnormal and relevant"
 #~ msgstr "anormal i rellevant"

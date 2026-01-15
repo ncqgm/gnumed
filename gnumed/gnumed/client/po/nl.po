@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-24 16:03+0200\n"
+"POT-Creation-Date: 2026-01-03 12:59+0100\n"
 "PO-Revision-Date: 2012-06-01 01:19+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -2503,14 +2503,14 @@ msgstr "Probleem"
 msgid "[%s] is not a readable file"
 msgstr "[%s] is geen leesbaar bestand"
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "Unable to display the file:\n"
 "\n"
 " [%s]\n"
 "\n"
 "Your system does not seem to have a (working)\n"
-"viewer registered for the file type\n"
+"viewer registered for file type:\n"
 " [%s]"
 msgstr ""
 "Kan bestand niet tonen:\n"
@@ -2665,6 +2665,9 @@ msgid "interval_format_tag::weeks::w"
 msgstr ""
 
 msgid "interval_format_tag::days::d"
+msgstr ""
+
+msgid "interval_format_tag::seconds::s"
 msgstr ""
 
 #, fuzzy
@@ -7628,6 +7631,47 @@ msgid "Nest under"
 msgstr "Geslacht"
 
 #, fuzzy
+msgid "The name for this gender definition."
+msgstr "Merknaam als het medicijn als trigger is ingevoerd."
+
+#, fuzzy
+msgid "Translation of name into your language."
+msgstr ""
+"Wijzig de vertaling van de geselecteerde documenttypen in uw plaatselijke "
+"taal."
+
+#, fuzzy
+msgid "An abbreviation for this gender definition."
+msgstr "Een langere, beschrijvende naam voor dit template."
+
+#, fuzzy
+msgid "Translation:"
+msgstr "Vertaling"
+
+#, fuzzy
+msgid "Translation of abbreviation into your language."
+msgstr ""
+"Wijzig de vertaling van de geselecteerde documenttypen in uw plaatselijke "
+"taal."
+
+msgid "Symbol"
+msgstr "Symbool"
+
+msgid "Symbolic representation for this gender."
+msgstr ""
+
+#, fuzzy
+msgid "Alternative:"
+msgstr "inactief"
+
+msgid "Symbol for this gender appropriate to your culture."
+msgstr ""
+
+#, fuzzy
+msgid "A descriptive comment on this gender definition."
+msgstr "Een langere, beschrijvende naam voor dit template."
+
+#, fuzzy
 msgid "Generic multi line text entry dialog"
 msgstr "algemene meerkeuze dialoog"
 
@@ -9338,6 +9382,86 @@ msgstr ""
 msgid "Result dates: %s"
 msgstr "Uitslagen"
 
+#, fuzzy
+msgid "Clinical data generated during encounters within this episode:"
+msgstr "Er zijn geen ontmoetingen voor deze episode."
+
+msgid "Error retrieving encounters for this episode."
+msgstr "Fout bij het laden van ontmoetingen voor deze episode."
+
+#, python-format
+msgid "Last worked on: %s\n"
+msgstr "Laatst gewerkt aan: %s\n"
+
+#, fuzzy, python-format
+msgid "%s encounter(s) (%s - %s):"
+msgstr "Ontmoetingen: %s (%s - %s):"
+
+#, python-format
+msgid "1st and (up to 3) most recent (of %s) encounters (%s - %s):"
+msgstr ""
+
+msgid "RFE"
+msgstr "Hulpvraag"
+
+msgid "AOE"
+msgstr "Consultsamenvatting"
+
+#, fuzzy, python-format
+msgid " %s %s skipped %s"
+msgstr " ... %s overgeslagen ..."
+
+msgid "Progress notes in most recent encounter:"
+msgstr "Voortgangsrapport van laatste ontmoetingen:"
+
+#, fuzzy, python-format
+msgid "Episode %s%s%s   [#%s]"
+msgstr "Episode %s%s%s (%s) [#%s]\n"
+
+#, fuzzy, python-format
+msgid "Created during encounter: %s (%s - %s)   [#%s]"
+msgstr "Ontmoetingen: %s (%s - %s):"
+
+#, fuzzy, python-format
+msgid " Duration: %s (%s)"
+msgstr "Ontmoetingen: %s (%s - %s):"
+
+msgid "finished"
+msgstr "voltooid"
+
+msgid "none associated"
+msgstr ""
+
+#, python-format
+msgid "Documents: %s"
+msgstr "Documenten: %s"
+
+#, fuzzy, python-format
+msgid "Hospitalizations: %s"
+msgstr "&Vaccinaties"
+
+#, python-format
+msgid "Procedures performed: %s"
+msgstr "Uitgevoerde behandelingen: %s"
+
+#, python-format
+msgid "Family History: %s"
+msgstr ""
+
+msgid "Measurements and Results:"
+msgstr "Metingen en Uitslagen:"
+
+msgid "Vaccinations:"
+msgstr "Vaccinaties:"
+
+#, fuzzy, python-format
+msgid "Episode: %s%s%s"
+msgstr "Episode %s%s%s (%s) [#%s]\n"
+
+#, python-format
+msgid "%s so far"
+msgstr ""
+
 #, python-format
 msgid ""
 "This item points to a directory on the computer named:\n"
@@ -9692,6 +9816,21 @@ msgstr "allergieën/ intolleranties"
 msgid "Allergy detail: %s"
 msgstr "Allergieën"
 
+msgid "male"
+msgstr "man"
+
+msgid "female"
+msgstr "vrouw"
+
+msgid "unknown gender"
+msgstr "onbekend geslacht"
+
+msgid "Mr"
+msgstr "Dhr"
+
+msgid "Mrs"
+msgstr "Mevr"
+
 msgid "expired"
 msgstr ""
 
@@ -9748,6 +9887,92 @@ msgid ""
 "\n"
 "The account was deactivated instead."
 msgstr ""
+
+msgid "A: Sign"
+msgstr "A: Teken"
+
+msgid "B: Cluster of signs"
+msgstr "B: Groep van tekens"
+
+msgid "C: Syndromic diagnosis"
+msgstr "C: Syndroom diagnose"
+
+msgid "D: Scientific diagnosis"
+msgstr "D: Wetenschappelijke diagnose"
+
+#, python-format
+msgid "<%s>: unknown diagnostic certainty classification"
+msgstr ""
+
+msgid "bilateral"
+msgstr "bilateraal"
+
+#, fuzzy
+msgid "Clinical data generated during encounters under this health issue:"
+msgstr "Geen ontmoetingen gevonden voor dit gezondheidsprobleem."
+
+msgid "Error retrieving episodes for this health issue."
+msgstr "Fout bij het opvragen van episodes van dit gezondheidsprobleem"
+
+msgid "There are no episodes for this health issue."
+msgstr "Er zijn geen episodes van dit gezondheidsprobleem"
+
+#, python-format
+msgid "Episodes: %s (most recent: %s%s%s)"
+msgstr "Episodes: %s (meest recent: %s%s%s)"
+
+msgid "ongoing"
+msgstr "voortdurend"
+
+msgid "closed"
+msgstr "gesloten"
+
+msgid "No encounters found for this health issue."
+msgstr "Geen ontmoetingen gevonden voor dit gezondheidsprobleem."
+
+#, python-format
+msgid "Encounters: %s (%s - %s):"
+msgstr "Ontmoetingen: %s (%s - %s):"
+
+#, python-format
+msgid " Most recent: %s - %s"
+msgstr " Meest recent: %s - %s"
+
+#, python-format
+msgid "Measurements and Results: %s"
+msgstr "Metingen en Resultaten: %s"
+
+#, python-format
+msgid "Health Issue %s%s%s%s   [#%s]"
+msgstr "Gezondheidsprobleem %s%s%s%s [#%s]"
+
+msgid " ***** CONFIDENTIAL *****"
+msgstr " ***** VERTROUWELIJK *****"
+
+msgid " contributed to death of patient"
+msgstr " droeg bij aan de dood van de patiënt"
+
+#, python-format
+msgid " Created during encounter: %s (%s - %s)   [#%s]"
+msgstr " Aangemaakt tijdes bezoek: %s (%s- %s) [#%s]"
+
+#, python-format
+msgid " Noted at age: %s"
+msgstr " Opgemerkt op leeftijd: %s"
+
+msgid "not clinically relevant"
+msgstr "niet klinisch relevant"
+
+#, fuzzy
+msgid "External care:"
+msgstr "BSN bewerken."
+
+#, fuzzy, python-format
+msgid "Health issue: %s%s%s"
+msgstr "gezondheidsprobleem: %s"
+
+msgid "Unattributed episodes"
+msgstr "Niet toegewezen episodes"
 
 msgid "SOAP_char_S=S"
 msgstr ""
@@ -9933,9 +10158,6 @@ msgstr "gezondheidsprobleem: %s"
 msgid "open"
 msgstr ""
 
-msgid "closed"
-msgstr "gesloten"
-
 #, fuzzy, python-format
 msgid "Episode: %s"
 msgstr "Episodes: %s"
@@ -10051,21 +10273,6 @@ msgstr ""
 #, fuzzy, python-format
 msgid "invalid age: DOB [%s] after reference date [%s] (%s)"
 msgstr "naam, geboortedatum"
-
-msgid "male"
-msgstr "man"
-
-msgid "female"
-msgstr "vrouw"
-
-msgid "unknown gender"
-msgstr "onbekend geslacht"
-
-msgid "Mr"
-msgstr "Dhr"
-
-msgid "Mrs"
-msgstr "Mevr"
 
 #, fuzzy
 msgid "empty status"
@@ -10199,26 +10406,6 @@ msgid ""
 msgstr "toelichting"
 
 #, python-format
-msgid "Result from %s             \n"
-msgstr ""
-
-#, python-format
-msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
-msgstr ""
-
-#, python-format
-msgid "%(sso)sResult: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "Status: %s\n"
-msgstr "Status"
-
-#, fuzzy, python-format
-msgid "Grouping: %s\n"
-msgstr "Groep"
-
-#, python-format
 msgid "%.1f %% of the normal lower limit"
 msgstr ""
 
@@ -10249,34 +10436,6 @@ msgstr ""
 #, python-format
 msgid "%.0f times the target upper limit"
 msgstr ""
-
-#, python-format
-msgid "Standard normal range: %s\n"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "Clinical target range: %s\n"
-msgstr "Klinische aantekeningen"
-
-#, fuzzy, python-format
-msgid "Reference group: %s\n"
-msgstr "Verwijzing"
-
-#, fuzzy, python-format
-msgid "Episode: %s\n"
-msgstr "Episodes: %s"
-
-#, fuzzy, python-format
-msgid "Issue: %s\n"
-msgstr "Bericht: %s"
-
-#, python-format
-msgid "Material: %s\n"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "Details: %s\n"
-msgstr "Bijzonderheden"
 
 msgid "not yet"
 msgstr "nog niet"
@@ -10309,6 +10468,54 @@ msgstr "nee"
 #, fuzzy, python-format
 msgid " Clinically relevant: %(relevant)s\n"
 msgstr "klinisch relevant: ja\n"
+
+#, python-format
+msgid "Result from %s             \n"
+msgstr ""
+
+#, python-format
+msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
+msgstr ""
+
+#, python-format
+msgid "%(sso)sResult: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Status: %s\n"
+msgstr "Status"
+
+#, fuzzy, python-format
+msgid "Grouping: %s\n"
+msgstr "Groep"
+
+#, python-format
+msgid "Standard normal range: %s\n"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Clinical target range: %s\n"
+msgstr "Klinische aantekeningen"
+
+#, fuzzy, python-format
+msgid "Reference group: %s\n"
+msgstr "Verwijzing"
+
+#, fuzzy, python-format
+msgid "Episode: %s\n"
+msgstr "Episodes: %s"
+
+#, fuzzy, python-format
+msgid "Issue: %s\n"
+msgstr "Bericht: %s"
+
+#, python-format
+msgid "Material: %s\n"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Details: %s\n"
+msgstr "Bijzonderheden"
 
 #, fuzzy
 msgid "Test type details:\n"
@@ -10462,6 +10669,38 @@ msgstr ""
 #, fuzzy, python-format
 msgid "From: %s @ %s"
 msgstr "SQL: %s"
+
+msgid " (ongoing)"
+msgstr " (voortdurend)"
+
+#, fuzzy
+msgid "Comment: "
+msgstr "Toelichting:"
+
+#, python-format
+msgid "  your time: %s - %s  (@%s = %s%s)\n"
+msgstr "  plaatselijke tijd: %s - %s (@%s = %s%s)\n"
+
+msgid "daylight savings time in effect"
+msgstr "zomertijd ingegaan"
+
+#, fuzzy, python-format
+msgid "Location: %s (%s)"
+msgstr "Ontmoetingen: %s (%s - %s):"
+
+#, fuzzy, python-format
+msgid ""
+"\n"
+"Episode %s%s%s%s:"
+msgstr "Episode %s%s%s (%s) [#%s]\n"
+
+#, python-format
+msgid "%s other episodes touched upon during this encounter:"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Encounter: %s%s%s"
+msgstr "Ontmoetingen: %s (%s - %s):"
 
 msgid "Cannot run [arriba] !"
 msgstr "kan [arriba] niet uitvoeren!"
@@ -10762,201 +11001,6 @@ msgstr "Uw beoordeling"
 #, python-format
 msgid "Organization: %s (%s)"
 msgstr ""
-
-msgid "A: Sign"
-msgstr "A: Teken"
-
-msgid "B: Cluster of signs"
-msgstr "B: Groep van tekens"
-
-msgid "C: Syndromic diagnosis"
-msgstr "C: Syndroom diagnose"
-
-msgid "D: Scientific diagnosis"
-msgstr "D: Wetenschappelijke diagnose"
-
-#, python-format
-msgid "<%s>: unknown diagnostic certainty classification"
-msgstr ""
-
-msgid "bilateral"
-msgstr "bilateraal"
-
-#, fuzzy
-msgid "Clinical data generated during encounters under this health issue:"
-msgstr "Geen ontmoetingen gevonden voor dit gezondheidsprobleem."
-
-#, python-format
-msgid "Health Issue %s%s%s%s   [#%s]"
-msgstr "Gezondheidsprobleem %s%s%s%s [#%s]"
-
-msgid " ***** CONFIDENTIAL *****"
-msgstr " ***** VERTROUWELIJK *****"
-
-msgid " contributed to death of patient"
-msgstr " droeg bij aan de dood van de patiënt"
-
-#, python-format
-msgid " Created during encounter: %s (%s - %s)   [#%s]"
-msgstr " Aangemaakt tijdes bezoek: %s (%s- %s) [#%s]"
-
-#, python-format
-msgid " Noted at age: %s"
-msgstr " Opgemerkt op leeftijd: %s"
-
-msgid "not clinically relevant"
-msgstr "niet klinisch relevant"
-
-msgid "Error retrieving episodes for this health issue."
-msgstr "Fout bij het opvragen van episodes van dit gezondheidsprobleem"
-
-msgid "There are no episodes for this health issue."
-msgstr "Er zijn geen episodes van dit gezondheidsprobleem"
-
-#, python-format
-msgid "Episodes: %s (most recent: %s%s%s)"
-msgstr "Episodes: %s (meest recent: %s%s%s)"
-
-msgid "ongoing"
-msgstr "voortdurend"
-
-msgid "No encounters found for this health issue."
-msgstr "Geen ontmoetingen gevonden voor dit gezondheidsprobleem."
-
-#, python-format
-msgid "Encounters: %s (%s - %s):"
-msgstr "Ontmoetingen: %s (%s - %s):"
-
-#, python-format
-msgid " Most recent: %s - %s"
-msgstr " Meest recent: %s - %s"
-
-#, fuzzy, python-format
-msgid "Hospitalizations: %s"
-msgstr "&Vaccinaties"
-
-#, python-format
-msgid "Procedures performed: %s"
-msgstr "Uitgevoerde behandelingen: %s"
-
-#, python-format
-msgid "Family History: %s"
-msgstr ""
-
-#, python-format
-msgid "Documents: %s"
-msgstr "Documenten: %s"
-
-#, python-format
-msgid "Measurements and Results: %s"
-msgstr "Metingen en Resultaten: %s"
-
-msgid "Vaccinations:"
-msgstr "Vaccinaties:"
-
-#, fuzzy
-msgid "External care:"
-msgstr "BSN bewerken."
-
-#, fuzzy, python-format
-msgid "Health issue: %s%s%s"
-msgstr "gezondheidsprobleem: %s"
-
-msgid "Unattributed episodes"
-msgstr "Niet toegewezen episodes"
-
-#, fuzzy
-msgid "Clinical data generated during encounters within this episode:"
-msgstr "Er zijn geen ontmoetingen voor deze episode."
-
-#, fuzzy, python-format
-msgid "Episode %s%s%s   [#%s]"
-msgstr "Episode %s%s%s (%s) [#%s]\n"
-
-#, fuzzy, python-format
-msgid "Created during encounter: %s (%s - %s)   [#%s]"
-msgstr "Ontmoetingen: %s (%s - %s):"
-
-#, fuzzy, python-format
-msgid " Duration: %s (%s)"
-msgstr "Ontmoetingen: %s (%s - %s):"
-
-msgid "finished"
-msgstr "voltooid"
-
-msgid "none associated"
-msgstr ""
-
-msgid "Error retrieving encounters for this episode."
-msgstr "Fout bij het laden van ontmoetingen voor deze episode."
-
-#, python-format
-msgid "Last worked on: %s\n"
-msgstr "Laatst gewerkt aan: %s\n"
-
-#, fuzzy, python-format
-msgid "%s encounter(s) (%s - %s):"
-msgstr "Ontmoetingen: %s (%s - %s):"
-
-#, python-format
-msgid "1st and (up to 3) most recent (of %s) encounters (%s - %s):"
-msgstr ""
-
-msgid "RFE"
-msgstr "Hulpvraag"
-
-msgid "AOE"
-msgstr "Consultsamenvatting"
-
-#, fuzzy, python-format
-msgid " %s %s skipped %s"
-msgstr " ... %s overgeslagen ..."
-
-msgid "Progress notes in most recent encounter:"
-msgstr "Voortgangsrapport van laatste ontmoetingen:"
-
-msgid "Measurements and Results:"
-msgstr "Metingen en Uitslagen:"
-
-#, fuzzy, python-format
-msgid "Episode: %s%s%s"
-msgstr "Episode %s%s%s (%s) [#%s]\n"
-
-#, python-format
-msgid "%s so far"
-msgstr ""
-
-#, python-format
-msgid "  your time: %s - %s  (@%s = %s%s)\n"
-msgstr "  plaatselijke tijd: %s - %s (@%s = %s%s)\n"
-
-msgid "daylight savings time in effect"
-msgstr "zomertijd ingegaan"
-
-#, fuzzy, python-format
-msgid "Location: %s (%s)"
-msgstr "Ontmoetingen: %s (%s - %s):"
-
-#, fuzzy, python-format
-msgid ""
-"\n"
-"Episode %s%s%s%s:"
-msgstr "Episode %s%s%s (%s) [#%s]\n"
-
-#, python-format
-msgid "%s other episodes touched upon during this encounter:"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "Encounter: %s%s%s"
-msgstr "Ontmoetingen: %s (%s - %s):"
-
-msgid " (ongoing)"
-msgstr " (voortdurend)"
-
-#, fuzzy
-msgid "Comment: "
-msgstr "Toelichting:"
 
 msgid "Care Period"
 msgstr ""
@@ -12189,21 +12233,6 @@ msgstr ""
 msgid "Enlisting person as user."
 msgstr "Patiënt inschrijven als staf."
 
-msgid "Decrypt"
-msgstr "Ontcijfer"
-
-msgid "Set pass phrase"
-msgstr "Zet wachtwoordzin"
-
-msgid "This is not correctly encrypted text!"
-msgstr "Dit is geen correct versleutelde tekst!"
-
-msgid "Please enter your pass phrase:"
-msgstr "Geef uw wachtwoordzin in:"
-
-msgid "Pass phrase expired"
-msgstr "wachtwoordzin verlopen"
-
 #, fuzzy
 msgid "Regenerating generic vaccines"
 msgstr "Naam verwijderen"
@@ -13126,9 +13155,6 @@ msgstr "Cyrillisch"
 msgid "Four Es"
 msgstr "E-en"
 
-msgid "Symbol"
-msgstr "Symbool"
-
 msgid "Snellen Chart"
 msgstr "Snellenkaart"
 
@@ -13880,46 +13906,6 @@ msgstr "<Geen embed string voor [%s]>"
 msgid "initialize input fields for new entry"
 msgstr "Invoervelden voorbereiden op nieuwe invoer"
 
-msgid "Laterality"
-msgstr "Lateraliteit"
-
-msgid "Progress Note"
-msgstr "Vooruitgangsrapport"
-
-msgid "N/A"
-msgstr "N.v.t."
-
-msgid "L"
-msgstr "L"
-
-msgid "R"
-msgstr "R"
-
-msgid "both"
-msgstr "Beide"
-
-msgid "significant"
-msgstr "significant"
-
-msgid "Specialty"
-msgstr "Specialiteit"
-
-msgid "Meds"
-msgstr "Medicijnen"
-
-msgid "Past Hx"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "%(number)s %(street)s, %(urb)s %(postcode)s"
-msgstr "%(nummer)s %(straat)s, %(stad) %(postcode)s"
-
-msgid "must have a recipient"
-msgstr "moet ontvanger hebben"
-
-msgid "must select address"
-msgstr "moet adres selecteren"
-
 msgid "Ok"
 msgstr "Ok"
 
@@ -14236,153 +14222,6 @@ msgid ""
 msgstr ""
 "Schijnbaar zijn er onbeoordeelde documenten voor patiënt [%s]. Echter, ik "
 "kan deze patiënt niet vinden in de GNUmed database."
-
-msgid "choose which lab will process the probe with the specified ID"
-msgstr "kies welk laboratorium het monster met het genoemde ID zal verwerken"
-
-msgid "lab config"
-msgstr "lab configuratie"
-
-msgid "add new request for current patient"
-msgstr "voeg een nieuw verzoek toe voor actieve patiënt"
-
-msgid "Specimen ID"
-msgstr "Secimen ID"
-
-msgid "save lab request"
-msgstr "bewaar laboratoriumverzoek"
-
-msgid "associate chosen lab and ID with current patient"
-msgstr "koppel gekozen laboratorium en ID aan huidige patiënt"
-
-msgid "date"
-msgstr "datum"
-
-msgid "lab"
-msgstr "laboratorium"
-
-msgid "sample id"
-msgstr "monster ID"
-
-msgid "patient"
-msgstr "patiënt"
-
-msgid "status"
-msgstr "status"
-
-msgid "pending requests"
-msgstr "lopende aanvragen"
-
-msgid "noticed when"
-msgstr "opgemerkt toen"
-
-msgid "problem"
-msgstr "probleem"
-
-msgid "solution"
-msgstr "oplossing"
-
-msgid "context"
-msgstr "context"
-
-msgid "lab errors"
-msgstr "laboratoriumfouten"
-
-msgid "reviewed"
-msgstr "beoordeeld"
-
-msgid "facility"
-msgstr "faciliteit"
-
-msgid "analysis"
-msgstr "analyse"
-
-msgid "result"
-msgstr "resultaat"
-
-msgid "range"
-msgstr "bereik"
-
-msgid "info provided by lab"
-msgstr "informatie gegeven door laboratorium"
-
-msgid "select all requests"
-msgstr "selecteer alle aanvragen"
-
-msgid "mark selected requests as reviewed"
-msgstr "markeer geselecteerde verzoeken als beoordeeld"
-
-msgid "unreviewed results"
-msgstr "onbeoordeelde uitslagen"
-
-msgid ""
-"Cannot load lab journal.\n"
-"You first need to select a patient."
-msgstr ""
-"Kan laboratoriumjournaal niet laden.\n"
-"U moet eerst een patiënt selecteren."
-
-msgid "loading lab journal"
-msgstr "Laboratoriumjournaal laden"
-
-msgid "pending"
-msgstr "in bewerking"
-
-msgid "More unreviewed results available. Review some to see more."
-msgstr ""
-"Meer onbeoordeelde uitslagen beschikbaar. Beoordeel er een aantal om meer te "
-"zien."
-
-msgid ""
-"You must type in a request ID !\n"
-"\n"
-"Usually you will find the request ID written on\n"
-"the barcode sticker on your probe container."
-msgstr ""
-"U moet een verzoek ID ingeven!\n"
-"Meestal vind u de verzoek ID op\n"
-"de barcodesticker op uw container."
-
-msgid "saving request id"
-msgstr "verzoek id bewaren"
-
-msgid "Cannot save lab request."
-msgstr "Kan laboratoriumverzoek niet opslaan"
-
-msgid "No results marked as reviewed."
-msgstr "Geen uitslagen gemarkeerd als beoordeeld."
-
-#, python-format
-msgid ""
-"Cannot mark results as \"reviewed\":\n"
-"%s"
-msgstr ""
-"Kan uitslagen niet markeren als \"beoordeeld\":\n"
-"%s"
-
-msgid "update result status"
-msgstr "status van uitslagen bijwerken"
-
-msgid ""
-"Cannot load lab data.\n"
-"You first need to select a patient."
-msgstr ""
-"Kan laboratoriumgegevens niet laden.\n"
-"U moet eerst een patiënt selecteren."
-
-msgid "loading lab data"
-msgstr "Laboratoriumgegevens laden"
-
-#, python-format
-msgid ""
-"Error loading lab data for patient\n"
-"[%s %s]."
-msgstr ""
-"Fout bij het laden van laboratoriumgegevens van patiënt\n"
-"[%s %s]."
-
-msgid "No lab data available."
-msgstr "Geen laboratoriumgegevens beschikbaar"
 
 #, fuzzy
 msgid "Adding new billable"
@@ -16423,20 +16262,6 @@ msgstr "Patiënt zoeken ..."
 msgid "<type here to search patient>"
 msgstr ""
 
-msgid "EDC (!?!):"
-msgstr ""
-
-#, fuzzy
-msgid "EDC:"
-msgstr "   MTA: %s"
-
-#, fuzzy, python-format
-msgid "%.1f (%s ago)"
-msgstr "Geexporteerd: %s\n"
-
-msgid "eGFR:"
-msgstr ""
-
 #, fuzzy
 msgid " - abnormal"
 msgstr "Episodes: %s"
@@ -16461,9 +16286,23 @@ msgstr ""
 msgid "Problems:"
 msgstr "Probleem"
 
+msgid "EDC (!?!):"
+msgstr ""
+
+#, fuzzy
+msgid "EDC:"
+msgstr "   MTA: %s"
+
 #, fuzzy, python-format
 msgid "No test result for: %s (%s)"
 msgstr "Geen uitslagen geselecteerd voor verwijdering."
+
+#, fuzzy, python-format
+msgid "%.1f (%s ago)"
+msgstr "Geexporteerd: %s\n"
+
+msgid "eGFR:"
+msgstr ""
 
 #, python-format
 msgid "eGFR: %.1f (%s)"
@@ -17980,8 +17819,22 @@ msgid "Cannot connect to PACS."
 msgstr "kan niet verbinden met service [%s]"
 
 #, python-format
-msgid "PACS: Orthanc \"%s\" (AET \"%s\", Version %s, DB v%s)"
+msgid "PACS (Orthanc): \"%s\" (AET \"%s\") [%s]"
 msgstr ""
+
+msgid "no SSL"
+msgstr ""
+
+#, fuzzy
+msgid "SSL: in use"
+msgstr "In gebruik"
+
+msgid "SSL: NOT in use"
+msgstr ""
+
+#, fuzzy
+msgid "Server details:"
+msgstr "Allergieën"
 
 msgid "Known PACS IDs:"
 msgstr ""
@@ -18350,6 +18203,13 @@ msgstr "Meting bewerken"
 #, fuzzy
 msgid "Select the measurements panel to show in the top pane."
 msgstr "Selecteer het soort communicatiekanaal."
+
+#, fuzzy
+msgid "Tab position"
+msgstr "Vertaling"
+
+msgid "Select the main notebook's tab position (top/bottom)."
+msgstr ""
 
 msgid "Review dialog"
 msgstr "Beoordelingsdialoog"
@@ -18765,6 +18625,10 @@ msgid "Import demographics from clipboard (vCard) as patient"
 msgstr ""
 
 #, fuzzy
+msgid "&Import\\u2026"
+msgstr "Rapport"
+
+#, fuzzy
 msgid "Export demographics of currently active person as GDT into clipboard."
 msgstr ""
 "Exporteer de persoonsgegevens van de huidige patiënt naar een GDT-bestand."
@@ -18799,6 +18663,10 @@ msgid "\\u2192 &File as\\u2026"
 msgstr ""
 
 #, fuzzy
+msgid "E&xport\\u2026"
+msgstr "Rapport"
+
+#, fuzzy
 msgid "&Merge persons"
 msgstr "Inschrijven nieuw persoon"
 
@@ -18826,6 +18694,10 @@ msgstr "Inschrjiven als staflid"
 #, fuzzy
 msgid "Enlist current person as GNUmed user"
 msgstr "Huidige patiënt registreren als medewerker"
+
+#, fuzzy
+msgid "&Person"
+msgstr "beschrijvingen..."
 
 #, fuzzy
 msgid "&Past history (health issue / PMH)"
@@ -19348,6 +19220,14 @@ msgstr "Gebruikershandleiding (www)"
 msgid "Go to the User Manual on the web."
 msgstr "Ga naar de gebruikershandleiding op het web."
 
+#, fuzzy
+msgid "Patient search help"
+msgstr "Patiënt zoeken ..."
+
+#, fuzzy
+msgid "Show help on patient search."
+msgstr "Vergrendel/ontgrendel patiënt"
+
 msgid "show"
 msgstr ""
 
@@ -19857,6 +19737,17 @@ msgstr "Formulier"
 msgid "Datenbank"
 msgstr "Datum"
 
+msgid "Select the plugin tab position for the main notebook."
+msgstr ""
+
+#, fuzzy
+msgid "Right"
+msgstr "rechts"
+
+#, fuzzy
+msgid "Plugin tab position"
+msgstr "Voorschrifen"
+
 msgid ""
 "Select the default type for new encounters.\n"
 "\n"
@@ -20261,6 +20152,10 @@ msgstr ""
 #, fuzzy
 msgid "Reference data sources"
 msgstr "&Geneesmiddelen Bronnen"
+
+#, fuzzy
+msgid "Gender definitions"
+msgstr "Rapportdefinitie opgeslagen [%s]."
 
 #, fuzzy
 msgid "Master data management"
@@ -21532,6 +21427,9 @@ msgstr "missend label"
 msgid "Amount is missing."
 msgstr "missend label"
 
+msgid "Amount must be a number."
+msgstr ""
+
 #, fuzzy
 msgid "Substance is missing."
 msgstr "missend label"
@@ -22602,6 +22500,29 @@ msgstr ""
 msgid "Disabling person"
 msgstr "Patiënt op non-aktief zetten"
 
+msgid "Abbreviation needed for gender definition."
+msgstr ""
+
+#, fuzzy
+msgid "Name needed for gender definition."
+msgstr "Bewaar de rapportdefinitie."
+
+#, fuzzy
+msgid "Adding new gender definition"
+msgstr "Nieuwe patiënt toevoegen"
+
+#, fuzzy
+msgid "Editing gender definition"
+msgstr "Kan geen beschrijving van het document toevoegen."
+
+#, fuzzy
+msgid "Managing gender definitions"
+msgstr "Kan geen beschrijving van het document toevoegen."
+
+#, python-format
+msgid "Current language (database): %s"
+msgstr ""
+
 msgid "Type or select a last name (family name/surname)."
 msgstr "Typ of selecteer een achternaam"
 
@@ -22978,6 +22899,15 @@ msgstr "Verifieren van de databaseinstellingen"
 msgid "Connecting to backend"
 msgstr "Verbinden met backend"
 
+#, fuzzy
+msgid "Verifying password security"
+msgstr "Verifieren van de databaseversie"
+
+msgid ""
+"For improved password security please\n"
+"arrange for your password to be re-set."
+msgstr ""
+
 msgid "<restricted procedure>"
 msgstr "<voorbehouden handeling>"
 
@@ -23242,12 +23172,6 @@ msgstr "Afspraken"
 msgid "&Appointments"
 msgstr "Afspraken"
 
-msgid "lab journal"
-msgstr "laboratoriumjournaal"
-
-msgid "Show &lab journal"
-msgstr "Toon &laboratoriumjournaal"
-
 msgid "&PACS"
 msgstr ""
 
@@ -23455,6 +23379,212 @@ msgstr "Afbreken"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Afbreken en GEEN verbinding maken met GNUmed."
+
+#~ msgid "Decrypt"
+#~ msgstr "Ontcijfer"
+
+#~ msgid "Set pass phrase"
+#~ msgstr "Zet wachtwoordzin"
+
+#~ msgid "This is not correctly encrypted text!"
+#~ msgstr "Dit is geen correct versleutelde tekst!"
+
+#~ msgid "Please enter your pass phrase:"
+#~ msgstr "Geef uw wachtwoordzin in:"
+
+#~ msgid "Pass phrase expired"
+#~ msgstr "wachtwoordzin verlopen"
+
+#~ msgid "Laterality"
+#~ msgstr "Lateraliteit"
+
+#~ msgid "Progress Note"
+#~ msgstr "Vooruitgangsrapport"
+
+#~ msgid "N/A"
+#~ msgstr "N.v.t."
+
+#~ msgid "L"
+#~ msgstr "L"
+
+#~ msgid "R"
+#~ msgstr "R"
+
+#~ msgid "both"
+#~ msgstr "Beide"
+
+#~ msgid "significant"
+#~ msgstr "significant"
+
+#~ msgid "Specialty"
+#~ msgstr "Specialiteit"
+
+#~ msgid "Meds"
+#~ msgstr "Medicijnen"
+
+#, fuzzy, python-format
+#~ msgid "%(number)s %(street)s, %(urb)s %(postcode)s"
+#~ msgstr "%(nummer)s %(straat)s, %(stad) %(postcode)s"
+
+#~ msgid "must have a recipient"
+#~ msgstr "moet ontvanger hebben"
+
+#~ msgid "must select address"
+#~ msgstr "moet adres selecteren"
+
+#~ msgid "choose which lab will process the probe with the specified ID"
+#~ msgstr ""
+#~ "kies welk laboratorium het monster met het genoemde ID zal verwerken"
+
+#~ msgid "lab config"
+#~ msgstr "lab configuratie"
+
+#~ msgid "add new request for current patient"
+#~ msgstr "voeg een nieuw verzoek toe voor actieve patiënt"
+
+#~ msgid "Specimen ID"
+#~ msgstr "Secimen ID"
+
+#~ msgid "save lab request"
+#~ msgstr "bewaar laboratoriumverzoek"
+
+#~ msgid "associate chosen lab and ID with current patient"
+#~ msgstr "koppel gekozen laboratorium en ID aan huidige patiënt"
+
+#~ msgid "date"
+#~ msgstr "datum"
+
+#~ msgid "lab"
+#~ msgstr "laboratorium"
+
+#~ msgid "sample id"
+#~ msgstr "monster ID"
+
+#~ msgid "patient"
+#~ msgstr "patiënt"
+
+#~ msgid "status"
+#~ msgstr "status"
+
+#~ msgid "pending requests"
+#~ msgstr "lopende aanvragen"
+
+#~ msgid "noticed when"
+#~ msgstr "opgemerkt toen"
+
+#~ msgid "problem"
+#~ msgstr "probleem"
+
+#~ msgid "solution"
+#~ msgstr "oplossing"
+
+#~ msgid "context"
+#~ msgstr "context"
+
+#~ msgid "lab errors"
+#~ msgstr "laboratoriumfouten"
+
+#~ msgid "reviewed"
+#~ msgstr "beoordeeld"
+
+#~ msgid "facility"
+#~ msgstr "faciliteit"
+
+#~ msgid "analysis"
+#~ msgstr "analyse"
+
+#~ msgid "result"
+#~ msgstr "resultaat"
+
+#~ msgid "range"
+#~ msgstr "bereik"
+
+#~ msgid "info provided by lab"
+#~ msgstr "informatie gegeven door laboratorium"
+
+#~ msgid "select all requests"
+#~ msgstr "selecteer alle aanvragen"
+
+#~ msgid "mark selected requests as reviewed"
+#~ msgstr "markeer geselecteerde verzoeken als beoordeeld"
+
+#~ msgid "unreviewed results"
+#~ msgstr "onbeoordeelde uitslagen"
+
+#~ msgid ""
+#~ "Cannot load lab journal.\n"
+#~ "You first need to select a patient."
+#~ msgstr ""
+#~ "Kan laboratoriumjournaal niet laden.\n"
+#~ "U moet eerst een patiënt selecteren."
+
+#~ msgid "loading lab journal"
+#~ msgstr "Laboratoriumjournaal laden"
+
+#~ msgid "pending"
+#~ msgstr "in bewerking"
+
+#~ msgid "More unreviewed results available. Review some to see more."
+#~ msgstr ""
+#~ "Meer onbeoordeelde uitslagen beschikbaar. Beoordeel er een aantal om meer "
+#~ "te zien."
+
+#~ msgid ""
+#~ "You must type in a request ID !\n"
+#~ "\n"
+#~ "Usually you will find the request ID written on\n"
+#~ "the barcode sticker on your probe container."
+#~ msgstr ""
+#~ "U moet een verzoek ID ingeven!\n"
+#~ "Meestal vind u de verzoek ID op\n"
+#~ "de barcodesticker op uw container."
+
+#~ msgid "saving request id"
+#~ msgstr "verzoek id bewaren"
+
+#~ msgid "Cannot save lab request."
+#~ msgstr "Kan laboratoriumverzoek niet opslaan"
+
+#~ msgid "No results marked as reviewed."
+#~ msgstr "Geen uitslagen gemarkeerd als beoordeeld."
+
+#, python-format
+#~ msgid ""
+#~ "Cannot mark results as \"reviewed\":\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Kan uitslagen niet markeren als \"beoordeeld\":\n"
+#~ "%s"
+
+#~ msgid "update result status"
+#~ msgstr "status van uitslagen bijwerken"
+
+#~ msgid ""
+#~ "Cannot load lab data.\n"
+#~ "You first need to select a patient."
+#~ msgstr ""
+#~ "Kan laboratoriumgegevens niet laden.\n"
+#~ "U moet eerst een patiënt selecteren."
+
+#~ msgid "loading lab data"
+#~ msgstr "Laboratoriumgegevens laden"
+
+#, python-format
+#~ msgid ""
+#~ "Error loading lab data for patient\n"
+#~ "[%s %s]."
+#~ msgstr ""
+#~ "Fout bij het laden van laboratoriumgegevens van patiënt\n"
+#~ "[%s %s]."
+
+#~ msgid "No lab data available."
+#~ msgstr "Geen laboratoriumgegevens beschikbaar"
+
+#~ msgid "lab journal"
+#~ msgstr "laboratoriumjournaal"
+
+#~ msgid "Show &lab journal"
+#~ msgstr "Toon &laboratoriumjournaal"
 
 #, fuzzy
 #~ msgid "Show log file"
@@ -25734,10 +25864,6 @@ msgstr "Afbreken en GEEN verbinding maken met GNUmed."
 #~ msgid "edit form template details"
 #~ msgstr "Wijzig formuliersjabloon detais."
 
-#, fuzzy
-#~ msgid "Save the form template definition."
-#~ msgstr "Bewaar de rapportdefinitie."
-
 #~ msgid "Last modified:"
 #~ msgstr "Laatst gewijzigd:"
 
@@ -25863,10 +25989,6 @@ msgstr "Afbreken en GEEN verbinding maken met GNUmed."
 #, fuzzy
 #~ msgid "provider only"
 #~ msgstr "Provincie"
-
-#, fuzzy
-#~ msgid "About active:"
-#~ msgstr "inactief"
 
 #, fuzzy
 #~ msgid "Active-patient related"

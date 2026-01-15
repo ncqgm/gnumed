@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-24 16:03+0200\n"
+"POT-Creation-Date: 2026-01-03 12:59+0100\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -2909,7 +2909,7 @@ msgid ""
 " [%s]\n"
 "\n"
 "Your system does not seem to have a (working)\n"
-"viewer registered for the file type\n"
+"viewer registered for file type:\n"
 " [%s]"
 msgstr ""
 
@@ -3040,6 +3040,9 @@ msgid "interval_format_tag::weeks::w"
 msgstr ""
 
 msgid "interval_format_tag::days::d"
+msgstr ""
+
+msgid "interval_format_tag::seconds::s"
 msgstr ""
 
 msgid "0 years"
@@ -7733,6 +7736,40 @@ msgstr "Δεν υπάρχουν συνεδρίες για αυτό το επει
 msgid "Nest under"
 msgstr ""
 
+#, fuzzy
+msgid "The name for this gender definition."
+msgstr "Η εμπορική ονομασία του σκευάσματος."
+
+msgid "Translation of name into your language."
+msgstr ""
+
+msgid "An abbreviation for this gender definition."
+msgstr ""
+
+#, fuzzy
+msgid "Translation:"
+msgstr "Μετάφραση"
+
+msgid "Translation of abbreviation into your language."
+msgstr ""
+
+msgid "Symbol"
+msgstr "Σύμβολο"
+
+msgid "Symbolic representation for this gender."
+msgstr ""
+
+#, fuzzy
+msgid "Alternative:"
+msgstr "ανενεργό"
+
+msgid "Symbol for this gender appropriate to your culture."
+msgstr ""
+
+#, fuzzy
+msgid "A descriptive comment on this gender definition."
+msgstr "Η ενεργός ουσία για αυτό το σκεύασμα."
+
 msgid "Generic multi line text entry dialog"
 msgstr ""
 
@@ -9372,6 +9409,86 @@ msgstr ""
 msgid "Result dates: %s"
 msgstr "Αποτελέσματα"
 
+msgid "Clinical data generated during encounters within this episode:"
+msgstr ""
+"Κλινικά ευρήματα κατά τη διάρκεια επισκέψεων εν μέσω αυτού του περιστατικού:"
+
+msgid "Error retrieving encounters for this episode."
+msgstr "Σφάλμα κατά την ανάκτηση των συνεδριών για αυτό το επεισόδιο."
+
+#, python-format
+msgid "Last worked on: %s\n"
+msgstr "Εργάστηκε για τελευταία φορά στις:%s\n"
+
+#, python-format
+msgid "%s encounter(s) (%s - %s):"
+msgstr "%s αντιμετωπίσετε(s) (% s -% s):"
+
+#, python-format
+msgid "1st and (up to 3) most recent (of %s) encounters (%s - %s):"
+msgstr "1η και (μέχρι 3) πιο πρόσφατες (από %s) συνεδρίες  (%s - %s):"
+
+msgid "RFE"
+msgstr ""
+
+msgid "AOE"
+msgstr "AOE"
+
+#, fuzzy, python-format
+msgid " %s %s skipped %s"
+msgstr " ...%s παραλείφθηκε ..."
+
+msgid "Progress notes in most recent encounter:"
+msgstr "Σημειώσεις προόδου στις πιο πρόσφατη συνεδρία:"
+
+#, python-format
+msgid "Episode %s%s%s   [#%s]"
+msgstr "Επεισόδια %s%s%s [#%s]"
+
+#, fuzzy, python-format
+msgid "Created during encounter: %s (%s - %s)   [#%s]"
+msgstr "RFE"
+
+#, fuzzy, python-format
+msgid " Duration: %s (%s)"
+msgstr " Διάρκεια: %s (%s - %s)"
+
+msgid "finished"
+msgstr "ολοκληρώθηκε"
+
+msgid "none associated"
+msgstr ""
+
+#, python-format
+msgid "Documents: %s"
+msgstr "Αρχεία:%s"
+
+#, fuzzy, python-format
+msgid "Hospitalizations: %s"
+msgstr "Ενδονοσοκομειακές διαμονές:%s"
+
+#, python-format
+msgid "Procedures performed: %s"
+msgstr "Οι διαδικασίες που εκτελούνται:% s"
+
+#, python-format
+msgid "Family History: %s"
+msgstr "Οικογενειακό Ιστορικό: %s"
+
+msgid "Measurements and Results:"
+msgstr "Μετρήσεις και Αποτελέσματα:"
+
+msgid "Vaccinations:"
+msgstr "Εμβολιασμοί:"
+
+#, fuzzy, python-format
+msgid "Episode: %s%s%s"
+msgstr "Επεισόδια %s%s%s [#%s]"
+
+#, python-format
+msgid "%s so far"
+msgstr ""
+
 #, python-format
 msgid ""
 "This item points to a directory on the computer named:\n"
@@ -9762,6 +9879,21 @@ msgstr "αλλεργίες/δυσανεξίες"
 msgid "Allergy detail: %s"
 msgstr "Λεπτομέριες αλλεργίας"
 
+msgid "male"
+msgstr "άνδρας"
+
+msgid "female"
+msgstr "γυναίκα"
+
+msgid "unknown gender"
+msgstr "άγνωστο γένος"
+
+msgid "Mr"
+msgstr "Κύριος"
+
+msgid "Mrs"
+msgstr "Κυρία"
+
 msgid "expired"
 msgstr ""
 
@@ -9810,6 +9942,93 @@ msgid ""
 "\n"
 "The account was deactivated instead."
 msgstr ""
+
+msgid "A: Sign"
+msgstr "Α: Σημεία"
+
+msgid "B: Cluster of signs"
+msgstr "Β: Σύμπλεγμα από σημεία"
+
+msgid "C: Syndromic diagnosis"
+msgstr "C: Συνδρομική διάγνωση"
+
+msgid "D: Scientific diagnosis"
+msgstr "D: Επιστημονική διάγνωση"
+
+#, python-format
+msgid "<%s>: unknown diagnostic certainty classification"
+msgstr "<% s>: άγνωστη διαγνωστικά βεβαιότητα  ταξινόμησης"
+
+msgid "bilateral"
+msgstr "αμφίπλευρη"
+
+msgid "Clinical data generated during encounters under this health issue:"
+msgstr ""
+"Κλινικά ευρήματα κατά τη διάρκεια προηγούμενων επισκέψεων αναφορικά με το εν "
+"λόγω θέμα υγείας:"
+
+msgid "Error retrieving episodes for this health issue."
+msgstr "Σφάλμα κατά την ανάκτηση των επεισοδίων για το θέμα αυτό της υγείας."
+
+msgid "There are no episodes for this health issue."
+msgstr "Δεν υπάρχουν επεισόδια για αυτό το θέμα υγείας."
+
+#, python-format
+msgid "Episodes: %s (most recent: %s%s%s)"
+msgstr "Επεισόδια:%s(πιο πρόσφατο:%s%s%s)"
+
+msgid "ongoing"
+msgstr "συνεχιζόμενες"
+
+msgid "closed"
+msgstr "έχει κλείσει"
+
+msgid "No encounters found for this health issue."
+msgstr "Δεν βρέθηκαν συνεδρίες για αυτό το θέμα υγείας."
+
+#, python-format
+msgid "Encounters: %s (%s - %s):"
+msgstr "Συνεδρίες: %s (%s - %s):"
+
+#, python-format
+msgid " Most recent: %s - %s"
+msgstr " Πιο πρόσφατο:%s-%s"
+
+#, python-format
+msgid "Measurements and Results: %s"
+msgstr "Μετρήσεις και Αποτελέσματα:%s"
+
+#, python-format
+msgid "Health Issue %s%s%s%s   [#%s]"
+msgstr "Θέμα υγείας %s%s%s%s[#%s]"
+
+msgid " ***** CONFIDENTIAL *****"
+msgstr " ****ΕΜΠΙΣΤΕΥΤΙΚΟ****"
+
+msgid " contributed to death of patient"
+msgstr " συνέβαλε στο θάνατο του ασθενούς"
+
+#, python-format
+msgid " Created during encounter: %s (%s - %s)   [#%s]"
+msgstr " Δημιουργήθηκε κατά την διάρκεια της συνεδρίας:%s(%s - %s) [#%s]"
+
+#, python-format
+msgid " Noted at age: %s"
+msgstr " Επισημάνθηκε στην ηλικία:%s"
+
+msgid "not clinically relevant"
+msgstr "Κλινικά μη συναφή"
+
+#, fuzzy
+msgid "External care:"
+msgstr "ID εξωτερικού ασθενούς"
+
+#, fuzzy, python-format
+msgid "Health issue: %s%s%s"
+msgstr "θέμα υγείας:%s"
+
+msgid "Unattributed episodes"
+msgstr "Μη καθορισμένα επεισόδια"
 
 msgid "SOAP_char_S=S"
 msgstr ""
@@ -9995,9 +10214,6 @@ msgstr "θέμα υγείας:%s"
 msgid "open"
 msgstr ""
 
-msgid "closed"
-msgstr "έχει κλείσει"
-
 #, fuzzy, python-format
 msgid "Episode: %s"
 msgstr "Επεισόδια %s%s%s [#%s]"
@@ -10114,21 +10330,6 @@ msgstr ""
 #, python-format
 msgid "invalid age: DOB [%s] after reference date [%s] (%s)"
 msgstr ""
-
-msgid "male"
-msgstr "άνδρας"
-
-msgid "female"
-msgstr "γυναίκα"
-
-msgid "unknown gender"
-msgstr "άγνωστο γένος"
-
-msgid "Mr"
-msgstr "Κύριος"
-
-msgid "Mrs"
-msgstr "Κυρία"
 
 #, fuzzy
 msgid "empty status"
@@ -10264,26 +10465,6 @@ msgid ""
 msgstr "σχόλιο"
 
 #, python-format
-msgid "Result from %s             \n"
-msgstr ""
-
-#, python-format
-msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
-msgstr ""
-
-#, python-format
-msgid "%(sso)sResult: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "Status: %s\n"
-msgstr "Κατάσταση"
-
-#, fuzzy, python-format
-msgid "Grouping: %s\n"
-msgstr " Κωδικός: %s\n"
-
-#, python-format
 msgid "%.1f %% of the normal lower limit"
 msgstr ""
 
@@ -10314,34 +10495,6 @@ msgstr ""
 #, python-format
 msgid "%.0f times the target upper limit"
 msgstr ""
-
-#, python-format
-msgid "Standard normal range: %s\n"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "Clinical target range: %s\n"
-msgstr "Κλινικές λεπτομέρειες"
-
-#, python-format
-msgid "Reference group: %s\n"
-msgstr ""
-
-#, python-format
-msgid "Episode: %s\n"
-msgstr ""
-
-#, python-format
-msgid "Issue: %s\n"
-msgstr ""
-
-#, python-format
-msgid "Material: %s\n"
-msgstr ""
-
-#, python-format
-msgid "Details: %s\n"
-msgstr "Λεπτομέρειες: %s\n"
 
 msgid "not yet"
 msgstr ""
@@ -10374,6 +10527,54 @@ msgstr "ναι"
 #, fuzzy, python-format
 msgid " Clinically relevant: %(relevant)s\n"
 msgstr " Κλινικά συναφή:%(σχετικά)ο\n"
+
+#, python-format
+msgid "Result from %s             \n"
+msgstr ""
+
+#, python-format
+msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
+msgstr ""
+
+#, python-format
+msgid "%(sso)sResult: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Status: %s\n"
+msgstr "Κατάσταση"
+
+#, fuzzy, python-format
+msgid "Grouping: %s\n"
+msgstr " Κωδικός: %s\n"
+
+#, python-format
+msgid "Standard normal range: %s\n"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Clinical target range: %s\n"
+msgstr "Κλινικές λεπτομέρειες"
+
+#, python-format
+msgid "Reference group: %s\n"
+msgstr ""
+
+#, python-format
+msgid "Episode: %s\n"
+msgstr ""
+
+#, python-format
+msgid "Issue: %s\n"
+msgstr ""
+
+#, python-format
+msgid "Material: %s\n"
+msgstr ""
+
+#, python-format
+msgid "Details: %s\n"
+msgstr "Λεπτομέρειες: %s\n"
 
 msgid "Test type details:\n"
 msgstr ""
@@ -10524,6 +10725,38 @@ msgstr ""
 #, fuzzy, python-format
 msgid "From: %s @ %s"
 msgstr "Εργαστήριο: %s\n"
+
+msgid " (ongoing)"
+msgstr " (εξερχόμενο)"
+
+#, fuzzy
+msgid "Comment: "
+msgstr "Σχόλιο:"
+
+#, python-format
+msgid "  your time: %s - %s  (@%s = %s%s)\n"
+msgstr "  Ο χρόνος:%s - %s (@%s = %s%s)\n"
+
+msgid "daylight savings time in effect"
+msgstr "αλλαγή θερινής - χειμερινής ώρας είναι ενεργή"
+
+#, fuzzy, python-format
+msgid "Location: %s (%s)"
+msgstr "Ογανισμός: %s (%s)"
+
+#, fuzzy, python-format
+msgid ""
+"\n"
+"Episode %s%s%s%s:"
+msgstr "Επεισόδια %s%s%s [#%s]"
+
+#, python-format
+msgid "%s other episodes touched upon during this encounter:"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Encounter: %s%s%s"
+msgstr "Συνεδρίες: %s (%s - %s):"
 
 msgid "Cannot run [arriba] !"
 msgstr "Δεν μπορεί να τρέξει το [Arriba]!"
@@ -10820,202 +11053,6 @@ msgstr ""
 #, python-format
 msgid "Organization: %s (%s)"
 msgstr "Ογανισμός: %s (%s)"
-
-msgid "A: Sign"
-msgstr "Α: Σημεία"
-
-msgid "B: Cluster of signs"
-msgstr "Β: Σύμπλεγμα από σημεία"
-
-msgid "C: Syndromic diagnosis"
-msgstr "C: Συνδρομική διάγνωση"
-
-msgid "D: Scientific diagnosis"
-msgstr "D: Επιστημονική διάγνωση"
-
-#, python-format
-msgid "<%s>: unknown diagnostic certainty classification"
-msgstr "<% s>: άγνωστη διαγνωστικά βεβαιότητα  ταξινόμησης"
-
-msgid "bilateral"
-msgstr "αμφίπλευρη"
-
-msgid "Clinical data generated during encounters under this health issue:"
-msgstr ""
-"Κλινικά ευρήματα κατά τη διάρκεια προηγούμενων επισκέψεων αναφορικά με το εν "
-"λόγω θέμα υγείας:"
-
-#, python-format
-msgid "Health Issue %s%s%s%s   [#%s]"
-msgstr "Θέμα υγείας %s%s%s%s[#%s]"
-
-msgid " ***** CONFIDENTIAL *****"
-msgstr " ****ΕΜΠΙΣΤΕΥΤΙΚΟ****"
-
-msgid " contributed to death of patient"
-msgstr " συνέβαλε στο θάνατο του ασθενούς"
-
-#, python-format
-msgid " Created during encounter: %s (%s - %s)   [#%s]"
-msgstr " Δημιουργήθηκε κατά την διάρκεια της συνεδρίας:%s(%s - %s) [#%s]"
-
-#, python-format
-msgid " Noted at age: %s"
-msgstr " Επισημάνθηκε στην ηλικία:%s"
-
-msgid "not clinically relevant"
-msgstr "Κλινικά μη συναφή"
-
-msgid "Error retrieving episodes for this health issue."
-msgstr "Σφάλμα κατά την ανάκτηση των επεισοδίων για το θέμα αυτό της υγείας."
-
-msgid "There are no episodes for this health issue."
-msgstr "Δεν υπάρχουν επεισόδια για αυτό το θέμα υγείας."
-
-#, python-format
-msgid "Episodes: %s (most recent: %s%s%s)"
-msgstr "Επεισόδια:%s(πιο πρόσφατο:%s%s%s)"
-
-msgid "ongoing"
-msgstr "συνεχιζόμενες"
-
-msgid "No encounters found for this health issue."
-msgstr "Δεν βρέθηκαν συνεδρίες για αυτό το θέμα υγείας."
-
-#, python-format
-msgid "Encounters: %s (%s - %s):"
-msgstr "Συνεδρίες: %s (%s - %s):"
-
-#, python-format
-msgid " Most recent: %s - %s"
-msgstr " Πιο πρόσφατο:%s-%s"
-
-#, fuzzy, python-format
-msgid "Hospitalizations: %s"
-msgstr "Ενδονοσοκομειακές διαμονές:%s"
-
-#, python-format
-msgid "Procedures performed: %s"
-msgstr "Οι διαδικασίες που εκτελούνται:% s"
-
-#, python-format
-msgid "Family History: %s"
-msgstr "Οικογενειακό Ιστορικό: %s"
-
-#, python-format
-msgid "Documents: %s"
-msgstr "Αρχεία:%s"
-
-#, python-format
-msgid "Measurements and Results: %s"
-msgstr "Μετρήσεις και Αποτελέσματα:%s"
-
-msgid "Vaccinations:"
-msgstr "Εμβολιασμοί:"
-
-#, fuzzy
-msgid "External care:"
-msgstr "ID εξωτερικού ασθενούς"
-
-#, fuzzy, python-format
-msgid "Health issue: %s%s%s"
-msgstr "θέμα υγείας:%s"
-
-msgid "Unattributed episodes"
-msgstr "Μη καθορισμένα επεισόδια"
-
-msgid "Clinical data generated during encounters within this episode:"
-msgstr ""
-"Κλινικά ευρήματα κατά τη διάρκεια επισκέψεων εν μέσω αυτού του περιστατικού:"
-
-#, python-format
-msgid "Episode %s%s%s   [#%s]"
-msgstr "Επεισόδια %s%s%s [#%s]"
-
-#, fuzzy, python-format
-msgid "Created during encounter: %s (%s - %s)   [#%s]"
-msgstr "RFE"
-
-#, fuzzy, python-format
-msgid " Duration: %s (%s)"
-msgstr " Διάρκεια: %s (%s - %s)"
-
-msgid "finished"
-msgstr "ολοκληρώθηκε"
-
-msgid "none associated"
-msgstr ""
-
-msgid "Error retrieving encounters for this episode."
-msgstr "Σφάλμα κατά την ανάκτηση των συνεδριών για αυτό το επεισόδιο."
-
-#, python-format
-msgid "Last worked on: %s\n"
-msgstr "Εργάστηκε για τελευταία φορά στις:%s\n"
-
-#, python-format
-msgid "%s encounter(s) (%s - %s):"
-msgstr "%s αντιμετωπίσετε(s) (% s -% s):"
-
-#, python-format
-msgid "1st and (up to 3) most recent (of %s) encounters (%s - %s):"
-msgstr "1η και (μέχρι 3) πιο πρόσφατες (από %s) συνεδρίες  (%s - %s):"
-
-msgid "RFE"
-msgstr ""
-
-msgid "AOE"
-msgstr "AOE"
-
-#, fuzzy, python-format
-msgid " %s %s skipped %s"
-msgstr " ...%s παραλείφθηκε ..."
-
-msgid "Progress notes in most recent encounter:"
-msgstr "Σημειώσεις προόδου στις πιο πρόσφατη συνεδρία:"
-
-msgid "Measurements and Results:"
-msgstr "Μετρήσεις και Αποτελέσματα:"
-
-#, fuzzy, python-format
-msgid "Episode: %s%s%s"
-msgstr "Επεισόδια %s%s%s [#%s]"
-
-#, python-format
-msgid "%s so far"
-msgstr ""
-
-#, python-format
-msgid "  your time: %s - %s  (@%s = %s%s)\n"
-msgstr "  Ο χρόνος:%s - %s (@%s = %s%s)\n"
-
-msgid "daylight savings time in effect"
-msgstr "αλλαγή θερινής - χειμερινής ώρας είναι ενεργή"
-
-#, fuzzy, python-format
-msgid "Location: %s (%s)"
-msgstr "Ογανισμός: %s (%s)"
-
-#, fuzzy, python-format
-msgid ""
-"\n"
-"Episode %s%s%s%s:"
-msgstr "Επεισόδια %s%s%s [#%s]"
-
-#, python-format
-msgid "%s other episodes touched upon during this encounter:"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "Encounter: %s%s%s"
-msgstr "Συνεδρίες: %s (%s - %s):"
-
-msgid " (ongoing)"
-msgstr " (εξερχόμενο)"
-
-#, fuzzy
-msgid "Comment: "
-msgstr "Σχόλιο:"
 
 #, fuzzy
 msgid "Care Period"
@@ -12072,21 +12109,6 @@ msgstr ""
 msgid "Enlisting person as user."
 msgstr ""
 
-msgid "Decrypt"
-msgstr "&Αποκρυπτογράφηση"
-
-msgid "Set pass phrase"
-msgstr ""
-
-msgid "This is not correctly encrypted text!"
-msgstr ""
-
-msgid "Please enter your pass phrase:"
-msgstr "Παρακαλώ δώστε τον κωδικό πρόσβασης σας:"
-
-msgid "Pass phrase expired"
-msgstr "Ο κωδικός έχει λήξει."
-
 msgid "Regenerating generic vaccines"
 msgstr ""
 
@@ -12949,9 +12971,6 @@ msgstr "Κυριλλικά"
 msgid "Four Es"
 msgstr ""
 
-msgid "Symbol"
-msgstr "Σύμβολο"
-
 msgid "Snellen Chart"
 msgstr "Πίνακας Snellen"
 
@@ -13631,46 +13650,6 @@ msgstr ""
 msgid "initialize input fields for new entry"
 msgstr ""
 
-msgid "Laterality"
-msgstr ""
-
-msgid "Progress Note"
-msgstr ""
-
-msgid "N/A"
-msgstr ""
-
-msgid "L"
-msgstr ""
-
-msgid "R"
-msgstr ""
-
-msgid "both"
-msgstr "αμφότερα"
-
-msgid "significant"
-msgstr ""
-
-msgid "Specialty"
-msgstr "Ειδικότητα"
-
-msgid "Meds"
-msgstr ""
-
-msgid "Past Hx"
-msgstr ""
-
-#, python-format
-msgid "%(number)s %(street)s, %(urb)s %(postcode)s"
-msgstr ""
-
-msgid "must have a recipient"
-msgstr ""
-
-msgid "must select address"
-msgstr ""
-
 msgid "Ok"
 msgstr "Εντάξει"
 
@@ -13966,140 +13945,6 @@ msgid ""
 "Supposedly there are conflicting vaccinations\n"
 "for patient [%s]. However, I cannot find\n"
 "that patient in the GNUmed database."
-msgstr ""
-
-msgid "choose which lab will process the probe with the specified ID"
-msgstr ""
-
-msgid "lab config"
-msgstr ""
-
-msgid "add new request for current patient"
-msgstr ""
-
-msgid "Specimen ID"
-msgstr ""
-
-msgid "save lab request"
-msgstr ""
-
-msgid "associate chosen lab and ID with current patient"
-msgstr ""
-
-msgid "date"
-msgstr "ημέρα"
-
-msgid "lab"
-msgstr "εργαστήριο"
-
-msgid "sample id"
-msgstr ""
-
-msgid "patient"
-msgstr "ασθενής"
-
-msgid "status"
-msgstr "κατάσταση"
-
-msgid "pending requests"
-msgstr ""
-
-msgid "noticed when"
-msgstr ""
-
-msgid "problem"
-msgstr "πρόβλημα"
-
-msgid "solution"
-msgstr ""
-
-msgid "context"
-msgstr "σχετιζόμενο"
-
-msgid "lab errors"
-msgstr ""
-
-msgid "reviewed"
-msgstr ""
-
-msgid "facility"
-msgstr ""
-
-msgid "analysis"
-msgstr "ανάλυση"
-
-msgid "result"
-msgstr "αποτέλεσμα"
-
-msgid "range"
-msgstr "εύρος"
-
-msgid "info provided by lab"
-msgstr ""
-
-msgid "select all requests"
-msgstr ""
-
-msgid "mark selected requests as reviewed"
-msgstr ""
-
-msgid "unreviewed results"
-msgstr ""
-
-msgid ""
-"Cannot load lab journal.\n"
-"You first need to select a patient."
-msgstr ""
-
-msgid "loading lab journal"
-msgstr ""
-
-msgid "pending"
-msgstr "εκκρεμεί"
-
-msgid "More unreviewed results available. Review some to see more."
-msgstr ""
-
-msgid ""
-"You must type in a request ID !\n"
-"\n"
-"Usually you will find the request ID written on\n"
-"the barcode sticker on your probe container."
-msgstr ""
-
-msgid "saving request id"
-msgstr ""
-
-msgid "Cannot save lab request."
-msgstr ""
-
-msgid "No results marked as reviewed."
-msgstr ""
-
-#, python-format
-msgid ""
-"Cannot mark results as \"reviewed\":\n"
-"%s"
-msgstr ""
-
-msgid "update result status"
-msgstr ""
-
-msgid ""
-"Cannot load lab data.\n"
-"You first need to select a patient."
-msgstr ""
-
-msgid "loading lab data"
-msgstr ""
-
-#, python-format
-msgid ""
-"Error loading lab data for patient\n"
-"[%s %s]."
-msgstr ""
-
-msgid "No lab data available."
 msgstr ""
 
 #, fuzzy
@@ -15984,20 +15829,6 @@ msgstr ""
 msgid "<type here to search patient>"
 msgstr ""
 
-msgid "EDC (!?!):"
-msgstr ""
-
-#, fuzzy
-msgid "EDC:"
-msgstr "Ημερομηνία: %s\n"
-
-#, fuzzy, python-format
-msgid "%.1f (%s ago)"
-msgstr "Ημερομηνία: %s\n"
-
-msgid "eGFR:"
-msgstr ""
-
 #, fuzzy
 msgid " - abnormal"
 msgstr " Κωδικός: %s\n"
@@ -16022,9 +15853,23 @@ msgstr "Οικογενειακό Ιστορικό: %s"
 msgid "Problems:"
 msgstr "Πρόβλημα"
 
+msgid "EDC (!?!):"
+msgstr ""
+
+#, fuzzy
+msgid "EDC:"
+msgstr "Ημερομηνία: %s\n"
+
 #, fuzzy, python-format
 msgid "No test result for: %s (%s)"
 msgstr "Χωρίς αποτελέσματα της εξέτασης προς μορφοποίηση."
+
+#, fuzzy, python-format
+msgid "%.1f (%s ago)"
+msgstr "Ημερομηνία: %s\n"
+
+msgid "eGFR:"
+msgstr ""
 
 #, python-format
 msgid "eGFR: %.1f (%s)"
@@ -17378,8 +17223,22 @@ msgid "Cannot connect to PACS."
 msgstr ""
 
 #, python-format
-msgid "PACS: Orthanc \"%s\" (AET \"%s\", Version %s, DB v%s)"
+msgid "PACS (Orthanc): \"%s\" (AET \"%s\") [%s]"
 msgstr ""
+
+msgid "no SSL"
+msgstr ""
+
+#, fuzzy
+msgid "SSL: in use"
+msgstr "σε χρήση"
+
+msgid "SSL: NOT in use"
+msgstr ""
+
+#, fuzzy
+msgid "Server details:"
+msgstr "Λεπτομέριες αλλεργίας"
 
 msgid "Known PACS IDs:"
 msgstr ""
@@ -17729,6 +17588,13 @@ msgstr "Μετρήσεις"
 #, fuzzy
 msgid "Select the measurements panel to show in the top pane."
 msgstr "Επέλεξε πρότυπο για την εκτύπωση της φαρμακευτικής αγωγής."
+
+#, fuzzy
+msgid "Tab position"
+msgstr "Μετάφραση"
+
+msgid "Select the main notebook's tab position (top/bottom)."
+msgstr ""
 
 msgid "Review dialog"
 msgstr ""
@@ -18101,6 +17967,10 @@ msgstr ""
 msgid "Import demographics from clipboard (vCard) as patient"
 msgstr ""
 
+#, fuzzy
+msgid "&Import\\u2026"
+msgstr "Εισαγωγή"
+
 msgid "Export demographics of currently active person as GDT into clipboard."
 msgstr ""
 
@@ -18125,6 +17995,10 @@ msgstr ""
 msgid "\\u2192 &File as\\u2026"
 msgstr ""
 
+#, fuzzy
+msgid "E&xport\\u2026"
+msgstr "Αναφορά"
+
 msgid "&Merge persons"
 msgstr ""
 
@@ -18148,6 +18022,10 @@ msgstr ""
 
 msgid "Enlist current person as GNUmed user"
 msgstr ""
+
+#, fuzzy
+msgid "&Person"
+msgstr "Προσθέστε Άτομο"
 
 msgid "&Past history (health issue / PMH)"
 msgstr ""
@@ -18625,6 +18503,14 @@ msgstr "Εγχειρίδιο χρήστη (www)"
 msgid "Go to the User Manual on the web."
 msgstr ""
 
+#, fuzzy
+msgid "Patient search help"
+msgstr "Εξαγωγή στο &πρόχειρο"
+
+#, fuzzy
+msgid "Show help on patient search."
+msgstr "Εξαγωγή στο &πρόχειρο"
+
 msgid "show"
 msgstr ""
 
@@ -19042,6 +18928,17 @@ msgstr ""
 msgid "Datenbank"
 msgstr "Ημέρα"
 
+msgid "Select the plugin tab position for the main notebook."
+msgstr ""
+
+#, fuzzy
+msgid "Right"
+msgstr "δεξιά"
+
+#, fuzzy
+msgid "Plugin tab position"
+msgstr "Συνταγές"
+
 msgid ""
 "Select the default type for new encounters.\n"
 "\n"
@@ -19316,6 +19213,9 @@ msgid "Billable items"
 msgstr ""
 
 msgid "Reference data sources"
+msgstr ""
+
+msgid "Gender definitions"
 msgstr ""
 
 msgid "Master data management"
@@ -20522,6 +20422,9 @@ msgstr "Περιγραφή"
 msgid "Amount is missing."
 msgstr "η ετικέτα λείπει."
 
+msgid "Amount must be a number."
+msgstr ""
+
 #, fuzzy
 msgid "Substance is missing."
 msgstr "η ετικέτα λείπει."
@@ -21494,6 +21397,27 @@ msgstr ""
 msgid "Disabling person"
 msgstr ""
 
+msgid "Abbreviation needed for gender definition."
+msgstr ""
+
+msgid "Name needed for gender definition."
+msgstr ""
+
+#, fuzzy
+msgid "Adding new gender definition"
+msgstr "Προσθήκη νέου ονόματος"
+
+#, fuzzy
+msgid "Editing gender definition"
+msgstr "Επεξεργασία φαρμακευτικής αγωγής"
+
+msgid "Managing gender definitions"
+msgstr ""
+
+#, python-format
+msgid "Current language (database): %s"
+msgstr ""
+
 msgid "Type or select a last name (family name/surname)."
 msgstr ""
 
@@ -21800,6 +21724,14 @@ msgstr ""
 msgid "Connecting to backend"
 msgstr "Σύνδεση στο σύστημα υποστήριξης"
 
+msgid "Verifying password security"
+msgstr ""
+
+msgid ""
+"For improved password security please\n"
+"arrange for your password to be re-set."
+msgstr ""
+
 msgid "<restricted procedure>"
 msgstr ""
 
@@ -22029,12 +21961,6 @@ msgstr "Ραντεβού"
 msgid "&Appointments"
 msgstr "&Ραντεβού"
 
-msgid "lab journal"
-msgstr "εραστηριακό ημερολόγιο"
-
-msgid "Show &lab journal"
-msgstr "Δείξε &εργαστηριακό ημερολόγιο"
-
 msgid "&PACS"
 msgstr ""
 
@@ -22214,6 +22140,57 @@ msgstr "Ματαίωση"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUmed."
+
+#~ msgid "Decrypt"
+#~ msgstr "&Αποκρυπτογράφηση"
+
+#~ msgid "Please enter your pass phrase:"
+#~ msgstr "Παρακαλώ δώστε τον κωδικό πρόσβασης σας:"
+
+#~ msgid "Pass phrase expired"
+#~ msgstr "Ο κωδικός έχει λήξει."
+
+#~ msgid "both"
+#~ msgstr "αμφότερα"
+
+#~ msgid "Specialty"
+#~ msgstr "Ειδικότητα"
+
+#~ msgid "date"
+#~ msgstr "ημέρα"
+
+#~ msgid "lab"
+#~ msgstr "εργαστήριο"
+
+#~ msgid "patient"
+#~ msgstr "ασθενής"
+
+#~ msgid "status"
+#~ msgstr "κατάσταση"
+
+#~ msgid "problem"
+#~ msgstr "πρόβλημα"
+
+#~ msgid "context"
+#~ msgstr "σχετιζόμενο"
+
+#~ msgid "analysis"
+#~ msgstr "ανάλυση"
+
+#~ msgid "result"
+#~ msgstr "αποτέλεσμα"
+
+#~ msgid "range"
+#~ msgstr "εύρος"
+
+#~ msgid "pending"
+#~ msgstr "εκκρεμεί"
+
+#~ msgid "lab journal"
+#~ msgstr "εραστηριακό ημερολόγιο"
+
+#~ msgid "Show &lab journal"
+#~ msgstr "Δείξε &εργαστηριακό ημερολόγιο"
 
 #, fuzzy
 #~ msgid "EMR &Timeline"
@@ -23693,10 +23670,6 @@ msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUme
 #~ msgid "provider only"
 #~ msgstr "Πάροχος"
 
-#, fuzzy
-#~ msgid "About active:"
-#~ msgstr "ανενεργό"
-
 #~ msgid "Active-patient related"
 #~ msgstr "Σχετιζόμενο με τον ενεργό ασθενή"
 
@@ -23732,9 +23705,6 @@ msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUme
 
 #~ msgid "Add an Employee"
 #~ msgstr "Προσθέστε ένα Εργαζόμενο"
-
-#~ msgid "Add Person"
-#~ msgstr "Προσθέστε Άτομο"
 
 #~ msgid "Sort A to Z"
 #~ msgstr "Ταξινόμηση Α προς Ω"
