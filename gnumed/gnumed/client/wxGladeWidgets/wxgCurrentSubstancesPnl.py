@@ -76,25 +76,25 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
 
 		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
 
-		self._BTN_add = wx.Button(self, wx.ID_ADD, "", style=wx.BU_EXACTFIT)
+		self._BTN_add = wx.Button(self, wx.ID_ADD, "")
 		self._BTN_add.SetToolTip(_("Add intake."))
 		__szr_buttons.Add(self._BTN_add, 0, wx.EXPAND, 5)
 
-		self._BTN_edit = wx.Button(self, wx.ID_ANY, _("&Edit"), style=wx.BU_EXACTFIT)
+		self._BTN_edit = wx.Button(self, wx.ID_ANY, _("&Edit"))
 		self._BTN_edit.SetToolTip(_("Edit selected intake."))
 		__szr_buttons.Add(self._BTN_edit, 0, wx.EXPAND | wx.LEFT, 5)
 
-		self._BTN_delete = wx.Button(self, wx.ID_DELETE, "", style=wx.BU_EXACTFIT)
+		self._BTN_delete = wx.Button(self, wx.ID_DELETE, "")
 		self._BTN_delete.SetToolTip(_("Delete selected intake."))
 		__szr_buttons.Add(self._BTN_delete, 0, wx.EXPAND | wx.LEFT, 5)
 
 		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
 
-		self._BTN_print = wx.Button(self, wx.ID_PRINT, "", style=wx.BU_EXACTFIT)
+		self._BTN_print = wx.Button(self, wx.ID_PRINT, "")
 		self._BTN_print.SetToolTip(_("Print medication list."))
 		__szr_buttons.Add(self._BTN_print, 0, wx.EXPAND, 5)
 
-		self._BTN_rx = wx.Button(self, wx.ID_ANY, _(u"℞"), style=wx.BU_EXACTFIT)
+		self._BTN_rx = wx.Button(self, wx.ID_ANY, _(u"℞"))
 		self._BTN_rx.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
 		self._BTN_rx.SetToolTip(_("Prescribe:\n\n- selected substances or\n- via copy of the most recent prescription"))
 		__szr_buttons.Add(self._BTN_rx, 0, wx.EXPAND | wx.LEFT, 5)
@@ -129,19 +129,19 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
 
 		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
 
-		self._BTN_interactions = wx.Button(self, wx.ID_ANY, _(u"🗘?"), style=wx.BU_EXACTFIT)
+		self._BTN_interactions = wx.Button(self, wx.ID_ANY, _(u"🗘?"))
 		self._BTN_interactions.SetForegroundColour(wx.Colour(255, 127, 0))
 		self._BTN_interactions.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
 		self._BTN_interactions.SetToolTip(_("Check for interactions between selected drugs.\n\nIncludes all drugs if none selected."))
 		__szr_buttons.Add(self._BTN_interactions, 0, wx.EXPAND, 5)
 
-		self._BTN_allergy = wx.Button(self, wx.ID_ANY, _(u"⚠!"), style=wx.BU_EXACTFIT)
+		self._BTN_allergy = wx.Button(self, wx.ID_ANY, _(u"⚠!"))
 		self._BTN_allergy.SetForegroundColour(wx.Colour(255, 0, 0))
 		self._BTN_allergy.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
 		self._BTN_allergy.SetToolTip(_("Discontinue selected intake due to an allergy or intolerance."))
 		__szr_buttons.Add(self._BTN_allergy, 0, wx.EXPAND | wx.LEFT, 3)
 
-		self._BTN_adr = wx.Button(self, wx.ID_ANY, _(u"🖄"), style=wx.BU_EXACTFIT)
+		self._BTN_adr = wx.Button(self, wx.ID_ANY, _(u"🖄"))
 		self._BTN_adr.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
 		self._BTN_adr.SetToolTip(_("Report an Adverse Drug Reaction."))
 		__szr_buttons.Add(self._BTN_adr, 0, wx.EXPAND | wx.LEFT, 3)

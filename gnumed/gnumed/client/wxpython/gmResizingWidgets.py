@@ -102,11 +102,12 @@ class cPopupFrame(wx.Frame):
 		self.win.SetFocus ()
 	#------------------------------------------------
 	def __do_layout(self):
-		self.__BTN_OK = wx.Button (self, -1, _("OK"), style=wx.BU_EXACTFIT)
-		self.__BTN_Cancel = wx.Button (self, -1, _("Cancel"), style=wx.BU_EXACTFIT)
+		self.__BTN_OK = wx.Button (self, -1, _("OK"))
+		self.__BTN_Cancel = wx.Button (self, -1, _("Cancel"))
 		szr_btns = wx.BoxSizer (wx.HORIZONTAL)
-		szr_btns.Add(self.__BTN_OK, 0, 0)
-		szr_btns.Add(self.__BTN_Cancel, 0, 0)
+		szr_btns.AddStretchSpacer(1) # keep right aligned?
+		szr_btns.Add(self.__BTN_OK, 0, wx.ALL, 5)
+		szr_btns.Add(self.__BTN_Cancel, 0, wx.ALL, 5)
 
 		szr_main = wx.BoxSizer(wx.VERTICAL)
 		szr_main.Add(self.win, 1, wx.EXPAND, 0)

@@ -20,8 +20,8 @@ class wxgPersonSocialNetworkManagerPnl(wx.Panel):
 		wx.Panel.__init__(self, *args, **kwds)
 		from Gnumed.wxpython.gmPatSearchWidgets import cPersonSearchCtrl
 		self._TCTRL_person = cPersonSearchCtrl(self, wx.ID_ANY, "")
-		self._BTN_activate_contact = wx.Button(self, wx.ID_ANY, _("Activate"), style=wx.BU_EXACTFIT)
-		self._BTN_remove_contact = wx.Button(self, wx.ID_REMOVE, "", style=wx.BU_EXACTFIT)
+		self._BTN_activate_contact = wx.Button(self, wx.ID_ANY, _("Activate"))
+		self._BTN_remove_contact = wx.Button(self, wx.ID_REMOVE, "")
 		self._TCTRL_er_contact = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_MULTILINE | wx.TE_WORDWRAP)
 		from Gnumed.wxpython.gmStaffWidgets import cProviderPhraseWheel
 		self._PRW_provider = cProviderPhraseWheel(self, wx.ID_ANY, "")

@@ -21,7 +21,7 @@ class wxgMeasurementEditAreaPnl(wx.Panel):
 		self.SetSize((640, 525))
 		from Gnumed.wxpython.gmMeasurementWidgets import cMeasurementTypePhraseWheel
 		self._PRW_test = cMeasurementTypePhraseWheel(self, wx.ID_ANY, "")
-		self._BTN_test_info = wx.Button(self, wx.ID_ANY, _("Info"), style=wx.BU_EXACTFIT)
+		self._BTN_test_info = wx.Button(self, wx.ID_ANY, _("Info"))
 		self._TCTRL_loinc = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_READONLY)
 		self._TCTRL_previous_value = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_READONLY)
 		self._TCTRL_result = wx.TextCtrl(self, wx.ID_ANY, "")
@@ -36,7 +36,7 @@ class wxgMeasurementEditAreaPnl(wx.Panel):
 		self._PRW_intended_reviewer = cProviderPhraseWheel(self, wx.ID_ANY, "")
 		from Gnumed.wxpython.gmEMRStructWidgets import cEpisodeSelectionPhraseWheel
 		self._PRW_problem = cEpisodeSelectionPhraseWheel(self, wx.ID_ANY, "")
-		self._BTN_manage_episodes = wx.Button(self, wx.ID_ANY, _("&Manage"), style=wx.BU_EXACTFIT)
+		self._BTN_manage_episodes = wx.Button(self, wx.ID_ANY, _("&Manage"))
 		self._TCTRL_narrative = wx.TextCtrl(self, wx.ID_ANY, "")
 		self._CHBOX_review = wx.CheckBox(self, wx.ID_ANY, _("&Sign"))
 		self._CHBOX_abnormal = wx.CheckBox(self, wx.ID_ANY, _("&Abnormal"))

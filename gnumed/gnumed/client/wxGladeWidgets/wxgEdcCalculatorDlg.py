@@ -27,8 +27,8 @@ class wxgEdcCalculatorDlg(wx.Dialog):
 		self._TCTRL_details = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_MULTILINE | wx.TE_WORDWRAP)
 		self._CALCTRL = wx.adv.CalendarCtrl(self, wx.ID_ANY, style=wx.adv.CAL_SHOW_SURROUNDING_WEEKS)
 		self._TCTRL_algo = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_MULTILINE | wx.TE_WORDWRAP)
-		self._BTN_save = wx.Button(self, wx.ID_SAVE, "", style=wx.BU_EXACTFIT)
-		self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, "", style=wx.BU_EXACTFIT)
+		self._BTN_save = wx.Button(self, wx.ID_SAVE, "")
+		self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, "")
 
 		self.__set_properties()
 		self.__do_layout()

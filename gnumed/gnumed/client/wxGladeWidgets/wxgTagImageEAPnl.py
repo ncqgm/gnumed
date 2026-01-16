@@ -48,7 +48,7 @@ class wxgTagImageEAPnl(wx.ScrolledWindow):
 		self._BMP_image.SetToolTip(_("The image to use for the tag.\n\nDo not use a big image because the tag will be downscaled anyway."))
 		__szr_image.Add(self._BMP_image, 0, wx.ALIGN_CENTER | wx.ALL, 3)
 		
-		self._BTN_pick_image = wx.Button(self, wx.ID_ANY, _("&Pick"), style=wx.BU_EXACTFIT)
+		self._BTN_pick_image = wx.Button(self, wx.ID_ANY, _("&Pick"))
 		self._BTN_pick_image.SetToolTip(_("Pick the file from which to load the tag image."))
 		__szr_image.Add(self._BTN_pick_image, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		

@@ -53,7 +53,7 @@ class wxgReceiverSelectionDlg(wx.Dialog):
 
 		__fgszr_selected.Add((20, 20), 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 
-		self._BTN_manage_addresses = wx.Button(self, wx.ID_ANY, _("&Manage"), style=wx.BU_EXACTFIT)
+		self._BTN_manage_addresses = wx.Button(self, wx.ID_ANY, _("&Manage"))
 		self._BTN_manage_addresses.SetToolTip(_("Manage generic list of all addresses."))
 		__fgszr_selected.Add(self._BTN_manage_addresses, 0, wx.ALIGN_CENTER, 3)
 
@@ -140,7 +140,7 @@ class wxgReceiverSelectionDlg(wx.Dialog):
 		self._PRW_org_unit.SetToolTip(_("Select the organizational unit you want to write to."))
 		__szr_org_unit.Add(self._PRW_org_unit, 1, wx.ALIGN_CENTER_VERTICAL, 0)
 
-		self._BTN_manage_orgs = wx.Button(self, wx.ID_ANY, _("&Manage"), style=wx.BU_EXACTFIT)
+		self._BTN_manage_orgs = wx.Button(self, wx.ID_ANY, _("&Manage"))
 		self._BTN_manage_orgs.SetToolTip(_("Manage known organizations and units thereof."))
 		__szr_org_unit.Add(self._BTN_manage_orgs, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 

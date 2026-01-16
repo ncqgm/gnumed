@@ -22,7 +22,7 @@ class wxgExternalCareEAPnl(wx.ScrolledWindow):
 		self._PRW_issue = cIssueSelectionPhraseWheel(self, wx.ID_ANY, "")
 		from Gnumed.wxpython.gmOrganizationWidgets import cOrgUnitPhraseWheel
 		self._PRW_care_location = cOrgUnitPhraseWheel(self, wx.ID_ANY, "")
-		self._BTN_manage_orgs = wx.Button(self, wx.ID_ANY, _("&Manage"), style=wx.BU_EXACTFIT)
+		self._BTN_manage_orgs = wx.Button(self, wx.ID_ANY, _("&Manage"))
 		from Gnumed.wxpython.gmTextCtrl import cTextCtrl
 		self._TCTRL_provider = cTextCtrl(self, wx.ID_ANY, "")
 		self._TCTRL_comment = cTextCtrl(self, wx.ID_ANY, "")

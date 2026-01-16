@@ -29,9 +29,9 @@ class wxgSubstanceEAPnl(wx.ScrolledWindow):
 		self._TCTRL_instructions = cTextCtrl(self, wx.ID_ANY, "")
 		self._HL_loinc_list = wx.adv.HyperlinkCtrl(self, wx.ID_ANY, _("LOINCs"), _("https://search.loinc.org"), style=wx.adv.HL_DEFAULT_STYLE)
 		self._PRW_loinc = cLOINCPhraseWheel(self, wx.ID_ANY, "")
-		self._BTN_add_loinc = wx.Button(self, wx.ID_ANY, _("Add"), style=wx.BU_EXACTFIT)
+		self._BTN_add_loinc = wx.Button(self, wx.ID_ANY, _("Add"))
 		self._LCTRL_loincs = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
-		self._BTN_remove_loincs = wx.Button(self, wx.ID_ANY, _("Remove"), style=wx.BU_EXACTFIT)
+		self._BTN_remove_loincs = wx.Button(self, wx.ID_ANY, _("Remove"))
 
 		self.__set_properties()
 		self.__do_layout()

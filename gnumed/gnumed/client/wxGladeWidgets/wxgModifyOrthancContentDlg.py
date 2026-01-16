@@ -21,11 +21,11 @@ class wxgModifyOrthancContentDlg(wx.Dialog):
 		kwds["style"] = kwds.get("style", 0) | wx.CAPTION | wx.CLOSE_BOX | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX | wx.RESIZE_BORDER
 		wx.Dialog.__init__(self, *args, **kwds)
 		self._TCTRL_search_term = cTextCtrl(self, wx.ID_ANY, "")
-		self._BTN_search_patients = wx.Button(self, wx.ID_ANY, _("&Search"), style=wx.BU_EXACTFIT)
+		self._BTN_search_patients = wx.Button(self, wx.ID_ANY, _("&Search"))
 		self._LCTRL_patients = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
 		self._TCTRL_new_patient_id = wx.TextCtrl(self, wx.ID_ANY, "")
-		self._BTN_suggest_patient_id = wx.Button(self, wx.ID_ANY, _("Suggest"), style=wx.BU_EXACTFIT)
-		self._BTN_set_patient_id = wx.Button(self, wx.ID_ANY, _("Set"), style=wx.BU_EXACTFIT)
+		self._BTN_suggest_patient_id = wx.Button(self, wx.ID_ANY, _("Suggest"))
+		self._BTN_set_patient_id = wx.Button(self, wx.ID_ANY, _("Set"))
 
 		self.__set_properties()
 		self.__do_layout()

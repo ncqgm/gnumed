@@ -21,9 +21,9 @@ class wxgOrgUnitAddressPnl(wx.ScrolledWindow):
 		self._LBL_message = wx.StaticText(self, wx.ID_ANY, "", style=wx.ALIGN_CENTER)
 		from Gnumed.wxpython.gmAddressWidgets import cAddressPhraseWheel
 		self._PRW_address_searcher = cAddressPhraseWheel(self, wx.ID_ANY, "")
-		self._BTN_save_picked_address = wx.Button(self, wx.ID_ANY, _("&Link"), style=wx.BU_EXACTFIT)
-		self._BTN_add_new_address = wx.Button(self, wx.ID_ANY, _("Link &new"), style=wx.BU_EXACTFIT)
-		self._BTN_manage_addresses = wx.Button(self, wx.ID_ANY, _("Browse"), style=wx.BU_EXACTFIT)
+		self._BTN_save_picked_address = wx.Button(self, wx.ID_ANY, _("&Link"))
+		self._BTN_add_new_address = wx.Button(self, wx.ID_ANY, _("Link &new"))
+		self._BTN_manage_addresses = wx.Button(self, wx.ID_ANY, _("Browse"))
 
 		self.__set_properties()
 		self.__do_layout()

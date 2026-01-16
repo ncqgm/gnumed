@@ -37,7 +37,7 @@ class wxgItemPickerDlg(wx.Dialog):
 
 		__szr_move_buttons.Add((20, 20), 2, wx.EXPAND, 0)
 
-		self._BTN_left2right = wx.Button(self, wx.ID_ANY, _(u"→"), style=wx.BU_EXACTFIT)
+		self._BTN_left2right = wx.Button(self, wx.ID_ANY, _(u"→"))
 		self._BTN_left2right.SetFont(wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, 0, ""))
 		self._BTN_left2right.SetToolTip(_("Move selected items from left to right."))
 		self._BTN_left2right.Enable(False)
@@ -45,7 +45,7 @@ class wxgItemPickerDlg(wx.Dialog):
 
 		__szr_move_buttons.Add((20, 20), 1, wx.EXPAND, 0)
 
-		self._BTN_right2left = wx.Button(self, wx.ID_ANY, _(u"←"), style=wx.BU_EXACTFIT)
+		self._BTN_right2left = wx.Button(self, wx.ID_ANY, _(u"←"))
 		self._BTN_right2left.SetFont(wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, 0, ""))
 		self._BTN_right2left.SetToolTip(_("Move selected items from right to left."))
 		self._BTN_right2left.Enable(False)
@@ -72,7 +72,7 @@ class wxgItemPickerDlg(wx.Dialog):
 
 		__szr_action_buttons.Add((20, 20), 1, wx.EXPAND, 0)
 
-		self._BTN_extra = wx.Button(self, wx.ID_ANY, _("Extra"), style=wx.BU_EXACTFIT)
+		self._BTN_extra = wx.Button(self, wx.ID_ANY, _("Extra"))
 		self._BTN_extra.Enable(False)
 		self._BTN_extra.Hide()
 		__szr_action_buttons.Add(self._BTN_extra, 0, wx.ALIGN_CENTER_VERTICAL, 0)

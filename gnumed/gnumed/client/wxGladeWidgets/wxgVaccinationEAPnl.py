@@ -54,7 +54,7 @@ class wxgVaccinationEAPnl(wx.ScrolledWindow):
 		self._PRW_vaccine = cVaccinePhraseWheel(self, wx.ID_ANY, "")
 		__szr_vaccine_details.Add(self._PRW_vaccine, 1, wx.EXPAND | wx.RIGHT, 5)
 
-		self._BTN_add_vaccine = wx.Button(self, wx.ID_ANY, _(" + "), style=wx.BU_EXACTFIT)
+		self._BTN_add_vaccine = wx.Button(self, wx.ID_ANY, _(" + "))
 		self._BTN_add_vaccine.SetToolTip(_("Add a vaccine to GNUmed."))
 		__szr_vaccine_details.Add(self._BTN_add_vaccine, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 

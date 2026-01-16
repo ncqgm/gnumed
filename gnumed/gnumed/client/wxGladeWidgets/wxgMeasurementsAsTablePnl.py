@@ -21,12 +21,12 @@ class wxgMeasurementsAsTablePnl(wx.Panel):
 		wx.Panel.__init__(self, *args, **kwds)
 		from Gnumed.wxpython.gmMeasurementWidgets import cMeasurementsGrid
 		self._GRID_results_all = cMeasurementsGrid(self, wx.ID_ANY, size=(1, 1))
-		self._BTN_manage_types = wx.Button(self, wx.ID_ANY, _("Manage types"), style=wx.BU_EXACTFIT)
-		self._BTN_add = wx.Button(self, wx.ID_ADD, "", style=wx.BU_EXACTFIT)
-		self._BTN_select = wx.Button(self, wx.ID_ANY, _("&Select:"), style=wx.BU_EXACTFIT)
+		self._BTN_manage_types = wx.Button(self, wx.ID_ANY, _("Manage types"))
+		self._BTN_add = wx.Button(self, wx.ID_ADD, "")
+		self._BTN_select = wx.Button(self, wx.ID_ANY, _("&Select:"))
 		self._RBTN_my_unsigned = wx.RadioButton(self, wx.ID_ANY, _("your unsigned (&Y)"))
 		self._RBTN_all_unsigned = wx.RadioButton(self, wx.ID_ANY, _("all unsigned (&A)"))
-		self._BTN_review = wx.Button(self, wx.ID_ANY, _("&Actions ... "), style=wx.BU_EXACTFIT)
+		self._BTN_review = wx.Button(self, wx.ID_ANY, _("&Actions ... "))
 
 		self.__set_properties()
 		self.__do_layout()

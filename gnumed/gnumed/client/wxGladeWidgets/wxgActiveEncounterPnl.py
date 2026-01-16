@@ -21,7 +21,7 @@ class wxgActiveEncounterPnl(wx.Panel):
 
 		__szr_main = wx.BoxSizer(wx.HORIZONTAL)
 
-		self._BTN_list = wx.Button(self, wx.ID_ANY, _(" &L "), style=wx.BU_EXACTFIT)
+		self._BTN_list = wx.Button(self, wx.ID_ANY, _(" &L "))
 		self._BTN_list.SetToolTip(_("List all encounters."))
 		__szr_main.Add(self._BTN_list, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 2)
 
@@ -29,7 +29,7 @@ class wxgActiveEncounterPnl(wx.Panel):
 		self._TCTRL_encounter.SetToolTip(_("The encounter."))
 		__szr_main.Add(self._TCTRL_encounter, 1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 2)
 
-		self._BTN_new = wx.Button(self, wx.ID_ANY, _(" &N "), style=wx.BU_EXACTFIT)
+		self._BTN_new = wx.Button(self, wx.ID_ANY, _(" &N "))
 		self._BTN_new.SetToolTip(_("Start a new encounter for the active patient."))
 		__szr_main.Add(self._BTN_new, 0, wx.ALIGN_CENTER_VERTICAL, 1)
 
