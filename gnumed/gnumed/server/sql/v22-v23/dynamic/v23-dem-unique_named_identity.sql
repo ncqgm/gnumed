@@ -76,7 +76,7 @@ BEGIN
 		WHERE id = ANY(_names_pks)
 	LOOP
 		-- there must not be any combination of identical
-		-- (dob, firstname, lastname, identity.comment)
+		-- 	(dob, firstname, lastname, identity.comment)
 		-- so, look for clashing rows
 		SELECT dem.get_person_duplicates (
 			_identity_row.dob,
@@ -85,29 +85,31 @@ BEGIN
 			_identity_row.gender,
 			_identity_row.comment
 		) INTO _other_identities;
-
-		-- not needed anymore because we now use a BEFORE trigger
-		-- but not the currently updated or inserted row
-		--	d_i.pk != _identity_row.pk
-		--;
-
-		IF coalesce(array_length(_other_identities, 1), 0) > 0 THEN
-			RAISE EXCEPTION
-				''[dem.assert_unique_named_identity] % on %.%: More than one person with (firstnames=%), (lastnames=%), (dob=%), (gender=%), (comment=%): % & %'',
-					TG_OP,
-					TG_TABLE_SCHEMA,
-					TG_TABLE_NAME,
-					_names_row.firstnames,
-					_names_row.lastnames,
-					_identity_row.dob,
-					_identity_row.gender,
-					_identity_row.comment,
-					_identity_row.pk,
-					_other_identities
-				USING ERRCODE = ''unique_violation''
-			;
+		IF coalesce(array_length(_other_identities, 1), 0) = 0 THEN
+			-- no dupes found, happens on INSERT
 			RETURN NULL;
 		END IF;
+		IF coalesce(array_length(_other_identities, 1), 0) = 1 THEN
+			IF _other_identities[1] = _identity_row.pk THEN
+				-- no real dupes found, only found existing record, happens on UPDATE
+				RETURN NULL;
+			END IF;
+		END IF;
+		RAISE EXCEPTION
+			''[dem.assert_unique_named_identity] % on %.%: More than one person with (firstnames=%), (lastnames=%), (dob=%), (gender=%), (comment=%): % & %'',
+				TG_OP,
+				TG_TABLE_SCHEMA,
+				TG_TABLE_NAME,
+				_names_row.firstnames,
+				_names_row.lastnames,
+				_identity_row.dob,
+				_identity_row.gender,
+				_identity_row.comment,
+				_identity_row.pk,
+				_other_identities
+			USING ERRCODE = ''unique_violation''
+		;
+		RETURN NULL;
 	END LOOP;
 	return NEW;
 END;';
