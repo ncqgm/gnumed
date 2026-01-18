@@ -158,7 +158,10 @@ class Psql:
 									curs.close()
 									return 1
 						for notice in self.conn.notices:
-							_log.debug(notice.replace('\n', '/').replace('\n', '/'))
+							for line in notice.split('\n'):
+								line = line.strip('\n').strip()
+								if line:
+									_log.debug(line)
 						del self.conn.notices[:]
 
 					self.conn.commit()
