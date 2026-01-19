@@ -18,66 +18,75 @@ class wxgPersonSocialNetworkManagerPnl(wx.Panel):
 		# begin wxGlade: wxgPersonSocialNetworkManagerPnl.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.BORDER_NONE | wx.TAB_TRAVERSAL
 		wx.Panel.__init__(self, *args, **kwds)
-		from Gnumed.wxpython.gmPatSearchWidgets import cPersonSearchCtrl
-		self._TCTRL_person = cPersonSearchCtrl(self, wx.ID_ANY, "")
-		self._BTN_activate_contact = wx.Button(self, wx.ID_ANY, _("Activate"), style=wx.BU_EXACTFIT)
-		self._BTN_remove_contact = wx.Button(self, wx.ID_REMOVE, "", style=wx.BU_EXACTFIT)
-		self._TCTRL_er_contact = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_MULTILINE | wx.TE_WORDWRAP)
-		from Gnumed.wxpython.gmStaffWidgets import cProviderPhraseWheel
-		self._PRW_provider = cProviderPhraseWheel(self, wx.ID_ANY, "")
-		self._BTN_save = wx.Button(self, wx.ID_SAVE, "")
-		self._BTN_reload = wx.Button(self, wx.ID_REVERT_TO_SAVED, "")
-		from Gnumed.wxpython.gmExternalCareWidgets import cExternalCareMgrPnl
-		self._PNL_external_care = cExternalCareMgrPnl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.TAB_TRAVERSAL)
 
-		self.__set_properties()
-		self.__do_layout()
-
-		self.Bind(wx.EVT_BUTTON, self._on_button_activate_contact_pressed, self._BTN_activate_contact)
-		self.Bind(wx.EVT_BUTTON, self._on_remove_contact_button_pressed, self._BTN_remove_contact)
-		self.Bind(wx.EVT_BUTTON, self._on_save_button_pressed, self._BTN_save)
-		self.Bind(wx.EVT_BUTTON, self._on_reload_button_pressed, self._BTN_reload)
-		# end wxGlade
-
-	def __set_properties(self):
-		# begin wxGlade: wxgPersonSocialNetworkManagerPnl.__set_properties
-		self._TCTRL_person.SetToolTip(_("Link another person in this database as the emergency contact:\n\nEnter person name part or identifier and hit <enter>."))
-		self._BTN_activate_contact.SetToolTip(_("Make the emergency contact the active patient."))
-		self._TCTRL_er_contact.SetToolTip(_("Notes relevant to emergency situations regarding this patient.\n\nExamples:\n - contact details of significant others\n - where to find documents on DNR decisions"))
-		self._PRW_provider.SetToolTip(_("Choose the provider the patient considers his or her primary provider in this praxis."))
-		self._BTN_save.SetDefault()
-		self._BTN_reload.SetToolTip(_("Reload details from the database."))
-		# end wxGlade
-
-	def __do_layout(self):
-		# begin wxGlade: wxgPersonSocialNetworkManagerPnl.__do_layout
 		__szr_main = wx.BoxSizer(wx.VERTICAL)
-		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
+
 		__gzsr_details = wx.FlexGridSizer(3, 2, 1, 3)
-		__szr_db_link = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_main.Add(__gzsr_details, 0, wx.BOTTOM | wx.EXPAND, 5)
+
 		__lbl_er_contact = wx.StaticText(self, wx.ID_ANY, _("Emergency contact (in DB)"))
 		__gzsr_details.Add(__lbl_er_contact, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_db_link.Add(self._TCTRL_person, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.RIGHT, 5)
-		__szr_db_link.Add(self._BTN_activate_contact, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.RIGHT, 5)
-		__szr_db_link.Add(self._BTN_remove_contact, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 5)
+
+		__szr_db_link = wx.BoxSizer(wx.HORIZONTAL)
 		__gzsr_details.Add(__szr_db_link, 1, wx.EXPAND, 0)
+
+		from Gnumed.wxpython.gmPatSearchWidgets import cPersonSearchCtrl
+		self._TCTRL_person = cPersonSearchCtrl(self, wx.ID_ANY, "")
+		self._TCTRL_person.SetToolTip(_("Link another person in this database as the emergency contact:\n\nEnter person name part or identifier and hit <enter>."))
+		__szr_db_link.Add(self._TCTRL_person, 1, wx.EXPAND | wx.RIGHT, 5)
+
+		self._BTN_activate_contact = wx.Button(self, wx.ID_ANY, _("Activate"), style=wx.BU_EXACTFIT)
+		self._BTN_activate_contact.SetToolTip(_("Make the emergency contact the active patient."))
+		__szr_db_link.Add(self._BTN_activate_contact, 0, wx.EXPAND | wx.RIGHT, 5)
+
+		self._BTN_remove_contact = wx.Button(self, wx.ID_REMOVE, "", style=wx.BU_EXACTFIT)
+		__szr_db_link.Add(self._BTN_remove_contact, 0, wx.EXPAND, 5)
+
 		__lbl_er_notes = wx.StaticText(self, wx.ID_ANY, _("Emergency notes"))
 		__gzsr_details.Add(__lbl_er_notes, 0, 0, 0)
+
+		self._TCTRL_er_contact = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_MULTILINE | wx.TE_WORDWRAP)
+		self._TCTRL_er_contact.SetToolTip(_("Notes relevant to emergency situations regarding this patient.\n\nExamples:\n - contact details of significant others\n - where to find documents on DNR decisions"))
 		__gzsr_details.Add(self._TCTRL_er_contact, 1, wx.EXPAND, 0)
+
 		_lbl_primary_doc = wx.StaticText(self, wx.ID_ANY, _("In-praxis primary doc"))
 		__gzsr_details.Add(_lbl_primary_doc, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		from Gnumed.wxpython.gmStaffWidgets import cProviderPhraseWheel
+		self._PRW_provider = cProviderPhraseWheel(self, wx.ID_ANY, "")
+		self._PRW_provider.SetToolTip(_("Choose the provider the patient considers his or her primary provider in this praxis."))
 		__gzsr_details.Add(self._PRW_provider, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__gzsr_details.AddGrowableCol(1)
-		__szr_main.Add(__gzsr_details, 0, wx.BOTTOM | wx.EXPAND, 5)
-		__szr_buttons.Add((20, 20), 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__szr_buttons.Add(self._BTN_save, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
-		__szr_buttons.Add(self._BTN_reload, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_buttons.Add((20, 20), 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
+		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_main.Add(__szr_buttons, 0, wx.EXPAND, 0)
+
+		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+
+		self._BTN_save = wx.Button(self, wx.ID_SAVE, "")
+		self._BTN_save.SetDefault()
+		__szr_buttons.Add(self._BTN_save, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
+
+		self._BTN_reload = wx.Button(self, wx.ID_REVERT_TO_SAVED, "")
+		self._BTN_reload.SetToolTip(_("Reload details from the database."))
+		__szr_buttons.Add(self._BTN_reload, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+
+		from Gnumed.wxpython.gmExternalCareWidgets import cExternalCareMgrPnl
+		self._PNL_external_care = cExternalCareMgrPnl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.TAB_TRAVERSAL)
 		__szr_main.Add(self._PNL_external_care, 1, wx.EXPAND | wx.TOP, 5)
+
+		__gzsr_details.AddGrowableCol(1)
+
 		self.SetSizer(__szr_main)
 		__szr_main.Fit(self)
+
 		self.Layout()
+
+		self._BTN_activate_contact.Bind(wx.EVT_BUTTON, self._on_button_activate_contact_pressed)
+		self._BTN_remove_contact.Bind(wx.EVT_BUTTON, self._on_remove_contact_button_pressed)
+		self._BTN_save.Bind(wx.EVT_BUTTON, self._on_save_button_pressed)
+		self._BTN_reload.Bind(wx.EVT_BUTTON, self._on_reload_button_pressed)
 		# end wxGlade
 
 	def _on_button_activate_contact_pressed(self, event):  # wxGlade: wxgPersonSocialNetworkManagerPnl.<event_handler>

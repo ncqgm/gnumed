@@ -2100,14 +2100,22 @@ if __name__ == "__main__":
 		wx.GetApp().MainLoop()
 
 	#--------------------------------------------------------
+	def test_pat_edit_nb_pnl():
+		gmGuiTest.test_widget (
+			cNotebookedPatEditionPanel,
+			# *widget_args:
+			-1,
+			#patient = -1,
+			#size = None,
+			setup_db = True
+			#, **widget_kwargs:
+		)
+
+	#--------------------------------------------------------
 	#test_gender_def_ea()
-	test_manage_gender_defs()
+	#test_manage_gender_defs()
+	test_pat_edit_nb_pnl()
 
-
-#		app = wx.PyWidgetTester(size = (400, 300))
-#		app.SetWidget(cNotebookedPatEditionPanel, -1)
-#		app.frame.Show(True)
-#		app.MainLoop()
 
 		# phrasewheels
 #		test_organizer_pnl()

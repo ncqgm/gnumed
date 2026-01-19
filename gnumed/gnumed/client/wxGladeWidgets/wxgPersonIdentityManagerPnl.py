@@ -18,48 +18,49 @@ class wxgPersonIdentityManagerPnl(wx.ScrolledWindow):
 		# begin wxGlade: wxgPersonIdentityManagerPnl.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.BORDER_NONE | wx.TAB_TRAVERSAL
 		wx.ScrolledWindow.__init__(self, *args, **kwds)
-		from Gnumed.wxpython.gmDemographicsWidgets import cIdentityEAPnl
-		self._PNL_identity = cIdentityEAPnl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.TAB_TRAVERSAL)
-		self._BTN_save_identity = wx.Button(self, wx.ID_SAVE, "", style=wx.BU_EXACTFIT)
-		self._BTN_reload_identity = wx.Button(self, wx.ID_REVERT_TO_SAVED, "", style=wx.BU_EXACTFIT)
-		from Gnumed.wxpython.gmDemographicsWidgets import cPersonNamesManagerPnl
-		self._PNL_names = cPersonNamesManagerPnl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.TAB_TRAVERSAL)
-		from Gnumed.wxpython.gmDemographicsWidgets import cPersonIDsManagerPnl
-		self._PNL_ids = cPersonIDsManagerPnl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.TAB_TRAVERSAL)
-
-		self.__set_properties()
-		self.__do_layout()
-
-		self.Bind(wx.EVT_BUTTON, self._on_save_identity_details_button_pressed, self._BTN_save_identity)
-		self.Bind(wx.EVT_BUTTON, self._on_reload_identity_button_pressed, self._BTN_reload_identity)
-		# end wxGlade
-
-	def __set_properties(self):
-		# begin wxGlade: wxgPersonIdentityManagerPnl.__set_properties
 		self.SetFocus()
 		self.SetScrollRate(10, 10)
-		self._BTN_save_identity.SetToolTip(_("Save the identity details."))
-		self._BTN_reload_identity.SetToolTip(_("Reload identity from the database."))
-		# end wxGlade
 
-	def __do_layout(self):
-		# begin wxGlade: wxgPersonIdentityManagerPnl.__do_layout
 		__szr_main = wx.BoxSizer(wx.VERTICAL)
+
 		__szr_top = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_identity = wx.BoxSizer(wx.VERTICAL)
-		__szr_identity_buttons = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_identity.Add(self._PNL_identity, 1, wx.BOTTOM | wx.EXPAND, 3)
-		__szr_identity_buttons.Add(self._BTN_save_identity, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
-		__szr_identity_buttons.Add(self._BTN_reload_identity, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_identity_buttons.Add((20, 20), 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__szr_identity.Add(__szr_identity_buttons, 0, wx.EXPAND, 0)
-		__szr_top.Add(__szr_identity, 2, wx.EXPAND | wx.RIGHT, 10)
-		__szr_top.Add(self._PNL_names, 4, wx.EXPAND, 5)
 		__szr_main.Add(__szr_top, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 5)
+
+		__szr_identity = wx.BoxSizer(wx.VERTICAL)
+		__szr_top.Add(__szr_identity, 2, wx.EXPAND | wx.RIGHT, 10)
+
+		from Gnumed.wxpython.gmDemographicsWidgets import cIdentityEAPnl
+		self._PNL_identity = cIdentityEAPnl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.TAB_TRAVERSAL)
+		__szr_identity.Add(self._PNL_identity, 1, wx.BOTTOM | wx.EXPAND, 3)
+
+		__szr_identity_buttons = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_identity.Add(__szr_identity_buttons, 0, wx.EXPAND, 0)
+
+		self._BTN_save_identity = wx.Button(self, wx.ID_SAVE, "", style=wx.BU_EXACTFIT)
+		self._BTN_save_identity.SetToolTip(_("Save the identity details."))
+		__szr_identity_buttons.Add(self._BTN_save_identity, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
+
+		self._BTN_reload_identity = wx.Button(self, wx.ID_REVERT_TO_SAVED, "", style=wx.BU_EXACTFIT)
+		self._BTN_reload_identity.SetToolTip(_("Reload identity from the database."))
+		__szr_identity_buttons.Add(self._BTN_reload_identity, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		__szr_identity_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+
+		from Gnumed.wxpython.gmDemographicsWidgets import cPersonNamesManagerPnl
+		self._PNL_names = cPersonNamesManagerPnl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.TAB_TRAVERSAL)
+		__szr_top.Add(self._PNL_names, 4, wx.EXPAND, 5)
+
+		from Gnumed.wxpython.gmDemographicsWidgets import cPersonIDsManagerPnl
+		self._PNL_ids = cPersonIDsManagerPnl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.TAB_TRAVERSAL)
 		__szr_main.Add(self._PNL_ids, 1, wx.ALL | wx.EXPAND, 5)
+
 		self.SetSizer(__szr_main)
 		__szr_main.Fit(self)
+
 		self.Layout()
+
+		self._BTN_save_identity.Bind(wx.EVT_BUTTON, self._on_save_identity_details_button_pressed)
+		self._BTN_reload_identity.Bind(wx.EVT_BUTTON, self._on_reload_identity_button_pressed)
 		# end wxGlade
 
 	def _on_save_identity_details_button_pressed(self, event):  # wxGlade: wxgPersonIdentityManagerPnl.<event_handler>
