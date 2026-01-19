@@ -37,6 +37,25 @@ _log = logging.getLogger('gm.guitest')
 
 #==============================================================================
 def test_widget(widget_class, *widget_args, patient:int=-1, size=None, setup_db:bool=True, **widget_kwargs):
+	"""Test a wxPython widget.
+
+	Typical use:
+
+		gmGuiTest.test_widget (
+			a_widget_class,
+			# *widget_args:
+			-1,					# say, for window ID
+			#patient = -1,		# ask
+			#size = None,
+			setup_db = True		# use TUI for setting up DB access
+			#, **widget_kwargs:
+			#other kw args needed for widget
+		)
+
+	Args:
+		patient: None=no patient, -1=ask, else=patient PK
+		setup_db: setup db connection using TUI
+	"""
 	if setup_db:
 		gmPG2.request_login_params(setup_pool = True, force_tui = True)
 	gmPraxis.gmCurrentPraxisBranch.from_first_branch()
