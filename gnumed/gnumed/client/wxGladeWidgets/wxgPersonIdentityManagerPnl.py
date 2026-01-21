@@ -21,38 +21,38 @@ class wxgPersonIdentityManagerPnl(wx.ScrolledWindow):
 		self.SetFocus()
 		self.SetScrollRate(10, 10)
 
-		__szr_main = wx.BoxSizer(wx.VERTICAL)
-
-		__szr_top = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_main.Add(__szr_top, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 5)
+		__szr_main = wx.BoxSizer(wx.HORIZONTAL)
 
 		__szr_identity = wx.BoxSizer(wx.VERTICAL)
-		__szr_top.Add(__szr_identity, 2, wx.EXPAND | wx.RIGHT, 10)
+		__szr_main.Add(__szr_identity, 2, wx.ALL | wx.EXPAND, 3)
 
 		from Gnumed.wxpython.gmDemographicsWidgets import cIdentityEAPnl
 		self._PNL_identity = cIdentityEAPnl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.TAB_TRAVERSAL)
-		__szr_identity.Add(self._PNL_identity, 1, wx.BOTTOM | wx.EXPAND, 3)
+		__szr_identity.Add(self._PNL_identity, 1, wx.EXPAND, 3)
 
 		__szr_identity_buttons = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_identity.Add(__szr_identity_buttons, 0, wx.EXPAND, 0)
+		__szr_identity.Add(__szr_identity_buttons, 0, wx.EXPAND | wx.TOP, 3)
 
-		self._BTN_save_identity = wx.Button(self, wx.ID_SAVE, "", style=wx.BU_EXACTFIT)
+		self._BTN_save_identity = wx.Button(self, wx.ID_SAVE, "")
 		self._BTN_save_identity.SetToolTip(_("Save the identity details."))
 		__szr_identity_buttons.Add(self._BTN_save_identity, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
 
-		self._BTN_reload_identity = wx.Button(self, wx.ID_REVERT_TO_SAVED, "", style=wx.BU_EXACTFIT)
+		self._BTN_reload_identity = wx.Button(self, wx.ID_REVERT_TO_SAVED, "")
 		self._BTN_reload_identity.SetToolTip(_("Reload identity from the database."))
 		__szr_identity_buttons.Add(self._BTN_reload_identity, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
 		__szr_identity_buttons.Add((20, 20), 1, wx.EXPAND, 0)
 
+		__szr_right = wx.BoxSizer(wx.VERTICAL)
+		__szr_main.Add(__szr_right, 5, wx.BOTTOM | wx.EXPAND | wx.RIGHT | wx.TOP, 3)
+
 		from Gnumed.wxpython.gmDemographicsWidgets import cPersonNamesManagerPnl
 		self._PNL_names = cPersonNamesManagerPnl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.TAB_TRAVERSAL)
-		__szr_top.Add(self._PNL_names, 4, wx.EXPAND, 5)
+		__szr_right.Add(self._PNL_names, 1, wx.EXPAND, 5)
 
 		from Gnumed.wxpython.gmDemographicsWidgets import cPersonIDsManagerPnl
 		self._PNL_ids = cPersonIDsManagerPnl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.TAB_TRAVERSAL)
-		__szr_main.Add(self._PNL_ids, 1, wx.ALL | wx.EXPAND, 5)
+		__szr_right.Add(self._PNL_ids, 1, wx.EXPAND | wx.TOP, 5)
 
 		self.SetSizer(__szr_main)
 		__szr_main.Fit(self)
