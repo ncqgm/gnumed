@@ -10,6 +10,7 @@ import gettext
 # end wxGlade
 
 # begin wxGlade: extracode
+from Gnumed.wxpython.gmListWidgets import cReportListCtrl
 # end wxGlade
 
 
@@ -68,13 +69,6 @@ class wxgIdentityEAPnl(wx.ScrolledWindow):
 		self._PRW_gender = cGenderSelectionPhraseWheel(self, wx.ID_ANY, "")
 		__gzszr_main.Add(self._PRW_gender, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 
-		__lbl_ethnicity = wx.StaticText(self, wx.ID_ANY, _("Ethnicity"))
-		__gzszr_main.Add(__lbl_ethnicity, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-
-		self._PRW_ethnicity = wx.TextCtrl(self, wx.ID_ANY, "")
-		self._PRW_ethnicity.Enable(False)
-		__gzszr_main.Add(self._PRW_ethnicity, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-
 		__lbl_title = wx.StaticText(self, wx.ID_ANY, _("Title"))
 		__gzszr_main.Add(__lbl_title, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
@@ -89,6 +83,17 @@ class wxgIdentityEAPnl(wx.ScrolledWindow):
 		self._TCTRL_comment.SetToolTip(_("A free-text comment on this person.\n\nAlso used to tell apart identically named persons with the same date of birth."))
 		__gzszr_main.Add(self._TCTRL_comment, 1, wx.EXPAND, 0)
 
+		__lbl_aux_info = wx.StaticText(self, wx.ID_ANY, _("Info"))
+		__lbl_aux_info.SetToolTip(_("Structured information on this identity (similar to image metadata)."))
+		__gzszr_main.Add(__lbl_aux_info, 0, 0, 0)
+
+		self._LCTRL_aux_info = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_HRULES | wx.LC_REPORT | wx.LC_VRULES)
+		self._LCTRL_aux_info.AppendColumn(_("A"), format=wx.LIST_FORMAT_LEFT, width=-1)
+		self._LCTRL_aux_info.AppendColumn(_("B"), format=wx.LIST_FORMAT_LEFT, width=-1)
+		self._LCTRL_aux_info.AppendColumn(_("C"), format=wx.LIST_FORMAT_LEFT, width=-1)
+		__gzszr_main.Add(self._LCTRL_aux_info, 1, wx.EXPAND, 0)
+
+		__gzszr_main.AddGrowableRow(5)
 		__gzszr_main.AddGrowableRow(6)
 		__gzszr_main.AddGrowableCol(1)
 		self.SetSizer(__gzszr_main)
