@@ -1189,19 +1189,19 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 			del kwargs['identity']
 		except KeyError:
 			data = None
-
 		wxgIdentityEAPnl.wxgIdentityEAPnl.__init__(self, *args, **kwargs)
 		gmEditArea.cGenericEditAreaMixin.__init__(self)
-
 		self.mode = 'new'
 		self.data = data
 		if data is not None:
 			self.mode = 'edit'
+		self.__init_ui()
 
-#		self.__init_ui()
 	#----------------------------------------------------------------
-#	def __init_ui(self):
-#		# adjust phrasewheels etc
+	def __init_ui(self):
+		self._LCTRL_aux_info.set_columns([_('Group'), _('Values')])
+		self._LCTRL_aux_info.set_resize_column()
+
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
@@ -1260,12 +1260,14 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		pass
+
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
-		self._LBL_info.SetLabel('ID: #%s' % (
-			self.data.ID
-			# FIXME: add 'deleted' status
-		))
+		val = 'ID: #%s%s' % (
+			self.data.ID,
+			_(' [record disabled]') if self.data['is_deleted'] else ''
+		)
+		self._LBL_info.SetLabel(val)
 		val = self.data['dob'].strftime('%Y-%m-%d') if self.data['dob'] else ''
 		self._PRW_dob.SetText(value = val, data = self.data['dob'])
 		self._CHBOX_estimated_dob.SetValue(self.data['dob_is_estimated'])
@@ -1274,13 +1276,19 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 		val = self.data['deceased'].strftime('%Y-%m-%d %H:%M') if self.data['deceased'] else ''
 		self._PRW_dod.SetText(value = val, data = self.data['deceased'])
 		self._PRW_gender.SetData(self.data['gender'])
-		#self._PRW_ethnicity.SetValue()
 		self._PRW_title.SetText(gmTools.coalesce(self.data['title'], ''))
 		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], ''))
+		if self.data['aux_info']:
+			items = []
+			for group, group_data in self.data['aux_info'].items():
+				values_str = '//'.join([ '%s: %s' % (key, value) for key, value in group_data.items() ])
+				items.append([group, values_str])
+			self._LCTRL_aux_info.set_string_items(items = items, reshow = False, unwrap = False)
 
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		pass
+
 #------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgPersonNameEAPnl
 
