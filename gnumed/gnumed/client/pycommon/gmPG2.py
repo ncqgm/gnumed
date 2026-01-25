@@ -2589,52 +2589,54 @@ def run_rw_queries (
 
 	Returns:
 
-		* None if last query did not return rows
-		* "fetchall() result" if last query returned any rows and "return_data" was True
+		* None if <return_data> is False or if last query did not return rows
+		* else result of cursor.fetchall() (which can be an empty list)
 	"""
 	assert queries is not None, '<queries> must not be None'
 	assert isinstance(link_obj, (dbapi._psycopg.connection, dbapi._psycopg.cursor, type(None))), '<link_obj> must be None, a cursor, or a connection, but [%s] is of type (%s)' % (link_obj, type(link_obj))
 
 	if link_obj is None:
 		conn = get_connection(readonly = False)
+		close_conn = conn.close
+		commit_tx = conn.commit
+		rollback_tx = conn.rollback
 		curs = conn.cursor()
-		conn_close = conn.close
-		tx_commit = conn.commit
-		tx_rollback = conn.rollback
-		curs_close = curs.close
+		close_cursor = curs.close
 		notices_accessor = conn
 	else:
-		conn_close = lambda *x: None
-		tx_commit = lambda *x: None
-		tx_rollback = lambda *x: None
-		curs_close = lambda *x: None
+		close_conn = lambda *x: None
+		commit_tx = lambda *x: None
+		rollback_tx = lambda *x: None
+		close_cursor = lambda *x: None
 		notices_accessor = link_obj
 		if isinstance(link_obj, dbapi._psycopg.cursor):
 			curs = link_obj
 			notices_accessor = curs.connection
 		elif isinstance(link_obj, dbapi._psycopg.connection):
 			curs = link_obj.cursor()
-			curs_close = curs.close
+			close_cursor = curs.close
 			if end_tx:
-				tx_commit = link_obj.commit
-				tx_rollback = link_obj.rollback
+				commit_tx = link_obj.commit
+				rollback_tx = link_obj.rollback
 	for query in queries:
+		if verbose:
+			_log.debug('running: %s', query)
 		try:				args = query['args']
 		except KeyError:	args = None
 		try:
 			SQL = query['sql']
 		except KeyError:
 			SQL = query['cmd']
-			#_log.debug("depreciated: SQL keyed as ['cmd'] rather than ['sql']: %s", SQL)
+			_log.debug("depreciated: SQL keyed as ['cmd'] rather than ['sql']: %s", SQL)
 		try:
 			curs.execute(SQL, args)
 		except dbapi.Error as pg_exc:			# DB related exceptions
 			_log.error('query failed in RW connection')
 			gmConnectionPool.log_pg_exception_details(pg_exc)
 			__safely_close_cursor_and_rollback_close_conn (
-				curs_close,
-				tx_rollback,
-				conn_close
+				close_cursor,
+				rollback_tx,
+				close_conn
 			)
 			__perhaps_reraise_as_permissions_error(pg_exc, curs)
 			gmLog2.log_stack_trace()
@@ -2645,9 +2647,9 @@ def run_rw_queries (
 			gmConnectionPool.log_cursor_state(curs)
 			gmLog2.log_stack_trace()
 			__safely_close_cursor_and_rollback_close_conn (
-				curs_close,
-				tx_rollback,
-				conn_close
+				close_cursor,
+				rollback_tx,
+				close_conn
 			)
 			raise
 
@@ -2656,10 +2658,9 @@ def run_rw_queries (
 		__log_notices(notices_accessor)
 
 	if not return_data:
-		curs_close()
-		tx_commit()
-		conn_close()
-		#return (None, None)
+		close_cursor()
+		commit_tx()
+		close_conn()
 		return None
 
 	data = None
@@ -2669,15 +2670,15 @@ def run_rw_queries (
 		_log.exception('error fetching data from RW query')
 		gmLog2.log_stack_trace()
 		__safely_close_cursor_and_rollback_close_conn (
-			curs_close,
-			tx_rollback,
-			conn_close
+			close_cursor,
+			rollback_tx,
+			close_conn
 		)
 		raise
 
-	curs_close()
-	tx_commit()
-	conn_close()
+	close_cursor()
+	commit_tx()
+	close_conn()
 	return data
 
 # =======================================================================
