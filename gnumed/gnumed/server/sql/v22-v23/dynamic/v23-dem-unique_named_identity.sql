@@ -86,14 +86,12 @@ BEGIN
 			_identity_row.comment
 		) INTO _other_identities;
 		IF coalesce(array_length(_other_identities, 1), 0) = 0 THEN
-			-- no dupes found, happens on INSERT
-			RETURN NULL;
+			-- no dupes found for this name, happens on INSERT
+			CONTINUE;
 		END IF;
-		IF coalesce(array_length(_other_identities, 1), 0) = 1 THEN
-			IF _other_identities[1] = _identity_row.pk THEN
-				-- no real dupes found, only found existing record, happens on UPDATE
-				RETURN NULL;
-			END IF;
+		IF _other_identities[1] = _identity_row.pk THEN
+			-- no real dupes found, only found existing record, happens on UPDATE
+			CONTINUE;
 		END IF;
 		RAISE EXCEPTION
 			''[dem.assert_unique_named_identity] % on %.%: More than one person with (firstnames=%), (lastnames=%), (dob=%), (gender=%), (comment=%): % & %'',
@@ -109,9 +107,10 @@ BEGIN
 				_other_identities
 			USING ERRCODE = ''unique_violation''
 		;
+		-- technically superfluous because of the RAISE ...
 		RETURN NULL;
 	END LOOP;
-	return NEW;
+	RETURN NEW;
 END;';
 
 comment on function dem.trf_assert_unique_named_identity() is
