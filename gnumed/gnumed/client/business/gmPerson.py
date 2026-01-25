@@ -801,6 +801,20 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': {'pk': tag}}])
 
 	#--------------------------------------------------------
+	def format_aux_info(self, indent:str=' ', eol:str=None) -> list|str:
+		if not self['aux_info']:
+			return '' if eol else []
+
+		lines = []
+		for group in self['aux_info']:
+			lines.append(group)
+			group_data = self['aux_info'][group]
+			for key in group_data:
+				lines.append('%s%s: %s' % (indent, key, group_data[key]))
+
+		return eol.join(lines) if eol else lines
+
+	#--------------------------------------------------------
 	# external ID API
 	#
 	# since external IDs are not treated as first class
@@ -2787,14 +2801,14 @@ if __name__ == '__main__':
 	def test_aux_info():
 		pat = cPatient(12)
 #		print(pat['aux_info'])
-		pat['aux_info'] = {'biology': {'shape': 'humanoid'}}
+#		pat['aux_info'] = {'biology': {'shape': 'humanoid'}}
 #		print(pat['aux_info'])
-		pat['comment'] = pyDT.datetime.now().isoformat()
-		print(pat.save())
+#		pat['comment'] = pyDT.datetime.now().isoformat()
+#		print(pat.save())
 		#print(pat)
 		#pat = cPatient(12)
 		#print(pat)
-#		print(pat.format_aux_info(indent = ' > ', eol = '\n'))
+		print(pat.format_aux_info(indent = ' > ', eol = '\n'))
 
 	#--------------------------------------------------------
 	#test_dto_person()
