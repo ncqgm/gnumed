@@ -2122,7 +2122,7 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 
 		wx.EndBusyCursor()
 
-	#--------------------------
+	#------------------------------------------------------------
 	def get_string_items(self):
 		if self.ItemCount == 0:
 			return []

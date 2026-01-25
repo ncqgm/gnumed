@@ -565,7 +565,7 @@ def disable_identity(identity=None):
 	# ask user for assurance
 	go_ahead = gmGuiHelpers.gm_show_question (
 		_('Are you sure you really, positively want\n'
-		  'to disable the following person ?\n'
+		  'to disable the following record ?\n'
 		  '\n'
 		  ' %s %s %s\n'
 		  ' born %s\n'
@@ -582,29 +582,26 @@ def disable_identity(identity=None):
 				_('This person did NOT receive care here.')
 			)
 		),
-		_('Disabling person')
+		_('Disabling record')
 	)
 	if not go_ahead:
 		return False
 
 	# get admin connection
-	conn = gmAuthWidgets.get_dbowner_connection (
-		procedure = _('Disabling person')
-	)
+	conn = gmAuthWidgets.get_dbowner_connection(procedure = _('Disabling record'))
 	# - user cancelled
 	if conn is False:
 		return False
+
 	# - error
 	if conn is None:
 		return None
 
 	# disable patient
 	gmPerson.disable_identity(identity['pk_identity'])
-
 	# change active patient to logged on staff = myself
 	from Gnumed.wxpython.gmPatSearchWidgets import set_active_patient
 	wx.CallAfter(set_active_patient, patient = prov.identity)
-
 	return True
 
 #====================================================================
@@ -1237,6 +1234,7 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 	def _save_as_new(self):
 		# not used yet
 		return False
+
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 
