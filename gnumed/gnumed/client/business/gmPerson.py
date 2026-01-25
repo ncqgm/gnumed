@@ -540,25 +540,28 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 				emergency_contact = gm.nullify_empty_string(%(emergency_contact)s),
 				fk_emergency_contact = %(pk_emergency_contact)s,
 				fk_primary_provider = %(pk_primary_provider)s,
-				comment = gm.nullify_empty_string(%(comment)s)
+				comment = gm.nullify_empty_string(%(comment)s),
+				aux_info = %(aux_info)s
 			WHERE
-				pk = %(pk_identity)s and
+				pk = %(pk_identity)s
+					AND
 				xmin = %(xmin_identity)s
-			RETURNING
-				xmin AS xmin_identity"""
+			""",
+			'SELECT xmin AS xmin_identity FROM dem.identity WHERE pk = %(pk_identity)s'
 	]
 	_updatable_fields = [
-		"title",
-		"dob",
-		"tob",
-		"gender",
-		"pk_marital_status",
+		'title',
+		'dob',
+		'tob',
+		'gender',
+		'pk_marital_status',
 		'deceased',
 		'emergency_contact',
 		'pk_emergency_contact',
 		'pk_primary_provider',
 		'comment',
-		'dob_is_estimated'
+		'dob_is_estimated',
+		'aux_info'
 	]
 	#--------------------------------------------------------
 	def _get_ID(self):
@@ -2781,6 +2784,19 @@ if __name__ == '__main__':
 		))
 
 	#--------------------------------------------------------
+	def test_aux_info():
+		pat = cPatient(12)
+#		print(pat['aux_info'])
+		pat['aux_info'] = {'biology': {'shape': 'humanoid'}}
+#		print(pat['aux_info'])
+		pat['comment'] = pyDT.datetime.now().isoformat()
+		print(pat.save())
+		#print(pat)
+		#pat = cPatient(12)
+		#print(pat)
+#		print(pat.format_aux_info(indent = ' > ', eol = '\n'))
+
+	#--------------------------------------------------------
 	#test_dto_person()
 	#test_identity()
 	#test_search_by_dto()
@@ -2802,6 +2818,7 @@ if __name__ == '__main__':
 	#test_assimilate_identity()
 	#test_get_person_duplicates()
 	#test_get_potential_person_dupes()
-	test_description_gender()
+	#test_description_gender()
+	test_aux_info()
 
 #============================================================
