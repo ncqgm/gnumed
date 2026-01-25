@@ -728,11 +728,11 @@ class cBusinessDBObject(object):
 			args[field] = self._payload[field]
 		self.payload_most_recently_attempted_to_store = args
 		close_conn = lambda : None
-		commit_conn = lambda : None
+		commit_tx = lambda : None
 		if conn is None:
-			conn = gmPG2.get_connection(readonly=False)
+			conn = gmPG2.get_connection(readonly = False)
 			close_conn = conn.close
-			commit_conn = conn.commit
+			commit_tx = conn.commit
 		queries = []
 		for query in self.__class__._cmds_store_payload:
 			queries.append({'sql': query, 'args': args})
@@ -748,7 +748,12 @@ class cBusinessDBObject(object):
 			# - the PK went away (rows were deleted from under us)
 			# - another WHERE condition of the UPDATE did not produce any rows to update
 			# - savepoints are used since subtransactions may relevantly change the xmin/xmax ...
-			return (False, ('cannot update row', _('[%s:%s]: row not updated (nothing returned), row in use ?') % (self.__class__.__name__, self.pk_obj)))
+			conn.rollback()
+			close_conn()
+			return (
+				False,
+				('cannot update row', _('[%s:%s]: row not updated (nothing returned), row in use ?') % (self.__class__.__name__, self.pk_obj))
+			)
 
 		# update cached values from should-be-first-and-only
 		# result row of last query,
@@ -773,7 +778,7 @@ class cBusinessDBObject(object):
 		# be sent out), so reset the local modification flag
 		# right before that
 		self._is_modified = False
-		commit_conn()
+		commit_tx()
 		close_conn()
 		# update to new "original" payload
 		self.payload_most_recently_fetched = {}
