@@ -704,12 +704,12 @@ class cBusinessDBObject(object):
 		return True
 
 	#--------------------------------------------------------
-	def save(self, conn:gmPG2.dbapi.extras.DictConnection=None) -> tuple[bool, tuple]:
+	def save(self, conn:gmPG2.dbapi.extras.DictConnection=None, verbose:bool=False) -> tuple[bool, tuple]:
 		"""Just calls save_payload()."""
-		return self.save_payload(conn = conn)
+		return self.save_payload(conn = conn, verbose = verbose)
 
 	#--------------------------------------------------------
-	def save_payload(self, conn:gmPG2.dbapi.extras.DictConnection=None) -> tuple[bool, tuple]:
+	def save_payload(self, conn:gmPG2.dbapi.extras.DictConnection=None, verbose:bool=False) -> tuple[bool, tuple]:
 		"""Store updated values (if any) into database.
 
 		Optionally accepts a pre-existing connection
@@ -721,6 +721,8 @@ class cBusinessDBObject(object):
 			data: (error, message), for error meanings see gmPG2.run_rw_queries()
 		"""
 		if not self._is_modified:
+			if verbose:
+				_log.debug('not modified, no need to save')
 			return (True, None)
 
 		args:dict[str, Any] = {}
@@ -730,6 +732,8 @@ class cBusinessDBObject(object):
 		close_conn = lambda : None
 		commit_tx = lambda : None
 		if conn is None:
+			if verbose:
+				_log.debug('getting new connection')
 			conn = gmPG2.get_connection(readonly = False)
 			close_conn = conn.close
 			commit_tx = conn.commit
@@ -739,7 +743,8 @@ class cBusinessDBObject(object):
 		rows = gmPG2.run_rw_queries (
 			link_obj = conn,
 			queries = queries,
-			return_data = True
+			return_data = True,
+			verbose = verbose
 		)
 		# success ?
 		if len(rows) == 0:
@@ -750,6 +755,7 @@ class cBusinessDBObject(object):
 			# - savepoints are used since subtransactions may relevantly change the xmin/xmax ...
 			conn.rollback()
 			close_conn()
+			_log.error('saving payload changes did not return data, XMIN change ?  PK disappeared ?  faulty SQL ?')
 			return (
 				False,
 				('cannot update row', _('[%s:%s]: row not updated (nothing returned), row in use ?') % (self.__class__.__name__, self.pk_obj))
@@ -778,6 +784,8 @@ class cBusinessDBObject(object):
 		# be sent out), so reset the local modification flag
 		# right before that
 		self._is_modified = False
+		if verbose:
+			_log.debug('committing (%s)', commit_tx)
 		commit_tx()
 		close_conn()
 		# update to new "original" payload
