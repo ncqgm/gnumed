@@ -293,16 +293,19 @@ class cMultilineTextEntryDlg(wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg):
 		return self._TCTRL_text.GetValue()
 
 	value = property(_get_value)
+
 	#--------------------------------------------------------
 	def _get_is_user_formatted(self):
 		return self._CHBOX_is_already_formatted.IsChecked()
 
 	is_user_formatted = property(_get_is_user_formatted)
+
 	#--------------------------------------------------------
 	def _set_enable_user_formatting(self, value):
 		self._CHBOX_is_already_formatted.Enable(value)
 
 	enable_user_formatting = property(lambda x:x, _set_enable_user_formatting)
+
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
