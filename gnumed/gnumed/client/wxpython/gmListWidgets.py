@@ -2261,6 +2261,18 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 	items = property(get_items)
 
 	#------------------------------------------------------------
+	def _get_any_items_selected(self) -> bool:
+		if self.ItemCount == 0:
+			return False
+
+		if self.GetFirstSelected() == -1:
+			return False
+
+		return True
+
+	any_items_selected = property(_get_any_items_selected)
+
+	#------------------------------------------------------------
 	def get_selected_items(self, only_one=False):
 		if self.ItemCount == 0:
 			if self.__is_single_selection or only_one:
