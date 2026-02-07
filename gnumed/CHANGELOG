@@ -29,6 +29,7 @@ NEW: paperwork: direct access to failsafe forms
 NEW: forms: failsafe progress notes form
 NEW: macro expansions in LaTeX templates
 NEW: demographics: editable gender definitions
+NEW: demographics: add auxiliary information on identity
 
 IMPROVED: GUI: show current patient/provider in window titles
 IMPROVED: placeholder: $current_provider_name$

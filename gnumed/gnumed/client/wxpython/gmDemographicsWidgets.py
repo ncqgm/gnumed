@@ -1230,6 +1230,7 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 			has_error = True
 
 		return (has_error is False)
+
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 		# not used yet
@@ -1257,6 +1258,7 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 
 		self.data.save()
 		return True
+
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		pass
@@ -1278,16 +1280,84 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 		self._PRW_gender.SetData(self.data['gender'])
 		self._PRW_title.SetText(gmTools.coalesce(self.data['title'], ''))
 		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], ''))
-		if self.data['aux_info']:
-			items = []
-			for group, group_data in self.data['aux_info'].items():
-				values_str = '//'.join([ '%s: %s' % (key, value) for key, value in group_data.items() ])
-				items.append([group, values_str])
-			self._LCTRL_aux_info.set_string_items(items = items, reshow = False, unwrap = False)
+		self.__refresh_aux_info()
 
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		pass
+
+	#----------------------------------------------------------------
+	def __refresh_aux_info(self):
+		self._LCTRL_aux_info.remove_items_safely()
+		if not self.data['aux_info']:
+			return
+
+		items = []
+		data = []
+		for group, group_data in self.data['aux_info'].items():
+			values_str = '//'.join([ '%s: %s' % (key, value) for key, value in group_data.items() ])
+			items.append([group, values_str])
+			data.append([group, group_data])
+		self._LCTRL_aux_info.set_string_items(items = items, reshow = False, unwrap = False)
+		self._LCTRL_aux_info.set_data(data = data)
+
+	#----------------------------------------------------------------
+	def _on_add_aux_info_button_pressed(self, event):
+		print("Event handler '_on_add_aux_info_button_pressed' not implemented!")
+		event.Skip()
+
+	#----------------------------------------------------------------
+	def _on_edit_aux_info_button_pressed(self, event):
+		group2edit = self._LCTRL_aux_info.get_selected_item_data(only_one = True)
+		if not group2edit:
+			self.StatusText = _('Must select group for editing.')
+			return
+
+		group = group2edit[0]
+		group_items = group2edit[1]
+		values_str = '\n'.join([ '%s:\n%s' % (key, value) for key, value in group_items.items() ])
+		dlg = gmGuiHelpers.cMultilineTextEntryDlg (
+			None,
+			-1,
+			title = _('Auxiliary information [%s] on identity') % group,
+			msg = _('Enter information as key/value pairs, on consecutive lines.'),
+			text = values_str
+		)
+		result = dlg.ShowModal()
+		txt = dlg.value
+		dlg.Destroy()
+		if result != wx.ID_SAVE:
+			return
+
+		lines = txt.split('\n')
+		if len(lines) % 2 != 0:
+			self.StatusText = _('Invalid format for auxiliary information.')
+			return
+
+		data = {}
+		for idx in range(0, len(lines) // 2):
+			key_idx = idx * 2
+			data_idx = key_idx + 1
+			data[lines[key_idx].rstrip(':')] = lines[data_idx]
+		aux_info = self.data['aux_info'].copy()
+		aux_info[group] = data
+		self.data['aux_info'] = aux_info
+		self.data.save()
+		self.__refresh_aux_info()
+
+	#----------------------------------------------------------------
+	def _on_del_aux_info_button_pressed(self, event):
+		item_data = self._LCTRL_aux_info.get_selected_item_data(only_one = True)
+		if not item_data:
+			self.StatusText = _('Must select group for deleting.')
+			return
+
+		aux_info = self.data['aux_info'].copy()
+		group2del = item_data[0]
+		aux_info.pop(group2del)
+		self.data['aux_info'] = aux_info
+		self.data.save()
+		self.__refresh_aux_info()
 
 #------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgPersonNameEAPnl
@@ -1698,6 +1768,7 @@ class cPersonIdentityManagerPnl(wxgPersonIdentityManagerPnl.wxgPersonIdentityMan
 		self.refresh()
 
 	identity = property(_get_identity, _set_identity)
+
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
@@ -1705,6 +1776,7 @@ class cPersonIdentityManagerPnl(wxgPersonIdentityManagerPnl.wxgPersonIdentityMan
 		if not self._PNL_identity.save():
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save identity. Incomplete information.'), beep = True)
 		#self._PNL_identity.refresh()
+
 	#--------------------------------------------------------
 	def _on_reload_identity_button_pressed(self, event):
 		self._PNL_identity.refresh()

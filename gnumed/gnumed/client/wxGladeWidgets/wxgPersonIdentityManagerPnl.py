@@ -31,17 +31,14 @@ class wxgPersonIdentityManagerPnl(wx.ScrolledWindow):
 		__szr_identity.Add(self._PNL_identity, 1, wx.EXPAND, 3)
 
 		__szr_identity_buttons = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_identity.Add(__szr_identity_buttons, 0, wx.EXPAND | wx.TOP, 3)
+		__szr_identity.Add(__szr_identity_buttons, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.TOP, 3)
 
 		self._BTN_save_identity = wx.Button(self, wx.ID_SAVE, "")
-		self._BTN_save_identity.SetToolTip(_("Save the identity details."))
 		__szr_identity_buttons.Add(self._BTN_save_identity, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
 
 		self._BTN_reload_identity = wx.Button(self, wx.ID_REVERT_TO_SAVED, "")
 		self._BTN_reload_identity.SetToolTip(_("Reload identity from the database."))
-		__szr_identity_buttons.Add(self._BTN_reload_identity, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-
-		__szr_identity_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+		__szr_identity_buttons.Add(self._BTN_reload_identity, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
 
 		__szr_right = wx.BoxSizer(wx.VERTICAL)
 		__szr_main.Add(__szr_right, 5, wx.BOTTOM | wx.EXPAND | wx.RIGHT | wx.TOP, 3)

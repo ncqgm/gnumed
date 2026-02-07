@@ -21,7 +21,7 @@ class wxgIdentityEAPnl(wx.ScrolledWindow):
 		wx.ScrolledWindow.__init__(self, *args, **kwds)
 		self.SetScrollRate(10, 10)
 
-		__gzszr_main = wx.FlexGridSizer(7, 2, 1, 3)
+		__gzszr_main = wx.FlexGridSizer(8, 2, 1, 3)
 
 		__lbl_name = wx.StaticText(self, wx.ID_ANY, _("GNUmed"))
 		__gzszr_main.Add(__lbl_name, 0, wx.ALIGN_CENTER_VERTICAL, 0)
@@ -30,6 +30,7 @@ class wxgIdentityEAPnl(wx.ScrolledWindow):
 		__gzszr_main.Add(self._LBL_info, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 
 		__lbl_dob = wx.StaticText(self, wx.ID_ANY, _("Born"))
+		__lbl_dob.SetForegroundColour(wx.Colour(255, 127, 0))
 		__gzszr_main.Add(__lbl_dob, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
 		__szr_dob = wx.BoxSizer(wx.HORIZONTAL)
@@ -44,15 +45,12 @@ class wxgIdentityEAPnl(wx.ScrolledWindow):
 		self._CHBOX_estimated_dob.SetToolTip(_("Check this if the date of birth is estimated rather than known precisely."))
 		__szr_dob.Add(self._CHBOX_estimated_dob, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 
-		__vline_dob = wx.StaticLine(self, wx.ID_ANY, style=wx.LI_VERTICAL)
-		__szr_dob.Add(__vline_dob, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 2)
-
-		__lbl_tob = wx.StaticText(self, wx.ID_ANY, _("Time:"))
-		__szr_dob.Add(__lbl_tob, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
+		__lbl_tob = wx.StaticText(self, wx.ID_ANY, _("Time"))
+		__lbl_tob.SetToolTip(_("The time of birth if known."))
+		__gzszr_main.Add(__lbl_tob, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
 
 		self._TCTRL_tob = wx.TextCtrl(self, wx.ID_ANY, "")
-		self._TCTRL_tob.SetToolTip(_("The time of birth if known."))
-		__szr_dob.Add(self._TCTRL_tob, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		__gzszr_main.Add(self._TCTRL_tob, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 
 		__lbl_dod = wx.StaticText(self, wx.ID_ANY, _("Deceased"))
 		__gzszr_main.Add(__lbl_dod, 0, wx.ALIGN_CENTER_VERTICAL, 0)
@@ -63,6 +61,7 @@ class wxgIdentityEAPnl(wx.ScrolledWindow):
 		__gzszr_main.Add(self._PRW_dod, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 
 		__lbl_gender = wx.StaticText(self, wx.ID_ANY, _("Gender"))
+		__lbl_gender.SetForegroundColour(wx.Colour(255, 127, 0))
 		__gzszr_main.Add(__lbl_gender, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
 		from Gnumed.wxpython.gmDemographicsWidgets import cGenderSelectionPhraseWheel
@@ -83,23 +82,52 @@ class wxgIdentityEAPnl(wx.ScrolledWindow):
 		self._TCTRL_comment.SetToolTip(_("A free-text comment on this person.\n\nAlso used to tell apart identically named persons with the same date of birth."))
 		__gzszr_main.Add(self._TCTRL_comment, 1, wx.EXPAND, 0)
 
+		__szr_info_buttons = wx.BoxSizer(wx.VERTICAL)
+		__gzszr_main.Add(__szr_info_buttons, 1, wx.EXPAND, 0)
+
 		__lbl_aux_info = wx.StaticText(self, wx.ID_ANY, _("Info"))
 		__lbl_aux_info.SetToolTip(_("Structured information on this identity (similar to image metadata)."))
-		__gzszr_main.Add(__lbl_aux_info, 0, 0, 0)
+		__szr_info_buttons.Add(__lbl_aux_info, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.BOTTOM | wx.TOP, 5)
+
+		self._BTN_add_aux_info = wx.Button(self, wx.ID_ANY, _("Add"), style=wx.BU_EXACTFIT)
+		__szr_info_buttons.Add(self._BTN_add_aux_info, 0, wx.EXPAND, 10)
+
+		self._BTN_edit_aux_info = wx.Button(self, wx.ID_ANY, _("Edit"), style=wx.BU_EXACTFIT)
+		self._BTN_edit_aux_info.SetToolTip(_("Edit selected info group."))
+		self._BTN_edit_aux_info.Enable(False)
+		__szr_info_buttons.Add(self._BTN_edit_aux_info, 0, wx.EXPAND | wx.TOP, 5)
+
+		self._BTN_del_aux_info = wx.Button(self, wx.ID_ANY, _("Delete"), style=wx.BU_EXACTFIT)
+		self._BTN_del_aux_info.SetToolTip(_("Delete selected info group."))
+		self._BTN_del_aux_info.Enable(False)
+		__szr_info_buttons.Add(self._BTN_del_aux_info, 0, wx.EXPAND | wx.TOP, 5)
 
 		self._LCTRL_aux_info = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_HRULES | wx.LC_REPORT | wx.LC_VRULES)
-		self._LCTRL_aux_info.AppendColumn(_("A"), format=wx.LIST_FORMAT_LEFT, width=-1)
-		self._LCTRL_aux_info.AppendColumn(_("B"), format=wx.LIST_FORMAT_LEFT, width=-1)
-		self._LCTRL_aux_info.AppendColumn(_("C"), format=wx.LIST_FORMAT_LEFT, width=-1)
 		__gzszr_main.Add(self._LCTRL_aux_info, 1, wx.EXPAND, 0)
 
-		__gzszr_main.AddGrowableRow(5)
 		__gzszr_main.AddGrowableRow(6)
+		__gzszr_main.AddGrowableRow(7)
 		__gzszr_main.AddGrowableCol(1)
 		self.SetSizer(__gzszr_main)
 		__gzszr_main.Fit(self)
 
 		self.Layout()
+
+		self._BTN_add_aux_info.Bind(wx.EVT_BUTTON, self._on_add_aux_info_button_pressed)
+		self._BTN_edit_aux_info.Bind(wx.EVT_BUTTON, self._on_edit_aux_info_button_pressed)
+		self._BTN_del_aux_info.Bind(wx.EVT_BUTTON, self._on_del_aux_info_button_pressed)
 		# end wxGlade
+
+	def _on_add_aux_info_button_pressed(self, event):  # wxGlade: wxgIdentityEAPnl.<event_handler>
+		print("Event handler '_on_add_aux_info_button_pressed' not implemented!")
+		event.Skip()
+
+	def _on_edit_aux_info_button_pressed(self, event):  # wxGlade: wxgIdentityEAPnl.<event_handler>
+		print("Event handler '_on_edit_aux_info_button_pressed' not implemented!")
+		event.Skip()
+
+	def _on_del_aux_info_button_pressed(self, event):  # wxGlade: wxgIdentityEAPnl.<event_handler>
+		print("Event handler '_on_del_aux_info_button_pressed' not implemented!")
+		event.Skip()
 
 # end of class wxgIdentityEAPnl
