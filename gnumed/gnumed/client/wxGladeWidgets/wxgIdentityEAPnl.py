@@ -102,7 +102,7 @@ class wxgIdentityEAPnl(wx.ScrolledWindow):
 		self._BTN_del_aux_info.Enable(False)
 		__szr_info_buttons.Add(self._BTN_del_aux_info, 0, wx.EXPAND | wx.TOP, 5)
 
-		self._LCTRL_aux_info = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_HRULES | wx.LC_REPORT | wx.LC_VRULES)
+		self._LCTRL_aux_info = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_HRULES | wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.LC_VRULES)
 		__gzszr_main.Add(self._LCTRL_aux_info, 1, wx.EXPAND, 0)
 
 		__gzszr_main.AddGrowableRow(6)

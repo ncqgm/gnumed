@@ -1201,6 +1201,9 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 	def __init_ui(self):
 		self._LCTRL_aux_info.set_columns([_('Group'), _('Values')])
 		self._LCTRL_aux_info.set_resize_column()
+		self._LCTRL_aux_info.select_callback = self.__on_aux_info_selected
+		self._LCTRL_aux_info.deselect_callback = self.__on_aux_info_deselected
+		self._LCTRL_aux_info.activate_callback = self._on_edit_aux_info_button_pressed
 
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
@@ -1302,9 +1305,37 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 		self._LCTRL_aux_info.set_data(data = data)
 
 	#----------------------------------------------------------------
+	def __refresh_aux_info_buttons(self):
+		if self._LCTRL_aux_info.any_items_selected:
+			self._BTN_edit_aux_info.Enable()
+			self._BTN_del_aux_info.Enable()
+			return
+
+		self._BTN_edit_aux_info.Disable()
+		self._BTN_del_aux_info.Disable()
+
+	#----------------------------------------------------------------
+	# event handlers
+	#----------------------------------------------------------------
 	def _on_add_aux_info_button_pressed(self, event):
-		print("Event handler '_on_add_aux_info_button_pressed' not implemented!")
-		event.Skip()
+		new_group = wx.GetTextFromUser (
+			_('Name for the new information group:'),
+			caption = _('Adding info group'),
+			parent = self
+		).strip()
+		if not new_group:
+			return
+
+		if new_group in self.data['aux_info']:
+			self.StatusText = _('Information group exists.')
+			return
+
+		aux_info = self.data['aux_info'].copy()
+		aux_info[new_group] = {}
+		self.data['aux_info'] = aux_info
+		self.data.save()
+		self.__refresh_aux_info()
+		self.__refresh_aux_info_buttons()
 
 	#----------------------------------------------------------------
 	def _on_edit_aux_info_button_pressed(self, event):
@@ -1344,6 +1375,7 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 		self.data['aux_info'] = aux_info
 		self.data.save()
 		self.__refresh_aux_info()
+		self.__refresh_aux_info_buttons()
 
 	#----------------------------------------------------------------
 	def _on_del_aux_info_button_pressed(self, event):
@@ -1358,6 +1390,17 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 		self.data['aux_info'] = aux_info
 		self.data.save()
 		self.__refresh_aux_info()
+		self.__refresh_aux_info_buttons()
+
+	#----------------------------------------------------------------
+	def __on_aux_info_selected(self, event):
+		event.Skip()
+		self.__refresh_aux_info_buttons()
+
+	#----------------------------------------------------------------
+	def __on_aux_info_deselected(self, event):
+		event.Skip()
+		self.__refresh_aux_info_buttons()
 
 #------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgPersonNameEAPnl
