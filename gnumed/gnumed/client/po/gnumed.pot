@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-03 12:59+0100\n"
+"POT-Creation-Date: 2026-02-07 18:14+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4457,9 +4457,6 @@ msgstr ""
 msgid "Results:"
 msgstr ""
 
-msgid "Save the identity details."
-msgstr ""
-
 msgid "Reload identity from the database."
 msgstr ""
 
@@ -5464,7 +5461,7 @@ msgid ""
 "for this patient"
 msgstr ""
 
-msgid "Activate"
+msgid "Emergency contact (in DB)"
 msgstr ""
 
 msgid ""
@@ -5473,7 +5470,13 @@ msgid ""
 "Enter person name part or identifier and hit <enter>."
 msgstr ""
 
+msgid "Activate"
+msgstr ""
+
 msgid "Make the emergency contact the active patient."
+msgstr ""
+
+msgid "Emergency notes"
 msgstr ""
 
 msgid ""
@@ -5484,16 +5487,10 @@ msgid ""
 " - where to find documents on DNR decisions"
 msgstr ""
 
-msgid "Reload details from the database."
-msgstr ""
-
-msgid "Emergency contact (in DB)"
-msgstr ""
-
-msgid "Emergency notes"
-msgstr ""
-
 msgid "In-praxis primary doc"
+msgstr ""
+
+msgid "Reload details from the database."
 msgstr ""
 
 msgid "Activate the respective patient by double-clicking a row."
@@ -5970,32 +5967,48 @@ msgstr ""
 msgid "Clear document property fields."
 msgstr ""
 
-msgid "≈"
+msgid "GNUmed"
+msgstr ""
+
+msgid "Born"
 msgstr ""
 
 msgid "The date of birth for this person."
+msgstr ""
+
+msgid "≈"
 msgstr ""
 
 msgid ""
 "Check this if the date of birth is estimated rather than known precisely."
 msgstr ""
 
+msgid "Time"
+msgstr ""
+
 msgid "The time of birth if known."
-msgstr ""
-
-msgid "The date of death."
-msgstr ""
-
-msgid "A free-text comment on this person."
-msgstr ""
-
-msgid "Born"
 msgstr ""
 
 msgid "Deceased"
 msgstr ""
 
-msgid "Ethnicity"
+msgid "The date of death."
+msgstr ""
+
+msgid ""
+"A free-text comment on this person.\n"
+"\n"
+"Also used to tell apart identically named persons with the same date of "
+"birth."
+msgstr ""
+
+msgid "Structured information on this identity (similar to image metadata)."
+msgstr ""
+
+msgid "Edit selected info group."
+msgstr ""
+
+msgid "Delete selected info group."
 msgstr ""
 
 msgid "edit encounter details"
@@ -13468,21 +13481,6 @@ msgid ""
 "comment available for this patient."
 msgstr ""
 
-msgid "ALLERGIES"
-msgstr ""
-
-msgid "Allergy and Sensitivity - Summary"
-msgstr ""
-
-msgid "ATC/Class"
-msgstr ""
-
-msgid "Class notes"
-msgstr ""
-
-msgid "likely"
-msgstr ""
-
 #, python-format
 msgid "No action configured for keyword [%s]."
 msgstr ""
@@ -15565,9 +15563,6 @@ msgid "Deleting document"
 msgstr ""
 
 msgid "Authority"
-msgstr ""
-
-msgid "Time"
 msgstr ""
 
 msgid "Method"
@@ -19487,7 +19482,7 @@ msgstr ""
 #, python-format
 msgid ""
 "Are you sure you really, positively want\n"
-"to disable the following person ?\n"
+"to disable the following record ?\n"
 "\n"
 " %s %s %s\n"
 " born %s\n"
@@ -19501,7 +19496,7 @@ msgstr ""
 msgid "This person did NOT receive care here."
 msgstr ""
 
-msgid "Disabling person"
+msgid "Disabling record"
 msgstr ""
 
 msgid "Abbreviation needed for gender definition."
@@ -19580,7 +19575,41 @@ msgstr ""
 msgid "Invalid date of birth."
 msgstr ""
 
+msgid "Group"
+msgstr ""
+
+msgid "Values"
+msgstr ""
+
 msgid "Invalid date of death."
+msgstr ""
+
+msgid " [record disabled]"
+msgstr ""
+
+msgid "Name for the new information group:"
+msgstr ""
+
+msgid "Adding info group"
+msgstr ""
+
+msgid "Information group exists."
+msgstr ""
+
+msgid "Must select group for editing."
+msgstr ""
+
+#, python-format
+msgid "Auxiliary information [%s] on identity"
+msgstr ""
+
+msgid "Enter information as key/value pairs, on consecutive lines."
+msgstr ""
+
+msgid "Invalid format for auxiliary information."
+msgstr ""
+
+msgid "Must select group for deleting."
 msgstr ""
 
 msgid "Adding name"
@@ -20142,9 +20171,6 @@ msgid "progress notes (sash)"
 msgstr ""
 
 msgid "progress notes"
-msgstr ""
-
-msgid "Allergies"
 msgstr ""
 
 msgid "&Notes"

@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-03 12:59+0100\n"
-"PO-Revision-Date: 2025-04-27 23:55+0200\n"
+"POT-Creation-Date: 2026-02-07 18:14+0100\n"
+"PO-Revision-Date: 2026-02-07 18:31+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -2546,7 +2546,7 @@ msgstr "Problem mit <%s>"
 msgid "[%s] is not a readable file"
 msgstr "keine Leseberechtigung für [%s]"
 
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "Unable to display the file:\n"
 "\n"
@@ -4959,9 +4959,6 @@ msgstr "Test&Profil zeigen:"
 msgid "Results:"
 msgstr "Ergebnisse:"
 
-msgid "Save the identity details."
-msgstr "Details zur Person speichern."
-
 msgid "Reload identity from the database."
 msgstr "Personendaten erneut aus der Datenbank laden."
 
@@ -6102,8 +6099,8 @@ msgstr ""
 "Unterdrückens bei\n"
 "diesem Patienten"
 
-msgid "Activate"
-msgstr "Aktivieren"
+msgid "Emergency contact (in DB)"
+msgstr "Notfallkontakt (in DB)"
 
 msgid ""
 "Link another person in this database as the emergency contact:\n"
@@ -6114,8 +6111,14 @@ msgstr ""
 "\n"
 "Namensfragment oder sonstigen Identifikator eingeben, dann <ENTER> drücken."
 
+msgid "Activate"
+msgstr "Aktivieren"
+
 msgid "Make the emergency contact the active patient."
 msgstr "Den Notfallkontakt zum aktiven Patienten machen."
+
+msgid "Emergency notes"
+msgstr "Notfallhinweise"
 
 msgid ""
 "Notes relevant to emergency situations regarding this patient.\n"
@@ -6130,17 +6133,11 @@ msgstr ""
 " - Kontaktinformationen über Angehörige\n"
 " - Aufbewahrungsorte von Vollmachten und Verfügungen"
 
-msgid "Reload details from the database."
-msgstr "Details erneut aus der Datenbank laden."
-
-msgid "Emergency contact (in DB)"
-msgstr "Notfallkontakt (in DB)"
-
-msgid "Emergency notes"
-msgstr "Notfallhinweise"
-
 msgid "In-praxis primary doc"
 msgstr "Praxis-Primärarzt"
+
+msgid "Reload details from the database."
+msgstr "Details erneut aus der Datenbank laden."
 
 msgid "Activate the respective patient by double-clicking a row."
 msgstr ""
@@ -6695,33 +6692,55 @@ msgstr ""
 msgid "Clear document property fields."
 msgstr "Felder für Dokumenteneigenschaften leeren."
 
-msgid "≈"
-msgstr ""
+msgid "GNUmed"
+msgstr "GNUmed"
+
+msgid "Born"
+msgstr "Geboren"
 
 msgid "The date of birth for this person."
 msgstr "Das Geburtsdatum dieser Person."
+
+msgid "≈"
+msgstr ""
 
 msgid ""
 "Check this if the date of birth is estimated rather than known precisely."
 msgstr "Hier markieren, wenn das Geburtsdatum geschätzt ist."
 
+msgid "Time"
+msgstr "Zeit"
+
 msgid "The time of birth if known."
 msgstr "Die Uhrzeit der Geburt, sofern bekannt."
-
-msgid "The date of death."
-msgstr "Das Sterbedatum."
-
-msgid "A free-text comment on this person."
-msgstr "Ein freier Kommentar zu dieser Person."
-
-msgid "Born"
-msgstr "Geboren"
 
 msgid "Deceased"
 msgstr "Verstorben"
 
-msgid "Ethnicity"
-msgstr "Ethnizität"
+msgid "The date of death."
+msgstr "Das Sterbedatum."
+
+msgid ""
+"A free-text comment on this person.\n"
+"\n"
+"Also used to tell apart identically named persons with the same date of "
+"birth."
+msgstr ""
+"Ein freier Kommentar zu dieser Person.\n"
+"\n"
+"Dient auch dazu, um Personen mit identischem Namen und identischem "
+"Geburtsdatum auseinanderzuhalten."
+
+msgid "Structured information on this identity (similar to image metadata)."
+msgstr ""
+"Strukturierte Zusatzinformationen zu dieser Person (ähnlich Metadaten bei "
+"Bildern)."
+
+msgid "Edit selected info group."
+msgstr "Markierte Info-Gruppe bearbeiten."
+
+msgid "Delete selected info group."
+msgstr "Markierte Info-Gruppe löschen."
 
 msgid "edit encounter details"
 msgstr "Details der Konsultation ändern"
@@ -15283,21 +15302,6 @@ msgstr ""
 "Kann den Allergiestatus nicht auf <hat welche> setzen, weil weder ein "
 "Kommentar noch Allergien zum Patienten bekannt sind."
 
-msgid "ALLERGIES"
-msgstr "ALLERGIEN"
-
-msgid "Allergy and Sensitivity - Summary"
-msgstr "Allergien/Überempfindlichkeiten - Zusammenfassung"
-
-msgid "ATC/Class"
-msgstr "ATC/Klasse"
-
-msgid "Class notes"
-msgstr "Notiz zur Stoffklasse"
-
-msgid "likely"
-msgstr "wahrscheinlich"
-
 #, python-format
 msgid "No action configured for keyword [%s]."
 msgstr "Keine Aktion für Schlüsselwort [%s] eingestellt."
@@ -17768,9 +17772,6 @@ msgstr "Dokument löschen"
 msgid "Authority"
 msgstr "Zuständigkeit"
 
-msgid "Time"
-msgstr "Zeit"
-
 msgid "Method"
 msgstr "Methode"
 
@@ -17835,23 +17836,21 @@ msgstr "Verbinden mit [%s] @ port %s als \"%s\"."
 msgid "Cannot connect to PACS."
 msgstr "Kann keine Verbindung zum PACS herstellen."
 
-#, fuzzy, python-format
+#, python-format
 msgid "PACS (Orthanc): \"%s\" (AET \"%s\") [%s]"
-msgstr "DICOM-Studien zu [%s] aus dem Orthanc PACS \"%s\" (AET \"%s\") [%s/]"
+msgstr "PACS (Orthanc): \"%s\" (AET \"%s\") [%s]"
 
 msgid "no SSL"
-msgstr ""
+msgstr "kein SSL"
 
-#, fuzzy
 msgid "SSL: in use"
-msgstr "in Gebrauch"
+msgstr "SSL: aktiv"
 
 msgid "SSL: NOT in use"
-msgstr ""
+msgstr "SSL: nicht in Gebrauch"
 
-#, fuzzy
 msgid "Server details:"
-msgstr "Allergiedetails"
+msgstr "Serverdetails:"
 
 msgid "Known PACS IDs:"
 msgstr "Bekannte PACS-IDs:"
@@ -18233,12 +18232,11 @@ msgstr "Allgemeine Messungen"
 msgid "Select the measurements panel to show in the top pane."
 msgstr "Wählen Sie das Meßwerteprofil für das kontinuierliche Monitoring."
 
-#, fuzzy
 msgid "Tab position"
-msgstr "Übersetzung"
+msgstr "Reiter-Position"
 
 msgid "Select the main notebook's tab position (top/bottom)."
-msgstr ""
+msgstr "Position der Reiter für die Plugins (\"top\"/\"bottom\")."
 
 msgid "Review dialog"
 msgstr "Signierdialog"
@@ -19098,13 +19096,11 @@ msgstr "Handbuch (www)"
 msgid "Go to the User Manual on the web."
 msgstr "Das Benutzerhandbuch online anzeigen."
 
-#, fuzzy
 msgid "Patient search help"
-msgstr "<Patientensuche gesperrt>"
+msgstr "Pat: Suchhilfe"
 
-#, fuzzy
 msgid "Show help on patient search."
-msgstr "Patientensuche sperren/entsperren"
+msgstr "Hilfe zur Patientensuche zeigen"
 
 msgid "show"
 msgstr "zeigen"
@@ -19655,15 +19651,13 @@ msgid "Datenbank"
 msgstr "Datenbank"
 
 msgid "Select the plugin tab position for the main notebook."
+msgstr "Position der Plugin-Reiters der Hauptansicht wählen."
+
+msgid "Right"
 msgstr ""
 
-#, fuzzy
-msgid "Right"
-msgstr "rechts"
-
-#, fuzzy
 msgid "Plugin tab position"
-msgstr "Drucke Verordnung"
+msgstr "Position Plugin-Reiter"
 
 msgid ""
 "Select the default type for new encounters.\n"
@@ -21301,7 +21295,6 @@ msgstr "Einheit für Menge fehlt."
 msgid "Amount is missing."
 msgstr "Menge fehlt."
 
-#, fuzzy
 msgid "Amount must be a number."
 msgstr "Menge: Muß eine Zahl sein."
 
@@ -22274,14 +22267,14 @@ msgstr "Tippen oder wählen Sie einen Beruf."
 #, python-format
 msgid ""
 "Are you sure you really, positively want\n"
-"to disable the following person ?\n"
+"to disable the following record ?\n"
 "\n"
 " %s %s %s\n"
 " born %s\n"
 "\n"
 "%s\n"
 msgstr ""
-"Sind Sie sicher, daß Sie den folgenden Patienten\n"
+"Sind Sie sicher, daß Sie die folgende Patientenkartei\n"
 "wirklich und tatsächlich deaktivieren wollen ?\n"
 "\n"
 " %s %s %s\n"
@@ -22295,8 +22288,8 @@ msgstr "Diese Patient WURDE hier bereits behandelt."
 msgid "This person did NOT receive care here."
 msgstr "Diese Person wurde hier noch NICHT behandelt."
 
-msgid "Disabling person"
-msgstr "Patient deaktivieren"
+msgid "Disabling record"
+msgstr "Akte deaktivieren"
 
 msgid "Abbreviation needed for gender definition."
 msgstr "Kurzform notwendig für eine Geschlechtsdefinition."
@@ -22396,8 +22389,43 @@ msgstr ""
 msgid "Invalid date of birth."
 msgstr "Ungültiges Geburtsdatum."
 
+msgid "Group"
+msgstr "Gruppe"
+
+msgid "Values"
+msgstr "Werte"
+
 msgid "Invalid date of death."
 msgstr "Ungültiges Todesdatum."
+
+msgid " [record disabled]"
+msgstr "[Akte deaktiviert]"
+
+msgid "Name for the new information group:"
+msgstr "Name der neuen Info-Gruppe:"
+
+msgid "Adding info group"
+msgstr "Info-Gruppe hinzufügen"
+
+msgid "Information group exists."
+msgstr "Info-Gruppe gibt es bereits."
+
+msgid "Must select group for editing."
+msgstr "Zu bearbeitende Info-Gruppe muß markiert sein."
+
+#, python-format
+msgid "Auxiliary information [%s] on identity"
+msgstr "Zusatzinfo [%s] zur Person"
+
+msgid "Enter information as key/value pairs, on consecutive lines."
+msgstr ""
+"Zusatzinfos als Schlüssel/Wert-Paar eingeben, in aufeinanderfolgenden Zeilen."
+
+msgid "Invalid format for auxiliary information."
+msgstr "Ungültiges Format für Info-Gruppen-Einträge."
+
+msgid "Must select group for deleting."
+msgstr "Zu löschende Info-Gruppe muß markiert sein."
 
 msgid "Adding name"
 msgstr "Einen Namen hinzufügen"
@@ -22722,14 +22750,15 @@ msgstr "Verifiziere Datenbankeinstellungen"
 msgid "Connecting to backend"
 msgstr "Verbinde mit Datenbank"
 
-#, fuzzy
 msgid "Verifying password security"
-msgstr "Verifiziere Datenbankversion"
+msgstr "Verifiziere Passwortsicherheit"
 
 msgid ""
 "For improved password security please\n"
 "arrange for your password to be re-set."
 msgstr ""
+"Um die Passwortsicherheit zu erhöhen,\n"
+"veranlassen Sie ein Rücksetzen Ihres Passworts."
 
 msgid "<restricted procedure>"
 msgstr "<zugangsbeschränkte Funktion>"
@@ -23132,9 +23161,6 @@ msgstr "Verlaufsnotizen (Sash)"
 msgid "progress notes"
 msgstr "Verlaufsnotizen"
 
-msgid "Allergies"
-msgstr "Allergien"
-
 msgid "&Notes"
 msgstr "Kartei: &Editor"
 
@@ -23187,6 +23213,33 @@ msgstr "Abbrechen"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
+
+#~ msgid "Save the identity details."
+#~ msgstr "Details zur Person speichern."
+
+#~ msgid "A free-text comment on this person."
+#~ msgstr "Ein freier Kommentar zu dieser Person."
+
+#~ msgid "Ethnicity"
+#~ msgstr "Ethnizität"
+
+#~ msgid "ALLERGIES"
+#~ msgstr "ALLERGIEN"
+
+#~ msgid "Allergy and Sensitivity - Summary"
+#~ msgstr "Allergien/Überempfindlichkeiten - Zusammenfassung"
+
+#~ msgid "ATC/Class"
+#~ msgstr "ATC/Klasse"
+
+#~ msgid "Class notes"
+#~ msgstr "Notiz zur Stoffklasse"
+
+#~ msgid "likely"
+#~ msgstr "wahrscheinlich"
+
+#~ msgid "Allergies"
+#~ msgstr "Allergien"
 
 #~ msgid "Decrypt"
 #~ msgstr "Entschlüsseln"
@@ -23851,9 +23904,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Write a letter for the current patient."
 #~ msgstr "Einen Brief für den aktiven Patienten schreiben."
-
-#~ msgid "GNUmed wiki"
-#~ msgstr "GNUmed-Wiki"
 
 #~ msgid "Go to the GNUmed wiki on the web."
 #~ msgstr "Das GNUmed-Wiki im WWW zeigen."
@@ -26587,9 +26637,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "The type of measurement or test this result is about."
 #~ msgstr "Der Test, für den dieses Ergebnis erhoben wurde."
-
-#~ msgid "Group"
-#~ msgstr "Gruppe"
 
 #~ msgid "A comment on the organisation performing this measurement."
 #~ msgstr "Ein Kommentar zu diesem Labor/dieser Meßfirma."
