@@ -3773,6 +3773,10 @@ class gmApp(wx.App):
 				disp_idx, disp.Name, disp.IsPrimary(), disp.ClientArea, disp.Geometry,
 				disp_mode.bpp, disp_mode.Width, disp_mode.Height, disp_mode.refresh
 			)
+		app = wx.SystemSettings.GetAppearance()
+		_log.debug('system appearance - name: %s', app.GetName())
+		_log.debug('system appearance - Is Dark: %s', app.IsDark())
+		_log.debug('system appearance - dark background: %s', app.IsUsingDarkBackground())
 
 	#----------------------------------------------
 	def __check_for_updates(self):
