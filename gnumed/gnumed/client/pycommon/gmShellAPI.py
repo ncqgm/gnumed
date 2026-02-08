@@ -181,7 +181,7 @@ def run_command_in_shell(command:str=None, blocking:bool=False, acceptable_retur
 		acceptable_return_codes: list of exit codes considered to signal successful operation, defaults to [0]
 
 	Returns:
-		Actual exit code of running _command_.
+		True/False based on whether the command seems to have run successfully
 
 	http://stackoverflow.com/questions/35817/how-to-escape-os-system-calls-in-python
 	"""
@@ -228,16 +228,18 @@ def run_command_in_shell(command:str=None, blocking:bool=False, acceptable_retur
 	# FIXME: use subprocess.Popen()
 	ret_val = os.system(command.encode(sys.getfilesystemencoding()))
 	_log.debug('os.system() returned: [%s]', ret_val)
-	exited_normally = False
 	if not hasattr(os, 'WIFEXITED'):
 		_log.error('platform does not support exit status differentiation')
-		if ret_val in acceptable_return_codes:
-			_log.info('os.system() return value contained in acceptable return codes')
-			_log.info('continuing and hoping for the best')
-			return True
-		return exited_normally
+		if ret_val not in acceptable_return_codes:
+			_log.error('os.system() returned non-success exit code')
+			return False
+
+		_log.info('os.system() return value contained in acceptable return codes')
+		_log.info('continuing and hoping for the best')
+		return True
 
 	_log.debug('exited via exit(): %s', os.WIFEXITED(ret_val))
+	exited_normally = False
 	if os.WIFEXITED(ret_val):
 		_log.debug('exit code: [%s]', os.WEXITSTATUS(ret_val))
 		exited_normally = (os.WEXITSTATUS(ret_val) in acceptable_return_codes)
@@ -268,7 +270,7 @@ def run_first_available_in_shell(binaries:list=None, args=None, blocking:bool=Fa
 		acceptable_return_codes: list of exit codes considered to signal successful operation, defaults to [0]
 
 	Returns:
-		Actual exit code of running _command_.
+		True/False based on whether the command seems to have run successfully
 	"""
 	found, binary = find_first_binary(binaries = binaries)
 	if not found:
