@@ -431,9 +431,9 @@ def init_ooo():
 	global unohelper, oooXCloseListener, oooNoConnectException, oooPropertyValue
 
 	import unohelper
-	from com.sun.star.util import XCloseListener as oooXCloseListener
-	from com.sun.star.connection import NoConnectException as oooNoConnectException
-	from com.sun.star.beans import PropertyValue as oooPropertyValue
+	from uno.com.sun.star.util import XCloseListener as oooXCloseListener
+	from uno.com.sun.star.connection import NoConnectException as oooNoConnectException
+	from uno.com.sun.star.beans import PropertyValue as oooPropertyValue
 
 	#----------------------------------
 	class _cOOoDocumentCloseListener(unohelper.Base, oooXCloseListener):
@@ -488,8 +488,8 @@ class gmOOoConnector(gmBorg.cBorg):
 
 		self.__setup_connection_string()
 
-		self.resolver_uri = "com.sun.star.bridge.UnoUrlResolver"
-		self.desktop_uri = "com.sun.star.frame.Desktop"
+		self.resolver_uri = "uno.com.sun.star.bridge.UnoUrlResolver"
+		self.desktop_uri = "uno.com.sun.star.frame.Desktop"
 
 		self.max_connect_attempts = 5
 
@@ -666,7 +666,7 @@ class cOOoLetter(object):
 			text_field = text_fields.nextElement()
 
 			# placeholder ?
-			if not text_field.supportsService('com.sun.star.text.TextField.JumpEdit'):
+			if not text_field.supportsService('uno.com.sun.star.text.TextField.JumpEdit'):
 				continue
 			# placeholder of type text ?
 			if text_field.PlaceHolderType != 0:
@@ -727,81 +727,17 @@ class cFormEngine(object):
 		"""Parse the template into an instance and replace placeholders with values."""
 		raise NotImplementedError
 	#--------------------------------------------------------
-	def edit(self):
-		"""Allow editing the instance of the template."""
+	def edit(self) -> bool:
+		"""Allow editing the instance of the template.
+
+		Returns:
+			True/False
+		"""
 		raise NotImplementedError
 	#--------------------------------------------------------
 	def generate_output(self, format=None):
 		"""Generate output suitable for further processing outside this class, e.g. printing."""
 		raise NotImplementedError
-	#--------------------------------------------------------
-	#--------------------------------------------------------
-#	def process(self, data_source=None):
-#		"""Merge values into the form template.
-#		"""
-#		pass
-#	#--------------------------------------------------------
-#	def cleanup(self):
-#		"""
-#		A sop to TeX which can't act as a true filter: to delete temporary files
-#		"""
-#		pass
-#	#--------------------------------------------------------
-#	def exe(self, command):
-#		"""
-#		Executes the provided command.
-#		If command cotains %F. it is substituted with the filename
-#		Otherwise, the file is fed in on stdin
-#		"""
-#		pass
-#	#--------------------------------------------------------
-#	def store(self, params=None):
-#		"""Stores the parameters in the backend.
-#
-#		- link_obj can be a cursor, a connection or a service name
-#		- assigning a cursor to link_obj allows the calling code to
-#		  group the call to store() into an enclosing transaction
-#		  (for an example see gmReferral.send_referral()...)
-#		"""
-#		# some forms may not have values ...
-#		if params is None:
-#			params = {}
-#		patient_clinical = self.patient.emr
-#		encounter = patient_clinical.active_encounter['pk_encounter']
-#		# FIXME: get_active_episode is no more
-#		#episode = patient_clinical.get_active_episode()['pk_episode']
-#		# generate "forever unique" name
-#		cmd = "select name_short || ': <' || name_long || '::' || external_version || '>' from paperwork_templates where pk=%s";
-#		rows = gmPG.run_ro_query('reference', cmd, None, self.pk_def)
-#		form_name = None
-#		if rows is None:
-#			_log.error('error retrieving form def for [%s]' % self.pk_def)
-#		elif len(rows) == 0:
-#			_log.error('no form def for [%s]' % self.pk_def)
-#		else:
-#			form_name = rows[0][0]
-#		# we didn't get a name but want to store the form anyhow
-#		if form_name is None:
-#			form_name=time.time()	# hopefully unique enough
-#		# in one transaction
-#		queries = []
-#		# - store form instance in form_instance
-#		cmd = "insert into form_instances(fk_form_def, form_name, fk_episode, fk_encounter) values (%s, %s, %s, %s)"
-#		queries.append((cmd, [self.pk_def, form_name, episode, encounter]))
-#		# - store params in form_data
-#		for key in params:
-#			cmd = """
-#				insert into form_data(fk_instance, place_holder, value)
-#				values ((select currval('form_instances_pk_seq')), %s, %s::text)
-#			"""
-#			queries.append((cmd, [key, params[key]]))
-#		# - get inserted PK
-#		queries.append(("select currval ('form_instances_pk_seq')", []))
-#		status, err = gmPG.run_commit('historica', queries, True)
-#		if status is None:
-#			_log.error('failed to store form [%s] (%s): %s' % (self.pk_def, form_name, err))
-#			return None
-#		return status
 
 #================================================================
 # OOo template forms
@@ -1053,7 +989,6 @@ class cTextForm(cFormEngine):
 
 	#--------------------------------------------------------
 	def edit(self):
-
 		editor_cmd = None
 		try:
 			editor_cmd = self.form_definition['form::editor'] % self.instance_filename
@@ -1067,11 +1002,12 @@ class cTextForm(cFormEngine):
 				# also consider text *viewers* since pretty much any of them will be an editor as well
 				editor_cmd = gmMimeLib.get_viewer_cmd(mimetype, self.instance_filename)
 
-		if editor_cmd is not None:
-			result = gmShellAPI.run_command_in_shell(command = editor_cmd, blocking = True)
 		self.re_editable_filenames = [self.instance_filename]
+		if editor_cmd is None:
+			_log.debug('no editor found')
+			return True
 
-		return result
+		return gmShellAPI.run_command_in_shell(command = editor_cmd, blocking = True)
 
 	#--------------------------------------------------------
 	def generate_output(self, format=None):
@@ -2288,7 +2224,7 @@ if __name__ == '__main__':
 		print(dir(tfs))
 		while tfs.hasMoreElements():
 			tf = tfs.nextElement()
-			if tf.supportsService('com.sun.star.text.TextField.JumpEdit'):
+			if tf.supportsService('uno.com.sun.star.text.TextField.JumpEdit'):
 				print(tf.getPropertyValue('PlaceHolder'))
 				print("  ", tf.getPropertyValue('Hint'))
 
