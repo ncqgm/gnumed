@@ -78,7 +78,7 @@ def edit_vaccine(parent=None, vaccine=None, single_entry=True):
 	ea = cVaccineEAPnl(parent, -1)
 	ea.data = vaccine
 	ea.mode = gmTools.coalesce(vaccine, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(vaccine, _('Adding new vaccine'), _('Editing vaccine')))
 	result = dlg.ShowModal()
 	dlg.DestroyLater()
@@ -729,7 +729,7 @@ def edit_vaccination(parent=None, vaccination=None, single_entry=True):
 	ea = cVaccinationEAPnl(parent, -1)
 	ea.data = vaccination
 	ea.mode = gmTools.coalesce(vaccination, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(vaccination, _('Adding new vaccinations'), _('Editing vaccination')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.DestroyLater()

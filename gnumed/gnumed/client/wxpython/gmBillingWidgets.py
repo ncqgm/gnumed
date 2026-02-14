@@ -51,7 +51,7 @@ def edit_billable(parent=None, billable=None) -> bool:
 	ea = cBillableEAPnl(parent, -1)
 	ea.data = billable
 	ea.mode = gmTools.coalesce(billable, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2 (
+	dlg = gmEditArea.cGenericEditAreaDlg (
 		parent = parent,
 		id = -1,
 		edit_area = ea,
@@ -434,7 +434,7 @@ def edit_bill(parent=None, bill=None, single_entry=False):
 	ea = cBillEAPnl(parent, -1)
 	ea.data = bill
 	ea.mode = gmTools.coalesce(bill, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(bill, _('Adding new bill'), _('Editing bill')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.DestroyLater()
@@ -1120,7 +1120,7 @@ def edit_bill_item(parent=None, bill_item=None, single_entry=False):
 	ea = cBillItemEAPnl(parent, -1)
 	ea.data = bill_item
 	ea.mode = gmTools.coalesce(bill_item, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(bill_item, _('Adding new bill item'), _('Editing bill item')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.DestroyLater()

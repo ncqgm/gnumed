@@ -74,7 +74,7 @@ def edit_episode(parent=None, episode=None, single_entry=True):
 	ea = cEpisodeEditAreaPnl(parent, -1)
 	ea.data = episode
 	ea.mode = gmTools.coalesce(episode, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(episode, _('Adding a new episode'), _('Editing an episode')))
 	return dlg.ShowModal() == wx.ID_OK
 
@@ -654,7 +654,7 @@ def edit_health_issue(parent=None, issue=None, single_entry=False):
 	ea = cHealthIssueEditAreaPnl(parent, -1)
 	ea.data = issue
 	ea.mode = gmTools.coalesce(issue, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(issue, _('Adding a new health issue'), _('Editing a health issue')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.DestroyLater()

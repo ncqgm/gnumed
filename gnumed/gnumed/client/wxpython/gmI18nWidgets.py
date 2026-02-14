@@ -117,7 +117,7 @@ def edit_translation(parent=None, translation=None, single_entry=False):
 	ea = cDatabaseTranslationEAPnl(parent, -1)
 	ea.data = translation
 	ea.mode = gmTools.coalesce(translation, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(translation, _('Adding new translation'), _('Editing translation')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.DestroyLater()

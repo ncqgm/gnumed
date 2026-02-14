@@ -52,17 +52,8 @@ def create_issue_popup(parent, pos, size, style, data_sink):
 		wx.NO_BORDER | wx.TAB_TRAVERSAL,
 		data_sink = data_sink
 	)
-	popup = gmEditArea.cEditAreaPopup (
-		parent = parent,
-		id = -1,
-		title = '',
-		pos = pos,
-		size = size,
-		style = style,
-		name = '',
-		edit_area = ea
-	)
-	return popup
+	return ea
+
 #============================================================
 def create_vacc_popup(parent, pos, size, style, data_sink):
 	ea = gmVaccWidgets.cVaccinationEAPnl (
@@ -73,17 +64,8 @@ def create_vacc_popup(parent, pos, size, style, data_sink):
 		style = style,
 		data_sink = data_sink
 	)
-	popup = gmEditArea.cEditAreaPopup (
-		parent = parent,
-		id = -1,
-		title = _('Enter vaccination given'),
-		pos = pos,
-		size = size,
-		style = style,
-		name = '',
-		edit_area = ea
-	)
-	return popup
+	return ea
+
 #============================================================
 # FIXME: keywords hardcoded for now, load from cfg in backend instead
 progress_note_keywords = {

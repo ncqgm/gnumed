@@ -74,7 +74,7 @@ def edit_tag_image(parent=None, tag_image=None, single_entry=False):
 	ea = cTagImageEAPnl(parent, -1)
 	ea.data = tag_image
 	ea.mode = gmTools.coalesce(tag_image, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(tag_image, _('Adding new tag'), _('Editing tag')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.DestroyLater()
@@ -760,7 +760,7 @@ def edit_gender_definition(parent=None, gender_def=None, single_entry=False, pre
 	ea = cGenderDefEAPnl(parent, -1)
 	ea.data = gender_def
 	ea.mode = gmTools.coalesce(gender_def, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(gender_def, _('Adding new gender definition'), _('Editing gender definition')))
 	result = dlg.ShowModal()
 	dlg.DestroyLater()
@@ -1613,7 +1613,7 @@ class cPersonNamesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	def _add_name(self):
 		#ea = cPersonNameEAPnl(self, -1, name = self.__identity.get_active_name())
 		ea = cPersonNameEAPnl(self, -1, identity = self.__identity)
-		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
+		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea, single_entry = True)
 		dlg.SetTitle(_('Adding new name'))
 		if dlg.ShowModal() == wx.ID_OK:
 			dlg.DestroyLater()
@@ -1623,7 +1623,7 @@ class cPersonNamesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	#--------------------------------------------------------
 	def _edit_name(self, name):
 		ea = cPersonNameEAPnl(self, -1, name = name)
-		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
+		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea, single_entry = True)
 		dlg.SetTitle(_('Editing name'))
 		if dlg.ShowModal() == wx.ID_OK:
 			dlg.DestroyLater()
@@ -1727,7 +1727,7 @@ class cPersonIDsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	def _add_id(self):
 		ea = cExternalIDEditAreaPnl(self, -1)
 		ea.id_holder = self.__identity
-		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea)
+		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
 		dlg.SetTitle(_('Adding new external ID'))
 		if dlg.ShowModal() == wx.ID_OK:
 			dlg.DestroyLater()
@@ -1738,7 +1738,7 @@ class cPersonIDsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	def _edit_id(self, ext_id):
 		ea = cExternalIDEditAreaPnl(self, -1, external_id = ext_id)
 		ea.id_holder = self.__identity
-		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
+		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea, single_entry = True)
 		dlg.SetTitle(_('Editing external ID'))
 		if dlg.ShowModal() == wx.ID_OK:
 			dlg.DestroyLater()

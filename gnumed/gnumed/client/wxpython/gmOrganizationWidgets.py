@@ -40,7 +40,7 @@ def edit_org_unit(parent=None, org_unit=None, single_entry=False, org=None):
 	ea = cOrgUnitEAPnl(parent, -1)
 	ea.data = org_unit
 	ea.mode = gmTools.coalesce(org_unit, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg(parent, -1, edit_area = ea, single_entry = single_entry)
 	if org is not None:
 		ea.organization = org
 	dlg.SetTitle(gmTools.coalesce(org_unit, _('Adding new organizational unit'), _('Editing organizational unit')))
@@ -449,7 +449,7 @@ class cOrgUnitAddressPnl(wxgOrgUnitAddressPnl.wxgOrgUnitAddressPnl):
 		ea = gmAddressWidgets.cAddressEAPnl(self, -1)
 		ea.address_holder = self.__unit
 		ea.type_is_editable = False
-		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea)
+		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
 		dlg.SetTitle(_('Adding new address'))
 		if dlg.ShowModal() != wx.ID_OK:
 			return False
@@ -560,7 +560,7 @@ class cOrgUnitIDsMgrPnl(gmListWidgets.cGenericListManagerPnl):
 	def _add_id(self):
 		ea = cExternalIDEditAreaPnl(self, -1)
 		ea.id_holder = self.__unit
-		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea)
+		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
 		dlg.SetTitle(_('Adding new external ID'))
 		if dlg.ShowModal() == wx.ID_OK:
 			dlg.DestroyLater()
@@ -571,7 +571,7 @@ class cOrgUnitIDsMgrPnl(gmListWidgets.cGenericListManagerPnl):
 	def _edit_id(self, ext_id):
 		ea = cExternalIDEditAreaPnl(self, -1, external_id = ext_id)
 		ea.id_holder = self.__unit
-		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
+		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea, single_entry = True)
 		dlg.SetTitle(_('Editing external ID'))
 		if dlg.ShowModal() == wx.ID_OK:
 			dlg.DestroyLater()
@@ -620,7 +620,7 @@ def edit_org(parent=None, org=None, single_entry=False):
 	ea = cOrganizationEAPnl(parent, -1)
 	ea.data = org
 	ea.mode = gmTools.coalesce(org, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(org, _('Adding new organization'), _('Editing organization')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.DestroyLater()

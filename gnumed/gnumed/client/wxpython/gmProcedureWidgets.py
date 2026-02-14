@@ -111,7 +111,7 @@ def edit_procedure(parent=None, procedure=None, single_entry=True):
 	ea = cProcedureEAPnl(parent, -1)
 	ea.data = procedure
 	ea.mode = gmTools.coalesce(procedure, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(procedure, _('Adding a procedure'), _('Editing a procedure')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.DestroyLater()

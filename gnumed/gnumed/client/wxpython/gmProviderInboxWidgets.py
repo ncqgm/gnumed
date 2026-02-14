@@ -373,7 +373,7 @@ def edit_inbox_message(parent=None, message=None, single_entry=True):
 	ea = cInboxMessageEAPnl(parent, -1)
 	ea.data = message
 	ea.mode = gmTools.coalesce(message, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(message, _('Adding new inbox message'), _('Editing inbox message')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.DestroyLater()

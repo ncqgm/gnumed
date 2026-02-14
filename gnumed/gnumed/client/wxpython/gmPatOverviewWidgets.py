@@ -1216,7 +1216,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		# <ctrl> down !
 		if isinstance(data, gmPerson.cPersonName):
 			ea = gmDemographicsWidgets.cPersonNameEAPnl(self, -1, name = data)
-			dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
+			dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea, single_entry = True)
 			dlg.SetTitle(_('Cloning name'))
 			dlg.ShowModal()
 			return
@@ -1227,7 +1227,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			if key == 'id':
 				ea = gmDemographicsWidgets.cExternalIDEditAreaPnl(self, -1, external_id = val)
 				ea.id_holder = gmPerson.gmCurrentPatient()
-				dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
+				dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea, single_entry = True)
 				dlg.SetTitle(_('Editing external ID'))
 				dlg.ShowModal()
 				return

@@ -172,7 +172,7 @@ def configure_default_region(parent=None):
 #============================================================
 def edit_region(parent=None, region=None):
 	ea = cProvinceEAPnl(parent, -1, region = region)
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = (region is not None))
+	dlg = gmEditArea.cGenericEditAreaDlg(parent, -1, edit_area = ea, single_entry = (region is not None))
 	dlg.SetTitle(gmTools.coalesce(region, _('Adding region'), _('Editing region')))
 	result = dlg.ShowModal()
 	dlg.DestroyLater()

@@ -332,7 +332,7 @@ def edit_measurement(parent=None, measurement=None, single_entry=False, presets=
 	ea = cMeasurementEditAreaPnl(parent, -1)
 	ea.data = measurement
 	ea.mode = gmTools.coalesce(measurement, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = single_entry)
+	dlg = gmEditArea.cGenericEditAreaDlg(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(measurement, _('Adding new measurement'), _('Editing measurement')))
 	if presets is not None:
 		ea.set_fields(presets)
@@ -3496,7 +3496,7 @@ def manage_measurement_types(parent=None):
 	#------------------------------------------------------------
 	def edit(test_type=None):
 		ea = cMeasurementTypeEAPnl(parent, -1, type = test_type)
-		dlg = gmEditArea.cGenericEditAreaDlg2 (
+		dlg = gmEditArea.cGenericEditAreaDlg (
 			parent = parent,
 			id = -1,
 			edit_area = ea,
@@ -4128,7 +4128,7 @@ def edit_measurement_org(parent=None, org=None):
 	ea = cMeasurementOrgEAPnl(parent, -1)
 	ea.data = org
 	ea.mode = gmTools.coalesce(org, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea)
+	dlg = gmEditArea.cGenericEditAreaDlg(parent, -1, edit_area = ea)
 	dlg.SetTitle(gmTools.coalesce(org, _('Adding new diagnostic org'), _('Editing diagnostic org')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.DestroyLater()
@@ -4309,7 +4309,7 @@ def edit_meta_test_type(parent=None, meta_test_type=None):
 	ea = cMetaTestTypeEAPnl(parent, -1)
 	ea.data = meta_test_type
 	ea.mode = gmTools.coalesce(meta_test_type, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2 (
+	dlg = gmEditArea.cGenericEditAreaDlg (
 		parent = parent,
 		id = -1,
 		edit_area = ea,
@@ -4582,7 +4582,7 @@ def edit_test_panel(parent=None, test_panel=None):
 	ea = cTestPanelEAPnl(parent, -1)
 	ea.data = test_panel
 	ea.mode = gmTools.coalesce(test_panel, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2 (
+	dlg = gmEditArea.cGenericEditAreaDlg (
 		parent = parent,
 		id = -1,
 		edit_area = ea,

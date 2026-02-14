@@ -127,7 +127,7 @@ def manage_substance_intakes(parent=None, emr=None, include_inactive:bool=True):
 def edit_intake_with_regimen(parent=None, intake_with_regimen=None, single_entry:bool=False):
 	ea = cSubstanceIntakeEAPnl(parent, -1, intake = intake_with_regimen)
 	ea.mode = gmTools.coalesce(intake_with_regimen, 'new', 'edit')
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea, single_entry = True)
+	dlg = gmEditArea.cGenericEditAreaDlg(parent, -1, edit_area = ea, single_entry = True)
 	dlg.SetTitle(gmTools.coalesce(intake_with_regimen, _('Adding substance intake'), _('Editing substance intake')))
 	dlg.left_extra_button = (
 		_('Allergy'),

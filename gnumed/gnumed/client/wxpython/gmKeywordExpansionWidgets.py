@@ -396,7 +396,7 @@ def configure_keyword_text_expansion(parent=None):
 	#----------------------
 	def edit(expansion=None):
 		ea = cTextExpansionEditAreaPnl(parent, -1, expansion = expansion)
-		dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea)
+		dlg = gmEditArea.cGenericEditAreaDlg(parent, -1, edit_area = ea)
 		if expansion is None:
 			title = _('Adding keyword expansion')
 		else:
