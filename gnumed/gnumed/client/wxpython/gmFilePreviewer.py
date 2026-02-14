@@ -68,7 +68,7 @@ class cFilePreviewPnl(wxgFilePreviewPnl):
 		self.__worker_cookie4img = '%s-%s4img' % (self.__class__.__name__, filename)
 		self.__worker_cookie4text = '%s-%s2txt' % (self.__class__.__name__, filename)
 		gmWorkerThread.execute_in_worker_thread (
-			payload_function = self._worker__convert_to_images,
+			payload_function = self._worker__convert_to_image,
 			payload_kwargs = {'filename': filename, 'cookie': self.__worker_cookie4img},
 			completion_callback = self._forwarder__update_image_preview,
 			worker_name = self.__class__.__name__
@@ -92,20 +92,20 @@ class cFilePreviewPnl(wxgFilePreviewPnl):
 	#--------------------------------------------------------
 	# image preview
 	#--------------------------------------------------------
-	def _worker__convert_to_images(self, filename:str=None, cookie=None) -> str:
+	def _worker__convert_to_image(self, filename:str=None, cookie=None) -> str:
 		return cookie, gmMimeLib.convert_file_to_image(filename)
 
 	#--------------------------------------------------------
 	def _forwarder__update_image_preview(self, worker_result):
-		cookie, img_fnames = worker_result
+		cookie, img_fname = worker_result
 		if cookie != self.__worker_cookie4img:
 			_log.debug('received results from old worker [%s], I am [%s], ignoring', cookie, self.__worker_cookie4img)
 			return
 
-		if not img_fnames:
+		if not img_fname:
 			return
 
-		wx.CallAfter(self.__update_image_preview, filename = img_fnames[0])
+		wx.CallAfter(self.__update_image_preview, filename = img_fname)
 
 	#--------------------------------------------------------
 	def __update_image_preview(self, filename):

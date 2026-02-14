@@ -96,6 +96,7 @@ class cSingleFileImageViewerPnl(wxgSingleFileImageViewerPnl):
 			self.Layout()
 			return
 
+		_log.debug('exploding multi-page image [%s]', filename)
 		self.__image_pages = gmMimeLib.split_multipage_image(filename)
 		if not self.__image_pages:
 			self.__filename = None
