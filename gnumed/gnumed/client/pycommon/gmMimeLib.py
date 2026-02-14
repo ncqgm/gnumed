@@ -486,6 +486,7 @@ def __convert_pdf_to_image(filename:str=None, verbose:bool=False, max_pages:int=
 	cmd_line.append('%s[0-%s]' % (filename, max_pages-1))
 	sandbox = gmTools.mk_sandbox_dir()
 	cmd_line.append(os.path.join(sandbox, '%s.%%d.tiff' % gmTools.fname_from_path(filename)))
+	_log.debug('exploding PDF into page images')
 	success, returncode, stdout = gmShellAPI.run_process(cmd_line = cmd_line, verbose = True)
 	if not success:
 		return None
@@ -506,6 +507,7 @@ def __convert_pdf_to_image(filename:str=None, verbose:bool=False, max_pages:int=
 	cmd_line.append('-adjoin')
 	tiff_name = os.path.join(sandbox, '%s.tiff' % filename)
 	cmd_line.append(tiff_name)
+	_log.debug('imploding page images into multi-page TIFF')
 	success, returncode, stdout = gmShellAPI.run_process(cmd_line = cmd_line, verbose = True)
 	if not success:
 		return None
@@ -557,7 +559,7 @@ __CONVERSION_DELEGATES['application/x-latex'] = __CONVERSION_DELEGATES['text/lat
 __CONVERSION_DELEGATES['application/x-tex'] = __CONVERSION_DELEGATES['text/latex']
 
 #-----------------------------------------------------------------------------------
-def convert_file_to_image(filename:str=None, verbose:bool=False, max_pages:int=10) -> list[str]:
+def convert_file_to_image(filename:str=None, verbose:bool=False, max_pages:int=10) -> str:
 	return convert_file(filename = filename, target_mime = 'image/*', verbose = verbose, max_pages = max_pages)
 
 #-----------------------------------------------------------------------------------
@@ -565,7 +567,7 @@ def convert_file_to_text(filename:str=None, verbose:bool=False) -> str:
 	return convert_file(filename = filename, target_mime = 'text/*', verbose = verbose)
 
 #-----------------------------------------------------------------------------------
-def convert_file(filename=None, target_mime=None, target_filename=None, target_extension=None, verbose=False, max_pages:int=25):
+def convert_file(filename:str=None, target_mime:str=None, target_filename:str=None, target_extension:str=None, verbose:bool=False, max_pages:int=25) -> str:
 	"""Convert file from one format into another.
 
 	Args:
