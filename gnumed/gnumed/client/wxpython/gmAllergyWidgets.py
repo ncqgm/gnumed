@@ -3,15 +3,25 @@
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL v2 or later (details at https://www.gnu.org)'
 
-import sys, datetime as pyDT, logging
+import sys
+import datetime as pyDT
+import logging
 
 
 import wx
 
 
+# setup translation
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
+else:
+	try:
+		_
+	except NameError:
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmTools
@@ -292,6 +302,7 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 		#self._PNL_edit_area._ChBOX_definite.MoveAfterInTabOrder(self._BTN_save)
 		self.__refresh_state_ui()
 		self.__refresh_details_ui()
+		print(self._PNL_edit_area.Parent)
 
 	#--------------------------------------------------------
 	# internal helpers
@@ -480,7 +491,20 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 #----------------------------------------------------------------------
 if __name__ == "__main__":
 
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
+
+	# setup a real translation
+	del _
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain('gnumed')
+
 	from Gnumed.wxpython import gmPatSearchWidgets
+	from Gnumed.wxpython import gmGuiTest
 
 	#-----------------------------------------------
 #	def test_allergy_edit_area_dlg():
@@ -493,18 +517,15 @@ if __name__ == "__main__":
 #		dlg.ShowModal()
 #		return
 	#-----------------------------------------------
-#	def test_allergy_manager_dlg():
-#		app = wx.PyWidgetTester(size = (800, 600))
-#		dlg = cAllergyManagerDlg(parent=app.frame, id=-1)
-#		dlg.ShowModal()
-#		return
+	def test_allergy_manager_dlg():
+		main_frame = gmGuiTest.setup_widget_test_env(patient = 12)
+		dlg = cAllergyManagerDlg(main_frame, size = (800, 600))
+		#dlg.whatever_else_is_necessary(...)
+		wx.CallLater(2000, dlg.ShowModal)
+		wx.GetApp().MainLoop()
+
 	#-----------------------------------------------
-	if len(sys.argv) > 1 and sys.argv[1] == 'test':
+	test_allergy_manager_dlg()
 
-		pat = gmPersonSearch.ask_for_patient()
-		if pat is None:
-			sys.exit(0)
-		gmPatSearchWidgets.set_active_patient(pat)
+	#test_allergy_edit_area_dlg()
 
-		#test_allergy_edit_area_dlg()
-#		test_allergy_manager_dlg()

@@ -50,7 +50,7 @@ class wxgAllergyEditAreaPnl(wx.ScrolledWindow):
 		_gszr_main.Add(__lbl_generic, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
 		__szr_generic = wx.BoxSizer(wx.HORIZONTAL)
-		_gszr_main.Add(__szr_generic, 1, wx.EXPAND, 0)
+		_gszr_main.Add(__szr_generic, 0, wx.ALL | wx.EXPAND, 1)
 
 		self._TCTRL_generic = wx.TextCtrl(self, wx.ID_ANY, "")
 		self._TCTRL_generic.SetToolTip(_("Product name if a drug is entered as the trigger."))

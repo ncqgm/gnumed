@@ -18,56 +18,55 @@ class wxgAllergyManagerDlg(wx.Dialog):
 		# begin wxGlade: wxgAllergyManagerDlg.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_DIALOG_STYLE | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX | wx.RESIZE_BORDER
 		wx.Dialog.__init__(self, *args, **kwds)
-		self.SetSize((650, 558))
 		self.SetTitle(_("Allergy Manager"))
 
 		__szr_main = wx.BoxSizer(wx.VERTICAL)
 
 		__szr_state = wx.StaticBoxSizer(wx.StaticBox(self, wx.ID_ANY, _("Allergy state")), wx.VERTICAL)
-		__szr_main.Add(__szr_state, 0, wx.ALL | wx.EXPAND, 5)
+		__szr_main.Add(__szr_state, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 5)
 
 		__gszr_state = wx.FlexGridSizer(3, 2, 2, 10)
 		__szr_state.Add(__gszr_state, 1, wx.BOTTOM | wx.EXPAND, 5)
 
-		__LBL_state = wx.StaticText(self, wx.ID_ANY, _("Currently:"))
+		__LBL_state = wx.StaticText(__szr_state.GetStaticBox(), wx.ID_ANY, _("Currently:"))
 		__gszr_state.Add(__LBL_state, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
 		__szr_current_state = wx.BoxSizer(wx.HORIZONTAL)
 		__gszr_state.Add(__szr_current_state, 1, wx.EXPAND, 0)
 
-		self._TXT_current_state = wx.StaticText(self, wx.ID_ANY, _("<current allergy state>"))
+		self._TXT_current_state = wx.StaticText(__szr_state.GetStaticBox(), wx.ID_ANY, _("<current allergy state>"))
 		self._TXT_current_state.SetToolTip(_("This displays the current allergy state as saved in the database."))
 		__szr_current_state.Add(self._TXT_current_state, 1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 15)
 
-		__LBL_confirmed = wx.StaticText(self, wx.ID_ANY, _("Last confirmed:"))
+		__LBL_confirmed = wx.StaticText(__szr_state.GetStaticBox(), wx.ID_ANY, _("Last confirmed:"))
 		__szr_current_state.Add(__LBL_confirmed, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 
-		self._TXT_last_confirmed = wx.StaticText(self, wx.ID_ANY, _("<last confirmed>"))
+		self._TXT_last_confirmed = wx.StaticText(__szr_state.GetStaticBox(), wx.ID_ANY, _("<last confirmed>"))
 		self._TXT_last_confirmed.SetToolTip(_("When was the allergy state last confirmed."))
 		__szr_current_state.Add(self._TXT_last_confirmed, 1, wx.ALIGN_CENTER_VERTICAL, 0)
 
-		__LBL_set_state = wx.StaticText(self, wx.ID_ANY, _("Set to:"))
+		__LBL_set_state = wx.StaticText(__szr_state.GetStaticBox(), wx.ID_ANY, _("Set to:"))
 		__gszr_state.Add(__LBL_set_state, 0, wx.ALIGN_CENTER_VERTICAL, 15)
 
 		__szr_new_state = wx.BoxSizer(wx.HORIZONTAL)
 		__gszr_state.Add(__szr_new_state, 0, wx.EXPAND, 5)
 
-		self._RBTN_unknown = wx.RadioButton(self, wx.ID_ANY, _("Unknown"))
+		self._RBTN_unknown = wx.RadioButton(__szr_state.GetStaticBox(), wx.ID_ANY, _("Unknown"))
 		self._RBTN_unknown.SetToolTip(_("Select this if there is no information available on whether the patient has any allergies or not."))
 		__szr_new_state.Add(self._RBTN_unknown, 0, wx.EXPAND | wx.RIGHT, 10)
 
-		self._RBTN_none = wx.RadioButton(self, wx.ID_ANY, _("No known allergies"))
+		self._RBTN_none = wx.RadioButton(__szr_state.GetStaticBox(), wx.ID_ANY, _("No known allergies"))
 		self._RBTN_none.SetToolTip(_("Select this if the patient has no known allergies."))
 		__szr_new_state.Add(self._RBTN_none, 0, wx.EXPAND | wx.RIGHT, 10)
 
-		self._RBTN_some = wx.RadioButton(self, wx.ID_ANY, _("Has allergies"))
+		self._RBTN_some = wx.RadioButton(__szr_state.GetStaticBox(), wx.ID_ANY, _("Has allergies"))
 		self._RBTN_some.SetToolTip(_("Select this if the patient has known allergies."))
 		__szr_new_state.Add(self._RBTN_some, 0, wx.EXPAND, 10)
 
-		__LBL_comment = wx.StaticText(self, wx.ID_ANY, _("Comment:"))
+		__LBL_comment = wx.StaticText(__szr_state.GetStaticBox(), wx.ID_ANY, _("Comment:"))
 		__gszr_state.Add(__LBL_comment, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
-		self._TCTRL_state_comment = wx.TextCtrl(self, wx.ID_ANY, "")
+		self._TCTRL_state_comment = wx.TextCtrl(__szr_state.GetStaticBox(), wx.ID_ANY, "")
 		self._TCTRL_state_comment.SetToolTip(_("A comment on the allergy state."))
 		__gszr_state.Add(self._TCTRL_state_comment, 1, wx.EXPAND, 0)
 
@@ -76,30 +75,26 @@ class wxgAllergyManagerDlg(wx.Dialog):
 
 		__szr_state_button.Add((20, 20), 1, wx.EXPAND, 0)
 
-		self._BTN_confirm = wx.Button(self, wx.ID_ANY, _("&Update / Confirm"))
+		self._BTN_confirm = wx.Button(__szr_state.GetStaticBox(), wx.ID_ANY, _("&Update / Confirm"))
 		self._BTN_confirm.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, 0, ""))
 		self._BTN_confirm.SetToolTip(_("Save and confirm the allergy state."))
 		__szr_state_button.Add(self._BTN_confirm, 0, wx.EXPAND, 0)
 
 		__szr_state_button.Add((20, 20), 1, wx.EXPAND, 0)
 
-		__szr_details = wx.StaticBoxSizer(wx.StaticBox(self, wx.ID_ANY, _("Allergy details")), wx.VERTICAL)
-		__szr_main.Add(__szr_details, 1, wx.BOTTOM | wx.EXPAND | wx.LEFT | wx.RIGHT, 5)
-
 		from Gnumed.wxpython.gmListWidgets import cReportListCtrl
-		self._LCTRL_allergies = cReportListCtrl(__szr_details.GetStaticBox(), wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT | wx.LC_SINGLE_SEL)
-		self._LCTRL_allergies.SetToolTip(_("Lists the allergies known for this patient if any."))
-		__szr_details.Add(self._LCTRL_allergies, 2, wx.BOTTOM | wx.EXPAND, 10)
+		self._LCTRL_allergies = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT | wx.LC_SINGLE_SEL)
+		__szr_main.Add(self._LCTRL_allergies, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 5)
 
-		self._LBL_message = wx.StaticText(__szr_details.GetStaticBox(), wx.ID_ANY, _("Input new allergy, or select from among existing allergy items to edit them:"))
-		__szr_details.Add(self._LBL_message, 0, wx.BOTTOM, 3)
+		self._LBL_message = wx.StaticText(self, wx.ID_ANY, _("Input new allergy, or select from among existing allergy items to edit them:"), style=wx.ALIGN_LEFT)
+		__szr_main.Add(self._LBL_message, 0, wx.LEFT | wx.RIGHT | wx.TOP, 5)
 
 		from Gnumed.wxpython.gmAllergyWidgets import cAllergyEditAreaPnl
 		self._PNL_edit_area = cAllergyEditAreaPnl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.TAB_TRAVERSAL)
-		__szr_details.Add(self._PNL_edit_area, 2, wx.BOTTOM | wx.EXPAND, 5)
+		__szr_main.Add(self._PNL_edit_area, 2, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 5)
 
 		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_details.Add(__szr_buttons, 0, wx.EXPAND, 5)
+		__szr_main.Add(__szr_buttons, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 5)
 
 		self._BTN_save_details = wx.Button(self, wx.ID_SAVE, "", style=wx.BU_EXACTFIT)
 		self._BTN_save_details.SetToolTip(_("Save the allergy details in the edit area as either a new allergy or as an update to the existing allergy selected above."))
@@ -116,8 +111,8 @@ class wxgAllergyManagerDlg(wx.Dialog):
 
 		__szr_buttons.Add((20, 20), 2, wx.EXPAND, 0)
 
-		self.__hline_bottom = wx.StaticLine(self, wx.ID_ANY)
-		__szr_main.Add(self.__hline_bottom, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 2)
+		__hline_bottom = wx.StaticLine(self, wx.ID_ANY)
+		__szr_main.Add(__hline_bottom, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 2)
 
 		__szr_bottom = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_main.Add(__szr_bottom, 0, wx.EXPAND | wx.TOP, 5)
@@ -134,6 +129,7 @@ class wxgAllergyManagerDlg(wx.Dialog):
 		__gszr_state.AddGrowableCol(1)
 
 		self.SetSizer(__szr_main)
+		__szr_main.Fit(self)
 
 		self.Layout()
 		self.Centre()
