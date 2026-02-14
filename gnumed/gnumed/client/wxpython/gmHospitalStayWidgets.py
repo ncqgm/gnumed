@@ -221,7 +221,7 @@ class cHospitalWardPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.selection_only = True
 
 #----------------------------------------------------------------
-__SQL_hospital_stay_match_provider = """-- PRW: retrieve matching hospital stays
+_SQL_hospital_stay_match_provider = """-- PRW: retrieve matching hospital stays
 	SELECT
 		pk_hospital_stay,
 		descr
@@ -262,7 +262,7 @@ class cHospitalStayPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		gmPhraseWheel.cPhraseWheel.__init__ (self, *args, **kwargs)
 		ctxt = {'ctxt_pat': {'where_part': '(pk_patient = %(pat)s) AND', 'placeholder': 'pat'}}
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
-			queries = [__SQL_hospital_stay_match_provider],
+			queries = [_SQL_hospital_stay_match_provider],
 			context = ctxt
 		)
 		mp.setThresholds(3, 4, 6)
