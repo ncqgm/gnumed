@@ -135,8 +135,16 @@ $m[%_if_dbg]m$\renewcommand*\ShowFrameColor{\color{red}}		% configure showframe
 	pdfauthor = {$m[Prov]m$, $m[PrxBrPrx]m$},
 	pdfsubject = {GENERIC TITLE},
 	pdfproducer = {GNUmed $1<client_version::::>1$, Template $m[GmFormTmpl]m$},
-	pdfdisplaydoctitle = true,
-	pdfprintscaling = None
+	%bookmarks = true,				% create Adobe style bookmarks, already the default
+	%unicode = true,				% PDF strings are unicode, default nowadays
+	pdfdisplaydoctitle = true,		% display document title rather than filename in title bar
+	pdfprintscaling = None,			% print scaling default
+	pdfpagemode = UseOutlines,		% open with bookmarks tab enabled
+	pdfpagelayout = SinglePage		% display single page, advance by flipping pages
+	pdfstartpage = 1,				% open with page 1 displayed
+	pdfstartview = {FitH}			% open with page fit to PDF viewer window width
+	pdfnewwindow = true,			% open links to PDF(s) in new window(s)
+	pdffitwindow = true				% fit window to document size (collides with pdfstartview ?)
 }
 
 % - base font: sans serif Latin Modern
