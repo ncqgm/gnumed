@@ -683,12 +683,6 @@ class gmTopLevelFrame(wx.Frame):
 		menu_lab = wx.Menu()
 		item = menu_lab.Append(-1, _('Show HL7'), _('Show formatted data from HL7 file'))
 		self.Bind(wx.EVT_MENU, self.__on_show_hl7, item)
-		item = menu_lab.Append(-1, _('Unwrap XML'), _('Unwrap HL7 data from XML file (Excelleris, ...)'))
-		self.Bind(wx.EVT_MENU, self.__on_unwrap_hl7_from_xml, item)
-		item = menu_lab.Append(-1, _('Stage HL7'), _('Stage HL7 data from file'))
-		self.Bind(wx.EVT_MENU, self.__on_stage_hl7, item)
-		item = menu_lab.Append(-1, _('Browse pending'), _('Browse pending (staged) incoming data'))
-		self.Bind(wx.EVT_MENU, self.__on_incoming, item)
 		self.menu_tools.Append(wx.NewId(), _('Lab results ...'), menu_lab)
 
 		menu_tech_tools = wx.Menu()
@@ -2339,21 +2333,12 @@ class gmTopLevelFrame(wx.Frame):
 
 	#----------------------------------------------
 	def __on_show_hl7(self, evt):
-#		from Gnumed.business import gmClinicalCalculator
-#		calc = gmClinicalCalculator.cClinicalCalculator(patient = gmPerson.gmCurrentPatient())
-#		result = calc.eGFR_CKD_EPI
-#		print(u'%s' % result.format(with_formula = True, with_warnings = True, with_variables = True, with_sub_results = True, with_hints = True))
-#		return
 		gmMeasurementWidgets.show_hl7_file(parent = self)
-	#----------------------------------------------
-	def __on_unwrap_hl7_from_xml(self, evt):
-		gmMeasurementWidgets.unwrap_HL7_from_XML(parent = self)
-	#----------------------------------------------
-	def __on_stage_hl7(self, evt):
-		gmMeasurementWidgets.stage_hl7_file(parent = self)
+
 	#----------------------------------------------
 	def __on_incoming(self, evt):
 		gmMeasurementWidgets.browse_incoming(parent = self)
+
 	#----------------------------------------------
 	def __on_snellen(self, evt):
 		dlg = gmSnellen.cSnellenCfgDlg()
