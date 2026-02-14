@@ -2705,15 +2705,15 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 		item = self.__action_button_popup.Append(-1, _('Plot'))
 		self.Bind(wx.EVT_MENU, self.__on_plot_current_selection, item)
 
-		item = self.__action_button_popup.Append(-1, _('Export to &file'))
-		self.Bind(wx.EVT_MENU, self._GRID_results_all.current_selection_to_file, item)
+		#item = self.__action_button_popup.Append(-1, _('Export to &file'))
+		#self.Bind(wx.EVT_MENU, self._GRID_results_all.current_selection_to_file, item)
 		#self.__action_button_popup.Enable(id = menu_id, enable = False)
-		item.Enable(enable = False)
+		#item.Enable(enable = False)
 
-		item = self.__action_button_popup.Append(-1, _('Export to &clipboard'))
-		self.Bind(wx.EVT_MENU, self._GRID_results_all.current_selection_to_clipboard, item)
+		#item = self.__action_button_popup.Append(-1, _('Export to &clipboard'))
+		#self.Bind(wx.EVT_MENU, self._GRID_results_all.current_selection_to_clipboard, item)
 		#self.__action_button_popup.Enable(id = menu_id, enable = False)
-		item.Enable(enable = False)
+		#item.Enable(enable = False)
 
 		item = self.__action_button_popup.Append(-1, _('&Delete'))
 		self.Bind(wx.EVT_MENU, self.__on_delete_current_selection, item)
