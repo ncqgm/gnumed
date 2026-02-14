@@ -277,9 +277,9 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 		ctrl.Refresh()
 
 #====================================================================
-from Gnumed.wxGladeWidgets import wxgGenericEditAreaDlg2
+from Gnumed.wxGladeWidgets import wxgGenericEditAreaDlg
 
-class cGenericEditAreaDlg(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
+class cGenericEditAreaDlg(wxgGenericEditAreaDlg.wxgGenericEditAreaDlg):
 	"""Dialog for parenting edit area panels with save/clear/next/cancel"""
 
 	_lucky_day = 1
@@ -306,7 +306,7 @@ class cGenericEditAreaDlg(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 			title = self.__class__.__name__
 		kwargs['title'] = decorate_window_title(title)
 
-		wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2.__init__(self, *args, **kwargs)
+		wxgGenericEditAreaDlg.wxgGenericEditAreaDlg.__init__(self, *args, **kwargs)
 
 		self.left_extra_button = None
 

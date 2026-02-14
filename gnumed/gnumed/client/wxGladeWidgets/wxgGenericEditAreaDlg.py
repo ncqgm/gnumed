@@ -13,9 +13,9 @@ import gettext
 # end wxGlade
 
 
-class wxgGenericEditAreaDlg2(wx.Dialog):
+class wxgGenericEditAreaDlg(wx.Dialog):
 	def __init__(self, *args, **kwds):
-		# begin wxGlade: wxgGenericEditAreaDlg2.__init__
+		# begin wxGlade: wxgGenericEditAreaDlg.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_DIALOG_STYLE | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX | wx.RESIZE_BORDER
 		wx.Dialog.__init__(self, *args, **kwds)
 		self.SetSize(wx.DLG_UNIT(self, wx.Size(393, 203)))
@@ -87,28 +87,28 @@ class wxgGenericEditAreaDlg2(wx.Dialog):
 		self.Bind(wx.EVT_BUTTON, self._on_lucky_button_pressed, self._BTN_lucky)
 		# end wxGlade
 
-	def _on_save_button_pressed(self, event):  # wxGlade: wxgGenericEditAreaDlg2.<event_handler>
+	def _on_save_button_pressed(self, event):  # wxGlade: wxgGenericEditAreaDlg.<event_handler>
 		print("Event handler '_on_save_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_left_extra_button_pressed(self, event):  # wxGlade: wxgGenericEditAreaDlg2.<event_handler>
+	def _on_left_extra_button_pressed(self, event):  # wxGlade: wxgGenericEditAreaDlg.<event_handler>
 		print("Event handler '_on_left_extra_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_forward_button_pressed(self, event):  # wxGlade: wxgGenericEditAreaDlg2.<event_handler>
+	def _on_forward_button_pressed(self, event):  # wxGlade: wxgGenericEditAreaDlg.<event_handler>
 		print("Event handler '_on_forward_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_revert_button_pressed(self, event):  # wxGlade: wxgGenericEditAreaDlg2.<event_handler>
+	def _on_revert_button_pressed(self, event):  # wxGlade: wxgGenericEditAreaDlg.<event_handler>
 		print("Event handler '_on_revert_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_clear_button_pressed(self, event):  # wxGlade: wxgGenericEditAreaDlg2.<event_handler>
+	def _on_clear_button_pressed(self, event):  # wxGlade: wxgGenericEditAreaDlg.<event_handler>
 		print("Event handler '_on_clear_button_pressed' not implemented!")
 		event.Skip()
 
-	def _on_lucky_button_pressed(self, event):  # wxGlade: wxgGenericEditAreaDlg2.<event_handler>
+	def _on_lucky_button_pressed(self, event):  # wxGlade: wxgGenericEditAreaDlg.<event_handler>
 		print("Event handler '_on_lucky_button_pressed' not implemented!")
 		event.Skip()
 
-# end of class wxgGenericEditAreaDlg2
+# end of class wxgGenericEditAreaDlg
