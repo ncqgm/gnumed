@@ -152,7 +152,6 @@
                             <tooltip>The form engine this template must be processed with.</tooltip>
                             <selection>0</selection>
                             <choices>
-                                <choice>OpenOffice</choice>
                                 <choice>LaTeX</choice>
                                 <choice>Image editor</choice>
                                 <choice>Gnuplot</choice>

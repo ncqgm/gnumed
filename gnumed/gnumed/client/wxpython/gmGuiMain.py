@@ -394,8 +394,6 @@ class gmTopLevelFrame(wx.Frame):
 #		self.Bind(wx.EVT_MENU, self.__on_configure_ifap_cmd, item)
 		item = menu_cfg_ext_tools.Append(-1, _('MI/stroke risk calc cmd'), _('Set the command to start the CV risk calculator.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_acs_risk_calculator_cmd, item)
-		item = menu_cfg_ext_tools.Append(-1, _('OOo startup time'), _('Set the time to wait for OpenOffice to settle after startup.'))
-		self.Bind(wx.EVT_MENU, self.__on_configure_ooo_settle_time, item)
 		item = menu_cfg_ext_tools.Append(-1, _('Measurements URL'), _('URL for measurements encyclopedia.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_measurements_url, item)
 		item = menu_cfg_ext_tools.Append(-1, _('Drug data source'), _('Select the drug data source.'))
@@ -1348,29 +1346,6 @@ class gmTopLevelFrame(wx.Frame):
 		dlg.ShowModal()
 	#----------------------------------------------
 	# submenu GNUmed - config - external tools
-	#----------------------------------------------
-	def __on_configure_ooo_settle_time(self, event):
-
-		def is_valid(value):
-			try:
-				value = float(value)
-				return True, value
-			except Exception:
-				return False, value
-
-		gmCfgWidgets.configure_string_option (
-			message = _(
-				'When GNUmed cannot find an OpenOffice server it\n'
-				'will try to start one. OpenOffice, however, needs\n'
-				'some time to fully start up.\n'
-				'\n'
-				'Here you can set the time for GNUmed to wait for OOo.\n'
-			),
-			option = 'external.ooo.startup_settle_time',
-			bias = 'workplace',
-			default_value = 2.0,
-			validator = is_valid
-		)
 	#----------------------------------------------
 	def __on_configure_drug_data_source(self, evt):
 		gmSubstanceMgmtWidgets.configure_drug_data_source(parent = self)

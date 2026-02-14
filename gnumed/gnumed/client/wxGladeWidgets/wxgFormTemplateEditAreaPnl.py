@@ -27,7 +27,7 @@ class wxgFormTemplateEditAreaPnl(wx.ScrolledWindow):
 		self._CHBOX_editable = wx.CheckBox(self, wx.ID_ANY, _("editable"))
 		self._PRW_template_type = cPhraseWheel(self, wx.ID_ANY, "")
 		self._PRW_instance_type = cDocumentTypeSelectionPhraseWheel(self, wx.ID_ANY, "")
-		self._CH_engine = wx.Choice(self, wx.ID_ANY, choices=[_("OpenOffice"), _("LaTeX"), _("Image editor"), _("Gnuplot"), _("PDF form editor"), _("AbiWord"), _("Xe(La)TeX"), _("Text (generic processing)")])
+		self._CH_engine = wx.Choice(self, wx.ID_ANY, choices=[_("LaTeX"), _("Image editor"), _("Gnuplot"), _("PDF form editor"), _("AbiWord"), _("Xe(La)TeX"), _("Text (generic processing)")])
 		self._TCTRL_filename = wx.TextCtrl(self, wx.ID_ANY, "")
 		self._BTN_load = wx.Button(self, wx.ID_ANY, _("&Load"), style=wx.BU_EXACTFIT)
 		self._BTN_export = wx.Button(self, wx.ID_ANY, _("Export"), style=wx.BU_EXACTFIT)

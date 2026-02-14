@@ -169,9 +169,6 @@ def print_doc_from_template(parent=None, jobtype=None, episode=None, edit_form=N
 	if form is None:
 		return False
 
-	if form in [True, False]:	# returned by special OOo/LO handling
-		return form
-
 	if episode is None:
 		epi_name = 'administrative'
 	else:
@@ -183,60 +180,6 @@ def print_doc_from_template(parent=None, jobtype=None, episode=None, edit_form=N
 		episode_name = epi_name,
 		review_copy_as_normal = True
 	)
-
-#------------------------------------------------------------
-# eventually this should become superfluous when there's a
-# standard engine wrapper around OOo
-def print_doc_from_ooo_template(template=None):
-
-	# export template to file
-	filename = template.save_to_file()
-	if filename is None:
-		gmGuiHelpers.gm_show_error (
-			_(	'Error exporting form template\n'
-				'\n'
-				' "%s" (%s)'
-			) % (template['name_long'], template['external_version']),
-			_('Letter template export')
-		)
-		return False
-
-	try:
-		doc = gmForms.cOOoLetter(template_file = filename, instance_type = template['instance_type'])
-	except ImportError:
-		gmGuiHelpers.gm_show_error (
-			_('Cannot connect to OpenOffice.\n\n'
-			  'The UNO bridge module for Python\n'
-			  'is not installed.'
-			),
-			_('Letter writer')
-		)
-		return False
-
-	if not doc.open_in_ooo():
-		gmGuiHelpers.gm_show_error (
-			_('Cannot connect to OpenOffice.\n'
-			  '\n'
-			  'You may want to increase the option\n'
-			  '\n'
-			  ' <%s>'
-			) % _('OOo startup time'),
-			_('Letter writer')
-		)
-		try: os.remove(filename)
-		except Exception: pass
-		return False
-
-	doc.show(False)
-	ph_handler = gmMacro.gmPlaceholderHandler()
-	doc.replace_placeholders(handler = ph_handler)
-
-	filename = filename.replace('.ott', '.odt').replace('-FormTemplate-', '-FormInstance-')
-	doc.save_in_ooo(filename = filename)
-
-	doc.show(True)
-
-	return True
 
 #------------------------------------------------------------
 def generate_failsafe_form_wrapper(pk_patient:int=None, title:str=None, max_width:int=80) -> list[list[str]]:
@@ -295,9 +238,6 @@ def generate_form_from_template(parent=None, template_types=None, edit=None, tem
 		if template is None:
 			gmDispatcher.send(signal = 'statustext', msg = _('No document template selected.'), beep = False)
 			return None
-
-	if template['engine'] == 'O':
-		return print_doc_from_ooo_template(template = template)
 
 	wx.BeginBusyCursor()
 

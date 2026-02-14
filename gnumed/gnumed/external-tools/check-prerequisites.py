@@ -36,20 +36,6 @@ except ImportError:
 	print("  INFO : wxPython is available from https://www.wxpython.org")
 	print("  INFO : on Mac OSX Panther you may have to use 'export DISPLAY=:0'")
 
-# needs to check for uno3
-#print " uno...",
-#try:
-#	import uno
-#	print "found"
-#except ImportError:
-#	missing = True
-#	print ""
-#	print "  ERROR: uno not installed"
-#	print "  INFO : this is needed for form and letter handling"
-#	print "  INFO : GNUmed will work but you will be unable"
-#	print "  INFO : to use OpenOffice to write letters and"
-#	print "  INFO : fill in forms"
-
 #print(" Gnuplot...", end=' ')
 #try:
 #	import Gnuplot

@@ -521,22 +521,8 @@ __known_variant_placeholders = {
 known_variant_placeholders = list(__known_variant_placeholders)
 
 
-# https://help.libreoffice.org/Common/List_of_Regular_Expressions
-# except that OOo cannot be non-greedy |-(
-#default_placeholder_regex = r'\$<.+?>\$'				# previous working placeholder
-	# regex logic:
-	# starts with "$"
-	# followed by "<"
-	# followed by > 0 characters but NOT "<" but ONLY up to the NEXT ":"
-	# followed by "::"
-	# followed by any number of characters  but ONLY up to the NEXT ":"
-	# followed by "::"
-	# followed by any number of numbers
-	# followed by ">"
-	# followed by "$"
-
 # previous:
-default_placeholder_regex = r'\$<[^<:]+::.*?::\d*?>\$|\$<[^<:]+::.*?::\d+-\d+>\$'         # this one works [except that OOo cannot be non-greedy |-(    ]
+default_placeholder_regex = r'\$<[^<:]+::.*?::\d*?>\$|\$<[^<:]+::.*?::\d+-\d+>\$'         # this one works
 first_pass_placeholder_regex = r'|'.join ([
 	r'\$<[^<:]+::.*?(?=::\d*?>\$)::\d*?>\$',
 	r'\$<[^<:]+::.*?(?=::\d+-\d+>\$)::\d+-\d+>\$'
