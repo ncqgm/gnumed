@@ -25,7 +25,7 @@ else:
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 
-from Gnumed.business.gmHL7Mappings import *
+from Gnumed.business.gmHL7Defs import *
 
 
 _log = logging.getLogger('gm.hl7')

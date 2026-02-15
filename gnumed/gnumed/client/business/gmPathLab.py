@@ -34,7 +34,7 @@ from Gnumed.pycommon import gmCfgINI
 
 from Gnumed.business import gmOrganization
 from Gnumed.business import gmCoding
-from Gnumed.business.gmHL7Mappings import HL7_RESULT_STATI
+from Gnumed.business.gmHL7Defs import HL7_RESULT_STATI
 
 
 _log = logging.getLogger('gm.lab')
