@@ -10,7 +10,9 @@ __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL v2 or later (details at https://www.gnu.org)"
 
 # standard library
-import sys, datetime as pyDT, logging
+import sys
+import datetime as pyDT
+import logging
 
 
 # 3rd party
@@ -22,10 +24,17 @@ import wx.adv as wxcal
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
+else:
+	try: _		# do we already have _() ?
+	except NameError:
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
 from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmI18N
 from Gnumed.wxpython import gmPhraseWheel
+
 
 _log = logging.getLogger('gm.ui')
 
@@ -258,7 +267,10 @@ class cDateMatchProvider(gmMatchProvider.cMatchProvider):
 				second = 11,
 				microsecond = 111111
 			)
-			list_label = data.strftime('%A, %d. %B %Y (%x)')
+			try:
+				list_label = match['label']
+			except KeyError:
+				list_label = data.strftime('%A, %d. %B %Y (%x)')
 			items.append ({
 				'data': data,
 				'field_label': match['label'],
@@ -752,9 +764,13 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
+	del _
+	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
-	gmI18N.install_domain(domain='gnumed')
+	gmI18N.install_domain('gnumed')
 	gmDateTime.init()
+
+	from Gnumed.wxpython import gmGuiTest
 
 	#----------------------------------------------------
 	def test_cli():
@@ -777,13 +793,21 @@ if __name__ == '__main__':
 #		app.SetWidget(cFuzzyTimestampInput, id=-1, size=(180,20), pos=(10,20))
 #		app.MainLoop()
 	#--------------------------------------------------------
-#	def test_picker():
-#		app = wx.PyWidgetTester(size = (300, 40))
-#		app.SetWidget(cDateInputPhraseWheel, id=-1, size=(180,20), pos=(10,20))
-#		app.MainLoop()
+	def test_picker():
+		gmGuiTest.test_widget (
+			cDateInputPhraseWheel,
+			# *widget_args:
+			-1,					# say, for window ID
+			patient = None,
+			size = (400, 80),
+			setup_db = False		# use TUI for setting up DB access
+			#, **widget_kwargs:
+			#other kw args needed for widget
+		)
+
 	#--------------------------------------------------------
-	test_cli()
+	#test_cli()
 	#test_fuzzy_picker()
-	#test_picker()
+	test_picker()
 
 #==================================================

@@ -1087,6 +1087,48 @@ def str2interval(str_interval=None):
 #===========================================================================
 # string -> python datetime parser
 #---------------------------------------------------------------------------
+def __day_equals2py_dt(str2parse:str) -> list[pyDT.datetime]:
+	"""This matches input like
+
+		t=3 (today = Day 3)
+		y = 3 (Yesterday = 3rd Day)
+		m: 5 (toMorrow : Day 5)
+	"""
+	str2parse = str2parse.strip().casefold()
+	str2parse = str2parse.replace(':', '=', 1)
+	if str2parse.startswith('='):
+		str2parse = 't' + str2parse
+	anchor_chars = _('tmy -- single-character markers for Today/toMorrow/Yesterday (keep this order !)')[:3].casefold()
+	if str2parse[0] not in anchor_chars:
+		return []
+
+	parts = str2parse.split('=')
+	if len(parts) != 2:
+		return []
+
+	try:
+		shift = int(parts[1])
+	except (TypeError, ValueError):
+		return []
+
+	if shift < 1:
+		return []
+
+	today, tomorrow, yesterday = tuple(anchor_chars)
+	anchor_char = parts[0].strip()
+	if anchor_char == today:
+		label_template = _('today is day %s, so start: %%s') % shift
+	elif anchor_char == tomorrow:
+		label_template = _('tomorrow is day %s, so start: %%s') % shift
+		shift = shift - 1
+	elif anchor_char == yesterday:
+		label_template = _('yesterday was day %s, so start: %%s)') % shift
+		shift = shift + 1
+	ts = pydt_add(pydt_now_here(), days = (shift-1) * -1)
+	label = label_template % ts.strftime('%A, %Y-%m-%d')
+	return [{'data': ts, 'label': label}]
+
+#---------------------------------------------------------------------------
 def __single_char2py_dt(str2parse, trigger_chars=None):
 	"""This matches on single characters.
 
@@ -1581,7 +1623,8 @@ STR2PYDT_PARSERS:list[Callable[[str], dict]] = [
 	__numbers_only2py_dt,
 	__single_slash2py_dt,
 	__single_char2py_dt,
-	__explicit_offset2py_dt
+	__explicit_offset2py_dt,
+	__day_equals2py_dt
 ]
 """Specialized parsers for string -> datetime conversion."""
 
@@ -2498,6 +2541,35 @@ if __name__ == '__main__':
 			input()
 
 	#-------------------------------------------------
+	def test__day_equals2py_dt():
+		defs = [
+			't=1',
+			'=1',
+			' = 1 ',
+			'\n\t t \n= 1\n',
+			'\n\t t \n= 1\n',
+			't:1',
+			't=2',
+			':2',
+			't=3',
+			' : 3 ',
+			'm=1',
+			'm=2',
+			'm=3',
+			'y=1',
+			'y=2',
+			'y=3',
+			't=-1',
+			'X=1',
+			'X=-1',
+			' X = -1 ',
+			'abc'
+		]
+		print('today:', pydt_now_here())
+		for d in defs:
+			print('"%s"\n    %s' % (d, __day_equals2py_dt(d)))
+
+	#-------------------------------------------------
 	# GNUmed libs
 	gmI18N.activate_locale()
 	gmI18N.install_domain('gnumed')
@@ -2509,12 +2581,13 @@ if __name__ == '__main__':
 	#test_cFuzzyTimeStamp()
 	#test_get_pydt()
 	#test_str2interval()
-	test_format_interval()
+	#test_format_interval()
 	#test_format_interval_medically()
 	#test_pydt_strftime()
 	#test_calculate_apparent_age()
 	#test_is_leap_year()
 	#test__numbers_only()
 	#test_local_tz()
+	test__day_equals2py_dt()
 
 #===========================================================================
