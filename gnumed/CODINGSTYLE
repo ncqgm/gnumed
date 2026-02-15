@@ -64,9 +64,7 @@ if __name__ == '__main__':
 	_ = lambda x:x
 else:
 	# we are being imported from elsewhere, say, mypy or some such
-	try:
-		# do we already have _() ?
-		_
+	try: _		# do we already have _() ?
 	except NameError:
 		# no, setup i18n handling
 		from Gnumed.pycommon import gmI18N
