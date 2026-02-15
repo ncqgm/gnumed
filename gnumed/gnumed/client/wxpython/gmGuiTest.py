@@ -58,9 +58,9 @@ def test_widget(widget_class, *widget_args, patient:int=-1, size=None, setup_db:
 	"""
 	if setup_db:
 		gmPG2.request_login_params(setup_pool = True, force_tui = True)
-	gmPraxis.gmCurrentPraxisBranch.from_first_branch()
-	if not __activate_patient(patient = patient):
-		sys.exit()
+		gmPraxis.gmCurrentPraxisBranch.from_first_branch()
+		if not __activate_patient(patient = patient):
+			sys.exit()
 
 	app = inspection.InspectableApp()
 	app.SetAssertMode(wx.APP_ASSERT_EXCEPTION | wx.APP_ASSERT_LOG)
