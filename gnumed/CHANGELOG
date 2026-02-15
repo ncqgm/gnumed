@@ -61,6 +61,7 @@ IMPROVED: safe patient data into gnumed/patients/ instead of gnumed/
 IMPROVED: forms: vaccination history LaTeX template
 IMPROVED: lists: make minimum column width policy configurable [thanks María]
 IMPROVED: buttons: make shrinking to label size configurable [thanks María]
+IMPROVED: datetime picker: support "Today/toMorrow/Yesterday = day X" syntax
 
 FIX: CLI: --wxp= not needed anymore
 FIX: CLI: --ui= not needed anymore
