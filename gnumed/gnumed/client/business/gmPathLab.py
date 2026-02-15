@@ -34,26 +34,13 @@ from Gnumed.pycommon import gmCfgINI
 
 from Gnumed.business import gmOrganization
 from Gnumed.business import gmCoding
+from Gnumed.business.gmHL7Mappings import HL7_RESULT_STATI
+
 
 _log = logging.getLogger('gm.lab')
 _cfg = gmCfgINI.gmCfgData()
 
 #============================================================
-HL7_RESULT_STATI = {
-	None: _('unknown'),
-	'': _('empty status'),
-	'C': _('C (HL7: Correction, replaces previous final)'),
-	'D': _('D (HL7: Deletion)'),
-	'F': _('F (HL7: Final)'),
-	'I': _('I (HL7: pending, specimen In lab)'),
-	'P': _('P (HL7: Preliminary)'),
-	'R': _('R (HL7: result entered, not yet verified)'),
-	'S': _('S (HL7: partial)'),
-	'X': _('X (HL7: cannot obtain results for this observation)'),
-	'U': _('U (HL7: mark as final (I/P/R/S -> F, value Unchanged)'),
-	'W': _('W (HL7: original Wrong (say, wrong patient))')
-}
-
 URL_test_result_information = 'http://www.laborlexikon.de'
 URL_test_result_information_search = "https://www.google.de/search?as_oq=%(search_term)s&num=10&as_sitesearch=laborlexikon.de"
 
