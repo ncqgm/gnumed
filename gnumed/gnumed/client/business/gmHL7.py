@@ -25,7 +25,7 @@ else:
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 
-from Gnumed.business.gmHL7Defs import *
+from Gnumed.business importgm HL7Defs
 
 
 _log = logging.getLogger('gm.hl7')
@@ -53,7 +53,7 @@ def format_hl7_message(message=None, skip_empty_fields=True, eol='\n ', source=N
 		for field_idx in range(len(seg)):
 			field = seg[field_idx]
 			try:
-				label = HL7_field_labels[seg_type][field_idx]
+				label = gmHL7Defs.HL7_field_labels[seg_type][field_idx]
 			except KeyError:
 				label = _('HL7 %s field') % seg_type
 
@@ -68,7 +68,7 @@ def format_hl7_message(message=None, skip_empty_fields=True, eol='\n ', source=N
 					output.append(['%2s - %s' % (field_idx, label), _('<EMTPY>')])
 				continue
 
-			content_lines = ('%s' % field).split(HL7_BRK)
+			content_lines = ('%s' % field).split(gmHL7Defs.HL7_BRK)
 			output.append(['%2s - %s' % (field_idx, label), content_lines[0]])
 			for line in content_lines[1:]:
 				output.append(['', line])
@@ -135,15 +135,15 @@ def __fix_malformed_hl7_file(filename, encoding='utf8'):
 			continue
 		# starts with known segment ?
 		segment = line[:3]
-		if (segment in HL7_SEGMENTS) and (line[3] == '|'):
+		if (segment in gmHL7Defs.HL7_SEGMENTS) and (line[3] == '|'):
 			if not is_first_line:
-				hl7_out.write(HL7_EOL)
+				hl7_out.write(gmHL7Defs.HL7_EOL)
 			else:
 				is_first_line = False
 		else:
 			hl7_out.write(' ')
 		hl7_out.write(line.rstrip())
-	hl7_out.write(HL7_EOL)
+	hl7_out.write(gmHL7Defs.HL7_EOL)
 	hl7_out.close()
 	hl7_in.close()
 
@@ -154,15 +154,15 @@ def __fix_malformed_hl7_file(filename, encoding='utf8'):
 		prefix = 'gm_fix2-%s-' % gmTools.fname_stem(filename),
 		suffix = '.hl7'
 	)
-	# we can now _expect_ lines to end in HL7_EOL, anything else is an error
-	hl7_in = open(out1_fname, mode = 'rt', encoding = 'utf-8-sig', newline = HL7_EOL)
+	# we can now _expect_ lines to end in gmHL7Defs.HL7_EOL, anything else is an error
+	hl7_in = open(out1_fname, mode = 'rt', encoding = 'utf-8-sig', newline = gmHL7Defs.HL7_EOL)
 	hl7_out = open(out2_fname, mode = 'wt', encoding = 'utf8', newline = '')
 	for line in hl7_in:
 		line = line.strip()
 		seg_type = line[:3]						# assumption: field separator = '|'
 		field_count = line.count('|') + 1		# assumption: no '|' in data ...
 		try:
-			required_fields = HL7_segment2field_count[seg_type]
+			required_fields = gmHL7Defs.HL7_segment2field_count[seg_type]
 		except KeyError:
 			required_fields = field_count
 		missing_fields_count = required_fields - field_count
@@ -170,13 +170,13 @@ def __fix_malformed_hl7_file(filename, encoding='utf8'):
 			line += ('|' * missing_fields_count)
 		cleaned_fields = []
 		for field in line.split('|'):
-			if field.replace(HL7_BRK, '').strip() == '':
+			if field.replace(gmHL7Defs.HL7_BRK, '').strip() == '':
 				cleaned_fields.append('')
 				continue
-			cleaned = gmTools.strip_prefix(field, HL7_BRK, remove_repeats = True, remove_whitespace = True)
-			cleaned = gmTools.strip_suffix(cleaned, HL7_BRK, remove_repeats = True, remove_whitespace = True)
+			cleaned = gmTools.strip_prefix(field, gmHL7Defs.HL7_BRK, remove_repeats = True, remove_whitespace = True)
+			cleaned = gmTools.strip_suffix(cleaned, gmHL7Defs.HL7_BRK, remove_repeats = True, remove_whitespace = True)
 			cleaned_fields.append(cleaned)
-		hl7_out.write('|'.join(cleaned_fields) + HL7_EOL)
+		hl7_out.write('|'.join(cleaned_fields) + gmHL7Defs.HL7_EOL)
 	hl7_out.close()
 	hl7_in.close()
 
@@ -186,8 +186,8 @@ def __fix_malformed_hl7_file(filename, encoding='utf8'):
 		prefix = 'gm_fix3-%s-' % gmTools.fname_stem(filename),
 		suffix = '.hl7'
 	)
-	# we can now _expect_ lines to end in HL7_EOL, anything else is an error
-	hl7_in = open(out2_fname, mode = 'rt', encoding = 'utf-8-sig', newline = HL7_EOL)
+	# we can now _expect_ lines to end in gmHL7Defs.HL7_EOL, anything else is an error
+	hl7_in = open(out2_fname, mode = 'rt', encoding = 'utf-8-sig', newline = gmHL7Defs.HL7_EOL)
 	hl7_out = open(out3_fname, mode = 'wt', encoding = 'utf8', newline = '')
 	prev_identity = None
 	prev_fields = None
@@ -195,16 +195,16 @@ def __fix_malformed_hl7_file(filename, encoding='utf8'):
 		line = line.strip()
 		if not line.startswith('OBX|'):
 			if prev_fields is not None:
-				hl7_out.write('|'.join(prev_fields) + HL7_EOL)
-			hl7_out.write(line + HL7_EOL)
+				hl7_out.write('|'.join(prev_fields) + gmHL7Defs.HL7_EOL)
+			hl7_out.write(line + gmHL7Defs.HL7_EOL)
 			prev_identity = None
 			prev_fields = None
 			curr_fields = None
 			continue
 		# first OBX
 		curr_fields = line.split('|')
-		if curr_fields[OBX_field__datatype] != 'FT':
-			hl7_out.write(line + HL7_EOL)
+		if curr_fields[gmHL7Defs.OBX_field__datatype] != 'FT':
+			hl7_out.write(line + gmHL7Defs.HL7_EOL)
 			prev_identity = None
 			prev_fields = None
 			curr_fields = None
@@ -213,34 +213,34 @@ def __fix_malformed_hl7_file(filename, encoding='utf8'):
 		if prev_fields is None:
 			prev_fields = line.split('|')
 			prev_identity = line.split('|')
-			prev_identity[OBX_field__set_id] = ''
-			prev_identity[OBX_field__subid] = ''
-			prev_identity[OBX_field__value] = ''
+			prev_identity[gmHL7Defs.OBX_field__set_id] = ''
+			prev_identity[gmHL7Defs.OBX_field__subid] = ''
+			prev_identity[gmHL7Defs.OBX_field__value] = ''
 			prev_identity = '|'.join(prev_identity)
 			continue
 		# non-first FT type OBX
 		curr_identity = line.split('|')
-		curr_identity[OBX_field__set_id] = ''
-		curr_identity[OBX_field__subid] = ''
-		curr_identity[OBX_field__value] = ''
+		curr_identity[gmHL7Defs.OBX_field__set_id] = ''
+		curr_identity[gmHL7Defs.OBX_field__subid] = ''
+		curr_identity[gmHL7Defs.OBX_field__value] = ''
 		curr_identity = '|'.join(curr_identity)
 		if curr_identity != prev_identity:
 			# write out previous line
-			hl7_out.write('|'.join(prev_fields) + HL7_EOL)
+			hl7_out.write('|'.join(prev_fields) + gmHL7Defs.HL7_EOL)
 			# keep current fields, since it may start a "repeat FT type OBX block"
 			prev_fields = curr_fields
 			prev_identity = curr_identity
 			continue
-		if prev_fields[OBX_field__value].endswith(HL7_BRK):
-			prev_fields[OBX_field__value] += curr_fields[OBX_field__value]
+		if prev_fields[gmHL7Defs.OBX_field__value].endswith(gmHL7Defs.HL7_BRK):
+			prev_fields[gmHL7Defs.OBX_field__value] += curr_fields[gmHL7Defs.OBX_field__value]
 		else:
-			if curr_fields[OBX_field__value].startswith(HL7_BRK):
-				prev_fields[OBX_field__value] += curr_fields[OBX_field__value]
+			if curr_fields[gmHL7Defs.OBX_field__value].startswith(gmHL7Defs.HL7_BRK):
+				prev_fields[gmHL7Defs.OBX_field__value] += curr_fields[gmHL7Defs.OBX_field__value]
 			else:
-				prev_fields[OBX_field__value] += HL7_BRK
-				prev_fields[OBX_field__value] += curr_fields[OBX_field__value]
+				prev_fields[gmHL7Defs.OBX_field__value] += gmHL7Defs.HL7_BRK
+				prev_fields[gmHL7Defs.OBX_field__value] += curr_fields[gmHL7Defs.OBX_field__value]
 	if prev_fields is not None:
-		hl7_out.write('|'.join(prev_fields) + HL7_EOL)
+		hl7_out.write('|'.join(prev_fields) + gmHL7Defs.HL7_EOL)
 	hl7_out.close()
 	hl7_in.close()
 
@@ -303,19 +303,19 @@ if __name__ == "__main__":
 			print(seg)
 		print("PID:")
 		print(HL7.extract_field('PID'))
-		print(HL7.extract_field('PID', segment_num = 1, field_num = PID_field__name, component_num = PID_component__lastname))
-		print(HL7.extract_field('PID', segment_num = 1, field_num = PID_field__name, component_num = PID_component__lastname))
+		print(HL7.extract_field('PID', segment_num = 1, field_num = gmHL7Defs.PID_field__name, component_num = gmHL7Defs.PID_component__lastname))
+		print(HL7.extract_field('PID', segment_num = 1, field_num = gmHL7Defs.PID_field__name, component_num = gmHL7Defs.PID_component__lastname))
 
-#			incoming['firstnames'] = HL7.extract_field('PID', segment_num = 1, field_num = PID_field__name, component_num = PID_component__firstname)
-#			val = HL7.extract_field('PID', segment_num = 1, field_num = PID_field__name, component_num = PID_component__middlename)
+#			incoming['firstnames'] = HL7.extract_field('PID', segment_num = 1, field_num = gmHL7Defs.PID_field__name, component_num = gmHL7Defs.PID_component__firstname)
+#			val = HL7.extract_field('PID', segment_num = 1, field_num = gmHL7Defs.PID_field__name, component_num = gmHL7Defs.PID_component__middlename)
 #			if val is not None:
 #				incoming['firstnames'] += u' '
 #				incoming['firstnames'] += val
-#			val = HL7.extract_field('PID', segment_num = 1, field_num = PID_field__dob)
+#			val = HL7.extract_field('PID', segment_num = 1, field_num = gmHL7Defs.PID_field__dob)
 #			if val is not None:
 #				tmp = time.strptime(val, '%Y%m%d')
 #				incoming['dob'] = pyDT.datetime(tmp.tm_year, tmp.tm_mon, tmp.tm_mday, tzinfo = gmDateTime.gmCurrentLocalTimezone)
-#			val = HL7.extract_field('PID', segment_num = 1, field_num = PID_field__gender)
+#			val = HL7.extract_field('PID', segment_num = 1, field_num = gmHL7Defs.PID_field__gender)
 #			if val is not None:
 #				incoming['gender'] = val
 #			incoming['external_data_id'] = filename

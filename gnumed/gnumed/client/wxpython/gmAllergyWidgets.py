@@ -29,7 +29,6 @@ from Gnumed.pycommon import gmMatchProvider
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmAllergy
-from Gnumed.business import gmPersonSearch
 
 
 _log = logging.getLogger('gm.ui')
@@ -503,7 +502,6 @@ if __name__ == "__main__":
 	gmI18N.activate_locale()
 	gmI18N.install_domain('gnumed')
 
-	from Gnumed.wxpython import gmPatSearchWidgets
 	from Gnumed.wxpython import gmGuiTest
 
 	#-----------------------------------------------

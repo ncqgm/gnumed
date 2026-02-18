@@ -36,7 +36,12 @@ from Gnumed.business import gmStaff
 from Gnumed.business import gmEpisode
 from Gnumed.business import gmProblem
 
-from Gnumed.wxpython import gmResizingWidgets, gmEMRStructWidgets, gmGuiHelpers, gmRegetMixin, gmEditArea, gmPatSearchWidgets, gmVaccWidgets
+from Gnumed.wxpython import gmResizingWidgets
+from Gnumed.wxpython import gmEMRStructWidgets
+from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython import gmRegetMixin
+from Gnumed.wxpython import gmPatSearchWidgets
+from Gnumed.wxpython import gmVaccWidgets
 
 _log = logging.getLogger('gm.ui')
 if __name__ == '__main__':

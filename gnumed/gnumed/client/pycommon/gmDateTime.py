@@ -1124,6 +1124,8 @@ def __day_equals2py_dt(str2parse:str) -> list[pyDT.datetime]:
 	elif anchor_char == yesterday:
 		label_template = _('yesterday was day %s, so start: %%s)') % shift
 		shift = shift + 1
+	else:
+		label_template = '%s'
 	ts = pydt_add(pydt_now_here(), days = (shift-1) * -1)
 	label = label_template % ts.strftime('%A, %Y-%m-%d')
 	return [{'data': ts, 'label': label}]

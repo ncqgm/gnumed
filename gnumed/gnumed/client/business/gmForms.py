@@ -11,12 +11,10 @@ __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 import os
 import sys
-import time
 import os.path
 import logging
 import re as regex
 import shutil
-import random
 import platform
 import subprocess
 import codecs
@@ -33,11 +31,9 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmMatchProvider
-from Gnumed.pycommon import gmBorg
 from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmShellAPI
-from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2

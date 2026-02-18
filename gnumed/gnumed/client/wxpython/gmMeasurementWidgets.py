@@ -110,55 +110,6 @@ def browse_incoming(parent=None):
 		tmp_file.close()
 		gmMimeLib.call_viewer_on_file(filename, block = False)
 		return False
-	#------------------------------------------------------------
-	def import_hl7(staged_item):
-		if staged_item is None:
-			return False
-		if 'HL7' not in staged_item['data_type']:
-			return False
-		unset_identity_on_error = False
-		if staged_item['pk_identity'] is None:
-			pat = gmPerson.gmCurrentPatient()
-			if pat.connected:
-				answer = gmGuiHelpers.gm_show_question (
-					title = _('Importing HL7 data'),
-					question = _(
-						'There has not been a patient explicitly associated\n'
-						'with this chunk of HL7 data. However, the data file\n'
-						'contains the following patient identification information:\n'
-						'\n'
-						' %s\n'
-						'\n'
-						'Do you want to import the HL7 under the current patient ?\n'
-						'\n'
-						' %s\n'
-						'\n'
-						'Selecting [NO] makes GNUmed try to find a patient matching the HL7 data.\n'
-					) % (
-						staged_item.patient_identification,
-						pat.description_gender
-					),
-					cancel_button = True
-				)
-				if answer is None:
-					return False
-				if answer is True:
-					unset_identity_on_error = True
-					staged_item['pk_identity'] = pat.ID
-
-		success, log_name = gmHL7.process_staged_single_PID_hl7_file(staged_item)
-		if success:
-			return True
-
-		if unset_identity_on_error:
-			staged_item['pk_identity'] = None
-			staged_item.save()
-
-		gmGuiHelpers.gm_show_error (
-			error = _('Error processing HL7 data.'),
-			title = _('Processing staged HL7 data.')
-		)
-		return False
 
 	#------------------------------------------------------------
 	def delete(staged_item):
@@ -175,6 +126,7 @@ def browse_incoming(parent=None):
 		if not do_delete:
 			return False
 		return gmIncomingData.delete_incoming_data(pk_incoming_data = staged_item['pk_incoming_data'])
+
 	#------------------------------------------------------------
 	def refresh(lctrl):
 		incoming = gmIncomingData.get_incoming_data()
@@ -191,6 +143,7 @@ def browse_incoming(parent=None):
 		] for i in incoming ]
 		lctrl.set_string_items(items)
 		lctrl.set_data(incoming)
+
 	#------------------------------------------------------------
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
@@ -204,8 +157,7 @@ def browse_incoming(parent=None):
 #		edit_callback=None,
 #		new_callback=None,
 		delete_callback = delete,
-		left_extra_button = [_('Show'), _('Show formatted HL7'), show_hl7],
-		middle_extra_button = [_('Import'), _('Import HL7 data into patient chart'), import_hl7]
+		left_extra_button = [_('Show'), _('Show formatted HL7'), show_hl7]
 #		right_extra_button=None
 	)
 
