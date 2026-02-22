@@ -49,6 +49,7 @@ import os
 import re as regex
 import logging
 from typing import Callable
+from typing import TypedDict
 
 
 if __name__ == '__main__':
@@ -1087,7 +1088,12 @@ def str2interval(str_interval=None):
 #===========================================================================
 # string -> python datetime parser
 #---------------------------------------------------------------------------
-def __day_equals2py_dt(str2parse:str) -> list[pyDT.datetime]:
+class tStr2pyDT(TypedDict):
+	data: pyDT.datetime
+	label: str
+
+#---------------------------------------------------------------------------
+def __day_equals2py_dt(str2parse:str) -> list[tStr2pyDT]:
 	"""This matches input like
 
 		t=3 (today = Day 3)
@@ -1620,7 +1626,7 @@ STR2PYDT_DEFAULT_PATTERNS = [
 ]
 """Default patterns being passed to strptime()."""
 
-STR2PYDT_PARSERS:list[Callable[[str], dict]] = [
+STR2PYDT_PARSERS:list[Callable[[str], list[tStr2pyDT]]] = [
 	__single_dot2py_dt,
 	__numbers_only2py_dt,
 	__single_slash2py_dt,
@@ -1631,7 +1637,7 @@ STR2PYDT_PARSERS:list[Callable[[str], dict]] = [
 """Specialized parsers for string -> datetime conversion."""
 
 #---------------------------------------------------------------------------
-def str2pydt_matches(str2parse:str=None, patterns:list=None) -> list:
+def str2pydt_matches(str2parse:str=None, patterns:list=None) -> list[tStr2pyDT]:
 	"""Turn a string into candidate datetimes.
 
 	Args:
@@ -1656,7 +1662,7 @@ def str2pydt_matches(str2parse:str=None, patterns:list=None) -> list:
 	Returns:
 		List of Python datetimes the input could be parsed as.
 	"""
-	matches:list[dict] = []
+	matches:list[tStr2pyDT] = []
 	for parser in STR2PYDT_PARSERS:
 		matches.extend(parser(str2parse))
 	hour = 11
