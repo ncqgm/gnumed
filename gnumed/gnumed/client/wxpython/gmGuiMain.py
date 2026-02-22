@@ -780,6 +780,8 @@ class gmTopLevelFrame(wx.Frame):
 #		self.Bind(wx.EVT_MENU, self.__on_menu_reference, item)
 		item = help_menu.Append(-1, _('Patient search help'), _('Show help on patient search.'))
 		self.Bind(wx.EVT_MENU, self.__on_display_patient_search_help, item)
+		item = help_menu.Append(-1, _('Date input help'), _('Show help on date input.'))
+		self.Bind(wx.EVT_MENU, self.__on_display_date_input_help, item)
 
 		menu_log = wx.Menu()
 		item = menu_log.Append(-1, _('show'), _('Show log file in text viewer.'))
@@ -2454,6 +2456,13 @@ class gmTopLevelFrame(wx.Frame):
 		fname = gmTools.get_unique_filename()
 		with open(fname, 'wt', encoding = 'utf8') as help_file:
 			help_file.write(gmPersonSearch.get_person_search_help())
+		gmMimeLib.call_viewer_on_file(fname, block = False)
+
+	#----------------------------------------------
+	def __on_display_date_input_help(self, evt):
+		fname = gmTools.get_unique_filename()
+		with open(fname, 'wt', encoding = 'utf8') as help_file:
+			help_file.write(gmDateTime.get_str2pydt_docs())
 		gmMimeLib.call_viewer_on_file(fname, block = False)
 
 #	#----------------------------------------------

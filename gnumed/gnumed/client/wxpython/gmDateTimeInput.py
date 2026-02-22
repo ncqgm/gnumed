@@ -231,6 +231,7 @@ class cDateMatchProvider(gmMatchProvider.cMatchProvider):
 		self.setThresholds(aPhrase = 1, aWord = 998, aSubstring = 999)
 		self.word_separators = None
 #		self.ignored_chars("""[?!."'\\(){}\[\]<>~#*$%^_]+""")
+
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -247,7 +248,6 @@ class cDateMatchProvider(gmMatchProvider.cMatchProvider):
 	def getMatchesByPhrase(self, aFragment):
 		"""Return matches for aFragment at start of phrases."""
 		matches = gmDateTime.str2pydt_matches(str2parse = aFragment.strip())
-
 		if len(matches) == 0:
 			return (False, [])
 
@@ -260,13 +260,7 @@ class cDateMatchProvider(gmMatchProvider.cMatchProvider):
 					'list_label': match['label']
 				})
 				continue
-
-			data = match['data'].replace (
-				hour = 11,
-				minute = 11,
-				second = 11,
-				microsecond = 111111
-			)
+			data = match['data'].replace(hour = 11, minute = 11, second = 11, microsecond = 111111)
 			try:
 				list_label = match['label']
 			except KeyError:
@@ -276,16 +270,18 @@ class cDateMatchProvider(gmMatchProvider.cMatchProvider):
 				'field_label': match['label'],
 				'list_label': list_label
 			})
-
 		return (True, items)
+
 	#--------------------------------------------------------
 	def getMatchesByWord(self, aFragment):
 		"""Return matches for aFragment at start of words inside phrases."""
 		return self.getMatchesByPhrase(aFragment)
+
 	#--------------------------------------------------------
 	def getMatchesBySubstr(self, aFragment):
 		"""Return matches for aFragment as a true substring."""
 		return self.getMatchesByPhrase(aFragment)
+
 	#--------------------------------------------------------
 	def getAllMatches(self):
 		"""Return all items."""

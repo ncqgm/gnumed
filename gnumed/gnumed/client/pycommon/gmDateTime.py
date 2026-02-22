@@ -1088,17 +1088,19 @@ def str2interval(str_interval=None):
 #===========================================================================
 # string -> python datetime parser
 #---------------------------------------------------------------------------
-class tStr2pyDT(TypedDict):
+class tStr2pydt_parser_result(TypedDict):
 	data: pyDT.datetime
 	label: str
 
 #---------------------------------------------------------------------------
-def __day_equals2py_dt(str2parse:str) -> list[tStr2pyDT]:
-	"""This matches input like
+def __day_equals2py_dt(str2parse:str) -> list[tStr2pydt_parser_result]:
+	"""Determine day 1 from input like 'today is the 3rd day'.
 
 		t=3 (today = Day 3)
-		y = 3 (Yesterday = 3rd Day)
-		m: 5 (toMorrow : Day 5)
+		m = 5 (toMorrow = Day 5)
+		y: 2 (Yesterday = 2nd Day)
+
+		If a translation has been provided, the characters 't/m/y' by be different.
 	"""
 	str2parse = str2parse.strip().casefold()
 	str2parse = str2parse.replace(':', '=', 1)
@@ -1137,45 +1139,36 @@ def __day_equals2py_dt(str2parse:str) -> list[tStr2pyDT]:
 	return [{'data': ts, 'label': label}]
 
 #---------------------------------------------------------------------------
-def __single_char2py_dt(str2parse, trigger_chars=None):
-	"""This matches on single characters.
+def __single_char2py_dt(str2parse, trigger_chars=None) -> list[tStr2pydt_parser_result]:
+	"""Turn 'ntmy' into 'N'ow / 'T'oday / to'M'orrow / 'Y'esterday, respectivly.
 
-	Spaces and tabs are discarded.
-
-	Default is 'ndmy':
-		n - _N_ow
-		d - to_D_ay
-		m - to_M_orrow	Someone please suggest a synonym ! ("2" does not cut it ...)
-		y - _Y_esterday
-
-	This also defines the significance of the order of the characters.
+		If a translation has been provided, the characters 'ntmy' by be different.
 	"""
 	str2parse = str2parse.strip().casefold()
 	if len(str2parse) != 1:
 		return []
 
 	if trigger_chars is None:
-		trigger_chars = _('ndmy (single character date triggers)')[:4].casefold()
-
+		trigger_chars = _('ntmy (single character date triggers)')[:4].casefold()
 	if str2parse not in trigger_chars:
 		return []
 
 	now = pydt_now_here()
-
 	# FIXME: handle uebermorgen/vorgestern ?
-
 	# right now
 	if str2parse == trigger_chars[0]:
 		return [{
 			'data': now,
 			'label': _('right now (%s, %s)') % (now.strftime('%A'), now)
 		}]
+
 	# today
 	if str2parse == trigger_chars[1]:
 		return [{
 			'data': now,
 			'label': _('today (%s)') % now.strftime('%A, %Y-%m-%d')
 		}]
+
 	# tomorrow
 	if str2parse == trigger_chars[2]:
 		ts = pydt_add(now, days = 1)
@@ -1183,6 +1176,7 @@ def __single_char2py_dt(str2parse, trigger_chars=None):
 			'data': ts,
 			'label': _('tomorrow (%s)') % ts.strftime('%A, %Y-%m-%d')
 		}]
+
 	# yesterday
 	if str2parse == trigger_chars[3]:
 		ts = pydt_add(now, days = -1)
@@ -1193,31 +1187,29 @@ def __single_char2py_dt(str2parse, trigger_chars=None):
 	return []
 
 #---------------------------------------------------------------------------
-def __single_dot2py_dt(str2parse):
-	"""Expand fragments containing a single dot.
+def __single_dot2py_dt(str2parse) -> list[tStr2pydt_parser_result]:
+	"""Turn a number followed by a dot into possible dates.
 
-	Standard colloquial date format in Germany: day.month.year
-
-	"14."
-		- the 14th of the current month
-		- the 14th of next month
-	"-14."
-		- the 14th of last month
+		14.
+			- the 14th of the current month
+			- the 14th of next month
+		-14.
+			- the 14th of last month
 	"""
 	str2parse = str2parse.replace(' ', '').replace('\t', '')
-
 	if not str2parse.endswith('.'):
 		return []
+
 	try:
 		day_val = int(str2parse[:-1])
 	except ValueError:
 		return []
+
 	if (day_val < -31) or (day_val > 31) or (day_val == 0):
 		return []
 
 	now = pydt_now_here()
 	matches = []
-
 	# day X of last month only
 	if day_val < 0:
 		ts = pydt_replace(pydt_add(now, months = -1), day = abs(day_val), strict = False)
@@ -1226,7 +1218,6 @@ def __single_dot2py_dt(str2parse):
 				'data': ts,
 				'label': _('%s-%s-%s: a %s last month') % (ts.year, ts.month, ts.day, ts.strftime('%A'))
 			})
-
 	# day X of ...
 	if day_val > 0:
 		# ... this month
@@ -1258,33 +1249,30 @@ def __single_dot2py_dt(str2parse):
 				})
 		except ValueError:
 			pass
-
 	return matches
 
 #---------------------------------------------------------------------------
-def __single_slash2py_dt(str2parse):
-	"""Expand fragments containing a single slash.
+def __single_slash2py_dt(str2parse) -> list[tStr2pydt_parser_result]:
+	"""Expand input containing a single slash.
 
-	"5/"
-		- 2005/					(2000 - 2025)
-		- 1995/					(1990 - 1999)
-		- Mai/current year
-		- Mai/next year
-		- Mai/last year
-		- Mai/200x
-		- Mai/20xx
-		- Mai/199x
-		- Mai/198x
-		- Mai/197x
-		- Mai/19xx
+		'5/':
+			- 2005/					(2000 - 2025)
+			- 1995/					(1990 - 1999)
+			- Mai/current year
+			- Mai/next year
+			- Mai/last year
+			- Mai/200x
+			- Mai/20xx
+			- Mai/199x
+			- Mai/198x
+			- Mai/197x
+			- Mai/19xx
 
-	5/1999
-	6/2004
+		'5/1999'
+		'6/2004'
 	"""
 	str2parse = str2parse.strip()
-
 	now = pydt_now_here()
-
 	# 5/1999
 	if regex.match(r"^\d{1,2}(\s|\t)*/+(\s|\t)*\d{4}$", str2parse, flags = regex.UNICODE):
 		month, year = regex.findall(r'\d+', str2parse, flags = regex.UNICODE)
@@ -1370,14 +1358,17 @@ def __single_slash2py_dt(str2parse):
 				'data': None,
 				'label': '19??-%.2d-' % val
 			})
-
 	return matches
 
 #---------------------------------------------------------------------------
-def __numbers_only2py_dt(str2parse):
-	"""This matches on single numbers.
+def __numbers_only2py_dt(str2parse) -> list[tStr2pydt_parser_result]:
+	"""Turn single-number input into possible dates.
 
-	Spaces or tabs are discarded.
+		1973: today's day/month, but in 1973
+		1-31: given day of the current/last/next month
+		1-12: today's day in given month of this/next/last year
+		n: n days/weeks from now
+		various: likely expansions
 	"""
 	try:
 		val = int(str2parse.strip())
@@ -1385,9 +1376,7 @@ def __numbers_only2py_dt(str2parse):
 		return []
 
 	now = pydt_now_here()
-
 	matches = []
-
 	# that year
 	if (1850 < val) and (val < 2100):
 		ts = pydt_replace(now, year = val, strict = False)
@@ -1481,28 +1470,6 @@ def __numbers_only2py_dt(str2parse):
 			'label': '19??-%s' % val
 		})
 
-	# needs mxDT
-#	# day X of ...
-#	if (val < 8) and (val > 0):
-#		# ... this week
-#		ts = now + mxDT.RelativeDateTime(weekday = (val-1, 0))
-#		matches.append ({
-#			'data': mxdt2py_dt(ts),
-#			'label': _('%s this week (%s of %s)') % (ts.strftime('%A'), ts.day, ts.strftime('%B'))
-#		})
-#		# ... next week
-#		ts = now + mxDT.RelativeDateTime(weeks = +1, weekday = (val-1, 0))
-#		matches.append ({
-#			'data': mxdt2py_dt(ts),
-#			'label': _('%s next week (%s of %s)') % (ts.strftime('%A'), ts.day, ts.strftime('%B'))
-#		})
-#		# ... last week
-#		ts = now + mxDT.RelativeDateTime(weeks = -1, weekday = (val-1, 0))
-#		matches.append ({
-#			'data': mxdt2py_dt(ts),
-#			'label': _('%s last week (%s of %s)') % (ts.strftime('%A'), ts.day, ts.strftime('%B'))
-#		})
-
 	if (val < 100) and (val > 0):
 		matches.append ({
 			'data': None,
@@ -1541,15 +1508,19 @@ def __numbers_only2py_dt(str2parse):
 	return matches
 
 #---------------------------------------------------------------------------
-def __explicit_offset2py_dt(str2parse, offset_chars=None):
-	"""Default is 'hdwmy':
+def __explicit_offset2py_dt(str2parse, offset_chars=None) -> list[tStr2pydt_parser_result]:
+	"""Turn an offset from today into a date.
+
+		Offsets must be numbers, may be preceded by '+' or
+		'-', and must be followed by one of the unit markers:
+
 			h - hours
 			d - days
 			w - weeks
 			m - months
 			y - years
 
-		This also defines the significance of the order of the characters.
+		If a translation has been provided, the units may be different.
 	"""
 	if offset_chars is None:
 		offset_chars = _('hdwmy (single character date offset triggers)')[:5].casefold()
@@ -1565,7 +1536,6 @@ def __explicit_offset2py_dt(str2parse, offset_chars=None):
 	now = pydt_now_here()
 	ts = None
 	label = None
-
 	# hours
 	if offset_char == offset_chars[0]:
 		ts = pydt_add(now, hours = offset_val)
@@ -1601,7 +1571,6 @@ def __explicit_offset2py_dt(str2parse, offset_chars=None):
 			label = _('%d year(s) ago: %s') % (abs(offset_val), ts.strftime('%A, %Y-%m-%d'))
 		else:
 			label = _('in %d year(s): %s') % (offset_val, ts.strftime('%A, %Y-%m-%d'))
-
 	if ts is None:
 		return []
 
@@ -1626,7 +1595,7 @@ STR2PYDT_DEFAULT_PATTERNS = [
 ]
 """Default patterns being passed to strptime()."""
 
-STR2PYDT_PARSERS:list[Callable[[str], list[tStr2pyDT]]] = [
+STR2PYDT_PARSERS:list[Callable[[str], list[tStr2pydt_parser_result]]] = [
 	__single_dot2py_dt,
 	__numbers_only2py_dt,
 	__single_slash2py_dt,
@@ -1637,7 +1606,7 @@ STR2PYDT_PARSERS:list[Callable[[str], list[tStr2pyDT]]] = [
 """Specialized parsers for string -> datetime conversion."""
 
 #---------------------------------------------------------------------------
-def str2pydt_matches(str2parse:str=None, patterns:list=None) -> list[tStr2pyDT]:
+def str2pydt_matches(str2parse:str=None, patterns:list[str]=None) -> list[tStr2pydt_parser_result]:
 	"""Turn a string into candidate datetimes.
 
 	Args:
@@ -1662,7 +1631,7 @@ def str2pydt_matches(str2parse:str=None, patterns:list=None) -> list[tStr2pyDT]:
 	Returns:
 		List of Python datetimes the input could be parsed as.
 	"""
-	matches:list[tStr2pyDT] = []
+	matches:list[tStr2pydt_parser_result] = []
 	for parser in STR2PYDT_PARSERS:
 		matches.extend(parser(str2parse))
 	hour = 11
@@ -1699,6 +1668,48 @@ def str2pydt_matches(str2parse:str=None, patterns:list=None) -> list[tStr2pyDT]:
 		except ValueError:			# C-level overflow
 			continue
 	return matches
+
+#---------------------------------------------------------------------------
+__STR2PYDT_DOCS = None
+
+def get_str2pydt_docs():
+	global __STR2PYDT_DOCS
+	if __STR2PYDT_DOCS:
+		return __STR2PYDT_DOCS
+
+	parser_docs = []
+	for parser in STR2PYDT_PARSERS:
+		parser_docs.append(parser.__doc__)
+	parser_docs = '\n\n\t'.join(parser_docs)
+	__STR2PYDT_DOCS = _("""
+-= Date input in GNUmed =-
+
+Whenever user input matches several dates
+a list is presented for selection.
+
+Unambigous input is turned into the specified date.
+
+If input contains a space followed by characters matching
+either 'Hour:Minute' or 'Hour:Minute:Second' that part of the
+input is used as the time. Otherwise 11:11:11 will be assumed.
+
+<ALT-C>/<ALT-K> will usually pop up a <c/k>alendar.
+
+<F1> to <F7> will return the date of the weekday 1 to 7,
+respectively, for the current week.
+
+Input is checked against these well-known date formats:
+
+	%s
+
+More specific input patterns are checked for explicitly:
+
+	%s
+""").strip() % (
+		'\n\t'.join(STR2PYDT_DEFAULT_PATTERNS),
+		parser_docs
+	)
+	return __STR2PYDT_DOCS
 
 #===========================================================================
 # string -> fuzzy timestamp parser
@@ -1800,9 +1811,9 @@ def __single_slash(str2parse):
 
 #---------------------------------------------------------------------------
 def __numbers_only(str2parse):
-	"""This matches on single numbers.
+	"""Turn single numbers input into sensible date suggestions.
 
-	Spaces or tabs are discarded.
+		Spaces or tabs are discarded.
 	"""
 	if not regex.match(r"^(\s|\t)*\d{1,4}(\s|\t)*$", str2parse, flags = regex.UNICODE):
 		return []
@@ -2578,6 +2589,10 @@ if __name__ == '__main__':
 			print('"%s"\n    %s' % (d, __day_equals2py_dt(d)))
 
 	#-------------------------------------------------
+	def test_get_str2pydt_docs():
+		print(get_str2pydt_docs())
+
+	#-------------------------------------------------
 	# GNUmed libs
 	gmI18N.activate_locale()
 	gmI18N.install_domain('gnumed')
@@ -2596,6 +2611,7 @@ if __name__ == '__main__':
 	#test_is_leap_year()
 	#test__numbers_only()
 	#test_local_tz()
-	test__day_equals2py_dt()
+	#test__day_equals2py_dt()
+	test_get_str2pydt_docs()
 
 #===========================================================================
