@@ -33,8 +33,9 @@ __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL"
 
 
-import logging
+import os
 import sys
+import logging
 import re as regex
 import shutil
 import tempfile
@@ -388,19 +389,18 @@ class gmCfgData(gmBorg.cBorg):
 		"""Add a source (a file) to the instance."""
 
 		_log.info('file source "%s": %s (%s)', source, filename, encoding)
-
+		_log.debug('CWD: [%s]', os.getcwd())
 		for existing_source, existing_file in self.source_files.items():
 			if existing_file == filename:
 				if source != existing_source:
 					_log.warning('file [%s] already known as source [%s]', filename, existing_source)
 					_log.warning('adding it as source [%s] may provoke trouble', source)
-
 		cfg_file = None
 		if filename is not None:
 			try:
 				cfg_file = open(filename, mode = 'rt', encoding = encoding)
-			except IOError:
-				_log.error('cannot open [%s], keeping as dummy source', filename)
+			except IOError as e:
+				_log.error('cannot open [%s], keeping as dummy source (%s)', filename, e)
 
 		if cfg_file is None:
 			filename = None
@@ -410,7 +410,6 @@ class gmCfgData(gmBorg.cBorg):
 		else:
 			self.add_stream_source(source = source, stream = cfg_file)
 			cfg_file.close()
-
 		self.source_files[source] = filename
 
 	#--------------------------------------------------
