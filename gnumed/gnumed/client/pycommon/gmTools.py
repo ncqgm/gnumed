@@ -1130,33 +1130,34 @@ def mklink(physical_name:str, link_name:str, overwrite:bool=False) -> bool:
 #===========================================================================
 def import_module_from_directory(module_path=None, module_name=None, always_remove_path=False):
 	"""Import a module from any location."""
-
-	_log.debug('CWD: %s', os.getcwd())
 	remove_path = always_remove_path or False
 	if module_path not in sys.path:
 		_log.info('appending to sys.path: [%s]' % module_path)
 		sys.path.append(module_path)
 		remove_path = True
-
 	_log.debug('will remove import path: %s', remove_path)
-
 	if module_name.endswith('.py'):
 		module_name = module_name[:-3]
-
 	try:
 		#module = __import__(module_name)
 		module = importlib.import_module(module_name)
-	except Exception:
-		_log.exception('cannot __import__() module [%s] from [%s]' % (module_name, module_path))
+	except Exception as e1:
+		_log.exception('cannot import module [%s] from [%s]' % (module_name, module_path))
+		_log.error('CWD: %s', os.getcwd())
+		_log.error('UIDs (real, effective, saved): %s', os.getresuid())
+		try:
+			p = os.path.join(module_path, module_name + '.py')
+			open(p)
+		except Exception as e:
+			_log.error(e)
 		while module_path in sys.path:
 			sys.path.remove(module_path)
-		raise
+		raise e1
 
 	_log.info('imported module [%s] as [%s]' % (module_name, module))
 	if remove_path:
 		while module_path in sys.path:
 			sys.path.remove(module_path)
-
 	return module
 
 #===========================================================================
@@ -2906,7 +2907,7 @@ second line\n
 			))
 
 	#-----------------------------------------------------------------------
-	test_xor()
+	#test_xor()
 	#test_coalesce()
 	#test_capitalize()
 	test_import_module()
