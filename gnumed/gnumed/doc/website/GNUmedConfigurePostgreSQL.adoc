@@ -12,30 +12,39 @@ insert these two lines
 
 ----------------------------
 # allow anyone knowing the proper password to log into our GNUmed databases:
-local   samegroup      +gm-logins                    md5
+local   samegroup      +gm-logins                    scram-sha-256
 ----------------------------
 
 into the pg_hba.conf file *before* any other lines starting
-with 'local'.
+with 'local' but *after* a line allowing maintenance access.
 
 The inserted line means:
 
-allow access
+Allow access:
 
-	* `local`: for clients on the same machine
-	* `samegroup`: if the connecting user belongs to a database group role named like the database to connect to (say, gnumed_v22)
-	* `+gm-logins`: and if the connecting users belongs to the allowed-logins database group named 'gm-logins'
-	* `md5`: and the proper password is provided for the connecting user
+	* `local`: for connections from the same machine, via UNIX domain sockets
+	* `samegroup`: if the connecting PG user belongs to a database group role named like the database to connect to (say, gnumed_v22)
+	* `+gm-logins`: if the connecting PG user is member of the allowed-logins database group named 'gm-logins'
+	* `scram-sha-256`: and the proper password is provided for the connecting user
 
-When you are done, pg_hba.conf should look similar to this:
+When you are done, pg_hba.conf should contain this:
 
 ----------------------------
+# DO NOT DISABLE!
+# If you change this first entry you will need to make sure that the
+# database superuser can access the database using some other method.
+# Noninteractive access to all databases is required during automatic
+# maintenance (custom daily cronjobs, replication, and similar tasks).
+#
+# Database administrative login by Unix domain socket
+local   all         postgres                          peer
+
 # TYPE  DATABASE    USER        CIDR-ADDRESS          METHOD
 # allow anyone knowing the proper password to log into our GNUmed databases:
-local   samegroup     +gm-logins                    md5
+local   samegroup   +gm-logins                        scram-sha-256
 ...
-local   ...                    ...                                  ...
-local   ...                    ...                                  ...
+local   ...         ...                               ...
+local   ...         ...                               ...
 ...
 ----------------------------
 

@@ -27,7 +27,7 @@ Assumptions:
 	* assumed identical to postmaster demon account
 	* can be overriden by environment variable $GM_CLUSTER_SUPERUSER
 
-- database/objects/... owner: "gm-dbo"
+- database/objects/... owner inside PostgreSQL: "gm-dbo"
 
 - database name: gnumed_vXX where XX is the current major version
 
@@ -38,6 +38,8 @@ Assumptions:
   to the cluster maintenance database without providing a
   password (IOW .pgpass / PGPASSFILE / IDENT / TRUST / PEER)
 
+- postmaster demon account user must be able to read
+  the bootstrapping SQL/data files during bootstrapping
 
 This script does NOT set up user specific configuration options.
 
@@ -999,8 +1001,8 @@ class cDatabase:
 		script_base_dir = os.path.expanduser(script_base_dir)
 		# doesn't work on MacOSX:
 		#script_base_dir = os.path.abspath(os.path.expanduser(script_base_dir))
-		script_base_dir = os.path.normcase(os.path.normpath(os.path.join('.', script_base_dir)))
-
+		script_base_dir = os.path.abspath(os.path.normcase(os.path.normpath(os.path.join('.', script_base_dir))))
+		_log.info('data import python scripts base dir: %s', script_base_dir)
 		for import_script in import_scripts:
 			try:
 				script = gmTools.import_module_from_directory(module_path = script_base_dir, module_name = import_script, always_remove_path = True)
@@ -1025,7 +1027,6 @@ class cDatabase:
 				gc.collect()
 			except:
 				_log.exception('cannot remove data import script module [%s], hoping for the best', import_script)
-
 		return True
 
 	#--------------------------------------------------------------
