@@ -435,13 +435,72 @@ class cPostgresqlCluster:
 
 		return True
 
+	# #--------------------------------------------------------------
+	# def __create_groups(self):
+	# 	section = "GnuMed defaults"
+	# 	groups = cfg_get(section, "groups")
+	# 	if groups is None:
+	# 		_log.error("Cannot load GNUmed group names from config file (section [%s])." % section)
+	# 		return True
+ #
+	# 	cursor = self.conn_superuser_at_maintenance_db.cursor()
+	# 	for group in groups:
+	# 		if not gmPG2.create_group_role(group_role = group, link_obj = cursor):
+	# 			cursor.close()
+	# 			return False
+ #
+	# 	self.conn_superuser_at_maintenance_db.commit()
+	# 	cursor.close()
+	# 	return True
+
+	#--------------------------------------------------------------
+	def __get_configured_groups(self):  # split part of __create_groups() into here
+		"""Gets and returns group names
+
+		Gets GNUmed group names from config file.
+
+		If no groups explicitly configured, falls
+		back on hardcoded defaults here to create list.
+
+		Logs process.
+		"""
+
+		section = "GnuMed defaults"
+		groups = []
+		cfg_groups = cfg_get(section, "groups")
+		if cfg_groups is None:
+			_log.error("Cannot load GNUmed group names from config file (section [%s])." % section)
+			return None			# returns None, so that process stops cleanly where the bug is
+		if isinstance(cfg_groups, str):
+			# robust against config backends returning multiline text
+			groups = [line.strip() for line in cfg_groups.splitlines()]
+			groups = [line for line in groups if line and line != '$groups$']
+		else:
+			groups = list(cfg_groups)
+
+		if not groups:
+			_log.warning('No explicit groups configured in section [%s], using built-in defaults', section)
+			groups = [  				# hardcoded group defaults
+				'gnumed_v2',
+				_GM_LOGINS_GROUP,
+				'gm-doctors',
+				'gm-staff_medical',
+				'gm-staff_office',
+				'gm-trainees_medical',
+				'gm-trainees_office',
+				'gm-public'
+			]
+		elif _GM_LOGINS_GROUP not in groups:
+			_log.warning('Required group [%s] missing from configured group list, adding it', _GM_LOGINS_GROUP)
+			groups.append(_GM_LOGINS_GROUP)
+
+		return groups
+
 	#--------------------------------------------------------------
 	def __create_groups(self):
-		section = "GnuMed defaults"
-		groups = cfg_get(section, "groups")
+		groups = self.__get_configured_groups()
 		if groups is None:
-			_log.error("Cannot load GNUmed group names from config file (section [%s])." % section)
-			return True
+			return False
 
 		cursor = self.conn_superuser_at_maintenance_db.cursor()
 		for group in groups:
@@ -461,15 +520,26 @@ class cPostgresqlCluster:
 			if not gmPG2.create_user_role(user_role = _GM_DBO_ROLE, password = _gm_dbo_pwd, link_obj = self.conn_superuser_at_maintenance_db):
 				return False
 
-		SQL = (
-			'GRANT "%s" TO "%s";'						# postgres in gm-logins (pg_dump/restore)
-			'GRANT "%s" TO "%s" WITH ADMIN OPTION;'		# gm-dbo in gm-logins; in v17 add: ", INHERIT FALSE, SET FALSE"
-			'ALTER ROLE "%s" CREATEDB CREATEROLE;'
-		) % (
-			_GM_LOGINS_GROUP, _PG_SUPERUSER,
-			_GM_LOGINS_GROUP, _GM_DBO_ROLE,
-			_GM_DBO_ROLE
-		)
+		# SQL = (
+		# 	'GRANT "%s" TO "%s";'						# postgres in gm-logins (pg_dump/restore)
+		# 	'GRANT "%s" TO "%s" WITH ADMIN OPTION;'		# gm-dbo in gm-logins; in v17 add: ", INHERIT FALSE, SET FALSE"
+		# 	'ALTER ROLE "%s" CREATEDB CREATEROLE;'
+		# ) % (
+		# 	_GM_LOGINS_GROUP, _PG_SUPERUSER,
+		# 	_GM_LOGINS_GROUP, _GM_DBO_ROLE,
+		# 	_GM_DBO_ROLE
+		# )
+
+		groups = self.__get_configured_groups()			# builds SQL query
+		if groups is None:
+			return False
+
+		SQL = ['GRANT "%s" TO "%s";' % (_GM_LOGINS_GROUP, _PG_SUPERUSER)]
+		for group in groups:
+			SQL.append('GRANT "%s" TO "%s" WITH ADMIN OPTION;' % (group, _GM_DBO_ROLE))
+		SQL.append('ALTER ROLE "%s" CREATEDB CREATEROLE;' % _GM_DBO_ROLE)
+		SQL = '\n'.join(SQL)
+
 		cursor = self.conn_superuser_at_maintenance_db.cursor()
 		try:
 			cursor.execute(SQL)
@@ -1027,6 +1097,7 @@ class cDatabase:
 				gc.collect()
 			except:
 				_log.exception('cannot remove data import script module [%s], hoping for the best', import_script)
+
 		return True
 
 	#--------------------------------------------------------------
