@@ -105,7 +105,7 @@ function drop_intermediate_databases () {
 function run_bootstrapper () {
 	LOG="${GM_LOG_BASE}/bootstrap-latest.log"
 	CONF="bootstrap-latest.conf"
-	./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF} --${QUIET}
+	python3 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF} --${QUIET}
 	RESULT="$?"
 	if test "${RESULT}" != "0" ; then
 		echo "Bootstrapping \"gnumed_v${VER}\" did not finish successfully (${RESULT}). Aborting."
