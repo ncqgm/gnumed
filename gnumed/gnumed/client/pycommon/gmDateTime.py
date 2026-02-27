@@ -1209,7 +1209,7 @@ def __single_dot2py_dt(str2parse) -> list[tStr2pydt_parser_result]:
 		return []
 
 	now = pydt_now_here()
-	matches = []
+	matches:list[tStr2pydt_parser_result] = []
 	# day X of last month only
 	if day_val < 0:
 		ts = pydt_replace(pydt_add(now, months = -1), day = abs(day_val), strict = False)
@@ -1376,7 +1376,7 @@ def __numbers_only2py_dt(str2parse) -> list[tStr2pydt_parser_result]:
 		return []
 
 	now = pydt_now_here()
-	matches = []
+	matches:list[tStr2pydt_parser_result] = []
 	# that year
 	if (1850 < val) and (val < 2100):
 		ts = pydt_replace(now, year = val, strict = False)
@@ -1497,14 +1497,12 @@ def __numbers_only2py_dt(str2parse) -> list[tStr2pydt_parser_result]:
 			'data': None,
 			'label': '%s-' % (now.year - 1)
 		})
-
 	if val < 200 and val >= 190:
 		for i in range(10):
 			matches.append ({
 				'data': None,
 				'label': '%s%s-' % (val, i)
 			})
-
 	return matches
 
 #---------------------------------------------------------------------------
