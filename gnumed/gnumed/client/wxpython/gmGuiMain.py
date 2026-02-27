@@ -3252,7 +3252,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		pat = gmPerson.gmCurrentPatient()
 		if pat.connected:
-			args['pat'] = '%s %s %s (%s) #%d' % (
+			args['pat'] = '%s %s %s (%s) #%s' % (
 				gmTools.coalesce(pat['title'], '', '%.4s'),
 				pat['firstnames'],
 				pat['lastnames'],

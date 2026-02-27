@@ -127,7 +127,8 @@ class cNotebookPlugin:
 		menu_info = self.MenuInfo()
 		if menu_info is not None:
 			menu = self.gb['main.%smenu' % menu_info[0]]
-			menu.Delete(self.menu_id)
+			# FIXME:
+			#menu.Delete(self.menu_id)
 
 		# correct the notebook page list
 		nb_pages = self.gb['horstspace.notebook.pages']
@@ -149,6 +150,10 @@ class cNotebookPlugin:
 		None: no menu entry wanted
 		"""
 		return None
+
+	#-----------------------------------------------------
+	def GetWidget(self, parent) -> object:
+		raise NotImplementedError
 
 	#-----------------------------------------------------
 	# activation API
