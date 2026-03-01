@@ -196,7 +196,7 @@ def __database_is_acceptable_for_use(require_version:bool=True, expected_version
 
 		gmGuiHelpers.gm_show_warning(msg_time_skew_warn % max_skew, _('Verifying database settings'))
 
-	insanity_level, message = gmPG2.sanity_check_database_settings()
+	insanity_level, message = gmPG2.sanity_check_database_settings(hipaa = _cfg.get(option = 'hipaa'))
 	if insanity_level > 0:
 		gmGuiHelpers.gm_show_error((msg_insanity % message), _('Verifying database settings'))
 		if insanity_level == 2:
