@@ -429,7 +429,10 @@ class cPostgresqlCluster:
 			_log.error("Cannot create GNUmed standard groups roles.")
 			return None
 
-		if self.__create_gm_dbo() is None:
+		# if self.__create_gm_dbo() is None:
+		# __create_gm_dbo() does not return 'None' in current flow; 'is none' doesn't trigger properly
+
+		if not self.__create_gm_dbo():  # ensures fail is properly caught
 			_log.error("Cannot install GNUmed database owner.")
 			return None
 
