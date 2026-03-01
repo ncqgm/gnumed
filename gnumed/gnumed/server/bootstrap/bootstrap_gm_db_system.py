@@ -318,16 +318,16 @@ class cPostgresqlCluster:
 		_log.info('done bootstrapping cluster')
 
 	#--------------------------------------------------------------
-	def __bootstrap(self):
+	def __bootstrap(self) -> bool:
 		# connect to server level maintenance database (typically template1 or template0)
 		if not self.__connect_superuser_to_maintenance_db():
 			_log.error("Cannot connect to cluster maintenance database.")
-			return None
+			return False
 
 		# add users/groups
 		if not self.__bootstrap_roles():
 			_log.error("Cannot bootstrap database users.")
-			return None
+			return False
 
 		self.conn_superuser_at_maintenance_db.close()
 		return True
@@ -422,24 +422,21 @@ class cPostgresqlCluster:
 	#--------------------------------------------------------------
 	# user and group related
 	#--------------------------------------------------------------
-	def __bootstrap_roles(self):
+	def __bootstrap_roles(self) -> bool:
 		print_msg("==> ensuring standard database roles ...")
 		_log.info("bootstrapping database roles")
 		if not self.__create_groups():
-			_log.error("Cannot create GNUmed standard groups roles.")
-			return None
-
-		# if self.__create_gm_dbo() is None:
-		# __create_gm_dbo() does not return 'None' in current flow; 'is none' doesn't trigger properly
+			_log.error("Cannot create GNUmed standard group roles.")
+			return False
 
 		if not self.__create_gm_dbo():  # ensures fail is properly caught
 			_log.error("Cannot install GNUmed database owner.")
-			return None
+			return False
 
 		return True
 
 	#--------------------------------------------------------------
-	def __create_groups(self):
+	def __create_groups(self) -> bool:
 		section = "GnuMed defaults"
 		groups = cfg_get(section, "groups")
 		if groups is None:
@@ -457,7 +454,7 @@ class cPostgresqlCluster:
 		return True
 
 	#--------------------------------------------------------------
-	def __create_gm_dbo(self):
+	def __create_gm_dbo(self) -> bool:
 		if not gmPG2.user_role_exists(user_role = _GM_DBO_ROLE, link_obj = self.conn_superuser_at_maintenance_db):
 			print_msg(_MSG_create_gm_dbo)
 			_gm_dbo_pwd = get_gm_dbo_password()
