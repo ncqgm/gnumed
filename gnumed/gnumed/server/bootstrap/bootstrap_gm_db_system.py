@@ -152,7 +152,7 @@ DROP INDEX IF EXISTS %(idx_schema)s.%(idx_name)s CASCADE;
 CREATE INDEX %(idx_name)s ON %(idx_schema)s.%(idx_table)s(%(idx_col)s);
 """
 
-__MSG_create_gm_dbo = """The database owner [%s] must be created.
+_MSG_create_gm_dbo = """The database owner [%s] must be created.
 
 You will have to provide a new password for it.
 
@@ -456,7 +456,7 @@ class cPostgresqlCluster:
 	#--------------------------------------------------------------
 	def __create_gm_dbo(self):
 		if not gmPG2.user_role_exists(user_role = _GM_DBO_ROLE, link_obj = self.conn_superuser_at_maintenance_db):
-			print_msg(__MSG_create_gm_dbo)
+			print_msg(_MSG_create_gm_dbo)
 			_gm_dbo_pwd = get_gm_dbo_password()
 			if not gmPG2.create_user_role(user_role = _GM_DBO_ROLE, password = _gm_dbo_pwd, link_obj = self.conn_superuser_at_maintenance_db):
 				return False
