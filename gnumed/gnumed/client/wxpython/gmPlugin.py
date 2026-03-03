@@ -123,12 +123,12 @@ class cNotebookPlugin:
 		del self.gb['horstspace.notebook.%s' % self._set][self.__class__.__name__]
 		_log.info("plugin: [%s] (class: [%s]) set: [%s]" % (self.name(), self.__class__.__name__, self._set))
 
-		# delete menu item
-		menu_info = self.MenuInfo()
-		if menu_info is not None:
-			menu = self.gb['main.%smenu' % menu_info[0]]
-			# FIXME:
-			#menu.Delete(self.menu_id)
+		# FIXME:
+#		# delete menu item
+#		menu_info = self.MenuInfo()
+#		if menu_info is not None:
+#			menu = self.gb['main.%smenu' % menu_info[0]]
+#			#menu.Delete(self.menu_id)
 
 		# correct the notebook page list
 		nb_pages = self.gb['horstspace.notebook.pages']
