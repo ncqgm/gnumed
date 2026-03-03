@@ -319,7 +319,7 @@ class cPostgresqlCluster:
 
 	#--------------------------------------------------------------
 	def __bootstrap(self) -> bool:
-		# connect to server level maintenance database (typically template1 or template0)
+		# connect to cluster maintenance database (typically template1 or template0)
 		if not self.__connect_superuser_to_maintenance_db():
 			_log.error("Cannot connect to cluster maintenance database.")
 			return False
@@ -365,7 +365,7 @@ class cPostgresqlCluster:
 			port = self.port,
 			db = self.maintenance_db,
 			user = _PG_SUPERUSER,
-			conn_name = 'pg superuser/root@server maintenance DB'
+			conn_name = 'pg superuser/root@cluster maintenance DB'
 		)
 		if self.conn_superuser_at_maintenance_db is None:
 			_log.error('Cannot connect.')
@@ -987,10 +987,8 @@ class cDatabase:
 			print_msg('')
 
 	#--------------------------------------------------------------
-	def import_data(self):
-
+	def import_data(self) -> bool:
 		print_msg("==> [%s]: upgrading reference data sets ..." % self.target_db_name)
-
 		import_scripts = cfg_get(self.section, "data import scripts")
 		if (import_scripts is None) or (len(import_scripts) == 0):
 			_log.info('skipped data import: no scripts to run')
@@ -1030,30 +1028,31 @@ class cDatabase:
 		return True
 
 	#--------------------------------------------------------------
-	def verify_result_hash(self):
-
+	def verify_result_hash(self) -> bool:
 		print_msg("==> [%s]: verifying target database schema ..." % self.target_db_name)
-
 		target_version = cfg_get(self.section, 'target version')
 		if target_version == 'devel':
 			print_msg("    ... skipped (devel version)")
 			_log.info('result schema hash: %s', gmPG2.get_schema_hash(link_obj = self.conn))
 			_log.warning('testing/development only, not failing due to invalid target database identity hash')
 			return True
+
 		converted, version = gmTools.input2int(target_version.lstrip('v'), 2)
 		if not converted:
 			_log.error('cannot convert target database version: %s', target_version)
 			print_msg("    ... failed (invalid target version specification)")
 			return False
+
 		if gmPG2.database_schema_compatible(link_obj = self.conn, version = version):
 			_log.info('database identity hash properly verified')
 			return True
+
 		_log.error('target database identity hash invalid')
 		print_msg("    ... failed (hash mismatch)")
 		return False
 
 	#--------------------------------------------------------------
-	def reindex_all(self):
+	def reindex_all(self) -> bool:
 		print_msg("==> [%s]: reindexing target database (can take a while) ..." % self.target_db_name)
 		do_reindex = cfg_get(self.section, 'reindex')
 		if do_reindex is None:
@@ -1077,7 +1076,7 @@ class cDatabase:
 		return reindexed
 
 	#--------------------------------------------------------------
-	def revalidate_constraints(self):
+	def revalidate_constraints(self) -> bool:
 
 		print_msg("==> [%s]: revalidating constraints in target database (can take a while) ..." % self.target_db_name)
 
@@ -1108,7 +1107,7 @@ class cDatabase:
 		return revalidated
 
 	#--------------------------------------------------------------
-	def validate_collations(self, use_the_source_luke):
+	def validate_collations(self, use_the_source_luke) -> bool:
 		print_msg('==> [%s]: validating collations ...' % self.target_db_name)
 		sane_pg_database_collation = gmPG2.sanity_check_database_default_collation_version(conn = self.conn)
 		sane_pg_collations = gmPG2.sanity_check_collation_versions(conn = self.conn)
@@ -1219,7 +1218,7 @@ class cDatabase:
 		return True
 
 	#--------------------------------------------------------------
-	def setup_notifications(self):
+	def setup_notifications(self) -> bool:
 
 		# setup clin.clin_root_item child tables FK's
 		print_msg("==> [%s]: setting up encounter/episode FKs and IDXs ..." % self.target_db_name)
@@ -1489,6 +1488,7 @@ def ask_for_confirmation_to_proceed():
 	bundles = cfg_get("installation", "bundles")
 	if bundles is None:
 		return True
+
 	if len(bundles) == 0:
 		return True
 
@@ -1498,8 +1498,7 @@ def ask_for_confirmation_to_proceed():
 		for bundle in bundles:
 			db_alias = cfg_get("bundle %s" % bundle, "database alias")
 			db_name = cfg_get("database %s" % db_alias, "name")
-			srv_alias = cfg_get("database %s" % db_alias, "server alias")
-			srv_name = cfg_get("server %s" % srv_alias, "name")
+			srv_name = cfg_get('cluster', 'host name') or 'localhost'
 			print_msg('bundle "%s" in <%s> (or overridden) on <%s>' % (bundle, db_name, srv_name))
 		print_msg("-------------------------------------------------------")
 		desc = cfg_get("installation", "description")
@@ -1513,8 +1512,7 @@ def ask_for_confirmation_to_proceed():
 	for bundle in bundles:
 		db_alias = cfg_get("bundle %s" % bundle, "database alias")
 		db_name = cfg_get("database %s" % db_alias, "name")
-		srv_alias = cfg_get("database %s" % db_alias, "server alias")
-		srv_name = cfg_get("server %s" % srv_alias, "name")
+		srv_name = cfg_get('cluster', 'host name') or 'localhost'
 		print('bundle "%s" in <%s> (or overridden) on <%s>' % (bundle, db_name, srv_name))
 	print("-------------------------------------------------------")
 	desc = cfg_get("installation", "description")
@@ -1669,12 +1667,12 @@ def main():
 	_log.info('primary config file: %s', cfg_file)
 	_cfg.add_file_source(source = 'file', filename = cfg_file)
 	# does it point to other conf files ?
-	cfg_files = _cfg.get (
+	list_of_cfg_files = _cfg.get (
 		group = 'installation',
 		option = 'config files',
 		source_order = [('file', 'return')]
 	)
-	if cfg_files is None:
+	if list_of_cfg_files is None:
 		_log.info('single-shot config file')
 		guesstimate_pg_superuser()
 		become_postmaster_demon_user()
@@ -1689,8 +1687,15 @@ def main():
 			_interactive = True
 		guesstimate_pg_superuser()
 		become_postmaster_demon_user()
-		for cfg_file in cfg_files:
-			_cfg.add_file_source(source = 'file', filename = cfg_file)
+		for cfg_file_name in list_of_cfg_files:
+			cfg_file_name = cfg_file_name.strip()
+			if not cfg_file_name:
+				# skip empty lines
+				continue
+			if cfg_file_name.startswith('#'):
+				_log.info('skipping commented out line: %s', cfg_file_name)
+				continue
+			_cfg.add_file_source(source = 'file', filename = cfg_file_name)
 			handle_cfg()
 
 	global _bootstrapped_dbs

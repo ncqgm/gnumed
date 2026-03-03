@@ -401,7 +401,6 @@ class gmCfgData(gmBorg.cBorg):
 				cfg_file = open(filename, mode = 'rt', encoding = encoding)
 			except IOError as e:
 				_log.error('cannot open [%s], keeping as dummy source (%s)', filename, e)
-
 		if cfg_file is None:
 			filename = None
 			if source in self.__cfg_data:

@@ -93,7 +93,8 @@ known_schema_hashes = {
 	20: 'baed1901ed4c2f272b56c8cb2c6d88e8',
 	21: 'e6a51a89dd22b75b61ead8f7083f251f',
 	22: 'bf45f01327fb5feb2f5d3c06ba4a6792',
-	23: 'devel'
+	23: '73b15f63b0946e6837f306d770991f97',
+	24: 'devel'
 }
 
 map_schema_hash2version = {
@@ -119,7 +120,8 @@ map_schema_hash2version = {
 	'57f009a159f55f77525cc0291e0c8b60': 19, # starting with 19.12
 	'baed1901ed4c2f272b56c8cb2c6d88e8': 20,
 	'e6a51a89dd22b75b61ead8f7083f251f': 21,
-	'bf45f01327fb5feb2f5d3c06ba4a6792': 22
+	'bf45f01327fb5feb2f5d3c06ba4a6792': 22,
+	'73b15f63b0946e6837f306d770991f97': 23
 }
 
 map_client_branch2required_db_version = {
@@ -140,7 +142,8 @@ map_client_branch2required_db_version = {
 	'1.5': 20,
 	'1.6': 21,
 	'1.7': 22,
-	'1.8': 22		# Yes, SAME as 1.7, no DB change.
+	'1.8': 22,		# Yes, SAME as 1.7, no DB change.
+	'1.9': 23
 }
 
 # get columns and data types for a given table
