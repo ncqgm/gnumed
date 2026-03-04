@@ -433,6 +433,10 @@ class cPostgresqlCluster:
 			_log.error("Cannot install GNUmed database owner.")
 			return False
 
+		if not self.__grant_gm_dbo_group_admin():
+			_log.error('Cannot grant [%s] admin option on GNUmed standard group roles.', _GM_DBO_ROLE)
+			return False
+
 		return True
 
 	#--------------------------------------------------------------
@@ -446,6 +450,24 @@ class cPostgresqlCluster:
 		cursor = self.conn_superuser_at_maintenance_db.cursor()
 		for group in groups:
 			if not gmPG2.create_group_role(group_role = group, link_obj = cursor):
+				cursor.close()
+				return False
+
+		self.conn_superuser_at_maintenance_db.commit()
+		cursor.close()
+		return True
+
+	#--------------------------------------------------------------
+	def __grant_gm_dbo_group_admin(self) -> bool:
+		section = "GnuMed defaults"
+		groups = cfg_get(section, "groups")
+		if groups is None:
+			_log.error("Cannot load GNUmed group names from config file (section [%s])." % section)
+			return False
+
+		cursor = self.conn_superuser_at_maintenance_db.cursor()
+		for group in groups:
+			if not gmPG2.create_group_role(group_role = group, admin_role=_GM_DBO_ROLE 	,link_obj = cursor):
 				cursor.close()
 				return False
 
