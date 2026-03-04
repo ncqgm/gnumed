@@ -424,7 +424,7 @@ class cPostgresqlCluster:
 	def __bootstrap_roles(self) -> bool:
 		print_msg("==> ensuring standard database roles ...")
 		_log.info("bootstrapping database roles")
-		if not self.__create_groups():
+		if not self.__setup_groups(admin_role = None):		# None is default, but here better safe than sorry
 			_log.error("Cannot create GNUmed standard group roles.")
 			return False
 
@@ -432,45 +432,24 @@ class cPostgresqlCluster:
 			_log.error("Cannot create GNUmed database owner.")
 			return False
 
-		if not self.__grant_gm_dbo_admin_in_groups():
-			_log.error('Cannot grant [%s] admin option on GNUmed standard group roles.', _GM_DBO_ROLE)
+		if not self.__setup_groups(admin_role = _GM_DBO_ROLE):
+			_log.error('Cannot grant [%s] ADMIN option on configured group roles.', _GM_DBO_ROLE)
 			return False
 
 		return True
 
 	#--------------------------------------------------------------
-	def __get_groups_from_config(self) -> list[str] | None:
+	def __setup_groups(self, admin_role:str=None) -> bool:
 		section = "GnuMed defaults"
 		groups = cfg_get(section, 'groups')
 		if not groups:
 			_log.error("No GNUmed groups defined in config file (section [%s])." % section)
-		return groups
-
-	#--------------------------------------------------------------
-	def __create_groups(self) -> bool:
-		groups = self.__get_groups_from_config()
-		if not groups:
 			return True
 
 		cursor = self.conn_superuser_at_maintenance_db.cursor()
 		for group in groups:
-			if not gmPG2.create_group_role(group_role = group, link_obj = cursor):
-				cursor.close()
-				return False
-
-		self.conn_superuser_at_maintenance_db.commit()
-		cursor.close()
-		return True
-
-	#--------------------------------------------------------------
-	def __grant_gm_dbo_admin_in_groups(self) -> bool:
-		groups = self.__get_groups_from_config()
-		if not groups:
-			return True
-
-		cursor = self.conn_superuser_at_maintenance_db.cursor()
-		for group in groups:
-			if not gmPG2.create_group_role(group_role = group, admin_role = _GM_DBO_ROLE, link_obj = cursor):
+			# if admin_role is None this just creates the group ...
+			if not gmPG2.create_group_role(group_role = group, admin_role = admin_role, link_obj = cursor):
 				cursor.close()
 				return False
 
