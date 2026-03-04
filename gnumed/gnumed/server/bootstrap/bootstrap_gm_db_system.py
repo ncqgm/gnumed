@@ -288,7 +288,6 @@ def connect(host:str=None, port:int=5432, db:str=None, user:str=None, conn_name:
 
 #==================================================================
 #==================================================================
-#==================================================================
 def get_gm_dbo_password() -> str:
 	_log.info('getting password for [%s] from user', _GM_DBO_ROLE)
 	print("I need the password for the database user [%s]." % _GM_DBO_ROLE)
@@ -429,22 +428,28 @@ class cPostgresqlCluster:
 			_log.error("Cannot create GNUmed standard group roles.")
 			return False
 
-		if not self.__create_gm_dbo():  # ensures fail is properly caught
-			_log.error("Cannot install GNUmed database owner.")
+		if not self.__create_gm_dbo():
+			_log.error("Cannot create GNUmed database owner.")
 			return False
 
-		if not self.__grant_gm_dbo_group_admin():
+		if not self.__grant_gm_dbo_admin_in_groups():
 			_log.error('Cannot grant [%s] admin option on GNUmed standard group roles.', _GM_DBO_ROLE)
 			return False
 
 		return True
 
 	#--------------------------------------------------------------
-	def __create_groups(self) -> bool:
+	def __get_groups_from_config(self) -> list[str] | None:
 		section = "GnuMed defaults"
-		groups = cfg_get(section, "groups")
-		if groups is None:
-			_log.error("Cannot load GNUmed group names from config file (section [%s])." % section)
+		groups = cfg_get(section, 'groups')
+		if not groups:
+			_log.error("No GNUmed groups defined in config file (section [%s])." % section)
+		return groups
+
+	#--------------------------------------------------------------
+	def __create_groups(self) -> bool:
+		groups = self.__get_groups_from_config()
+		if not groups:
 			return True
 
 		cursor = self.conn_superuser_at_maintenance_db.cursor()
@@ -458,16 +463,14 @@ class cPostgresqlCluster:
 		return True
 
 	#--------------------------------------------------------------
-	def __grant_gm_dbo_group_admin(self) -> bool:
-		section = "GnuMed defaults"
-		groups = cfg_get(section, "groups")
-		if groups is None:
-			_log.error("Cannot load GNUmed group names from config file (section [%s])." % section)
-			return False
+	def __grant_gm_dbo_admin_in_groups(self) -> bool:
+		groups = self.__get_groups_from_config()
+		if not groups:
+			return True
 
 		cursor = self.conn_superuser_at_maintenance_db.cursor()
 		for group in groups:
-			if not gmPG2.create_group_role(group_role = group, admin_role=_GM_DBO_ROLE 	,link_obj = cursor):
+			if not gmPG2.create_group_role(group_role = group, admin_role = _GM_DBO_ROLE, link_obj = cursor):
 				cursor.close()
 				return False
 

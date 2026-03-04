@@ -848,6 +848,12 @@ def create_role(role:str=None, password:str=None, link_obj=None) -> bool:
 
 #------------------------------------------------------------------------
 def create_group_role(group_role:str=None, admin_role:str=None, link_obj=None) -> bool:
+	"""Create a PostgreSQL group role.
+
+	Args:
+		group_role: group to create (idempotent to existing groups)
+		admin_role: which role to grant ADMIN in group_role group
+	"""
 	if not create_role(role = group_role, link_obj = link_obj):
 		return False
 
