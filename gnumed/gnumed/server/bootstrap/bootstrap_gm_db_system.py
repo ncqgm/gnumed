@@ -432,6 +432,7 @@ class cPostgresqlCluster:
 			_log.error("Cannot create GNUmed database owner.")
 			return False
 
+		# seems superfluous but this GRANTs ADMIN to _GM_DBO_ROLE in GNUmed groups
 		if not self.__setup_groups(admin_role = _GM_DBO_ROLE):
 			_log.error('Cannot grant [%s] ADMIN option on configured group roles.', _GM_DBO_ROLE)
 			return False
@@ -443,9 +444,12 @@ class cPostgresqlCluster:
 		section = "GnuMed defaults"
 		groups = cfg_get(section, 'groups')
 		if not groups:
-			_log.error("No GNUmed groups defined in config file (section [%s])." % section)
-			return True
-
+			_log.info("No GNUmed groups defined in config file (section [%s])." % section)
+		if groups is None:
+			groups = []
+		if _GM_LOGINS_GROUP not in groups:
+			groups.append(_GM_LOGINS_GROUP)
+			_log.info('adding essential login group role [%s] to groups list', _GM_LOGINS_GROUP)
 		cursor = self.conn_superuser_at_maintenance_db.cursor()
 		for group in groups:
 			# if admin_role is None this just creates the group ...
