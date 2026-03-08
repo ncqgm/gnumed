@@ -38,15 +38,17 @@ As root (or with sudo):
 	$> gm-bootstrap_server
 -------------------------------------
 
-=== Other systems
+=== Other systems and local installs
 
 	* install PostgreSQL (how that is done depends on your system)
 	* find out https://www.gnumed.de/downloads/server/readme.txt[which server version your client needs]
 	* download that version from the https://www.gnumed.de/downloads/server/[Download Area] (assuming version 22.12)
 	* unpack the server tarball
+	* at this point you may need to make sure OS user "postgres" can access (read/execute) the directory you unpacked into (use `chmod` or `setfacl`)
 	* run the database bootstrapper
 
 -------------------------------------
+	$> cd /tmp/
 	$> tar -xvzf gnumed-server.22.12.tgz
 	$> cd gnumed-server.22.12/server/bootstrap/
 	$> sudo ./bootstrap-latest.sh

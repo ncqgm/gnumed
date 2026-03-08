@@ -36,15 +36,16 @@ As root (or with sudo):
 	$> gm-fixup_server XY
 -------------------------------------
 
-==== Other systems
+==== Other systems and local installs
 
 	* https://www.gnumed.de/downloads/server/[download] the latest release https://www.gnumed.de/downloads/readme.txt[appropriate for your client]
 	* unpack the tarball
+	* at this point you may need to make sure OS user "postgres" can access (read/execute) the directory you unpacked into (use `chmod` or `setfacl`)
 	* run the fixup script
 
 -------------------------------------
-	$> mkdir gnumed
-	$> cd gnumed
+	$> mkdir /tmp/gnumed
+	$> cd /tmp/gnumed/
 	$> wget -c https://www.gnumed.de/downloads/server/vXY/gnumed-server.XY.ZZ.tgz
 	$> tar -xvzf gnumed-server.XY.ZZ.tgz
 	$> cd gnumed-server.XY.ZZ/server/bootstrap/
@@ -68,20 +69,22 @@ As root (or with sudo):
 	$> gm-upgrade_server 21 22
 -------------------------------------
 
-==== Other systems
+==== Other systems and local installs
 
 	* https://www.gnumed.de/downloads/server/[download] the latest release https://www.gnumed.de/downloads/readme.txt[appropriate for your client]
 	* unpack the tarball
+	* at this point you may need to make sure OS user "postgres" can access (read/execute) the directory you unpacked into (use `chmod` or `setfacl`)
 	* run the upgrade script (assuming upgrade from v21 to v22)
 
 -------------------------------------
-	$> mkdir gnumed
-	$> cd gnumed
+	$> mkdir /tmp/gnumed
+	$> cd /tmp/gnumed/
 	$> wget -c https://www.gnumed.de/downloads/server/vXY/gnumed-server.22.x.tgz
 	$> tar -xvzf gnumed-server.22.x.tgz
 	$> cd gnumed-server.22.x/server/bootstrap/
 	$> sudo ./upgrade-db.sh 21 22
 -------------------------------------
+
 
 === (Tech) Best practice notes
 
