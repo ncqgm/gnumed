@@ -73,6 +73,11 @@ Run the named TOOL instead of a GUI.
 Using '--tool=' will list the currently implemented tools:
 
 %(tools)s
+
+When running gnumed.py under the name gm-fingerprint_db(.py) option
+.B \--tool=fingerprint_db
+will be selected automatically.
+
 .TP
 .B \--override-schema-check
 Continue loading the client even if the database schema
@@ -1105,7 +1110,12 @@ def run_tool():
 	One of these needs to be returned from this function (and,
 	by extension from the tool having been run, if any).
 	"""
-	tool = _cfg.get(option = '--tool', source_order = [('cli', 'return')])
+	tool = None
+	if sys.argv[0].startswith('gm-fingerprint_db'):
+		tool = 'fingerprint_db'
+		_log.info('running AS tool [%s]', tool)
+	else:
+		tool = _cfg.get(option = '--tool', source_order = [('cli', 'return')])
 	if tool is None:
 		# not running a tool
 		return None
@@ -1135,12 +1145,12 @@ def run_tool():
 	pool = gmConnectionPool.gmConnectionPool()
 	pool.credentials = creds
 	print('')
-
 	if tool == 'read_all_rows_of_table':
 		result = gmPG2.read_all_rows_of_table()
 		if result in [None, True]:
 			print('Success.')
 			return 0
+
 		print('Failed. Check the log for details.')
 		return -2
 
