@@ -214,7 +214,7 @@ function check_disk_space () {
 	fi ;
 	DATA_DIR=$(su -c "psql --no-align --tuples-only --quiet -c \"SELECT setting FROM pg_settings WHERE name = 'data_directory' \" " -l postgres)
 	BYTES_FREE=$(df --block-size=1 --output=avail ${DATA_DIR} | grep --only-matching -E '[[:digit:]]+')
-	DB_SIZE=$(su -c "psql --no-align --tuples-only --quiet -c \"SELECT pg_database_size('gnumed_v22') \" | grep --only-matching -E '[[:digit:]]+' " -l postgres)	#"
+	DB_SIZE=$(su -c "psql --no-align --tuples-only --quiet -c \"SELECT pg_database_size('gnumed_v${NEXT_VER}') \" | grep --only-matching -E '[[:digit:]]+' " -l postgres)	#"
 	if [ ${DB_SIZE} -gt ${BYTES_FREE} ] ; then
 		echo ""
 		echo "WARNING: Disk space may be insufficient"

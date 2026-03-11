@@ -3145,7 +3145,7 @@ if __name__ == "__main__":
 			print (' ', val)
 
 		print('')
-		dsn = 'dbname=gnumed_v22'
+		dsn = 'dbname=gnumed_v23'
 		try:
 			conn = get_connection()
 			print("2) ERROR: get_connection() did not fail")
@@ -3156,7 +3156,7 @@ if __name__ == "__main__":
 			print(' ', val)
 
 		print('')
-		dsn = 'dbname=gnumed_v22 user=abc'
+		dsn = 'dbname=gnumed_v23 user=abc'
 		try:
 			conn = get_connection()
 			print("3) ERROR: get_connection() did not fail")
@@ -3167,7 +3167,7 @@ if __name__ == "__main__":
 			print(' ', val)
 
 		print('')
-		dsn = 'dbname=gnumed_v22 user=any-doc password=abc'
+		dsn = 'dbname=gnumed_v23 user=any-doc password=abc'
 		try:
 			conn = get_connection()
 			print("4) ERROR: get_connection() did not fail")
@@ -3178,16 +3178,16 @@ if __name__ == "__main__":
 			print(' ', val)
 
 		print('')
-		dsn = 'dbname=gnumed_v22 user=any-doc password=any-doc'
+		dsn = 'dbname=gnumed_v23 user=any-doc password=any-doc'
 		conn = get_connection(readonly=True)
 		print('5) SUCCESS: get_connection(ro)')
 
-		dsn = 'dbname=gnumed_v22 user=any-doc password=any-doc'
+		dsn = 'dbname=gnumed_v23 user=any-doc password=any-doc'
 		conn = get_connection(readonly=False, verbose=True)
 		print('6) SUCCESS: get_connection(rw)')
 
 		print('')
-		dsn = 'dbname=gnumed_v22 user=any-doc'
+		dsn = 'dbname=gnumed_v23 user=any-doc'
 		try:
 			conn = get_connection()
 			print("8) SUCCESS:", dsn)
@@ -3242,7 +3242,7 @@ if __name__ == "__main__":
 
 		print("testing run_ro_queries()")
 
-		#dsn = 'dbname=gnumed_v22 user=any-doc password=any-doc'
+		#dsn = 'dbname=gnumed_v23 user=any-doc password=any-doc'
 		conn = get_connection(readonly = True)
 
 		data = run_ro_queries(link_obj=conn, queries=[{'sql': 'SELECT version()'}], return_data=True, verbose=True)

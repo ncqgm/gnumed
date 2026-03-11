@@ -1638,7 +1638,7 @@ if __name__ == "__main__":
 			print (' ', v)
 
 		print('')
-		creds.database = 'gnumed_v22'
+		creds.database = 'gnumed_v23'
 		try:
 			conn = pool.get_connection()
 			print("2) ERROR: get_connection() did not fail")
@@ -1650,7 +1650,7 @@ if __name__ == "__main__":
 			print(' ', v)
 
 		print('')
-		creds.database = 'gnumed_v22'
+		creds.database = 'gnumed_v23'
 		creds.user = 'abc'
 		try:
 			conn = pool.get_connection()
@@ -1663,7 +1663,7 @@ if __name__ == "__main__":
 			print(' ', v)
 
 		print('')
-		creds.database = 'gnumed_v22'
+		creds.database = 'gnumed_v23'
 		creds.user = 'any-doc'
 		creds.password = 'abcd'
 		try:
@@ -1727,7 +1727,7 @@ if __name__ == "__main__":
 		print("testing credentials change")
 		pool = gmConnectionPool()
 		creds = cPGCredentials()
-		creds.database = 'gnumed_v22'
+		creds.database = 'gnumed_v23'
 		creds.user = 'any-doc'
 		pool.credentials = creds
 		conn = pool.get_connection()
@@ -1742,7 +1742,7 @@ if __name__ == "__main__":
 		print("testing credentials with spaces")
 		pool = gmConnectionPool()
 		creds = cPGCredentials()
-		creds.database = 'gnumed_v22'
+		creds.database = 'gnumed_v23'
 		creds.user = 'any-doc'
 		creds.password = 'any-doc'
 		pool.credentials = creds

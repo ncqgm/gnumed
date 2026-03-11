@@ -361,8 +361,8 @@ cd -
 echo "downloading SQL schema documentation"
 mkdir -p ./gnumed-client.$CLIENTREV/client/doc/schema/
 cd ./gnumed-client.$CLIENTREV/client/doc/schema/
-wget --tries=0 --read-timeout=2 --continue --verbose --recursive --convert-links --no-parent --no-directories https://www.gnumed.de/downloads/docs/schema/gnumed_v22/gnumed-entire_schema.html
-wget --tries=0 --read-timeout=2 --continue --verbose --recursive --convert-links --no-parent --no-directories https://www.gnumed.de/downloads/docs/schema/gnumed_v22/gnumed-entire_schema-no_audit.dot
+wget --tries=0 --read-timeout=2 --continue --verbose --recursive --convert-links --no-parent --no-directories https://www.gnumed.de/downloads/docs/schema/gnumed_v23/gnumed-entire_schema.html
+wget --tries=0 --read-timeout=2 --continue --verbose --recursive --convert-links --no-parent --no-directories https://www.gnumed.de/downloads/docs/schema/gnumed_v23/gnumed-entire_schema-no_audit.dot
 cd -
 
 
@@ -385,7 +385,6 @@ run_shellcheck ../../server/gm-fixup_server
 cp -vf ../../server/gm-fixup_server ./gnumed-client.$CLIENTREV/server/
 run_shellcheck ../../server/gm-adjust_db_settings.sh
 cp -vf ../../server/gm-adjust_db_settings.sh ./gnumed-client.$CLIENTREV/server/
-cp -vf ../../server/gm-fingerprint_db.py ./gnumed-client.$CLIENTREV/server/
 run_shellcheck ../../server/gm-dump_schema.sh
 cp -vf ../../server/gm-dump_schema.sh ./gnumed-client.$CLIENTREV/server/
 
@@ -455,7 +454,6 @@ cp -vf ../../client/doc/man-pages/gm-dump_schema.8 ./gnumed-client.$CLIENTREV/se
 cp -vf ../../client/doc/man-pages/gm-adjust_db_settings.8 ./gnumed-client.$CLIENTREV/server/doc/
 cp -vf ../../client/doc/man-pages/gm-remove_person.1 ./gnumed-client.$CLIENTREV/server/doc/
 cp -vf ../../client/doc/man-pages/gm-set_gm-dbo_password.8 ./gnumed-client.$CLIENTREV/server/doc/
-cp -vf ../../client/doc/man-pages/gm-fingerprint_db.8 ./gnumed-client.$CLIENTREV/server/doc/
 cp -R ./gnumed-client.$CLIENTREV/client/doc/schema/ ./gnumed-client.$CLIENTREV/server/doc/
 
 
