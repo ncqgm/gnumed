@@ -58,16 +58,13 @@ __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL v2 or later"
 
 
-_GM_LOGINS_GROUP = 'gm-logins'
-_GM_DBO_ROLE = 'gm-dbo'
-_PM_DEMON_USER = None
-_PM_DEMON_UID = None
-_PG_SUPERUSER = None
-
 # standard library
 import sys
 if sys.hexversion < 0x3000000:
 	sys.exit('This code must be run with Python 3.')
+
+import faulthandler
+faulthandler.enable()
 
 import os.path
 import fileinput
@@ -76,17 +73,12 @@ import getpass
 import re as regex
 import tempfile
 import logging
-import faulthandler
-
-
-faulthandler.enable()
 
 
 # adjust Python path
 local_python_base_dir = os.path.dirname (
 	os.path.abspath(os.path.join(sys.argv[0], '..', '..'))
 )
-
 # does the GNUmed import path exist at all, physically ?
 # (*broken* links are reported as False)
 if not os.path.exists(os.path.join(local_python_base_dir, 'Gnumed')):
@@ -103,7 +95,6 @@ if not os.path.exists(os.path.join(local_python_base_dir, 'Gnumed')):
 	print(' real dir:', real_dir)
 	print('     link:', link_name)
 	os.symlink(real_dir, link_name)
-
 #print("Adjusting PYTHONPATH ...")
 sys.path.insert(0, local_python_base_dir)
 
@@ -130,13 +121,22 @@ import gmAuditSchemaGenerator
 _log = logging.getLogger('gm.bootstrapper')
 #faulthandler.enable(file = gmLog2._logfile)
 _cfg = gmCfgINI.gmCfgData()
-_PG_CLUSTER = None
 _interactive = None
-_bootstrapped_dbs:dict[str, 'cDatabase'] = {}
 _keep_temp_files = False
+_bootstrapped_dbs:dict[str, 'cDatabase'] = {}
 conn_ref_count = []
 
+_PM_DEMON_USER = None
+_PM_DEMON_UID = None
+_PG_SUPERUSER = None
+_PG_CLUSTER = None
+
 #==================================================================
+_GM_LOGINS_GROUP = 'gm-logins'
+_GM_DBO_ROLE = 'gm-dbo'
+_REGEX_holy_auth_line = r'local.*samerole.*\+gm-logins'
+_REGEX_holy_auth_line_inactive = r'#\s*local.*samerole.*\+gm-logins'
+
 SQL_add_foreign_key = """
 ALTER TABLE %(src_schema)s.%(src_tbl)s
 	ADD FOREIGN KEY (%(src_col)s)
@@ -920,10 +920,6 @@ class cDatabase:
 
 	#--------------------------------------------------------------
 	def check_holy_auth_line(self):
-
-		holy_pattern = r'local.*samerole.*\+gm-logins'
-		holy_pattern_inactive = r'#\s*local.*samerole.*\+gm-logins'
-
 		conn = connect (
 			host = _PG_CLUSTER.hostname,
 			port = _PG_CLUSTER.port,
@@ -931,7 +927,6 @@ class cDatabase:
 			user = _PG_SUPERUSER,
 		)
 		conn.cookie = 'holy auth check connection'
-
 		cmd = "select setting from pg_settings where name = 'hba_file'"
 		rows = gmPG2.run_ro_queries(link_obj = conn, queries = [{'sql': cmd}])
 		conn.close()
@@ -941,58 +936,52 @@ class cDatabase:
 
 		hba_file = rows[0][0]
 		_log.info('hba file: %s', hba_file)
-
 		try:
 			open(hba_file, mode = 'rt').close()
 		except Exception:
 			_log.exception('cannot check pg_hba.conf for authentication information - not readable')
 			return
 
-		found_holy_line = False
 		for line in fileinput.input(hba_file):
-			if regex.match(holy_pattern, line) is not None:
-				found_holy_line = True
+			if regex.match(_REGEX_holy_auth_line, line) is not None:
 				_log.info('found standard GNUmed authentication directive in pg_hba.conf')
 				_log.info('[%s]', line)
 				_log.info('it may still be in the wrong place, though, so double-check if clients cannot connect')
+				return
+
+		_log.info('did not find active standard GNUmed authentication directive in pg_hba.conf')
+		_log.info('regex: %s' % _REGEX_holy_auth_line)
+		found_holy_line_inactive = False
+		for line in fileinput.input(hba_file):
+			if regex.match(_REGEX_holy_auth_line_inactive, line) is not None:
+				found_holy_line_inactive = True
+				_log.info('found inactive standard GNUmed authentication directive in pg_hba.conf')
+				_log.info('[%s]', line)
+				_log.info('it may still be in the wrong place, though, so double-check if clients cannot connect')
 				break
-
-		if not found_holy_line:
-			_log.info('did not find active standard GNUmed authentication directive in pg_hba.conf')
-			_log.info('regex: %s' % holy_pattern)
-
-			found_holy_line_inactive = False
-			for line in fileinput.input(hba_file):
-				if regex.match(holy_pattern_inactive, line) is not None:
-					found_holy_line_inactive = True
-					_log.info('found inactive standard GNUmed authentication directive in pg_hba.conf')
-					_log.info('[%s]', line)
-					_log.info('it may still be in the wrong place, though, so double-check if clients cannot connect')
-					break
-			if not found_holy_line_inactive:
-				_log.info('did not find inactive standard GNUmed authentication directive in pg_hba.conf either')
-				_log.info('regex: %s' % holy_pattern_inactive)
-
-			_log.info('bootstrapping is likely to have succeeded but clients probably cannot connect yet')
-			print_msg('==> sanity checking PostgreSQL authentication settings ...')
-			print_msg('')
-			print_msg('Note that even after successfully bootstrapping the GNUmed ')
-			print_msg('database PostgreSQL may still need to be configured to')
-			print_msg('allow GNUmed clients to connect to it.')
-			print_msg('')
-			print_msg('In many standard PostgreSQL installations this amounts to')
-			print_msg('adding (or uncommenting) the authentication directive:')
-			print_msg('')
-			print_msg('  "local   samerole    +gm-logins   scram-sha-256"')
-			print_msg('')
-			print_msg('in the proper place of the file:')
-			print_msg('')
-			print_msg('  %s' % hba_file)
-			print_msg('')
-			print_msg('For details refer to the GNUmed documentation at:')
-			print_msg('')
-			print_msg('  https://www.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL')
-			print_msg('')
+		if not found_holy_line_inactive:
+			_log.info('did not find inactive standard GNUmed authentication directive in pg_hba.conf either')
+			_log.info('regex: %s' % _REGEX_holy_auth_line_inactive)
+		_log.info('bootstrapping is likely to have succeeded but clients probably cannot connect yet')
+		print_msg('==> sanity checking PostgreSQL authentication settings ...')
+		print_msg('')
+		print_msg('Note that even after successfully bootstrapping the GNUmed ')
+		print_msg('database PostgreSQL may still need to be configured to')
+		print_msg('allow GNUmed clients to connect to it.')
+		print_msg('')
+		print_msg('In many standard PostgreSQL installations this amounts to')
+		print_msg('adding (or uncommenting) the authentication directive:')
+		print_msg('')
+		print_msg('  "local   samerole    +gm-logins   scram-sha-256"')
+		print_msg('')
+		print_msg('in the proper place of the file:')
+		print_msg('')
+		print_msg('  %s' % hba_file)
+		print_msg('')
+		print_msg('For details refer to the GNUmed documentation at:')
+		print_msg('')
+		print_msg('  https://www.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL')
+		print_msg('')
 
 	#--------------------------------------------------------------
 	def import_data(self) -> bool:
@@ -1084,10 +1073,8 @@ class cDatabase:
 		return reindexed
 
 	#--------------------------------------------------------------
-	def revalidate_constraints(self) -> bool:
-
+	def revalidate_constraints(self) -> bool|str:
 		print_msg("==> [%s]: revalidating constraints in target database (can take a while) ..." % self.target_db_name)
-
 		do_revalidate = cfg_get(self.section, 'revalidate')
 		if do_revalidate is None:
 			do_revalidate = True		# default: do it
@@ -1360,6 +1347,7 @@ class gmBundle:
 
 		self.alias = aBundleAlias
 		self.section = "bundle %s" % aBundleAlias
+
 	#--------------------------------------------------------------
 	def bootstrap(self):
 		_log.info("bootstrapping bundle [%s]" % self.alias)
@@ -1389,6 +1377,7 @@ class gmBundle:
 			return None
 
 		return True
+
 	#--------------------------------------------------------------
 	def __verify_pg_version(self):
 		"""Verify database version information."""
@@ -1399,17 +1388,17 @@ class gmBundle:
 			return None
 
 		_log.info("minimum required PostgreSQL version: %s" % required_version)
-
 		converted, pg_ver = gmTools.input2decimal(gmConnectionPool.postgresql_version)
-
 		if not converted:
 			_log.error('error checking PostgreSQL version')
 			return None
+
 		converted, req_version = gmTools.input2decimal(required_version)
 		if not converted:
 			_log.error('error checking PostgreSQL version')
 			_log.error('required: %s', required_version)
 			return None
+
 		if pg_ver < req_version:
 			_log.error("Reported live PostgreSQL version [%s] is smaller than the required minimum version [%s].", pg_ver, required_version)
 			return None
@@ -1443,6 +1432,7 @@ def import_data():
 		db = _bootstrapped_dbs[db_key]
 		if not db.import_data():
 			return None
+
 	return True
 
 #--------------------------------------------------------------
@@ -1452,6 +1442,7 @@ def setup_auditing():
 		db = _bootstrapped_dbs[db_key]
 		if not db.setup_auditing():
 			return None
+
 	return True
 
 #--------------------------------------------------------------
@@ -1461,6 +1452,7 @@ def setup_notifications():
 		db = _bootstrapped_dbs[db_key]
 		if not db.setup_notifications():
 			return None
+
 	return True
 
 #--------------------------------------------------------------
@@ -1482,6 +1474,7 @@ def _run_query(aCurs, aQuery, args=None):
 		except:
 			_log.exception(">>>%s<<< failed" % aQuery)
 			return False
+
 	else:
 		try:
 			aCurs.execute(aQuery, args)
@@ -1489,6 +1482,7 @@ def _run_query(aCurs, aQuery, args=None):
 			_log.exception(">>>%s<<< failed" % aQuery)
 			_log.error(str(args))
 			return False
+
 	return True
 
 #------------------------------------------------------------------
