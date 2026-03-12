@@ -640,26 +640,38 @@ class cOrthancServer:
 			filename = gmTools.get_unique_filename(suffix = '.png')
 		_log.debug('exporting preview for instance [%s] into [%s]', instance_id, filename)
 		download_url = '%s/instances/%s/preview' % (self.__server_url, instance_id)
-		f = open(filename, 'wb')
 		try:
-			f.write(self.__run_GET(url = download_url, allow_cached = True))
+			content, status = self.__run_GET(url = download_url, allow_cached = True, also_return_status = True)
 		except Exception:
-			_log.exception('cannot retrieve instance')
-			filename = None
-		finally:
-			f.close()
+			_log.exception('cannot retrieve instance preview')
+			return None
+
+		if content is False:
+			_log.error('cannot retrieve instance preview: %s', status)
+			return None
+
+		with open(filename, 'wb') as f:
+			f.write(content)
 		return filename
 
 	#--------------------------------------------------------
 	def get_instance(self, instance_id:str, filename:str=None, allow_cached:bool=True) -> str:
 		if filename is None:
 			filename = gmTools.get_unique_filename(suffix = '.dcm')
-
 		_log.debug('exporting instance [%s] into [%s]', instance_id, filename)
 		download_url = '%s/instances/%s/attachments/dicom/data' % (self.__server_url, instance_id)
-		f = open(filename, 'wb')
-		f.write(self.__run_GET(url = download_url, allow_cached = allow_cached))
-		f.close()
+		try:
+			content, status = self.__run_GET(url = download_url, allow_cached = True, also_return_status = True)
+		except Exception:
+			_log.exception('cannot retrieve instance')
+			return None
+
+		if content is False:
+			_log.error('cannot retrieve instance: %s', status)
+			return None
+
+		with open(filename, 'wb') as f:
+			f.write(content)
 		return filename
 
 	#--------------------------------------------------------
@@ -2036,6 +2048,6 @@ if __name__ == "__main__":
 	#test_modify_patient_id()
 	#test_upload_files()
 	#test_upload_file()
-	#test_get_instance_preview()
+	test_get_instance_preview()
 	#test_get_instance_tags()
 	#test_patient()
