@@ -6,6 +6,10 @@
 # rel-1-8-maint
 ------------------------------------------------
 
+	1.8.24
+
+FIX: more robust UI update when quickly scrolling document tree
+
 	1.8.23
 
 FIX: hyphenated module names failing in newer Python versions [thanks María]

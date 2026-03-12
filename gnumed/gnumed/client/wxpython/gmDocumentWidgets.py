@@ -1402,7 +1402,11 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 	#--------------------------------------------------------
 	def _on_update_file_description(self, result):
 		status, description = result
-		fname, source = self._LCTRL_doc_pages.get_selected_item_data(only_one = True)
+		item_data = self._LCTRL_doc_pages.get_selected_item_data(only_one = True)
+		if not item_data:
+			return
+
+		fname, source = item_data
 		txt = _(
 			'Source: %s\n'
 			'File: %s\n'
