@@ -8,7 +8,6 @@ TS=""
 CLIENTREV="1.9.0rc1${TS}"
 CLIENTARCH="gnumed-client.$CLIENTREV.tgz"
 
-SRVREV="22.15"
 SRVREV="23.0rc1${TS}"
 SRVARCH="gnumed-server.$SRVREV.tgz"
 
@@ -126,9 +125,7 @@ echo "cleaning up"
 rm -R ./gnumed-client.$CLIENTREV/
 rm -vf $CLIENTARCH
 rm -vf $SRVARCH
-cd ../../../../
-./remove-debris.sh
-cd -
+sudo "../../../../remove-debris.sh"
 
 
 # create client package
@@ -760,6 +757,24 @@ cp -vf ../../server/sql/v21-v22/data/* ./gnumed-client.$CLIENTREV/server/sql/v21
 cp -vf ../../server/sql/v21-v22/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v21-v22/python
 cp -vf ../../server/sql/v21-v22/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v21-v22/superuser
 cp -vf ../../server/sql/v21-v22/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v21-v22/fixups
+
+
+# gnumed_v23
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v22-v23
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v22-v23/dynamic
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v22-v23/static
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v22-v23/data
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v22-v23/python
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v22-v23/superuser
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v22-v23/fixups
+
+cp -vf ../../server/sql/v22-v23/gm_db-gnumed_v*-fingerprint.txt ./gnumed-client.$CLIENTREV/server/sql/v22-v23
+cp -vf ../../server/sql/v22-v23/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v22-v23/dynamic
+cp -vf ../../server/sql/v22-v23/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v22-v23/static
+cp -vf ../../server/sql/v22-v23/data/* ./gnumed-client.$CLIENTREV/server/sql/v22-v23/data
+cp -vf ../../server/sql/v22-v23/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v22-v23/python
+cp -vf ../../server/sql/v22-v23/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v22-v23/superuser
+cp -vf ../../server/sql/v22-v23/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v22-v23/fixups
 
 
 #----------------------------------
