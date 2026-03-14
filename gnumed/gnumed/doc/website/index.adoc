@@ -4,7 +4,7 @@
 
 https://www.gnumed.de/downloads/client/1.8/gnumed-client.1.8.23.tgz[Version 1.8.23] (database v22.33) released December 29th 2025
 
-https://github.com/ncqgm/gnumed/blob/master/gnumed/CHANGELOG[What's New] (https://github.com/ncqgm/gnumed/commits/master[commit log]) | https://www.gnumed.de/downloads/[Download Area]
+https://github.com/ncqgm/gnumed/blob/master/gnumed/CHANGELOG[What's New] (https://github.com/ncqgm/gnumed/commits/master[commit log]) | https://www.gnumed.de/downloads/[Download Area] (https://www.gnumed.de/downloads/gnumed-versions.txt[version information])
 
 '''
 
