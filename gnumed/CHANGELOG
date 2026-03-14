@@ -2374,6 +2374,8 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v23
 ------------------------------------------------
 
+	23.0
+
 NEW: add list position to export items
 NEW: add intake regimen support
 NEW: bootstrapper: auto-fix collations as needed
