@@ -1315,9 +1315,14 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 		self._BTN_del_aux_info.Disable()
 
 	#----------------------------------------------------------------
+	def __get_aux_info_dict(self):
+		return self.data['aux_info'] or {}
+
+	#----------------------------------------------------------------
 	# event handlers
 	#----------------------------------------------------------------
 	def _on_add_aux_info_button_pressed(self, event):
+		aux_info = self.__get_aux_info_dict()
 		new_group = wx.GetTextFromUser (
 			_('Name for the new information group:'),
 			caption = _('Adding info group'),
@@ -1326,13 +1331,13 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 		if not new_group:
 			return
 
-		if new_group in self.data['aux_info']:
+		if new_group in aux_info:
 			self.StatusText = _('Information group exists.')
 			return
 
-		aux_info = self.data['aux_info'].copy()
-		aux_info[new_group] = {}
-		self.data['aux_info'] = aux_info
+		updated_aux_info = dict(aux_info)
+		updated_aux_info[new_group] = {}
+		self.data['aux_info'] = updated_aux_info
 		self.data.save()
 		self.__refresh_aux_info()
 		self.__refresh_aux_info_buttons()
@@ -1370,9 +1375,10 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 			key_idx = idx * 2
 			data_idx = key_idx + 1
 			data[lines[key_idx].rstrip(':')] = lines[data_idx]
-		aux_info = self.data['aux_info'].copy()
-		aux_info[group] = data
-		self.data['aux_info'] = aux_info
+		aux_info = self.__get_aux_info_dict()
+		updated_aux_info = dict(aux_info)
+		updated_aux_info[group] = data
+		self.data['aux_info'] = updated_aux_info
 		self.data.save()
 		self.__refresh_aux_info()
 		self.__refresh_aux_info_buttons()
@@ -1384,10 +1390,11 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 			self.StatusText = _('Must select group for deleting.')
 			return
 
-		aux_info = self.data['aux_info'].copy()
+		aux_info = self.__get_aux_info_dict()
+		updated_aux_info = dict(aux_info)
 		group2del = item_data[0]
-		aux_info.pop(group2del)
-		self.data['aux_info'] = aux_info
+		updated_aux_info.pop(group2del, None)
+		self.data['aux_info'] = updated_aux_info
 		self.data.save()
 		self.__refresh_aux_info()
 		self.__refresh_aux_info_buttons()
