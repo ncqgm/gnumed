@@ -12,9 +12,9 @@ if test $(id -u) -ne 0 ; then
 fi
 
 
-VERSIONS_TO_DROP="2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21"
+NEW_VER="23"
 PREV_VER="22"
-VER="23"
+VERSIONS_TO_DROP="2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21"
 QUIET="$1"
 
 
@@ -64,8 +64,8 @@ function setup_connection_environment () {
 
 #--------------------------------------------------
 function verify_dropping_of_existing_databases () {
-	ALL_PREV_VERS="${VERSIONS_TO_DROP} ${PREV_VER} ${VER}"
-	for DB_VER in ${ALL_PREV_VERS} ; do
+	ALL_KNOWN_VERSIONS="${VERSIONS_TO_DROP} ${PREV_VER} ${NEW_VER}"
+	for DB_VER in ${ALL_KNOWN_VERSIONS} ; do
 		VER_EXISTS=$(su -c "psql --list ${HOST_ARG} ${PORT_ARG} ${MAINTENANCE_DB_ARG} ${SUPERUSER_ARG}" -l postgres | grep gnumed_v${DB_VER})
 		if test "${VER_EXISTS}" != "" ; then
 			echo ""
@@ -76,7 +76,7 @@ function verify_dropping_of_existing_databases () {
 			echo "will be OVERWRITTEN !"
 			echo ""
 			echo "Do you really intend to *bootstrap* or did you"
-			echo "rather want to *upgrade* from v${PREV_VER} to v${VER} ?"
+			echo "rather want to *upgrade* from v${PREV_VER} to v${NEW_VER} ?"
 			echo ""
 			echo "For upgrading you should run the"
 			echo "upgrade script instead."
@@ -108,7 +108,7 @@ function run_bootstrapper () {
 	./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF} --${QUIET}
 	RESULT="$?"
 	if test "${RESULT}" != "0" ; then
-		echo "Bootstrapping \"gnumed_v${VER}\" did not finish successfully (${RESULT}). Aborting."
+		echo "Bootstrapping \"gnumed_v${NEW_VER}\" did not finish successfully (${RESULT}). Aborting."
 		read
 		exit 1
 	fi
@@ -118,8 +118,8 @@ function run_bootstrapper () {
 echo_msg "==========================================================="
 echo_msg "Bootstrapping latest GNUmed database."
 echo_msg ""
-echo_msg "This will set up a GNUmed database of version v${VER}"
-echo_msg "with the name \"gnumed_v${VER}\"."
+echo_msg "This will set up a GNUmed database of version v${NEW_VER}"
+echo_msg "with the name \"gnumed_v${NEW_VER}\"."
 
 setup_connection_environment
 verify_dropping_of_existing_databases			# better safe than sorry

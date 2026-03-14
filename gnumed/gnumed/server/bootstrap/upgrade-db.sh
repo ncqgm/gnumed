@@ -244,19 +244,19 @@ function perhaps_backup_source_database () {
 		perhaps_echo_msg "   database from an up-to-date backup should you need to."
 		return ;
 	fi;
-	perhaps_echo_msg "1) creating backup of the database that is to be upgraded ..."
+	perhaps_echo_msg "1) creating backup of the database (gnumed_v${PREV_VER}) that is to be upgraded ..."
 	perhaps_echo_msg "   This step may take a substantial amount of time and disk space."
 	perhaps_echo_msg "   (you will be prompted if you need to type in the password for ${GM_DBO})"
 	pg_dump ${HOST_ARG} ${PORT_ARG} --username=${GM_DBO} --format=tar --file=${BAK_FILE} gnumed_v${PREV_VER}
-	ARCHIVED="$?"
-	if test "${ARCHIVED}" != "0" ; then
+	RETCODE="$?"
+	if test "${RETCODE}" != "0" ; then
 		echo ""
 		echo "========================================="
 		echo "ERROR: Backing up database"
 		echo "ERROR:"
 		echo "ERROR:  gnumed_v${PREV_VER}"
 		echo "ERROR:"
-		echo "ERROR: failed (${ARCHIVED}). Aborting."
+		echo "ERROR: failed (${RETCODE}). Aborting."
 		echo "ERROR:"
 		echo "ERROR: (${BACKUP_CMD})"
 		echo "========================================="
