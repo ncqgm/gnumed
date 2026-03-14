@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-03 12:59+0100\n"
+"POT-Creation-Date: 2026-03-14 16:28+0100\n"
 "PO-Revision-Date: 2012-06-01 01:22+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: GNUmed\n"
@@ -32,2420 +32,6 @@ msgstr ""
 msgid ""
 "Topical therapy:\\n%s\\n\\nSystemic therapy:\\n%s\\n\\nSubsequent checks:"
 "\\n%s"
-msgstr ""
-
-#, fuzzy
-msgid "Whole Timeline"
-msgstr "OpenOffice"
-
-msgid "Visible Period"
-msgstr ""
-
-msgid "Can't scroll more to the left"
-msgstr ""
-
-msgid "Can't scroll more to the right"
-msgstr ""
-
-msgid "No timeline set"
-msgstr ""
-
-msgid "Name"
-msgstr "Nome"
-
-msgid "Color"
-msgstr ""
-
-msgid "Progress Color"
-msgstr ""
-
-msgid "Done Color"
-msgstr ""
-
-msgid "Parent"
-msgstr ""
-
-msgid "Invalid start time"
-msgstr ""
-
-msgid "Invalid end time"
-msgstr ""
-
-#, python-format
-msgid "Start time can't be after end time. Start:%s End:%s"
-msgstr ""
-
-msgid "Text"
-msgstr "Testo"
-
-msgid "Description"
-msgstr "Descrizione"
-
-msgid "Start"
-msgstr "Inizio"
-
-msgid "End"
-msgstr ""
-
-msgid "Category"
-msgstr ""
-
-msgid "Fuzzy"
-msgstr ""
-
-msgid "Locked"
-msgstr ""
-
-msgid "Ends Today"
-msgstr ""
-
-msgid "Hyperlink"
-msgstr ""
-
-#, fuzzy
-msgid "Progress"
-msgstr "Progressi, note"
-
-msgid "Alert"
-msgstr ""
-
-msgid "Is Container"
-msgstr ""
-
-msgid "Is Subevent"
-msgstr ""
-
-msgid "Duration"
-msgstr "Durata"
-
-msgid "Displayed period must be > 0."
-msgstr ""
-
-#, fuzzy, python-format
-msgid "Unable to open timeline '%s'."
-msgstr "Fallita l'iscrizione del paziente in %s"
-
-#, fuzzy
-msgid "Unknown format."
-msgstr "reazione sconosciuta"
-
-msgid ""
-"You are trying to open an old file with a new version of timeline. Please "
-"install version 0.21.1 of timeline to convert it to the new format."
-msgstr ""
-
-msgid ""
-"Since the directory of the Timeline file is not writable,\n"
-"the timeline is opened in read-only mode"
-msgstr ""
-
-msgid ""
-"Could not find iCalendar Python package. It is required for working with ICS "
-"files."
-msgstr ""
-
-#, python-format
-msgid "Unable to save timeline data to '%s'. File left unmodified."
-msgstr ""
-
-msgid "Unable to write timeline data."
-msgstr ""
-
-#, python-format
-msgid "Unable to write to temporary dbfile '%s'."
-msgstr ""
-
-#, python-format
-msgid "Unable to take backup to '%s'."
-msgstr ""
-
-#, python-format
-msgid "Unable to rename temporary dbfile '%s' to original."
-msgstr ""
-
-#, python-format
-msgid "Unable to delete backup dbfile '%s'."
-msgstr ""
-
-msgid "Other Gradient Event box drawer"
-msgstr ""
-
-msgid "Other Gradient Event box drawer with fuzzy edges"
-msgstr ""
-
-msgid "Default Event box drawer"
-msgstr ""
-
-msgid "Gradient Event box drawer"
-msgstr ""
-
-msgid "Plain text to HTML transformer"
-msgstr ""
-
-msgid "Default Text transformer"
-msgstr ""
-
-#, fuzzy
-msgid "Export Whole Timeline to Images..."
-msgstr "Esporta come..."
-
-msgid ""
-"The first image contains a Julian day < 0\n"
-"\n"
-"Navigate to first event or\n"
-"Use the feature 'Accept negative Julian days'"
-msgstr ""
-
-#, fuzzy
-msgid "Image files"
-msgstr "tutti i file"
-
-msgid "Export to Image"
-msgstr ""
-
-#, python-format
-msgid "File '%s' exists. Overwrite?"
-msgstr ""
-
-#, fuzzy
-msgid "Export Current view to Image..."
-msgstr "Esporta come..."
-
-msgid "Export to Listbox..."
-msgstr ""
-
-msgid "Unable to copy to clipboard."
-msgstr ""
-
-msgid "Time period"
-msgstr ""
-
-msgid "Event"
-msgstr ""
-
-msgid "Export Timeline to File..."
-msgstr ""
-
-msgid "Events"
-msgstr ""
-
-msgid "Categories"
-msgstr ""
-
-msgid "export files"
-msgstr ""
-
-#, fuzzy
-msgid "Export"
-msgstr "Rapporto"
-
-#, fuzzy
-msgid "Export to SVG..."
-msgstr "Esporta come..."
-
-msgid "Could not find pysvg Python package. It is needed to export to SVG."
-msgstr ""
-
-#, fuzzy
-msgid "SVG files"
-msgstr "tutti i file"
-
-#, fuzzy
-msgid "Export to SVG"
-msgstr "Rapporto"
-
-msgid "Use extended Container strategy"
-msgstr ""
-
-msgid ""
-"\n"
-"              This strategy makes it possible to have overlapping subevents\n"
-"              in a container.\n"
-"\n"
-"              The container expands in the vertical direction if it has\n"
-"              overlapping subevents.\n"
-"              "
-msgstr ""
-
-msgid "Accept negative Julian days"
-msgstr ""
-
-msgid ""
-"\n"
-"              Enables the use of dates before Julian day = 0 (4713 BC)\n"
-"\n"
-"              This means that prehistorical dates can be used.\n"
-"              We are not quiet sure that the calculations works correctly\n"
-"              for negative julian days and therefore it's an experimental "
-"feature.\n"
-"\n"
-"              Be aware of the fact that a timeline created with this feature "
-"active,\n"
-"              may not be readable with Timeline if the feature is switched "
-"off.\n"
-"              "
-msgstr ""
-
-msgid "Extend Container height"
-msgstr ""
-
-msgid ""
-"\n"
-"              Extend the height of a container so that the container name "
-"becomes visible.\n"
-"\n"
-"              This also has the side effect that ordinary events come "
-"farther apart in\n"
-"              the vertical direction.\n"
-"\n"
-"              The font for the container name has a fixed size when you zoom "
-"vertically (Alt + Mouse wheel)\n"
-"              "
-msgstr ""
-
-msgid "to"
-msgstr ""
-
-msgid "Period"
-msgstr ""
-
-msgid "Go to &Zero"
-msgstr ""
-
-msgid "Go to &Time"
-msgstr ""
-
-msgid "Backward"
-msgstr ""
-
-msgid "Forward"
-msgstr ""
-
-msgid "Can't zoom deeper than 5"
-msgstr ""
-
-msgid "1-period"
-msgstr ""
-
-msgid "10-period"
-msgstr ""
-
-msgid "100-period"
-msgstr ""
-
-msgid "1000-period"
-msgstr ""
-
-#, fuzzy
-msgid "Go to Time"
-msgstr " opzione [%s]: %s"
-
-#, fuzzy
-msgid "Show time"
-msgstr "Mostra i messaggi:"
-
-msgid "Praios"
-msgstr ""
-
-msgid "Rondra"
-msgstr ""
-
-msgid "Efferd"
-msgstr ""
-
-msgid "Travia"
-msgstr ""
-
-msgid "Boron"
-msgstr ""
-
-msgid "Hesinde"
-msgstr ""
-
-msgid "Firun"
-msgstr ""
-
-msgid "Tsa"
-msgstr ""
-
-msgid "Phex"
-msgstr ""
-
-msgid "Peraine"
-msgstr ""
-
-msgid "Ingerimm"
-msgstr ""
-
-msgid "Rahja"
-msgstr ""
-
-msgid "Nameless Days"
-msgstr ""
-
-msgid "PRA"
-msgstr ""
-
-msgid "RON"
-msgstr ""
-
-msgid "EFF"
-msgstr ""
-
-msgid "TRA"
-msgstr ""
-
-msgid "BOR"
-msgstr ""
-
-msgid "HES"
-msgstr ""
-
-msgid "FIR"
-msgstr ""
-
-msgid "TSA"
-msgstr ""
-
-msgid "PHE"
-msgstr ""
-
-msgid "PER"
-msgstr ""
-
-msgid "ING"
-msgstr ""
-
-msgid "RAH"
-msgstr ""
-
-msgid "NL"
-msgstr ""
-
-msgid "Open &Now Date Editor"
-msgstr ""
-
-msgid "Go to &Date..."
-msgstr ""
-
-msgid "Forward One Wee&k"
-msgstr ""
-
-msgid "Back One &Week"
-msgstr ""
-
-msgid "Forward One Mont&h"
-msgstr ""
-
-msgid "Back One &Month"
-msgstr ""
-
-msgid "Forward One Yea&r"
-msgstr ""
-
-msgid "Back One &Year"
-msgstr ""
-
-msgid "Fit Millennium"
-msgstr ""
-
-msgid "Fit Century"
-msgstr ""
-
-msgid "Fit Decade"
-msgstr ""
-
-msgid "Fit Year"
-msgstr ""
-
-msgid "Fit Month"
-msgstr ""
-
-msgid "Fit Week"
-msgstr ""
-
-#, fuzzy
-msgid "Fit Day"
-msgstr "Prima Data"
-
-msgid "Can't zoom deeper than 1 minute"
-msgstr ""
-
-msgid "Day"
-msgstr ""
-
-msgid "Week"
-msgstr ""
-
-msgid "Month"
-msgstr ""
-
-msgid "Year"
-msgstr ""
-
-msgid "Change Now Date"
-msgstr ""
-
-#, fuzzy
-msgid "Go to Date"
-msgstr "Ultima Data"
-
-msgid "Wind"
-msgstr ""
-
-msgid "Earth"
-msgstr ""
-
-msgid "Market"
-msgstr ""
-
-msgid "Rohal"
-msgstr ""
-
-msgid "Fire"
-msgstr ""
-
-msgid "Water"
-msgstr ""
-
-msgid "BC"
-msgstr ""
-
-msgid "The date control can't handle the given date"
-msgstr ""
-
-msgid "Go to &Today"
-msgstr ""
-
-#, fuzzy
-msgid "years"
-msgstr "O anno:"
-
-#, fuzzy
-msgid "year"
-msgstr "O anno:"
-
-msgid "months"
-msgstr ""
-
-msgid "month"
-msgstr ""
-
-msgid "weeks"
-msgstr ""
-
-msgid "week"
-msgstr ""
-
-msgid "days"
-msgstr ""
-
-msgid "day"
-msgstr ""
-
-msgid "hours"
-msgstr ""
-
-msgid "hour"
-msgstr ""
-
-msgid "minutes"
-msgstr ""
-
-msgid "minute"
-msgstr ""
-
-msgid "seconds"
-msgstr ""
-
-msgid "second"
-msgstr ""
-
-msgid "i"
-msgstr ""
-
-msgid "ii"
-msgstr ""
-
-msgid "iii"
-msgstr ""
-
-msgid "iv"
-msgstr ""
-
-msgid "v"
-msgstr ""
-
-msgid "vi"
-msgstr ""
-
-msgid "vii"
-msgstr ""
-
-msgid "viii"
-msgstr ""
-
-msgid "ix"
-msgstr ""
-
-msgid "x"
-msgstr ""
-
-msgid "Jan"
-msgstr ""
-
-msgid "Feb"
-msgstr ""
-
-#, fuzzy
-msgid "Mar"
-msgstr "Sig."
-
-msgid "Apr"
-msgstr ""
-
-msgid "May"
-msgstr ""
-
-#, fuzzy
-msgid "Jun"
-msgstr "Esegui"
-
-#, fuzzy
-msgid "Jul"
-msgstr "Giornale"
-
-#, fuzzy
-msgid "Aug"
-msgstr "Età"
-
-#, fuzzy
-msgid "Sep"
-msgstr "Imposta"
-
-msgid "Oct"
-msgstr ""
-
-#, fuzzy
-msgid "Nov"
-msgstr "No"
-
-#, fuzzy
-msgid "Dec"
-msgstr "Doc"
-
-msgid "Mon"
-msgstr ""
-
-msgid "Tue"
-msgstr ""
-
-msgid "Wed"
-msgstr ""
-
-msgid "Thu"
-msgstr ""
-
-#, fuzzy
-msgid "Fri"
-msgstr "Per"
-
-#, fuzzy
-msgid "Sat"
-msgstr "Inizio"
-
-#, fuzzy
-msgid "Sun"
-msgstr "Esegui"
-
-#, fuzzy
-msgid "Pes"
-msgstr "Sì"
-
-msgid "Psh"
-msgstr ""
-
-msgid "Pef"
-msgstr ""
-
-#, fuzzy
-msgid "Pt"
-msgstr "Parti"
-
-msgid "Pso"
-msgstr ""
-
-msgid "Psa"
-msgstr ""
-
-msgid "Tk"
-msgstr ""
-
-#, fuzzy
-msgid "Edit..."
-msgstr "Modifica"
-
-msgid "Add..."
-msgstr ""
-
-msgid "Delete"
-msgstr "Elimina"
-
-msgid "Check All"
-msgstr ""
-
-msgid "Check children"
-msgstr ""
-
-msgid "Check all children"
-msgstr ""
-
-#, fuzzy
-msgid "Check all parents"
-msgstr "Verifica la disponibilità di nuovi aggiornamenti"
-
-msgid "Check parents for checked children"
-msgstr ""
-
-msgid "Uncheck All"
-msgstr ""
-
-msgid "Uncheck children"
-msgstr ""
-
-msgid "Uncheck all children"
-msgstr ""
-
-#, fuzzy
-msgid "Uncheck all parents"
-msgstr "firmare tutte le pagine"
-
-#, fuzzy
-msgid "Edit Category"
-msgstr "non attivo"
-
-msgid "Add Category"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "Are you sure you want to delete category '%s'?"
-msgstr "Sei sicuro di voler cancellare il documento?"
-
-#, python-format
-msgid "Events belonging to '%s' will no longer belong to a category."
-msgstr ""
-
-#, python-format
-msgid "Events belonging to '%s' will now belong to '%s'."
-msgstr ""
-
-msgid "No timeline opened."
-msgstr ""
-
-msgid "First time using Timeline?"
-msgstr ""
-
-msgid "Getting started tutorial"
-msgstr ""
-
-msgid "Center"
-msgstr ""
-
-msgid "Edit"
-msgstr "Modifica"
-
-msgid "Duplicate..."
-msgstr ""
-
-msgid "Mark Event as Done"
-msgstr ""
-
-msgid "Select Category..."
-msgstr ""
-
-msgid "Sticky Balloon"
-msgstr ""
-
-#, fuzzy
-msgid "Goto URL"
-msgstr "fatale"
-
-#, fuzzy, python-format
-msgid "Are you sure you want to delete %d events?"
-msgstr "Sei sicuro di voler cancellare il documento?"
-
-#, fuzzy
-msgid "Are you sure you want to delete this event?"
-msgstr "Sei sicuro di voler cancellare il documento?"
-
-#, python-format
-msgid "%s events hidden"
-msgstr ""
-
-msgid "This timeline is read-only."
-msgstr ""
-
-msgid "To edit this timeline, save it to a new file: File -> Save As."
-msgstr ""
-
-msgid "This timeline is not being saved."
-msgstr ""
-
-msgid "To save this timeline, save it to a new file: File -> Save As."
-msgstr ""
-
-#, fuzzy
-msgid "Give feedback"
-msgstr "Torna indietro"
-
-#, fuzzy
-msgid "No matches found"
-msgstr "Nessun farmaco corrispondente."
-
-#, fuzzy
-msgid "Only one match found"
-msgstr "Nessun farmaco corrispondente."
-
-#, fuzzy
-msgid "matches found"
-msgstr "Nessun paziente corrispondente trovato."
-
-msgid "Close"
-msgstr "Chiudi"
-
-#, fuzzy
-msgid "Prevoius match"
-msgstr "Gruppo"
-
-#, fuzzy
-msgid "Next match"
-msgstr "Gruppo"
-
-msgid "In: "
-msgstr ""
-
-#, fuzzy
-msgid "Select period"
-msgstr "Tipo di modello"
-
-#, fuzzy
-msgid "List matches"
-msgstr "Cerca"
-
-msgid "When:"
-msgstr ""
-
-#, fuzzy
-msgid "Text:"
-msgstr "Testo"
-
-msgid "Color used when the Event has no category associated with it."
-msgstr ""
-
-#, fuzzy
-msgid "Progress %:"
-msgstr "Progressi, note"
-
-msgid "&Append"
-msgstr ""
-
-msgid "&Remove"
-msgstr ""
-
-msgid "Te&st"
-msgstr ""
-
-msgid "URL:"
-msgstr ""
-
-#, python-format
-msgid "Images will be scaled to fit inside a %ix%i box."
-msgstr ""
-
-#, fuzzy
-msgid "Select Icon"
-msgstr "Seleziona"
-
-#, fuzzy
-msgid "Select region for event"
-msgstr "Seleziona una persona dalla lista"
-
-#, fuzzy
-msgid "Select region to zoom into"
-msgstr "Seleziona una persona dalla lista"
-
-#, fuzzy
-msgid "Resize events"
-msgstr "Crea nuovo"
-
-msgid "Can't move locked event"
-msgstr ""
-
-#, fuzzy
-msgid "Select events"
-msgstr "Sto selezionando il paziente"
-
-#, fuzzy
-msgid "Add new"
-msgstr "Aggiunta nuovo nome"
-
-msgid "Choose file"
-msgstr ""
-
-#, fuzzy
-msgid "Add Container"
-msgstr "Continua"
-
-msgid "View Categories Individually"
-msgstr ""
-
-msgid "Add an Era"
-msgstr ""
-
-msgid "Edit an Era"
-msgstr ""
-
-msgid "Edit Era's"
-msgstr ""
-
-msgid "CSV File"
-msgstr ""
-
-msgid "Invalid Data"
-msgstr ""
-
-msgid "At least one Export Item must be selected"
-msgstr ""
-
-msgid "At least one Event Field must be selected"
-msgstr ""
-
-msgid "At least one Category Field must be selected"
-msgstr ""
-
-msgid "Ignore"
-msgstr ""
-
-msgid "Replace"
-msgstr ""
-
-msgid "XML-Replace"
-msgstr ""
-
-msgid "Strict"
-msgstr ""
-
-msgid "Select Export File Type"
-msgstr ""
-
-msgid "Select Text Encoding"
-msgstr ""
-
-msgid "Select encoding error strategy"
-msgstr ""
-
-msgid "Select Items to export"
-msgstr ""
-
-msgid "Select Fields..."
-msgstr ""
-
-msgid "Export Timeline"
-msgstr ""
-
-msgid "Select Event Fields"
-msgstr ""
-
-msgid "Select Category Fields"
-msgstr ""
-
-msgid "You can't save a milestone with an invalid date/time"
-msgstr ""
-
-msgid "Milestone Properties"
-msgstr ""
-
-msgid "Description:"
-msgstr ""
-
-msgid "Label:"
-msgstr ""
-
-msgid "Category:"
-msgstr ""
-
-msgid "Colour:"
-msgstr ""
-
-msgid "Create Milestone"
-msgstr ""
-
-msgid "Edit Milestone"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "Field '%s' can't be empty."
-msgstr "<issuer> non può essere vuoto"
-
-#, fuzzy
-msgid "Name:"
-msgstr "Nome"
-
-#, fuzzy
-msgid "Color:"
-msgstr "Colorazione"
-
-msgid "Progress Color:"
-msgstr ""
-
-msgid "Done Color:"
-msgstr ""
-
-msgid "Font Color:"
-msgstr ""
-
-#, fuzzy
-msgid "Parent:"
-msgstr "Paziente:"
-
-#, python-format
-msgid "Category name '%s' not valid. Must be non-empty."
-msgstr ""
-
-#, python-format
-msgid "Category name '%s' already in use."
-msgstr ""
-
-msgid "Other email client"
-msgstr ""
-
-msgid ""
-"Copy and paste this email into your favorite email client and send it from "
-"there."
-msgstr ""
-
-msgid "Email Feedback"
-msgstr ""
-
-#, fuzzy
-msgid "To:"
-msgstr "A"
-
-#, fuzzy
-msgid "Subject:"
-msgstr "Soggettivo"
-
-msgid "Body:"
-msgstr ""
-
-#, fuzzy
-msgid "Send With:"
-msgstr "Manda Email"
-
-#, fuzzy
-msgid "Default client"
-msgstr "Tipo predefinito"
-
-#, fuzzy
-msgid "Gmail"
-msgstr "mail"
-
-msgid "Other"
-msgstr "Altro"
-
-#, fuzzy
-msgid "Invalid date"
-msgstr "Input Invalido"
-
-msgid "Choose what type of timeline you want to create."
-msgstr ""
-
-msgid "Create new timeline"
-msgstr ""
-
-msgid "System version:"
-msgstr ""
-
-msgid "Python version:"
-msgstr ""
-
-msgid "wxPython version:"
-msgstr ""
-
-msgid "Locale setting:"
-msgstr ""
-
-msgid "Locale date format:"
-msgstr ""
-
-msgid "Configuration file:"
-msgstr ""
-
-msgid "System Information"
-msgstr ""
-
-msgid "File does not exist."
-msgstr ""
-
-#, python-format
-msgid "Unable to load events: %s."
-msgstr ""
-
-#, python-format
-msgid "%d events will be imported."
-msgstr ""
-
-msgid "The selected timeline has a different time type."
-msgstr ""
-
-msgid "Select timeline to import from:"
-msgstr ""
-
-#, fuzzy
-msgid "Timeline files"
-msgstr "tutti i file"
-
-msgid "Import events"
-msgstr ""
-
-msgid "Check"
-msgstr ""
-
-msgid "Uncheck"
-msgstr ""
-
-#, fuzzy
-msgid "Category Finder"
-msgstr "non attivo"
-
-msgid "You must select a category!"
-msgstr ""
-
-msgid "Set Category on events without category"
-msgstr ""
-
-msgid "Set Category on selected events"
-msgstr ""
-
-msgid "Select a Category:"
-msgstr ""
-
-msgid "The html pages directory is mandatory"
-msgstr ""
-
-msgid "Can't find the html pages directory!"
-msgstr ""
-
-msgid "Do you want to create it?"
-msgstr ""
-
-msgid "The html pages director isn't empty!"
-msgstr ""
-
-msgid "Do you want overwrite it?"
-msgstr ""
-
-msgid "Select Events"
-msgstr ""
-
-msgid "Save html pages at"
-msgstr ""
-
-msgid "Start Slide Show"
-msgstr ""
-
-msgid "Select html pages directory"
-msgstr ""
-
-#, fuzzy
-msgid "Found Events"
-msgstr "non attivo"
-
-msgid "Date format:"
-msgstr ""
-
-msgid "Locale Date format:"
-msgstr ""
-
-msgid "Set Date format"
-msgstr ""
-
-msgid "Era Properties"
-msgstr ""
-
-#, fuzzy
-msgid "Ends today"
-msgstr "oggi (%s)"
-
-msgid "Current"
-msgstr ""
-
-#, fuzzy
-msgid "General"
-msgstr "Generalizzato"
-
-#, fuzzy
-msgid "Open most recent timeline on startup"
-msgstr "il più recente in cima"
-
-msgid "Use inertial scrolling"
-msgstr ""
-
-msgid "Never show period Events as point Events"
-msgstr ""
-
-msgid "Center Event texts"
-msgstr ""
-
-msgid "Uncheck time checkbox for new events"
-msgstr ""
-
-msgid "Balloon text below icon"
-msgstr ""
-
-msgid "Filter items in listbox export, on categories"
-msgstr ""
-
-msgid "Select Event Editor Tab Order"
-msgstr ""
-
-msgid "Select Date format"
-msgstr ""
-
-#, fuzzy
-msgid "Date && Time"
-msgstr "Data / Ora"
-
-msgid "Week start on:"
-msgstr ""
-
-msgid "Monday"
-msgstr ""
-
-msgid "Sunday"
-msgstr ""
-
-msgid "Fonts"
-msgstr ""
-
-msgid "Colours"
-msgstr ""
-
-msgid "Major Strips:"
-msgstr ""
-
-msgid "Minor Strips:"
-msgstr ""
-
-msgid "Balloons:"
-msgstr ""
-
-msgid "Icons"
-msgstr ""
-
-msgid "Fuzzy icon"
-msgstr ""
-
-msgid "Locked icon"
-msgstr ""
-
-msgid "Hyperlink icon"
-msgstr ""
-
-msgid "Legends:"
-msgstr ""
-
-msgid "Experimental Features"
-msgstr ""
-
-msgid "Minor strip divider line:"
-msgstr ""
-
-msgid "Major strip divider line:"
-msgstr ""
-
-msgid "Now line:"
-msgstr ""
-
-msgid "Weekends:"
-msgstr ""
-
-msgid "Use bold line"
-msgstr ""
-
-msgid "Background"
-msgstr ""
-
-msgid "Vertical space between Events (px)"
-msgstr ""
-
-msgid "Colorize weekends"
-msgstr ""
-
-msgid "Skip s in decade text"
-msgstr ""
-
-msgid "Display checkmark when events are done"
-msgstr ""
-
-msgid "Never use time precision for events"
-msgstr ""
-
-msgid "Use second precision for time"
-msgstr ""
-
-msgid "Legend Position"
-msgstr ""
-
-msgid "Bottom-Left"
-msgstr ""
-
-msgid "Top-Left"
-msgstr ""
-
-msgid "Top-Right"
-msgstr ""
-
-msgid "Bottom-Right"
-msgstr ""
-
-#, fuzzy
-msgid "Top"
-msgstr "A"
-
-msgid "Bottom"
-msgstr ""
-
-msgid "Time scale position"
-msgstr ""
-
-#, fuzzy
-msgid "Default Year"
-msgstr "Tipo predefinito"
-
-#, fuzzy
-msgid "Default Month"
-msgstr "Tipo predefinito"
-
-#, fuzzy
-msgid "Default Day"
-msgstr "Tipo predefinito"
-
-#, fuzzy
-msgid "Use date default values"
-msgstr "aggiorna il risultato"
-
-#, fuzzy
-msgid "Preferences"
-msgstr "Riferimento"
-
-msgid "Select Fields to Export"
-msgstr ""
-
-msgid "Number of duplicates:"
-msgstr ""
-
-#, fuzzy
-msgid "Direction"
-msgstr "Direzioni"
-
-#, fuzzy
-msgid "Frequency:"
-msgstr "Sequenza"
-
-msgid "Both"
-msgstr "Entrambi"
-
-msgid "Duplicate Event"
-msgstr ""
-
-#, python-format
-msgid "%d Events not duplicated due to missing dates."
-msgstr ""
-
-msgid "Shortcut is saved"
-msgstr ""
-
-msgid "Both Modifier and Shortcut key must be given!"
-msgstr ""
-
-#, python-format
-msgid "The shortcut %s is already bound to function '%s'!"
-msgstr ""
-
-#, fuzzy
-msgid "Functions:"
-msgstr "Documenti:"
-
-#, fuzzy
-msgid "Modifier:"
-msgstr "voce modificata"
-
-msgid "Shortcut Key:"
-msgstr ""
-
-#, fuzzy
-msgid "Edit Shortcuts"
-msgstr "Modifica Tipi Documento"
-
-#, fuzzy
-msgid "Give Feedback"
-msgstr "Torna indietro"
-
-msgid "Feedback On Feature"
-msgstr ""
-
-msgid "Select Tab Order:"
-msgstr ""
-
-msgid "Event Editor Tab Order"
-msgstr ""
-
-msgid "You can't change time when the Event is locked"
-msgstr ""
-
-msgid "End must be > Start"
-msgstr ""
-
-#, fuzzy
-msgid "Event Properties"
-msgstr "Proprietà Documento"
-
-#, fuzzy
-msgid "Container:"
-msgstr "Continua"
-
-msgid "Icon"
-msgstr ""
-
-msgid "Default color"
-msgstr ""
-
-msgid "Add more events after this one"
-msgstr ""
-
-msgid "&Enlarge"
-msgstr ""
-
-msgid "&Reduce"
-msgstr ""
-
-msgid "Save and Duplicate"
-msgstr ""
-
-#, fuzzy
-msgid "Edit Container"
-msgstr "non attivo"
-
-#, fuzzy
-msgid "Edit Event"
-msgstr "non attivo"
-
-#, fuzzy
-msgid "Create Event"
-msgstr "Crea nuovo"
-
-msgid "Import in event description"
-msgstr ""
-
-msgid "Use as start date of event"
-msgstr ""
-
-msgid "Use as event alarm time"
-msgstr ""
-
-msgid "Options for ICS import"
-msgstr ""
-
-msgid "read-only"
-msgstr ""
-
-#, python-format
-msgid "File '%s' does not exist."
-msgstr ""
-
-msgid ""
-"Someoneelse has changed the Timeline.\n"
-"You have two choices!\n"
-"  1. Set Timeline in Read-Only mode.\n"
-"  2. Synchronize Timeline.\n"
-"\n"
-"Do you want to Synchronize?"
-msgstr ""
-
-#, python-format
-msgid ""
-"Unable to take lock on %s\n"
-"This means you can't edit the timeline.\n"
-"Check if you have write access to this directory."
-msgstr ""
-
-#, python-format
-msgid ""
-"The lockfile used to protect the timeline from concurrent updates is opened "
-"by another program or process.\n"
-"This lockfile must be removed in order be able to continue editing the "
-"timeline!\n"
-"The lockfile is found at: %s"
-msgstr ""
-
-#, fuzzy
-msgid "Create Timeline"
-msgstr "Crea nuovo"
-
-msgid "The specified timeline already exists."
-msgstr ""
-
-msgid "Opening timeline instead of creating new."
-msgstr ""
-
-#, fuzzy
-msgid "Information"
-msgstr "Interazioni"
-
-#, fuzzy
-msgid "Open Timeline"
-msgstr "OpenOffice"
-
-msgid "Save Timeline As"
-msgstr ""
-
-#, fuzzy
-msgid "Unable to write configuration file."
-msgstr "Controllo i files di configurazione"
-
-msgid "Distance between selected events"
-msgstr ""
-
-msgid "Events are overlapping or distance is 0"
-msgstr ""
-
-msgid "Left"
-msgstr ""
-
-#, fuzzy
-msgid "&File"
-msgstr "File"
-
-msgid "&Edit"
-msgstr "&Modifica"
-
-#, fuzzy
-msgid "&View"
-msgstr "Mostra log"
-
-msgid "&Timeline"
-msgstr ""
-
-msgid "&Navigate"
-msgstr ""
-
-msgid "&Help"
-msgstr "Aiu&to"
-
-msgid "New..."
-msgstr ""
-
-#, fuzzy
-msgid "Create a new timeline"
-msgstr "Crea nuovo paziente"
-
-msgid "Open an existing timeline"
-msgstr ""
-
-msgid "Open &Recent"
-msgstr ""
-
-msgid "Save As..."
-msgstr ""
-
-msgid "Import events..."
-msgstr ""
-
-msgid "Exit the program"
-msgstr ""
-
-#, fuzzy
-msgid "Find Categories..."
-msgstr "non attivo"
-
-msgid "Select All Events"
-msgstr ""
-
-msgid "Shortcuts..."
-msgstr ""
-
-msgid "&Sidebar"
-msgstr ""
-
-msgid "&Legend"
-msgstr ""
-
-msgid "&Balloons on hover"
-msgstr ""
-
-msgid "Zoom &In"
-msgstr ""
-
-msgid "Zoom &Out"
-msgstr ""
-
-msgid "Vertical Zoom &In"
-msgstr ""
-
-msgid "Vertical Zoom &Out"
-msgstr ""
-
-msgid "Start slide show"
-msgstr ""
-
-msgid "&Hide Events done"
-msgstr ""
-
-msgid "Toolbar"
-msgstr ""
-
-msgid "Event appearance"
-msgstr ""
-
-msgid "Point event alignment"
-msgstr ""
-
-#, fuzzy
-msgid "Create &Event..."
-msgstr "Crea nuovo paziente"
-
-msgid "&Edit Selected Event..."
-msgstr ""
-
-msgid "&Duplicate Selected Event..."
-msgstr ""
-
-msgid "Set Category on Selected Events..."
-msgstr ""
-
-msgid "Move event up"
-msgstr ""
-
-msgid "Move event down"
-msgstr ""
-
-msgid "Create &Milestone..."
-msgstr ""
-
-msgid "&Compress timeline Events"
-msgstr ""
-
-msgid "&Measure Distance between two Events..."
-msgstr ""
-
-msgid "Set Category on events &without category..."
-msgstr ""
-
-msgid "Edit Era's..."
-msgstr ""
-
-msgid "&Read Only"
-msgstr ""
-
-msgid "&Undo"
-msgstr ""
-
-msgid "&Redo"
-msgstr ""
-
-#, fuzzy
-msgid "Find &First Event"
-msgstr "non attivo"
-
-#, fuzzy
-msgid "Find &Last Event"
-msgstr "non attivo"
-
-#, fuzzy
-msgid "Fit &All Events"
-msgstr "Stampa tutti gli articoli"
-
-msgid "Go to previous time period"
-msgstr ""
-
-msgid "Feedback"
-msgstr ""
-
-msgid "&Contents"
-msgstr ""
-
-msgid "Getting started &tutorial"
-msgstr ""
-
-msgid "Getting started numeric &tutorial"
-msgstr ""
-
-#, fuzzy
-msgid "Give &Feedback..."
-msgstr "Torna indietro"
-
-#, fuzzy
-msgid "Co&ntact"
-msgstr "Contatto"
-
-msgid "System information"
-msgstr ""
-
-msgid "Gregorian"
-msgstr ""
-
-msgid "This creates a timeline using the standard calendar."
-msgstr ""
-
-msgid "Numeric"
-msgstr ""
-
-msgid ""
-"This creates a timeline that has numbers on the x-axis instead of dates."
-msgstr ""
-
-msgid "Directory"
-msgstr ""
-
-msgid ""
-"This creates a timeline where the modification date of files in a directory "
-"are shown as events."
-msgstr ""
-
-msgid "Bosparanian"
-msgstr ""
-
-msgid ""
-"This creates a timeline using the fictuous Bosparanian calendar from the "
-"German pen-and-paper RPG \"The Dark Eye\" (\"Das schwarze Auge\", DSA)."
-msgstr ""
-
-msgid "Pharaonic"
-msgstr ""
-
-msgid "This creates a timeline using the ancient egypt pharaonic calendar"
-msgstr ""
-
-msgid "Coptic"
-msgstr ""
-
-msgid "This creates a timeline using the coptic calendar"
-msgstr ""
-
-msgid "Help"
-msgstr "Aiuto"
-
-msgid ""
-"Could not find markdown Python package. It is needed by the help system."
-msgstr ""
-
-msgid "Go to home page"
-msgstr ""
-
-#, fuzzy
-msgid "Go back one page"
-msgstr "Torna indietro e cerca nuovamente."
-
-msgid "Go forward one page"
-msgstr ""
-
-#, fuzzy
-msgid "Page not found"
-msgstr "pgAdmin III non trovato."
-
-#, fuzzy, python-format
-msgid "Could not find page '%s'."
-msgstr "Non posso trovare l'immagine"
-
-msgid "Error"
-msgstr "Errore"
-
-msgid "Warning"
-msgstr ""
-
-#, fuzzy
-msgid "Question"
-msgstr "Sensazione"
-
-#, fuzzy
-msgid "Help contents"
-msgstr "Contenuto Raw"
-
-msgid "Questions and answers"
-msgstr ""
-
-msgid "Concepts"
-msgstr ""
-
-msgid "Tasks"
-msgstr ""
-
-msgid "Where is the save button?"
-msgstr ""
-
-msgid ""
-"\n"
-"There is no save button. Timeline will automatically save your data whenever "
-"needed.\n"
-msgstr ""
-
-msgid "Where do the week numbers go if I start my weeks on Sunday?"
-msgstr ""
-
-msgid ""
-"\n"
-"The date data object used does not support week numbers for weeks that start "
-"on Sunday at present.  We plan on using a different date object that will "
-"support this in future versions.\n"
-msgstr ""
-
-msgid "Can multiple users work with the same timeline?"
-msgstr ""
-
-msgid ""
-"\n"
-"There are some support for multiple users to work on the same timeline "
-"file.\n"
-"\n"
-"When you try to make a change and someone else has made a change you will be "
-"asked to make one of two choices:\n"
-"\n"
-"- Set timeline in read-only mode.\n"
-"- Synchronize the timeline.\n"
-"\n"
-"During the your edit action the timeline is locked for changes by others. If "
-"you try to edit a timeline when it is locked by someone else you will be "
-"notified about this situation.\n"
-msgstr ""
-
-msgid "Can I Check or Uncheck all categories?"
-msgstr ""
-
-msgid ""
-"\n"
-"Yes you can check or uncheck all categories as well as a lot of other "
-"selection alternatives.\n"
-"\n"
-"Make sure the categories pane is visible and then right-click with the mouse "
-"in the pane.\n"
-"A context menu will now show up with all the check/uncheck alternatives "
-"available.\n"
-"\n"
-msgstr ""
-
-#, fuzzy
-msgid "Timeline"
-msgstr "Ora:"
-
-msgid ""
-"\n"
-"The timeline shows dates according to the Gregorian calendar on the x-axis. "
-"Currently the earliest date is limited to Julian day 0 (November 24, 4714 "
-"BC).\n"
-"\n"
-"Future versions might support various kinds of timelines so that you for "
-"example can specify a time in terms of number of minutes since a start time. "
-"If you are interested in such a feature, please get in touch.\n"
-"\n"
-"The timeline is divided in two areas with a horizontal adjustable divider "
-"line. Period events are displayed below the line and point events are "
-"displayed above the line.\n"
-msgstr ""
-
-#, fuzzy
-msgid "Scrolling Timeline"
-msgstr "OpenOffice"
-
-msgid ""
-"\n"
-"A Timeline can be scrolled both horizontal (along time axis) and vertically "
-"(along event axis)\n"
-"\n"
-"There are two ways to scroll horizontal. You can either use the different "
-"options in the Navigation menu or you can use the mouse. To use the mouse, "
-"hold down the left mouse button and drag the mouse horizontally.\n"
-"\n"
-"To scroll vertically, hold down the Shift- and Ctrl-keys and scroll the "
-"mouse wheel.\n"
-"Events are scrolled towards or away from the divider line separating point- "
-"and period-events.\n"
-"\n"
-msgstr ""
-
-#, fuzzy
-msgid "Zooming Timeline"
-msgstr "OpenOffice"
-
-msgid ""
-"\n"
-"A Timeline can be Zoomed both horizontal (along time axis) and vertically "
-"(along event axis)\n"
-"\n"
-"To zoom horizontal, hold down the Ctrl-key and scroll the mouse wheel.\n"
-"\n"
-"To zoom vertically, hold down the Alt-key and scroll the mouse wheel.\n"
-msgstr ""
-
-msgid ""
-"\n"
-"An event is the basic data type for representing information on the "
-"timeline.  It must specify where on the timeline it should be placed (when "
-"that event happened). This can be either a specific point in time or a "
-"period.\n"
-msgstr ""
-
-msgid "Era"
-msgstr ""
-
-msgid ""
-"\n"
-"An Era is A clearly defined period of time of arbitrary but well-defined "
-"length.\n"
-"\n"
-"An Era is displayed as a background with the color defined for the Era. The "
-"Era name is written att the bottom of the timeline.\n"
-msgstr ""
-
-msgid ""
-"\n"
-"For an event the following properties can be defined.\n"
-"\n"
-" - Start Date and Time.\n"
-" - End Date and Time (if period event).\n"
-" - Text - The label displayed for an event.\n"
-" - Category - A way to group events together.\n"
-" - Container - Another way to group events together.\n"
-" - Fuzzy - Draw start and end of event fuzzy, to indicate that exact times "
-"are unknown.\n"
-" - Locked - Start- and End-points can't be changed.\n"
-" - Ends Today - The End-point is always set to current date.\n"
-" - Description - Event description that is shown i the balloon.\n"
-" - Icon - Image icon shown in balloon.\n"
-" - Alert - An alert dialog is opened at the specified alert time.\n"
-" - Hyperlinks - A list of hyperlink that can be reached in the event context "
-"menu.\n"
-msgstr ""
-
-msgid "Milestones"
-msgstr ""
-
-msgid ""
-"\n"
-"A milestone is a special case of a point event. It is rendered on the "
-"timescale of a timeline and it can have a description shown when hooverd "
-"over. It can also have a one character label that is displayed in the "
-"milestone box.\n"
-"\n"
-"A milestone ...\n"
-"\n"
-"* is created by selecting the menu alternative Timeline -> Create "
-"milestone.\n"
-"\n"
-"* is edited by doubleclicking on it.\n"
-"\n"
-"* is deleted by clicking on it and thereafter click the delete button.\n"
-"\n"
-"* can be dragged to a new position.\n"
-msgstr ""
-
-msgid ""
-"\n"
-"Categories are used to group events. An event can only belong to one "
-"category. All events that belong to the same category are displayed with the "
-"same background color.\n"
-msgstr ""
-
-msgid ""
-"\n"
-"Experimental features are features implemented in Timeline but not yet "
-"decided to be permanent.\n"
-"\n"
-"An experimental feature can be switched on or off in the preferences "
-"dialog.\n"
-"\n"
-"The functionality in these features may not be fully implemented and may not "
-"have been as extensively tested as the rest of the application.\n"
-"\n"
-"The users feedback can be important when the decision to make the features "
-"permanent or not, is taken.\n"
-msgstr ""
-
-#, fuzzy
-msgid "Create event"
-msgstr "Crea nuovo"
-
-msgid ""
-"\n"
-"The *Create Event* dialog can be opened in the following ways:\n"
-"\n"
-"- Select *Timeline* - *Create Event* from the menu.\n"
-"- Double click with the *left* mouse button on the timeline.\n"
-"- Press the *Ctrl* key, thereafter hold *left* mouse button down on the "
-"timeline, drag the mouse and release it.\n"
-msgstr ""
-
-msgid "Undo/Redo"
-msgstr ""
-
-msgid ""
-"\n"
-"The *Undo* function can revert an action such as creating an event, editing "
-"a category or deleting an event.\n"
-"\n"
-"To revert an action you:\n"
-"\n"
-"- Use the Ctrl+Z key (Key combination can be changed by user)\n"
-"- Select the menu *Timeline* - *Undo*\n"
-"\n"
-"To save memory usage we have decided to limit the number of actions that can "
-"be reverted.\n"
-"This means that only the 10 latest actions can be Undone.\n"
-"\n"
-"An action that is Undone can also be Redone if you:\n"
-"\n"
-"- Use the Alt+Z key (Key combination can be changed by user)\n"
-"- Select the menu *Timeline* - *Redo*\n"
-"\n"
-msgstr ""
-
-#, fuzzy
-msgid "Edit event"
-msgstr "non attivo"
-
-msgid ""
-"\n"
-"The *Edit Event* dialog can be opened by double clicking on an event or by "
-"selecting one event and select the 'Timeline -> Edit Selected Event...' "
-"menu.\n"
-"\n"
-"An image icon can be associated with an event by dragging the image file and "
-"dropping it on an event.\n"
-msgstr ""
-
-msgid "Move event vertically"
-msgstr ""
-
-msgid ""
-"\n"
-"An event can be moved vertically. This is done by first selecting the event "
-"and thereafter using the Up or Down keys.\n"
-msgstr ""
-
-#, fuzzy
-msgid "Duplicate event"
-msgstr "Cancella documento"
-
-msgid ""
-"\n"
-"An event can be duplicated. Select the event you want to duplicate and "
-"select the 'Timeline -> Duplicate Selected Event...' menu.\n"
-"Now a dialog appears in which you can define\n"
-"\n"
-" - How many duplications to do\n"
-" - The time period used\n"
-" - The frequency of time periods\n"
-" - The direction\n"
-"\n"
-" If number of duplications = 3, time span = day and frequency = 2, you will "
-"get 3 new copies of the event spread out with the time span of 2 days "
-"between them.\n"
-"\n"
-" You can also get to the duplication dialog from the event context menu, "
-"which appears if you right-click an event with the mouse.\n"
-msgstr ""
-
-msgid "Search event"
-msgstr ""
-
-msgid ""
-"\n"
-"You can search for an event by selecting the Edit -> Search menu.\n"
-"\n"
-"A text control is opened in the lower left corner of the application.\n"
-"\n"
-"Enter a target text in the text control and click Enter.\n"
-"If the text is found in the Text or Description of any event, the first "
-"event\n"
-"found is highlighted for a short period of time.\n"
-"\n"
-"By clicking on the icons to the right of the text control you can navigate\n"
-"back and forth between all the events that has been found. You can also\n"
-"select an event from a list of all found events.\n"
-msgstr ""
-
-#, fuzzy
-msgid "Selecting events"
-msgstr "Sto selezionando il paziente"
-
-msgid ""
-"\n"
-"To select an event, click on it. To select multiple events, hold down the "
-"*Ctrl* key while clicking events.\n"
-msgstr ""
-
-#, fuzzy
-msgid "Import timeline"
-msgstr "Crea nuovo"
-
-msgid ""
-"\n"
-"This feature can be used to merge two timelines into one.\n"
-"\n"
-"First open a timeline and then select menu 'File -> Import timeline...' and "
-"select the timeline to be imported.\n"
-msgstr ""
-
-#, fuzzy
-msgid "Event Containers"
-msgstr "non attivo"
-
-msgid ""
-"\n"
-"Containers are a way to group events together.\n"
-"In a container events can not overlap, so if you add a new event to a "
-"container\n"
-"all other events are moved to give room for the new event. The same thing "
-"happens\n"
-"if you resize an event within the container.\n"
-"\n"
-"Have a look at this video for a demo.\n"
-"    <http://www.youtube.com/watch?v=dBwEQ3vqB_I>\n"
-"\n"
-"From version 1.8 there is a second container strategy that let's events "
-"overlap in time within the container.\n"
-"This strategy is implemented as an experimental feature and can be selected "
-"in the preferences dialog.\n"
-msgstr ""
-
-#, fuzzy
-msgid "Delete event"
-msgstr "Cancella documento"
-
-msgid ""
-"\n"
-"To delete an event, select it and press the *Del* key. Multiple events can "
-"be deleted at the same time.\n"
-msgstr ""
-
-msgid "Will associated events be deleted when I delete a category?"
-msgstr ""
-
-msgid ""
-"\n"
-"No. The events will still be there but they will not belong to a category.\n"
-msgstr ""
-
-msgid "Add a user defined icon"
-msgstr ""
-
-msgid ""
-"\n"
-"Icons used for the event properties\n"
-"\n"
-" - Fuzzy\n"
-" - Locked\n"
-" - Hyperlink\n"
-"\n"
-"can be user defined.\n"
-"\n"
-"To use an icon of your own you create a png image file and place it in\n"
-"the subdirectory icons/event_icons.\n"
-"Now the icon can be selected in the properties dialog on the Icons tab.\n"
-msgstr ""
-
-#, fuzzy
-msgid "Edit categories"
-msgstr "non attivo"
-
-msgid ""
-"\n"
-"Categories can be managed in the *Edit Categories* dialog (*Timeline* > "
-"*Edit Categories*). To edit an existing category, double click on it.\n"
-"\n"
-"The visibility of categories can also be edited in the sidebar (*View* > "
-"*Sidebar*).\n"
-msgstr ""
-
-msgid "Contact"
-msgstr "Contatto"
-
-msgid ""
-"\n"
-"If you have more questions about Timeline, or if you want to get in contact "
-"with users and developers of Timeline, send an email to the user mailing "
-"list: <thetimelineproj-user@lists.sourceforge.net>. (Please use English.)\n"
-msgstr ""
-
-msgid "Why is Timeline not available in my language?"
-msgstr ""
-
-msgid ""
-"\n"
-"Timeline is developed and translated by volunteers. If you would like to "
-"contribute translations you are very much welcome to contact us.\n"
-msgstr ""
-
-#, python-format
-msgid "Search results for '%s'"
-msgstr ""
-
-#, fuzzy
-msgid "Related pages"
-msgstr "Tipo di modello"
-
-msgid "Location"
-msgstr "Posizione"
-
-msgid "Unable to read calendar data."
-msgstr ""
-
-#, python-format
-msgid "Unable to read from file '%s'."
-msgstr ""
-
-#, fuzzy, python-format
-msgid "Unable to read timeline data from '%s'."
-msgstr "Fallita l'eliminazione del paziente dalla lista %s"
-
-msgid "Example era"
-msgstr ""
-
-#, fuzzy
-msgid "Welcome"
-msgstr "Benvenuto al"
-
-#, fuzzy
-msgid "Welcome to Timeline"
-msgstr "Benvenuto al"
-
-msgid "Intro"
-msgstr ""
-
-msgid "This event has hyperlinks"
-msgstr ""
-
-msgid "Right-click for context menu where the hyperlinks can be accessed."
-msgstr ""
-
-msgid "Hover me!"
-msgstr ""
-
-msgid "Hovering events with a triangle shows the event description."
-msgstr ""
-
-msgid "Features"
-msgstr ""
-
-msgid "Scroll"
-msgstr ""
-
-msgid ""
-"Left click somewhere on the timeline and start dragging.\n"
-"\n"
-"You can also use the mouse wheel.\n"
-"\n"
-"You can also middle click with the mouse to center around that point."
-msgstr ""
-
-#, fuzzy
-msgid "Container"
-msgstr "Continua"
-
-msgid "?"
-msgstr ""
-
-msgid "Resize me"
-msgstr ""
-
-msgid ""
-"Container Subevent 1\n"
-"Click on the event to get the resize handles"
-msgstr ""
-
-msgid "Drag me"
-msgstr ""
-
-msgid ""
-"Container Subevent 2\n"
-"\n"
-"Click on the event to get the drag handle and drag it.\n"
-"\n"
-"To drag the whole container, click on it while holding down the Alt key. "
-"Keep the Alt key down and find the drag point at the center of the container "
-"and drag it."
-msgstr ""
-
-msgid "View Container demo video"
-msgstr ""
-
-msgid ""
-"Container Subevent 3\n"
-"\n"
-"Select hyperlink to show demo video.\n"
-"\n"
-"Right-click in the event and select 'Goto URL' in the popup menu and select "
-"the first (and only) link"
-msgstr ""
-
-msgid "Zoom"
-msgstr ""
-
-msgid ""
-"Hold down Ctrl while scrolling the mouse wheel.\n"
-"\n"
-"Hold down Shift while dragging with the mouse."
-msgstr ""
-
-msgid ""
-"Double click somewhere on the timeline.\n"
-"\n"
-"Hold down Ctrl while dragging the mouse to select a period."
-msgstr ""
-
-msgid "Double click on an event."
-msgstr ""
-
-#, fuzzy
-msgid "Select event"
-msgstr "Sto selezionando il paziente"
-
-msgid ""
-"Click on it.\n"
-"\n"
-"Hold down Ctrl while clicking events to select multiple."
-msgstr ""
-
-msgid "Select events to be deleted and press the Del key."
-msgstr ""
-
-msgid "Resize and move me!"
-msgstr ""
-
-msgid "First select me and then drag the handles."
-msgstr ""
-
-#, fuzzy
-msgid "Saving"
-msgstr "Salva indirizzo"
-
-msgid ""
-"This timeline is stored in memory and modifications to it will not be "
-"persisted between sessions.\n"
-"\n"
-"Choose File/New/File Timeline to create a timeline that is saved on disk."
-msgstr ""
-
-#, python-format
-msgid "Unable to read from filename '%s'."
-msgstr ""
-
-msgid ""
-"Invalid Date Format:\n"
-"\n"
-"The format should contain\n"
-"    one year placeholder  = yyyy\n"
-"    one month placeholder = mmm or mm\n"
-"    one day placeholder   = dd\n"
-"    two placeholders for separators between year, month and day\n"
-"\n"
-"Separators can't contain the letters y, m or d\n"
-"\n"
-"Example of valid formats:\n"
-"    yyyy-mm-dd\n"
-"    dd/mm/yyyy\n"
-"    mmm/dd-yyyy\n"
-"        "
-msgstr ""
-
-msgid "File"
-msgstr "File"
-
-#, fuzzy
-msgid "View"
-msgstr "Mostra log"
-
-msgid "Navigate"
-msgstr ""
-
-#, fuzzy
-msgid "Import..."
-msgstr "Esporta come..."
-
-msgid "Exit"
-msgstr "Esci"
-
-msgid "Find"
-msgstr ""
-
-msgid "Shortcuts"
-msgstr ""
-
-msgid "Sidebar"
-msgstr ""
-
-msgid "Legend"
-msgstr ""
-
-msgid "Ballons on hover"
-msgstr ""
-
-msgid "Zoom In"
-msgstr ""
-
-msgid "Zoom Out"
-msgstr ""
-
-msgid "Vertical Zoom In"
-msgstr ""
-
-msgid "Vertical Zoom Out"
-msgstr ""
-
-#, fuzzy
-msgid "Edit Selected Event"
-msgstr "Modifica la seguente voce."
-
-#, fuzzy
-msgid "Duplicate Selected Event"
-msgstr "Modifica la seguente voce."
-
-#, fuzzy
-msgid "Set Category on Selected Events"
-msgstr "Modifica la seguente voce."
-
-msgid "Measure Distance between two Events"
-msgstr ""
-
-msgid "Read Only"
-msgstr ""
-
-msgid "Undo"
-msgstr ""
-
-msgid "Redo"
-msgstr ""
-
-#, fuzzy
-msgid "Contents"
-msgstr "&Appuntamenti"
-
-msgid "About"
-msgstr ""
-
-#, fuzzy
-msgid "Find First Event"
-msgstr "non attivo"
-
-#, fuzzy
-msgid "Find Last Event"
-msgstr "non attivo"
-
-#, fuzzy
-msgid "Find All Events"
-msgstr "Stampa tutti gli articoli"
-
-msgid "The selected value contains invalid characters and can't be saved"
 msgstr ""
 
 #, python-format
@@ -2622,6 +208,50 @@ msgstr ""
 msgid "** DOB unknown **"
 msgstr "** DDN sconosciuta **"
 
+#, fuzzy
+msgid "year"
+msgstr "O anno:"
+
+#, fuzzy
+msgid "years"
+msgstr "O anno:"
+
+msgid "month"
+msgstr ""
+
+msgid "months"
+msgstr ""
+
+msgid "week"
+msgstr ""
+
+msgid "weeks"
+msgstr ""
+
+msgid "day"
+msgstr ""
+
+msgid "days"
+msgstr ""
+
+msgid "hour"
+msgstr ""
+
+msgid "hours"
+msgstr ""
+
+msgid "minute"
+msgstr ""
+
+msgid "minutes"
+msgstr ""
+
+msgid "second"
+msgstr ""
+
+msgid "seconds"
+msgstr ""
+
 msgid "interval_format_tag::years::y"
 msgstr "interval_format_tag::years::y"
 
@@ -2702,7 +332,24 @@ msgstr "dD_keys_day"
 msgid "hH_keys_hour"
 msgstr "hH_keys_hour"
 
-msgid "ndmy (single character date triggers)"
+msgid ""
+"tmy -- single-character markers for Today/toMorrow/Yesterday (keep this "
+"order !)"
+msgstr ""
+
+#, python-format
+msgid "today is day %s, so start: %%s"
+msgstr ""
+
+#, python-format
+msgid "tomorrow is day %s, so start: %%s"
+msgstr ""
+
+#, python-format
+msgid "yesterday was day %s, so start: %%s)"
+msgstr ""
+
+msgid "ntmy (single character date triggers)"
 msgstr ""
 
 #, python-format
@@ -2798,6 +445,34 @@ msgstr ""
 
 #, python-format
 msgid "in %d year(s): %s"
+msgstr ""
+
+#, python-format
+msgid ""
+"\n"
+"-= Date input in GNUmed =-\n"
+"\n"
+"Whenever user input matches several dates\n"
+"a list is presented for selection.\n"
+"\n"
+"Unambigous input is turned into the specified date.\n"
+"\n"
+"If input contains a space followed by characters matching\n"
+"either 'Hour:Minute' or 'Hour:Minute:Second' that part of the\n"
+"input is used as the time. Otherwise 11:11:11 will be assumed.\n"
+"\n"
+"<ALT-C>/<ALT-K> will usually pop up a <c/k>alendar.\n"
+"\n"
+"<F1> to <F7> will return the date of the weekday 1 to 7,\n"
+"respectively, for the current week.\n"
+"\n"
+"Input is checked against these well-known date formats:\n"
+"\n"
+"\t%s\n"
+"\n"
+"More specific input patterns are checked for explicitly:\n"
+"\n"
+"\t%s\n"
 msgstr ""
 
 #, python-format
@@ -2987,6 +662,9 @@ msgstr "Tipo"
 msgid "The category under which to store this address."
 msgstr ""
 
+msgid "Contact"
+msgstr "Contatto"
+
 #, fuzzy
 msgid "The type of the primary communication channel."
 msgstr "Seleziona il tipo di canale di comunicazione"
@@ -2994,6 +672,9 @@ msgstr "Seleziona il tipo di canale di comunicazione"
 #, fuzzy
 msgid "Primary communication channel."
 msgstr "Rimuovo il canale di comunicazione"
+
+msgid "Other"
+msgstr "Altro"
 
 msgid "In-praxis primary"
 msgstr ""
@@ -3062,6 +743,9 @@ msgstr "Aggiungere il paziente attivo alla lista d'attesa."
 
 msgid "Remove selected patient from the waiting list."
 msgstr "Rimuovi il paziente attivo alla lista d'attesa."
+
+msgid "&Edit"
+msgstr "&Modifica"
 
 msgid "Edit details of the waiting list entry."
 msgstr ""
@@ -3723,6 +1407,9 @@ msgid ""
 "and will create new patients as needed."
 msgstr ""
 
+msgid "Edit"
+msgstr "Modifica"
+
 msgid "Modify some of Orthanc's content (such as patient IDs)."
 msgstr ""
 
@@ -3751,6 +1438,9 @@ msgid ""
 "Select the meta type as which to aggregate for display results with this "
 "test type."
 msgstr ""
+
+msgid "Name"
+msgstr "Nome"
 
 msgid "Abbreviation"
 msgstr "Abbreviazione"
@@ -3868,6 +1558,9 @@ msgstr "Codice"
 msgid "System"
 msgstr ""
 
+msgid "Description"
+msgstr "Descrizione"
+
 msgid "Value"
 msgstr "Valore"
 
@@ -3947,6 +1640,10 @@ msgstr "Opzioni"
 #, fuzzy
 msgid "&Active patient only"
 msgstr "Paziente attivo"
+
+#, fuzzy
+msgid "&View"
+msgstr "Mostra log"
 
 #, fuzzy
 msgid "&Export"
@@ -4030,9 +1727,6 @@ msgstr "attivo"
 msgid "editable"
 msgstr ""
 
-msgid "OpenOffice"
-msgstr "OpenOffice"
-
 msgid "LaTeX"
 msgstr "LaTeX"
 
@@ -4057,6 +1751,10 @@ msgstr "messaggio d'errore generico"
 
 msgid "&Load"
 msgstr ""
+
+#, fuzzy
+msgid "Export"
+msgstr "Rapporto"
 
 msgid "A long, descriptive name for this form template."
 msgstr ""
@@ -4153,6 +1851,9 @@ msgstr ""
 
 msgid "Reason"
 msgstr "Motivazione"
+
+msgid "Location"
+msgstr "Posizione"
 
 msgid "Provider"
 msgstr ""
@@ -4376,6 +2077,9 @@ msgstr ""
 #, fuzzy
 msgid "Subject"
 msgstr "Soggettivo"
+
+msgid "Category"
+msgstr ""
 
 #, fuzzy
 msgid "Audience"
@@ -4686,6 +2390,9 @@ msgstr ""
 msgid "OK"
 msgstr "OK"
 
+msgid "Close"
+msgstr "Chiudi"
+
 msgid "Health issue selector"
 msgstr ""
 
@@ -4835,9 +2542,6 @@ msgstr ""
 msgid "Results:"
 msgstr "Risultati"
 
-msgid "Save the identity details."
-msgstr ""
-
 msgid "Reload identity from the database."
 msgstr ""
 
@@ -4968,6 +2672,9 @@ msgstr ""
 
 msgid "Procedure"
 msgstr "Procedura"
+
+msgid "End"
+msgstr ""
 
 msgid "and Episode"
 msgstr ""
@@ -5235,6 +2942,9 @@ msgstr ""
 msgid "Store selected/all documents in document archive."
 msgstr ""
 
+msgid "&Remove"
+msgstr ""
+
 #, fuzzy
 msgid "Remove the selected documents."
 msgstr "Rimuovi la/le voce/i selezionata/e dalla lista."
@@ -5386,6 +3096,9 @@ msgstr ""
 msgid "Clear"
 msgstr "Cancella"
 
+msgid "Delete"
+msgstr "Elimina"
+
 msgid "Contribute"
 msgstr "Contributi"
 
@@ -5530,12 +3243,6 @@ msgstr "Con&fermare"
 
 msgid "Save and confirm the allergy state."
 msgstr "Salva e conferma le analisi allergiche."
-
-msgid "Allergy details"
-msgstr "Dettagli dell'allergia"
-
-msgid "Lists the allergies known for this patient if any."
-msgstr "Elenca le allergie note per questo paziente, se presenti."
 
 msgid ""
 "Input new allergy, or select from among existing allergy items to edit them:"
@@ -5946,8 +3653,8 @@ msgid ""
 "for this patient"
 msgstr "Aspettando una lista dettagliata per questo paziente."
 
-msgid "Activate"
-msgstr "Attiva"
+msgid "Emergency contact (in DB)"
+msgstr ""
 
 msgid ""
 "Link another person in this database as the emergency contact:\n"
@@ -5955,8 +3662,15 @@ msgid ""
 "Enter person name part or identifier and hit <enter>."
 msgstr ""
 
+msgid "Activate"
+msgstr "Attiva"
+
 msgid "Make the emergency contact the active patient."
 msgstr ""
+
+#, fuzzy
+msgid "Emergency notes"
+msgstr "progressi, note"
 
 msgid ""
 "Notes relevant to emergency situations regarding this patient.\n"
@@ -5966,18 +3680,41 @@ msgid ""
 " - where to find documents on DNR decisions"
 msgstr ""
 
+msgid "In-praxis primary doc"
+msgstr ""
+
 #, fuzzy
 msgid "Reload details from the database."
 msgstr "Aggiorna dal database"
 
-msgid "Emergency contact (in DB)"
+msgid "GNUmed generic EditArea dialog"
 msgstr ""
 
-#, fuzzy
-msgid "Emergency notes"
-msgstr "progressi, note"
+msgid "Save the entered data into the database and close the dialog."
+msgstr ""
 
-msgid "In-praxis primary doc"
+msgid "Programmer forgot tooltip for left extra button."
+msgstr ""
+
+msgid "Add &another"
+msgstr ""
+
+msgid "Save data into database and clear fields for another value."
+msgstr "Salva dati nel database e pulisci i campi per un altro inserimento."
+
+msgid "Reset all fields to their previous values."
+msgstr ""
+
+msgid "Cancel editing the data and discard changes."
+msgstr "Cancella la modifica dei dati e scarta i cambiamenti."
+
+msgid "Lala !"
+msgstr "Lala !"
+
+msgid ""
+"Press me !\n"
+"\n"
+"(This will, of course, NOT modify any data.)"
 msgstr ""
 
 msgid "Activate the respective patient by double-clicking a row."
@@ -6081,6 +3818,9 @@ msgstr ""
 #, fuzzy
 msgid "Previously &addicted"
 msgstr "Visite precedenti"
+
+msgid "?"
+msgstr ""
 
 msgid "&Reconfirm as of today"
 msgstr ""
@@ -6484,34 +4224,54 @@ msgstr ""
 msgid "Clear document property fields."
 msgstr "Modifica proprietà documento"
 
-msgid "≈"
+#, fuzzy
+msgid "GNUmed"
+msgstr "Wiki GNUmed"
+
+msgid "Born"
 msgstr ""
 
 msgid "The date of birth for this person."
 msgstr "La data di nascita per questa persona."
+
+msgid "≈"
+msgstr ""
 
 msgid ""
 "Check this if the date of birth is estimated rather than known precisely."
 msgstr ""
 
 #, fuzzy
+msgid "Time"
+msgstr "Ora:"
+
+#, fuzzy
 msgid "The time of birth if known."
 msgstr "La data di nascita per questa persona."
-
-msgid "The date of death."
-msgstr "La data di morte."
-
-msgid "A free-text comment on this person."
-msgstr ""
-
-msgid "Born"
-msgstr ""
 
 msgid "Deceased"
 msgstr ""
 
-msgid "Ethnicity"
+msgid "The date of death."
+msgstr "La data di morte."
+
+msgid ""
+"A free-text comment on this person.\n"
+"\n"
+"Also used to tell apart identically named persons with the same date of "
+"birth."
 msgstr ""
+
+msgid "Structured information on this identity (similar to image metadata)."
+msgstr ""
+
+#, fuzzy
+msgid "Edit selected info group."
+msgstr "Modifica la seguente voce."
+
+#, fuzzy
+msgid "Delete selected info group."
+msgstr "Elimino l'ID esterno"
 
 msgid "edit encounter details"
 msgstr "modifica dettagli dell'appuntamento"
@@ -6552,6 +4312,9 @@ msgstr "Ordina documenti per tipo"
 msgid "Sort documents by the organization they are from."
 msgstr "Ordina documenti per episodio di appartenenza."
 
+msgid "File"
+msgstr "File"
+
 #, fuzzy
 msgid "Se&lect"
 msgstr "Seleziona"
@@ -6559,6 +4322,9 @@ msgstr "Seleziona"
 #, fuzzy
 msgid "Encrypted"
 msgstr "Codifica"
+
+msgid "Text"
+msgstr "Testo"
 
 msgid "&Me only"
 msgstr "&Solo me"
@@ -6788,6 +4554,9 @@ msgstr "Certezza"
 
 msgid "Schedule"
 msgstr "Pianificazione"
+
+msgid "Duration"
+msgstr "Durata"
 
 msgid "Aim"
 msgstr "Scopo"
@@ -7243,36 +5012,6 @@ msgid ""
 msgstr ""
 
 msgid "Product"
-msgstr ""
-
-msgid "GNUmed generic EditArea dialog"
-msgstr ""
-
-msgid "Save the entered data into the database and close the dialog."
-msgstr ""
-
-msgid "Programmer forgot tooltip for left extra button."
-msgstr ""
-
-msgid "Add &another"
-msgstr ""
-
-msgid "Save data into database and clear fields for another value."
-msgstr "Salva dati nel database e pulisci i campi per un altro inserimento."
-
-msgid "Reset all fields to their previous values."
-msgstr ""
-
-msgid "Cancel editing the data and discard changes."
-msgstr "Cancella la modifica dei dati e scarta i cambiamenti."
-
-msgid "Lala !"
-msgstr "Lala !"
-
-msgid ""
-"Press me !\n"
-"\n"
-"(This will, of course, NOT modify any data.)"
 msgstr ""
 
 msgid "Original string as found in the database. Usually in English."
@@ -9013,6 +6752,42 @@ msgstr "Esportato: %s\n"
 msgid "Expires: %s\n"
 msgstr "Esportato: %s\n"
 
+#, fuzzy
+msgid "empty status"
+msgstr "status"
+
+msgid "C (HL7: Correction, replaces previous final)"
+msgstr ""
+
+msgid "D (HL7: Deletion)"
+msgstr ""
+
+msgid "F (HL7: Final)"
+msgstr ""
+
+msgid "I (HL7: pending, specimen In lab)"
+msgstr ""
+
+#, fuzzy
+msgid "P (HL7: Preliminary)"
+msgstr "preliminare"
+
+msgid "R (HL7: result entered, not yet verified)"
+msgstr ""
+
+#, fuzzy
+msgid "S (HL7: partial)"
+msgstr "parziale"
+
+msgid "X (HL7: cannot obtain results for this observation)"
+msgstr ""
+
+msgid "U (HL7: mark as final (I/P/R/S -> F, value Unchanged)"
+msgstr ""
+
+msgid "W (HL7: original Wrong (say, wrong patient))"
+msgstr ""
+
 #, python-format
 msgid "AMTS BMP file: %s"
 msgstr ""
@@ -9075,23 +6850,6 @@ msgstr ""
 
 msgid "<EMTPY>"
 msgstr ""
-
-#, fuzzy, python-format
-msgid "failed import: %s\n"
-msgstr "Chiusa"
-
-#, python-format
-msgid ""
-"Imported HL7 file [%s]:\n"
-" lab \"%s\" (%s@%s), %s results (%s)"
-msgstr ""
-
-msgid "list of imported HL7 data files"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "Result dates: %s"
-msgstr "Risultati"
 
 msgid "Clinical data generated during encounters within this episode:"
 msgstr "Dati clinici generati durante le visite relative a questo episodio:"
@@ -9564,6 +7322,9 @@ msgstr ""
 msgid "Query needs active patient."
 msgstr "Nessun paziente attivo"
 
+msgid "Error"
+msgstr "Errore"
+
 #, fuzzy
 msgid "Active patient query"
 msgstr "Paziente attivo"
@@ -9987,42 +7748,6 @@ msgstr ""
 #, fuzzy, python-format
 msgid "invalid age: DOB [%s] after reference date [%s] (%s)"
 msgstr "data di morte non valida."
-
-#, fuzzy
-msgid "empty status"
-msgstr "status"
-
-msgid "C (HL7: Correction, replaces previous final)"
-msgstr ""
-
-msgid "D (HL7: Deletion)"
-msgstr ""
-
-msgid "F (HL7: Final)"
-msgstr ""
-
-msgid "I (HL7: pending, specimen In lab)"
-msgstr ""
-
-#, fuzzy
-msgid "P (HL7: Preliminary)"
-msgstr "preliminare"
-
-msgid "R (HL7: result entered, not yet verified)"
-msgstr ""
-
-#, fuzzy
-msgid "S (HL7: partial)"
-msgstr "parziale"
-
-msgid "X (HL7: cannot obtain results for this observation)"
-msgstr ""
-
-msgid "U (HL7: mark as final (I/P/R/S -> F, value Unchanged)"
-msgstr ""
-
-msgid "W (HL7: original Wrong (say, wrong patient))"
-msgstr ""
 
 #, python-format
 msgid "Test panel \"%s\"          [#%s]\n"
@@ -13284,52 +11009,6 @@ msgstr ""
 msgid "GNUmed Lottery"
 msgstr ""
 
-msgid "save entry into medical record"
-msgstr ""
-
-msgid "Reset"
-msgstr "Azzera"
-
-msgid "reset entry"
-msgstr "Azzera la voce"
-
-msgid "discard entry and cancel"
-msgstr "Scarta la voce e cancella"
-
-#, python-format
-msgid ""
-"Unspecified error saving data in edit area.\n"
-"\n"
-"Programmer forgot to specify proper error\n"
-"message in [%s]."
-msgstr ""
-
-#, python-format
-msgid ""
-"Cannot save data from edit area.\n"
-"\n"
-"Programmer forgot to override method:\n"
-"  <%s.save_data>"
-msgstr ""
-
-#, python-format
-msgid ""
-"Cannot reset fields in edit area.\n"
-"\n"
-"Programmer forgot to override method:\n"
-"  <%s.reset_ui>"
-msgstr ""
-
-#, python-format
-msgid "<No embed string for [%s]>"
-msgstr ""
-
-msgid "initialize input fields for new entry"
-msgstr "Inizializza i campi dell'input per la nuova voce"
-
-msgid "Ok"
-msgstr "Ok"
-
 #, python-format
 msgid ""
 "The report result list does not contain any of the following columns:\n"
@@ -14048,6 +11727,9 @@ msgstr ""
 msgid "Table"
 msgstr ""
 
+msgid "Event"
+msgstr ""
+
 msgid ""
 "\n"
 "Please select the provider to fall back to in case\n"
@@ -14590,21 +12272,6 @@ msgid ""
 "Cannot set allergy state to <some> because there are neither allergies nor a "
 "comment available for this patient."
 msgstr ""
-
-msgid "ALLERGIES"
-msgstr "ALLERGIE"
-
-msgid "Allergy and Sensitivity - Summary"
-msgstr "Allergie e Sensibilità - Riassunto"
-
-msgid "ATC/Class"
-msgstr "ATC/Class"
-
-msgid "Class notes"
-msgstr "Class note"
-
-msgid "likely"
-msgstr "probabile"
 
 #, python-format
 msgid "No action configured for keyword [%s]."
@@ -15605,9 +13272,6 @@ msgstr ""
 msgid "GFR reported by path lab"
 msgstr ""
 
-msgid "Enter vaccination given"
-msgstr ""
-
 msgid "Unsaved progress note"
 msgstr ""
 
@@ -16185,45 +13849,6 @@ msgstr "nessun paziente trovato per [%s]/%s"
 #, python-format
 msgid "Generic letter, written at %s"
 msgstr ""
-
-#, python-format
-msgid ""
-"Error exporting form template\n"
-"\n"
-" \"%s\" (%s)"
-msgstr ""
-"Errore durante l'esportazione dal modello\n"
-"\n"
-" \"%s\" (%s)"
-
-msgid "Letter template export"
-msgstr ""
-
-msgid ""
-"Cannot connect to OpenOffice.\n"
-"\n"
-"The UNO bridge module for Python\n"
-"is not installed."
-msgstr ""
-"Non posso connettermi a OpenOffice.\n"
-"\n"
-"Il modulo UNO bridge per Python\n"
-"non è installato."
-
-msgid "Letter writer"
-msgstr ""
-
-#, python-format
-msgid ""
-"Cannot connect to OpenOffice.\n"
-"\n"
-"You may want to increase the option\n"
-"\n"
-" <%s>"
-msgstr ""
-
-msgid "OOo startup time"
-msgstr "Tempo di avvio OOo"
 
 msgid "Healthcare provider:"
 msgstr ""
@@ -16893,10 +14518,6 @@ msgstr "Cancella documento"
 msgid "Authority"
 msgstr "Indicazioni Ministeriali"
 
-#, fuzzy
-msgid "Time"
-msgstr "Ora:"
-
 msgid "Method"
 msgstr ""
 
@@ -17462,9 +15083,6 @@ msgid "MI/stroke risk calc cmd"
 msgstr ""
 
 msgid "Set the command to start the CV risk calculator."
-msgstr ""
-
-msgid "Set the time to wait for OpenOffice to settle after startup."
 msgstr ""
 
 msgid "Measurements URL"
@@ -18091,26 +15709,6 @@ msgstr "Mostra i messaggi:"
 msgid "Show formatted data from HL7 file"
 msgstr "Carica i dati del modello da un file."
 
-msgid "Unwrap XML"
-msgstr ""
-
-msgid "Unwrap HL7 data from XML file (Excelleris, ...)"
-msgstr ""
-
-msgid "Stage HL7"
-msgstr ""
-
-#, fuzzy
-msgid "Stage HL7 data from file"
-msgstr "Carica i dati del modello da un file."
-
-#, fuzzy
-msgid "Browse pending"
-msgstr "Unire i pazienti"
-
-msgid "Browse pending (staged) incoming data"
-msgstr ""
-
 #, fuzzy
 msgid "Lab results ..."
 msgstr "Risultato di laboratorio"
@@ -18282,6 +15880,13 @@ msgstr "Ricerca pazienti..."
 
 #, fuzzy
 msgid "Show help on patient search."
+msgstr "Blocca/sblocca paziente"
+
+msgid "Date input help"
+msgstr ""
+
+#, fuzzy
+msgid "Show help on date input."
 msgstr "Blocca/sblocca paziente"
 
 msgid "show"
@@ -18530,14 +16135,6 @@ msgid ""
 msgstr ""
 
 msgid ""
-"When GNUmed cannot find an OpenOffice server it\n"
-"will try to start one. OpenOffice, however, needs\n"
-"some time to fully start up.\n"
-"\n"
-"Here you can set the time for GNUmed to wait for OOo.\n"
-msgstr ""
-
-msgid ""
 "GNUmed will use this URL to access an encyclopedia of\n"
 "measurement/lab methods from within the measurements grid.\n"
 "\n"
@@ -18717,9 +16314,19 @@ msgstr "Data"
 msgid "Select the plugin tab position for the main notebook."
 msgstr ""
 
+msgid "Left"
+msgstr ""
+
 #, fuzzy
 msgid "Right"
 msgstr "destra"
+
+#, fuzzy
+msgid "Top"
+msgstr "A"
+
+msgid "Bottom"
+msgstr ""
 
 #, fuzzy
 msgid "Plugin tab position"
@@ -19433,9 +17040,9 @@ msgstr ""
 msgid "%s, last confirmed %s"
 msgstr " (ultimo %s confermato)"
 
-#, python-format
-msgid "Comment (%s): %%s"
-msgstr ""
+#, fuzzy, python-format
+msgid "Comment (%s): %s"
+msgstr "Commento:"
 
 msgid "reaction not recorded"
 msgstr ""
@@ -19513,6 +17120,10 @@ msgstr ""
 #, fuzzy
 msgid "Save timeline as images (SVG, PNG) under..."
 msgstr "Carica i dati del modello da un file."
+
+#, fuzzy
+msgid "SVG files"
+msgstr "tutti i file"
 
 #, fuzzy
 msgid "timeline data (xml)"
@@ -19725,6 +17336,10 @@ msgstr "%s (%s lo scorso anno)"
 
 #, python-format
 msgid "last confirmed %s\n"
+msgstr ""
+
+#, python-format
+msgid "Comment (%s): %%s"
 msgstr ""
 
 #, fuzzy
@@ -20332,67 +17947,6 @@ msgstr "Regione"
 msgid "Show HL7 file:"
 msgstr "Mostra i messaggi:"
 
-msgid "Extract HL7 from XML file:"
-msgstr ""
-
-#, fuzzy
-msgid "Extracting HL7 from XML file"
-msgstr "Estraggo i files dalla cartella [%s] ..."
-
-#, python-format
-msgid "Unwrapped HL7 into [%s] from [%s]."
-msgstr ""
-
-msgid "Select HL7 file for staging:"
-msgstr ""
-
-#, fuzzy
-msgid "Staging HL7 file"
-msgstr "caricamente file xDT"
-
-#, python-format
-msgid ""
-"There was a problem with splitting the HL7 file\n"
-"\n"
-" %s"
-msgstr ""
-
-#, python-format
-msgid ""
-"There was a problem with staging the following files\n"
-"\n"
-" %s"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "Staged HL7 from [%s]."
-msgstr "Carica i dati del modello da un file."
-
-msgid "Importing HL7 data"
-msgstr ""
-
-#, python-format
-msgid ""
-"There has not been a patient explicitly associated\n"
-"with this chunk of HL7 data. However, the data file\n"
-"contains the following patient identification information:\n"
-"\n"
-" %s\n"
-"\n"
-"Do you want to import the HL7 under the current patient ?\n"
-"\n"
-" %s\n"
-"\n"
-"Selecting [NO] makes GNUmed try to find a patient matching the HL7 data.\n"
-msgstr ""
-
-#, fuzzy
-msgid "Error processing HL7 data."
-msgstr "Error plotting data."
-
-msgid "Processing staged HL7 data."
-msgstr ""
-
 #, fuzzy
 msgid "Deleting incoming data"
 msgstr "Cancella documento"
@@ -20414,9 +17968,6 @@ msgid "Identification"
 msgstr "Indicazione"
 
 msgid "Show formatted HL7"
-msgstr ""
-
-msgid "Import HL7 data into patient chart"
 msgstr ""
 
 msgid "Adding new measurement"
@@ -20545,6 +18096,9 @@ msgstr "Elimina provincia e comuni possibilmente correlati."
 
 msgid "Result"
 msgstr "Risultato"
+
+msgid "Day"
+msgstr ""
 
 #, fuzzy, python-format
 msgid ""
@@ -20675,12 +18229,6 @@ msgid "All: as &Grid"
 msgstr ""
 
 msgid "All: by &Day"
-msgstr ""
-
-msgid "Export to &file"
-msgstr ""
-
-msgid "Export to &clipboard"
 msgstr ""
 
 #, python-format
@@ -21179,6 +18727,9 @@ msgstr "Non posso accedere al trasferimento del file KOrganizer [%s]"
 msgid "Place"
 msgstr "Posto"
 
+msgid "Start"
+msgstr "Inizio"
+
 #, python-format
 msgid ""
 "Please enter the primary occupation of the patient.\n"
@@ -21197,7 +18748,7 @@ msgstr "Scrivi o seleziona un'occupazione"
 #, python-format
 msgid ""
 "Are you sure you really, positively want\n"
-"to disable the following person ?\n"
+"to disable the following record ?\n"
 "\n"
 " %s %s %s\n"
 " born %s\n"
@@ -21213,7 +18764,8 @@ msgstr "Questa persona HA ricevuto cure."
 msgid "This person did NOT receive care here."
 msgstr "Questa persona NON HA ricevuto cure."
 
-msgid "Disabling person"
+#, fuzzy
+msgid "Disabling record"
 msgstr "Disabilitare persona"
 
 msgid "Abbreviation needed for gender definition."
@@ -21302,8 +18854,49 @@ msgstr ""
 msgid "Invalid date of birth."
 msgstr "data di morte non valida."
 
+msgid "Group"
+msgstr "Gruppo"
+
+#, fuzzy
+msgid "Values"
+msgstr "Valore"
+
 msgid "Invalid date of death."
 msgstr "data di morte non valida."
+
+msgid " [record disabled]"
+msgstr ""
+
+#, fuzzy
+msgid "Name for the new information group:"
+msgstr "Informazioni di riferenza"
+
+#, fuzzy
+msgid "Adding info group"
+msgstr "Aggiungi una nuova persona"
+
+#, fuzzy
+msgid "Information group exists."
+msgstr "Interazioni"
+
+#, fuzzy
+msgid "Must select group for editing."
+msgstr "Devi scegliere il sesso."
+
+#, python-format
+msgid "Auxiliary information [%s] on identity"
+msgstr ""
+
+msgid "Enter information as key/value pairs, on consecutive lines."
+msgstr ""
+
+#, fuzzy
+msgid "Invalid format for auxiliary information."
+msgstr "data di morte non valida."
+
+#, fuzzy
+msgid "Must select group for deleting."
+msgstr "Nessun risultato selezionato per la rimozione."
 
 #, fuzzy
 msgid "Adding name"
@@ -21641,6 +19234,9 @@ msgstr "Procedi con l'accesso."
 msgid "Cancel Login."
 msgstr "Annulla accesso."
 
+msgid "&Help"
+msgstr "Aiu&to"
+
 msgid "Help for login screen"
 msgstr "Aiuto per la schermata d'accesso"
 
@@ -21939,9 +19535,6 @@ msgstr "progressi, note (fascia)"
 msgid "progress notes"
 msgstr "progressi, note"
 
-msgid "Allergies"
-msgstr ""
-
 msgid "&Notes"
 msgstr "&Note"
 
@@ -21995,6 +19588,618 @@ msgstr "Annulla"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Annulla e NON connetti a GNUmed"
+
+#, fuzzy
+#~ msgid "Whole Timeline"
+#~ msgstr "OpenOffice"
+
+#, fuzzy
+#~ msgid "Progress"
+#~ msgstr "Progressi, note"
+
+#, fuzzy, python-format
+#~ msgid "Unable to open timeline '%s'."
+#~ msgstr "Fallita l'iscrizione del paziente in %s"
+
+#, fuzzy
+#~ msgid "Unknown format."
+#~ msgstr "reazione sconosciuta"
+
+#, fuzzy
+#~ msgid "Export Whole Timeline to Images..."
+#~ msgstr "Esporta come..."
+
+#, fuzzy
+#~ msgid "Image files"
+#~ msgstr "tutti i file"
+
+#, fuzzy
+#~ msgid "Export Current view to Image..."
+#~ msgstr "Esporta come..."
+
+#, fuzzy
+#~ msgid "Export to SVG..."
+#~ msgstr "Esporta come..."
+
+#, fuzzy
+#~ msgid "Export to SVG"
+#~ msgstr "Rapporto"
+
+#, fuzzy
+#~ msgid "Go to Time"
+#~ msgstr " opzione [%s]: %s"
+
+#, fuzzy
+#~ msgid "Show time"
+#~ msgstr "Mostra i messaggi:"
+
+#, fuzzy
+#~ msgid "Fit Day"
+#~ msgstr "Prima Data"
+
+#, fuzzy
+#~ msgid "Go to Date"
+#~ msgstr "Ultima Data"
+
+#, fuzzy
+#~ msgid "Mar"
+#~ msgstr "Sig."
+
+#, fuzzy
+#~ msgid "Jun"
+#~ msgstr "Esegui"
+
+#, fuzzy
+#~ msgid "Jul"
+#~ msgstr "Giornale"
+
+#, fuzzy
+#~ msgid "Aug"
+#~ msgstr "Età"
+
+#, fuzzy
+#~ msgid "Sep"
+#~ msgstr "Imposta"
+
+#, fuzzy
+#~ msgid "Nov"
+#~ msgstr "No"
+
+#, fuzzy
+#~ msgid "Dec"
+#~ msgstr "Doc"
+
+#, fuzzy
+#~ msgid "Fri"
+#~ msgstr "Per"
+
+#, fuzzy
+#~ msgid "Sat"
+#~ msgstr "Inizio"
+
+#, fuzzy
+#~ msgid "Sun"
+#~ msgstr "Esegui"
+
+#, fuzzy
+#~ msgid "Pes"
+#~ msgstr "Sì"
+
+#, fuzzy
+#~ msgid "Pt"
+#~ msgstr "Parti"
+
+#, fuzzy
+#~ msgid "Edit..."
+#~ msgstr "Modifica"
+
+#, fuzzy
+#~ msgid "Check all parents"
+#~ msgstr "Verifica la disponibilità di nuovi aggiornamenti"
+
+#, fuzzy
+#~ msgid "Uncheck all parents"
+#~ msgstr "firmare tutte le pagine"
+
+#, fuzzy
+#~ msgid "Edit Category"
+#~ msgstr "non attivo"
+
+#, fuzzy, python-format
+#~ msgid "Are you sure you want to delete category '%s'?"
+#~ msgstr "Sei sicuro di voler cancellare il documento?"
+
+#, fuzzy
+#~ msgid "Goto URL"
+#~ msgstr "fatale"
+
+#, fuzzy, python-format
+#~ msgid "Are you sure you want to delete %d events?"
+#~ msgstr "Sei sicuro di voler cancellare il documento?"
+
+#, fuzzy
+#~ msgid "Are you sure you want to delete this event?"
+#~ msgstr "Sei sicuro di voler cancellare il documento?"
+
+#, fuzzy
+#~ msgid "Give feedback"
+#~ msgstr "Torna indietro"
+
+#, fuzzy
+#~ msgid "No matches found"
+#~ msgstr "Nessun farmaco corrispondente."
+
+#, fuzzy
+#~ msgid "Only one match found"
+#~ msgstr "Nessun farmaco corrispondente."
+
+#, fuzzy
+#~ msgid "matches found"
+#~ msgstr "Nessun paziente corrispondente trovato."
+
+#, fuzzy
+#~ msgid "Prevoius match"
+#~ msgstr "Gruppo"
+
+#, fuzzy
+#~ msgid "Next match"
+#~ msgstr "Gruppo"
+
+#, fuzzy
+#~ msgid "Select period"
+#~ msgstr "Tipo di modello"
+
+#, fuzzy
+#~ msgid "List matches"
+#~ msgstr "Cerca"
+
+#, fuzzy
+#~ msgid "Text:"
+#~ msgstr "Testo"
+
+#, fuzzy
+#~ msgid "Progress %:"
+#~ msgstr "Progressi, note"
+
+#, fuzzy
+#~ msgid "Select Icon"
+#~ msgstr "Seleziona"
+
+#, fuzzy
+#~ msgid "Select region for event"
+#~ msgstr "Seleziona una persona dalla lista"
+
+#, fuzzy
+#~ msgid "Select region to zoom into"
+#~ msgstr "Seleziona una persona dalla lista"
+
+#, fuzzy
+#~ msgid "Resize events"
+#~ msgstr "Crea nuovo"
+
+#, fuzzy
+#~ msgid "Select events"
+#~ msgstr "Sto selezionando il paziente"
+
+#, fuzzy
+#~ msgid "Add new"
+#~ msgstr "Aggiunta nuovo nome"
+
+#, fuzzy
+#~ msgid "Add Container"
+#~ msgstr "Continua"
+
+#, fuzzy, python-format
+#~ msgid "Field '%s' can't be empty."
+#~ msgstr "<issuer> non può essere vuoto"
+
+#, fuzzy
+#~ msgid "Name:"
+#~ msgstr "Nome"
+
+#, fuzzy
+#~ msgid "Color:"
+#~ msgstr "Colorazione"
+
+#, fuzzy
+#~ msgid "Parent:"
+#~ msgstr "Paziente:"
+
+#, fuzzy
+#~ msgid "To:"
+#~ msgstr "A"
+
+#, fuzzy
+#~ msgid "Subject:"
+#~ msgstr "Soggettivo"
+
+#, fuzzy
+#~ msgid "Send With:"
+#~ msgstr "Manda Email"
+
+#, fuzzy
+#~ msgid "Default client"
+#~ msgstr "Tipo predefinito"
+
+#, fuzzy
+#~ msgid "Gmail"
+#~ msgstr "mail"
+
+#, fuzzy
+#~ msgid "Invalid date"
+#~ msgstr "Input Invalido"
+
+#, fuzzy
+#~ msgid "Timeline files"
+#~ msgstr "tutti i file"
+
+#, fuzzy
+#~ msgid "Category Finder"
+#~ msgstr "non attivo"
+
+#, fuzzy
+#~ msgid "Found Events"
+#~ msgstr "non attivo"
+
+#, fuzzy
+#~ msgid "Ends today"
+#~ msgstr "oggi (%s)"
+
+#, fuzzy
+#~ msgid "General"
+#~ msgstr "Generalizzato"
+
+#, fuzzy
+#~ msgid "Open most recent timeline on startup"
+#~ msgstr "il più recente in cima"
+
+#, fuzzy
+#~ msgid "Date && Time"
+#~ msgstr "Data / Ora"
+
+#, fuzzy
+#~ msgid "Default Year"
+#~ msgstr "Tipo predefinito"
+
+#, fuzzy
+#~ msgid "Default Month"
+#~ msgstr "Tipo predefinito"
+
+#, fuzzy
+#~ msgid "Default Day"
+#~ msgstr "Tipo predefinito"
+
+#, fuzzy
+#~ msgid "Use date default values"
+#~ msgstr "aggiorna il risultato"
+
+#, fuzzy
+#~ msgid "Preferences"
+#~ msgstr "Riferimento"
+
+#, fuzzy
+#~ msgid "Direction"
+#~ msgstr "Direzioni"
+
+#, fuzzy
+#~ msgid "Frequency:"
+#~ msgstr "Sequenza"
+
+#~ msgid "Both"
+#~ msgstr "Entrambi"
+
+#, fuzzy
+#~ msgid "Functions:"
+#~ msgstr "Documenti:"
+
+#, fuzzy
+#~ msgid "Modifier:"
+#~ msgstr "voce modificata"
+
+#, fuzzy
+#~ msgid "Edit Shortcuts"
+#~ msgstr "Modifica Tipi Documento"
+
+#, fuzzy
+#~ msgid "Give Feedback"
+#~ msgstr "Torna indietro"
+
+#, fuzzy
+#~ msgid "Event Properties"
+#~ msgstr "Proprietà Documento"
+
+#, fuzzy
+#~ msgid "Container:"
+#~ msgstr "Continua"
+
+#, fuzzy
+#~ msgid "Edit Container"
+#~ msgstr "non attivo"
+
+#, fuzzy
+#~ msgid "Edit Event"
+#~ msgstr "non attivo"
+
+#, fuzzy
+#~ msgid "Create Event"
+#~ msgstr "Crea nuovo"
+
+#, fuzzy
+#~ msgid "Create Timeline"
+#~ msgstr "Crea nuovo"
+
+#, fuzzy
+#~ msgid "Open Timeline"
+#~ msgstr "OpenOffice"
+
+#, fuzzy
+#~ msgid "Unable to write configuration file."
+#~ msgstr "Controllo i files di configurazione"
+
+#, fuzzy
+#~ msgid "&File"
+#~ msgstr "File"
+
+#, fuzzy
+#~ msgid "Create a new timeline"
+#~ msgstr "Crea nuovo paziente"
+
+#, fuzzy
+#~ msgid "Find Categories..."
+#~ msgstr "non attivo"
+
+#, fuzzy
+#~ msgid "Create &Event..."
+#~ msgstr "Crea nuovo paziente"
+
+#, fuzzy
+#~ msgid "Find &First Event"
+#~ msgstr "non attivo"
+
+#, fuzzy
+#~ msgid "Find &Last Event"
+#~ msgstr "non attivo"
+
+#, fuzzy
+#~ msgid "Fit &All Events"
+#~ msgstr "Stampa tutti gli articoli"
+
+#, fuzzy
+#~ msgid "Give &Feedback..."
+#~ msgstr "Torna indietro"
+
+#, fuzzy
+#~ msgid "Co&ntact"
+#~ msgstr "Contatto"
+
+#~ msgid "Help"
+#~ msgstr "Aiuto"
+
+#, fuzzy
+#~ msgid "Go back one page"
+#~ msgstr "Torna indietro e cerca nuovamente."
+
+#, fuzzy
+#~ msgid "Page not found"
+#~ msgstr "pgAdmin III non trovato."
+
+#, fuzzy, python-format
+#~ msgid "Could not find page '%s'."
+#~ msgstr "Non posso trovare l'immagine"
+
+#, fuzzy
+#~ msgid "Question"
+#~ msgstr "Sensazione"
+
+#, fuzzy
+#~ msgid "Help contents"
+#~ msgstr "Contenuto Raw"
+
+#, fuzzy
+#~ msgid "Timeline"
+#~ msgstr "Ora:"
+
+#, fuzzy
+#~ msgid "Scrolling Timeline"
+#~ msgstr "OpenOffice"
+
+#, fuzzy
+#~ msgid "Zooming Timeline"
+#~ msgstr "OpenOffice"
+
+#, fuzzy
+#~ msgid "Create event"
+#~ msgstr "Crea nuovo"
+
+#, fuzzy
+#~ msgid "Edit event"
+#~ msgstr "non attivo"
+
+#, fuzzy
+#~ msgid "Duplicate event"
+#~ msgstr "Cancella documento"
+
+#, fuzzy
+#~ msgid "Selecting events"
+#~ msgstr "Sto selezionando il paziente"
+
+#, fuzzy
+#~ msgid "Import timeline"
+#~ msgstr "Crea nuovo"
+
+#, fuzzy
+#~ msgid "Event Containers"
+#~ msgstr "non attivo"
+
+#, fuzzy
+#~ msgid "Delete event"
+#~ msgstr "Cancella documento"
+
+#, fuzzy
+#~ msgid "Edit categories"
+#~ msgstr "non attivo"
+
+#, fuzzy
+#~ msgid "Related pages"
+#~ msgstr "Tipo di modello"
+
+#, fuzzy, python-format
+#~ msgid "Unable to read timeline data from '%s'."
+#~ msgstr "Fallita l'eliminazione del paziente dalla lista %s"
+
+#, fuzzy
+#~ msgid "Welcome"
+#~ msgstr "Benvenuto al"
+
+#, fuzzy
+#~ msgid "Welcome to Timeline"
+#~ msgstr "Benvenuto al"
+
+#, fuzzy
+#~ msgid "Container"
+#~ msgstr "Continua"
+
+#, fuzzy
+#~ msgid "Select event"
+#~ msgstr "Sto selezionando il paziente"
+
+#, fuzzy
+#~ msgid "Saving"
+#~ msgstr "Salva indirizzo"
+
+#, fuzzy
+#~ msgid "View"
+#~ msgstr "Mostra log"
+
+#, fuzzy
+#~ msgid "Import..."
+#~ msgstr "Esporta come..."
+
+#~ msgid "Exit"
+#~ msgstr "Esci"
+
+#, fuzzy
+#~ msgid "Edit Selected Event"
+#~ msgstr "Modifica la seguente voce."
+
+#, fuzzy
+#~ msgid "Duplicate Selected Event"
+#~ msgstr "Modifica la seguente voce."
+
+#, fuzzy
+#~ msgid "Set Category on Selected Events"
+#~ msgstr "Modifica la seguente voce."
+
+#, fuzzy
+#~ msgid "Contents"
+#~ msgstr "&Appuntamenti"
+
+#, fuzzy
+#~ msgid "Find First Event"
+#~ msgstr "non attivo"
+
+#, fuzzy
+#~ msgid "Find Last Event"
+#~ msgstr "non attivo"
+
+#, fuzzy
+#~ msgid "Find All Events"
+#~ msgstr "Stampa tutti gli articoli"
+
+#~ msgid "OpenOffice"
+#~ msgstr "OpenOffice"
+
+#~ msgid "Allergy details"
+#~ msgstr "Dettagli dell'allergia"
+
+#~ msgid "Lists the allergies known for this patient if any."
+#~ msgstr "Elenca le allergie note per questo paziente, se presenti."
+
+#, fuzzy, python-format
+#~ msgid "failed import: %s\n"
+#~ msgstr "Chiusa"
+
+#, fuzzy, python-format
+#~ msgid "Result dates: %s"
+#~ msgstr "Risultati"
+
+#~ msgid "Reset"
+#~ msgstr "Azzera"
+
+#~ msgid "reset entry"
+#~ msgstr "Azzera la voce"
+
+#~ msgid "discard entry and cancel"
+#~ msgstr "Scarta la voce e cancella"
+
+#~ msgid "initialize input fields for new entry"
+#~ msgstr "Inizializza i campi dell'input per la nuova voce"
+
+#~ msgid "Ok"
+#~ msgstr "Ok"
+
+#~ msgid "ALLERGIES"
+#~ msgstr "ALLERGIE"
+
+#~ msgid "Allergy and Sensitivity - Summary"
+#~ msgstr "Allergie e Sensibilità - Riassunto"
+
+#~ msgid "ATC/Class"
+#~ msgstr "ATC/Class"
+
+#~ msgid "Class notes"
+#~ msgstr "Class note"
+
+#~ msgid "likely"
+#~ msgstr "probabile"
+
+#, python-format
+#~ msgid ""
+#~ "Error exporting form template\n"
+#~ "\n"
+#~ " \"%s\" (%s)"
+#~ msgstr ""
+#~ "Errore durante l'esportazione dal modello\n"
+#~ "\n"
+#~ " \"%s\" (%s)"
+
+#~ msgid ""
+#~ "Cannot connect to OpenOffice.\n"
+#~ "\n"
+#~ "The UNO bridge module for Python\n"
+#~ "is not installed."
+#~ msgstr ""
+#~ "Non posso connettermi a OpenOffice.\n"
+#~ "\n"
+#~ "Il modulo UNO bridge per Python\n"
+#~ "non è installato."
+
+#~ msgid "OOo startup time"
+#~ msgstr "Tempo di avvio OOo"
+
+#, fuzzy
+#~ msgid "Stage HL7 data from file"
+#~ msgstr "Carica i dati del modello da un file."
+
+#, fuzzy
+#~ msgid "Browse pending"
+#~ msgstr "Unire i pazienti"
+
+#, fuzzy
+#~ msgid "Extracting HL7 from XML file"
+#~ msgstr "Estraggo i files dalla cartella [%s] ..."
+
+#, fuzzy
+#~ msgid "Staging HL7 file"
+#~ msgstr "caricamente file xDT"
+
+#, fuzzy, python-format
+#~ msgid "Staged HL7 from [%s]."
+#~ msgstr "Carica i dati del modello da un file."
+
+#, fuzzy
+#~ msgid "Error processing HL7 data."
+#~ msgstr "Error plotting data."
 
 #~ msgid "Decrypt"
 #~ msgstr "Decodifica"
@@ -22562,9 +20767,6 @@ msgstr "Annulla e NON connetti a GNUmed"
 
 #~ msgid "Write a letter for the current patient."
 #~ msgstr "Scrivi una lettere per il paziente corrente."
-
-#~ msgid "GNUmed wiki"
-#~ msgstr "Wiki GNUmed"
 
 #~ msgid "Go to the GNUmed wiki on the web."
 #~ msgstr "Vai al wiki GNUmed sul web."
@@ -23860,9 +22062,6 @@ msgstr "Annulla e NON connetti a GNUmed"
 
 #~ msgid "by:"
 #~ msgstr "da"
-
-#~ msgid "Group"
-#~ msgstr "Gruppo"
 
 #, fuzzy
 #~ msgid "A comment on this test panel."
