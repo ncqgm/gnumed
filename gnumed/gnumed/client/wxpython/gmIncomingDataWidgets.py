@@ -50,12 +50,15 @@ _log = logging.getLogger('gm.auto-in-ui')
 #============================================================
 class cIncomingDataListCtrl(gmListWidgets.cReportListCtrl):
 
+	_INCOMING_COL_INITIAL_WIDTH = 460 # still comfortable width for restricted displays
+
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		if not self.EnableCheckBoxes(enable = True):
 			_log.error('cannot enable list item checkboxes')
 		self.set_columns(columns = [_('Incoming document'), _('Patient')])
-		self.set_column_widths([wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
+		self.set_column_widths([self._INCOMING_COL_INITIAL_WIDTH, wx.LIST_AUTOSIZE])
+		self.set_resize_column(column = 1)
 
 	#--------------------------------------------------------
 	def repopulate(self, pk_patient=None) -> bool:
