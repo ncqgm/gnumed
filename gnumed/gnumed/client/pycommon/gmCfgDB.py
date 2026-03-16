@@ -77,7 +77,7 @@ def get4site(option:str=None, default=None):
 	return __get_db_cfg_object().get4site(option = option, default = default)
 
 #------------------------------------------------------------------
-def set(owner:str=None, workplace:str=None, cookie:str=None, option:str=None, value=None) -> bool:
+def set(owner:str='', workplace:str=None, cookie:str=None, option:str=None, value=None) -> bool:
 	"""Set configuration value.
 
 	Calls set(...) on a module global instance of cCfgSQL().
@@ -254,7 +254,7 @@ class cCfgSQL:
 		return self.__get4site(option = option, default = default)
 
 	#----------------------------
-	def set(self, owner:str=None, workplace:str=None, cookie:str=None, option:str=None, value=None, description:str=None) -> bool:
+	def set(self, owner:str='', workplace:str=None, cookie:str=None, option:str=None, value=None, description:str=None) -> bool:
 		"""Set (create or update) option+value in database.
 
 		Any argument that is None will be set to NULL, meaning site-wide default.
@@ -386,7 +386,7 @@ class cCfgSQL:
 				return None
 
 			_log.info('setting site-wide default for option [%s] to [%s]' % (option, default))
-			self.set(option = option, value = default)
+			self.set(option = option, value = default, owner = None)
 			return default
 
 		return self.__auto_heal_pseudo_boolean_setting(setting = rows[0], default = default)
