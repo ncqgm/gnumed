@@ -567,7 +567,7 @@ class cIncomingPluginPnl(wxgIncomingPluginPnl.wxgIncomingPluginPnl, gmRegetMixin
 		new_doc['pk_org_unit'] = self._PhWheel_source.GetData()
 		date = self._PhWheel_doc_date.GetData()
 		if date is not None:
-			new_doc['clin_when'] = date.get_pydt()
+			new_doc['clin_when'] = date
 		comment = self._PRW_doc_comment.GetLineText(0).strip()
 		if comment:
 			new_doc['comment'] = comment
