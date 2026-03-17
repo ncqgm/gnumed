@@ -6,7 +6,7 @@
 --
 -- ==============================================================
 \set ON_ERROR_STOP 1
-\set check_function_bodies 1
+set check_function_bodies to on;
 
 -- --------------------------------------------------------------
 drop view if exists dem.v_person_names cascade;

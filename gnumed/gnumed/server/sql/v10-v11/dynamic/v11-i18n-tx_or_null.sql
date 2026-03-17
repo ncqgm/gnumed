@@ -10,7 +10,7 @@
 
 -- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
-\set check_function_bodies 1
+set check_function_bodies to on;
 --set default_transaction_read_only to off;
 
 -- =============================================

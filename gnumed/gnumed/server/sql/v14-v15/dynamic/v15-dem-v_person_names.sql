@@ -6,7 +6,7 @@
 -- 
 -- ==============================================================
 \set ON_ERROR_STOP 1
-\set check_function_bodies 1
+set check_function_bodies to on;
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP

@@ -8,7 +8,6 @@
 -- version: 0.1
 -- changelog:
 --	21.10.2001: first implementation
---	30.11.2001: \set & \unset applied correctly
 -- TODO: further processing of the data (normalizing)
 -- ===============================================
 

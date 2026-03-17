@@ -4,7 +4,7 @@
 
 -- Please email this file to <gnumed-devel@gnu.org>.
 -- ----------------------------------------------------------------------------------------------
-\set ON_ERROR_STOP
+\set ON_ERROR_STOP 1
 
 --set default_transaction_read_only to off;
 --set client_encoding to 'utf-8';

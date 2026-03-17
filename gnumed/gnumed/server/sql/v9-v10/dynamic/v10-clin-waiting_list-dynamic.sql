@@ -97,7 +97,7 @@ grant select on clin.v_waiting_list to group "gm-public";
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
 drop function clin.move_waiting_list_entry(integer, integer) cascade;
-\set ON_ERROR_STOP
+\set ON_ERROR_STOP 1
 
 create or replace function clin.move_waiting_list_entry(integer, integer)
 	returns boolean
