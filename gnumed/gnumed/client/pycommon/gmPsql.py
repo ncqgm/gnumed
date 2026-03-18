@@ -11,7 +11,7 @@ __license__ = "GPL v2 or later (details at https://www.gnu.org)"
 # stdlib
 import sys
 import os
-import re
+import re as regex
 import logging
 
 
@@ -31,7 +31,7 @@ class Psql:
 
 	#---------------------------------------------------------------
 	def match(self, pattern):
-		match = re.match(pattern, self.line)
+		match = regex.match(pattern, self.line)
 		if match is None:
 			return 0
 
@@ -81,14 +81,19 @@ class Psql:
 
 		for self.line in sql_file:
 			self.lineno += 1
-			if len(self.line.strip()) == 0:
+			if not self.line.strip():
+				continue
+
+			# ignore "set default_transaction_read_only to ..." lines
+			if regex.match(r'\s*set\s+default_transaction_read_only\s+to\s+o.*', self.line):
+				_log.debug('ignoring "set default_transaction_read_only to ..." line')
 				continue
 
 			# \set
 			if self.match(r"^\\set (\S+) (\S+)"):
 				_log.debug('"\\set" found: %s', self.groups)
 				self.vars[self.groups[0]] = self.groups[1]
-				if self.groups[0] == 'ON_ERROR_STOP':
+				if self.groups[0] == 'ON_ERROR_STOP':			#-- force terminate + exit(3) on errors if non-interactive
 					# adjusting from string to int so that "1" -> 1 -> True
 					self.vars['ON_ERROR_STOP'] = int(self.vars['ON_ERROR_STOP'])
 				continue
@@ -141,7 +146,7 @@ class Psql:
 								pass
 						except Exception as error:
 							_log.exception(curr_cmd)
-							if re.match(r"^NOTICE:.*", str(error)):
+							if regex.match(r"^NOTICE:.*", str(error)):
 								_log.warning(self.fmt_msg(error))
 							else:
 								_log.error(self.fmt_msg(error))
@@ -157,6 +162,7 @@ class Psql:
 									self.conn.commit()
 									curs.close()
 									return 1
+
 						for notice in self.conn.notices:
 							for line in notice.split('\n'):
 								line = line.strip('\n').strip()
