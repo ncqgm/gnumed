@@ -570,6 +570,10 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 		self.__encounter.generic_codes_rfe = [ c['data'] for c in self._PRW_rfe_codes.GetData() ]
 		self.__encounter.generic_codes_aoe = [ c['data'] for c in self._PRW_aoe_codes.GetData() ]
 
+		active_enc = gmPerson.gmCurrentPatient().emr.active_encounter
+		if active_enc['pk_encounter'] == self.__encounter['pk_encounter']:
+			gmDispatcher.send(signal = 'current_encounter_modified')
+
 		return True
 
 #----------------------------------------------------------------
