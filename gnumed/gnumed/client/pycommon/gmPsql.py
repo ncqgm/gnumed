@@ -17,26 +17,14 @@ import logging
 
 _log = logging.getLogger('gm.bootstrapper')
 
-unformattable_error_id = 12345
+_UNFORMATTABLE_ERROR_ID = 12345
 
 #===================================================================
 class Psql:
 
 	def __init__ (self, conn):
-		"""
-		db : the interpreter to connect to, must be a DBAPI compliant interface
-		"""
 		self.conn = conn
-		self.vars = {'ON_ERROR_STOP': None}
-
-	#---------------------------------------------------------------
-	def match(self, pattern):
-		match = regex.match(pattern, self.line)
-		if match is None:
-			return 0
-
-		self.groups = match.groups()
-		return 1
+		self.ON_ERROR_STOP = None
 
 	#---------------------------------------------------------------
 	def fmt_msg(self, aMsg):
@@ -45,96 +33,117 @@ class Psql:
 			tmp = tmp.replace('\r', '')
 			tmp = tmp.replace('\n', '')
 		except UnicodeDecodeError:
-			global unformattable_error_id
-			tmp = "%s:%d: <cannot str(msg), printing on console with ID [#%d]>" % (self.filename, self.lineno-1, unformattable_error_id)
+			global _UNFORMATTABLE_ERROR_ID
+			tmp = "%s:%d: <cannot str(msg), printing on console with ID [#%d]>" % (self.filename, self.lineno-1, _UNFORMATTABLE_ERROR_ID)
 			try:
-				print('ERROR: GNUmed bootstrap #%d:' % unformattable_error_id)
+				print('ERROR: GNUmed bootstrap #%d:' % _UNFORMATTABLE_ERROR_ID)
 				print(aMsg)
-			except Exception: pass
-			unformattable_error_id += 1
+			except Exception:
+				pass
+			_UNFORMATTABLE_ERROR_ID += 1
 		return tmp
 
 	#---------------------------------------------------------------
-	def run (self, filename):
+	def __log_pgdiag(self, exc):
+		if not hasattr(exc, 'diag'):
+			return
+
+		for prop in dir(exc.diag):				# pylint: disable=no-member
+			if prop.startswith('__'):
+				continue
+			val = getattr(exc.diag, prop)		# pylint: disable=no-member
+			if val is None:
+				continue
+			_log.error('PG diags [%s]: %s', prop, val)
+
+	#---------------------------------------------------------------
+	def __log_notices(self):
+		for notice in self.conn.notices:
+			for line in notice.split('\n'):
+				line = line.strip('\n').strip()
+				if line:
+					_log.debug(line)
+		del self.conn.notices[:]
+
+	#---------------------------------------------------------------
+	def __log_session_auth(self):
+		curs = self.conn.cursor()
+		curs.execute('show session authorization')
+		auth = curs.fetchall()[0][0]
+		curs.close()
+		_log.debug('session auth: %s', auth)
+		return auth
+
+	#---------------------------------------------------------------
+	def run_script(self, filename) -> bool:
 		"""
 		filename: a file, containing semicolon-separated SQL commands
 		"""
 		_log.debug('processing [%s]', filename)
-		curs = self.conn.cursor()
-		curs.execute('show session authorization')
-		start_auth = curs.fetchall()[0][0]
-		curs.close()
-		_log.debug('session auth: %s', start_auth)
-
-		if os.access (filename, os.R_OK):
-			sql_file = open(filename, mode = 'rt', encoding = 'utf-8-sig')
-		else:
+		if not os.access(filename, os.R_OK):
 			_log.error("cannot open file [%s]", filename)
-			return 1
+			return False
 
+		start_auth = self.__log_session_auth()
+		sql_file = open(filename, mode = 'rt', encoding = 'utf-8-sig')
 		self.lineno = 0
 		self.filename = filename
-		in_string = False
+		currently_inside_string_literal = False
 		bracketlevel = 0
 		curr_cmd = ''
 		curs = self.conn.cursor()
-
-		for self.line in sql_file:
+		self.ON_ERROR_STOP = True
+		for line_in_sql_file in sql_file:
 			self.lineno += 1
-			if not self.line.strip():
+			if line_in_sql_file.strip() == '':
 				continue
 
 			# ignore "set default_transaction_read_only to ..." lines
-			if regex.match(r'\s*set\s+default_transaction_read_only\s+to\s+o.*', self.line):
+			if regex.match(r'^\s*set\s+default_transaction_read_only\s+to\s+o.*', line_in_sql_file):
 				_log.debug('ignoring "set default_transaction_read_only to ..." line')
 				continue
 
-			# \set
-			if self.match(r"^\\set (\S+) (\S+)"):
-				_log.debug('"\\set" found: %s', self.groups)
-				self.vars[self.groups[0]] = self.groups[1]
-				if self.groups[0] == 'ON_ERROR_STOP':			#-- force terminate + exit(3) on errors if non-interactive
-					# adjusting from string to int so that "1" -> 1 -> True
-					self.vars['ON_ERROR_STOP'] = int(self.vars['ON_ERROR_STOP'])
+			# process "\set ON_ERROR_STOP" lines
+			if regex.match(r'^\s*\\set\s+ON_ERROR_STOP.*', line_in_sql_file):
+				_log.debug('"\set ON_ERROR_STOP ..." found: end of skipping errors')
+				self.ON_ERROR_STOP = True
 				continue
 
-			# \unset
-			if self.match (r"^\\unset (\S+)"):
-				self.vars[self.groups[0]] = None
+			# process "\unset ON_ERROR_STOP" lines
+			if regex.match(r'^\s*\\unset\s+ON_ERROR_STOP.*', line_in_sql_file):
+				_log.debug(r'"\unset ON_ERROR_STOP" found: starting to skip errors')
+				self.ON_ERROR_STOP = False
 				continue
 
 			# other '\' commands
-			if self.match (r"^\\(.*)") and not in_string:
-				# most other \ commands are for controlling output formats, don't make
-				# much sense in an installation script, so we gently ignore them
-				_log.warning(self.fmt_msg("psql command \"\\%s\" being ignored " % self.groups[0]))
-				continue
+			if not currently_inside_string_literal:
+				if regex.match(r'^\\.+', line_in_sql_file):
+					# most other \ commands are for controlling output formats, don't make
+					# much sense in an installation script, so we gently ignore them
+					_log.warning(self.fmt_msg('skipping line with psql command: %s' % line_in_sql_file))
+					continue
 
 			# non-'\' commands
-			this_char = self.line[0]
-			# loop over characters in line
-			for next_char in self.line[1:] + ' ':
-
-				# start/end of string detected
-				if this_char == "'":
-					in_string = not in_string
-
+			curr_char = line_in_sql_file[0]
+			for next_char in line_in_sql_file[1:] + ' ':
 				# detect "--"-style comments
-				if this_char == '-' and next_char == '-' and not in_string:
+				if curr_char == '-' and next_char == '-' and not currently_inside_string_literal:
 					break
 
+				# start/end of string detected
+				if curr_char == "'":
+					currently_inside_string_literal = not currently_inside_string_literal
 				# detect bracketing
-				if this_char == '(' and not in_string:
+				if curr_char == '(' and not currently_inside_string_literal:
 					bracketlevel += 1
-				if this_char == ')' and not in_string:
+				if curr_char == ')' and not currently_inside_string_literal:
 					bracketlevel -= 1
-
 				# have we:
 				# - found end of command ?
 				# - are not inside a string ?
 				# - are not inside bracket pair ?
-				if not ((in_string is False) and (bracketlevel == 0) and (this_char == ';')):
-					curr_cmd += this_char
+				if not ((curr_char == ';') and (currently_inside_string_literal is False) and  (bracketlevel == 0)):
+					curr_cmd += curr_char
 				else:
 					if curr_cmd.strip() != '':
 						try:
@@ -146,48 +155,31 @@ class Psql:
 								pass
 						except Exception as error:
 							_log.exception(curr_cmd)
-							if regex.match(r"^NOTICE:.*", str(error)):
+							if str(error).startswith('NOTICE:'):
 								_log.warning(self.fmt_msg(error))
 							else:
 								_log.error(self.fmt_msg(error))
-								if hasattr(error, 'diag'):
-									for prop in dir(error.diag):			# pylint: disable=no-member
-										if prop.startswith('__'):
-											continue
-										val = getattr(error.diag, prop)		# pylint: disable=no-member
-										if val is None:
-											continue
-										_log.error('PG diags %s: %s', prop, val)
-								if self.vars['ON_ERROR_STOP']:
+								self.__log_pgdiag(error)
+								if self.ON_ERROR_STOP:
 									self.conn.commit()
 									curs.close()
-									return 1
+									return False
 
-						for notice in self.conn.notices:
-							for line in notice.split('\n'):
-								line = line.strip('\n').strip()
-								if line:
-									_log.debug(line)
-						del self.conn.notices[:]
-
+						self.__log_notices()
 					self.conn.commit()
 					curs.close()
 					curs = self.conn.cursor()
 					curr_cmd = ''
-
-				this_char = next_char
+				curr_char = next_char
 			# end of loop over chars
 
 		# end of loop over lines
 		self.conn.commit()
-		curs.execute('show session authorization')
-		end_auth = curs.fetchall()[0][0]
 		curs.close()
-		_log.debug('session auth after sql file processing: %s', end_auth)
+		end_auth = self.__log_session_auth()
 		if start_auth != end_auth:
 			_log.error('session auth changed before/after processing sql file')
-
-		return 0
+		return True
 
 #===================================================================
 # testing code
@@ -198,8 +190,3 @@ if __name__ == '__main__':
 
 	if sys.argv[1] != 'test':
 		sys.exit()
-
-	#conn = PgSQL.connect(user='gm-dbo', database = 'gnumed')
-	#psql = Psql(conn)
-	#psql.run(sys.argv[1])
-	#conn.close()

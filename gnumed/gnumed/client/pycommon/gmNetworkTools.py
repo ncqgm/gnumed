@@ -175,7 +175,7 @@ def install_data_pack(data_pack=None, conn=None):
 	from Gnumed.pycommon import gmPsql
 	psql = gmPsql.Psql(conn)
 	sql_script = os.path.join(data_pack['unzip_dir'], 'install-data-pack.sql')
-	if psql.run(sql_script) == 0:
+	if psql.run_script(sql_script):
 		curs = conn.cursor()
 		curs.execute('select gm.log_script_insertion(%(name)s, %(ver)s)', {'name': data_pack['pack_url'], 'ver': 'current'})
 		curs.close()

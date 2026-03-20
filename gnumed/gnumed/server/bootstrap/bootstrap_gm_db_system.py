@@ -1192,14 +1192,14 @@ class cDatabase:
 			return None
 
 		# write schema to file
-		tmpfile = os.path.join(tempfile.gettempdir(), 'audit-trail-schema.sql')
-		f = open(tmpfile, mode = 'wt', encoding = 'utf8')
+		audit_schema_filename = os.path.join(tempfile.gettempdir(), 'audit-trail-schema.sql')
+		f = open(audit_schema_filename, mode = 'wt', encoding = 'utf8')
 		for line in audit_schema:
 			f.write('%s;\n' % line)
 		f.close()
 		# import auditing schema
 		psql = gmPsql.Psql(self.conn)
-		if psql.run(tmpfile) != 0:
+		if not psql.run_script(audit_schema_filename):
 			_log.error("cannot import audit schema definition for database [%s]" % (self.target_db_name))
 			return None
 
@@ -1207,9 +1207,9 @@ class cDatabase:
 			return True
 
 		try:
-			os.remove(tmpfile)
+			os.remove(audit_schema_filename)
 		except Exception:
-			_log.exception('cannot remove audit trail schema file [%s]' % tmpfile)
+			_log.exception('cannot remove audit trail schema file [%s]' % audit_schema_filename)
 		return True
 
 	#--------------------------------------------------------------
@@ -1529,12 +1529,12 @@ def ask_for_confirmation_to_proceed():
 	return None
 
 #--------------------------------------------------------------
-def _import_schema (group=None, schema_opt="schema", conn=None):
+def _import_schema (group=None, schema_opt="schema", conn=None) -> bool:
 	# load schema
 	schema_files = cfg_get(group, schema_opt)
 	if schema_files is None:
 		_log.error("Need to know schema definition to install it.")
-		return None
+		return False
 
 	schema_base_dir = cfg_get(group, "schema base directory")
 	if schema_base_dir is None:
@@ -1557,12 +1557,11 @@ def _import_schema (group=None, schema_opt="schema", conn=None):
 		if filename.startswith('# '):
 			_log.info(filename)				# log as comment
 			continue
-		full_path = os.path.join(schema_base_dir, filename)
-		if psql.run(full_path) == 0:
-			#_log.info('success')
+		full_path_fname = os.path.join(schema_base_dir, filename)
+		if psql.run_script(full_path_fname):
 			continue
 		_log.error('failure')
-		return None
+		return False
 
 	return True
 

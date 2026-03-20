@@ -2306,15 +2306,13 @@ def read_all_rows_of_table(schema=None, table=None):
 
 #------------------------------------------------------------------------
 #------------------------------------------------------------------------
-def run_sql_script(sql_script, conn=None):
+def run_sql_script(sql_script, conn=None) -> bool:
 
 	if conn is None:
 		conn = get_connection(readonly = False)
-
 	from Gnumed.pycommon import gmPsql
 	psql = gmPsql.Psql(conn)
-
-	if psql.run(sql_script) == 0:
+	if psql.run_script(sql_script):
 		query = {
 			'sql': 'select gm.log_script_insertion(%(name)s, %(ver)s)',
 			'args': {'name': sql_script, 'ver': 'current'}
