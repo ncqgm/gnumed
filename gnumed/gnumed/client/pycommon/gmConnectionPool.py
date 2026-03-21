@@ -941,6 +941,15 @@ class gmConnectionPool(gmBorg.cBorg):
 		conn.readonly = readonly
 		# - assume verbose=True to mean we want debugging in the database, too
 		if verbose or _VERBOSE_PG_LOG:
+			_log.debug('setting client_min_messages to DEBUG1')
+			curs = conn.cursor()
+			try:
+				curs.execute("SET client_min_messages TO debug1")
+			except Exception:
+				_log.exception('cannot set <client_min_messages>')
+			finally:
+				curs.close()
+				conn.commit()
 			_log.debug('enabling <plpgsql.extra_warnings/_errors>')
 			curs = conn.cursor()
 			try:
