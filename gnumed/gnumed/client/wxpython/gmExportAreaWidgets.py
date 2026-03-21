@@ -141,7 +141,7 @@ def manage_paperwork_passphrases(parent=None, single_selection:bool=True):
 		if not dbo_conn:
 			phrases = []
 		else:
-			phrases = gmExportArea.get_object_passphrases(link_obj = dbo_conn)
+			phrases = gmExportArea.get_object_passphrases(link_obj = dbo_conn) or []
 		items = [ [
 			p['hash'],
 			p['hash_type'],
