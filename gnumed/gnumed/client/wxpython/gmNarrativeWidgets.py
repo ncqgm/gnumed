@@ -514,6 +514,8 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 		enc.generic_codes_rfe = [ c['data'] for c in self._PRW_rfe_codes.GetData() ]
 		enc.generic_codes_aoe = [ c['data'] for c in self._PRW_aoe_codes.GetData() ]
 
+		gmDispatcher.send(signal = 'current_encounter_modified')
+
 		return True
 	#--------------------------------------------------------
 	# internal helpers
