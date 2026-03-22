@@ -92,7 +92,7 @@ class cFilePreviewPnl(wxgFilePreviewPnl):
 	#--------------------------------------------------------
 	# image preview
 	#--------------------------------------------------------
-	def _worker__convert_to_image(self, filename:str=None, cookie=None) -> str:
+	def _worker__convert_to_image(self, filename:str=None, cookie=None) -> tuple[object, str]:
 		return cookie, gmMimeLib.convert_file_to_image(filename)
 
 	#--------------------------------------------------------
