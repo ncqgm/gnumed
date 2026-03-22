@@ -24,17 +24,17 @@ class Psql:
 
 	def __init__ (self, conn):
 		self.conn = conn
-		self.ON_ERROR_STOP = None
+		self.filename = None
 
 	#---------------------------------------------------------------
-	def fmt_msg(self, aMsg):
+	def fmt_msg(self, aMsg, lineno:int=None):
 		try:
-			tmp = "%s:%d: %s" % (self.filename, self.lineno-1, aMsg)
+			tmp = "%s:%d: %s" % (self.filename, lineno-1, aMsg)
 			tmp = tmp.replace('\r', '')
 			tmp = tmp.replace('\n', '')
 		except UnicodeDecodeError:
 			global _UNFORMATTABLE_ERROR_ID
-			tmp = "%s:%d: <cannot str(msg), printing on console with ID [#%d]>" % (self.filename, self.lineno-1, _UNFORMATTABLE_ERROR_ID)
+			tmp = "%s:%d: <cannot str(msg), printing on console with ID [#%d]>" % (self.filename, lineno-1, _UNFORMATTABLE_ERROR_ID)
 			try:
 				print('ERROR: GNUmed bootstrap #%d:' % _UNFORMATTABLE_ERROR_ID)
 				print(aMsg)
@@ -79,22 +79,21 @@ class Psql:
 		"""
 		filename: a file, containing semicolon-separated SQL commands
 		"""
-		_log.debug('processing [%s]', filename)
-		if not os.access(filename, os.R_OK):
-			_log.error("cannot open file [%s]", filename)
+		self.filename = filename
+		_log.debug('processing [%s]', self.filename)
+		if not os.access(self.filename, os.R_OK):
+			_log.error("cannot open file [%s]", self.filename)
 			return False
 
 		start_auth = self.__log_session_auth()
-		sql_file = open(filename, mode = 'rt', encoding = 'utf-8-sig')
-		self.lineno = 0
-		self.filename = filename
+		sql_file = open(self.filename, mode = 'rt', encoding = 'utf-8-sig')
 		currently_inside_string_literal = False
 		bracketlevel = 0
+		lineno = 0
 		curr_cmd = ''
 		curs = self.conn.cursor()
-		self.ON_ERROR_STOP = True
 		for line_in_sql_file in sql_file:
-			self.lineno += 1
+			lineno += 1
 			if line_in_sql_file.strip() == '':
 				continue
 
@@ -105,14 +104,12 @@ class Psql:
 
 			# process "\set ON_ERROR_STOP" lines
 			if regex.match(r'^\s*\\set\s+ON_ERROR_STOP.*', line_in_sql_file):
-				_log.debug('"\set ON_ERROR_STOP ..." found: end of skipping errors')
-				self.ON_ERROR_STOP = True
+				_log.debug(r'ignoring "\set ON_ERROR_STOP ..." line')
 				continue
 
 			# process "\unset ON_ERROR_STOP" lines
 			if regex.match(r'^\s*\\unset\s+ON_ERROR_STOP.*', line_in_sql_file):
-				_log.debug(r'"\unset ON_ERROR_STOP" found: starting to skip errors')
-				self.ON_ERROR_STOP = False
+				_log.debug(r'ignoring "\unset ON_ERROR_STOP" line')
 				continue
 
 			# other '\' commands
@@ -120,7 +117,7 @@ class Psql:
 				if regex.match(r'^\\.+', line_in_sql_file):
 					# most other \ commands are for controlling output formats, don't make
 					# much sense in an installation script, so we gently ignore them
-					_log.warning(self.fmt_msg('skipping line with psql command: %s' % line_in_sql_file))
+					_log.warning(self.fmt_msg('skipping line with psql command: %s' % line_in_sql_file), lineno = lineno)
 					continue
 
 			# non-'\' commands
@@ -156,14 +153,13 @@ class Psql:
 						except Exception as error:
 							_log.exception(curr_cmd)
 							if str(error).startswith('NOTICE:'):
-								_log.warning(self.fmt_msg(error))
+								_log.warning(self.fmt_msg(error, lineno = lineno))
 							else:
-								_log.error(self.fmt_msg(error))
+								_log.error(self.fmt_msg(error, lineno = lineno))
 								self.__log_pgdiag(error)
-								if self.ON_ERROR_STOP:
-									self.conn.commit()
-									curs.close()
-									return False
+								self.conn.commit()
+								curs.close()
+								return False
 
 						self.__log_notices()
 					self.conn.commit()
