@@ -5,16 +5,10 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v10-clin-v_pat_narrative_journal.sql,v 1.1 2008-09-02 15:41:21 ncq Exp $
--- $Revision: 1.1 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_narrative_journal cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_narrative_journal cascade;
 
 
 create view clin.v_pat_narrative_journal as
@@ -50,10 +44,3 @@ from
 grant select on clin.v_pat_narrative_journal TO GROUP "gm-doctors";
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v10-clin-v_pat_narrative_journal.sql,v $', '$Revision: 1.1 $');
-
--- ==============================================================
--- $Log: v10-clin-v_pat_narrative_journal.sql,v $
--- Revision 1.1  2008-09-02 15:41:21  ncq
--- - new
---
---

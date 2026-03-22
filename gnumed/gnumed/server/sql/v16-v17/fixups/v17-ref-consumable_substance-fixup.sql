@@ -10,9 +10,7 @@
 
 set check_function_bodies to on;
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function gm.strip_allzeros_fraction(numeric) cascade;
-\set ON_ERROR_STOP 1
+drop function if exists gm.strip_allzeros_fraction(numeric) cascade;
 
 create or replace function gm.strip_allzeros_fraction(numeric)
 	returns numeric
@@ -47,9 +45,7 @@ update ref.consumable_substance set
 	amount = gm.strip_allzeros_fraction(amount);
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function ref.trf_consumable_subst_normalize_amount() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists ref.trf_consumable_subst_normalize_amount() cascade;
 
 create or replace function ref.trf_consumable_subst_normalize_amount()
 	returns trigger

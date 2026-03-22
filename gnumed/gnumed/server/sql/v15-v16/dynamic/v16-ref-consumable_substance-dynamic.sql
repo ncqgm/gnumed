@@ -13,9 +13,7 @@
 comment on column ref.consumable_substance.amount is
 	'The amount of substance.';
 
-\unset ON_ERROR_STOP
-alter table ref.consumable_substance drop constraint ref_consumable_sane_amount cascade;
-\set ON_ERROR_STOP 1
+alter table ref.consumable_substance drop constraint if exists ref_consumable_sane_amount cascade;
 
 alter table ref.consumable_substance
 	alter column amount
@@ -27,9 +25,7 @@ alter table ref.consumable_substance
 
 -- --------------------------------------------------------------
 -- table constraints
-\unset ON_ERROR_STOP
-alter table ref.consumable_substance drop constraint ref_consumable_uniq_subst_amount_unit cascade;
-\set ON_ERROR_STOP 1
+alter table ref.consumable_substance drop constraint if exists ref_consumable_uniq_subst_amount_unit cascade;
 
 alter table ref.consumable_substance
 	add constraint ref_consumable_uniq_subst_amount_unit

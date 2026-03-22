@@ -51,9 +51,7 @@ alter table ref.paperwork_templates
 
 -- --------------------------------------------------------------
 -- ref.v_paperwork_templates
-\unset ON_ERROR_STOP
-drop view ref.v_paperwork_templates cascade;
-\set ON_ERROR_STOP 1
+drop view if exists ref.v_paperwork_templates cascade;
 
 
 create view ref.v_paperwork_templates as

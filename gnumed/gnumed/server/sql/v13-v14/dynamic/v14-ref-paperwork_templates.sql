@@ -8,9 +8,7 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-alter table ref.paperwork_templates drop constraint engine_range cascade;
-\set ON_ERROR_STOP 1
+alter table ref.paperwork_templates drop constraint if exists engine_range cascade;
 
 
 alter table ref.paperwork_templates
@@ -30,9 +28,7 @@ comment on column ref.paperwork_templates.engine is
 
 -- --------------------------------------------------------------
 -- visual progress note template type
-\unset ON_ERROR_STOP
-insert into ref.form_types (name) values (i18n.i18n('gnuplot script'));
-\set ON_ERROR_STOP 1
+insert into ref.form_types (name) values (i18n.i18n('gnuplot script')) on conflict (name) do nothing;
 
 select i18n.upd_tx('de_DE', 'gnuplot script', 'Gnuplot-Script');
 
@@ -80,9 +76,7 @@ insert into ref.paperwork_templates (
 
 -- --------------------------------------------------------------
 -- example referral template
-\unset ON_ERROR_STOP
-insert into ref.form_types (name) values (i18n.i18n('referral letter'));
-\set ON_ERROR_STOP 1
+insert into ref.form_types (name) values (i18n.i18n('referral letter')) on conflict (name) do nothing;
 
 select i18n.upd_tx('de_DE', 'referral letter', 'Überweisungsbrief');
 
@@ -108,9 +102,7 @@ insert into ref.paperwork_templates (
 
 -- --------------------------------------------------------------
 -- most recent vaccinations list
-\unset ON_ERROR_STOP
-insert into ref.form_types (name) values (i18n.i18n('vaccination record'));
-\set ON_ERROR_STOP 1
+insert into ref.form_types (name) values (i18n.i18n('vaccination record')) on conflict (name) do nothing;
 
 select i18n.upd_tx('de_DE', 'vaccination record', 'Impfnachweis');
 

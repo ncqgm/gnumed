@@ -5,18 +5,12 @@
 -- Author: 
 --
 -- ==============================================================
--- $Id: v11-dem-v_staff.sql,v 1.2 2009-08-08 10:42:48 ncq Exp $
--- $Revision: 1.2 $
-
--- --------------------------------------------------------------
 --set default_transaction_read_only to off;
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
 alter table dem.staff
-	drop constraint each_role_once_per_identity;
-\set ON_ERROR_STOP 1
+	drop constraint if exists each_role_once_per_identity;
 
 alter table dem.staff
 	add constraint each_role_once_per_identity
@@ -24,9 +18,7 @@ alter table dem.staff
 
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view dem.v_staff cascade;
-\set ON_ERROR_STOP 1
+drop view if exists dem.v_staff cascade;
 
 
 create view dem.v_staff as
@@ -79,13 +71,3 @@ grant select on dem.v_staff to group "gm-public";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v11-dem-v_staff.sql,v $', '$Revision: 1.2 $');
-
--- ==============================================================
--- $Log: v11-dem-v_staff.sql,v $
--- Revision 1.2  2009-08-08 10:42:48  ncq
--- - add constraint on role/identity
---
--- Revision 1.1  2009/07/15 12:13:35  ncq
--- - need to recreate after dem.v_basic_person
---
---

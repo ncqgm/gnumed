@@ -5,16 +5,10 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v12-clin-v_health_issues.sql,v 1.1 2009-09-01 22:12:47 ncq Exp $
--- $Revision: 1.1 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_health_issues cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_health_issues cascade;
 
 
 create view clin.v_health_issues as
@@ -44,10 +38,3 @@ from
 grant select on clin.v_health_issues TO GROUP "gm-doctors";
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v12-clin-v_health_issues.sql,v $', '$Revision: 1.1 $');
-
--- ==============================================================
--- $Log: v12-clin-v_health_issues.sql,v $
--- Revision 1.1  2009-09-01 22:12:47  ncq
--- - new
---
---

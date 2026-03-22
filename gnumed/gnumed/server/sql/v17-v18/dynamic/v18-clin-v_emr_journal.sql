@@ -9,9 +9,7 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_emr_journal cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_emr_journal cascade;
 
 
 create view clin.v_emr_journal as

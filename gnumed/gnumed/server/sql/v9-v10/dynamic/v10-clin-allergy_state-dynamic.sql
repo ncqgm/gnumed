@@ -18,10 +18,8 @@ alter table clin.allergy_state
 		set not null;
 
 
-\unset ON_ERROR_STOP
 alter table clin.allergy_state
-	drop constraint allergy_state_has_allergy_check;
-\set ON_ERROR_STOP 1
+	drop constraint if exists allergy_state_has_allergy_check;
 
 alter table clin.allergy_state
 	add check (has_allergy in (null::integer, 0, 1));
@@ -34,9 +32,7 @@ alter table clin.allergy_state
 
 
 
-\unset ON_ERROR_STOP
-drop function clin.trf_ensure_one_allergy_state_per_patient() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.trf_ensure_one_allergy_state_per_patient() cascade;
 
 create function clin.trf_ensure_one_allergy_state_per_patient()
 	returns trigger
@@ -107,9 +103,7 @@ comment on column clin.allergy_state.last_confirmed is
 
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_allergy_state cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_allergy_state cascade;
 
 
 create view clin.v_pat_allergy_state as
@@ -137,9 +131,7 @@ from
 grant select on clin.v_pat_allergy_state to group "gm-doctors";
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_allergy_state_journal cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_allergy_state_journal cascade;
 
 
 create view clin.v_pat_allergy_state_journal as

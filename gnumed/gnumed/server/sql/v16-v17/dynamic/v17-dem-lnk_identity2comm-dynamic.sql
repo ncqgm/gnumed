@@ -10,9 +10,7 @@
 -- --------------------------------------------------------------
 comment on column dem.lnk_identity2comm.comment is 'a comment on this communications channel';
 
-\unset ON_ERROR_STOP
-alter table dem.lnk_identity2comm drop constraint d_l_i2comm_sane_comment cascade;
-\set ON_ERROR_STOP 1
+alter table dem.lnk_identity2comm drop constraint if exists d_l_i2comm_sane_comment cascade;
 
 alter table dem.lnk_identity2comm
 	add constraint d_l_i2comm_sane_comment

@@ -30,34 +30,5 @@ comment on column gm_services.version is
 	 might take the form of a CVS release tag one day';
 
 -- =============================================
-\unset ON_ERROR_STOP
 -- do simple schema revision tracking
 INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: gmServices.sql,v $', '$Revision: 1.8 $');
-
--- =============================================
--- $Log: gmServices.sql,v $
--- Revision 1.8  2005-09-19 16:38:51  ncq
--- - adjust to removed is_core from gm_schema_revision
---
--- Revision 1.7  2005/07/14 21:31:42  ncq
--- - partially use improved schema revision tracking
---
--- Revision 1.6  2005/03/01 20:38:19  ncq
--- - varchar -> text
---
--- Revision 1.5  2003/06/10 08:56:59  ncq
--- - schema_revision -> gm_schema_revision
---
--- Revision 1.4  2003/05/12 12:43:39  ncq
--- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
---   database level now, don't include them in individual schema file anymore
---
--- Revision 1.3  2003/01/22 23:09:47  ncq
--- - enable this to be imported more than once
---
--- Revision 1.2  2003/01/22 16:12:09  ncq
--- - gm_services.service_name -> gm_services.name
---
--- Revision 1.1  2003/01/02 01:20:31  ncq
--- - initial version
---

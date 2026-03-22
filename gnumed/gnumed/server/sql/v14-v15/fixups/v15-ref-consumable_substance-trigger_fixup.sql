@@ -13,9 +13,7 @@
 -- fix trigger:
 
 -- MUST protect from changing if in use directly or indirectly
-\unset ON_ERROR_STOP
-drop function ref.trf_do_not_update_substance_if_taken_by_patient() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists ref.trf_do_not_update_substance_if_taken_by_patient() cascade;
 
 create or replace function ref.trf_do_not_update_substance_if_taken_by_patient()
 	returns trigger

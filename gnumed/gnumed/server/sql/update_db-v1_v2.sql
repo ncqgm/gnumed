@@ -69,7 +69,6 @@ drop table public.cfg_str_array cascade;
 drop table public.cfg_data cascade;
 
 -- add new options
-\unset ON_ERROR_STOP
 insert into cfg.cfg_template
 	(name, type, description)
 values (
@@ -78,24 +77,32 @@ values (
 	'1/0, meaning true/false,
 	 if true: reload patient data after search even if the new patient is the same as the previous one,
 	 if false: do not reload data if new patient matches previous one'
-);
+) on conflict (name) do nothing;
+
 
 insert into cfg.cfg_item
 	(fk_template, owner, workplace)
 values (
-	currval('cfg.cfg_template_pk_seq'),
+--	currval('cfg.cfg_template_pk_seq'),
+	(select pk from cfg.cfg_template where name = 'patient_search.always_reload_new_patient'),
 	'xxxDEFAULTxxx',
 	'xxxDEFAULTxxx'
-);
+) on conflict (fk_template, owner, workplace, cookie) do nothing;
 
 -- default to false
 insert into cfg.cfg_numeric
 	(fk_item, value)
 values (
+	(select pk from cfg.cfg_item where
+		fk_template = (select pk from cfg.cfg_template where name = 'patient_search.always_reload_new_patient')
+			and
+		owner = 'xxxDEFAULTxxx'
+			and
+		workplace = 'xxxDEFAULTxxx'
+	)
 	currval('cfg.cfg_item_pk_seq'),
 	0
-);
-\set ON_ERROR_STOP 1
+) on conflict do nothing;
 
 -- a 'workplace' called "Librarian (0.2)" --
 insert into cfg.cfg_item
@@ -651,10 +658,8 @@ alter table form_defs
 		set default true;
 
 -- == cleanup debris =================================================
-\unset ON_ERROR_STOP
-drop function calc_db_identity_hash();
-drop function log_script_insertion(text, text, boolean);
-\set ON_ERROR_STOP 1
+drop function if exists calc_db_identity_hash();
+drop function if exists log_script_insertion(text, text, boolean);
 
 -- == cleanup debris =================================================
 -- German specific stuff
@@ -669,91 +674,5 @@ drop table public.xlnk_identity cascade;
 select setval('audit.audit_fields_pk_audit_seq'::text, (select max(pk_audit) from audit.audit_fields));
 
 -- ===================================================================
-\unset ON_ERROR_STOP
-
 -- do simple schema revision tracking
 select log_script_insertion('$RCSfile: update_db-v1_v2.sql,v $', '$Revision: 1.21 $');
-
--- =============================================
--- $Log: update_db-v1_v2.sql,v $
--- Revision 1.21  2006-01-13 11:17:39  ncq
--- - id -> pk
---
--- Revision 1.20  2006/01/05 16:04:37  ncq
--- - move auditing to its own schema "audit"
---
--- Revision 1.19  2005/12/29 21:48:09  ncq
--- - clin.vaccine.id -> pk
--- - remove clin.vaccine.last_batch_no
--- - add clin.vaccine_batches
--- - adjust test data and country data
---
--- Revision 1.18  2005/12/14 11:42:21  ncq
--- - we don't have cfg_boolean but rather use cfg_numeric
---
--- Revision 1.17  2005/12/14 10:43:33  ncq
--- - add option on showing document ID after import
--- - several clin.clin_* -> clin.* renames
---
--- Revision 1.16  2005/11/29 19:09:59  ncq
--- - properly modified audited_tables
--- - add scanidxpnl to Librarian release config
--- - re-arrange clinical upgrade
---
--- Revision 1.15  2005/11/25 15:05:13  ncq
--- - start upgrading things to "clin" schema - not functional yet
---
--- Revision 1.14  2005/11/19 13:51:14  ncq
--- - rename latin1 column straße to strasse
---
--- Revision 1.13  2005/11/18 15:56:55  ncq
--- - gmconfiguration.sql -> gmConfig-static.sql
---
--- Revision 1.12  2005/11/18 15:44:32  ncq
--- - move configuration objects to new cfg.* schema
--- - need to setval() sequences after moving data from public into blobs/cfg
---   schemata since we "insert ... select ..." all columns including pk
---
--- Revision 1.11  2005/11/11 23:06:48  ncq
--- - add is_user to doc_type and form_defs
---
--- Revision 1.10  2005/11/01 08:55:49  ncq
--- - add 0.2 workplace plugin config
--- - rename test_result_unmatched to incoming_data_unmatched and move data
---
--- Revision 1.9  2005/10/26 21:31:09  ncq
--- - review status tracking
---
--- Revision 1.8  2005/10/24 19:30:23  ncq
--- - require schema in audited_tables - default to public
--- - move blobs service into schema "blobs"
---
--- Revision 1.7  2005/10/12 19:24:25  ncq
--- - clin_encounter.rfe can be null
---
--- Revision 1.6  2005/09/25 17:51:14  ncq
--- - include country zones
--- - drop last_act_episode
--- - if a health issue has several open episodes merge them
---   into one as we don't allow that anymore, don't lose data
---   in the process if we can help it
---
--- Revision 1.5  2005/09/22 15:50:00  ncq
--- - cascade column drop
---
--- Revision 1.4  2005/09/22 15:41:58  ncq
--- - cleanup
--- - sync comments
--- - drop fk_provider
---
--- Revision 1.3  2005/09/21 10:22:34  ncq
--- - selectively delete is_rfe/is_aoe rows in clin_narrative
--- - include waiting list
---
--- Revision 1.2  2005/09/19 16:23:08  ncq
--- - adjust to rfe/aoe changes (clin_encounter)
--- - adjust to dropping is_core
---
--- Revision 1.1  2005/09/13 11:54:47  ncq
--- - initial update of v1 -> v2: config option
---

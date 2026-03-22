@@ -14,9 +14,7 @@ set check_function_bodies to on;
 comment on column clin.vaccination.narrative is
 	'Used to record a comment on this vaccination.';
 
-\unset ON_ERROR_STOP
-alter table clin.vaccination drop constraint vaccination_sane_narrative cascade;
-\set ON_ERROR_STOP 1
+alter table clin.vaccination drop constraint if exists vaccination_sane_narrative cascade;
 
 alter table clin.vaccination
 	add constraint vaccination_sane_narrative check (
@@ -28,9 +26,7 @@ alter table clin.vaccination
 comment on column clin.vaccination.reaction is
 	'Used to record reactions to this vaccination.';
 
-\unset ON_ERROR_STOP
-alter table clin.vaccination drop constraint vaccination_sane_reaction cascade;
-\set ON_ERROR_STOP 1
+alter table clin.vaccination drop constraint if exists vaccination_sane_reaction cascade;
 
 alter table clin.vaccination
 	add constraint vaccination_sane_reaction check (
@@ -42,9 +38,7 @@ alter table clin.vaccination
 comment on column clin.vaccination.site is
 	'The site of injection used in this vaccination.';
 
-\unset ON_ERROR_STOP
-alter table clin.vaccination drop constraint vaccination_sane_site cascade;
-\set ON_ERROR_STOP 1
+alter table clin.vaccination drop constraint if exists vaccination_sane_site cascade;
 
 alter table clin.vaccination
 	add constraint vaccination_sane_site check (
@@ -112,9 +106,7 @@ select i18n.upd_tx('de_DE', 'Two vaccinations with overlapping target conditions
 
 
 -- eventually add the trigger to warn on potential dupes
-\unset ON_ERROR_STOP
-drop function clin.trf_warn_on_duplicate_vaccinations() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.trf_warn_on_duplicate_vaccinations() cascade;
 
 create function clin.trf_warn_on_duplicate_vaccinations()
 	returns trigger
@@ -248,9 +240,7 @@ create trigger tr_warn_on_duplicate_vaccinations
 ;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_vaccinations cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_vaccinations cascade;
 
 create view clin.v_pat_vaccinations as
 
@@ -327,9 +317,7 @@ comment on view clin.v_pat_vaccinations is
 grant select on clin.v_pat_vaccinations to group "gm-doctors";
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_vaccs4indication cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_vaccs4indication cascade;
 
 create view clin.v_pat_vaccs4indication as
 
@@ -390,9 +378,7 @@ comment on view clin.v_pat_vaccs4indication is
 grant select on clin.v_pat_vaccs4indication to group "gm-doctors";
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_last_vacc4indication cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_last_vacc4indication cascade;
 
 create view clin.v_pat_last_vacc4indication as
 
@@ -430,9 +416,7 @@ comment on view clin.v_pat_last_vacc4indication is
 grant select on clin.v_pat_last_vacc4indication to group "gm-doctors";
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_vaccinations_journal cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_vaccinations_journal cascade;
 
 create view clin.v_pat_vaccinations_journal as
 

@@ -31,10 +31,8 @@ to group "gm-public";
 -- .invoice_id
 comment on column bill.bill.invoice_id is 'the ID of the bill';
 
-\unset ON_ERROR_STOP
-alter table bill.bill drop constraint bill_bill_sane_invoice_id;
-alter table bill.bill drop constraint bill_bill_uniq_invoice_id cascade;
-\set ON_ERROR_STOP 1
+alter table bill.bill drop constraint if exists bill_bill_sane_invoice_id;
+alter table bill.bill drop constraint if exists bill_bill_uniq_invoice_id cascade;
 
 alter table bill.bill
 	add constraint bill_bill_sane_invoice_id check (
@@ -72,9 +70,7 @@ alter table bill.bill
 	alter column fk_receiver_identity
 		set default NULL;
 
-\unset ON_ERROR_STOP
-alter table bill.bill drop constraint bill_fk_receiver_identity_fkey cascade;
-\set ON_ERROR_STOP 1
+alter table bill.bill drop constraint if exists bill_fk_receiver_identity_fkey cascade;
 
 alter table bill.bill
 	add foreign key (fk_receiver_identity)
@@ -86,9 +82,7 @@ alter table bill.bill
 -- .fk_receiver_address
 comment on column bill.bill.fk_receiver_address is 'links the address of the receiver of the invoice';
 
-\unset ON_ERROR_STOP
-alter table bill.bill drop constraint bill_fk_receiver_address_fkey cascade;
-\set ON_ERROR_STOP 1
+alter table bill.bill drop constraint if exists bill_fk_receiver_address_fkey cascade;
 
 alter table bill.bill
 	add foreign key (fk_receiver_address)
@@ -97,9 +91,7 @@ alter table bill.bill
 		on delete restrict;
 
 
-\unset ON_ERROR_STOP
-alter table bill.bill drop constraint bill_bill_sane_recv_adr cascade;
-\set ON_ERROR_STOP 1
+alter table bill.bill drop constraint if exists bill_bill_sane_recv_adr cascade;
 
 alter table bill.bill
 	add constraint bill_bill_sane_recv_adr check (
@@ -112,9 +104,7 @@ alter table bill.bill
 -- .fk_doc
 comment on column bill.bill.fk_doc is 'links to the document which contains the invoice PDF';
 
-\unset ON_ERROR_STOP
-alter table bill.bill drop constraint bill_fk_doc_fkey cascade;
-\set ON_ERROR_STOP 1
+alter table bill.bill drop constraint if exists bill_fk_doc_fkey cascade;
 
 alter table bill.bill
 	add foreign key (fk_doc)
@@ -123,9 +113,7 @@ alter table bill.bill
 		on delete set null;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view bill.v_bills cascade;
-\set ON_ERROR_STOP 1
+drop view if exists bill.v_bills cascade;
 
 create or replace view bill.v_bills as
 
@@ -172,15 +160,11 @@ FROM
 grant select on bill.v_bills to group "gm-doctors";
 
 
-\unset ON_ERROR_STOP
-insert into bill.bill (invoice_id) values ('GNUmed@Enterprise-2012-1');
+insert into bill.bill (invoice_id) values ('GNUmed@Enterprise-2012-1') on conflict (invoice_id) do nothing;
 update bill.bill_item set fk_bill = currval('bill.bill_item_pk_seq') where fk_bill is NULL and description = 'Reiseberatung';
-\set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view bill.v_export4accounting cascade;
-\set ON_ERROR_STOP 1
+drop view if exists bill.v_export4accounting cascade;
 
 create or replace view bill.v_export4accounting as
 
@@ -264,9 +248,7 @@ select i18n.upd_tx('de', 'bill receiver', 'Rechnungsempfänger');
 -- --------------------------------------------------------------
 select setval('dem.address_type_id_seq', (select count(1) from dem.address_type));
 
-\unset ON_ERROR_STOP
-insert into dem.address_type (name) values ('billing');
-\set ON_ERROR_STOP 1
+insert into dem.address_type (name) values ('billing') on conflict (name) do nothing;
 
 select i18n.upd_tx('de', 'billing', 'Rechnungsanschrift');
 select i18n.upd_tx('de', 'invoice', 'Rechnungsbeleg');

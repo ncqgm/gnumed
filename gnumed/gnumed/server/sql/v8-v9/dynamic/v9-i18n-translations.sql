@@ -14,8 +14,6 @@
 --set default_transaction_read_only to off
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-
 -- de_DE
 select i18n.upd_tx('de_DE', 'Albania', 'Albanien');
 select i18n.upd_tx('de_DE', 'Algeria', 'Algerien');
@@ -128,13 +126,5 @@ select i18n.upd_tx('de_DE', 'rabies', 'Tollwut');
 select i18n.upd_tx('de_DE', 'seasonal', 'saisonal');
 select i18n.upd_tx('de_DE', 'administrative encounter', 'Verwaltungsakt');
 
-\set ON_ERROR_STOP 1
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v9-i18n-translations.sql,v $', '$Revision: 1.1 $');
-
--- ==============================================================
--- $Log: v9-i18n-translations.sql,v $
--- Revision 1.1  2008-08-17 12:06:52  ncq
--- - German
---
---

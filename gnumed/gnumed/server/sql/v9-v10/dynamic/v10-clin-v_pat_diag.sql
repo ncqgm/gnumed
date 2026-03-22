@@ -5,18 +5,12 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v10-clin-v_pat_diag.sql,v 1.1 2008-12-01 12:09:41 ncq Exp $
--- $Revision: 1.1 $
-
--- --------------------------------------------------------------
 --set default_transaction_read_only to off;
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
 -- remember to handle dependent objects possibly dropped by CASCADE
-\unset ON_ERROR_STOP
-drop view clin.v_pat_diag cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_diag cascade;
 
 
 create view clin.v_pat_diag as
@@ -53,10 +47,3 @@ comment on view clin.v_pat_diag is
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v10-clin-v_pat_diag.sql,v $', '$Revision: 1.1 $');
-
--- ==============================================================
--- $Log: v10-clin-v_pat_diag.sql,v $
--- Revision 1.1  2008-12-01 12:09:41  ncq
--- - new
---
---

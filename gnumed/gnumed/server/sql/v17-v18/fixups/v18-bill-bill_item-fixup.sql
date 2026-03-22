@@ -10,9 +10,7 @@
 
 set check_function_bodies to on;
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function bill.trf_prevent_empty_bills() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists bill.trf_prevent_empty_bills() cascade;
 
 create or replace function bill.trf_prevent_empty_bills()
 	returns trigger

@@ -5,16 +5,10 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v10-clin-v_pat_episodes_journal.sql,v 1.2 2008-09-02 19:02:24 ncq Exp $
--- $Revision: 1.2 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_episodes_journal cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_episodes_journal cascade;
 
 
 create view clin.v_pat_episodes_journal as
@@ -57,13 +51,3 @@ from
 grant select on clin.v_pat_episodes_journal TO GROUP "gm-doctors";
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v10-clin-v_pat_episodes_journal.sql,v $', '$Revision: 1.2 $');
-
--- ==============================================================
--- $Log: v10-clin-v_pat_episodes_journal.sql,v $
--- Revision 1.2  2008-09-02 19:02:24  ncq
--- - make journal entry soap cat NULL for issue/episode
---
--- Revision 1.1  2008/09/02 15:41:20  ncq
--- - new
---
---

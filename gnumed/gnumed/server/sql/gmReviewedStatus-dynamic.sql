@@ -33,9 +33,7 @@ comment on column clin.review_root.clinically_relevant is
 -- rules !
 
 -- =============================================
-\unset ON_ERROR_STOP
-drop view clin.v_reviewed_items cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_reviewed_items cascade;
 
 create view clin.v_reviewed_items as
 select
@@ -68,36 +66,3 @@ to group "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 select log_script_insertion('$RCSfile: gmReviewedStatus-dynamic.sql,v $', '$Revision: 1.6 $');
-
--- =============================================
--- $Log: gmReviewedStatus-dynamic.sql,v $
--- Revision 1.6  2006-02-02 16:46:12  ncq
--- - remove signature/key_id/key_context again as discussion
---   proved it to not be necessary (changes should be audited
---   and audits should be timestamped and signed)
---
--- Revision 1.5  2006/01/27 22:27:06  ncq
--- - make review_root.fk_reviewer reference dem.staff(pk)
--- - add signature/key_id/key_context and comments
--- - factor out child tables into their schemata
--- - add source table namespace (schema) to v_reviewed_items
---
--- Revision 1.4  2006/01/23 22:10:57  ncq
--- - staff.sign -> .short_alias
---
--- Revision 1.3  2006/01/06 10:12:02  ncq
--- - add missing grants
--- - add_table_for_audit() now in "audit" schema
--- - demographics now in "dem" schema
--- - add view v_inds4vaccine
--- - move staff_role from clinical into demographics
--- - put add_coded_term() into "clin" schema
--- - put German things into "de_de" schema
---
--- Revision 1.2  2005/11/25 15:07:28  ncq
--- - create schema "clin" and move all things clinical into it
---
--- Revision 1.1  2005/10/26 21:31:07  ncq
--- - review status tracking
---
---

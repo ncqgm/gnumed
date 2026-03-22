@@ -32,9 +32,7 @@ comment on column clin.test_panel.description is
 	'A description/label for this panel.';
 
 
-\unset ON_ERROR_STOP
-alter table clin.test_panel drop constraint clin_test_panel_sane_desc cascade;
-\set ON_ERROR_STOP 1
+alter table clin.test_panel drop constraint if exists clin_test_panel_sane_desc cascade;
 
 alter table clin.test_panel
 	add constraint clin_test_panel_sane_desc check (
@@ -47,9 +45,7 @@ comment on column clin.test_panel.comment is
 	'An arbitrary comment on this panel.';
 
 
-\unset ON_ERROR_STOP
-alter table clin.test_panel drop constraint clin_test_panel_sane_cmt cascade;
-\set ON_ERROR_STOP 1
+alter table clin.test_panel drop constraint if exists clin_test_panel_sane_cmt cascade;
 
 alter table clin.test_panel
 	add constraint clin_test_panel_sane_cmt check (
@@ -62,9 +58,7 @@ comment on column clin.test_panel.fk_test_types is
 	'Links to test types which belong to this panel.';
 
 
-\unset ON_ERROR_STOP
-drop function clin.trf_ins_upd_validate_test_type_pks() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.trf_ins_upd_validate_test_type_pks() cascade;
 
 create or replace function clin.trf_ins_upd_validate_test_type_pks()
 	returns trigger
@@ -130,9 +124,7 @@ insert into clin.test_panel (
 
 -- --------------------------------------------------------------
 -- view
-\unset ON_ERROR_STOP
-drop view clin.v_test_panels cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_test_panels cascade;
 
 
 create view clin.v_test_panels as

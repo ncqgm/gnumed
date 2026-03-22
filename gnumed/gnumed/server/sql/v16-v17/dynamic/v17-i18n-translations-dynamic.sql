@@ -9,9 +9,7 @@
 set check_function_bodies to on;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-alter table i18n.translations drop constraint i18n_translations_sane_trans;
-\set ON_ERROR_STOP 1
+alter table i18n.translations drop constraint if exists i18n_translations_sane_trans;
 
 delete from i18n.translations where orig = trans;
 

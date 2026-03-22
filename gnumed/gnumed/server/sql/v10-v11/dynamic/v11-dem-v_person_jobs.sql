@@ -5,16 +5,10 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v11-dem-v_person_jobs.sql,v 1.1 2009-07-23 16:29:37 ncq Exp $
--- $Revision: 1.1 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view dem.v_person_jobs cascade;
-\set ON_ERROR_STOP 1
+drop view if exists dem.v_person_jobs cascade;
 
 
 create or replace view dem.v_person_jobs as
@@ -48,10 +42,3 @@ grant select on dem.v_person_jobs to group "gm-doctors";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v11-dem-v_person_jobs.sql,v $', '$Revision: 1.1 $');
-
--- ==============================================================
--- $Log: v11-dem-v_person_jobs.sql,v $
--- Revision 1.1  2009-07-23 16:29:37  ncq
--- - was dropped
---
---

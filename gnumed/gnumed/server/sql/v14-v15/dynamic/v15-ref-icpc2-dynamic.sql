@@ -20,9 +20,7 @@ to group "gm-doctors";
 
 
 -- .chapter
-\unset ON_ERROR_STOP
-alter table ref.icpc_chapter drop constraint ref_icpc_unique_chapter cascade;
-\set ON_ERROR_STOP 1
+alter table ref.icpc_chapter drop constraint if exists ref_icpc_unique_chapter cascade;
 
 alter table ref.icpc_chapter
 	add constraint ref_icpc_unique_chapter
@@ -35,10 +33,8 @@ alter table ref.icpc_chapter
 
 
 -- .description
-\unset ON_ERROR_STOP
-alter table ref.icpc_chapter drop constraint ref_icpc_chapter_unique_desc cascade;
-alter table ref.icpc_chapter drop constraint ref_icpc_chapter_sane_desc cascade;
-\set ON_ERROR_STOP 1
+alter table ref.icpc_chapter drop constraint if exists ref_icpc_chapter_unique_desc cascade;
+alter table ref.icpc_chapter drop constraint if exists ref_icpc_chapter_sane_desc cascade;
 
 alter table ref.icpc_chapter
 	add constraint ref_icpc_chapter_unique_desc
@@ -85,9 +81,7 @@ to group "gm-doctors";
 
 
 -- .component
-\unset ON_ERROR_STOP
-alter table ref.icpc_component drop constraint ref_icpc_unique_component cascade;
-\set ON_ERROR_STOP 1
+alter table ref.icpc_component drop constraint if exists ref_icpc_unique_component cascade;
 
 alter table ref.icpc_component
 	add constraint ref_icpc_unique_component
@@ -100,10 +94,8 @@ alter table ref.icpc_component
 
 
 -- .description
-\unset ON_ERROR_STOP
-alter table ref.icpc_component drop constraint ref_icpc_component_unique_desc cascade;
-alter table ref.icpc_component drop constraint ref_icpc_component_sane_desc cascade;
-\set ON_ERROR_STOP 1
+alter table ref.icpc_component drop constraint if exists ref_icpc_component_unique_desc cascade;
+alter table ref.icpc_component drop constraint if exists ref_icpc_component_sane_desc cascade;
 
 alter table ref.icpc_component
 	add constraint ref_icpc_component_unique_desc
@@ -120,9 +112,7 @@ alter table ref.icpc_component
 comment on column ref.icpc_component.typical_soap_cat is
 	'An array of SOAP categories which codes from this component are typically used for.';
 
---\unset ON_ERROR_STOP
---alter table ref.icpc_component drop constraint ref_icpc_component_soap_cat_range cascade;
---\set ON_ERROR_STOP 1
+--alter table ref.icpc_component drop constraint if exists ref_icpc_component_soap_cat_range cascade;
 
 --alter table ref.icpc_component
 --	add constraint ref_icpc_component_soap_cat_range check (
@@ -157,13 +147,11 @@ to group "gm-doctors";
 
 
 -- indexe
-\unset ON_ERROR_STOP
-drop index idx_ref_icpc_code cascade;
-drop index idx_ref_icpc_term cascade;
-drop index idx_ref_icpc_chapter cascade;
-drop index idx_ref_icpc_component cascade;
-drop index idx_ref_icpc_pk_coding_system cascade;
-\set ON_ERROR_STOP 1
+drop index if exists idx_ref_icpc_code cascade;
+drop index if exists idx_ref_icpc_term cascade;
+drop index if exists idx_ref_icpc_chapter cascade;
+drop index if exists idx_ref_icpc_component cascade;
+drop index if exists idx_ref_icpc_pk_coding_system cascade;
 
 create index idx_ref_icpc_code on ref.icpc(code);
 create index idx_ref_icpc_term on ref.icpc(term);
@@ -174,9 +162,7 @@ create unique index idx_ref_icpc_pk_coding_system on ref.icpc(pk_coding_system);
 
 
 -- .term
-\unset ON_ERROR_STOP
-alter table ref.icpc drop constraint ref_icpc_sane_term cascade;
-\set ON_ERROR_STOP 1
+alter table ref.icpc drop constraint if exists ref_icpc_sane_term cascade;
 
 alter table ref.icpc
 	add constraint ref_icpc_sane_term check (
@@ -189,9 +175,7 @@ alter table ref.icpc
 comment on column ref.icpc.short_description is 
 	'A shorter term for this item';
 
---\unset ON_ERROR_STOP
---alter table ref.icpc drop constraint ref_icpc_sane_short_desc cascade;
---\set ON_ERROR_STOP 1
+--alter table ref.icpc drop constraint if exists ref_icpc_sane_short_desc cascade;
 
 --alter table ref.icpc
 --	add constraint ref_icpc_sane_short_desc check (
@@ -204,10 +188,8 @@ comment on column ref.icpc.short_description is
 comment on column ref.icpc.code_extension is 
 	'An extension to the bare code as defined in, say, the Netherlands or Australia.';
 
-\unset ON_ERROR_STOP
-alter table ref.icpc drop constraint ref_icpc_sane_code_ext cascade;
-alter table ref.icpc drop constraint ref_icpc_unique_code_ext cascade;
-\set ON_ERROR_STOP 1
+alter table ref.icpc drop constraint if exists ref_icpc_sane_code_ext cascade;
+alter table ref.icpc drop constraint if exists ref_icpc_unique_code_ext cascade;
 
 alter table ref.icpc
 	add constraint ref_icpc_sane_code_ext check (
@@ -228,9 +210,7 @@ alter table ref.icpc
 comment on column ref.icpc.criteria is 
 	'Criteria to guide in selection of the appropriate code.';
 
-\unset ON_ERROR_STOP
-alter table ref.icpc drop constraint ref_icpc_sane_criteria cascade;
-\set ON_ERROR_STOP 1
+alter table ref.icpc drop constraint if exists ref_icpc_sane_criteria cascade;
 
 alter table ref.icpc
 	add constraint ref_icpc_sane_criteria check (
@@ -247,9 +227,7 @@ alter table ref.icpc
 comment on column ref.icpc.inclusions is 
 	'Items included under this code.';
 
-\unset ON_ERROR_STOP
-alter table ref.icpc drop constraint ref_icpc_sane_inclusions cascade;
-\set ON_ERROR_STOP 1
+alter table ref.icpc drop constraint if exists ref_icpc_sane_inclusions cascade;
 
 alter table ref.icpc
 	add constraint ref_icpc_sane_inclusions check (
@@ -266,9 +244,7 @@ alter table ref.icpc
 comment on column ref.icpc.exclusions is 
 	'Items NOT included under this code because there is another code for them.';
 
-\unset ON_ERROR_STOP
-alter table ref.icpc drop constraint ref_icpc_sane_exclusions cascade;
-\set ON_ERROR_STOP 1
+alter table ref.icpc drop constraint if exists ref_icpc_sane_exclusions cascade;
 
 alter table ref.icpc
 	add constraint ref_icpc_sane_exclusions check (
@@ -287,9 +263,7 @@ alter table ref.icpc
 comment on column ref.icpc.see_also is 
 	'See also under these items.';
 
-\unset ON_ERROR_STOP
-alter table ref.icpc drop constraint ref_icpc_sane_see_also cascade;
-\set ON_ERROR_STOP 1
+alter table ref.icpc drop constraint if exists ref_icpc_sane_see_also cascade;
 
 alter table ref.icpc
 	add constraint ref_icpc_sane_see_also check (
@@ -308,9 +282,7 @@ alter table ref.icpc
 comment on column ref.icpc.icd10 is
 	'Array of corresponding ICD-10 codes.';
 
-\unset ON_ERROR_STOP
-alter table ref.icpc drop constraint ref_icpc_sane_icd10 cascade;
-\set ON_ERROR_STOP 1
+alter table ref.icpc drop constraint if exists ref_icpc_sane_icd10 cascade;
 
 alter table ref.icpc
 	add constraint ref_icpc_sane_icd10 check (
@@ -352,9 +324,7 @@ alter table ref.icpc
 		set not null;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view ref.v_icpc cascade;
-\set ON_ERROR_STOP 1
+drop view if exists ref.v_icpc cascade;
 
 
 create or replace view ref.v_icpc as
@@ -435,9 +405,7 @@ alter table ref.code_thesaurus_root
 
 
 -- .synonym
-\unset ON_ERROR_STOP
-alter table ref.code_thesaurus_root drop constraint ref_code_thes_root_sane_synonym cascade;
-\set ON_ERROR_STOP 1
+alter table ref.code_thesaurus_root drop constraint if exists ref_code_thes_root_sane_synonym cascade;
 
 alter table ref.code_thesaurus_root
 	add constraint ref_code_thes_root_sane_synonym check (
@@ -470,9 +438,7 @@ alter table ref.icpc_thesaurus
 
 
 -- .term
-\unset ON_ERROR_STOP
-alter table ref.icpc_thesaurus drop constraint ref_icpc_thes_sane_synonym cascade;
-\set ON_ERROR_STOP 1
+alter table ref.icpc_thesaurus drop constraint if exists ref_icpc_thes_sane_synonym cascade;
 
 alter table ref.icpc_thesaurus
 	add constraint ref_icpc_thes_sane_synonym check (
@@ -480,9 +446,7 @@ alter table ref.icpc_thesaurus
 	);
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view ref.v_icpc_thesaurus cascade;
-\set ON_ERROR_STOP 1
+drop view if exists ref.v_icpc_thesaurus cascade;
 
 
 create or replace view ref.v_icpc_thesaurus as

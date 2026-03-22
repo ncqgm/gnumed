@@ -25,9 +25,7 @@ comment on table ref.substance_in_brand is
 comment on column ref.substance_in_brand.fk_brand is
 	'The drug brand this substance belongs to.';
 
-\unset ON_ERROR_STOP
-drop index ref.idx_subst_fk_brand cascade;
-\set ON_ERROR_STOP 1
+drop index if exists ref.idx_subst_fk_brand cascade;
 
 create index idx_subst_fk_brand on ref.substance_in_brand(fk_brand);
 
@@ -36,10 +34,8 @@ create index idx_subst_fk_brand on ref.substance_in_brand(fk_brand);
 comment on column ref.substance_in_brand.description is
 	'The substance name.';
 
-\unset ON_ERROR_STOP
-alter table ref.substance_in_brand drop constraint subst_sane_desc cascade;
-drop index ref.idx_subst_description cascade;
-\set ON_ERROR_STOP 1
+alter table ref.substance_in_brand drop constraint if exists subst_sane_desc cascade;
+drop index if exists ref.idx_subst_description cascade;
 
 alter table ref.substance_in_brand
 	add constraint subst_sane_desc
@@ -52,9 +48,7 @@ create index idx_subst_description on ref.substance_in_brand(description);
 comment on column ref.substance_in_brand.atc_code is
 	'the Anatomic Therapeutic Chemical code for this substance';
 
-\unset ON_ERROR_STOP
-alter table ref.substance_in_brand drop constraint subst_sane_atc cascade;
-\set ON_ERROR_STOP 1
+alter table ref.substance_in_brand drop constraint if exists subst_sane_atc cascade;
 
 alter table ref.substance_in_brand
 	add constraint subst_sane_atc
@@ -74,9 +68,7 @@ grant select, insert, update, delete on
 to group "gm-doctors";
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view ref.v_substance_in_brand cascade;
-\set ON_ERROR_STOP 1
+drop view if exists ref.v_substance_in_brand cascade;
 
 create view ref.v_substance_in_brand as
 
@@ -114,13 +106,3 @@ to group "gm-doctors";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v12-ref-substance_in_brand-dynamic.sql,v $', '$Revision: 1.2 $');
-
--- ==============================================================
--- $Log: v12-ref-substance_in_brand-dynamic.sql,v $
--- Revision 1.2  2009-11-28 18:33:39  ncq
--- - ref.v_substance_in_brand
---
--- Revision 1.1  2009/11/24 21:11:39  ncq
--- - new drug tables
---
---

@@ -15,9 +15,7 @@
 set check_function_bodies to "on";
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function blobs.delete_document(integer, integer) cascade;
-\set ON_ERROR_STOP 1
+drop function if exists blobs.delete_document(integer, integer) cascade;
 
 create or replace function blobs.delete_document(integer, integer)
 	returns boolean
@@ -69,13 +67,3 @@ revoke delete on blobs.doc_med from "gm-doctors";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v10-blobs-delete_document.sql,v $', '$Revision: 1.1 $');
-
--- ==============================================================
--- $Log: v10-blobs-delete_document.sql,v $
--- Revision 1.1  2009-04-21 12:49:51  ncq
--- - new
---
--- Revision 1.1.2.1  2009/04/21 12:40:45  ncq
--- - .date became .clin_when
---
---

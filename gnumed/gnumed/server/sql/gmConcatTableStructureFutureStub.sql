@@ -14,9 +14,7 @@
 \set ON_ERROR_STOP 1
 
 -- ---------------------------------------------
-\unset ON_ERROR_STOP
-drop schema gm cascade;
-\set ON_ERROR_STOP 1
+drop schema if exists gm cascade;
 
 create schema gm authorization "gm-dbo";
 grant usage on schema gm to group "gm-doctors";

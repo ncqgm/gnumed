@@ -35,9 +35,7 @@ comment on column clin.lnk_code2item_root.fk_item is
 'Foreign key to clin.* tables';
 
 -- apply this to child tables:
---\unset ON_ERROR_STOP
---alter table clin.lnk_code2xxx drop constraint clin_lc2xxx_code_uniq_per_item cascade;
---\set ON_ERROR_STOP 1
+--alter table clin.lnk_code2xxx drop constraint if exists clin_lc2xxx_code_uniq_per_item cascade;
 --
 --alter table clin.lnk_code2xxx
 --	add constraint clin_lc2xxx_code_uniq_per_item
@@ -56,9 +54,7 @@ comment on column clin.lnk_code2item_root.fk_generic_code is
 
 
 -- INSERT
-\unset ON_ERROR_STOP
-drop function clin.trf_ins_lc2sth_fk_generic_code() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.trf_ins_lc2sth_fk_generic_code() cascade;
 
 create or replace function clin.trf_ins_lc2sth_fk_generic_code()
 	returns trigger
@@ -93,9 +89,7 @@ comment on function clin.trf_ins_lc2sth_fk_generic_code() is
 
 
 -- UPDATE
-\unset ON_ERROR_STOP
-drop function clin.trf_upd_lc2sth_fk_generic_code() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.trf_upd_lc2sth_fk_generic_code() cascade;
 
 create or replace function clin.trf_upd_lc2sth_fk_generic_code()
 	returns trigger

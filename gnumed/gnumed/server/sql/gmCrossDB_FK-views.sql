@@ -56,9 +56,7 @@ comment on function add_x_db_fk_def (name, name, text, name, name) is
 -- ===================================================================
 -- detected violations
 -- -------------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view v_x_db_fk_violation;
-\set ON_ERROR_STOP 1
+drop view if exists v_x_db_fk_violation;
 
 create view v_x_db_fk_violation as
 	select

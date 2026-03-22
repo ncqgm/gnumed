@@ -16,17 +16,15 @@
 
 -- --------------------------------------------------------------
 -- drop foreign keys
-\unset ON_ERROR_STOP
 alter table dem.lnk_job2person
-	drop constraint "$1";
+	drop constraint if exists "$1";
 alter table dem.lnk_job2person
-	drop constraint "lnk_job2person_id_identity_fkey";
+	drop constraint if exists "lnk_job2person_id_identity_fkey";
 
 alter table dem.lnk_job2person
-	drop constraint "$2";
+	drop constraint if exists "$2";
 alter table dem.lnk_job2person
-	drop constraint "lnk_job2person_id_occupation_fkey";
-\set ON_ERROR_STOP 1
+	drop constraint if exists "lnk_job2person_id_occupation_fkey";
 
 -- rename columns
 alter table dem.lnk_job2person

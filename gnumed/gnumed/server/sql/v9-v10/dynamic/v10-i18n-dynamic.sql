@@ -18,9 +18,7 @@ comment on column i18n.curr_lang.db_user is
 'The database account this language setting applies to.';
 
 
-\unset ON_ERROR_STOP
-drop function gm.user_exists(name) cascade;
-\set ON_ERROR_STOP 1
+drop function if exists gm.user_exists(name) cascade;
 
 
 create or replace function gm.user_exists(name)
@@ -49,9 +47,7 @@ alter table i18n.curr_lang
 		check (gm.user_exists(db_user) is true);
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function i18n.unset_curr_lang(name) cascade;
-\set ON_ERROR_STOP 1
+drop function if exists i18n.unset_curr_lang(name) cascade;
 
 create or replace function i18n.unset_curr_lang(name)
 	returns void
@@ -66,9 +62,7 @@ END;';
 comment on function i18n.unset_curr_lang(name) is 'unset the db language for a user (thereby reverting to the default English)';
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function i18n.unset_curr_lang() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists i18n.unset_curr_lang() cascade;
 
 create or replace function i18n.unset_curr_lang()
 	returns void
@@ -78,9 +72,7 @@ create or replace function i18n.unset_curr_lang()
 comment on function i18n.unset_curr_lang() is 'unset the db language for the current user';
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function i18n.set_curr_lang(text, name) cascade;
-\set ON_ERROR_STOP 1
+drop function if exists i18n.set_curr_lang(text, name) cascade;
 
 create or replace function i18n.set_curr_lang(text, name)
 	returns boolean
@@ -110,9 +102,7 @@ comment on function i18n.set_curr_lang(text, name) is
 	 the second argument if translations are available';
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function i18n.set_curr_lang(text) cascade;
-\set ON_ERROR_STOP 1
+drop function if exists i18n.set_curr_lang(text) cascade;
 
 create function i18n.set_curr_lang(text)
 	returns boolean
@@ -186,23 +176,3 @@ comment on function i18n._(text) is
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v10-i18n-dynamic.sql,v $', '$Revision: 1.5 $');
-
--- ==============================================================
--- $Log: v10-i18n-dynamic.sql,v $
--- Revision 1.5  2008-12-25 23:34:30  ncq
--- - fix comment
---
--- Revision 1.4  2008/12/25 16:59:33  ncq
--- - user exists check in curr_lang
--- - unset_curr_lang
---
--- Revision 1.3  2008/10/26 01:24:21  ncq
--- - adjust for "user" -> db_user
---
--- Revision 1.2  2008/10/25 20:50:32  ncq
--- - forward port "user" fixes for v9 -> v10, too, since someone might upgrade an unpatched v9
---
--- Revision 1.1  2008/10/12 14:58:07  ncq
--- - new
---
---

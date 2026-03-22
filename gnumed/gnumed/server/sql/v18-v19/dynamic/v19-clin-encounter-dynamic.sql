@@ -16,9 +16,7 @@ where
 ;
 
 
-\unset ON_ERROR_STOP
-alter table clin.encounter drop constraint "encounter_fk_location_fkey";
-\set ON_ERROR_STOP 1
+alter table clin.encounter drop constraint if exists "encounter_fk_location_fkey";
 
 alter table clin.encounter add foreign key (fk_location)
 	references dem.org_unit(pk)
@@ -27,9 +25,7 @@ alter table clin.encounter add foreign key (fk_location)
 ;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_encounters cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_encounters cascade;
 
 
 create view clin.v_pat_encounters as
@@ -103,9 +99,7 @@ comment on view clin.v_pat_encounters is
 grant select on clin.v_pat_encounters TO GROUP "gm-doctors";
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_encounters_journal cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_encounters_journal cascade;
 
 
 create view clin.v_pat_encounters_journal as

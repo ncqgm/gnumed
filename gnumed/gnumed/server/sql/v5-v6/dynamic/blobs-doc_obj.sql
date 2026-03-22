@@ -16,9 +16,7 @@
 
 -- --------------------------------------------------------------
 -- seq_idx
-\unset ON_ERROR_STOP
-drop function blobs.trf_verify_page_number() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists blobs.trf_verify_page_number() cascade;
 
 
 create function blobs.trf_verify_page_number()
@@ -54,22 +52,10 @@ update blobs.doc_obj
 		filename is not NULL and
 		trim(filename) = '';
 
-\unset ON_ERROR_STOP
-alter table blobs.doc_obj drop constraint "doc_obj_filename_check";
-\set ON_ERROR_STOP 1
+alter table blobs.doc_obj drop constraint if exists "doc_obj_filename_check";
 
 alter table blobs.doc_obj
 	add check (trim(coalesce(filename, 'NULL')) <> '');
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: blobs-doc_obj.sql,v $', '$Revision: 1.2 $');
-
--- ==============================================================
--- $Log: blobs-doc_obj.sql,v $
--- Revision 1.2  2007-05-07 16:33:06  ncq
--- - log_script_insertion() now in gm.
---
--- Revision 1.1  2007/04/21 19:36:55  ncq
--- - tighten constraints
---
---

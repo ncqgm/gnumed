@@ -13,9 +13,7 @@ reset client_encoding;
 -- =====================================================================================
 -- amis_praeparate : table of preparations
 -- =====================================================================================
-\unset ON_ERROR_STOP
-drop table amis_praeparate;
-\set ON_ERROR_STOP 1
+drop table if exists amis_praeparate;
 
 create table amis_praeparate (
 	connection_id int8 primary key,
@@ -43,9 +41,7 @@ create table amis_praeparate (
 -- =====================================================================================
 -- amis_praeparate : table of preparations (combinations of more than one drug /package)
 -- =====================================================================================
-\unset ON_ERROR_STOP
-drop table amis_praeparate_combination;
-\set ON_ERROR_STOP 1
+drop table if exists amis_praeparate_combination;
 
 create table amis_praeparate_combination (
 	connection_id int8 primary key,
@@ -74,9 +70,7 @@ create table amis_praeparate_combination (
 -- =====================================================================================
 -- amis_substances : table of substances
 -- =====================================================================================
-\unset ON_ERROR_STOP
-drop table amis_substances;
-\set ON_ERROR_STOP 1
+drop table if exists amis_substances;
 
 create table amis_substances (
 	connection_id int8,
@@ -91,9 +85,7 @@ create table amis_substances (
 -- =====================================================================================
 -- amis_substances_extended : extended info of substances
 -- =====================================================================================
-\unset ON_ERROR_STOP
-drop table amis_substances_extended;
-\set ON_ERROR_STOP 1
+drop table if exists amis_substances_extended;
 
 create table amis_substances_extended (
 	connection_id int8,
@@ -109,9 +101,7 @@ create table amis_substances_extended (
 -- =====================================================================================
 -- amis_substances_names : names of substances
 -- =====================================================================================
-\unset ON_ERROR_STOP
-drop table amis_substances_names;
-\set ON_ERROR_STOP 1
+drop table if exists amis_substances_names;
 
 create table amis_substances_names (
 	substance_id int,
@@ -124,9 +114,7 @@ create table amis_substances_names (
 -- =====================================================================================
 -- amis_indications 
 -- =====================================================================================
-\unset ON_ERROR_STOP
-drop table amis_indications;
-\set ON_ERROR_STOP 1
+drop table if exists amis_indications;
 
 create table amis_indications (
 	indication_key char(5),
@@ -136,9 +124,7 @@ create table amis_indications (
 -- =====================================================================================
 -- amis_warnings 
 -- =====================================================================================
-\unset ON_ERROR_STOP
-drop table amis_warnings;
-\set ON_ERROR_STOP 1
+drop table if exists amis_warnings;
 
 create table amis_warnings (
 	connection_id int8,
@@ -148,9 +134,7 @@ create table amis_warnings (
 -- =====================================================================================
 -- amis_warning_text 
 -- =====================================================================================
-\unset ON_ERROR_STOP
-drop table amis_warning_text;
-\set ON_ERROR_STOP 1
+drop table if exists amis_warning_text;
 
 create table amis_warning_text (
 	warning_id char(3),
@@ -160,9 +144,7 @@ create table amis_warning_text (
 -- =====================================================================================
 -- amis_manufacturer
 -- =====================================================================================
-\unset ON_ERROR_STOP
-drop table amis_manufacturer;
-\set ON_ERROR_STOP 1
+drop table if exists amis_manufacturer;
 
 create table amis_manufacturer (
 	manufacturer_key int,
@@ -181,9 +163,7 @@ create table amis_manufacturer (
 -- =====================================================================================
 -- amis_manuf_emergency_call
 -- =====================================================================================
-\unset ON_ERROR_STOP
-drop table amis_manuf_emergency_call;
-\set ON_ERROR_STOP 1
+drop table if exists amis_manuf_emergency_call;
 
 create table amis_manuf_emergency_call (
 	manufacturer_key int,
@@ -195,9 +175,7 @@ create table amis_manuf_emergency_call (
 -- ===============================================
 -- do the same thing with the ATC codes
 -- ===============================================
-\unset ON_ERROR_STOP
-drop table amis_atc;
-\set ON_ERROR_STOP 1
+drop table if exists amis_atc;
 
 create table amis_atc (
 	code char(7) primary key,
@@ -207,9 +185,7 @@ create table amis_atc (
 -- ===============================================
 -- amis drug descriptions
 -- ===============================================
-\unset ON_ERROR_STOP
-drop table amis_drug_description;
-\set ON_ERROR_STOP 1
+drop table if exists amis_drug_description;
 
 create table amis_drug_description (
 	text_key int8,
@@ -220,9 +196,7 @@ create table amis_drug_description (
 -- ===============================================
 -- amis substance descriptions
 -- ===============================================
-\unset ON_ERROR_STOP
-drop table amis_substance_description;
-\set ON_ERROR_STOP 1
+drop table if exists amis_substance_description;
 
 create table amis_substance_description (
     text_key int,
@@ -233,9 +207,7 @@ create table amis_substance_description (
 -- ===============================================
 -- amis prices
 -- ===============================================
-\unset ON_ERROR_STOP
-drop table amis_price;
-\set ON_ERROR_STOP 1
+drop table if exists amis_price;
 
 create table amis_price (
 	central_pharma_number int,
@@ -263,9 +235,7 @@ create table amis_price (
 -- =====================================================================================
 -- amis_price_manufacturer
 -- =====================================================================================
-\unset ON_ERROR_STOP
-drop table amis_price_manufacturer;
-\set ON_ERROR_STOP 1
+drop table if exists amis_price_manufacturer;
 
 create table amis_price_manufacturer (
 	code int primary key,
@@ -284,9 +254,7 @@ create table amis_price_manufacturer (
 -- =====================================================================================
 -- amis_presentation
 -- =====================================================================================
-\unset ON_ERROR_STOP
-drop table amis_presentation;
-\set ON_ERROR_STOP 1
+drop table if exists amis_presentation;
 
 create table amis_presentation (
 	name_short char(3),
@@ -300,9 +268,7 @@ create table amis_presentation (
 -- =====================================================================================
 -- amis_interaction_groups
 -- =====================================================================================
-\unset ON_ERROR_STOP
-drop table amis_interaction_groups;
-\set ON_ERROR_STOP 1
+drop table if exists amis_interaction_groups;
 
 create table amis_interaction_groups (
 	code int primary key,
@@ -315,9 +281,7 @@ create table amis_interaction_groups (
 -- =====================================================================================
 -- amis_documented_interaction
 -- =====================================================================================
-\unset ON_ERROR_STOP
-drop table amis_documented_interaction;
-\set ON_ERROR_STOP 1
+drop table if exists amis_documented_interaction;
 
 create table amis_documented_interaction (
 	code int,
@@ -329,9 +293,7 @@ create table amis_documented_interaction (
 -- =====================================================================================
 -- amis_expected_interaction
 -- =====================================================================================
-\unset ON_ERROR_STOP
-drop table amis_expected_interaction;
-\set ON_ERROR_STOP 1
+drop table if exists amis_expected_interaction;
 
 create table amis_expected_interaction (
 	code int,
@@ -343,9 +305,7 @@ create table amis_expected_interaction (
 -- =====================================================================================
 -- amis_undecided_interaction
 -- =====================================================================================
-\unset ON_ERROR_STOP
-drop table amis_undecided_interaction;
-\set ON_ERROR_STOP 1
+drop table if exists amis_undecided_interaction;
 
 create table amis_undecided_interaction (
 	code int,
@@ -357,9 +317,7 @@ create table amis_undecided_interaction (
 -- =====================================================================================
 -- amis_unlikely_interaction
 -- =====================================================================================
-\unset ON_ERROR_STOP
-drop table amis_unlikely_interaction;
-\set ON_ERROR_STOP 1
+drop table if exists amis_unlikely_interaction;
 
 create table amis_unlikely_interaction (
 	code int,
@@ -371,9 +329,7 @@ create table amis_unlikely_interaction (
 -- =====================================================================================
 -- amis_interaction_type
 -- =====================================================================================
-\unset ON_ERROR_STOP
-drop table amis_interaction_type;
-\set ON_ERROR_STOP 1
+drop table if exists amis_interaction_type;
 
 create table amis_interaction_type (
 	code int,
@@ -385,9 +341,7 @@ create table amis_interaction_type (
 -- =====================================================================================
 -- amis_interaction_text
 -- =====================================================================================
-\unset ON_ERROR_STOP
-drop table amis_interaction_text;
-\set ON_ERROR_STOP 1
+drop table if exists amis_interaction_text;
 
 create table amis_interaction_text (
 	code int,

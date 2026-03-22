@@ -9,10 +9,8 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view dem.v_orgs cascade;
-drop view dem.v_org_units cascade;
-\set ON_ERROR_STOP 1
+drop view if exists dem.v_orgs cascade;
+drop view if exists dem.v_org_units cascade;
 
 
 

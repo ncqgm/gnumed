@@ -95,12 +95,10 @@ alter table clin.procedure drop column if exists clin_where cascade;
 -- --------------------------------------------------------------
 -- rewrite views + grants
 
-\unset ON_ERROR_STOP
-drop view clin.v_pat_procedures cascade;
-drop view clin.v_procedures cascade;
-drop view clin.v_procedures_at_hospital cascade;
-drop view clin.v_procedures_not_at_hospital cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_procedures cascade;
+drop view if exists clin.v_procedures cascade;
+drop view if exists clin.v_procedures_at_hospital cascade;
+drop view if exists clin.v_procedures_not_at_hospital cascade;
 
 create view clin.v_procedures_at_hospital as
 

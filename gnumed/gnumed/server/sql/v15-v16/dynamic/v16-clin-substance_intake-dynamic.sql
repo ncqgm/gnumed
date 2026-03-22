@@ -10,9 +10,7 @@ set check_function_bodies to 'on';
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop index idx_c_subst_int_fk_drug_comp cascade;
-\set ON_ERROR_STOP 1
+drop index if exists idx_c_subst_int_fk_drug_comp cascade;
 
 create index idx_c_subst_int_fk_drug_comp on clin.substance_intake(fk_drug_component);
 
@@ -21,10 +19,8 @@ create index idx_c_subst_int_fk_drug_comp on clin.substance_intake(fk_drug_compo
 -- --------------------------------------------------------------
 
 -- INSERT
-\unset ON_ERROR_STOP
-drop function ref.trf_insert_intake_prevent_duplicate_component_links() cascade;
-drop function clin.trf_insert_intake_prevent_duplicate_component_links() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists ref.trf_insert_intake_prevent_duplicate_component_links() cascade;
+drop function if exists clin.trf_insert_intake_prevent_duplicate_component_links() cascade;
 
 create or replace function clin.trf_insert_intake_prevent_duplicate_component_links()
 	returns trigger
@@ -75,10 +71,8 @@ create trigger tr_insert_intake_prevent_duplicate_component_links
 		for each row execute procedure clin.trf_insert_intake_prevent_duplicate_component_links();
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function ref.trf_insert_intake_links_all_drug_components() cascade;
-drop function clin.trf_insert_intake_links_all_drug_components() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists ref.trf_insert_intake_links_all_drug_components() cascade;
+drop function if exists clin.trf_insert_intake_links_all_drug_components() cascade;
 
 create or replace function clin.trf_insert_intake_links_all_drug_components()
 	returns trigger
@@ -186,10 +180,8 @@ create trigger tr_insert_intake_links_all_drug_components
 
 -- --------------------------------------------------------------
 -- UPDATE
-\unset ON_ERROR_STOP
-drop function ref.trf_update_intake_must_link_all_drug_components() cascade;
-drop function clin.trf_update_intake_must_link_all_drug_components() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists ref.trf_update_intake_must_link_all_drug_components() cascade;
+drop function if exists clin.trf_update_intake_must_link_all_drug_components() cascade;
 
 create or replace function clin.trf_update_intake_must_link_all_drug_components()
 	returns trigger
@@ -293,10 +285,8 @@ create constraint trigger tr_update_intake_must_link_all_drug_components
 	for each row execute procedure clin.trf_update_intake_must_link_all_drug_components();
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function ref.trf_update_intake_updates_all_drug_components() cascade;
-drop function clin.trf_update_intake_updates_all_drug_components() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists ref.trf_update_intake_updates_all_drug_components() cascade;
+drop function if exists clin.trf_update_intake_updates_all_drug_components() cascade;
 
 create or replace function clin.trf_update_intake_updates_all_drug_components()
 	returns trigger
@@ -390,10 +380,8 @@ create constraint trigger tr_update_intake_updates_all_drug_components
 
 -- --------------------------------------------------------------
 -- DELETE
-\unset ON_ERROR_STOP
-drop function ref.trf_delete_intake_document_deleted() cascade;
-drop function clin.trf_delete_intake_document_deleted() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists ref.trf_delete_intake_document_deleted() cascade;
+drop function if exists clin.trf_delete_intake_document_deleted() cascade;
 
 create or replace function clin.trf_delete_intake_document_deleted()
 	returns trigger
@@ -458,10 +446,8 @@ create trigger tr_delete_intake_document_deleted
 	for each row execute procedure clin.trf_delete_intake_document_deleted();
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function ref.trf_delete_intake_turns_other_components_into_substances() cascade;
-drop function clin.trf_delete_intake_turns_other_components_into_substances() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists ref.trf_delete_intake_turns_other_components_into_substances() cascade;
+drop function if exists clin.trf_delete_intake_turns_other_components_into_substances() cascade;
 
 create or replace function clin.trf_delete_intake_turns_other_components_into_substances()
 	returns trigger

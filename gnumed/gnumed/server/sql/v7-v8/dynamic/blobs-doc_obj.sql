@@ -15,10 +15,8 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-alter table blobs.doc_obj drop constraint doc_obj_doc_id_fkey cascade;
-alter table blobs.doc_obj drop constraint doc_obj_fk_doc_fkey cascade;
-\set ON_ERROR_STOP 1
+alter table blobs.doc_obj drop constraint if exists doc_obj_doc_id_fkey cascade;
+alter table blobs.doc_obj drop constraint if exists doc_obj_fk_doc_fkey cascade;
 
 alter table blobs.doc_obj
 	add foreign key (fk_doc)

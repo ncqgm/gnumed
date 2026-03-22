@@ -12,9 +12,7 @@
 set check_function_bodies to on;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function blobs.trf_set_intended_reviewer() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists blobs.trf_set_intended_reviewer() cascade;
 
 
 create function blobs.trf_set_intended_reviewer()

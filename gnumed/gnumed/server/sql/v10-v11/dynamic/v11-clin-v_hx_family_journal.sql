@@ -5,17 +5,11 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v11-clin-v_hx_family_journal.sql,v 1.1 2009-07-15 12:13:35 ncq Exp $
--- $Revision: 1.1 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
 -- remember to handle dependent objects possibly dropped by CASCADE
-\unset ON_ERROR_STOP
-drop view clin.v_hx_family_journal cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_hx_family_journal cascade;
 
 
 create view clin.v_hx_family_journal as
@@ -58,10 +52,3 @@ grant select on clin.v_hx_family_journal to group "gm-doctors";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v11-clin-v_hx_family_journal.sql,v $', '$Revision: 1.1 $');
-
--- ==============================================================
--- $Log: v11-clin-v_hx_family_journal.sql,v $
--- Revision 1.1  2009-07-15 12:13:35  ncq
--- - need to recreate after dem.v_basic_person
---
---

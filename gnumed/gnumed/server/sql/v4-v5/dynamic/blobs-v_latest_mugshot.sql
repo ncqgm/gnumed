@@ -8,17 +8,11 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: blobs-v_latest_mugshot.sql,v 1.1 2007-03-08 15:10:52 ncq Exp $
--- $Revision: 1.1 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
 -- remember to handle dependent objects possibly dropped by CASCADE
-\unset ON_ERROR_STOP
-drop view blobs.v_latest_mugshot cascade;
-\set ON_ERROR_STOP 1
+drop view if exists blobs.v_latest_mugshot cascade;
 
 
 create view blobs.v_latest_mugshot as
@@ -62,15 +56,3 @@ grant select on blobs.v_latest_mugshot to group "gm-doctors";
 
 -- --------------------------------------------------------------
 select public.log_script_insertion('$RCSfile: blobs-v_latest_mugshot.sql,v $', '$Revision: 1.1 $');
-
--- ==============================================================
--- $Log: blobs-v_latest_mugshot.sql,v $
--- Revision 1.1  2007-03-08 15:10:52  ncq
--- - add filename to blobs object view
---
--- Revision 1.1  2007/01/19 14:07:24  ncq
--- - need this view for patient picture display
---
--- Revision 1.5  2006/10/24 13:09:45  ncq
--- - What it does duplicates the change log so axe it
---

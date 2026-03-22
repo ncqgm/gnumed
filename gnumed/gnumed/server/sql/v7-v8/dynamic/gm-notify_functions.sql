@@ -31,12 +31,10 @@ comment on column gm.notifying_tables.carries_identity_pk is
 	 related identity. Set during bootstrapping.';
 
 -- ==============================================================
-\unset ON_ERROR_STOP
-drop function public.add_table_for_notifies(name, name, name) cascade;
-drop function public.add_table_for_notifies(name, name) cascade;
+drop function if exists public.add_table_for_notifies(name, name, name) cascade;
+drop function if exists public.add_table_for_notifies(name, name) cascade;
 -- the old one:
-drop function public.add_table_for_notifies(name) cascade;
-\set ON_ERROR_STOP 1
+drop function if exists public.add_table_for_notifies(name) cascade;
 
 -- --------------------------------------------------------------
 create or replace function gm.add_table_for_notifies(name, name, name)

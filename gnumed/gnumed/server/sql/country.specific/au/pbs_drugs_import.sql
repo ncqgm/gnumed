@@ -16,9 +16,7 @@
 
 -- =============================================
 
-\unset ON_ERROR_STOP
-drop table pbsimport;
-\set ON_ERROR_STOP 1
+drop table if exists pbsimport;
 create table pbsimport (
 	drugtypecode char(2),
 	atccode char(7),
@@ -55,9 +53,7 @@ create table pbsimport (
 -- ===============================================
 -- do the same thing with the ATC codes
 -- ===============================================
-\unset ON_ERROR_STOP
-drop table atc;
-\set ON_ERROR_STOP 1
+drop table if exists atc;
 
 create table atc (
 	code char(7) primary key,
@@ -71,9 +67,8 @@ create table atc (
 -- ===============================================
 -- do the same thing with the manufacturer details
 -- ===============================================
-\unset ON_ERROR_STOP
-drop table manufacturer;
-\set ON_ERROR_STOP 1
+drop table if exists manufacturer;
+
 create table manufacturer (
 	code char(2) primary key,
 	name text,

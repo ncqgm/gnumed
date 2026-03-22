@@ -16,13 +16,11 @@
 
 -- --------------------------------------------------------------
 -- clin.clin_root_item
-\unset ON_ERROR_STOP
 alter table clin.clin_root_item
 	alter column soap_cat
 		drop not null;
 alter table clin.clin_root_item
-	drop constraint clin_root_item_soap_cat_check;
-\set ON_ERROR_STOP 1
+	drop constraint if exists clin_root_item_soap_cat_check;
 
 alter table clin.clin_root_item
 	add check
@@ -34,19 +32,17 @@ comment on column clin.clin_root_item.soap_cat is
 
 
 -- clin.soap_cat_ranks
-\unset ON_ERROR_STOP
 alter table clin.soap_cat_ranks
 	alter column soap_cat
 		drop not null;
 alter table clin.soap_cat_ranks
-	drop constraint soap_cat_ranks_soap_cat;
+	drop constraint if exists soap_cat_ranks_soap_cat;
 alter table clin.soap_cat_ranks
-	drop constraint soap_cat_ranks_soap_cat_check;
+	drop constraint if exists soap_cat_ranks_soap_cat_check;
 alter table clin.soap_cat_ranks
-	drop constraint soap_cat_ranks_rank;
+	drop constraint if exists soap_cat_ranks_rank;
 alter table clin.soap_cat_ranks
-	drop constraint soap_cat_ranks_rank_check;
-\set ON_ERROR_STOP 1
+	drop constraint if exists soap_cat_ranks_rank_check;
 
 alter table clin.soap_cat_ranks
 	add check
@@ -61,9 +57,7 @@ insert into clin.soap_cat_ranks (soap_cat, rank) values (NULL, 5);
 
 
 -- clin.clin_narrative
-\unset ON_ERROR_STOP
-drop index clin.idx_narr_soap cascade;
-\set ON_ERROR_STOP 1
+drop index if exists clin.idx_narr_soap cascade;
 
 create index idx_narr_soap on clin.clin_narrative(soap_cat) where (lower(soap_cat) in ('s', 'o', 'a', 'p'));
 

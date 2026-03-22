@@ -5,18 +5,12 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v10-clin-allergy-fixup.sql,v 1.2 2009-05-18 09:46:55 ncq Exp $
--- $Revision: 1.2 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function clin.trf_sync_allergic_state_on_allergies_modified() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.trf_sync_allergic_state_on_allergies_modified() cascade;
 
 
 create function clin.trf_sync_allergic_state_on_allergies_modified()
@@ -78,13 +72,3 @@ create trigger tr_sync_allergic_state_on_allergies_modified
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v10-clin-allergy-fixup.sql,v $', '$Revision: 1.2 $');
-
--- ==============================================================
--- $Log: v10-clin-allergy-fixup.sql,v $
--- Revision 1.2  2009-05-18 09:46:55  ncq
--- - new
---
--- Revision 1.1.2.1  2009/03/24 15:54:29  ncq
--- - new
---
---

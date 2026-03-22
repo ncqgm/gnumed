@@ -22,9 +22,7 @@ comment on table dem.org is
 comment on column dem.org.description is
 'High-level, conceptual description (= name) of organization, such as "University of Manchester".';
 
-\unset ON_ERROR_STOP
-alter table dem.org drop constraint org_sane_description cascade;
-\set ON_ERROR_STOP 1
+alter table dem.org drop constraint if exists org_sane_description cascade;
 
 alter table dem.org
 	add constraint org_sane_description check (
@@ -56,10 +54,8 @@ comment on table dem.org_unit is
 comment on column dem.org_unit.description is
 'Description (= name) of branch of organization, such as "Elms Street office of Jim Busser Praxis".';
 
-\unset ON_ERROR_STOP
-alter table dem.org_unit drop constraint org_unit_sane_description cascade;
-alter table dem.org_unit drop constraint org_unit_uniq_per_org cascade;
-\set ON_ERROR_STOP 1
+alter table dem.org_unit drop constraint if exists org_unit_sane_description cascade;
+alter table dem.org_unit drop constraint if exists org_unit_uniq_per_org cascade;
 
 alter table dem.org_unit
 	add constraint org_unit_sane_description check (
@@ -158,10 +154,8 @@ alter table dem.lnk_org_unit2comm
 
 
 -- .url
-\unset ON_ERROR_STOP
-alter table dem.org_unit2comm drop constraint lnk_org_unit2comm_sane_url cascade;
-alter table dem.org_unit2comm drop constraint lnk_org_unit2comm_uniq_url cascade;
-\set ON_ERROR_STOP 1
+alter table dem.lnk_org_unit2comm drop constraint if exists lnk_org_unit2comm_sane_url cascade;
+alter table dem.lnk_org_unit2comm drop constraint if exists lnk_org_unit2comm_uniq_url cascade;
 
 alter table dem.lnk_org_unit2comm
 	add constraint lnk_org_unit2comm_sane_url check (
@@ -228,10 +222,8 @@ alter table dem.lnk_org_unit2ext_id
 
 
 -- .external_id
-\unset ON_ERROR_STOP
-alter table dem.org_unit2ext_id drop constraint lnk_org_unit2ext_id_sane_id cascade;
-alter table dem.org_unit2ext_id drop constraint lnk_org_unit2ext_id_uniq_id cascade;
-\set ON_ERROR_STOP 1
+alter table dem.lnk_org_unit2ext_id drop constraint if exists lnk_org_unit2ext_id_sane_id cascade;
+alter table dem.lnk_org_unit2ext_id drop constraint if exists lnk_org_unit2ext_id_uniq_id cascade;
 
 alter table dem.lnk_org_unit2ext_id
 	add constraint lnk_org_unit2ext_id_sane_id check (
@@ -246,9 +238,7 @@ alter table dem.lnk_org_unit2ext_id
 
 
 -- .comment
-\unset ON_ERROR_STOP
-alter table dem.org_unit2ext_id drop constraint lnk_org_unit2ext_id_sane_comment cascade;
-\set ON_ERROR_STOP 1
+alter table dem.lnk_org_unit2ext_id drop constraint if exists lnk_org_unit2ext_id_sane_comment cascade;
 
 alter table dem.lnk_org_unit2ext_id
 	add constraint lnk_org_unit2ext_id_sane_comment check (
@@ -261,11 +251,9 @@ alter table dem.lnk_org_unit2ext_id
 grant select, insert, update, delete on dem.lnk_org_unit2ext_id to group "gm-public";
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view dem.v_orgs cascade;
-drop view dem.v_org_units cascade;
-drop view dem.lnk_org2address cascade;
-\set ON_ERROR_STOP 1
+drop view if exists dem.v_orgs cascade;
+drop view if exists dem.v_org_units cascade;
+drop view if exists dem.lnk_org2address cascade;
 
 
 
@@ -328,24 +316,22 @@ grant select on
 to group "gm-public";
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-
-insert into dem.org_category (description) values ('Government');
-insert into dem.org_category (description) values ('Hospital');
-insert into dem.org_category (description) values ('Ward');
-insert into dem.org_category (description) values ('Practice');
-insert into dem.org_category (description) values ('Surgery');
-insert into dem.org_category (description) values ('Medical Practice');
-insert into dem.org_category (description) values ('Physical Therapy Practice');
-insert into dem.org_category (description) values ('Occupational Therapy Practice');
-insert into dem.org_category (description) values ('Laboratory');
-
+insert into dem.org_category (description) values ('Government') on conflict (description) do nothing;
+insert into dem.org_category (description) values ('Hospital') on conflict (description) do nothing;
+insert into dem.org_category (description) values ('Ward') on conflict (description) do nothing;
+insert into dem.org_category (description) values ('Practice') on conflict (description) do nothing;
+insert into dem.org_category (description) values ('Surgery') on conflict (description) do nothing;
+insert into dem.org_category (description) values ('Medical Practice') on conflict (description) do nothing;
+insert into dem.org_category (description) values ('Physical Therapy Practice') on conflict (description) do nothing;
+insert into dem.org_category (description) values ('Occupational Therapy Practice') on conflict (description) do nothing;
+insert into dem.org_category (description) values ('Laboratory') on conflict (description) do nothing;
 
 
 insert into dem.org (description, fk_category) values (
 	'Ministry of Public Health',
 	(select pk from dem.org_category where description = 'Government')
 );
+
 
 -- Starship Enterprise address
 insert into dem.org (description, fk_category) values (
@@ -365,20 +351,19 @@ where id_street = (
 );
 
 
-
 insert into dem.org_unit (description, fk_org, fk_category, fk_address) values (
 	'Ward A-II',
 	(select pk from dem.org where description = 'Starfleet Central'),
 	(select pk from dem.org_category where description = 'Ward'),
 	(select pk_address from dem.v_address where street = 'Golden Gate Drive' and postcode = 'SF 278 CA')
-);
+) on conflict (fk_org, description) do nothing;
 
 insert into dem.org_unit (description, fk_org, fk_category, fk_address) values (
 	'Enterprise Sickbay',
 	(select pk from dem.org where description = 'Starfleet Central'),
 	(select pk from dem.org_category where description = 'Ward'),
 	(select pk_address from dem.v_address where street = 'Galley 4a' and postcode = 'NCC-1701-E')
-);
+) on conflict (fk_org, description) do nothing;
 
 
 
@@ -396,9 +381,7 @@ insert into dem.org_unit (description, fk_org, fk_category, fk_address) values (
 	(select pk from dem.org where description = 'Notfallzentrum THONBERGKLINIKmvz'),
 	(select pk from dem.org_category where description = 'Medical Practice'),
 	(select pk_address from dem.v_address where street like 'Riebeckstra%' and postcode = '04317' and number = '65')
-);
-
-\set ON_ERROR_STOP 1
+) on conflict (fk_org, description) do nothing;
 
 
 
@@ -414,5 +397,3 @@ select i18n.upd_tx('de', 'Laboratory', 'Labor');
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v15-dem-org_handling-dynamic.sql', '1.2');
-
--- ==============================================================

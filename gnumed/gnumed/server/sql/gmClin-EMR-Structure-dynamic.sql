@@ -49,9 +49,7 @@ comment on column clin.health_issue.is_active is
 comment on column clin.health_issue.clinically_relevant is
 	'whether this health issue (problem) has any clinical relevance';
 
-\unset ON_ERROR_STOP
-alter table clin.health_issue drop constraint issue_name_not_empty;
-\set ON_ERROR_STOP 1
+alter table clin.health_issue drop constraint if exists issue_name_not_empty;
 
 alter table clin.health_issue add constraint issue_name_not_empty
 	check (trim(both from description) != '');
@@ -78,9 +76,7 @@ comment on column clin.episode.is_open is
 	 means open in a temporal sense as in "not closed yet";
 	 only one episode can be open per health issue';
 
-\unset ON_ERROR_STOP
-alter table clin.episode drop constraint only_standalone_epi_has_patient;
-\set ON_ERROR_STOP 1
+alter table clin.episode drop constraint if exists only_standalone_epi_has_patient;
 
 alter table clin.episode add constraint only_standalone_epi_has_patient
 	check (
@@ -89,9 +85,7 @@ alter table clin.episode add constraint only_standalone_epi_has_patient
 		((fk_health_issue is not null) and (fk_patient is null))
 	);
 
-\unset ON_ERROR_STOP
-drop function clin.trf_ensure_episode_issue_patient_consistency() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.trf_ensure_episode_issue_patient_consistency() cascade;
 
 create function clin.trf_ensure_episode_issue_patient_consistency()
 	returns trigger
@@ -162,9 +156,7 @@ comment on column clin.encounter.assessment_of_encounter is
 
 -- ==========================================================
 -- health issues stuff
-\unset ON_ERROR_STOP
-drop function clin.f_announce_h_issue_mod() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.f_announce_h_issue_mod() cascade;
 
 create function clin.f_announce_h_issue_mod() returns trigger as '
 declare
@@ -191,20 +183,16 @@ create trigger TR_h_issues_modified
 -- =============================================
 -- encounters
 
-\unset ON_ERROR_STOP
-drop index clin.idx_pat_per_encounter;
-drop index clin.idx_encounter_started;
-drop index clin.idx_encounter_affirmed;
-\set ON_ERROR_STOP 1
+drop index if exists clin.idx_pat_per_encounter;
+drop index if exists clin.idx_encounter_started;
+drop index if exists clin.idx_encounter_affirmed;
 
 create index idx_pat_per_encounter on clin.encounter(fk_patient);
 create index idx_encounter_started on clin.encounter(started);
 create index idx_encounter_affirmed on clin.encounter(last_affirmed);
 
 
-\unset ON_ERROR_STOP
-drop function f_set_encounter_timezone() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists f_set_encounter_timezone() cascade;
 
 create function f_set_encounter_timezone() returns trigger as '
 begin
@@ -225,9 +213,7 @@ create trigger tr_set_encounter_timezone
 ;
 
 -- per patient
-\unset ON_ERROR_STOP
-drop view clin.v_pat_encounters cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_encounters cascade;
 
 create view clin.v_pat_encounters as
 select
@@ -250,9 +236,7 @@ where
 ;
 
 -- current ones
-\unset ON_ERROR_STOP
-drop view clin.v_most_recent_encounters cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_most_recent_encounters cascade;
 
 create view clin.v_most_recent_encounters as
 select distinct on (last_affirmed)
@@ -293,22 +277,18 @@ where
 -- episodes stuff
 
 -- speed up access by fk_health_issue
-\unset ON_ERROR_STOP
-drop index clin.idx_episode_issue;
-drop index clin.idx_episode_valid_issue;
+drop index if exists clin.idx_episode_issue;
+drop index if exists clin.idx_episode_valid_issue;
+
 create index idx_episode_valid_issue on clin.episode(fk_health_issue) where fk_health_issue is not null;
-\set ON_ERROR_STOP 1
 create index idx_episode_issue on clin.episode(fk_health_issue);
 
-\unset ON_ERROR_STOP
-drop index clin.idx_uniq_open_epi_per_issue;
-\set ON_ERROR_STOP 1
+drop index if exists clin.idx_uniq_open_epi_per_issue;
+
 create unique index idx_uniq_open_epi_per_issue on clin.episode(is_open, fk_health_issue) where fk_health_issue is not null and is_open;
 
 
-\unset ON_ERROR_STOP
-drop function trf_announce_episode_mod() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists trf_announce_episode_mod() cascade;
 
 create function trf_announce_episode_mod() returns trigger as '
 declare
@@ -349,9 +329,7 @@ create trigger tr_episode_mod
 		execute procedure trf_announce_episode_mod()
 ;
 
-\unset ON_ERROR_STOP
-drop view clin.v_pat_episodes cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_episodes cascade;
 
 create view clin.v_pat_episodes as
 select
@@ -419,29 +397,3 @@ TO GROUP "gm-doctors";
 -- ===================================================================
 -- do simple schema revision tracking
 select log_script_insertion('$RCSfile: gmClin-EMR-Structure-dynamic.sql,v $', '$Revision: 1.7 $');
-
--- ===================================================================
--- $Log: gmClin-EMR-Structure-dynamic.sql,v $
--- Revision 1.7  2006-05-06 18:48:52  ncq
--- - remove obsolete comment
--- - improve consistency checking when inserting/updating episodes
---
--- Revision 1.6  2006/05/03 21:29:21  ncq
--- - updated commit message
---
--- Revision 1.5  2006/05/03 21:28:49  ncq
--- - drop constraints before adding them
---
--- Revision 1.4  2006/04/29 18:47:26  ncq
--- - cleanup
---
--- Revision 1.3  2006/02/27 22:39:32  ncq
--- - spell out rfe/aoe
---
--- Revision 1.2  2006/02/27 11:21:31  ncq
--- - add laterality to health issue
---
--- Revision 1.1  2006/02/10 14:08:58  ncq
--- - factor out EMR structure clinical schema into its own set of files
---
---

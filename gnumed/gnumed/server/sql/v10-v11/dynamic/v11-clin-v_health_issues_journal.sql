@@ -5,16 +5,10 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v11-clin-v_health_issues_journal.sql,v 1.2 2009-06-22 09:30:33 ncq Exp $
--- $Revision: 1.2 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_health_issues_journal cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_health_issues_journal cascade;
 
 
 create view clin.v_health_issues_journal as
@@ -78,21 +72,3 @@ from
 grant select on clin.v_health_issues_journal TO GROUP "gm-doctors";
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v11-clin-v_health_issues_journal.sql,v $', '$Revision: 1.2 $');
-
--- ==============================================================
--- $Log: v11-clin-v_health_issues_journal.sql,v $
--- Revision 1.2  2009-06-22 09:30:33  ncq
--- - soAp category
--- - better wording
--- - noted at age only if known
---
--- Revision 1.1  2009/04/05 17:48:20  ncq
--- - new
---
--- Revision 1.2  2008/09/02 19:02:24  ncq
--- - make journal entry soap cat NULL for issue/episode
---
--- Revision 1.1  2008/09/02 15:41:19  ncq
--- - new
---
---

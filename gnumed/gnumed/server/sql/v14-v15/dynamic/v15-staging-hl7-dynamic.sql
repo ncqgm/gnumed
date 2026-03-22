@@ -52,9 +52,7 @@ alter table staging.lab_request
 --	alter column request_id
 --		set NOT NULL;
 
-\unset ON_ERROR_STOP
-alter table staging.lab_request drop constraint staging_request_sane_request_id cascade;
-\set ON_ERROR_STOP 1
+alter table staging.lab_request drop constraint if exists staging_request_sane_request_id cascade;
 
 alter table staging.lab_request
 	add constraint staging_request_sane_request_id check (
@@ -79,9 +77,7 @@ alter table staging.lab_request
 	alter column request_status
 		set NOT NULL;
 
-\unset ON_ERROR_STOP
-alter table staging.lab_request drop constraint staging_request_sane_status cascade;
-\set ON_ERROR_STOP 1
+alter table staging.lab_request drop constraint if exists staging_request_sane_status cascade;
 
 alter table staging.lab_request
 	add constraint staging_request_sane_status check (
@@ -135,9 +131,7 @@ alter table staging.test_result
 
 
 
-\unset ON_ERROR_STOP
-alter table staging.test_result drop constraint staging_numval_needs_unit cascade;
-\set ON_ERROR_STOP 1
+alter table staging.test_result drop constraint if exists staging_numval_needs_unit cascade;
 
 alter table staging.test_result
 	add constraint staging_numval_needs_unit check (
@@ -146,9 +140,7 @@ alter table staging.test_result
 
 
 
-\unset ON_ERROR_STOP
-alter table staging.test_result drop constraint staging_sane_value cascade;
-\set ON_ERROR_STOP 1
+alter table staging.test_result drop constraint if exists staging_sane_value cascade;
 
 alter table staging.test_result
 	add constraint staging_sane_value check (

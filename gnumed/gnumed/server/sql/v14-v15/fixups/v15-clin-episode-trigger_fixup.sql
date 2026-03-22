@@ -10,9 +10,7 @@
 
 -- --------------------------------------------------------------
 -- .fk_encounter vs .fk_health_issue
-\unset ON_ERROR_STOP
-drop function clin.trf_sanity_check_enc_vs_issue_on_epi() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.trf_sanity_check_enc_vs_issue_on_epi() cascade;
 
 
 create or replace function clin.trf_sanity_check_enc_vs_issue_on_epi()

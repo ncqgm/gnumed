@@ -21,11 +21,9 @@ delete from audit.audited_tables where
 ;
 
 
-\unset ON_ERROR_STOP
-drop function audit.ft_ins_provider_inbox() cascade;
-drop function audit.ft_del_provider_inbox() cascade;
-drop function audit.ft_upd_provider_inbox() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists audit.ft_ins_provider_inbox() cascade;
+drop function if exists audit.ft_del_provider_inbox() cascade;
+drop function if exists audit.ft_upd_provider_inbox() cascade;
 
 
 select audit.add_table_for_audit('dem', 'message_inbox');
@@ -38,9 +36,7 @@ delete from gm.notifying_tables where
 ;
 
 
-\unset ON_ERROR_STOP
-drop function dem.trf_announce_provider_inbox_mod_no_pk() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists dem.trf_announce_provider_inbox_mod_no_pk() cascade;
 
 
 select gm.add_table_for_notifies('dem'::name, 'message_inbox'::name);
@@ -57,11 +53,9 @@ alter table dem.message_inbox
 
 
 
-\unset ON_ERROR_STOP
 alter table dem.message_inbox
-	drop constraint message_must_have_recipient
+	drop constraint if exists message_must_have_recipient
 		cascade;
-\set ON_ERROR_STOP 1
 
 alter table dem.message_inbox
 	add constraint message_must_have_recipient
@@ -76,12 +70,10 @@ alter table dem.message_inbox
 
 
 
---\unset ON_ERROR_STOP
 --alter table dem.message_inbox
---	drop constraint provider_inbox_comment_check
+--	drop constraint if exists provider_inbox_comment_check
 --		cascade;
---drop trigger tr_message_inbox_nullify_empty_comment on dem.message_inbox;
---\set ON_ERROR_STOP 1
+--drop trigger if exists tr_message_inbox_nullify_empty_comment on dem.message_inbox;
 
 --create trigger tr_message_inbox_nullify_empty_comment
 --	before insert or update on dem.message_inbox
@@ -93,10 +85,8 @@ comment on table dem.message_inbox is
 'messages in GNUmed relating to a patient, a provider, and a context';
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view dem.v_provider_inbox cascade;
-drop view dem.v_message_inbox cascade;
-\set ON_ERROR_STOP 1
+drop view if exists dem.v_provider_inbox cascade;
+drop view if exists dem.v_message_inbox cascade;
 
 
 create view dem.v_message_inbox as

@@ -21,9 +21,7 @@ select gm.add_table_for_notifies('ref', 'branded_drug');
 comment on column ref.branded_drug.fk_data_source is
 	'the data source this entry came from';
 
-\unset ON_ERROR_STOP
-drop index ref.idx_drug_data_source cascade;
-\set ON_ERROR_STOP 1
+drop index if exists ref.idx_drug_data_source cascade;
 
 create index idx_drug_data_source on ref.branded_drug(fk_data_source);
 
@@ -36,9 +34,7 @@ alter table ref.branded_drug
 	alter column description
 		set not null;
 
-\unset ON_ERROR_STOP
-drop index ref.idx_drug_description cascade;
-\set ON_ERROR_STOP 1
+drop index if exists ref.idx_drug_description cascade;
 
 create index idx_drug_description on ref.branded_drug(description);
 
@@ -67,10 +63,8 @@ alter table ref.branded_drug
 comment on column ref.branded_drug.external_code is
 	'an opaque code from an external data source, such as "PZN" in Germany';
 
-\unset ON_ERROR_STOP
-alter table ref.branded_drug drop constraint drug_sane_external_code cascade;
-drop index ref.idx_drug_ext_code cascade;
-\set ON_ERROR_STOP 1
+alter table ref.branded_drug drop constraint if exists drug_sane_external_code cascade;
+drop index if exists ref.idx_drug_ext_code cascade;
 
 alter table ref.branded_drug
 	add constraint drug_sane_external_code
@@ -116,21 +110,9 @@ where
 	gnt.table_name = 'substance_brand'
 ;
 
-\unset ON_ERROR_STOP
-drop function audit.ft_ins_substance_brand() cascade;
-drop function audit.ft_upd_substance_brand() cascade;
-drop function audit.ft_del_substance_brand() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists audit.ft_ins_substance_brand() cascade;
+drop function if exists audit.ft_upd_substance_brand() cascade;
+drop function if exists audit.ft_del_substance_brand() cascade;
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v12-ref-drug-dynamic.sql,v $', '$Revision: 1.2 $');
-
--- ==============================================================
--- $Log: v12-ref-drug-dynamic.sql,v $
--- Revision 1.2  2009-12-01 21:58:21  ncq
--- - .is_fake better default to False rather than True
---
--- Revision 1.1  2009/11/24 21:11:39  ncq
--- - new drug tables
---
---

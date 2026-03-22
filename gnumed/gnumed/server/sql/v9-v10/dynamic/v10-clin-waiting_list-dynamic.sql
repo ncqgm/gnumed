@@ -5,9 +5,6 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v10-clin-waiting_list-dynamic.sql,v 1.4 2009-01-22 11:17:33 ncq Exp $
--- $Revision: 1.4 $
-
 
 set default_transaction_read_only to off;
 -- --------------------------------------------------------------
@@ -15,9 +12,7 @@ set default_transaction_read_only to off;
 set check_function_bodies to on;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-alter table clin.waiting_list drop constraint non_empty_area;
-\set ON_ERROR_STOP 1
+alter table clin.waiting_list drop constraint if exists non_empty_area;
 
 alter table clin.waiting_list
 	add constraint non_empty_area
@@ -30,9 +25,7 @@ select gm.add_table_for_notifies('clin', 'waiting_list');
 select gm.add_table_for_notifies('clin', 'waiting_list', 'waiting_list_generic');
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_waiting_list cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_waiting_list cascade;
 
 create view clin.v_waiting_list as
 select
@@ -95,9 +88,7 @@ where
 grant select on clin.v_waiting_list to group "gm-public";
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function clin.move_waiting_list_entry(integer, integer) cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.move_waiting_list_entry(integer, integer) cascade;
 
 create or replace function clin.move_waiting_list_entry(integer, integer)
 	returns boolean
@@ -202,20 +193,3 @@ insert into clin.waiting_list (
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v10-clin-waiting_list-dynamic.sql,v $', '$Revision: 1.4 $');
-
--- ==============================================================
--- $Log: v10-clin-waiting_list-dynamic.sql,v $
--- Revision 1.4  2009-01-22 11:17:33  ncq
--- - function to move entries in waiting list
---
--- Revision 1.3  2009/01/21 22:39:39  ncq
--- - display days, too
---
--- Revision 1.2  2009/01/17 23:16:35  ncq
--- - add proper signals
--- - improve view
---
--- Revision 1.1  2009/01/16 13:30:40  ncq
--- - new
---
---

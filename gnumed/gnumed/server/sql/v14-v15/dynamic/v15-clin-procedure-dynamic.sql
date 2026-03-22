@@ -30,9 +30,7 @@ comment on column clin.procedure.clin_end is
 - NULL if unknown or .clin_when (=start) is sufficient (eg. insignificant duration)';
 
 
-\unset ON_ERROR_STOP
-alter table clin.procedure drop constraint procedure_sane_end cascade;
-\set ON_ERROR_STOP 1
+alter table clin.procedure drop constraint if exists procedure_sane_end cascade;
 
 
 alter table clin.procedure
@@ -78,9 +76,7 @@ alter table clin.procedure
 
 
 
-\unset ON_ERROR_STOP
-drop function clin.trf_normalize_proc_is_ongoing() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.trf_normalize_proc_is_ongoing() cascade;
 
 create function clin.trf_normalize_proc_is_ongoing()
 	returns trigger

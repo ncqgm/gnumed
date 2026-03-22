@@ -20,9 +20,7 @@ grant select on clin.lnk_code2narrative to group "gm-public";
 grant insert, update, delete on clin.lnk_code2narrative to group "gm-doctors";
 grant usage on clin.lnk_code2narrative_pk_seq to group "gm-doctors";
 
-\unset ON_ERROR_STOP
-alter table clin.lnk_code2narrative drop constraint clin_lc2narr_code_uniq_per_item cascade;
-\set ON_ERROR_STOP 1
+alter table clin.lnk_code2narrative drop constraint if exists clin_lc2narr_code_uniq_per_item cascade;
 
 alter table clin.lnk_code2narrative
 	add constraint clin_lc2narr_code_uniq_per_item
@@ -34,9 +32,7 @@ comment on column clin.lnk_code2narrative.fk_item is
 'Foreign key to clin.clin_narrative';
 
 
-\unset ON_ERROR_STOP
-alter table clin.lnk_code2narrative drop constraint lnk_code2narrative_fk_item_fkey cascade;
-\set ON_ERROR_STOP 1
+alter table clin.lnk_code2narrative drop constraint if exists lnk_code2narrative_fk_item_fkey cascade;
 
 
 alter table clin.lnk_code2narrative
@@ -46,9 +42,7 @@ alter table clin.lnk_code2narrative
 		on delete cascade;				-- delete if narrative is deleted
 
 
-\unset ON_ERROR_STOP
-drop index idx_c_lc2narr_fk_item cascade;
-\set ON_ERROR_STOP 1
+drop index if exists idx_c_lc2narr_fk_item cascade;
 
 create index idx_c_lc2narr_fk_item on clin.lnk_code2narrative(fk_item);
 

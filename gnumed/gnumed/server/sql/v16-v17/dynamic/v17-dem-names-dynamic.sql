@@ -10,9 +10,7 @@ set check_function_bodies to on;
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function dem.trf_protect_active_name_of_person() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists dem.trf_protect_active_name_of_person() cascade;
 
 create or replace function dem.trf_protect_active_name_of_person()
 	returns trigger

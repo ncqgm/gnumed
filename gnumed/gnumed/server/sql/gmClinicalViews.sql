@@ -82,9 +82,7 @@ alter table clin.clin_narrative add foreign key (fk_episode)
 		on update cascade
 		on delete restrict;
 
-\unset ON_ERROR_STOP
-alter table clin.clin_narrative drop constraint narrative_neither_null_nor_empty;
-\set ON_ERROR_STOP 1
+alter table clin.clin_narrative drop constraint if exists narrative_neither_null_nor_empty;
 
 alter table clin.clin_narrative add constraint narrative_neither_null_nor_empty
 	check (trim(coalesce(narrative, '')) != '');
@@ -375,39 +373,36 @@ comment on table clin.reviewed_test_results is
 	'review table for test results';
 
 -- =============================================
-\unset ON_ERROR_STOP
-drop index clin.idx_cri_encounter;
-drop index clin.idx_cri_episode;
+drop index if exists clin.idx_cri_encounter;
+drop index if exists clin.idx_cri_episode;
 
-drop index clin.idx_clnarr_encounter;
-drop index clin.idx_clnarr_episode;
-drop index clin.idx_clnarr_unique;
+drop index if exists clin.idx_clnarr_encounter;
+drop index if exists clin.idx_clnarr_episode;
+drop index if exists clin.idx_clnarr_unique;
 
-drop index clin.idx_clanote_encounter;
-drop index clin.idx_clanote_episode;
+drop index if exists clin.idx_clanote_encounter;
+drop index if exists clin.idx_clanote_episode;
 
-drop index clin.idx_vacc_encounter;
-drop index clin.idx_vacc_episode;
+drop index if exists clin.idx_vacc_encounter;
+drop index if exists clin.idx_vacc_episode;
 
-drop index clin.idx_allg_encounter;
-drop index clin.idx_allg_episode;
+drop index if exists clin.idx_allg_encounter;
+drop index if exists clin.idx_allg_episode;
 
-drop index clin.idx_formi_encounter;
-drop index clin.idx_formi_episode;
+drop index if exists clin.idx_formi_encounter;
+drop index if exists clin.idx_formi_episode;
 
-drop index clin.idx_cmeds_encounter;
-drop index clin.idx_cmeds_episode;
+drop index if exists clin.idx_cmeds_encounter;
+drop index if exists clin.idx_cmeds_episode;
 
-drop index clin.idx_ref_encounter;
-drop index clin.idx_ref_episode;
+drop index if exists clin.idx_ref_encounter;
+drop index if exists clin.idx_ref_episode;
 
-drop index clin.idx_tres_encounter;
-drop index clin.idx_tres_episode;
+drop index if exists clin.idx_tres_encounter;
+drop index if exists clin.idx_tres_episode;
 
-drop index clin.idx_lreq_encounter;
-drop index clin.idx_lreq_episode;
-
-\set ON_ERROR_STOP 1
+drop index if exists clin.idx_lreq_encounter;
+drop index if exists clin.idx_lreq_episode;
 
 -- clin.clin_root_item & children indices
 create index idx_cri_encounter on clin.clin_root_item(fk_encounter);
@@ -440,13 +435,11 @@ create index idx_lreq_episode on clin.lab_request(fk_episode);
 
 -- =============================================
 -- narrative
-\unset ON_ERROR_STOP
-drop index clin.idx_narr_soap;
---drop index clin.idx_narr_s;
---drop index clin.idx_narr_o;
---drop index clin.idx_narr_a;
---drop index clin.idx_narr_p;
-\set ON_ERROR_STOP 1
+drop index if exists clin.idx_narr_soap;
+--drop index if exists clin.idx_narr_s;
+--drop index if exists clin.idx_narr_o;
+--drop index if exists clin.idx_narr_a;
+--drop index if exists clin.idx_narr_p;
 
 create index idx_narr_soap on clin.clin_narrative(soap_cat);
 -- comment those out for now as such queries aren't particularly common
@@ -456,16 +449,13 @@ create index idx_narr_soap on clin.clin_narrative(soap_cat);
 --create index idx_narr_p on clin.clin_narrative(soap_cat) where soap_cat='p';
 
 -- clin.clin_medication
-\unset ON_ERROR_STOP
-drop index clin.idx_clin_medication;
+drop index if exists clin.idx_clin_medication;
+
 create index idx_clin_medication on clin.clin_medication(discontinued) where discontinued is not null;
-\set ON_ERROR_STOP 1
 
 -- =============================================
 -- clin_root_item stuff
-\unset ON_ERROR_STOP
-drop function clin.f_announce_clin_item_mod() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.f_announce_clin_item_mod() cascade;
 
 create function clin.f_announce_clin_item_mod()
 	returns trigger
@@ -501,9 +491,7 @@ create trigger TR_clin_item_mod
 -- ---------------------------------------------
 -- protect from direct inserts/updates/deletes which the
 -- inheritance system can't handle properly
-\unset ON_ERROR_STOP
-drop function clin.f_protect_clin_root_item() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.f_protect_clin_root_item() cascade;
 
 create function clin.f_protect_clin_root_item() returns trigger as '
 begin
@@ -521,9 +509,7 @@ create rule clin_ritem_no_del as
 	do instead select clin.f_protect_clin_root_item();
 
 -- ---------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_items cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_items cascade;
 
 create view clin.v_pat_items as
 select
@@ -556,9 +542,7 @@ where
 -- ==========================================================
 -- measurements stuff
 
-\unset ON_ERROR_STOP
-drop view clin.v_test_type_unified cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_test_type_unified cascade;
 
 create view clin.v_test_type_unified as
 select
@@ -829,9 +813,7 @@ comment on view clin.v_results4lab_req is
 
 -- ==========================================================
 -- allergy stuff
-\unset ON_ERROR_STOP
-drop view clin.v_pat_allergies cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_allergies cascade;
 
 create view clin.v_pat_allergies as
 select
@@ -872,10 +854,8 @@ where
 
 -- =============================================
 -- coded narrative
-\unset ON_ERROR_STOP
-drop index clin.idx_coded_terms;
-drop function clin.add_coded_term(text, text, text) cascade;
-\set ON_ERROR_STOP 1
+drop index if exists clin.idx_coded_terms;
+drop function if exists clin.add_coded_term(text, text, text) cascade;
 
 create index idx_coded_terms on clin.coded_narrative(md5(term));
 
@@ -976,9 +956,7 @@ comment on view clin.v_pat_narrative is
 	 the narrative is unprocessed and denormalized context using v_pat_items is added';
 
 -- ---------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_narrative_soap cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_narrative_soap cascade;
 
 create view clin.v_pat_narrative_soap as
 SELECT
@@ -1023,9 +1001,7 @@ comment on view clin.v_pat_narrative_soap is
 
 -- ---------------------------------------------
 -- custom referential integrity
-\unset ON_ERROR_STOP
-drop function f_rfi_type2item() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists f_rfi_type2item() cascade;
 
 create function f_rfi_type2item() returns trigger as '
 declare
@@ -1096,10 +1072,8 @@ from
 -- ---------------------------------------------
 -- custom check constraint
 -- FIXME: finish
---\unset ON_ERROR_STOP
---drop function f_check_narrative_is_fHx();
---drop trigger tr_check_narrative_is_fHx;
---\set ON_ERROR_STOP 1
+--drop function if exists f_check_narrative_is_fHx();
+--drop trigger if exists tr_check_narrative_is_fHx;
 
 --create function f_check_narrative_is_fHx() returns trigger as '
 --declare
@@ -1268,9 +1242,7 @@ where
 -- =============================================
 -- problem list
 
-\unset ON_ERROR_STOP
-drop view clin.v_problem_list cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_problem_list cascade;
 
 create view clin.v_problem_list as
 select	-- all the (open) episodes
@@ -1591,10 +1563,7 @@ comment on view clin.v_emr_journal is
 
 -- =============================================
 -- a waiting list
-
-\unset ON_ERROR_STOP
-drop view clin.v_waiting_list cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_waiting_list cascade;
 
 create view clin.v_waiting_list as
 select
@@ -1716,698 +1685,3 @@ to group "gm-doctors";
 
 -- =============================================
 select log_script_insertion('$RCSfile: gmClinicalViews.sql,v $', '$Revision: 1.184 $');
-
--- =============================================
--- $Log: gmClinicalViews.sql,v $
--- Revision 1.184  2006-06-20 15:49:30  ncq
--- - allow different doc to write the exact same progress note
---
--- Revision 1.183  2006/05/28 15:22:25  ncq
--- - robustify somewhat
--- - the old v_pat_narrative was correct after all, but
---   Syan's new one is still useful and faster for SOAP-only
---   progress note narrative so keep it as v_pat_narrative_soap
---
--- Revision 1.182  2006/05/27 14:52:07  ncq
--- - added Syan's faster version of clin.v_pat_narrative
---
--- Revision 1.181  2006/05/03 21:30:56  ncq
--- - drop constraints before adding
--- - comment out trigger doubling unique index
--- - comment out rarely used indices
---
--- Revision 1.180  2006/04/29 18:14:42  ncq
--- - improve Syan's unique(narrative) trigger constraint
--- - move it to the dynamic schema part
---
--- Revision 1.179  2006/04/23 16:51:39  ncq
--- - remove age calculation from clin.v_pat_items as it wastes cycles, only
---   calculate age if actually needed, that is, on demand in the SELECT
---
--- Revision 1.178  2006/03/13 17:32:09  ncq
--- - remove "order by age" from clin.v_pat_items which would certainly slow down queries
---
--- Revision 1.177  2006/03/08 09:24:28  ncq
--- - adjust to better vacc view names
---
--- Revision 1.176  2006/02/27 22:39:33  ncq
--- - spell out rfe/aoe
---
--- Revision 1.175  2006/02/27 11:28:12  ncq
--- - add clin.operation
--- - move dynamic stuff into view definition file
---
--- Revision 1.174  2006/02/20 10:22:32  ncq
--- - indexing on clin.clin_narrative(narrative) directly was prone to
---   buffer overrun since it's a text field of unlimited length, so,
---   index on md5(narrative) now
---
--- Revision 1.173  2006/02/19 13:45:05  ncq
--- - move the rest of the dynamic vacc stuff from gmClinicalViews.sql
---   into gmClin-Vaccination-dynamic.sql
--- - add vaccination schedule constraint enumeration data
--- - add is_active to clin.vacc_regime
--- - add clin.vacc_regime_constraint
--- - add clin.lnk_constraint2vacc_reg
--- - proper grants
---
--- Revision 1.172  2006/02/10 14:08:58  ncq
--- - factor out EMR structure clinical schema into its own set of files
---
--- Revision 1.171  2006/02/08 15:15:39  ncq
--- - factor our vaccination stuff into its own set of files
--- - remove clin.lnk_vacc_ind2code in favour of clin.coded_term usage
--- - improve comments as discussed on the list
---
--- Revision 1.170  2006/01/27 22:24:45  ncq
--- - move reviewed_test_results here
---
--- Revision 1.169  2006/01/23 22:10:57  ncq
--- - staff.sign -> .short_alias
---
--- Revision 1.168  2006/01/10 23:22:17  sjtan
---
--- update permissions for views
---
--- Revision 1.167  2006/01/06 10:12:02  ncq
--- - add missing grants
--- - add_table_for_audit() now in "audit" schema
--- - demographics now in "dem" schema
--- - add view v_inds4vaccine
--- - move staff_role from clinical into demographics
--- - put add_coded_term() into "clin" schema
--- - put German things into "de_de" schema
---
--- Revision 1.166  2006/01/05 16:04:37  ncq
--- - move auditing to its own schema "audit"
---
--- Revision 1.165  2006/01/01 20:41:06  ncq
--- - move vacc_def constraints around
--- - add trigger constraint to make sure there's always base
---   immunization definitions for boosters
---
--- Revision 1.164  2005/12/29 21:48:09  ncq
--- - clin.vaccine.id -> pk
--- - remove clin.vaccine.last_batch_no
--- - add clin.vaccine_batches
--- - adjust test data and country data
---
--- Revision 1.163  2005/12/07 16:28:18  ncq
--- - with the help of the postgresql list fix the "add missing from"
---   error in v_hx_family
---
--- Revision 1.162  2005/12/06 13:26:55  ncq
--- - clin.clin_encounter -> clin.encounter
--- - also id -> pk
---
--- Revision 1.161  2005/12/05 19:05:59  ncq
--- - clin_episode -> episode
---
--- Revision 1.160  2005/12/04 09:42:06  ncq
--- - clin.clin_health_issue -> clin.health_issue
--- - properly use new add_table_for_notifies()
---
--- Revision 1.159  2005/11/29 19:06:13  ncq
--- - explicitly delete public.* tables from notify table and re-insert
---   clin.* tables since add_table_for_notifies doesn't support schema yet
---
--- Revision 1.158  2005/11/27 12:59:09  ncq
--- - comment out referral/constituent for now
---
--- Revision 1.157  2005/11/25 15:07:28  ncq
--- - create schema "clin" and move all things clinical into it
---
--- Revision 1.156  2005/10/26 21:33:25  ncq
--- - review status tracking
---
--- Revision 1.155  2005/09/25 17:49:24  ncq
--- - add start of current/previous encounter to waiting list view
---
--- Revision 1.154  2005/09/24 09:07:02  ncq
--- - removed left-over reference to clin_encounter.fk_provider
---
--- Revision 1.153  2005/09/22 15:43:48  ncq
--- - remove clin_encounter.fk_provider
--- - add v_waiting_list
---
--- Revision 1.152  2005/09/21 10:20:51  ncq
--- - waiting list grants
---
--- Revision 1.151  2005/09/19 16:19:58  ncq
--- - cleanup
--- - support rfe/aoe in clin_encounter and adjust to that
---
--- Revision 1.150  2005/09/13 11:56:20  ncq
--- - cleanup/comments
---
--- Revision 1.149  2005/09/11 17:41:20  ncq
--- - cleanup
--- - display provider sign in v_pat_narrative, not db account
---
--- Revision 1.148  2005/09/08 17:02:37  ncq
--- - include provider in v_pat_narrative
---
--- Revision 1.147  2005/08/15 16:30:42  ncq
--- - cleanup
--- - enforce "only one open episode per health issue at any time"
---
--- Revision 1.146  2005/07/14 21:31:42  ncq
--- - partially use improved schema revision tracking
---
--- Revision 1.145  2005/06/19 13:36:10  ncq
--- - allow updating clin_root_item directly as Syan showed it to be working
--- - fix problem list to only include real problems
---
--- Revision 1.144  2005/06/01 23:18:48  ncq
--- - missing grants on hx_family_item
---
--- Revision 1.143  2005/05/17 08:17:04  ncq
--- - refine clin_narrative row mapping in v_emr_journal to display is_rfe status
---
--- Revision 1.142  2005/04/27 20:00:11  ncq
--- - add missing coalesce in v_emr_journal
---
--- Revision 1.141  2005/04/17 16:33:49  ncq
--- - improve clin_health_issue display in v_emr_journal
---
--- Revision 1.140  2005/04/12 10:08:34  ncq
--- - fix faulty index drop
--- - add l10n_type to v_problem_list
---
--- Revision 1.139  2005/04/08 09:59:34  ncq
--- - dramatically speed up (read: make usable) v_most_recent_encounters
--- - add three indices on clin_encounter for v_most_recent_encounters
--- - index on coded_narrative
--- - function add_coded_term()
--- - rewrite diagnosis views based on coded_narrative
---
--- Revision 1.138  2005/04/03 20:14:04  ncq
--- - soap_cat_ranks grant
---
--- Revision 1.137  2005/03/31 18:02:35  ncq
--- - move strings to data
---
--- Revision 1.136  2005/03/31 17:46:00  ncq
--- - cleanup, remove dead code
--- - add v_emr_journal
--- - enhance several views to include modified_when/modified_by for v_emr_journal
--- - improve v_pat_narrative
--- - v_compl_narrative -> v_narrative4search
--- - grants
---
--- Revision 1.135  2005/03/21 20:10:20  ncq
--- - v_patient_items -> v_pat_items for consistency
--- - add v_hx_family and include in v_compl_narrative
---
--- Revision 1.134  2005/03/20 18:07:47  ncq
--- - properly protect clin_root_item and be verbose about it
--- - v_hx_family needs to be rewritten
---
--- Revision 1.133  2005/03/14 17:47:55  ncq
--- - store time zone of insert into clin_encounter as a
---   reasonable approximation for other timestamp time zones
---
--- Revision 1.132  2005/03/14 15:16:04  ncq
--- - missing variable declaration in f_rfi_type2item
---
--- Revision 1.131  2005/03/14 14:45:40  ncq
--- - episode naming much simplified hence simplified views
--- - add episode name into v_compl_narrative
--- - some id_patient -> pk_patient
--- - v_hx_family and grants
--- - apparently lnk_type2item cannot foreign key its fk_item to
---   clin_root_item and expect to work with *child* tables of
---   clin_root_item :-(  so add custom referential integrity trigger,
---   this lacks on update/delete support, though, naturally
---
--- Revision 1.130  2005/03/11 22:55:50  ncq
--- - cleanup
--- - carry over provider into narrative view
---
--- Revision 1.129  2005/03/01 20:40:10  ncq
--- - require name for all episodes thereby fixing not being able to
---   refetch unnamed episodes in the Python middleware
---
--- Revision 1.128  2005/02/15 18:26:41  ncq
--- - test_result.id -> pk
---
--- Revision 1.127  2005/02/12 13:49:14  ncq
--- - identity.id -> identity.pk
--- - allow NULL for identity.fk_marital_status
--- - subsequent schema changes
---
--- Revision 1.126  2005/02/07 13:02:41  ncq
--- - v_test_type_local -> v_test_type_unified
--- - old v_test_type_unified -> v_unified_test_types
--- - follow-on changes, grants
--- - remove cruft
---
--- Revision 1.125  2005/01/31 20:16:39  ncq
--- - clin_episode has fk_patient, not id_patient
---
--- Revision 1.124  2005/01/31 19:49:39  ncq
--- - clin_health_issue does not yet follow primary key == pk
---
--- Revision 1.123  2005/01/31 19:42:53  ncq
--- - add 2 missing "end if;"
---
--- Revision 1.122  2005/01/31 19:12:26  ncq
--- - add trigger to announce episode changes
---
--- Revision 1.121  2005/01/24 17:57:43  ncq
--- - cleanup
--- - Ian's enhancements to address and forms tables
---
--- Revision 1.120  2004/12/15 10:48:32  ncq
--- - carry pk of narrative in episode views so business objects can
---   update it (eg rename the episode)
---
--- Revision 1.119  2004/12/14 20:06:59  ncq
--- - v_test_results.unified_target_* from val_target_* first or val_normal_* second
---
--- Revision 1.118  2004/12/06 21:09:38  ncq
--- - eventually properly implement episode naming via deferred constraint trigger
---
--- Revision 1.117  2004/11/28 14:37:00  ncq
--- - adjust to clin_episode.fk_clin_narrative instead of clin_narrative.is_episode_name
---
--- Revision 1.116  2004/11/26 13:51:18  ncq
--- - always hard to get quoting right for dynamic pl/pgsql
---
--- Revision 1.115  2004/11/26 12:18:04  ncq
--- - trigger/func _name_new_episode
---
--- Revision 1.114  2004/11/24 15:39:33  ncq
--- - clin_episode does not have clinically_relevant anymore as per discussion on list
---
--- Revision 1.113  2004/11/21 21:38:31  ncq
--- - fix chi.is_open to be is_active
---
--- Revision 1.112  2004/11/21 21:02:48  ncq
--- - episode: is_active -> is_open
---
--- Revision 1.111  2004/11/16 19:01:27  ncq
--- - adjust to episode name now living in clin_narrative
--- - v_named_episodes still needs work to properly account for
---   erroneously unnamed episodes
---
--- Revision 1.110  2004/10/29 22:37:02  ncq
--- - propagate xmin to the relevant views to business classes can
---   use it for concurrency conflict detection
--- - fix v_problem_list to properly display a patient's problems
---
--- Revision 1.109  2004/10/12 09:50:21  ncq
--- - enhance v_vacc_regimes -> add "shots" field holding number of shots for regime
---
--- Revision 1.108  2004/10/11 19:32:19  ncq
--- - clean up v_pat_allergies
---
--- Revision 1.107  2004/09/29 19:17:24  ncq
--- - fix typos and grants
---
--- Revision 1.106  2004/09/29 10:38:22  ncq
--- - measurement views rewritten to match current discussion
---
--- Revision 1.105  2004/09/28 12:29:29  ncq
--- - add pk_vacc_def to v_vaccs_scheduled4pat
---
--- Revision 1.104  2004/09/25 13:25:56  ncq
--- - is_significant -> clinically_relevant
---
--- Revision 1.103  2004/09/22 14:12:19  ncq
--- - add rules to protect clin_root_item from direct insert/update/delete,
---   this prevents child table coherency issues
---
--- Revision 1.102  2004/09/20 21:14:11  ncq
--- - remove cruft, fix grants
--- - retire lnk_vacc2vacc_def for now as we seem to not need it
---
--- Revision 1.101  2004/09/18 13:49:32  ncq
--- - fix missing patient pk in v_compl_narrative
---
--- Revision 1.100  2004/09/18 00:19:24  ncq
--- - add v_compl_narrative
--- - add v_problem_list
--- - include is_significant in v_pat_episodes
---
--- Revision 1.99  2004/09/17 20:59:58  ncq
--- - remove cruft
--- - in v_pat_episodes UNION pull data from correct places ...
---
--- Revision 1.98  2004/09/17 20:28:05  ncq
--- - PG 7.4 is helpful: fix UNION
---
--- Revision 1.97  2004/09/17 20:14:06  ncq
--- - curr_medication -> clin_medication + propagate
--- - partial index on clin_episode.fk_health_issue where fk_health_issue not null
--- - index on clin_medication.discontinued where discontinued not null
--- - rework v_pat_episodes since episode can now have fk_health_issue = null
--- - add val_target_* to v_test_results
--- - fix grants
--- - improve clin_health_issue datatypes + comments
--- - clin_episode: add fk_patient, fk_health_issue nullable
--- - but constrain: if fk_health_issue null then fk_patient NOT none or vice versa
--- - form_instances are soaP
--- - start rework of clin_medication (was curr_medication)
---
--- Revision 1.96  2004/08/16 19:31:49  ncq
--- - add comments to views
--- - rewrite v_vacc_regimes to be distinct on fk_regime
--- - add v_vacc_defs4reg to list vaccination events for all
---   known schedules, this used to be v_vacc_regimes
--- - add v_vacc_regs4pat to list schedules a given patient
---   is on
--- - add v_vaccs_scheduled4pat to list vaccination events
---   that are scheduled for a patient according to the
---   schedules that patient is on
--- - rewrite v_pat_missing_vaccs/boosters based on the above
--- - matching grants
---
--- Revision 1.95  2004/08/11 08:59:54  ncq
--- - added v_pat_narrative by Carlos
---
--- Revision 1.94  2004/08/04 10:07:49  ncq
--- - added v_pat_item_types/v_types4item
---
--- Revision 1.93  2004/07/18 11:50:19  ncq
--- - added arbitrary typing of clin_root_items
---
--- Revision 1.92  2004/07/17 20:57:53  ncq
--- - don't use user/_user workaround anymore as we dropped supporting
---   it (but we did NOT drop supporting readonly connections on > 7.3)
---
--- Revision 1.91  2004/07/12 17:23:09  ncq
--- - allow for coding any SOAP row
--- - adjust views/tables to that
---
--- Revision 1.90  2004/07/07 15:07:34  ncq
--- - v_pat_diag_codes
--- - v_codes4diag
---
--- Revision 1.89  2004/07/05 22:47:34  ncq
--- - added pk_diag to v_coded_diag
---
--- Revision 1.88  2004/07/05 18:46:51  ncq
--- - fix grants
---
--- Revision 1.87  2004/07/05 17:47:13  ncq
--- - v_rfe/aoe -> v_pat_rfe/aoe
---
--- Revision 1.86  2004/07/04 16:31:09  ncq
--- - fix v_coded_diags: fk_diag=pk_diag
---
--- Revision 1.85  2004/07/04 16:14:41  ncq
--- - add grants
--- - I'm getting old
---
--- Revision 1.84  2004/07/04 16:12:44  ncq
--- - DROP INDEX cannot have ON clause, duh
---
--- Revision 1.83  2004/07/04 16:10:29  ncq
--- - add v_aoe/v_rfe
---
--- Revision 1.82  2004/07/03 17:24:08  ncq
--- - can't name all indexes the same :-)
---
--- Revision 1.81  2004/07/03 17:17:41  ncq
--- - indexes on clin_narrative
---
--- Revision 1.80  2004/07/02 15:00:10  ncq
--- - bring rfe/aoe/diag/coded_diag tables/views up to snuff and use them
---
--- Revision 1.79  2004/07/02 00:28:52  ncq
--- - clin_working_diag -> clin_coded_diag + index fixes therof
--- - v_pat_diag rewritten for clin_coded_diag, more useful now
--- - v_patient_items.id_item -> pk_item
--- - grants fixed
--- - clin_rfe/aoe folded into clin_narrative, that enhanced by
---   is_rfe/aoe with appropriate check constraint logic
--- - test data adapted to schema changes
---
--- Revision 1.78  2004/06/30 15:43:52  ncq
--- - clin_note -> clin_narrative
--- - remove v_i18n_curr_encounter
--- - add clin_rfe, clin_aoe
---
--- Revision 1.77  2004/06/28 15:04:31  ncq
--- - add pk_item to v_lab_requests
---
--- Revision 1.76  2004/06/28 12:38:30  ncq
--- - fixed on fk_ -> pk_
---
--- Revision 1.75  2004/06/28 12:15:38  ncq
--- - add view on lab_request -> v_lab_requests so we can fk_ -> pk_
---
--- Revision 1.74  2004/06/26 23:42:44  ncq
--- - indices on clin_root_item fields in descendants
--- - id_* -> fk/pk_*
---
--- Revision 1.73  2004/06/26 07:33:55  ncq
--- - id_episode -> fk/pk_episode
---
--- Revision 1.72  2004/06/13 08:08:35  ncq
--- - pull in some more PKs in views for episode/encounter/issue sorting
---
--- Revision 1.71  2004/06/02 00:05:51  ncq
--- - vpep.episode now vpep.description
---
--- Revision 1.70  2004/06/01 08:43:21  ncq
--- - fix grants re allergy_state
--- - include soap_cat in v_patient_items
---
--- Revision 1.69  2004/05/30 20:58:13  ncq
--- - encounter_type.id -> encounter_type.pk
---
--- Revision 1.68  2004/05/22 11:54:23  ncq
--- - cleanup signal handling on allergy table
---
--- Revision 1.67  2004/05/11 01:34:51  ncq
--- - allow test results with lab_request.is_pending is True in v_results4lab_req
---
--- Revision 1.66  2004/05/08 20:43:48  ncq
--- - eventually seem to have fixed latest_due/amount_overdue in v_pat_missing_boosters
---
--- Revision 1.65  2004/05/08 17:39:54  ncq
--- - remove v_i18n_enum_encounter_type
--- - _enum_encounter_type -> encounter_type
--- - add some _() uses
--- - improve v_pat_missing_vaccs/v_pat_missing_boosters
--- - cleanup/grants
---
--- Revision 1.64  2004/05/07 14:27:46  ncq
--- - first cut at amount_overdue for missing boosters (eg,
---   now() - (last_given + min_interval)) but doesn't work as
---   expecte for last_given is null despite coalesce(..., min_interval)
---
--- Revision 1.63  2004/05/06 23:34:52  ncq
--- - test_type_uni -> test_type_local
---
--- Revision 1.62  2004/05/02 19:25:21  ncq
--- - adapt to progress_note <-> description reversal in clin_working_diag
---
--- Revision 1.61  2004/04/30 12:22:31  ihaywood
--- new referral table
--- some changes to old medications tables, but still need more work
---
--- Revision 1.60  2004/04/30 09:20:09  ncq
--- - add v_pat_diag, grants
---
--- Revision 1.59  2004/04/30 09:12:30  ncq
--- - fk description clin_working_diag -> clin_aux_note
--- - v_pat_diag
---
--- Revision 1.58  2004/04/27 15:18:38  ncq
--- - rework diagnosis tables + grants for them
---
--- Revision 1.57  2004/04/26 21:17:10  ncq
--- - fix v_test_org_profile
---
--- Revision 1.56  2004/04/26 09:38:43  ncq
--- - enhance test_org_profile
---
--- Revision 1.55  2004/04/24 12:59:17  ncq
--- - all shiny and new, vastly improved vaccinations
---   handling via clinical item objects
--- - mainly thanks to Carlos Moro
---
--- Revision 1.54  2004/04/21 15:35:23  ihaywood
--- new referral table (do we still need gmclinical.form_data then?)
---
--- Revision 1.53  2004/04/21 15:30:24  ncq
--- - fix coalesce on unified_name/code in v_results4lab_req
--- - add unified_val
---
--- Revision 1.52  2004/04/20 00:17:56  ncq
--- - allergies API revamped, kudos to Carlos
---
--- Revision 1.51  2004/04/17 12:42:09  ncq
--- - add v_pat_encounters
---
--- Revision 1.50  2004/04/17 11:54:16  ncq
--- - v_patient_episodes -> v_pat_episodes
---
--- Revision 1.49  2004/04/07 18:16:06  ncq
--- - move grants into re-runnable scripts
--- - update *.conf accordingly
---
--- Revision 1.48  2004/03/23 17:34:49  ncq
--- - support and use optionally cross-provider unified test names
---
--- Revision 1.47  2004/03/23 02:33:13  ncq
--- - comments/constraints/references on test_result, also result_when -> clin_when
--- - v_results4lab_req, v_test_org_profile, grants
---
--- Revision 1.46  2004/03/19 10:55:40  ncq
--- - remove allergy.reaction -> use clin_root_item.narrative instead
---
--- Revision 1.45  2004/03/12 23:15:04  ncq
--- - adjust to id_ -> fk_/pk_
---
--- Revision 1.44  2004/02/18 15:29:05  ncq
--- - add v_most_recent_encounters
---
--- Revision 1.43  2004/02/02 16:17:42  ncq
--- - remove v_patient_vaccinations, v_pat_due_vaccs, v_pat_overdue_vaccs
--- - add v_pat_missing_vaccs, v_pat_missing_boosters
---
--- Revision 1.42  2004/01/26 20:08:16  ncq
--- - fk_recommended_by as pk_recommended_by
---
--- Revision 1.41  2004/01/26 18:26:04  ncq
--- - add/rename some FKs in views
---
--- Revision 1.40  2004/01/18 21:56:38  ncq
--- - v_patient_vacc4ind
--- - reformatting DDLs
---
--- Revision 1.39  2004/01/06 23:44:40  ncq
--- - __default__ -> xxxDEFAULTxxx
---
--- Revision 1.38  2003/12/29 15:31:53  uid66147
--- - rebuild v_vacc_regimes/v_patient_vaccinations/v_pat_due|overdue_vaccs due
---   to vaccination/vacc_def link normalization
--- - grants
---
--- Revision 1.37  2003/12/02 02:13:25  ncq
--- - we want UNIQUE indices on names.active etc
--- - add some i18n to views as well as some coalesce()
---
--- Revision 1.36  2003/11/28 10:07:52  ncq
--- - improve vaccination views
---
--- Revision 1.35  2003/11/28 01:03:48  ncq
--- - add views *_overdue_vaccs and *_due_vaccs
---
--- Revision 1.34  2003/11/26 23:54:51  ncq
--- - lnk_vaccdef2reg does not exist anymore
---
--- Revision 1.33  2003/11/18 17:52:37  ncq
--- - clin_date -> clin_when in v_patient_items
---
--- Revision 1.32  2003/11/16 19:34:29  ncq
--- - make partial index on __default__ encounters optional, fails on 7.1
---
--- Revision 1.31  2003/11/16 19:32:17  ncq
--- - clin_when in clin_root_item
---
--- Revision 1.30  2003/11/13 09:47:29  ncq
--- - use clin_date instead of date_given in vaccination
---
--- Revision 1.29  2003/11/09 22:45:45  ncq
--- - curr_encounter doesn't have id_patient anymore, fix trigger funcs
---
--- Revision 1.28  2003/11/09 14:54:56  ncq
--- - update view defs
---
--- Revision 1.27  2003/10/31 23:27:06  ncq
--- - clin_encounter now has fk_patient, hence v_i18n_patient_encounters
---   not needed anymore
--- - add v_i18n_curr_encounter view
--- - add v_patient_vaccinations view
---
--- Revision 1.26  2003/10/26 09:41:03  ncq
--- - truncate -> delete from
---
--- Revision 1.25  2003/10/19 15:43:00  ncq
--- - even better vaccination tables
---
--- Revision 1.24  2003/10/19 12:59:42  ncq
--- - add vaccination views (still flaky)
---
--- Revision 1.23  2003/08/03 14:06:45  ncq
--- - added measurements views
---
--- Revision 1.22  2003/07/19 20:23:47  ncq
--- - add clin_root_item triggers
--- - modify NOTIFY triggers so they include the patient ID
---   as per Ian's suggestion
---
--- Revision 1.21  2003/07/09 16:23:21  ncq
--- - add clin_health_issue triggers and functions
---
--- Revision 1.20  2003/06/29 15:24:22  ncq
--- - now clin_root_item inherits from audit_fields we can add
---    extract(epoch from modified_when) as age
---   to v_patient_items and order by that :-)
---
--- Revision 1.19  2003/06/22 16:23:35  ncq
--- - curr_encounter tracking triggers + grants
---
--- Revision 1.18  2003/06/03 13:49:06  ncq
--- - reorder v_patient_episodes/*_items for clarity
---
--- Revision 1.17  2003/06/01 11:38:12  ncq
--- - fix spelling of definate -> definite
---
--- Revision 1.16  2003/05/17 18:40:24  ncq
--- - notify triggers should come last, so make them zz*
---
--- Revision 1.15  2003/05/14 22:07:13  ncq
--- - adapt to changes in gmclinical.sql, particularly the narrative/item merge
---
--- Revision 1.14  2003/05/12 12:43:39  ncq
--- - gmI18N, gmServices and gmSchemaRevision are imported globally at the
---   database level now, don't include them in individual schema file anymore
---
--- Revision 1.13  2003/05/06 13:06:25  ncq
--- - pkey_ -> pk_
---
--- Revision 1.12  2003/05/05 11:59:50  ncq
--- - adapt to clin_narrative being an ancestor table
---
--- Revision 1.11  2003/05/05 00:31:28  ncq
--- - add grants
---
--- Revision 1.10  2003/05/05 00:27:34  ncq
--- - add as to encounter types
---
--- Revision 1.9  2003/05/05 00:19:12  ncq
--- - we do need the v_i18n_ on encounter types
---
--- Revision 1.8  2003/05/04 23:35:59  ncq
--- - major reworking to follow the formal EMR structure writeup
---
--- Revision 1.7  2003/05/03 00:44:05  ncq
--- - make patient allergies view work
---
--- Revision 1.6  2003/05/02 15:06:19  ncq
--- - make trigger return happy
--- - tweak v_i18n_patient_allergies - not done yet
---
--- Revision 1.5  2003/05/01 15:05:36  ncq
--- - function/trigger to announce insertion/deletion of allergy
--- - allergy.id_substance -> allergy.substance_code
---
--- Revision 1.4  2003/04/30 23:30:29  ncq
--- - v_i18n_patient_allergies
--- - new_allergy -> allergy_new
---
--- Revision 1.3  2003/04/29 12:34:54  ncq
--- - added more views + grants
---
--- Revision 1.2  2003/04/28 21:39:49  ncq
--- - cleanups and GRANTs
---
--- Revision 1.1  2003/04/28 20:40:48  ncq
--- - this can safely be dropped and recreated even with data in the tables
---

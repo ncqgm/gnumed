@@ -15,9 +15,7 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_most_recent_encounters cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_most_recent_encounters cascade;
 
 create view clin.v_most_recent_encounters as
 select

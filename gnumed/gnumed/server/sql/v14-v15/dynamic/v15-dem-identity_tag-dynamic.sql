@@ -50,9 +50,7 @@ alter table dem.identity_tag
 
 -- --------------------------------------------------------------
 -- .comment
-\unset ON_ERROR_STOP
-alter table dem.identity_tag drop constraint dem_identity_tag_sane_comment cascade;
-\set ON_ERROR_STOP 1
+alter table dem.identity_tag drop constraint if exists dem_identity_tag_sane_comment cascade;
 
 alter table dem.identity_tag
 	add constraint dem_identity_tag_sane_comment check (
@@ -62,9 +60,7 @@ alter table dem.identity_tag
 
 -- --------------------------------------------------------------
 -- table constraints
-\unset ON_ERROR_STOP
-alter table dem.identity_tag drop constraint dem_identity_tag_uniq_tag cascade;
-\set ON_ERROR_STOP 1
+alter table dem.identity_tag drop constraint if exists dem_identity_tag_uniq_tag cascade;
 
 alter table dem.identity_tag
 	add constraint dem_identity_tag_uniq_tag
@@ -80,7 +76,6 @@ delete from dem.identity_tag where
 	fk_tag = (select pk from ref.tag_image where description = 'Occupation: astronaut')
 ;
 
-\unset ON_ERROR_STOP
 insert into dem.identity_tag (
 	fk_identity,
 	fk_tag,
@@ -89,14 +84,11 @@ insert into dem.identity_tag (
 	(select pk_identity from dem.v_basic_person where lastnames = 'Kirk' and firstnames = 'James Tiberius'),
 	(select pk from ref.tag_image where description = 'Occupation: astronaut'),
 	'communicate via intercom only'
-);
-\set ON_ERROR_STOP 1
+) on conflict (fk_identity, fk_tag) do nothing;
 
 -- --------------------------------------------------------------
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view dem.v_identity_tags cascade;
-\set ON_ERROR_STOP 1
+drop view if exists dem.v_identity_tags cascade;
 
 create view dem.v_identity_tags as
 

@@ -21,9 +21,7 @@ where
 ;
 
 -- add constraint
-\unset ON_ERROR_STOP
-alter table clin.encounter drop constraint clin_enc_sane_duration cascade;
-\set ON_ERROR_STOP 1
+alter table clin.encounter drop constraint if exists clin_enc_sane_duration cascade;
 
 
 alter table clin.encounter

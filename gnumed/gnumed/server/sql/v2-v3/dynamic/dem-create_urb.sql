@@ -15,9 +15,7 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-DROP function dem.create_urb(text, text, text, text);
-\set ON_ERROR_STOP 1
+DROP function if exists dem.create_urb(text, text, text, text);
 
 CREATE function dem.create_urb(text, text, text, text) RETURNS integer AS '
 DECLARE

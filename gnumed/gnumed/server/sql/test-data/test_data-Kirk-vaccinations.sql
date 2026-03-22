@@ -13,8 +13,6 @@ set default_transaction_read_only to off;
 
 begin;
 -- =============================================
-\unset ON_ERROR_STOP
-
 insert into clin.vaccination (
 	clin_when,
 	fk_encounter,
@@ -57,8 +55,6 @@ insert into clin.vaccination (
 	'AH-07/2-11',
 	'atypical swelling of injection site and malaise'
 );
-
-\set ON_ERROR_STOP 1
 
 -- =============================================
 -- do simple schema revision tracking

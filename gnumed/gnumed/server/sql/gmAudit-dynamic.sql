@@ -100,11 +100,9 @@ comment on function audit.add_table_for_audit(name) is
 -- ---------------------------------------------
 -- protect from direct inserts/updates/deletes which the
 -- inheritance system can't handle properly
-\unset ON_ERROR_STOP
-drop rule audit_fields_no_ins on audit.audit_fields cascade;
-drop rule audit_fields_no_upd on audit.audit_fields cascade;
-drop rule audit_fields_no_del on audit.audit_fields cascade;
-\set ON_ERROR_STOP 1
+drop rule if exists audit_fields_no_ins on audit.audit_fields cascade;
+drop rule if exists audit_fields_no_upd on audit.audit_fields cascade;
+drop rule if exists audit_fields_no_del on audit.audit_fields cascade;
 
 -- FIXME: those should actually use PL/pgSQL and raise
 --        an exception...
@@ -123,11 +121,9 @@ create rule audit_fields_no_del as
 -- ---------------------------------------------
 -- protect from direct inserts/updates/deletes which the
 -- inheritance system can't handle properly
-\unset ON_ERROR_STOP
-drop rule audit_trail_no_ins on audit.audit_trail cascade;
-drop rule audit_trail_no_upd on audit.audit_trail cascade;
-drop rule audit_trail_no_del on audit.audit_trail cascade;
-\set ON_ERROR_STOP 1
+drop rule if exists audit_trail_no_ins on audit.audit_trail cascade;
+drop rule if exists audit_trail_no_upd on audit.audit_trail cascade;
+drop rule if exists audit_trail_no_del on audit.audit_trail cascade;
 
 -- FIXME: those should actually use PL/pgSQL and raise
 --        an exception...

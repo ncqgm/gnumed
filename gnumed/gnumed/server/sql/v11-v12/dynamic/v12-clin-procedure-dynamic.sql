@@ -5,10 +5,6 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v12-clin-procedure-dynamic.sql,v 1.5 2009-11-13 21:10:57 ncq Exp $
--- $Revision: 1.5 $
-
--- --------------------------------------------------------------
 --set default_transaction_read_only to off;
 \set ON_ERROR_STOP 1
 
@@ -47,9 +43,7 @@ alter table clin.procedure
 
 
 
-\unset ON_ERROR_STOP
-alter table clin.procedure drop constraint sane_procedure cascade;
-\set ON_ERROR_STOP 1
+alter table clin.procedure drop constraint if exists sane_procedure cascade;
 
 alter table clin.procedure
 	add constraint sane_procedure
@@ -58,9 +52,7 @@ alter table clin.procedure
 
 
 
-\unset ON_ERROR_STOP
-alter table clin.procedure drop constraint sane_location cascade;
-\set ON_ERROR_STOP 1
+alter table clin.procedure drop constraint if exists sane_location cascade;
 
 alter table clin.procedure
 	add constraint sane_location
@@ -69,9 +61,7 @@ alter table clin.procedure
 
 
 
-\unset ON_ERROR_STOP
-alter table clin.procedure drop constraint single_location_definition cascade;
-\set ON_ERROR_STOP 1
+alter table clin.procedure drop constraint if exists single_location_definition cascade;
 
 alter table clin.procedure
 	add constraint single_location_definition
@@ -84,9 +74,7 @@ alter table clin.procedure
 
 
 
-\unset ON_ERROR_STOP
-alter table clin.procedure drop constraint sane_soap_cat cascade;
-\set ON_ERROR_STOP 1
+alter table clin.procedure drop constraint if exists sane_soap_cat cascade;
 
 alter table clin.procedure
 	add constraint sane_soap_cat
@@ -96,9 +84,7 @@ alter table clin.procedure
 
 
 -- x-check fk_episode vs fk_hospital_stay
-\unset ON_ERROR_STOP
-drop function clin.trf_sanity_check_procedure_episode() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.trf_sanity_check_procedure_episode() cascade;
 
 create function clin.trf_sanity_check_procedure_episode()
 	returns trigger
@@ -139,9 +125,7 @@ grant usage, select, update on
 to group "gm-doctors";
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_procedures cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_procedures cascade;
 
 
 
@@ -195,9 +179,7 @@ grant select on
 TO GROUP "gm-doctors";
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_procedures_journal cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_procedures_journal cascade;
 
 
 create view clin.v_pat_procedures_journal as
@@ -242,26 +224,3 @@ grant select on clin.v_pat_procedures_journal TO GROUP "gm-doctors";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v12-clin-procedure-dynamic.sql,v $', '$Revision: 1.5 $');
-
--- ==============================================================
--- $Log: v12-clin-procedure-dynamic.sql,v $
--- Revision 1.5  2009-11-13 21:10:57  ncq
--- - try to improve single location check
--- - improved trigger name and fix NEW reference
--- - add missing grants
--- - journal view
---
--- Revision 1.4  2009/09/23 14:47:15  ncq
--- - sane-procedure constraint
---
--- Revision 1.3  2009/09/17 22:01:58  ncq
--- - fix single_location check
--- - v-pat-procedures
---
--- Revision 1.2  2009/09/15 15:21:01  ncq
--- - fix proper check on stay vs clin_where
---
--- Revision 1.1  2009/09/13 18:17:28  ncq
--- - new table
---
---

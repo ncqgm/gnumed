@@ -12,9 +12,7 @@
 -- triggers ensuring backwards referential integrity from coding tables
 
 -- UPDATE
-\unset ON_ERROR_STOP
-drop function ref.trf_upd_ref_code_tbl_check_backlink() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists ref.trf_upd_ref_code_tbl_check_backlink() cascade;
 
 create or replace function ref.trf_upd_ref_code_tbl_check_backlink()
 	returns trigger
@@ -48,9 +46,7 @@ comment on function ref.trf_upd_ref_code_tbl_check_backlink() is
 
 
 -- DELETE
-\unset ON_ERROR_STOP
-drop function ref.trf_del_ref_code_tbl_check_backlink() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists ref.trf_del_ref_code_tbl_check_backlink() cascade;
 
 create or replace function ref.trf_del_ref_code_tbl_check_backlink()
 	returns trigger
@@ -80,10 +76,8 @@ comment on function ref.trf_del_ref_code_tbl_check_backlink() is
 
 -- apply this to child tables:
 --
---\unset ON_ERROR_STOP
---drop trigger tr_upd_ref_code_tbl_check_backlink on ref.xxxxx;
---drop trigger tr_del_ref_code_tbl_check_backlink on ref.xxxxx;
---\set ON_ERROR_STOP 1
+--drop trigger if exists tr_upd_ref_code_tbl_check_backlink on ref.xxxxx;
+--drop trigger if exists tr_del_ref_code_tbl_check_backlink on ref.xxxxx;
 --
 -- UPDATE
 --create trigger tr_upd_ref_code_tbl_check_backlink
@@ -96,9 +90,7 @@ comment on function ref.trf_del_ref_code_tbl_check_backlink() is
 --		for each row execute procedure ref.trf_del_ref_code_tbl_check_backlink();
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view ref.v_generic_codes cascade;
-\set ON_ERROR_STOP 1
+drop view if exists ref.v_generic_codes cascade;
 
 
 create view ref.v_generic_codes as

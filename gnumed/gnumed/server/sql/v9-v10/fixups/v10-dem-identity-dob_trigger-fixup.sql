@@ -5,18 +5,12 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v10-dem-identity-dob_trigger-fixup.sql,v 1.2 2009-05-18 09:46:55 ncq Exp $
--- $Revision: 1.2 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
 -- fix trigger
-\unset ON_ERROR_STOP
-drop function dem.trf_normalize_time_in_dob() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists dem.trf_normalize_time_in_dob() cascade;
 
 
 create or replace function dem.trf_normalize_time_in_dob()
@@ -59,13 +53,3 @@ where
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v10-dem-identity-dob_trigger-fixup.sql,v $', '$Revision: 1.2 $');
-
--- ==============================================================
--- $Log: v10-dem-identity-dob_trigger-fixup.sql,v $
--- Revision 1.2  2009-05-18 09:46:55  ncq
--- - new
---
--- Revision 1.1.2.1  2009/05/15 14:52:26  ncq
--- - fix faulty DOB trigger logic
---
---

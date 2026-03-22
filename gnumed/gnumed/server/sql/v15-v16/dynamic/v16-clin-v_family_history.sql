@@ -8,10 +8,8 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_hx_family cascade;
-drop view clin.v_family_history cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_hx_family cascade;
+drop view if exists clin.v_family_history cascade;
 
 
 create view clin.v_family_history as

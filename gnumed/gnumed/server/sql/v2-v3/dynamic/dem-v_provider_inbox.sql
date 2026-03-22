@@ -18,9 +18,7 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view dem.v_provider_inbox cascade;
-\set ON_ERROR_STOP 1
+drop view if exists dem.v_provider_inbox cascade;
 
 -- ---------------------------------------------
 create view dem.v_provider_inbox as
@@ -88,25 +86,3 @@ grant select on dem.v_provider_inbox to group "gm-doctors";
 
 -- --------------------------------------------------------------
 select public.log_script_insertion('$RCSfile: dem-v_provider_inbox.sql,v $', '$Revision: 1.2 $');
-
--- ==============================================================
--- $Log: dem-v_provider_inbox.sql,v $
--- Revision 1.2  2007-09-24 23:31:17  ncq
--- - remove begin; commit; as it breaks the bootstrapper
---
--- Revision 1.1  2006/10/08 08:53:24  ncq
--- - got dropped by other changes
---
--- Revision 1.4  2006/09/28 14:39:51  ncq
--- - add comment template
---
--- Revision 1.3  2006/09/18 17:32:53  ncq
--- - make more fool-proof
---
--- Revision 1.2  2006/09/16 21:47:37  ncq
--- - improvements
---
--- Revision 1.1  2006/09/16 14:02:36  ncq
--- - use this as a template for change scripts
---
---

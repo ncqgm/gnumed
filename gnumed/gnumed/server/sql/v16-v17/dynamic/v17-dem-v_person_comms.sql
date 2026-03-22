@@ -8,9 +8,7 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view dem.v_person_comms cascade;
-\set ON_ERROR_STOP 1
+drop view if exists dem.v_person_comms cascade;
 
 create view dem.v_person_comms as
 select

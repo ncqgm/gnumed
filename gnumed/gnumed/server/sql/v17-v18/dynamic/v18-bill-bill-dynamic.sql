@@ -13,9 +13,7 @@ set check_function_bodies to on;
 -- .comment
 comment on column bill.bill.comment is 'arbitrary comments on bills';
 
-\unset ON_ERROR_STOP
-alter table bill.bill drop constraint bill_bill_sane_comment;
-\set ON_ERROR_STOP 1
+alter table bill.bill drop constraint if exists bill_bill_sane_comment;
 
 alter table bill.bill
 	add constraint bill_bill_sane_comment check (
@@ -23,9 +21,7 @@ alter table bill.bill
 	);
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view bill.v_bills cascade;
-\set ON_ERROR_STOP 1
+drop view if exists bill.v_bills cascade;
 
 create or replace view bill.v_bills as
 

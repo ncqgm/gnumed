@@ -8,9 +8,7 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_vaccs4indication cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_vaccs4indication cascade;
 
 create view clin.v_pat_vaccs4indication as
 
@@ -71,9 +69,7 @@ comment on view clin.v_pat_vaccs4indication is
 grant select on clin.v_pat_vaccs4indication to group "gm-doctors";
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_last_vacc4indication cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_last_vacc4indication cascade;
 
 create view clin.v_pat_last_vacc4indication as
 

@@ -22,9 +22,7 @@ grant select on clin.lnk_code2rfe to group "gm-public";
 grant insert, update, delete on clin.lnk_code2rfe to group "gm-doctors";
 grant usage on clin.lnk_code2rfe_pk_seq to group "gm-doctors";
 
-\unset ON_ERROR_STOP
-alter table clin.lnk_code2rfe drop constraint clin_lc2rfe_code_uniq_per_item cascade;
-\set ON_ERROR_STOP 1
+alter table clin.lnk_code2rfe drop constraint if exists clin_lc2rfe_code_uniq_per_item cascade;
 
 alter table clin.lnk_code2rfe
 	add constraint clin_lc2rfe_code_uniq_per_item
@@ -36,9 +34,7 @@ comment on column clin.lnk_code2rfe.fk_item is
 'Foreign key to clin.encounter';
 
 
-\unset ON_ERROR_STOP
-alter table clin.lnk_code2rfe drop constraint lnk_code2rfe_fk_item_fkey cascade;
-\set ON_ERROR_STOP 1
+alter table clin.lnk_code2rfe drop constraint if exists lnk_code2rfe_fk_item_fkey cascade;
 
 
 alter table clin.lnk_code2rfe
@@ -48,9 +44,7 @@ alter table clin.lnk_code2rfe
 		on delete cascade;				-- delete if encounter is deleted
 
 
-\unset ON_ERROR_STOP
-drop index idx_c_lc2rfe_fk_item cascade;
-\set ON_ERROR_STOP 1
+drop index if exists idx_c_lc2rfe_fk_item cascade;
 
 create index idx_c_lc2rfe_fk_item on clin.lnk_code2rfe(fk_item);
 
@@ -91,9 +85,7 @@ grant select on clin.lnk_code2aoe to group "gm-public";
 grant insert, update, delete on clin.lnk_code2aoe to group "gm-doctors";
 grant usage on clin.lnk_code2aoe_pk_seq to group "gm-doctors";
 
-\unset ON_ERROR_STOP
-alter table clin.lnk_code2aoe drop constraint clin_lc2aoe_code_uniq_per_item cascade;
-\set ON_ERROR_STOP 1
+alter table clin.lnk_code2aoe drop constraint if exists clin_lc2aoe_code_uniq_per_item cascade;
 
 alter table clin.lnk_code2aoe
 	add constraint clin_lc2aoe_code_uniq_per_item
@@ -105,9 +97,7 @@ comment on column clin.lnk_code2aoe.fk_item is
 'Foreign key to clin.encounter';
 
 
-\unset ON_ERROR_STOP
-alter table clin.lnk_code2aoe drop constraint lnk_code2aoe_fk_item_fkey cascade;
-\set ON_ERROR_STOP 1
+alter table clin.lnk_code2aoe drop constraint if exists lnk_code2aoe_fk_item_fkey cascade;
 
 
 alter table clin.lnk_code2aoe
@@ -117,9 +107,7 @@ alter table clin.lnk_code2aoe
 		on delete cascade;				-- delete if encounter is deleted
 
 
-\unset ON_ERROR_STOP
-drop index idx_c_lc2aoe_fk_item cascade;
-\set ON_ERROR_STOP 1
+drop index if exists idx_c_lc2aoe_fk_item cascade;
 
 create index idx_c_lc2aoe_fk_item on clin.lnk_code2aoe(fk_item);
 

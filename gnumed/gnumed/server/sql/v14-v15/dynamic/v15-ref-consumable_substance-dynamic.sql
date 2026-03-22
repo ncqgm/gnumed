@@ -24,9 +24,7 @@ comment on table ref.consumable_substance is
 comment on column ref.consumable_substance.description is
 	'The substance name.';
 
-\unset ON_ERROR_STOP
-alter table ref.consumable_substance drop constraint ref_subst_sane_desc cascade;
-\set ON_ERROR_STOP 1
+alter table ref.consumable_substance drop constraint if exists ref_subst_sane_desc cascade;
 
 alter table ref.consumable_substance
 	add constraint ref_subst_sane_desc
@@ -44,9 +42,7 @@ local application formulations.
 This code can *only* be used to *identify* the substance,
 not the use/application formulation thereof.';
 
-\unset ON_ERROR_STOP
-alter table ref.consumable_substance drop constraint ref_subst_sane_atc cascade;
-\set ON_ERROR_STOP 1
+alter table ref.consumable_substance drop constraint if exists ref_subst_sane_atc cascade;
 
 alter table ref.consumable_substance
 	add constraint ref_subst_sane_atc
@@ -57,9 +53,7 @@ alter table ref.consumable_substance
 comment on column ref.consumable_substance.amount is
 	'The amount of substance.';
 
-\unset ON_ERROR_STOP
-alter table ref.consumable_substance drop constraint ref_consumable_sane_amount cascade;
-\set ON_ERROR_STOP 1
+alter table ref.consumable_substance drop constraint if exists ref_consumable_sane_amount cascade;
 
 alter table ref.consumable_substance
 	alter column amount
@@ -74,9 +68,7 @@ alter table ref.consumable_substance
 comment on column ref.consumable_substance.unit is
 	'The unit of the amount of substance.';
 
-\unset ON_ERROR_STOP
-alter table ref.consumable_substance drop constraint ref_consumable_sane_unit cascade;
-\set ON_ERROR_STOP 1
+alter table ref.consumable_substance drop constraint if exists ref_consumable_sane_unit cascade;
 
 alter table ref.consumable_substance
 	add constraint ref_consumable_sane_unit
@@ -84,9 +76,7 @@ alter table ref.consumable_substance
 
 -- --------------------------------------------------------------
 -- table constraints
-\unset ON_ERROR_STOP
-alter table ref.consumable_substance drop constraint ref_consumable_uniq_subst_amount_unit cascade;
-\set ON_ERROR_STOP 1
+alter table ref.consumable_substance drop constraint if exists ref_consumable_uniq_subst_amount_unit cascade;
 
 alter table ref.consumable_substance
 	add constraint ref_consumable_uniq_subst_amount_unit
@@ -105,26 +95,95 @@ to group "gm-doctors";
 
 -- --------------------------------------------------------------
 -- sample data
-\unset ON_ERROR_STOP
 insert into ref.consumable_substance (
 	description,
 	atc_code,
 	amount,
 	unit
 ) values
-	('Ibuprofen', 'M01AE01', 600, 'mg'),
-	('tobacco', 'N07BA01', 1, 'pack'),
-	('nicotine', 'N07BA01', 1, 'pack'),
-	('alcohol', 'V03AB16', 1, 'glass'),
-	('Tabak', 'N07BA01', 1, 'Schachtel'),
-	('Nikotin', 'N07BA01', 1, 'Schachtel'),
-	('Alkohol', 'V03AB16', 1, 'Glas'),
-	('Nikotin', 'N07BA01', 0.8, 'mg'),
-	('Teer', 'D05AA', 10, 'mg'),
 	('Kohlenmonoxid', NULL, 10, 'mg')
-;
-\set ON_ERROR_STOP 1
+on conflict (description, amount, unit) do nothing;
 
+insert into ref.consumable_substance (
+	description,
+	atc_code,
+	amount,
+	unit
+) values
+	('Teer', 'D05AA', 10, 'mg')
+on conflict (description, amount, unit) do nothing;
+
+insert into ref.consumable_substance (
+	description,
+	atc_code,
+	amount,
+	unit
+) values
+	('Nikotin', 'N07BA01', 0.8, 'mg')
+on conflict (description, amount, unit) do nothing;
+
+insert into ref.consumable_substance (
+	description,
+	atc_code,
+	amount,
+	unit
+) values
+	('Alkohol', 'V03AB16', 1, 'Glas')
+on conflict (description, amount, unit) do nothing;
+
+insert into ref.consumable_substance (
+	description,
+	atc_code,
+	amount,
+	unit
+) values
+	('Nikotin', 'N07BA01', 1, 'Schachtel')
+on conflict (description, amount, unit) do nothing;
+
+insert into ref.consumable_substance (
+	description,
+	atc_code,
+	amount,
+	unit
+) values
+	('Tabak', 'N07BA01', 1, 'Schachtel')
+on conflict (description, amount, unit) do nothing;
+
+insert into ref.consumable_substance (
+	description,
+	atc_code,
+	amount,
+	unit
+) values
+	('alcohol', 'V03AB16', 1, 'glass')
+on conflict (description, amount, unit) do nothing;
+
+insert into ref.consumable_substance (
+	description,
+	atc_code,
+	amount,
+	unit
+) values
+	('nicotine', 'N07BA01', 1, 'pack')
+on conflict (description, amount, unit) do nothing;
+
+insert into ref.consumable_substance (
+	description,
+	atc_code,
+	amount,
+	unit
+) values
+	('tobacco', 'N07BA01', 1, 'pack')
+on conflict (description, amount, unit) do nothing;
+
+insert into ref.consumable_substance (
+	description,
+	atc_code,
+	amount,
+	unit
+) values
+	('Ibuprofen', 'M01AE01', 600, 'mg')
+on conflict (description, amount, unit) do nothing;
 
 
 delete from ref.consumable_substance where description like '%-Starship';
@@ -143,9 +202,7 @@ insert into ref.consumable_substance (
 
 -- --------------------------------------------------------------
 -- generate clin.consumable_substance entries from v14 database knowledge
-\unset ON_ERROR_STOP
-drop function tmp_transfer_consumable_substances() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists tmp_transfer_consumable_substances() cascade;
 
 
 create or replace function tmp_transfer_consumable_substances()
@@ -258,9 +315,7 @@ drop function tmp_transfer_consumable_substances() cascade;
 
 -- --------------------------------------------------------------
 -- MUST protect from changing if in use directly or indirectly
-\unset ON_ERROR_STOP
-drop function ref.trf_do_not_update_substance_if_taken_by_patient() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists ref.trf_do_not_update_substance_if_taken_by_patient() cascade;
 
 create or replace function ref.trf_do_not_update_substance_if_taken_by_patient()
 	returns trigger

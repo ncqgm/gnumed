@@ -17,9 +17,7 @@ set check_function_bodies to on;
 
 
 -- eventually add the trigger to warn on potential dupes
-\unset ON_ERROR_STOP
-drop function clin.trf_warn_on_duplicate_vaccinations() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.trf_warn_on_duplicate_vaccinations() cascade;
 
 create function clin.trf_warn_on_duplicate_vaccinations()
 	returns trigger

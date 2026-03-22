@@ -5,14 +5,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v10-blobs-v_reviewed_doc_objects.sql,v 1.1 2008-12-01 21:46:34 ncq Exp $
--- $Revision: 1.1 $
-
--- --------------------------------------------------------------
 -- remember to handle dependent objects possibly dropped by CASCADE
-\unset ON_ERROR_STOP
-drop view blobs.v_reviewed_doc_objects cascade;
-\set ON_ERROR_STOP 1
+drop view if exists blobs.v_reviewed_doc_objects cascade;
 
 
 create view blobs.v_reviewed_doc_objects as
@@ -52,10 +46,3 @@ grant select on blobs.v_reviewed_doc_objects to group "gm-doctors";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v10-blobs-v_reviewed_doc_objects.sql,v $', '$Revision: 1.1 $');
-
--- ==============================================================
--- $Log: v10-blobs-v_reviewed_doc_objects.sql,v $
--- Revision 1.1  2008-12-01 21:46:34  ncq
--- - new
---
---

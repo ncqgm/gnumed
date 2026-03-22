@@ -14,9 +14,7 @@
 
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_test_results cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_test_results cascade;
 
 
 create view clin.v_test_results as

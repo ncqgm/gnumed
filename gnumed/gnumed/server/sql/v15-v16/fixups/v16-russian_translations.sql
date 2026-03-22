@@ -14,8 +14,6 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-
 select i18n.upd_tx(quote_literal(E'ru_RU'), quote_literal(E'Abakan'), quote_literal(E'Абакан'));
 select i18n.upd_tx(quote_literal(E'ru_RU'), quote_literal(E'Aberdeen'), quote_literal(E'Аберден'));
 select i18n.upd_tx(quote_literal(E'ru_RU'), quote_literal(E'aboriginal/tsi only'), quote_literal(E'только aboriginal/tsi'));
@@ -48,8 +46,6 @@ select i18n.upd_tx(quote_literal(E'ru_RU'), quote_literal(E'proxy encounter'), q
 select i18n.upd_tx(quote_literal(E'ru_RU'), quote_literal(E'referral report other'), quote_literal(E'другое сообщение о направлении'));
 select i18n.upd_tx(quote_literal(E'ru_RU'), quote_literal(E'repeat script'), quote_literal(E'дублирование'));
 select i18n.upd_tx(quote_literal(E'ru_RU'), quote_literal(E'video conference'), quote_literal(E'видеоконференция'));
-
-\set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v16-russian_translations.sql', '16.11');

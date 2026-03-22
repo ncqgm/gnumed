@@ -9,9 +9,7 @@
 set check_function_bodies to on;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view dem.v_org_unit_comms cascade;
-\set ON_ERROR_STOP 1
+drop view if exists dem.v_org_unit_comms cascade;
 
 create view dem.v_org_unit_comms as
 select

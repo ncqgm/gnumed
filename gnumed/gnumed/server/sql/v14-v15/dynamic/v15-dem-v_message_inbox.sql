@@ -29,9 +29,7 @@ grant usage, select on
 to group "gm-public";
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view dem.v_message_inbox cascade;
-\set ON_ERROR_STOP 1
+drop view if exists dem.v_message_inbox cascade;
 
 
 create view dem.v_message_inbox as

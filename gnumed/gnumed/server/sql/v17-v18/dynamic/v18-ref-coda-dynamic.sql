@@ -12,10 +12,8 @@ comment on table ref.coda is
 	'Holds CodA/CodZ codes.';
 
 
-\unset ON_ERROR_STOP
-drop trigger tr_upd_ref_code_tbl_check_backlink on ref.coda;
-drop trigger tr_del_ref_code_tbl_check_backlink on ref.coda;
-\set ON_ERROR_STOP 1
+drop trigger if exists tr_upd_ref_code_tbl_check_backlink on ref.coda;
+drop trigger if exists tr_del_ref_code_tbl_check_backlink on ref.coda;
 
 
 -- UPDATE
@@ -39,29 +37,23 @@ comment on column ref.coda.icd10_text is
 	'The text of the corresponding ICD-10 code.';
 
 
-\unset ON_ERROR_STOP
-alter table ref.coda drop constraint ref_coda_sane_icd10_text cascade;
-\set ON_ERROR_STOP 1
+alter table ref.coda drop constraint if exists ref_coda_sane_icd10_text cascade;
 
 alter table ref.coda
 	add constraint chk_ref_coda_sane_icd10_text
 		check (gm.is_null_or_blank_string(icd10_text) is False);
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop index idx_ref_coda_fk_data_src cascade;
-drop index idx_ref_coda_code_unique_per_system cascade;
-drop index idx_ref_coda_term_unique_per_system cascade;
-\set ON_ERROR_STOP 1
+drop index if exists idx_ref_coda_fk_data_src cascade;
+drop index if exists idx_ref_coda_code_unique_per_system cascade;
+drop index if exists idx_ref_coda_term_unique_per_system cascade;
 
 create index idx_ref_coda_fk_data_src on ref.coda(fk_data_source);
 create unique index idx_ref_coda_code_unique_per_system on ref.coda(fk_data_source, lower(code));
 create unique index idx_ref_coda_term_unique_per_system on ref.coda(fk_data_source, lower(code), lower(term));
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-alter table ref.coda drop constraint coda_fk_data_source_fkey cascade;
-\set ON_ERROR_STOP 1
+alter table ref.coda drop constraint if exists coda_fk_data_source_fkey cascade;
 
 alter table ref.coda
 	add foreign key (fk_data_source)

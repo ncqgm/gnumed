@@ -12,9 +12,7 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_episodes_journal cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_episodes_journal cascade;
 
 
 create view clin.v_pat_episodes_journal as

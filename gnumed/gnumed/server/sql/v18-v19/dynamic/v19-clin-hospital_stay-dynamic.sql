@@ -89,10 +89,8 @@ comment on column clin.hospital_stay.narrative is 'a comment on the hospital sta
 -- --------------------------------------------------------------
 -- rewrite views + grants
 
-\unset ON_ERROR_STOP
-drop view clin.v_pat_hospital_stays cascade;
-drop view clin.v_hospital_stays cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_hospital_stays cascade;
+drop view if exists clin.v_hospital_stays cascade;
 
 create view clin.v_hospital_stays as
 select

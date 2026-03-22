@@ -5,17 +5,11 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v10-clin-v_pat_allergy_state_journal-fixup.sql,v 1.2 2009-05-18 09:46:55 ncq Exp $
--- $Revision: 1.2 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_allergy_state_journal cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_allergy_state_journal cascade;
 
 
 create view clin.v_pat_allergy_state_journal as
@@ -64,13 +58,3 @@ from
 grant select on clin.v_pat_allergy_state_journal to group "gm-doctors";
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v10-clin-v_pat_allergy_state_journal-fixup.sql,v $', '$Revision: 1.2 $');
-
--- ==============================================================
--- $Log: v10-clin-v_pat_allergy_state_journal-fixup.sql,v $
--- Revision 1.2  2009-05-18 09:46:55  ncq
--- - new
---
--- Revision 1.1.2.1  2009/03/28 13:54:29  ncq
--- - fix use of coalesce()
---
---

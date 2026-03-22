@@ -5,17 +5,11 @@
 -- Author: 
 --
 -- ==============================================================
--- $Id: v10-dem-v_staff.sql,v 1.1 2008-12-22 18:55:13 ncq Exp $
--- $Revision: 1.1 $
-
--- --------------------------------------------------------------
 --set default_transaction_read_only to off;
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view dem.v_staff cascade;
-\set ON_ERROR_STOP 1
+drop view if exists dem.v_staff cascade;
 
 
 create view dem.v_staff as
@@ -72,10 +66,3 @@ grant select on dem.v_staff to group "gm-public";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v10-dem-v_staff.sql,v $', '$Revision: 1.1 $');
-
--- ==============================================================
--- $Log: v10-dem-v_staff.sql,v $
--- Revision 1.1  2008-12-22 18:55:13  ncq
--- - were dropped
---
---

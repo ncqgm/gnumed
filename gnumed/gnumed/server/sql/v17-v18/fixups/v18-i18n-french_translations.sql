@@ -33,7 +33,6 @@ where
 	lang ~ E'\'.+\''
 ;
 
-\unset ON_ERROR_STOP
 
 select i18n.upd_tx(E'fr', E'adopted daughter', E'belle-fille');
 select i18n.upd_tx(E'fr', E'Austria', E'Autriche');
@@ -55,8 +54,6 @@ select i18n.upd_tx(E'fr_FR', E'Hospital', E'Hopital');
 select i18n.upd_tx(E'fr_FR', E'hospital visit', E'consultation à l\'hopital');
 select i18n.upd_tx(E'fr_FR', E'in surgery', E'chirurgie');
 select i18n.upd_tx(E'fr_FR', E'nursing home visit', E'infirmière à domicile');
-
-\set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v18-i18n-french_translations.sql', '18.2');

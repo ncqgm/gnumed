@@ -9,9 +9,7 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-alter table ref.paperwork_templates drop constraint engine_range cascade;
-\set ON_ERROR_STOP 1
+alter table ref.paperwork_templates drop constraint if exists engine_range cascade;
 
 
 alter table ref.paperwork_templates

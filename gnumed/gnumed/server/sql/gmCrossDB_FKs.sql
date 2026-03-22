@@ -58,9 +58,7 @@ comment on column x_db_fk.last_checked is
 	 (used for efficiency)';
 
 -- ===================================================================
-\unset ON_ERROR_STOP
-drop function add_x_db_fk_def (name, name, text, name, name);
-\set ON_ERROR_STOP 1
+drop function if exists add_x_db_fk_def (name, name, text, name, name);
 
 create function add_x_db_fk_def (name, name, text, name, name) returns boolean as '
 DECLARE

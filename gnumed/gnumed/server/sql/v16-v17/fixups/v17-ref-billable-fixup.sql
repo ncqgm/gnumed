@@ -18,11 +18,9 @@ delete from audit.audited_tables a_at where
 	a_at.table_name = 'billable'
 ;
 
-\unset ON_ERROR_STOP
-drop function audit.ft_del_billable() cascade;
-drop function audit.ft_ins_billable() cascade;
-drop function audit.ft_upd_billable() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists audit.ft_del_billable() cascade;
+drop function if exists audit.ft_ins_billable() cascade;
+drop function if exists audit.ft_upd_billable() cascade;
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v17-ref-billable-fixup.sql', '17.2');

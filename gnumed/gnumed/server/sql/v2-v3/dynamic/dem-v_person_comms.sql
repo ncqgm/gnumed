@@ -15,9 +15,7 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view dem.v_person_comms cascade;
-\set ON_ERROR_STOP 1
+drop view if exists dem.v_person_comms cascade;
 
 create view dem.v_person_comms as
 
@@ -46,25 +44,3 @@ grant select on dem.v_person_comms to group "gm-doctors";
 
 -- --------------------------------------------------------------
 select public.log_script_insertion('asdf$RCSfile: dem-v_person_comms.sql,v $', '$Revision: 1.1 $');
-
--- ==============================================================
--- $Log: dem-v_person_comms.sql,v $
--- Revision 1.1  2006-11-20 15:53:41  ncq
--- - needed by comms API
---
--- Revision 1.5  2006/10/24 13:09:45  ncq
--- - What it does duplicates the change log so axe it
---
--- Revision 1.4  2006/09/28 14:39:51  ncq
--- - add comment template
---
--- Revision 1.3  2006/09/18 17:32:53  ncq
--- - make more fool-proof
---
--- Revision 1.2  2006/09/16 21:47:37  ncq
--- - improvements
---
--- Revision 1.1  2006/09/16 14:02:36  ncq
--- - use this as a template for change scripts
---
---

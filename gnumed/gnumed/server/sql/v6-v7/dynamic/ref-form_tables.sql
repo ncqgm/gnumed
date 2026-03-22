@@ -80,9 +80,7 @@ comment on function ref.trf_protect_template_data() is
 	'Do not allow updates to the template data if
 	 any forms already use this template.';
 
-\unset ON_ERROR_STOP
-drop trigger tr_protect_template_data on ref.paperwork_templates cascade;
-\set ON_ERROR_STOP 1
+drop trigger if exists tr_protect_template_data on ref.paperwork_templates cascade;
 
 create trigger tr_protect_template_data
 	before update on ref.paperwork_templates
@@ -91,10 +89,8 @@ create trigger tr_protect_template_data
 
 
 -- example form template
-\unset ON_ERROR_STOP
-insert into ref.form_types (name) values (i18n.i18n('physical therapy report'));
-insert into ref.form_types (name) values (i18n.i18n('other letter'));
-\set ON_ERROR_STOP 1
+insert into ref.form_types (name) values (i18n.i18n('physical therapy report')) on conflict (name) do nothing;
+insert into ref.form_types (name) values (i18n.i18n('other letter')) on conflict (name) do nothing;
 
 select i18n.upd_tx('de_DE', 'physical therapy report', 'Therapiebericht (PT)');
 select i18n.upd_tx('de_DE', 'other letter', 'sonstiger Brief');
@@ -124,9 +120,7 @@ then import the ott file into the template field in ref.paperwork_templates'::by
 );
 
 
-\unset ON_ERROR_STOP
-drop view ref.v_paperwork_templates cascade;
-\set ON_ERROR_STOP 1
+drop view if exists ref.v_paperwork_templates cascade;
 
 create view ref.v_paperwork_templates as
 select

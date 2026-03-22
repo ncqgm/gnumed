@@ -15,10 +15,8 @@
 
 --set default_transaction_read_only to off;
 
---begin;
+begin;
 -- =============================================
-\unset ON_ERROR_STOP
-
 insert into clin.procedure (
 	clin_when,
 	fk_encounter,
@@ -79,26 +77,11 @@ insert into clin.procedure (
 
 );
 
-\set ON_ERROR_STOP 1
-
 -- =============================================
 -- do simple schema revision tracking
 select gm.log_script_insertion('$RCSfile: test_data-Kirk-procedure-dynamic.sql,v $', '$Revision: 1.2 $');
 
 -- comment out the "rollback" if you want to
 -- really store the above patient data
---rollback;
---commit;
-
--- =============================================
--- $Log: test_data-Kirk-procedure-dynamic.sql,v $
--- Revision 1.2  2009-10-23 09:43:38  ncq
--- - make optional
---
--- Revision 1.1  2009/09/17 21:50:29  ncq
--- - add a procedure
---
--- Revision 1.1  2009/09/01 22:11:26  ncq
--- - new
---
---
+rollback;
+commit;

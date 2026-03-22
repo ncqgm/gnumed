@@ -5,10 +5,6 @@
 -- Author: karsten.hilbert@gmx.net
 --
 -- ==============================================================
--- $Id: v10-gm-access_log-dynamic.sql,v 1.1 2008-12-12 16:33:17 ncq Exp $
--- $Revision: 1.1 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 --set default_transaction_read_only to off;
 
@@ -21,9 +17,7 @@ create or replace function gm.is_null_or_blank_string(text)
 
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-alter table gm.access_log drop constraint non_empty_user_action cascade;
-\set ON_ERROR_STOP 1
+alter table gm.access_log drop constraint if exists non_empty_user_action cascade;
 
 
 alter table gm.access_log
@@ -82,10 +76,3 @@ comment on function gm.log_other_access(text) is 'This logs access to the databa
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v10-gm-access_log-dynamic.sql,v $', '$Revision: 1.1 $');
-
--- ==============================================================
--- $Log: v10-gm-access_log-dynamic.sql,v $
--- Revision 1.1  2008-12-12 16:33:17  ncq
--- - HIPAA support
---
---

@@ -9,18 +9,14 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop index dem.idx_msg_inbox_fk_staff cascade;
-drop index dem.idx_msg_inbox_fk_patient cascade;
-\set ON_ERROR_STOP 1
+drop index if exists dem.idx_msg_inbox_fk_staff cascade;
+drop index if exists dem.idx_msg_inbox_fk_patient cascade;
 
 create index idx_msg_inbox_fk_staff on dem.message_inbox(fk_staff);
 create index idx_msg_inbox_fk_patient on dem.message_inbox(fk_patient);
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view dem.v_message_inbox cascade;
-\set ON_ERROR_STOP 1
+drop view if exists dem.v_message_inbox cascade;
 
 
 create view dem.v_message_inbox as

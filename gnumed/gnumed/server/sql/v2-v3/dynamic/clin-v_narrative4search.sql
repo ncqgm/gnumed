@@ -15,9 +15,7 @@
 -- $Revision: 1.4 $
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_narrative4search cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_narrative4search cascade;
 
 -- --------------------------------------------------------------
 -- FIXME: add form_data
@@ -184,31 +182,3 @@ grant select on clin.v_narrative4search to group "gm-doctors";
 
 -- --------------------------------------------------------------
 select public.log_script_insertion('$RCSfile: clin-v_narrative4search.sql,v $', '$Revision: 1.4 $');
-
--- ==============================================================
--- $Log: clin-v_narrative4search.sql,v $
--- Revision 1.4  2007-09-24 23:31:17  ncq
--- - remove begin; commit; as it breaks the bootstrapper
---
--- Revision 1.3  2006/12/11 17:03:58  ncq
--- - dem.v_staff -> dem.staff
---
--- Revision 1.2  2006/10/24 13:10:30  ncq
--- - health issue id_patient -> fk_patient
---
--- Revision 1.1  2006/09/25 10:55:01  ncq
--- - added here
---
--- Revision 1.2  2006/09/18 17:32:26  ncq
--- - exclude empty encounters
---
--- Revision 1.1  2006/09/16 21:46:57  ncq
--- - include FKs for narrative search
--- - include BLOB tables
--- - UNION ALL
--- - various coalesce fixes
---
--- Revision 1.1  2006/09/16 14:02:36  ncq
--- - use this as a template for change scripts
---
---

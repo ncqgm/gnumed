@@ -8,10 +8,7 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop table clin.consumed_substance cascade;
-\set ON_ERROR_STOP 1
-
+drop table if exists clin.consumed_substance cascade;
 
 
 delete from audit.audited_tables aat

@@ -12,9 +12,7 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_test_results cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_test_results cascade;
 
 
 create view clin.v_test_results as
@@ -159,9 +157,7 @@ comment on view clin.v_test_results is
 
 grant select on clin.v_test_results to group "gm-doctors";
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_test_results_journal cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_test_results_journal cascade;
 
 
 create view clin.v_test_results_journal as
@@ -226,44 +222,3 @@ comment on view clin.v_test_results_journal is
 grant select on clin.v_test_results_journal to group "gm-doctors";
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v9-clin-v_test_results.sql,v $', '$Revision: 1.10 $');
-
--- ==============================================================
--- $Log: v9-clin-v_test_results.sql,v $
--- Revision 1.10  2008-08-15 15:59:39  ncq
--- - propagate row_version
---
--- Revision 1.9  2008/06/24 14:41:06  ncq
--- - improved formatting again, and made 8.1-proof
---
--- Revision 1.8  2008/06/24 14:04:23  ncq
--- - somewhat better journal formatting
---
--- Revision 1.7  2008/06/23 21:51:59  ncq
--- - stricter type casting
---
--- Revision 1.6  2008/06/22 17:34:33  ncq
--- - cleanup
--- - v_test_results_journal
---
--- Revision 1.5  2008/04/16 20:40:46  ncq
--- - do proper join on clin.reviewed_test_results
--- - support one-review-per-row paradigm
---
--- Revision 1.4  2008/04/14 17:15:41  ncq
--- - notification setup moved away
--- - only one review per row of results so support that
---
--- Revision 1.3  2008/04/02 10:17:54  ncq
--- - cleanup
--- - add you_are_reviewer
---
--- Revision 1.2  2008/03/29 16:25:49  ncq
--- - align column names
--- - cleanup
---
--- Revision 1.1  2008/03/20 15:27:28  ncq
--- - add episode/issue/review status
---
--- Revision 1.1  2008/01/27 21:06:00  ncq
--- - new
--- 

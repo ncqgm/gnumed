@@ -5,10 +5,6 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v11-ref-atc-dynamic.sql,v 1.2 2009-06-10 21:05:28 ncq Exp $
--- $Revision: 1.2 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 --set default_transaction_read_only to off;
 
@@ -39,9 +35,7 @@ comment on column ref.atc.comment is
 'a comment on this ATC';
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view ref.v_atc cascade;
-\set ON_ERROR_STOP 1
+drop view if exists ref.v_atc cascade;
 
 create view ref.v_atc as
 select
@@ -79,13 +73,3 @@ to group "gm-doctors";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v11-ref-atc-dynamic.sql,v $', '$Revision: 1.2 $');
-
--- ==============================================================
--- $Log: v11-ref-atc-dynamic.sql,v $
--- Revision 1.2  2009-06-10 21:05:28  ncq
--- - add grants
---
--- Revision 1.1  2009/06/04 17:48:10  ncq
--- - first version
---
---

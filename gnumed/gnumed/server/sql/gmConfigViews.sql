@@ -123,9 +123,7 @@ comment on table cfg.cfg_data is
 	 among different types of clients';
 
 -- ======================================================
-\unset ON_ERROR_STOP
-drop view cfg.v_cfg_options;
-\set ON_ERROR_STOP 1
+drop view if exists cfg.v_cfg_options;
 
 create view cfg.v_cfg_options as
 select
@@ -146,9 +144,7 @@ where
 ;
 
 -- ======================================================
-\unset ON_ERROR_STOP
-drop view cfg.v_cfg_opts_numeric;
-\set ON_ERROR_STOP 1
+drop view if exists cfg.v_cfg_opts_numeric;
 
 create view cfg.v_cfg_opts_numeric as
 select
@@ -172,9 +168,7 @@ where
 ;
 
 -- ======================================================
-\unset ON_ERROR_STOP
-drop view cfg.v_cfg_opts_string;
-\set ON_ERROR_STOP 1
+drop view if exists cfg.v_cfg_opts_string;
 
 create view cfg.v_cfg_opts_string as
 select
@@ -198,9 +192,7 @@ where
 ;
 
 -- ======================================================
-\unset ON_ERROR_STOP
-drop view cfg.v_cfg_opts_str_array;
-\set ON_ERROR_STOP 1
+drop view if exists cfg.v_cfg_opts_str_array;
 
 create view cfg.v_cfg_opts_str_array as
 select
@@ -224,9 +216,7 @@ where
 ;
 
 -- ======================================================
-\unset ON_ERROR_STOP
-drop view cfg.v_cfg_opts_data;
-\set ON_ERROR_STOP 1
+drop view if exists cfg.v_cfg_opts_data;
 
 create view cfg.v_cfg_opts_data as
 select

@@ -12,9 +12,7 @@
 -- dem.org.fk_data_source
 comment on column dem.org.fk_data_source is 'Source of the organization data.';
 
-\unset ON_ERROR_STOP
-alter table dem.org drop constraint org_fk_data_source_fkey cascade;
-\set ON_ERROR_STOP 1
+alter table dem.org drop constraint if exists org_fk_data_source_fkey cascade;
 
 alter table dem.org
 	add foreign key (fk_data_source)
@@ -30,10 +28,8 @@ alter table dem.org
 -- --------------------------------------------------------------
 -- dem.lnk_org_unit2comm
 
-\unset ON_ERROR_STOP
-alter table dem.lnk_org_unit2comm drop constraint lnk_org_unit2comm_fk_org_unit_fkey cascade;
-alter table dem.lnk_org_unit2comm drop constraint lnk_org_unit2comm_fk_org_unit_fkey1 cascade;
-\set ON_ERROR_STOP 1
+alter table dem.lnk_org_unit2comm drop constraint if exists lnk_org_unit2comm_fk_org_unit_fkey cascade;
+alter table dem.lnk_org_unit2comm drop constraint if exists lnk_org_unit2comm_fk_org_unit_fkey1 cascade;
 
 -- .fk_org_unit
 alter table dem.lnk_org_unit2comm
@@ -46,10 +42,8 @@ alter table dem.lnk_org_unit2comm
 -- --------------------------------------------------------------
 -- dem.lnk_org_unit2ext_id
 
-\unset ON_ERROR_STOP
-alter table dem.lnk_org_unit2comm drop constraint lnk_org_unit2ext_id_fk_org_unit_fkey cascade;
-alter table dem.lnk_org_unit2comm drop constraint lnk_org_unit2ext_id_fk_org_unit_fkey1 cascade;
-\set ON_ERROR_STOP 1
+alter table dem.lnk_org_unit2comm drop constraint if exists lnk_org_unit2ext_id_fk_org_unit_fkey cascade;
+alter table dem.lnk_org_unit2comm drop constraint if exists lnk_org_unit2ext_id_fk_org_unit_fkey1 cascade;
 
 -- .fk_org_unit
 alter table dem.lnk_org_unit2ext_id
@@ -76,10 +70,8 @@ where
 ;
 
 
-\unset ON_ERROR_STOP
-alter table dem.org_category drop constraint org_category_description_key cascade;
-drop index idx_dem_org_category_description cascade;
-\set ON_ERROR_STOP 1
+alter table dem.org_category drop constraint if exists org_category_description_key cascade;
+drop index if exists idx_dem_org_category_description cascade;
 
 create unique index idx_dem_org_category_description on dem.org_category(lower(description));
 

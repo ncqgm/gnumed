@@ -14,10 +14,8 @@ set check_function_bodies to 'on';
 comment on column clin.substance_intake.fk_drug_component is
 	'Links to the component of a branded drug taken by a patient.';
 
-\unset ON_ERROR_STOP
-alter table clin.substance_intake drop constraint substance_intake_fk_drug_component_fkey cascade;
-drop function audit.ft_upd_substance_intake() cascade;
-\set ON_ERROR_STOP 1
+alter table clin.substance_intake drop constraint if exists substance_intake_fk_drug_component_fkey cascade;
+drop function if exists audit.ft_upd_substance_intake() cascade;
 
 alter table clin.substance_intake
 	add foreign key (fk_drug_component)
@@ -59,9 +57,7 @@ alter table clin.substance_intake
 	alter column fk_substance
 		drop not null;
 
-\unset ON_ERROR_STOP
-alter table clin.substance_intake drop constraint substance_intake_fk_substance_fkey cascade;
-\set ON_ERROR_STOP 1
+alter table clin.substance_intake drop constraint if exists substance_intake_fk_substance_fkey cascade;
 
 update clin.substance_intake set
 	fk_substance = (
@@ -87,9 +83,7 @@ where
 	fk_drug_component is not null
 ;
 
-\unset ON_ERROR_STOP
-alter table clin.substance_intake drop constraint clin_subst_intake_either_drug_or_substance cascade;
-\set ON_ERROR_STOP 1
+alter table clin.substance_intake drop constraint if exists clin_subst_intake_either_drug_or_substance cascade;
 
 alter table clin.substance_intake
 	add constraint clin_subst_intake_either_drug_or_substance
@@ -117,9 +111,7 @@ where
 	fk_drug_component is not null
 ;
 
-\unset ON_ERROR_STOP
-alter table clin.substance_intake drop constraint clin_subst_intake_sane_prep cascade;
-\set ON_ERROR_STOP 1
+alter table clin.substance_intake drop constraint if exists clin_subst_intake_sane_prep cascade;
 
 alter table clin.substance_intake
 	add constraint clin_subst_intake_sane_prep
@@ -131,21 +123,17 @@ alter table clin.substance_intake
 
 -- --------------------------------------------------------------
 -- cleanup
-\unset ON_ERROR_STOP
-alter table clin.substance_intake drop column tmp_unit cascade;
-alter table clin.substance_intake drop column tmp_amount cascade;
-alter table clin.substance_intake drop column fk_brand cascade;
-alter table audit.log_substance_intake drop column fk_brand cascade;
-\set ON_ERROR_STOP 1
+alter table clin.substance_intake drop column if exists tmp_unit cascade;
+alter table clin.substance_intake drop column if exists tmp_amount cascade;
+alter table clin.substance_intake drop column if exists fk_brand cascade;
+alter table audit.log_substance_intake drop column if exists fk_brand cascade;
 
 -- --------------------------------------------------------------
 -- trigger
 -- --------------------------------------------------------------
 
 -- INSERT
-\unset ON_ERROR_STOP
-drop function ref.trf_insert_intake_prevent_duplicate_component_links() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists ref.trf_insert_intake_prevent_duplicate_component_links() cascade;
 
 create or replace function ref.trf_insert_intake_prevent_duplicate_component_links()
 	returns trigger
@@ -192,9 +180,7 @@ create trigger tr_insert_intake_prevent_duplicate_component_links
 		for each row execute procedure ref.trf_insert_intake_prevent_duplicate_component_links();
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function ref.trf_insert_intake_links_all_drug_components() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists ref.trf_insert_intake_links_all_drug_components() cascade;
 
 create or replace function ref.trf_insert_intake_links_all_drug_components()
 	returns trigger
@@ -302,9 +288,7 @@ create trigger tr_insert_intake_links_all_drug_components
 
 -- --------------------------------------------------------------
 -- UPDATE
-\unset ON_ERROR_STOP
-drop function ref.trf_update_intake_must_link_all_drug_components() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists ref.trf_update_intake_must_link_all_drug_components() cascade;
 
 create or replace function ref.trf_update_intake_must_link_all_drug_components()
 	returns trigger
@@ -403,9 +387,7 @@ create constraint trigger tr_update_intake_must_link_all_drug_components
 	for each row execute procedure ref.trf_update_intake_must_link_all_drug_components();
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function ref.trf_update_intake_updates_all_drug_components() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists ref.trf_update_intake_updates_all_drug_components() cascade;
 
 create or replace function ref.trf_update_intake_updates_all_drug_components()
 	returns trigger
@@ -499,9 +481,7 @@ create constraint trigger tr_update_intake_updates_all_drug_components
 
 -- --------------------------------------------------------------
 -- DELETE
-\unset ON_ERROR_STOP
-drop function ref.trf_delete_intake_document_deleted() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists ref.trf_delete_intake_document_deleted() cascade;
 
 create or replace function ref.trf_delete_intake_document_deleted()
 	returns trigger
@@ -567,9 +547,7 @@ create trigger tr_delete_intake_document_deleted
 	for each row execute procedure ref.trf_delete_intake_document_deleted();
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function ref.trf_delete_intake_turns_other_components_into_substances() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists ref.trf_delete_intake_turns_other_components_into_substances() cascade;
 
 create or replace function ref.trf_delete_intake_turns_other_components_into_substances()
 	returns trigger

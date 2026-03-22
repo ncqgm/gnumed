@@ -53,9 +53,7 @@ COMMENT ON COLUMN blobs.doc_med.ext_ref IS
 	'external reference string of physical document,
 	 original paper copy can be found with this';
 
-\unset ON_ERROR_STOP
-drop function blobs.trf_remove_primary_episode_from_link_table() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists blobs.trf_remove_primary_episode_from_link_table() cascade;
 
 create function blobs.trf_remove_primary_episode_from_link_table()
 	returns trigger
@@ -98,9 +96,7 @@ comment on table blobs.lnk_doc_med2episode is
 	 but only once each';
 
 -- FIXME: trigger on insert: fail silently if already in doc_med.fk_episode	 
-\unset ON_ERROR_STOP
-drop function blobs.trf_do_not_duplicate_primary_episode_in_link_table() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists blobs.trf_do_not_duplicate_primary_episode_in_link_table() cascade;
 
 create function blobs.trf_do_not_duplicate_primary_episode_in_link_table()
 	returns trigger
@@ -181,9 +177,7 @@ comment on table blobs.reviewed_doc_objs is
 	'review table for documents (per object such as a page)';
 
 -- =============================================
-\unset ON_ERROR_STOP
-drop function blobs.trf_mark_unreviewed_on_doc_obj_update() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists blobs.trf_mark_unreviewed_on_doc_obj_update() cascade;
 
 create function blobs.trf_mark_unreviewed_on_doc_obj_update()
 	returns trigger
@@ -201,9 +195,7 @@ create trigger tr_mark_unreviewed_on_doc_obj_update
 	for each row execute procedure blobs.trf_mark_unreviewed_on_doc_obj_update();
 
 -- =============================================
-\unset ON_ERROR_STOP
-drop view blobs.v_doc_type cascade;
-\set ON_ERROR_STOP 1
+drop view if exists blobs.v_doc_type cascade;
 
 create view blobs.v_doc_type as
 select
@@ -376,9 +368,7 @@ where
 	)
 ;
 -- =============================================
-\unset ON_ERROR_STOP
-drop view blobs.v_reviewed_doc_objects cascade;
-\set ON_ERROR_STOP 1
+drop view if exists blobs.v_reviewed_doc_objects cascade;
 
 create view blobs.v_reviewed_doc_objects as
 select
@@ -455,121 +445,3 @@ TO GROUP "gm-doctors";
 -- =============================================
 -- do simple schema revision tracking
 select public.log_script_insertion('$RCSfile: gmBlobViews.sql,v $', '$Revision: 1.32 $');
-
--- =============================================
--- $Log: gmBlobViews.sql,v $
--- Revision 1.32  2006-11-22 09:59:51  ncq
--- - do not mark blobs.xlnk_identity for auditing as it would clash
---   with clin.xlnk_identity -- and it's dropped later on anyways
---
--- Revision 1.31  2006/07/10 21:48:44  ncq
--- - improve blobs.v_doc_type
---
--- Revision 1.30  2006/07/04 21:40:17  ncq
--- - add is_user to blobs.v_doc_type
---
--- Revision 1.29  2006/05/25 22:26:24  ncq
--- - reformat blobs.v_obj4doc_no_data and add episode name and pk
---
--- Revision 1.28  2006/05/09 11:37:52  ncq
--- - properly create blobs.v_obj4doc
---
--- Revision 1.27  2006/05/08 16:38:27  ncq
--- - derive blobs.v_obj4doc from blobs.v_obj4doc_no_data
--- - add modified_when to blobs.v_doc_med for sorting
---
--- Revision 1.26  2006/05/06 20:47:45  ncq
--- - include some episode data in blobs.v_doc_med
---
--- Revision 1.25  2006/05/01 18:51:07  ncq
--- - add v_obj4doc_no_data for denormalized access to object metadata without
---   incurring overhead for BLOB data per object
--- - grants added
---
--- Revision 1.24  2006/04/29 18:19:38  ncq
--- - comment more columns
--- - add fk_encounter/fk_episode to doc_med
--- - trigger to make sure episode is linked to doc in doc_med OR lnk_doc_med2episode only
--- - doc_med.data now TEXT ! not timestamp (needs to be able to be fuzzy)
--- - adjust test BLOBs to new situation
---
--- Revision 1.23  2006/03/06 09:39:31  ncq
--- - lnk_doc_med2episode
---
--- Revision 1.22  2006/02/27 22:39:32  ncq
--- - spell out rfe/aoe
---
--- Revision 1.21  2006/02/13 08:29:51  ncq
--- - add blobs.v_reviewed_doc_objects
---
--- Revision 1.20  2006/02/02 17:54:48  ncq
--- - invalidate reviewed status on update to blobs.doc_obj.data
--- - list status of review by: me/intended reviewer in blobs.v_obj4doc
---
--- Revision 1.19  2006/01/27 22:21:58  ncq
--- - add signed/reviewed to v_objs4doc
--- - add grants
---
--- Revision 1.18  2006/01/24 22:55:19  ncq
--- - include reviewed status in v_obj4doc
---
--- Revision 1.17  2006/01/13 13:54:14  ncq
--- - move comments to "-dynamic" file
--- - make doc_obj.seq_idx nullable - there actually may not be a mandatory order to the parts
--- - make doc_obj.data not null - a part without data is meaningless
---
--- Revision 1.16  2006/01/11 13:15:51  ncq
--- - id -> pk
---
--- Revision 1.15  2006/01/06 10:04:16  ncq
--- - move add_table_for_audit() into audit schema
---
--- Revision 1.14  2006/01/01 15:49:10  ncq
--- - grants for blobs.xlnk_identity
---
--- Revision 1.13  2005/11/27 12:58:19  ncq
--- - factor out dynamic stuff
---
--- Revision 1.12  2005/10/24 19:09:43  ncq
--- - explicit "blobs." qualifying
---
--- Revision 1.11  2005/09/19 16:38:51  ncq
--- - adjust to removed is_core from gm_schema_revision
---
--- Revision 1.10  2005/09/13 11:55:46  ncq
--- - properly drop views so re-running/updating works
---
--- Revision 1.9  2005/07/14 21:31:42  ncq
--- - partially use improved schema revision tracking
---
--- Revision 1.8  2004/10/29 22:37:02  ncq
--- - propagate xmin to the relevant views to business classes can
---   use it for concurrency conflict detection
--- - fix v_problem_list to properly display a patient's problems
---
--- Revision 1.7  2004/10/11 19:29:13  ncq
--- - v_i18n_doc_type -> v_doc_type
--- - v_doc_med
---
--- Revision 1.6  2004/10/10 13:13:51  ihaywood
--- example of views to emulate the gmMeasurements tables
---
--- Revision 1.5  2004/09/20 21:12:42  ncq
--- - constraint on doc_desc
--- - improve v_obj4doc
--- - fix v_latest_mugshot
---
--- Revision 1.4  2004/07/17 20:57:53  ncq
--- - don't use user/_user workaround anymore as we dropped supporting
---   it (but we did NOT drop supporting readonly connections on > 7.3)
---
--- Revision 1.3  2004/04/16 00:36:23  ncq
--- - cleanup, constraints
---
--- Revision 1.2  2004/04/07 18:16:06  ncq
--- - move grants into re-runnable scripts
--- - update *.conf accordingly
---
--- Revision 1.1  2004/03/03 15:47:32  ncq
--- - collect blob views in their own file
---

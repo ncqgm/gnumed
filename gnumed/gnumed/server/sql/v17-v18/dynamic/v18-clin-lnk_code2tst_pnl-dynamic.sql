@@ -20,9 +20,7 @@ grant select on clin.lnk_code2tst_pnl to group "gm-public";
 grant insert, update, delete on clin.lnk_code2tst_pnl to group "gm-doctors";
 grant usage on clin.lnk_code2tst_pnl_pk_seq to group "gm-doctors";
 
-\unset ON_ERROR_STOP
-alter table clin.lnk_code2tst_pnl drop constraint clin_lc2tst_pnl_code_uniq_per_item cascade;
-\set ON_ERROR_STOP 1
+alter table clin.lnk_code2tst_pnl drop constraint if exists clin_lc2tst_pnl_code_uniq_per_item cascade;
 
 alter table clin.lnk_code2tst_pnl
 	add constraint clin_lc2tst_pnl_code_uniq_per_item
@@ -34,9 +32,7 @@ comment on column clin.lnk_code2tst_pnl.fk_item is
 'Foreign key to clin.test_panel';
 
 
-\unset ON_ERROR_STOP
-alter table clin.lnk_code2tst_pnl drop constraint lnk_code2tst_pnl_fk_item_fkey cascade;
-\set ON_ERROR_STOP 1
+alter table clin.lnk_code2tst_pnl drop constraint if exists lnk_code2tst_pnl_fk_item_fkey cascade;
 
 
 alter table clin.lnk_code2tst_pnl
@@ -46,9 +42,7 @@ alter table clin.lnk_code2tst_pnl
 		on delete cascade;				-- delete if test_panel is deleted
 
 
-\unset ON_ERROR_STOP
-drop index clin.idx_c_lc2tp_fk_item cascade;
-\set ON_ERROR_STOP 1
+drop index if exists clin.idx_c_lc2tp_fk_item cascade;
 
 create index idx_c_lc2tp_fk_item on clin.lnk_code2tst_pnl(fk_item);
 
@@ -63,10 +57,8 @@ alter table clin.lnk_code2tst_pnl
 		set not null;
 
 
-\unset ON_ERROR_STOP
-drop trigger tr_ins_lc2tp_fk_generic_code on clin.lnk_code2tst_pnl;
-drop trigger tr_upd_lc2tp_fk_generic_code on clin.lnk_code2tst_pnl;
-\set ON_ERROR_STOP 1
+drop trigger if exists tr_ins_lc2tp_fk_generic_code on clin.lnk_code2tst_pnl;
+drop trigger if exists tr_upd_lc2tp_fk_generic_code on clin.lnk_code2tst_pnl;
 
 
 -- INSERT

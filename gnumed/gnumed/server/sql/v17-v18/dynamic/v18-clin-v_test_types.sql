@@ -9,10 +9,8 @@
 
 -- --------------------------------------------------------------
 -- .fk_test_org
-\unset ON_ERROR_STOP
-drop index clin.test_type_fk_test_org_idx cascade;
-drop index clin.idx_test_type_fk_test_org cascade;
-\set ON_ERROR_STOP 1
+drop index if exists clin.test_type_fk_test_org_idx cascade;
+drop index if exists clin.idx_test_type_fk_test_org cascade;
 
 create index idx_test_type_fk_test_org on clin.test_type(fk_test_org);
 
@@ -22,11 +20,9 @@ comment on column clin.test_type.fk_meta_test_type is
 	'Link to the meta test type (if any) this test type is to be aggregated under.';
 
 
-\unset ON_ERROR_STOP
-drop index clin.test_type_fk_meta_test_type_idx cascade;
-drop index idx_test_type_fk_meta_test_type cascade;
-alter table clin.test_type drop constraint test_type_fk_meta_test_type_fkey cascade;
-\set ON_ERROR_STOP 1
+drop index if exists clin.test_type_fk_meta_test_type_idx cascade;
+drop index if exists idx_test_type_fk_meta_test_type cascade;
+alter table clin.test_type drop constraint if exists test_type_fk_meta_test_type_fkey cascade;
 
 create index idx_test_type_fk_meta_test_type on clin.test_type(fk_meta_test_type);
 
@@ -35,11 +31,9 @@ alter table clin.test_type
 		references clin.meta_test_type(pk);
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_meta_test_types cascade;
-drop view clin.v_unified_test_types cascade;
-drop view clin.v_test_types cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_meta_test_types cascade;
+drop view if exists clin.v_unified_test_types cascade;
+drop view if exists clin.v_test_types cascade;
 
 create view clin.v_test_types as
 select

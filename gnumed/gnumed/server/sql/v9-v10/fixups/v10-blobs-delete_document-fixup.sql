@@ -5,19 +5,13 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v10-blobs-delete_document-fixup.sql,v 1.2 2009-05-18 09:46:54 ncq Exp $
--- $Revision: 1.2 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 --set default_transaction_read_only to off;
 
 set check_function_bodies to "on";
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function blobs.delete_document(integer, integer) cascade;
-\set ON_ERROR_STOP 1
+drop function if exists blobs.delete_document(integer, integer) cascade;
 
 create or replace function blobs.delete_document(integer, integer)
 	returns boolean
@@ -69,13 +63,3 @@ revoke delete on blobs.doc_med from "gm-doctors";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v10-blobs-delete_document-fixup.sql,v $', '$Revision: 1.2 $');
-
--- ==============================================================
--- $Log: v10-blobs-delete_document-fixup.sql,v $
--- Revision 1.2  2009-05-18 09:46:54  ncq
--- - new
---
--- Revision 1.1.2.1  2009/04/21 12:40:45  ncq
--- - .date became .clin_when
---
---

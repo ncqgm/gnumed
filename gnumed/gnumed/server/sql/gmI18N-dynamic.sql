@@ -32,9 +32,7 @@ comment on table i18n.keys is
 	 play any role in runtime translation activity';
 
 -- =============================================
-\unset ON_ERROR_STOP
-drop index i18n.idx_orig;
-\set ON_ERROR_STOP 1
+drop index if exists i18n.idx_orig;
 
 create index idx_orig on i18n.translations(orig);
 
@@ -229,9 +227,7 @@ comment on function i18n.set_curr_lang(text, name) is
 	 the second argument if translations are available';
 
 -- =============================================
-\unset ON_ERROR_STOP
-drop view i18n.v_missing_translations;
-\set ON_ERROR_STOP 1
+drop view if exists i18n.v_missing_translations;
 
 create view i18n.v_missing_translations as
 select

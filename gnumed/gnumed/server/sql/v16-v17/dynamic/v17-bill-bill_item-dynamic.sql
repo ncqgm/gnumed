@@ -44,11 +44,9 @@ alter table bill.bill_item
 comment on column bill.bill_item.description is
 	'Can be used to further explain the bill item over and above .fk_billable.description.';
 
-\unset ON_ERROR_STOP
-alter table bill.bill_item drop constraint desc_not_empty;
-alter table bill.bill_item drop constraint sane_receiver;
-alter table bill.bill_item drop constraint bill_bill_item_sane_desc;
-\set ON_ERROR_STOP 1
+alter table bill.bill_item drop constraint if exists desc_not_empty;
+alter table bill.bill_item drop constraint if exists sane_receiver;
+alter table bill.bill_item drop constraint if exists bill_bill_item_sane_desc;
 
 alter table bill.bill_item
 	add constraint bill_bill_item_sane_desc check
@@ -76,10 +74,8 @@ alter table bill.bill_item
 	alter column currency
 		set not null;
 
-\unset ON_ERROR_STOP
-alter table bill.bill_item drop constraint currency_not_empty_if_amount;
-alter table bill.bill_item drop constraint bill_bill_item_sane_currency;
-\set ON_ERROR_STOP 1
+alter table bill.bill_item drop constraint if exists currency_not_empty_if_amount;
+alter table bill.bill_item drop constraint if exists bill_bill_item_sane_currency;
 
 alter table bill.bill_item
 	add constraint bill_bill_item_sane_currency check
@@ -97,9 +93,7 @@ alter table bill.bill_item
 	alter column fk_billable
 		set not null;
 
-\unset ON_ERROR_STOP
-alter table bill.bill_item drop constraint bill_item_fk_billable_fkey cascade;
-\set ON_ERROR_STOP 1
+alter table bill.bill_item drop constraint if exists bill_item_fk_billable_fkey cascade;
 
 alter table bill.bill_item
 	add foreign key (fk_billable)
@@ -108,9 +102,7 @@ alter table bill.bill_item
 		on delete restrict;
 
 
-\unset ON_ERROR_STOP
-drop index bill.idx_bill_bill_item_fk_billable cascade;
-\set ON_ERROR_STOP 1
+drop index if exists bill.idx_bill_bill_item_fk_billable cascade;
 
 create index idx_bill_bill_item_fk_billable on bill.bill_item(fk_billable);
 
@@ -119,9 +111,7 @@ create index idx_bill_bill_item_fk_billable on bill.bill_item(fk_billable);
 comment on column bill.bill_item.fk_bill is
 	'Links to the bill this bill item is on if any.';
 
-\unset ON_ERROR_STOP
-alter table bill.bill_item drop constraint bill_item_fk_bill_fkey cascade;
-\set ON_ERROR_STOP 1
+alter table bill.bill_item drop constraint if exists bill_item_fk_bill_fkey cascade;
 
 alter table bill.bill_item
 	add foreign key (fk_bill)
@@ -130,9 +120,7 @@ alter table bill.bill_item
 		on delete restrict;
 
 
-\unset ON_ERROR_STOP
-drop index bill.idx_bill_bill_item_fk_bill cascade;
-\set ON_ERROR_STOP 1
+drop index if exists bill.idx_bill_bill_item_fk_bill cascade;
 
 create index idx_bill_bill_item_fk_bill on bill.bill_item(fk_bill);
 
@@ -149,9 +137,7 @@ alter table bill.bill_item
 	alter column unit_count
 		set default 1;
 
-\unset ON_ERROR_STOP
-alter table bill.bill_item drop constraint bill_bill_item_sane_count;
-\set ON_ERROR_STOP 1
+alter table bill.bill_item drop constraint if exists bill_bill_item_sane_count;
 
 alter table bill.bill_item
 	add constraint bill_bill_item_sane_count check
@@ -170,18 +156,14 @@ alter table bill.bill_item
 	alter column amount_multiplier
 		set default 1;
 
-\unset ON_ERROR_STOP
-alter table bill.bill_item drop constraint bill_bill_item_sane_multiplier;
-\set ON_ERROR_STOP 1
+alter table bill.bill_item drop constraint if exists bill_bill_item_sane_multiplier;
 
 alter table bill.bill_item
 	add constraint bill_bill_item_sane_multiplier check
 		(amount_multiplier > 0);
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view bill.v_bill_items cascade;
-\set ON_ERROR_STOP 1
+drop view if exists bill.v_bill_items cascade;
 
 create or replace view bill.v_bill_items AS
 
@@ -257,7 +239,6 @@ to group "gm-doctors";
 -- --------------------------------------------------------------
 set standard_conforming_strings to on;
 
-\unset ON_ERROR_STOP
 INSERT INTO bill.bill_item (
 	fk_provider,
 	fk_encounter,
@@ -275,7 +256,6 @@ INSERT INTO bill.bill_item (
 	2.3,
 	U&'\20AC'
 );
-\set ON_ERROR_STOP 1
 
 reset standard_conforming_strings;
 

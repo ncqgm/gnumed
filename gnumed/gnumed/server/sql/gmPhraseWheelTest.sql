@@ -16,10 +16,8 @@
 
 set client_encoding to 'latin1';
 -- ===================================================================
-\unset ON_ERROR_STOP
-drop table gmpw_sql_test;
-drop sequence gmpw_sql_test_id_seq;
-\set ON_ERROR_STOP 1
+drop table if exists gmpw_sql_test;
+drop sequence if exists gmpw_sql_test_id_seq;
 
 create table gmpw_sql_test (
 	id serial primary key,

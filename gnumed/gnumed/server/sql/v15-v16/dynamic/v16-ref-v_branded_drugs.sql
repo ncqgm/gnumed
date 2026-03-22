@@ -9,9 +9,7 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view ref.v_branded_drugs cascade;
-\set ON_ERROR_STOP 1
+drop view if exists ref.v_branded_drugs cascade;
 
 create view ref.v_branded_drugs as
 

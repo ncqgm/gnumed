@@ -13,9 +13,7 @@ comment on column clin.substance_intake.discontinued is 'When was this intake di
 comment on column clin.substance_intake.discontinue_reason is 'Why was this intake discontinued ?';
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_brand_intakes cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_brand_intakes cascade;
 
 create view clin.v_brand_intakes as
 select
@@ -118,9 +116,7 @@ where
 grant select on clin.v_brand_intakes to group "gm-doctors";
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_nonbrand_intakes cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_nonbrand_intakes cascade;
 
 create view clin.v_nonbrand_intakes as
 select
@@ -219,10 +215,8 @@ where
 grant select on clin.v_nonbrand_intakes to group "gm-doctors";
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_substance_intake cascade;
-drop view clin.v_substance_intakes cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_substance_intake cascade;
+drop view if exists clin.v_substance_intakes cascade;
 
 create view clin.v_substance_intakes as
 select * from clin.v_brand_intakes

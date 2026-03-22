@@ -8,19 +8,13 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: dem-idx_identity_dob_ymd.sql,v 1.4 2007-02-19 16:41:00 ncq Exp $
--- $Revision: 1.4 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
 -- remember to handle dependent objects possibly dropped by CASCADE
-\unset ON_ERROR_STOP
-drop function dem.date_trunc_utc(text, timestamp with time zone) cascade;
-drop index dem.idx_identity_dob cascade;
-drop index dem.idx_identity_dob_ymd cascade;
-\set ON_ERROR_STOP 1
+drop function if exists dem.date_trunc_utc(text, timestamp with time zone) cascade;
+drop index if exists dem.idx_identity_dob cascade;
+drop index if exists dem.idx_identity_dob_ymd cascade;
 
 
 create function dem.date_trunc_utc(text, timestamp with time zone)
@@ -47,19 +41,3 @@ comment on index dem.idx_identity_dob_ymd is
 
 -- --------------------------------------------------------------
 select public.log_script_insertion('$RCSfile: dem-idx_identity_dob_ymd.sql,v $', '$Revision: 1.4 $');
-
--- ==============================================================
--- $Log: dem-idx_identity_dob_ymd.sql,v $
--- Revision 1.4  2007-02-19 16:41:00  ncq
--- - add dem.date_trunc_utc() as a convenience
---
--- Revision 1.3  2007/02/19 15:01:47  ncq
--- - make date_trunc() index immutable as per discussion on postgresql list
---
--- Revision 1.2  2007/02/19 11:10:02  ncq
--- - fix index creation - function needs to be immutable
---
--- Revision 1.1  2007/02/10 23:42:47  ncq
--- - fix return type on rule function
--- - add date_trunc('day', dob) index
---

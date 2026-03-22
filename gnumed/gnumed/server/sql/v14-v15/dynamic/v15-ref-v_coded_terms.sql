@@ -11,10 +11,7 @@
 --set check_function_bodies to on;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view ref.v_coded_terms cascade;
-\set ON_ERROR_STOP 1
-
+drop view if exists ref.v_coded_terms cascade;
 
 
 create view ref.v_coded_terms as

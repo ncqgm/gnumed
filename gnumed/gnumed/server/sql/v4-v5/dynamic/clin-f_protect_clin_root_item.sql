@@ -8,16 +8,10 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: clin-f_protect_clin_root_item.sql,v 1.1 2007-02-10 23:42:47 ncq Exp $
--- $Revision: 1.1 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function clin.f_protect_clin_root_item() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.f_protect_clin_root_item() cascade;
 
 
 create function clin.f_protect_clin_root_item() returns boolean as '
@@ -44,11 +38,3 @@ comment on function clin.f_protect_clin_root_item() is
 
 -- --------------------------------------------------------------
 select public.log_script_insertion('$RCSfile: clin-f_protect_clin_root_item.sql,v $', '$Revision: 1.1 $');
-
--- ==============================================================
--- $Log: clin-f_protect_clin_root_item.sql,v $
--- Revision 1.1  2007-02-10 23:42:47  ncq
--- - fix return type on rule function
--- - add date_trunc('day', dob) index
---
---

@@ -9,10 +9,7 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_procedures cascade;
-\set ON_ERROR_STOP 1
-
+drop view if exists clin.v_pat_procedures cascade;
 
 
 create view clin.v_pat_procedures as
@@ -72,9 +69,7 @@ from
 grant select on clin.v_pat_procedures TO GROUP "gm-doctors";
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_procedures_journal cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_procedures_journal cascade;
 
 
 create view clin.v_pat_procedures_journal as

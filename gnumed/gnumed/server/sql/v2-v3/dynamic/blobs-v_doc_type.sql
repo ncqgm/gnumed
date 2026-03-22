@@ -18,9 +18,7 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view blobs.v_doc_type cascade;
-\set ON_ERROR_STOP 1
+drop view if exists blobs.v_doc_type cascade;
 
 create view blobs.v_doc_type as
 select
@@ -44,32 +42,3 @@ grant select on blobs.v_doc_type to group "gm-doctors";
 
 -- --------------------------------------------------------------
 select public.log_script_insertion('$RCSfile: blobs-v_doc_type.sql,v $', '$Revision: 1.4 $');
-
--- ==============================================================
--- $Log: blobs-v_doc_type.sql,v $
--- Revision 1.4  2007-09-24 23:31:17  ncq
--- - remove begin; commit; as it breaks the bootstrapper
---
--- Revision 1.3  2006/12/11 17:00:50  ncq
--- - add is_in_use
--- - is_user -> is_user_defined
---
--- Revision 1.2  2006/11/01 12:39:10  ncq
--- - is_user logic was reversed
---
--- Revision 1.1  2006/09/25 10:55:01  ncq
--- - added here
---
--- Revision 1.2  2006/09/19 18:28:40  ncq
--- - virtualize v_doc_type.is_user
---
--- Revision 1.1  2006/09/18 17:29:42  ncq
--- - drop is_user
---
--- Revision 1.2  2006/09/16 21:47:37  ncq
--- - improvements
---
--- Revision 1.1  2006/09/16 14:02:36  ncq
--- - use this as a template for change scripts
---
---

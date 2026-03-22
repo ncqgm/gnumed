@@ -5,9 +5,7 @@
 -- Author: Karsten Hilbert
 --
 -- ==============================================================
-\unset ON_ERROR_STOP
---drop view blobs.v_doc_med;
-\set ON_ERROR_STOP 1
+--drop view if exists blobs.v_doc_med;
 
 
 create or replace view blobs.v_doc_med as

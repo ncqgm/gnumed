@@ -32,9 +32,7 @@ alter table dem.praxis_branch
 ;
 
 
-\unset ON_ERROR_STOP
-alter table dem.praxis_branch drop constraint dem_praxis_branch_uniq_fk_org_unit cascade;
-\set ON_ERROR_STOP 1
+alter table dem.praxis_branch drop constraint if exists dem_praxis_branch_uniq_fk_org_unit cascade;
 
 alter table dem.praxis_branch
 	add constraint dem_praxis_branch_uniq_fk_org_unit
@@ -42,9 +40,7 @@ alter table dem.praxis_branch
 ;
 
 
-\unset ON_ERROR_STOP
-drop function dem.trf_prevent_multiple_praxi() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists dem.trf_prevent_multiple_praxi() cascade;
 
 create or replace function dem.trf_prevent_multiple_praxi()
 	returns trigger
@@ -107,9 +103,7 @@ create trigger tr_prevent_multiple_praxi
 	for each row execute procedure dem.trf_prevent_multiple_praxi();
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view dem.v_praxis_branches cascade;
-\set ON_ERROR_STOP 1
+drop view if exists dem.v_praxis_branches cascade;
 
 create view dem.v_praxis_branches as
 

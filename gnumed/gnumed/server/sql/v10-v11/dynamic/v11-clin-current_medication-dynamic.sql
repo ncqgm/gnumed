@@ -5,10 +5,6 @@
 -- Author: karsten.hilbert@gmx.net
 --
 -- ==============================================================
--- $Id: v11-clin-current_medication-dynamic.sql,v 1.4 2009-06-04 16:37:39 ncq Exp $
--- $Revision: 1.4 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 --set default_transaction_read_only to off;
 
@@ -31,10 +27,8 @@ to group "gm-doctors";
 comment on column clin.substance_brand.description is
 'The name this brand is marketed under.';
 
-\unset ON_ERROR_STOP
-alter table clin.substance_brand drop constraint desc_not_empty cascade;
-alter table clin.substance_brand drop constraint unique_brand cascade;
-\set ON_ERROR_STOP 1
+alter table clin.substance_brand drop constraint if exists desc_not_empty cascade;
+alter table clin.substance_brand drop constraint if exists unique_brand cascade;
 
 alter table clin.substance_brand
 	add constraint desc_not_empty check (
@@ -49,9 +43,7 @@ alter table clin.substance_brand
 comment on column clin.substance_brand.preparation is
 'How this drug is delivered, tablet, pill, liquid, cream.';
 
-\unset ON_ERROR_STOP
-alter table clin.substance_brand drop constraint prep_not_empty cascade;
-\set ON_ERROR_STOP 1
+alter table clin.substance_brand drop constraint if exists prep_not_empty cascade;
 
 alter table clin.substance_brand
 	add constraint prep_not_empty check (
@@ -63,10 +55,8 @@ alter table clin.substance_brand
 comment on column clin.substance_brand.atc_code is
 'ATC code, if any.';
 
-\unset ON_ERROR_STOP
-alter table clin.substance_brand drop constraint sane_atc cascade;
-drop index clin.idx_atc_brand cascade;
-\set ON_ERROR_STOP 1
+alter table clin.substance_brand drop constraint if exists sane_atc cascade;
+drop index if exists clin.idx_atc_brand cascade;
 
 alter table clin.substance_brand
 	add constraint sane_atc check (
@@ -112,9 +102,7 @@ alter table clin.active_substance
 	alter column description
 		set not null;
 
-\unset ON_ERROR_STOP
-alter table clin.active_substance drop constraint unique_desc cascade;
-\set ON_ERROR_STOP 1
+alter table clin.active_substance drop constraint if exists unique_desc cascade;
 
 alter table clin.active_substance
 	add constraint unique_desc unique(description);
@@ -124,11 +112,9 @@ alter table clin.active_substance
 comment on column clin.active_substance.atc_code is
 'ATC code, if any.';
 
-\unset ON_ERROR_STOP
-alter table clin.active_substance drop constraint sane_atc cascade;
-alter table clin.active_substance drop constraint unique_atc cascade;
-drop index clin.idx_atc_substance cascade;
-\set ON_ERROR_STOP 1
+alter table clin.active_substance drop constraint if exists sane_atc cascade;
+alter table clin.active_substance drop constraint if exists unique_atc cascade;
+drop index if exists clin.idx_atc_substance cascade;
 
 alter table clin.active_substance
 	add constraint sane_atc check (
@@ -161,9 +147,7 @@ alter table clin.substance_intake
 	alter column fk_brand
 		set not null;
 
-\unset ON_ERROR_STOP
-drop index clin.idx_fk_brand_curr_med cascade;
-\set ON_ERROR_STOP 1
+drop index if exists clin.idx_fk_brand_curr_med cascade;
 
 create index idx_fk_brand_curr_med on clin.substance_intake (fk_brand);
 
@@ -176,9 +160,7 @@ alter table clin.substance_intake
 	alter column fk_substance
 		set not null;
 
-\unset ON_ERROR_STOP
-drop index clin.idx_fk_substance_curr_med cascade;
-\set ON_ERROR_STOP 1
+drop index if exists clin.idx_fk_substance_curr_med cascade;
 
 create index idx_fk_substance_curr_med on clin.substance_intake (fk_substance);
 
@@ -187,9 +169,7 @@ create index idx_fk_substance_curr_med on clin.substance_intake (fk_substance);
 comment on column clin.substance_intake.strength is
 'The amount of the substance, often in mg.';
 
-\unset ON_ERROR_STOP
-alter table clin.substance_intake drop constraint sane_strength cascade;
-\set ON_ERROR_STOP 1
+alter table clin.substance_intake drop constraint if exists sane_strength cascade;
 
 alter table clin.substance_intake
 	add constraint sane_strength check (
@@ -211,9 +191,7 @@ comment on column clin.substance_intake.schedule is
 'The schedule, if any, the substance is to be taken by.
  An XML snippet to be interpreted by the middleware.';
 
-\unset ON_ERROR_STOP
-alter table clin.substance_intake drop constraint sane_schedule cascade;
-\set ON_ERROR_STOP 1
+alter table clin.substance_intake drop constraint if exists sane_schedule cascade;
 
 alter table clin.substance_intake
 	add constraint sane_schedule check (
@@ -225,9 +203,7 @@ alter table clin.substance_intake
 comment on column clin.substance_intake.aim is
 'The aim of taking this substance.';
 
-\unset ON_ERROR_STOP
-alter table clin.substance_intake drop constraint sane_aim cascade;
-\set ON_ERROR_STOP 1
+alter table clin.substance_intake drop constraint if exists sane_aim cascade;
 
 alter table clin.substance_intake
 	add constraint sane_aim check (
@@ -271,9 +247,7 @@ alter table clin.substance_intake
 
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_substance_intake cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_substance_intake cascade;
 
 create view clin.v_pat_substance_intake as
 select
@@ -326,9 +300,7 @@ from
 grant select on clin.v_pat_substance_intake to group "gm-doctors";
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_substance_intake_journal cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_substance_intake_journal cascade;
 
 create view clin.v_pat_substance_intake_journal as
 select
@@ -405,20 +377,3 @@ grant select on clin.v_pat_substance_intake_journal to group "gm-doctors";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v11-clin-current_medication-dynamic.sql,v $', '$Revision: 1.4 $');
-
--- ==============================================================
--- $Log: v11-clin-current_medication-dynamic.sql,v $
--- Revision 1.4  2009-06-04 16:37:39  ncq
--- - .intake-is-approved-of
--- - improved journal view
---
--- Revision 1.3  2009/05/12 12:08:50  ncq
--- - fix table layout
---
--- Revision 1.2  2009/05/04 15:05:59  ncq
--- - better naming
---
--- Revision 1.1  2009/05/04 11:38:55  ncq
--- - new
---
---

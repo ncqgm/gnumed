@@ -8,9 +8,8 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-insert into ref.form_types (name) values (i18n.i18n('EMR printout'));
-\set ON_ERROR_STOP 1
+insert into ref.form_types (name) values (i18n.i18n('EMR printout'))
+	on conflict (name)  do nothing;
 
 select i18n.upd_tx('de_DE', 'EMR printout', 'Karteiausdruck');
 
@@ -35,9 +34,8 @@ insert into ref.paperwork_templates (
 );
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-insert into ref.form_types (name) values (i18n.i18n('Medical statement'));
-\set ON_ERROR_STOP 1
+insert into ref.form_types (name) values (i18n.i18n('Medical statement'))
+	on conflict (name)  do nothing;
 
 select i18n.upd_tx('de_DE', 'Medical statement', 'Bescheinigung');
 

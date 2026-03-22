@@ -15,9 +15,7 @@
 -- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view blobs.v_doc_desc cascade;
-\set ON_ERROR_STOP 1
+drop view if exists blobs.v_doc_desc cascade;
 
 
 create view blobs.v_doc_desc as
@@ -45,22 +43,3 @@ grant select on blobs.v_doc_desc to group "gm-doctors";
 
 -- --------------------------------------------------------------
 select public.log_script_insertion('$RCSfile: blobs-v_doc_desc.sql,v $', '$Revision: 1.3 $');
-
--- ==============================================================
--- $Log: blobs-v_doc_desc.sql,v $
--- Revision 1.3  2007-09-24 23:31:17  ncq
--- - remove begin; commit; as it breaks the bootstrapper
---
--- Revision 1.2  2006/10/08 09:13:36  ncq
--- - doc_id now fk_doc
---
--- Revision 1.1  2006/09/25 10:55:01  ncq
--- - added here
---
--- Revision 1.1  2006/09/16 21:43:37  ncq
--- - create view
---
--- Revision 1.1  2006/09/16 14:02:36  ncq
--- - use this as a template for change scripts
---
---

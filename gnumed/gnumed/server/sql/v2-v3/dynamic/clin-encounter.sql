@@ -12,16 +12,12 @@
 -- $Revision: 1.2 $
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop index clin.idx_encounter_modified_by;
-\set ON_ERROR_STOP 1
+drop index if exists clin.idx_encounter_modified_by;
 
 create index idx_encounter_modified_by on clin.encounter(modified_by);
 
 
-\unset ON_ERROR_STOP
-drop function clin.trf_ensure_episode_issue_patient_consistency() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.trf_ensure_episode_issue_patient_consistency() cascade;
 
 create function clin.trf_ensure_episode_issue_patient_consistency()
 	returns trigger

@@ -9,10 +9,8 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_hx_family_journal cascade;
-drop view clin.v_family_history_journal cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_hx_family_journal cascade;
+drop view if exists clin.v_family_history_journal cascade;
 
 
 create view clin.v_family_history_journal as

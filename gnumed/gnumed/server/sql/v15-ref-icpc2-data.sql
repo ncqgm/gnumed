@@ -8,9 +8,7 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop table staging.icpc cascade;
-\set ON_ERROR_STOP 1
+drop table if exists staging.icpc cascade;
 
 create table staging.icpc (
 	COMPONENT integer,

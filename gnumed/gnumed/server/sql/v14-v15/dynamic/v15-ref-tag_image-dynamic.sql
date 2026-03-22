@@ -28,10 +28,8 @@ to group "gm-doctors";
 -- .description
 comment on column ref.tag_image.description is 'A textual description of the meaning of the tag. Keep this reasonably short.';
 
-\unset ON_ERROR_STOP
-alter table ref.tag_image drop constraint ref_tag_image_sane_desc cascade;
-alter table ref.tag_image drop constraint ref_tag_image_uniq_desc cascade;
-\set ON_ERROR_STOP 1
+alter table ref.tag_image drop constraint if exists ref_tag_image_sane_desc cascade;
+alter table ref.tag_image drop constraint if exists ref_tag_image_uniq_desc cascade;
 
 alter table ref.tag_image
 	add constraint ref_tag_image_sane_desc check (
@@ -46,9 +44,7 @@ alter table ref.tag_image
 -- .filename
 comment on column ref.tag_image.filename is 'An example filename, mainly for preserving the file suffix. Set during import, suffix used during export.';
 
-\unset ON_ERROR_STOP
-alter table ref.tag_image drop constraint ref_tag_image_sane_filename cascade;
-\set ON_ERROR_STOP 1
+alter table ref.tag_image drop constraint if exists ref_tag_image_sane_filename cascade;
 
 alter table ref.tag_image
 	add constraint ref_tag_image_sane_filename check (
@@ -146,9 +142,7 @@ insert into ref.tag_image (
 );
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view ref.v_tag_images_no_data cascade;
-\set ON_ERROR_STOP 1
+drop view if exists ref.v_tag_images_no_data cascade;
 
 create view ref.v_tag_images_no_data as
 

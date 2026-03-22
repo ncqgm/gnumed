@@ -12,9 +12,6 @@
 
 --set default_transaction_read_only to off
 -- --------------------------------------------------------------
-
-\unset ON_ERROR_STOP
-
 set client_encoding to 'utf8';
 
 select i18n.upd_tx(quote_literal(E'ru'), quote_literal(E'cause of death'), quote_literal(E'причина смерти'));
@@ -68,8 +65,6 @@ Uncle Pavel Wants You!   ---   Sign up for Starfleet Now!
 Starfleet Central Medical Facilities
 Вы нужны дяде Павлу!   ---   Подпишитесь сейчас на Starfleet!
   http://wiki.gnumed.de/bin/view/Gnumed/GettingStarted'));
-
-\set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v18-i18n-ru_RU_translations.sql', '18.0');

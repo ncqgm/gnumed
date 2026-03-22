@@ -1,7 +1,5 @@
 
-\unset ON_ERROR_STOP
-drop schema oscar cascade;
-\set ON_ERROR_STOP 1
+drop schema if exists oscar cascade;
 
 create schema oscar authorization "gm-dbo";
 

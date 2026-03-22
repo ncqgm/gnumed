@@ -17,9 +17,7 @@ alter table dem.lnk_org_unit2comm
 		set default null;
 
 
-\unset ON_ERROR_STOP
-alter table dem.lnk_org_unit2comm drop constraint dem_lnk_unit2comm_sane_comment;
-\set ON_ERROR_STOP 1
+alter table dem.lnk_org_unit2comm drop constraint if exists dem_lnk_unit2comm_sane_comment;
 
 
 alter table dem.lnk_org_unit2comm
@@ -28,9 +26,7 @@ alter table dem.lnk_org_unit2comm
 	);
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view dem.v_org_unit_comms cascade;
-\set ON_ERROR_STOP 1
+drop view if exists dem.v_org_unit_comms cascade;
 
 create view dem.v_org_unit_comms as
 select

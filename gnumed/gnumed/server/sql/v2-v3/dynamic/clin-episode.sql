@@ -18,12 +18,10 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop index clin.idx_episode_valid_issue;
-drop index clin.idx_episode_with_issue;
-drop index clin.idx_episode_without_issue;
-drop index clin.idx_episode_modified_by;
-\set ON_ERROR_STOP 1
+drop index if exists clin.idx_episode_valid_issue;
+drop index if exists clin.idx_episode_with_issue;
+drop index if exists clin.idx_episode_without_issue;
+drop index if exists clin.idx_episode_modified_by;
 
 create index idx_episode_with_issue on clin.episode(fk_health_issue) where fk_health_issue is not null;
 comment on index clin.idx_episode_with_issue is
@@ -36,9 +34,7 @@ comment on index clin.idx_episode_without_issue is
 create index idx_episode_modified_by on clin.episode(modified_by);
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function trf_announce_episode_mod() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists trf_announce_episode_mod() cascade;
 
 create function audit.trf_announce_episode_mod()
 	returns trigger
@@ -88,25 +84,3 @@ create trigger tr_episode_mod
 
 -- --------------------------------------------------------------
 select public.log_script_insertion('$RCSfile: clin-episode.sql,v $', '$Revision: 1.3 $');
-
--- ==============================================================
--- $Log: clin-episode.sql,v $
--- Revision 1.3  2006-12-11 17:02:46  ncq
--- - index on modified_by
---
--- Revision 1.2  2006/11/24 09:21:36  ncq
--- - fix notification trigger col name use
---
--- Revision 1.1  2006/09/25 10:55:01  ncq
--- - added here
---
--- Revision 1.3  2006/09/18 17:32:53  ncq
--- - make more fool-proof
---
--- Revision 1.2  2006/09/16 21:47:37  ncq
--- - improvements
---
--- Revision 1.1  2006/09/16 14:02:36  ncq
--- - use this as a template for change scripts
---
---

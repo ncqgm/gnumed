@@ -11,13 +11,7 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: blobs-v_obj4doc_no_data.sql,v 1.1 2007-03-08 15:10:52 ncq Exp $
--- $Revision: 1.1 $
-
--- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view blobs.v_obj4doc_no_data cascade;
-\set ON_ERROR_STOP 1
+drop view if exists blobs.v_obj4doc_no_data cascade;
 
 
 create view blobs.v_obj4doc_no_data as
@@ -89,23 +83,3 @@ GRANT SELECT ON blobs.v_obj4doc_no_data TO GROUP "gm-doctors";
 
 -- --------------------------------------------------------------
 select public.log_script_insertion('$RCSfile: blobs-v_obj4doc_no_data.sql,v $', '$Revision: 1.1 $');
-
-
--- ==============================================================
--- $Log: blobs-v_obj4doc_no_data.sql,v $
--- Revision 1.1  2007-03-08 15:10:52  ncq
--- - add filename to blobs object view
---
--- Revision 1.2  2006/10/08 09:13:56  ncq
--- - doc_id now fk_doc
---
--- Revision 1.1  2006/09/25 10:55:01  ncq
--- - added here
---
--- Revision 1.1  2006/09/16 21:45:14  ncq
--- - add PKs for narrative search
---
--- Revision 1.1  2006/09/16 14:02:36  ncq
--- - use this as a template for change scripts
---
---

@@ -12,9 +12,7 @@ comment on column clin.incoming_data_unmatched.fk_provider_disambiguated is
 	'The provider the data is relevant to.';
 
 
-\unset ON_ERROR_STOP
-alter table clin.incoming_data_unmatched drop constraint incoming_data_unmatched_fk_provider_disambiguated_fkey cascade;
-\set ON_ERROR_STOP 1
+alter table clin.incoming_data_unmatched drop constraint if exists incoming_data_unmatched_fk_provider_disambiguated_fkey cascade;
 
 alter table clin.incoming_data_unmatched
 	add foreign key (fk_provider_disambiguated)

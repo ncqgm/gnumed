@@ -16,9 +16,7 @@ comment on column clin.health_issue.fk_encounter is
 	'The encounter during which this health issue was added.';
 
 -- ensure consistency
-\unset ON_ERROR_STOP
-drop function clin.trf_ensure_issue_encounter_patient_consistency() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.trf_ensure_issue_encounter_patient_consistency() cascade;
 
 create function clin.trf_ensure_issue_encounter_patient_consistency()
 	returns trigger
@@ -119,29 +117,9 @@ alter table clin.health_issue alter column fk_encounter set not null;
 -- ... missing  ...
 
 
-\unset ON_ERROR_STOP
-drop function audit.trf_announce_h_issue_mod() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists audit.trf_announce_h_issue_mod() cascade;
+
 select gm.add_table_for_notifies('clin', 'health_issue');
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v9-clin-health_issue-dynamic.sql,v $', '$Revision: 1.5 $');
-
--- ==============================================================
--- $Log: v9-clin-health_issue-dynamic.sql,v $
--- Revision 1.5  2008-04-11 12:31:43  ncq
--- - drop announce triggers so they can be recreated
---
--- Revision 1.4  2008/03/03 14:26:07  ncq
--- - need to check against fk_health_issue/fk_episode, too
---
--- Revision 1.3  2008/03/03 14:05:51  ncq
--- - need to test _row.pk against fk_health_issue when dealing with clin.episode...
---
--- Revision 1.2  2008/03/03 13:45:19  ncq
--- - need to explicitly null relevant variables inside loop
---
--- Revision 1.1  2008/03/02 11:25:55  ncq
--- - new files
---
---

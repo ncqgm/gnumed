@@ -9,11 +9,9 @@
 
 -- --------------------------------------------------------------
 -- clin.clin_root_item
-\unset ON_ERROR_STOP
-alter table clin.clin_root_item	drop constraint clin_root_item_soap_cat_check;
-alter table clin.clin_root_item	drop constraint clin_root_item_sane_soap_cat;
-alter table clin.clin_root_item	drop constraint clin_root_item_soap_cat;
-\set ON_ERROR_STOP 1
+alter table clin.clin_root_item	drop constraint if exists clin_root_item_soap_cat_check;
+alter table clin.clin_root_item	drop constraint if exists clin_root_item_sane_soap_cat;
+alter table clin.clin_root_item	drop constraint if exists clin_root_item_soap_cat;
 
 alter table clin.clin_root_item
 	add constraint clin_root_item_sane_soap_cat check
@@ -25,12 +23,10 @@ comment on column clin.clin_root_item.soap_cat is
 
 
 -- clin.soap_cat_ranks
-\unset ON_ERROR_STOP
-alter table clin.soap_cat_ranks	drop constraint soap_cat_ranks_soap_cat_check;
-alter table clin.soap_cat_ranks	drop constraint clin_soap_cat_ranks_sane_cats;
-alter table clin.soap_cat_ranks	drop constraint soap_cat_ranks_rank_check;
-alter table clin.soap_cat_ranks	drop constraint clin_soap_cat_ranks_sane_ranks;
-\set ON_ERROR_STOP 1
+alter table clin.soap_cat_ranks	drop constraint if exists soap_cat_ranks_soap_cat_check;
+alter table clin.soap_cat_ranks	drop constraint if exists clin_soap_cat_ranks_sane_cats;
+alter table clin.soap_cat_ranks	drop constraint if exists soap_cat_ranks_rank_check;
+alter table clin.soap_cat_ranks	drop constraint if exists clin_soap_cat_ranks_sane_ranks;
 
 alter table clin.soap_cat_ranks
 	add constraint clin_soap_cat_ranks_sane_cats check
@@ -48,10 +44,8 @@ insert into clin.soap_cat_ranks (soap_cat, rank) values (NULL, 6);
 
 
 -- clin.clin_narrative
-\unset ON_ERROR_STOP
-drop index clin.idx_narr_soap cascade;
-drop index clin.idx_narrative_soap_cat cascade;
-\set ON_ERROR_STOP 1
+drop index if exists clin.idx_narr_soap cascade;
+drop index if exists clin.idx_narrative_soap_cat cascade;
 
 create index idx_narrative_soap_cat on clin.clin_narrative(soap_cat) where (lower(soap_cat) in ('s', 'o', 'a', 'p', 'u'));
 

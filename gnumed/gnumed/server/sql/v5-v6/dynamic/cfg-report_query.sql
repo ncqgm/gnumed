@@ -31,17 +31,13 @@ to group "gm-doctors";
 
 
 
-\unset ON_ERROR_STOP
-alter table cfg.report_query drop constraint "report_query_label_check";
-\set ON_ERROR_STOP 1
+alter table cfg.report_query drop constraint if exists "report_query_label_check";
 alter table cfg.report_query
 	add check (trim(coalesce(label, 'NULL')) <> '');
 
 
 
-\unset ON_ERROR_STOP
-alter table cfg.report_query drop constraint "report_query_cmd_check";
-\set ON_ERROR_STOP 1
+alter table cfg.report_query drop constraint if exists "report_query_cmd_check";
 alter table cfg.report_query
 	add check (trim(coalesce(cmd, 'NULL')) <> '');
 

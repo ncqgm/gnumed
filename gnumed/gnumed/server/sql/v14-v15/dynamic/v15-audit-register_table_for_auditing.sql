@@ -56,10 +56,8 @@ comment on function audit.register_table_for_auditing(name, name) is
 
 -- --------------------------------------------------------------
 -- legacy functions
-\unset ON_ERROR_STOP
-drop function audit.add_table_for_audit(name, name) cascade;
-drop function audit.add_table_for_audit(name) cascade;
-\set ON_ERROR_STOP 1
+drop function if exists audit.add_table_for_audit(name, name) cascade;
+drop function if exists audit.add_table_for_audit(name) cascade;
 
 create function audit.add_table_for_audit(name, name)
 	returns boolean
@@ -70,7 +68,7 @@ create function audit.add_table_for_audit(name, name)
 create function audit.add_table_for_audit(name)
 	returns boolean
 	language SQL
-	as E'select audit.register_table_for_auditing(''public'', $1);'
+	as 'select audit.register_table_for_auditing(''public'', $1);'
 ;
 
 -- --------------------------------------------------------------

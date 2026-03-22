@@ -5,10 +5,6 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v10-dem-identity-dynamic.sql,v 1.3 2009-05-18 15:57:54 ncq Exp $
--- $Revision: 1.3 $
-
--- --------------------------------------------------------------
 --set default_transaction_read_only to off;
 \set ON_ERROR_STOP 1
 
@@ -48,13 +44,9 @@ create trigger tr_normalize_time_in_dob
 
 
 -- make dob nullable
-\unset ON_ERROR_STOP
 alter table dem.identity
 	alter column dob
 		drop not null;
-\set ON_ERROR_STOP 1
-
--- FIXME: need to somehow ensure patients do get a DOB !
 
 
 -- add analysis query
@@ -77,16 +69,3 @@ where
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v10-dem-identity-dynamic.sql,v $', '$Revision: 1.3 $');
-
--- ==============================================================
--- $Log: v10-dem-identity-dynamic.sql,v $
--- Revision 1.3  2009-05-18 15:57:54  ncq
--- - fix trigger and add query
---
--- Revision 1.2  2008/12/25 16:57:40  ncq
--- - DOB normalize trigger must be BEFORE
---
--- Revision 1.1  2008/12/22 18:57:00  ncq
--- - support .tob
---
---

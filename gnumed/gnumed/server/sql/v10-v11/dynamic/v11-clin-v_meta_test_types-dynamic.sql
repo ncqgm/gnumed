@@ -5,18 +5,12 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v11-clin-v_meta_test_types-dynamic.sql,v 1.2 2009-05-24 16:32:59 ncq Exp $
--- $Revision: 1.2 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_test_type_unified cascade;
-drop view clin.v_meta_test_types cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_test_type_unified cascade;
+drop view if exists clin.v_meta_test_types cascade;
 
 create view clin.v_meta_test_types as
 select
@@ -45,13 +39,3 @@ grant select on clin.v_meta_test_types to group "gm-doctors";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v11-clin-v_meta_test_types-dynamic.sql,v $', '$Revision: 1.2 $');
-
--- ==============================================================
--- $Log: v11-clin-v_meta_test_types-dynamic.sql,v $
--- Revision 1.2  2009-05-24 16:32:59  ncq
--- - rename "meta" test type
---
--- Revision 1.1  2009/05/22 10:57:50  ncq
--- - new
---
---

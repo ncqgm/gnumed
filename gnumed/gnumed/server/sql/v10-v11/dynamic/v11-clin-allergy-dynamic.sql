@@ -5,18 +5,12 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v11-clin-allergy-dynamic.sql,v 1.1 2009-03-24 16:06:33 ncq Exp $
--- $Revision: 1.1 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function clin.trf_sync_allergic_state_on_allergies_modified() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.trf_sync_allergic_state_on_allergies_modified() cascade;
 
 
 create function clin.trf_sync_allergic_state_on_allergies_modified()
@@ -78,10 +72,3 @@ create trigger tr_sync_allergic_state_on_allergies_modified
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v11-clin-allergy-dynamic.sql,v $', '$Revision: 1.1 $');
-
--- ==============================================================
--- $Log: v11-clin-allergy-dynamic.sql,v $
--- Revision 1.1  2009-03-24 16:06:33  ncq
--- - must set last_confirmed on new rows in allergy state
---
---

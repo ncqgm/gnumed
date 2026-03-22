@@ -31,10 +31,8 @@ comment on column clin.consumed_substance.atc_code is
 
 
 -- .description
-\unset ON_ERROR_STOP
-alter table clin.consumed_substance drop constraint unique_description cascade;
-alter table clin.consumed_substance drop constraint sane_description cascade;
-\set ON_ERROR_STOP 1
+alter table clin.consumed_substance drop constraint if exists unique_description cascade;
+alter table clin.consumed_substance drop constraint if exists sane_description cascade;
 
 alter table clin.consumed_substance
 	add constraint unique_description UNIQUE (description);
@@ -51,9 +49,7 @@ alter table clin.consumed_substance
 
 
 -- .atc_code
-\unset ON_ERROR_STOP 1
-drop index idx_consumed_substance_atc cascade;
-\set ON_ERROR_STOP 1
+drop index if exists idx_consumed_substance_atc cascade;
 
 create index idx_consumed_substance_atc on clin.consumed_substance(atc_code);
 
@@ -72,10 +68,3 @@ insert into clin.consumed_substance (description, atc_code) select description, 
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v12-clin-consumed_substance-dynamic.sql,v $', '$Revision: 1.1 $');
-
--- ==============================================================
--- $Log: v12-clin-consumed_substance-dynamic.sql,v $
--- Revision 1.1  2009-10-21 08:50:39  ncq
--- - new table
---
---

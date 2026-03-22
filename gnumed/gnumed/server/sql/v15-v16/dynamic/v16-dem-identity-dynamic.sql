@@ -17,9 +17,7 @@ where
 ;
 
 
-\unset ON_ERROR_STOP
-alter table dem.identity drop constraint dem_identity_sane_dob cascade;
-\set ON_ERROR_STOP 1
+alter table dem.identity drop constraint if exists dem_identity_sane_dob cascade;
 
 alter table dem.identity
 	add constraint dem_identity_sane_dob
@@ -31,10 +29,8 @@ alter table dem.identity
 
 -- --------------------------------------------------------------
 -- .dod
-\unset ON_ERROR_STOP
-alter table dem.identity drop constraint identity_check cascade;
-alter table dem.identity drop constraint dem_identity_sane_dod cascade;
-\set ON_ERROR_STOP 1
+alter table dem.identity drop constraint if exists identity_check cascade;
+alter table dem.identity drop constraint if exists dem_identity_sane_dod cascade;
 
 alter table dem.identity
 	add constraint dem_identity_sane_dod

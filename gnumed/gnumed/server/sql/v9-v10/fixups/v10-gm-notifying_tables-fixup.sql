@@ -9,15 +9,13 @@
 --set default_transaction_read_only to off;
 
 -- ==============================================================
-\unset ON_ERROR_STOP
 alter table gm.notifying_tables
-	drop constraint notifying_tables_schema_name_key cascade;
+	drop constraint if exists notifying_tables_schema_name_key cascade;
 -- this is what PG 9.0 uses as the default constraint name:
 alter table gm.notifying_tables
-	drop constraint notifying_tables_schema_name_table_name_key cascade;
+	drop constraint if exists notifying_tables_schema_name_table_name_key cascade;
 alter table gm.notifying_tables
-	drop constraint unique_entry cascade;
-\set ON_ERROR_STOP 1
+	drop constraint if exists unique_entry cascade;
 
 alter table gm.notifying_tables
 	add constraint unique_entry
@@ -83,5 +81,3 @@ grant select on gm.notifying_tables to group "gm-doctors";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v10-gm-notifying_tables-dynamic.sql,v $', '$Revision: 1.1 $');
-
--- ==============================================================

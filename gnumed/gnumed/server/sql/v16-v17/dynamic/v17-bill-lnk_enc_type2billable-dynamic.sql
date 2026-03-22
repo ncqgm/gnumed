@@ -35,9 +35,7 @@ alter table bill.lnk_enc_type2billable
 	alter column fk_billable
 		set not null;
 
-\unset ON_ERROR_STOP
-alter table bill.lnk_enc_type2billable drop constraint lnk_enc_type2billable_fk_billable_fkey cascade;
-\set ON_ERROR_STOP 1
+alter table bill.lnk_enc_type2billable drop constraint if exists lnk_enc_type2billable_fk_billable_fkey cascade;
 
 alter table bill.lnk_enc_type2billable
 	add foreign key (fk_billable)
@@ -46,9 +44,7 @@ alter table bill.lnk_enc_type2billable
 		on delete cascade;
 
 
-\unset ON_ERROR_STOP
-drop index idx_lnk_enc_type2billable_fk_billable cascade;
-\set ON_ERROR_STOP 1
+drop index if exists idx_lnk_enc_type2billable_fk_billable cascade;
 
 create index idx_lnk_enc_type2billable_fk_billable on bill.lnk_enc_type2billable(fk_billable);
 
@@ -61,9 +57,7 @@ alter table bill.lnk_enc_type2billable
 	alter column fk_encounter_type
 		set not null;
 
-\unset ON_ERROR_STOP
-alter table bill.lnk_enc_type2billable drop constraint lnk_enc_type2billable_fk_encounter_type_fkey cascade;
-\set ON_ERROR_STOP 1
+alter table bill.lnk_enc_type2billable drop constraint if exists lnk_enc_type2billable_fk_encounter_type_fkey cascade;
 
 alter table bill.lnk_enc_type2billable
 	add foreign key (fk_encounter_type)
@@ -72,9 +66,7 @@ alter table bill.lnk_enc_type2billable
 		on delete cascade;
 
 
-\unset ON_ERROR_STOP
-drop index idx_lnk_enc_type2billable_fk_encounter_type cascade;
-\set ON_ERROR_STOP 1
+drop index if exists idx_lnk_enc_type2billable_fk_encounter_type cascade;
 
 create index idx_lnk_enc_type2billable_fk_encounter_type on bill.lnk_enc_type2billable(fk_encounter_type);
 

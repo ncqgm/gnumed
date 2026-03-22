@@ -18,9 +18,7 @@ comment on column dem.message_inbox.expiry_date is
 	'The date this message/reminder "expires". Must be > .due_date it not NULL.';
 
 
-\unset ON_ERROR_STOP
-alter table dem.message_inbox drop constraint dem_inbox_sane_expiry_date;
-\set ON_ERROR_STOP 1
+alter table dem.message_inbox drop constraint if exists dem_inbox_sane_expiry_date;
 
 alter table dem.message_inbox
 	add constraint dem_inbox_sane_expiry_date check (
@@ -32,7 +30,6 @@ alter table dem.message_inbox
 	);
 
 
-\unset ON_ERROR_STOP
 insert into dem.message_inbox (
 	fk_staff,
 	fk_patient,
@@ -50,12 +47,9 @@ insert into dem.message_inbox (
 	'next medical exam for renewal of Starship Pilot License',
 	now() - '2 days'::interval
 );
-\set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view dem.v_message_inbox cascade;
-\set ON_ERROR_STOP 1
+drop view if exists dem.v_message_inbox cascade;
 
 
 create view dem.v_message_inbox as

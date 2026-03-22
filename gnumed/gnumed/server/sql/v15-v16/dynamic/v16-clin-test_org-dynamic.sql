@@ -8,9 +8,7 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-alter table clin.test_org drop constraint test_org_fk_org_unit_fkey cascade;
-\set ON_ERROR_STOP 1
+alter table clin.test_org drop constraint if exists test_org_fk_org_unit_fkey cascade;
 
 
 alter table clin.test_org
@@ -40,14 +38,10 @@ where
 			description = 'Enterprise Main Lab'
 	);
 
-\unset ON_ERROR_STOP
 delete from dem.org where description = 'Enterprise Main Lab';
-\set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_test_orgs cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_test_orgs cascade;
 
 create or replace view clin.v_test_orgs as
 select

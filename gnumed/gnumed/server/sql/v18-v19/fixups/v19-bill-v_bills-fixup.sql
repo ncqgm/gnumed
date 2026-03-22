@@ -10,9 +10,7 @@ set check_function_bodies to on;
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view bill.v_bills cascade;
-\set ON_ERROR_STOP 1
+drop view if exists bill.v_bills cascade;
 
 create or replace view bill.v_bills as
 

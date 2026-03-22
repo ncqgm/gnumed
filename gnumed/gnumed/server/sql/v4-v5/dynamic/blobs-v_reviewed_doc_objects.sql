@@ -11,14 +11,8 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: blobs-v_reviewed_doc_objects.sql,v 1.2 2007-10-19 12:55:01 ncq Exp $
--- $Revision: 1.2 $
-
--- --------------------------------------------------------------
 -- remember to handle dependent objects possibly dropped by CASCADE
-\unset ON_ERROR_STOP
-drop view blobs.v_reviewed_doc_objects cascade;
-\set ON_ERROR_STOP 1
+drop view if exists blobs.v_reviewed_doc_objects cascade;
 
 
 create view blobs.v_reviewed_doc_objects as
@@ -58,25 +52,3 @@ grant select on blobs.v_reviewed_doc_objects to group "gm-doctors";
 
 -- --------------------------------------------------------------
 select public.log_script_insertion('$RCSfile: blobs-v_reviewed_doc_objects.sql,v $', '$Revision: 1.2 $');
-
--- ==============================================================
--- $Log: blobs-v_reviewed_doc_objects.sql,v $
--- Revision 1.2  2007-10-19 12:55:01  ncq
--- - remove begin/commit
---
--- Revision 1.1  2007/03/08 15:10:52  ncq
--- - add filename to blobs object view
---
--- Revision 1.2  2006/12/11 17:01:28  ncq
--- - use coalesce to detect reviewer
---
--- Revision 1.1  2006/09/25 10:55:01  ncq
--- - added here
---
--- Revision 1.1  2006/09/16 21:45:14  ncq
--- - add PKs for narrative search
---
--- Revision 1.1  2006/09/16 14:02:36  ncq
--- - use this as a template for change scripts
---
---

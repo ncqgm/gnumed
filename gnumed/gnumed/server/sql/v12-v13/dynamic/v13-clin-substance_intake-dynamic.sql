@@ -20,9 +20,7 @@ alter table clin.substance_intake
 		set default NULL;
 
 
-\unset ON_ERROR_STOP
-alter table clin.substance_intake drop constraint discontinued_after_started cascade;
-\set ON_ERROR_STOP 1
+alter table clin.substance_intake drop constraint if exists discontinued_after_started cascade;
 
 alter table clin.substance_intake
 	add constraint discontinued_after_started
@@ -36,9 +34,7 @@ alter table clin.substance_intake
 
 
 -- unset reason if setting discontinued to null
-\unset ON_ERROR_STOP
-drop function clin.trf_undiscontinue_unsets_reason() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.trf_undiscontinue_unsets_reason() cascade;
 
 create or replace function clin.trf_undiscontinue_unsets_reason()
 	returns trigger
@@ -69,9 +65,7 @@ alter table clin.substance_intake
 	alter column discontinue_reason
 		set default NULL;
 
-\unset ON_ERROR_STOP
-alter table clin.substance_intake drop constraint sane_discontinue_reason cascade;
-\set ON_ERROR_STOP 1
+alter table clin.substance_intake drop constraint if exists sane_discontinue_reason cascade;
 
 alter table clin.substance_intake
 	add constraint sane_discontinue_reason
@@ -82,9 +76,7 @@ alter table clin.substance_intake
 		);
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_substance_intake cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_substance_intake cascade;
 
 create view clin.v_pat_substance_intake as
 select
@@ -174,9 +166,7 @@ from
 grant select on clin.v_pat_substance_intake to group "gm-doctors";
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_substance_intake_journal cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_substance_intake_journal cascade;
 
 create view clin.v_pat_substance_intake_journal as
 select

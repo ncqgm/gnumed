@@ -5,17 +5,11 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v10-clin-trf_invalidate_review_on_result_change-fixup.sql,v 1.2 2009-08-08 10:36:06 ncq Exp $
--- $Revision: 1.2 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function clin.trf_invalidate_review_on_result_change() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.trf_invalidate_review_on_result_change() cascade;
 
 
 create or replace function clin.trf_invalidate_review_on_result_change()
@@ -62,10 +56,3 @@ create trigger tr_invalidate_review_on_result_change
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v10-clin-trf_invalidate_review_on_result_change-fixup.sql,v $', '$Revision: 1.2 $');
-
--- ==============================================================
--- $Log: v10-clin-trf_invalidate_review_on_result_change-fixup.sql,v $
--- Revision 1.2  2009-08-08 10:36:06  ncq
--- - fix review trigger on modifying test data
---
---

@@ -9,9 +9,7 @@
 set check_function_bodies to on;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function dem.add_external_id_type(text, text, text) cascade;
-\set ON_ERROR_STOP 1
+drop function if exists dem.add_external_id_type(text, text, text) cascade;
 
 create or replace function dem.add_external_id_type(text, text)
 	returns integer
@@ -37,9 +35,7 @@ comment on function dem.add_external_id_type(text, text) is
 	 This implementation is prone to concurrency issues.';
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view dem.v_external_ids4identity cascade;
-\set ON_ERROR_STOP 1
+drop view if exists dem.v_external_ids4identity cascade;
 
 create view dem.v_external_ids4identity as
 select

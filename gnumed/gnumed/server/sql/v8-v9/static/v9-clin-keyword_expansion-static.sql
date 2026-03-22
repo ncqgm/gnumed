@@ -12,9 +12,7 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop table clin.keyword_expansion cascade;
-\set ON_ERROR_STOP 1
+drop table if exists clin.keyword_expansion cascade;
 
 
 create table clin.keyword_expansion (

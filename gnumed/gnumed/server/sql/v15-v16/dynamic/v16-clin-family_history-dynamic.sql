@@ -26,11 +26,9 @@ delete from audit.audited_tables where
 	table_name = 'clin_hx_family'
 ;
 
-\unset ON_ERROR_STOP
-drop function audit.ft_del_clin_hx_family() cascade;
-drop function audit.ft_ins_clin_hx_family() cascade;
-drop function audit.ft_upd_clin_hx_family() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists audit.ft_del_clin_hx_family() cascade;
+drop function if exists audit.ft_ins_clin_hx_family() cascade;
+drop function if exists audit.ft_upd_clin_hx_family() cascade;
 
 
 delete from audit.audited_tables where
@@ -50,9 +48,7 @@ comment on column clin.family_history.soap_cat is NULL;
 comment on column clin.family_history.fk_relation_type is
 	'foreign key to the type of relation the patient has to the afflicated relative';
 
-\unset ON_ERROR_STOP
-alter table clin.family_history drop constraint family_history_fk_relation_type_fkey cascade;
-\set ON_ERROR_STOP 1
+alter table clin.family_history drop constraint if exists family_history_fk_relation_type_fkey cascade;
 
 alter table clin.family_history
 	add foreign key (fk_relation_type)
@@ -69,9 +65,7 @@ alter table clin.family_history
 comment on column clin.family_history.name_relative is
 	'name of the relative suffering the condition';
 
-\unset ON_ERROR_STOP
-alter table clin.family_history drop constraint c_family_history_sane_name cascade;
-\set ON_ERROR_STOP 1
+alter table clin.family_history drop constraint if exists c_family_history_sane_name cascade;
 
 alter table clin.family_history
 	add constraint c_family_history_sane_name
@@ -86,9 +80,7 @@ comment on column clin.family_history.dob_relative is
 comment on column clin.family_history.narrative is
 	'the condition this relative suffered from';
 
-\unset ON_ERROR_STOP
-alter table clin.family_history drop constraint c_family_history_sane_condition cascade;
-\set ON_ERROR_STOP 1
+alter table clin.family_history drop constraint if exists c_family_history_sane_condition cascade;
 
 alter table clin.family_history
 	add constraint c_family_history_sane_condition
@@ -99,9 +91,7 @@ alter table clin.family_history
 comment on column clin.family_history.age_noted is
 	'age at which the condition was noted in the relative if known';
 
-\unset ON_ERROR_STOP
-alter table clin.family_history drop constraint c_family_history_sane_age_noted cascade;
-\set ON_ERROR_STOP 1
+alter table clin.family_history drop constraint if exists c_family_history_sane_age_noted cascade;
 
 alter table clin.family_history
 	add constraint c_family_history_sane_age_noted
@@ -112,18 +102,14 @@ alter table clin.family_history
 comment on column clin.family_history.age_of_death is
 	'age at which the relative died if known';
 
---\unset ON_ERROR_STOP
---alter table clin.family_history drop constraint c_family_history_sane_age_of_death cascade;
---\set ON_ERROR_STOP 1
+--alter table clin.family_history drop constraint if exists c_family_history_sane_age_of_death cascade;
 
 --alter table clin.family_history
 --	add constraint c_family_history_sane_age_of_death
 --		check (gm.is_null_or_non_empty_string(age_of_death) is True);
 
 
---\unset ON_ERROR_STOP
---alter table clin.family_history drop constraint c_family_history_sane_death_age cascade;
---\set ON_ERROR_STOP 1
+--alter table clin.family_history drop constraint if exists c_family_history_sane_death_age cascade;
 
 --alter table clin.family_history
 --	add constraint c_family_history_sane_death_age

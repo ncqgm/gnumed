@@ -75,9 +75,7 @@ create or replace function public._(text, text)
 
 
 -- =============================================
-\unset ON_ERROR_STOP
-drop function i18n.set_curr_lang(text, name) cascade;
-\set ON_ERROR_STOP 1
+drop function if exists i18n.set_curr_lang(text, name) cascade;
 
 create or replace function i18n.set_curr_lang(text, name)
 	returns boolean
@@ -107,9 +105,7 @@ comment on function i18n.set_curr_lang(text, name) is
 	 the second argument if translations are available';
 
 
-\unset ON_ERROR_STOP
-drop function i18n.set_curr_lang(text) cascade;
-\set ON_ERROR_STOP 1
+drop function if exists i18n.set_curr_lang(text) cascade;
 
 create function i18n.set_curr_lang(text)
 	returns boolean

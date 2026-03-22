@@ -13,9 +13,7 @@ comment on column dem.identity.emergency_contact is
 	'Free text emergency contact information.';
 
 
-\unset ON_ERROR_STOP
-alter table dem.identity drop constraint sane_emergency_contact cascade;
-\set ON_ERROR_STOP 1
+alter table dem.identity drop constraint if exists sane_emergency_contact cascade;
 
 
 alter table dem.identity
@@ -41,9 +39,7 @@ comment on column dem.identity.comment is
 	'A free-text comment on this identity.';
 
 
-\unset ON_ERROR_STOP
-alter table dem.identity drop constraint sane_comment cascade;
-\set ON_ERROR_STOP 1
+alter table dem.identity drop constraint if exists sane_comment cascade;
 
 
 alter table dem.identity

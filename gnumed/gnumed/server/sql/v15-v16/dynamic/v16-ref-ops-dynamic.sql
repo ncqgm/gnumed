@@ -12,10 +12,8 @@ comment on table ref.ops is
 	'Holds OPS (German ICPM-CM) codes.';
 
 
-\unset ON_ERROR_STOP
-drop trigger tr_upd_ref_code_tbl_check_backlink on ref.ops;
-drop trigger tr_del_ref_code_tbl_check_backlink on ref.ops;
-\set ON_ERROR_STOP 1
+drop trigger if exists tr_upd_ref_code_tbl_check_backlink on ref.ops;
+drop trigger if exists tr_del_ref_code_tbl_check_backlink on ref.ops;
 
 
 -- UPDATE
@@ -29,20 +27,16 @@ create trigger tr_del_ref_code_tbl_check_backlink
 		for each row execute procedure ref.trf_del_ref_code_tbl_check_backlink();
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop index idx_ref_ops_fk_data_src cascade;
-drop index idx_ref_ops_code_unique_per_system cascade;
-drop index idx_ref_ops_term_unique_per_system cascade;
-\set ON_ERROR_STOP 1
+drop index if exists idx_ref_ops_fk_data_src cascade;
+drop index if exists idx_ref_ops_code_unique_per_system cascade;
+drop index if exists idx_ref_ops_term_unique_per_system cascade;
 
 create index idx_ref_ops_fk_data_src on ref.ops(fk_data_source);
 create unique index idx_ref_ops_code_unique_per_system on ref.ops(fk_data_source, lower(code));
 create unique index idx_ref_ops_term_unique_per_system on ref.ops(fk_data_source, lower(code), lower(term));
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-alter table ref.ops drop constraint ops_fk_data_source_fkey cascade;
-\set ON_ERROR_STOP 1
+alter table ref.ops drop constraint if exists ops_fk_data_source_fkey cascade;
 
 alter table ref.ops
 	add foreign key (fk_data_source)

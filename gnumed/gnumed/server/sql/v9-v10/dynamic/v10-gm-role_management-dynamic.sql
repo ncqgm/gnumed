@@ -84,9 +84,7 @@ revoke all on function gm.transfer_users(text) from public;
 grant execute on function gm.transfer_users(text) to "gm-dbo";
 
 
-\unset ON_ERROR_STOP
-drop function public.gm_transfer_users(name, text) cascade;
-\set ON_ERROR_STOP 1
+drop function if exists public.gm_transfer_users(name, text) cascade;
 
 -- --------------------------------------------------------------
 create or replace function gm.create_user(name, text)
@@ -141,9 +139,7 @@ comment on function gm.create_user(name, text) is
  the function.';
 
 
-\unset ON_ERROR_STOP
-drop function public.gm_create_user(name, text) cascade;
-\set ON_ERROR_STOP 1
+drop function if exists public.gm_create_user(name, text) cascade;
 
 -- --------------------------------------------------------------
 create or replace function gm.drop_user(name)
@@ -179,9 +175,7 @@ comment on function gm.drop_user(name) is
  to execute the function.';
 
 
-\unset ON_ERROR_STOP
-drop function public.gm_drop_user(name, text) cascade;
-\set ON_ERROR_STOP 1
+drop function if exists public.gm_drop_user(name, text) cascade;
 
 
 -- --------------------------------------------------------------
@@ -216,9 +210,7 @@ comment on function gm.disable_user(name) is
  to execute the function.';
 
 
-\unset ON_ERROR_STOP
-drop function public.gm_disable_user(name, text) cascade;
-\set ON_ERROR_STOP 1
+drop function if exists public.gm_disable_user(name, text) cascade;
 
 -- --------------------------------------------------------------
 create or replace function gm.get_users(name)

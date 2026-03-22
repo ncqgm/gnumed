@@ -21,9 +21,7 @@ COMMENT on column dem.country.code IS
 COMMENT on column dem.country.deprecated IS
 	'date when this country ceased officially to exist (if applicable)';
 
-\unset ON_ERROR_STOP
-alter table dem.country drop constraint no_linebreaks;
-\set ON_ERROR_STOP 1
+alter table dem.country drop constraint if exists no_linebreaks;
 
 alter table dem.country
 	add constraint no_linebreaks check (
@@ -45,9 +43,7 @@ COMMENT on column dem.state.code is
 COMMENT on column dem.state.country is
 	'2 character ISO 3166-1 country code';
 
-\unset ON_ERROR_STOP
-alter table dem.state drop constraint no_linebreaks;
-\set ON_ERROR_STOP 1
+alter table dem.state drop constraint if exists no_linebreaks;
 
 alter table dem.state
 	add constraint no_linebreaks check (
@@ -73,9 +69,7 @@ COMMENT on column dem.urb.name IS
 COMMENT on column dem.urb.lat_lon is
 	'the location of the urb, as lat/long co-ordinates. Ideally this would be NOT NULL';
 
-\unset ON_ERROR_STOP
-alter table dem.urb drop constraint no_linebreaks;
-\set ON_ERROR_STOP 1
+alter table dem.urb drop constraint if exists no_linebreaks;
 
 alter table dem.urb
 	add constraint no_linebreaks check (
@@ -101,9 +95,7 @@ comment on column dem.street.suburb is
 comment on column dem.street.lat_lon is
 'the approximate location of the street, as lat/long co-ordinates';
 
-\unset ON_ERROR_STOP
-alter table dem.street drop constraint no_linebreaks;
-\set ON_ERROR_STOP 1
+alter table dem.street drop constraint if exists no_linebreaks;
 
 alter table dem.street
 	add constraint no_linebreaks check (
@@ -174,9 +166,7 @@ select dem.gm_upd_default_states();
 -- ===================================================================
 -- if you suffer from performance problems when selecting from this view,
 -- implement it as a real table
-\unset ON_ERROR_STOP
-drop view dem.v_basic_address;
-\set ON_ERROR_STOP 1
+drop view if exists dem.v_basic_address;
 
 create view dem.v_basic_address as
 select
@@ -210,9 +200,7 @@ where
 -- ===================================================================
 -- Functions to create urb, street and address.
 
-\unset ON_ERROR_STOP
-DROP function dem.create_urb(text, text, text, text);
-\set ON_ERROR_STOP 1
+DROP function if exists dem.create_urb(text, text, text, text);
 
 CREATE function dem.create_urb(text, text, text, text) RETURNS integer AS '
 DECLARE
@@ -251,9 +239,7 @@ COMMENT ON function dem.create_urb(text, text, text, text) IS
 	supplied information. If the fields do not match exactly an\n
 	existing row, a new urb is created and returned.';
 
-\unset ON_ERROR_STOP
-DROP function dem.create_street(text, text, text, text, text);
-\set ON_ERROR_STOP 1
+DROP function if exists dem.create_street(text, text, text, text, text);
 
 CREATE function dem.create_street(text, text, text, text, text) RETURNS integer AS '
 DECLARE
@@ -290,9 +276,7 @@ COMMENT ON function dem.create_street(text, text, text, text, text) IS
 	supplied information. If the fields do not match exactly an\n
 	existing row, a new urb is created or a new street is created and returned.';
 
-\unset ON_ERROR_STOP
-DROP function dem.create_address(text, text, text, text, text, text);
-\set ON_ERROR_STOP 1
+DROP function if exists dem.create_address(text, text, text, text, text, text);
 
 CREATE function dem.create_address(text, text, text, text, text, text) RETURNS integer AS '
 DECLARE
@@ -332,9 +316,7 @@ COMMENT ON function dem.create_address(text, text, text, text, text, text) IS
 
 
 -- ===================================================================
-\unset ON_ERROR_STOP
-drop view dem.v_zip2street cascade;
-\set ON_ERROR_STOP 1
+drop view if exists dem.v_zip2street cascade;
 
 create view dem.v_zip2street as
 	select
@@ -366,9 +348,7 @@ comment on view dem.v_zip2street is
 	'list known data for streets that have a zip code';
 
 -- ===================================================================
-\unset ON_ERROR_STOP
-drop view dem.v_zip2urb;
-\set ON_ERROR_STOP 1
+drop view if exists dem.v_zip2urb;
 
 create view dem.v_zip2urb as
 	select
@@ -394,9 +374,7 @@ comment on view dem.v_zip2urb is
 	'list known data for urbs that have a zip code';
 
 -- ===================================================================
-\unset ON_ERROR_STOP
-drop view dem.v_uniq_zipped_urbs;
-\set ON_ERROR_STOP 1
+drop view if exists dem.v_uniq_zipped_urbs;
 
 create view dem.v_uniq_zipped_urbs as
 	-- all the cities that
@@ -437,9 +415,7 @@ comment on view dem.v_uniq_zipped_urbs is
 	 - are not referenced in table "street" with that zip code';
 
 -- ===================================================================
-\unset ON_ERROR_STOP
-drop view dem.v_zip2data;
-\set ON_ERROR_STOP 1
+drop view if exists dem.v_zip2data;
 
 create view dem.v_zip2data as
 	select

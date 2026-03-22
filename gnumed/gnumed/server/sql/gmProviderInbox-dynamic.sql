@@ -59,9 +59,7 @@ comment on column dem.provider_inbox.importance is
 	  1: higher than most things already there ("high")';
 
 -- ---------------------------------------------
-\unset ON_ERROR_STOP
-drop view dem.v_inbox_item_type cascade;
-\set ON_ERROR_STOP 1
+drop view if exists dem.v_inbox_item_type cascade;
 
 create view dem.v_inbox_item_type as
 select

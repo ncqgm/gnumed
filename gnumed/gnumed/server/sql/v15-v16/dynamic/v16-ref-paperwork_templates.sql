@@ -8,9 +8,7 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-alter table ref.paperwork_templates drop constraint engine_range cascade;
-\set ON_ERROR_STOP 1
+alter table ref.paperwork_templates drop constraint if exists engine_range cascade;
 
 
 alter table ref.paperwork_templates
@@ -30,16 +28,12 @@ comment on column ref.paperwork_templates.engine is
 ;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-insert into ref.form_types (name) values (i18n.i18n('pdf form'));
-\set ON_ERROR_STOP 1
+insert into ref.form_types (name) values (i18n.i18n('pdf form')) on conflict (name) do nothing;
 
 select i18n.upd_tx('de_DE', 'pdf form', 'PDF-Formular');
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-insert into ref.form_types (name) values (i18n.i18n('form header'));
-\set ON_ERROR_STOP 1
+insert into ref.form_types (name) values (i18n.i18n('form header')) on conflict (name) do nothing;
 
 select i18n.upd_tx('de', 'form header', 'Formularkopf');
 

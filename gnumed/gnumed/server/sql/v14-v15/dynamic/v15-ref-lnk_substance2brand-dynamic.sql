@@ -28,9 +28,7 @@ to group "gm-doctors";
 
 -- --------------------------------------------------------------
 -- .fk_brand
-\unset ON_ERROR_STOP
-alter table ref.lnk_substance2brand drop constraint lnk_substance2brand_fk_brand_fkey cascade;
-\set ON_ERROR_STOP 1
+alter table ref.lnk_substance2brand drop constraint if exists lnk_substance2brand_fk_brand_fkey cascade;
 
 alter table ref.lnk_substance2brand
 	alter column fk_brand
@@ -42,17 +40,13 @@ alter table ref.lnk_substance2brand
 		on update cascade
 		on delete restrict;
 
-\unset ON_ERROR_STOP
-drop index ref.idx_lnk_s2b_fk_brand cascade;
-\set ON_ERROR_STOP 1
+drop index if exists ref.idx_lnk_s2b_fk_brand cascade;
 
 create index idx_lnk_s2b_fk_brand on ref.lnk_substance2brand(fk_brand);
 
 -- --------------------------------------------------------------
 -- .fk_substance
-\unset ON_ERROR_STOP
-alter table ref.lnk_substance2brand drop constraint lnk_substance2brand_fk_substance_fkey cascade;
-\set ON_ERROR_STOP 1
+alter table ref.lnk_substance2brand drop constraint if exists lnk_substance2brand_fk_substance_fkey cascade;
 
 alter table ref.lnk_substance2brand
 	alter column fk_substance
@@ -64,17 +58,13 @@ alter table ref.lnk_substance2brand
 		on update cascade
 		on delete restrict;
 
-\unset ON_ERROR_STOP
-drop index ref.idx_lnk_s2b_fk_substance cascade;
-\set ON_ERROR_STOP 1
+drop index if exists ref.idx_lnk_s2b_fk_substance cascade;
 
 create index idx_lnk_s2b_fk_substance on ref.lnk_substance2brand(fk_substance);
 
 -- --------------------------------------------------------------
 -- table constraints
-\unset ON_ERROR_STOP
-alter table ref.lnk_substance2brand drop constraint ref_lnk_s2b_subst_uniq_per_brand cascade;
-\set ON_ERROR_STOP 1
+alter table ref.lnk_substance2brand drop constraint if exists ref_lnk_s2b_subst_uniq_per_brand cascade;
 
 alter table ref.lnk_substance2brand
 	add constraint ref_lnk_s2b_subst_uniq_per_brand
@@ -82,9 +72,7 @@ alter table ref.lnk_substance2brand
 
 -- --------------------------------------------------------------
 -- must not devoid non-fake brands of all components
-\unset ON_ERROR_STOP
-drop function ref.trf_true_brands_must_have_components() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists ref.trf_true_brands_must_have_components() cascade;
 
 create or replace function ref.trf_true_brands_must_have_components()
 	returns trigger
@@ -162,9 +150,7 @@ create constraint trigger tr_true_brands_must_have_components
 
 -- --------------------------------------------------------------
 -- must not modify fk_brand/fk_substance/amount/unit from under a patient
-\unset ON_ERROR_STOP
-drop function ref.trf_do_not_update_component_if_taken_by_patient() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists ref.trf_do_not_update_component_if_taken_by_patient() cascade;
 
 create or replace function ref.trf_do_not_update_component_if_taken_by_patient()
 	returns trigger
@@ -274,9 +260,7 @@ insert into ref.lnk_substance2brand (
 
 -- --------------------------------------------------------------
 -- generate ref.lnk_substance2brand entries from v14 database knowledge
-\unset ON_ERROR_STOP
-drop function tmp_transfer_drug_components() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists tmp_transfer_drug_components() cascade;
 
 
 create or replace function tmp_transfer_drug_components()

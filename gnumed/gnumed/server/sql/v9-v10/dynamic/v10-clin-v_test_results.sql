@@ -13,30 +13,22 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop index clin.idx_test_result_fk_type cascade;
-\set ON_ERROR_STOP 1
+drop index if exists clin.idx_test_result_fk_type cascade;
 
 create index idx_test_result_fk_type on clin.test_result(fk_type);
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop index clin.idx_rtr_fk_reviewer cascade;
-\set ON_ERROR_STOP 1
+drop index if exists clin.idx_rtr_fk_reviewer cascade;
 
 create index idx_rtr_fk_reviewer on clin.reviewed_test_results(fk_reviewer);
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop index clin.idx_ltt2ut_fk_ttu cascade;
-\set ON_ERROR_STOP 1
+drop index if exists clin.idx_ltt2ut_fk_ttu cascade;
 
 create index idx_ltt2ut_fk_ttu on clin.lnk_ttype2unified_type(fk_test_type_unified);
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_test_results cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_test_results cascade;
 
 
 create view clin.v_test_results as

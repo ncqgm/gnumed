@@ -13,10 +13,8 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop index dem.idx_street_names cascade;
-drop index dem.idx_street_zips cascade;
-\set ON_ERROR_STOP 1
+drop index if exists dem.idx_street_names cascade;
+drop index if exists dem.idx_street_zips cascade;
 
 
 create index idx_street_names on dem.street(name);

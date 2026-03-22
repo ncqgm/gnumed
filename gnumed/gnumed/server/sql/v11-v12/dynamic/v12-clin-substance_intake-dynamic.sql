@@ -20,9 +20,7 @@ alter table clin.substance_intake
 	alter column soap_cat
 		set default 'p';
 
-\unset ON_ERROR_STOP
-alter table clin.substance_intake drop constraint medication_is_plan cascade;
-\set ON_ERROR_STOP 1
+alter table clin.substance_intake drop constraint if exists medication_is_plan cascade;
 
 alter table clin.substance_intake
 	add constraint medication_is_plan
@@ -45,9 +43,7 @@ alter table clin.substance_intake
 		drop not null;
 
 
-\unset ON_ERROR_STOP
-alter table clin.substance_intake drop constraint sane_fk_episode cascade;
-\set ON_ERROR_STOP 1
+alter table clin.substance_intake drop constraint if exists sane_fk_episode cascade;
 
 
 alter table clin.substance_intake
@@ -59,9 +55,7 @@ alter table clin.substance_intake
 		);
 
 
-\unset ON_ERROR_STOP
-drop function clin.trf_sanity_check_substance_episode() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.trf_sanity_check_substance_episode() cascade;
 
 
 create or replace function clin.trf_sanity_check_substance_episode()
@@ -126,9 +120,7 @@ alter table clin.substance_intake
 -- .fk_substance
 
 -- drop old foreign key on consumed substance
-\unset ON_ERROR_STOP
-alter table clin.substance_intake drop constraint substance_intake_fk_substance_fkey cascade;
-\set ON_ERROR_STOP 1
+alter table clin.substance_intake drop constraint if exists substance_intake_fk_substance_fkey cascade;
 
 -- re-adjust foreign key data
 update clin.substance_intake csi set
@@ -151,9 +143,7 @@ alter table clin.substance_intake
 			on delete restrict;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_substance_intake cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_substance_intake cascade;
 
 create view clin.v_pat_substance_intake as
 select
@@ -228,9 +218,7 @@ from
 grant select on clin.v_pat_substance_intake to group "gm-doctors";
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_substance_intake_journal cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_substance_intake_journal cascade;
 
 create view clin.v_pat_substance_intake_journal as
 select

@@ -15,9 +15,7 @@
 -- $Revision: 1.1 $
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view blobs.v_doc_desc cascade;
-\set ON_ERROR_STOP 1
+drop view if exists blobs.v_doc_desc cascade;
 
 
 create view blobs.v_doc_desc as

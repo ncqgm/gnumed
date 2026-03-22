@@ -12,9 +12,7 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_encounters cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_encounters cascade;
 
 
 create view clin.v_pat_encounters as
@@ -60,9 +58,7 @@ TO GROUP "gm-doctors";
 
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_encounters_journal cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_encounters_journal cascade;
 
 
 create view clin.v_pat_encounters_journal as

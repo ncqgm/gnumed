@@ -170,12 +170,10 @@ comment on column clin.vaccination_definition.min_interval is
 	 	minimum interval after previous vaccination,
 		NULL if seq_no == 1';
 
-\unset ON_ERROR_STOP
 alter table clin.vaccination_definition
-	drop constraint numbered_shot_xor_booster;
+	drop constraint if exists numbered_shot_xor_booster;
 alter table clin.vaccination_definition
-	drop constraint sensible_min_interval;
-\set ON_ERROR_STOP 1
+	drop constraint if exists sensible_min_interval;
 
 alter table clin.vaccination_definition
 	add constraint numbered_shot_xor_booster
@@ -194,11 +192,9 @@ alter table clin.vaccination_definition
 			((min_interval is not null) and (min_interval > '0 seconds'::interval) and (seq_no > 1))
 		);
 
-\unset ON_ERROR_STOP
-drop trigger tr_ins_booster_must_have_base_immunity on clin.vaccination_definition;
-drop trigger tr_upd_booster_must_have_base_immunity on clin.vaccination_definition;
-drop trigger tr_del_booster_must_have_base_immunity on clin.vaccination_definition;
-\set ON_ERROR_STOP 1
+drop trigger if exists tr_ins_booster_must_have_base_immunity on clin.vaccination_definition;
+drop trigger if exists tr_upd_booster_must_have_base_immunity on clin.vaccination_definition;
+drop trigger if exists tr_del_booster_must_have_base_immunity on clin.vaccination_definition;
 
 -- insert
 create or replace function clin.f_ins_booster_must_have_base_immunity()
@@ -304,9 +300,7 @@ comment on table clin.lnk_constraint2vacc_course is
 -- -----------------------------------------------------------------------
 -- -- views --
 -- -----------------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_vaccine cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_vaccine cascade;
 
 create view clin.v_vaccine as
 select
@@ -332,9 +326,7 @@ comment on view clin.v_vaccine is
 	'denormalized data about vaccines';
 
 --
-\unset ON_ERROR_STOP
-drop view clin.v_indications4vaccine cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_indications4vaccine cascade;
 
 create view clin.v_indications4vaccine as
 select
@@ -362,9 +354,7 @@ comment on view clin.v_indications4vaccine is
 	'lists indications for vaccines';
 
 
-\unset ON_ERROR_STOP
-drop view clin.v_vaccination_courses cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_vaccination_courses cascade;
 
 create view clin.v_vaccination_courses as
 select
@@ -397,9 +387,7 @@ comment on view clin.v_vaccination_courses is
 	'all vaccination courses known to the system';
 
 -- -----------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_vaccination_definitions4course cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_vaccination_definitions4course cascade;
 
 create view clin.v_vaccination_definitions4course as
 select
@@ -435,9 +423,7 @@ comment on view clin.v_vaccination_definitions4course is
 
 
 -- -----------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_vaccination_courses_in_schedule;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_vaccination_courses_in_schedule;
 
 create view clin.v_vaccination_courses_in_schedule as
 select
@@ -657,9 +643,7 @@ comment on view clin.v_pat_missing_boosters is
 	 received vaccinations';
 
 -- -----------------------------------------------------
-\unset ON_ERROR_STOP
-drop trigger tr_unique_indication_in_schedule on clin.lnk_vaccination_course2schedule;
-\set ON_ERROR_STOP 1
+drop trigger if exists tr_unique_indication_in_schedule on clin.lnk_vaccination_course2schedule;
 
 create or replace function clin.trf_unique_indication_in_schedule()
 	returns trigger

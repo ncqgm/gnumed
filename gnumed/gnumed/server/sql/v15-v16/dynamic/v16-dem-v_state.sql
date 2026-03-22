@@ -8,10 +8,7 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view dem.v_state cascade;
-\set ON_ERROR_STOP 1
-
+drop view if exists dem.v_state cascade;
 
 
 create view dem.v_state as
@@ -32,9 +29,7 @@ from
 ;
 
 
-
 comment on view dem.v_state is 'denormalizes state information';
-
 
 
 grant select on dem.v_state to group "gm-doctors";

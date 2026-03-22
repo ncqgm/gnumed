@@ -5,17 +5,11 @@
 -- Author: karsten.hilbert@gmx.net
 --
 -- ==============================================================
--- $Id: v11-clin-v_pat_hospital_stays_journal.sql,v 1.1 2009-04-01 15:55:39 ncq Exp $
--- $Revision: 1.1 $
-
--- --------------------------------------------------------------
 --set default_transaction_read_only to off;
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_hospital_stays_journal cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_hospital_stays_journal cascade;
 
 create view clin.v_pat_hospital_stays_journal as
 select
@@ -61,6 +55,3 @@ grant select on clin.v_pat_hospital_stays_journal to group "gm-doctors";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v11-clin-v_pat_hospital_stays_journal.sql,v $', '$Revision: 1.1 $');
-
--- ==============================================================
---

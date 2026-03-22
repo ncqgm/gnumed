@@ -8,18 +8,9 @@
 -- Author: 
 -- 
 -- ==============================================================
--- $Id: clin-encounter.sql,v 1.2 2007-04-07 22:49:06 ncq Exp $
--- $Revision: 1.2 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
--- remember to handle dependent objects possibly dropped by CASCADE
---\unset ON_ERROR_STOP
---drop forgot_to_edit_drops;
---\set ON_ERROR_STOP 1
-
 -- adjust data
 -- never worked because it lacks an ")"
 --update clin.encounter
@@ -43,31 +34,3 @@
 
 -- --------------------------------------------------------------
 select public.log_script_insertion('$RCSfile: clin-encounter.sql,v $', '$Revision: 1.2 $');
-
--- ==============================================================
--- $Log: clin-encounter.sql,v $
--- Revision 1.2  2007-04-07 22:49:06  ncq
--- - need to adjust data before adding constraint
---
--- Revision 1.1  2007/02/04 15:31:40  ncq
--- - add check for END after START
---
--- Revision 1.6  2007/01/27 21:16:08  ncq
--- - the begin/commit does not fit into our change script model
---
--- Revision 1.5  2006/10/24 13:09:45  ncq
--- - What it does duplicates the change log so axe it
---
--- Revision 1.4  2006/09/28 14:39:51  ncq
--- - add comment template
---
--- Revision 1.3  2006/09/18 17:32:53  ncq
--- - make more fool-proof
---
--- Revision 1.2  2006/09/16 21:47:37  ncq
--- - improvements
---
--- Revision 1.1  2006/09/16 14:02:36  ncq
--- - use this as a template for change scripts
---
---

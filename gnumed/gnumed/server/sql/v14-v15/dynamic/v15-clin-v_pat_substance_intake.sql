@@ -10,9 +10,7 @@ set check_function_bodies to 1;
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_substance_intake cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_substance_intake cascade;
 
 create view clin.v_pat_substance_intake as
 

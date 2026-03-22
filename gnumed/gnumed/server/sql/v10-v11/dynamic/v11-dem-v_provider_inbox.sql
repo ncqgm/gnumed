@@ -5,16 +5,10 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v11-dem-v_provider_inbox.sql,v 1.2 2009-07-15 12:27:22 ncq Exp $
--- $Revision: 1.2 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view dem.v_provider_inbox cascade;
-\set ON_ERROR_STOP 1
+drop view if exists dem.v_provider_inbox cascade;
 
 
 create view dem.v_provider_inbox as
@@ -136,13 +130,3 @@ grant select on dem.v_provider_inbox to group "gm-doctors";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v11-dem-v_provider_inbox.sql,v $', '$Revision: 1.2 $');
-
--- ==============================================================
--- $Log: v11-dem-v_provider_inbox.sql,v $
--- Revision 1.2  2009-07-15 12:27:22  ncq
--- - rewrite to not access v_basic_person
---
--- Revision 1.1  2009/05/24 16:25:43  ncq
--- - new
---
---

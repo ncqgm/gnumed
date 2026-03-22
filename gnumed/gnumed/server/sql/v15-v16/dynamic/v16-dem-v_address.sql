@@ -11,21 +11,19 @@ set check_function_bodies to on;
 
 -- --------------------------------------------------------------
 -- add an index to dem.address.id_street
-\unset ON_ERROR_STOP
-drop index idx_dem_address_id_street cascade;
-drop index idx_dem_street_id_urb cascade;
-drop index idx_dem_urb_id_state cascade;
-drop index idx_dem_state_country_code cascade;
+drop index if exists idx_dem_address_id_street cascade;
+drop index if exists idx_dem_street_id_urb cascade;
+drop index if exists idx_dem_urb_id_state cascade;
+drop index if exists idx_dem_state_country_code cascade;
 
-alter table dem.urb drop constraint urb_id_state_postcode_name_key cascade;
-drop index idx_dem_urb_id_state_postcode_name cascade;
+alter table dem.urb drop constraint if exists urb_id_state_postcode_name_key cascade;
+drop index if exists idx_dem_urb_id_state_postcode_name cascade;
 
-alter table dem.state drop constraint state_code_country_key cascade;
-drop index idx_dem_state_code_country cascade;
+alter table dem.state drop constraint if exists state_code_country_key cascade;
+drop index if exists idx_dem_state_code_country cascade;
 
-alter table dem.street drop constraint street_id_urb_name_postcode_key cascade;
-drop index idx_dem_street_id_urb_name_postcode cascade;
-\set ON_ERROR_STOP 1
+alter table dem.street drop constraint if exists street_id_urb_name_postcode_key cascade;
+drop index if exists idx_dem_street_id_urb_name_postcode cascade;
 
 create index idx_dem_address_id_street on dem.address(id_street);
 create index idx_dem_street_id_urb on dem.street(id_urb);
@@ -36,9 +34,7 @@ create unique index idx_dem_state_code_country on dem.state(lower(code), country
 create unique index idx_dem_street_id_urb_name_postcode on dem.street(id_urb, lower(name), lower(postcode));
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function dem.address_exists(text, text, text, text, text, text, text) cascade;
-\set ON_ERROR_STOP 1
+drop function if exists dem.address_exists(text, text, text, text, text, text, text) cascade;
 
 
 create or replace function dem.address_exists(text, text, text, text, text, text, text)
@@ -133,9 +129,7 @@ It takes the following parameters:
 ';
 
 --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function dem.create_address(text, text, text, text, text, text, text);
-\set ON_ERROR_STOP 1
+drop function if exists dem.create_address(text, text, text, text, text, text, text);
 
 
 create or replace function dem.create_address(text, text, text, text, text, text, text)
@@ -212,9 +206,7 @@ in the database, the function fails.
 ';
 
 --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view dem.v_address cascade;
-\set ON_ERROR_STOP 1
+drop view if exists dem.v_address cascade;
 
 
 

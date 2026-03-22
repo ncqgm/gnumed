@@ -14,9 +14,7 @@
 
 -- --------------------------------------------------------------
 -- .description
-\unset ON_ERROR_STOP
-alter table clin.episode drop constraint sane_description cascade;
-\set ON_ERROR_STOP 1
+alter table clin.episode drop constraint if exists sane_description cascade;
 
 
 alter table clin.episode
@@ -24,9 +22,7 @@ alter table clin.episode
 		check(gm.is_null_or_blank_string(description) is False);
 
 
-\unset ON_ERROR_STOP
-alter table clin.episode drop constraint episode_description_check cascade;
-\set ON_ERROR_STOP 1
+alter table clin.episode drop constraint if exists episode_description_check cascade;
 
 -- --------------------------------------------------------------
 -- .diagnostic_certainty_classification
@@ -47,9 +43,7 @@ alter table clin.episode
 
 -- --------------------------------------------------------------
 -- .fk_encounter vs .fk_health_issue
-\unset ON_ERROR_STOP
-drop function clin.trf_sanity_check_enc_vs_issue_on_epi() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.trf_sanity_check_enc_vs_issue_on_epi() cascade;
 
 
 create or replace function clin.trf_sanity_check_enc_vs_issue_on_epi()

@@ -9,9 +9,7 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view dem.v_basic_person cascade;
-\set ON_ERROR_STOP 1
+drop view if exists dem.v_basic_person cascade;
 
 
 create view dem.v_basic_person as

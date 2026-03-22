@@ -15,12 +15,10 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
 alter table clin.health_issue
-	drop constraint "$1";
+	drop constraint if exists "$1";
 alter table clin.health_issue
-	drop constraint "health_issue_id_patient_fkey";
-\set ON_ERROR_STOP 1
+	drop constraint if exists "health_issue_id_patient_fkey";
 
 alter table clin.health_issue
 	rename column id_patient to fk_patient;
@@ -33,14 +31,3 @@ alter table clin.health_issue
 
 -- --------------------------------------------------------------
 select public.log_script_insertion('$RCSfile: clin-health_issue.sql,v $', '$Revision: 1.2 $');
-
--- ==============================================================
--- $Log: clin-health_issue.sql,v $
--- Revision 1.2  2006-10-28 12:22:48  ncq
--- - 8.1 prides itself in naming FKs differently -- better -- but makes
---   changing auto-named foreign keys a pain
---
--- Revision 1.1  2006/10/24 13:08:26  ncq
--- - mainly changes due to dropped clin.xlnk_identity
---
---

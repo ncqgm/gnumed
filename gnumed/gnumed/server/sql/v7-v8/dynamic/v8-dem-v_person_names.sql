@@ -17,9 +17,7 @@ select gm.add_table_for_notifies('dem', 'names', 'name');
 select gm.add_table_for_notifies('dem', 'identity');
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view dem.v_person_names cascade;
-\set ON_ERROR_STOP 1
+drop view if exists dem.v_person_names cascade;
 
 create view dem.v_person_names as
 select

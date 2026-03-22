@@ -14,9 +14,7 @@ set default_transaction_read_only to off;
 -- --------------------------------------------------------------
 
 -- INSERT
-\unset ON_ERROR_STOP
-drop function clin.trf_insert_update_intake_prevent_duplicate_substance_links() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.trf_insert_update_intake_prevent_duplicate_substance_links() cascade;
 
 create or replace function clin.trf_insert_update_intake_prevent_duplicate_substance_links()
 	returns trigger
@@ -71,9 +69,7 @@ create constraint trigger tr_insert_update_intake_prevent_duplicate_substance_li
 
 -- --------------------------------------------------------------
 -- DELETE
-\unset ON_ERROR_STOP
-drop function clin.trf_delete_intake_turns_other_components_into_substances() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.trf_delete_intake_turns_other_components_into_substances() cascade;
 
 create or replace function clin.trf_delete_intake_turns_other_components_into_substances()
 	returns trigger

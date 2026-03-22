@@ -21,10 +21,8 @@ grant select on ref.auto_hint to group "gm-public";
 -- .title
 comment on column ref.auto_hint.title is 'A short title to summarize and identify the hint.';
 
-\unset ON_ERROR_STOP
-alter table ref.auto_hint drop constraint ref_auto_hint_sane_title cascade;
-alter table ref.auto_hint drop constraint ref_auto_hint_uniq_title cascade;
-\set ON_ERROR_STOP 1
+alter table ref.auto_hint drop constraint if exists ref_auto_hint_sane_title cascade;
+alter table ref.auto_hint drop constraint if exists ref_auto_hint_uniq_title cascade;
 
 alter table ref.auto_hint
 	add constraint ref_auto_hint_sane_title
@@ -38,10 +36,8 @@ alter table ref.auto_hint
 -- .query
 comment on column ref.auto_hint.query is 'This query is run against the database.';
 
-\unset ON_ERROR_STOP
-alter table ref.auto_hint drop constraint ref_auto_hint_sane_query cascade;
-alter table ref.auto_hint drop constraint ref_auto_hint_uniq_query cascade;
-\set ON_ERROR_STOP 1
+alter table ref.auto_hint drop constraint if exists ref_auto_hint_sane_query cascade;
+alter table ref.auto_hint drop constraint if exists ref_auto_hint_uniq_query cascade;
 
 alter table ref.auto_hint
 	add constraint ref_auto_hint_sane_query
@@ -55,9 +51,7 @@ alter table ref.auto_hint
 -- .hint
 comment on column ref.auto_hint.hint is 'When the query returns true this is the hint that should be displayed.';
 
-\unset ON_ERROR_STOP
-alter table ref.auto_hint drop constraint ref_auto_hint_sane_hint cascade;
-\set ON_ERROR_STOP 1
+alter table ref.auto_hint drop constraint if exists ref_auto_hint_sane_hint cascade;
 
 alter table ref.auto_hint
 	add constraint ref_auto_hint_sane_hint
@@ -71,9 +65,7 @@ alter table ref.auto_hint
 	alter column url
 		set default null;
 
-\unset ON_ERROR_STOP
-alter table ref.auto_hint drop constraint ref_auto_hint_sane_url cascade;
-\set ON_ERROR_STOP 1
+alter table ref.auto_hint drop constraint if exists ref_auto_hint_sane_url cascade;
 
 alter table ref.auto_hint
 	add constraint ref_auto_hint_sane_url
@@ -95,9 +87,7 @@ alter table ref.auto_hint
 -- .source
 comment on column ref.auto_hint.source is 'Who provided query and hint.';
 
-\unset ON_ERROR_STOP
-alter table ref.auto_hint drop constraint ref_auto_hint_sane_source cascade;
-\set ON_ERROR_STOP 1
+alter table ref.auto_hint drop constraint if exists ref_auto_hint_sane_source cascade;
 
 alter table ref.auto_hint
 	add constraint ref_auto_hint_sane_source
@@ -107,18 +97,14 @@ alter table ref.auto_hint
 -- .lang
 comment on column ref.auto_hint.lang is 'The language the hint is written in.';
 
-\unset ON_ERROR_STOP
-alter table ref.auto_hint drop constraint ref_auto_hint_sane_lang cascade;
-\set ON_ERROR_STOP 1
+alter table ref.auto_hint drop constraint if exists ref_auto_hint_sane_lang cascade;
 
 alter table ref.auto_hint
 	add constraint ref_auto_hint_sane_lang
 		check (gm.is_null_or_blank_string(lang) is false);
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
 DELETE FROM ref.auto_hint WHERE title = 'Startrek: Denevan neural parasite screening';
-\set ON_ERROR_STOP 1
 
 insert into ref.auto_hint(query, title, hint, url, source, lang) values (
 	'SELECT EXISTS(SELECT 1 FROM clin.v_family_history WHERE condition ~* ''denevan.*parasit'' AND pk_patient = ID_ACTIVE_PATIENT);',
@@ -131,9 +117,7 @@ insert into ref.auto_hint(query, title, hint, url, source, lang) values (
 
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
 DELETE FROM ref.auto_hint WHERE title = 'Kontraindikation: ACE/Sartan <-> Schwangerschaft';
-\set ON_ERROR_STOP 1
 
 insert into ref.auto_hint(query, title, hint, url, source, lang) values (
 	'SELECT EXISTS (

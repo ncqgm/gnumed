@@ -8,16 +8,10 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v10-clin-v_pat_allergies.sql,v 1.1 2008-09-02 15:41:20 ncq Exp $
--- $Revision: 1.1 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_allergies cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_allergies cascade;
 
 
 create view clin.v_pat_allergies as
@@ -66,10 +60,3 @@ grant select on clin.v_pat_allergies to group "gm-doctors";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v10-clin-v_pat_allergies.sql,v $', '$Revision: 1.1 $');
-
--- ==============================================================
--- $Log: v10-clin-v_pat_allergies.sql,v $
--- Revision 1.1  2008-09-02 15:41:20  ncq
--- - new
---
---

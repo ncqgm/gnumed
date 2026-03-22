@@ -9,9 +9,7 @@
 set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
 DELETE FROM ref.auto_hint WHERE title = 'GKV-Checkup überfällig';
-\set ON_ERROR_STOP 1
 
 insert into ref.auto_hint(query, title, hint, url, source, lang) values (
 	'SELECT (

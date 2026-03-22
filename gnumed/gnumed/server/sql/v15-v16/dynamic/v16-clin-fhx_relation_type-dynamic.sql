@@ -25,9 +25,7 @@ grant usage on clin.fhx_relation_type_pk_seq to group "gm-doctors";
 comment on column clin.fhx_relation_type.description is
 	'Description of the relation type, specific or unspecific: sister, father, ..., maternal family, ...';
 
-\unset ON_ERROR_STOP
-alter table clin.fhx_relation_type drop constraint c_fhx_relation_type_sane_desc cascade;
-\set ON_ERROR_STOP 1
+alter table clin.fhx_relation_type drop constraint if exists c_fhx_relation_type_sane_desc cascade;
 
 alter table clin.fhx_relation_type
 	add constraint c_fhx_relation_type_sane_desc

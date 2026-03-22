@@ -12,10 +12,8 @@ set check_function_bodies to on;
 
 -- --------------------------------------------------------------
 -- .fk_bill
-\unset ON_ERROR_STOP
-alter table bill.bill_item drop constraint bill_item_fk_bill_fkey cascade;
-alter table bill.bill_item drop constraint FK_bill_item_fk_bill cascade;
-\set ON_ERROR_STOP 1
+alter table bill.bill_item drop constraint if exists bill_item_fk_bill_fkey cascade;
+alter table bill.bill_item drop constraint if exists FK_bill_item_fk_bill cascade;
 
 alter table bill.bill_item
 	add constraint FK_bill_item_fk_bill
@@ -27,9 +25,7 @@ alter table bill.bill_item
 ;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function bill.trf_prevent_empty_bills() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists bill.trf_prevent_empty_bills() cascade;
 
 create or replace function bill.trf_prevent_empty_bills()
 	returns trigger
@@ -94,9 +90,7 @@ comment on function bill.trf_prevent_empty_bills() is
 	'Prevent bills to become void of items due to deletions/updates of bill items.';
 
 
-\unset ON_ERROR_STOP
-drop trigger tr_prevent_empty_bills on bill.bill_item cascade;
-\set ON_ERROR_STOP 1
+drop trigger if exists tr_prevent_empty_bills on bill.bill_item cascade;
 
 create constraint trigger tr_prevent_empty_bills
 	after update or delete on bill.bill_item

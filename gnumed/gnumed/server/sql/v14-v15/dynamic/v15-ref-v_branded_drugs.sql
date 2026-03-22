@@ -9,10 +9,8 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop index ref.idx_branded_drug_uniq_brand_no_code cascade;
-drop index ref.idx_branded_drug_uniq_brand_w_code cascade;
-\set ON_ERROR_STOP 1
+drop index if exists ref.idx_branded_drug_uniq_brand_no_code cascade;
+drop index if exists ref.idx_branded_drug_uniq_brand_w_code cascade;
 
 
 create unique index idx_branded_drug_uniq_brand_no_code
@@ -24,14 +22,10 @@ create unique index idx_branded_drug_uniq_brand_w_code
 	where ref.branded_drug.external_code is not NULL;
 
 
-\unset ON_ERROR_STOP
-alter table ref.branded_drug drop constraint unique_brand cascade;
-\set ON_ERROR_STOP 1
+alter table if exists ref.branded_drug drop constraint unique_brand cascade;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view ref.v_branded_drugs cascade;
-\set ON_ERROR_STOP 1
+drop view if exists ref.v_branded_drugs cascade;
 
 create view ref.v_branded_drugs as
 

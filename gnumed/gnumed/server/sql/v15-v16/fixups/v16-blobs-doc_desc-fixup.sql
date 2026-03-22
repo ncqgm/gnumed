@@ -8,10 +8,8 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-alter table blobs.doc_desc drop constraint doc_desc_doc_id_text_key cascade;
-drop index blobs.idx_doc_desc_fk_doc cascade;
-\set ON_ERROR_STOP 1
+alter table blobs.doc_desc drop constraint if exists doc_desc_doc_id_text_key cascade;
+drop index if exists blobs.idx_doc_desc_fk_doc cascade;
 
 create index idx_doc_desc_fk_doc on blobs.doc_desc(fk_doc);
 

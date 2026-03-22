@@ -15,9 +15,7 @@ set check_function_bodies to 'on';
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function clin.trf_notify_reviewer_of_review_change() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.trf_notify_reviewer_of_review_change() cascade;
 
 
 create function clin.trf_notify_reviewer_of_review_change()

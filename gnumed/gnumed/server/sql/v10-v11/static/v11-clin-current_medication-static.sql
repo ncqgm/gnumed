@@ -13,9 +13,7 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop table audit.log_clin_medication;
-\set ON_ERROR_STOP 1
+drop table if exists audit.log_clin_medication;
 
 -- --------------------------------------------------------------
 create table clin.substance_brand (

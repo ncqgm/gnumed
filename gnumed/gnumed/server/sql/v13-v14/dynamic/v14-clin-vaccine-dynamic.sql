@@ -13,9 +13,7 @@ set check_function_bodies to on;
 -- trigger to ensure that after an INSERT or UPDATE transaction there
 -- ARE indications linked to this vaccine
 
-\unset ON_ERROR_STOP
-drop function clin.trf_sanity_check_vaccine_has_indications() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.trf_sanity_check_vaccine_has_indications() cascade;
 
 create function clin.trf_sanity_check_vaccine_has_indications()
 	returns trigger
@@ -55,9 +53,7 @@ alter table clin.vaccine
 	alter column fk_brand
 		set not null;
 
-\unset ON_ERROR_STOP
-alter table clin.vaccine drop constraint vaccine_fk_brand_fkey cascade;
-\set ON_ERROR_STOP 1
+alter table clin.vaccine drop constraint if exists vaccine_fk_brand_fkey cascade;
 
 alter table clin.vaccine
 	add foreign key (fk_brand)
@@ -67,10 +63,8 @@ alter table clin.vaccine
 
 
 -- .min_age
-\unset ON_ERROR_STOP
-alter table clin.vaccine drop constraint vaccine_min_age_check cascade;
-alter table clin.vaccine drop constraint vaccine_sane_min_age cascade;
-\set ON_ERROR_STOP 1
+alter table clin.vaccine drop constraint if exists vaccine_min_age_check cascade;
+alter table clin.vaccine drop constraint if exists vaccine_sane_min_age cascade;
 
 alter table clin.vaccine
 	alter column min_age
@@ -95,10 +89,8 @@ alter table clin.vaccine
 
 
 -- .max_age
-\unset ON_ERROR_STOP
-alter table clin.vaccine drop constraint vaccine_check cascade;
-alter table clin.vaccine drop constraint vaccine_sane_max_age cascade;
-\set ON_ERROR_STOP 1
+alter table clin.vaccine drop constraint if exists vaccine_check cascade;
+alter table clin.vaccine drop constraint if exists vaccine_sane_max_age cascade;
 
 alter table clin.vaccine
 	alter column max_age
@@ -537,9 +529,7 @@ where
 	description = 'Tetasorbat (SFCMS) (Tetanus)';
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_vaccines cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_vaccines cascade;
 
 create view clin.v_vaccines as
 
@@ -617,9 +607,7 @@ comment on view clin.v_vaccines is
 grant select on clin.v_vaccines to group "gm-public";
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_indications4vaccine cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_indications4vaccine cascade;
 
 create view clin.v_indications4vaccine as
 

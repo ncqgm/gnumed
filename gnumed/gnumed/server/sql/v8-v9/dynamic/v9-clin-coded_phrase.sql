@@ -12,11 +12,9 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function audit.ft_del_coded_narrative() cascade;
-drop function audit.ft_upd_coded_narrative() cascade;
-drop function audit.ft_ins_coded_narrative() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists audit.ft_del_coded_narrative() cascade;
+drop function if exists audit.ft_upd_coded_narrative() cascade;
+drop function if exists audit.ft_ins_coded_narrative() cascade;
 
 select audit.add_table_for_audit('clin', 'coded_phrase');
 delete from audit.audited_tables where schema = 'clin' and table_name = 'coded_narrative';
@@ -33,9 +31,7 @@ comment on column clin.coded_phrase.xfk_coding_system is
 
 
 
-\unset ON_ERROR_STOP
-drop view clin.v_coded_phrases cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_coded_phrases cascade;
 
 create view clin.v_coded_phrases as
 
@@ -60,9 +56,7 @@ grant select on clin.v_coded_phrases to group "gm-doctors";
 
 
 
-\unset ON_ERROR_STOP
-drop function clin.add_coded_term(text, text, text) cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.add_coded_term(text, text, text) cascade;
 
 create or replace function clin.add_coded_phrase(text, text, text) returns boolean as '
 declare
@@ -88,10 +82,3 @@ end;' language 'plpgsql';
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v9-clin-coded_phrase.sql,v $', '$Revision: 1.1 $');
-
--- ==============================================================
--- $Log: v9-clin-coded_phrase.sql,v $
--- Revision 1.1  2008-01-27 21:06:00  ncq
--- - new
---
---

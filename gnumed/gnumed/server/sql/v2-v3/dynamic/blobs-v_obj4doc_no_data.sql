@@ -15,9 +15,7 @@
 -- $Revision: 1.3 $
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view blobs.v_obj4doc_no_data cascade;
-\set ON_ERROR_STOP 1
+drop view if exists blobs.v_obj4doc_no_data cascade;
 
 
 create view blobs.v_obj4doc_no_data as

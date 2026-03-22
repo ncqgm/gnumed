@@ -5,16 +5,10 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v10-clin-v_pat_narrative.sql,v 1.1 2008-09-02 18:56:39 ncq Exp $
--- $Revision: 1.1 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_narrative cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_pat_narrative cascade;
 
 
 create view clin.v_pat_narrative as
@@ -47,10 +41,3 @@ grant select on clin.v_pat_narrative to group "gm-doctors";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSile:asfdasd zzz-templatesdf.sql,v $', '$Revision: 1.1 $');
-
--- ==============================================================
--- $Log: v10-clin-v_pat_narrative.sql,v $
--- Revision 1.1  2008-09-02 18:56:39  ncq
--- - new
---
---

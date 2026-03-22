@@ -16,9 +16,7 @@ comment on table ref.keyword_expansion is
 -- .keyword
 comment on column ref.keyword_expansion.keyword is 'A keyword by which to uniquely identify this snippet. Can only exist once per provider.';
 
-\unset ON_ERROR_STOP
-alter table ref.keyword_expansion drop constraint ref_kwd_exp_sane_keyword;
-\set ON_ERROR_STOP 1
+alter table ref.keyword_expansion drop constraint if exists ref_kwd_exp_sane_keyword;
 
 
 alter table ref.keyword_expansion
@@ -35,9 +33,7 @@ alter table ref.keyword_expansion
 		drop not null;
 
 
-\unset ON_ERROR_STOP
-alter table ref.keyword_expansion drop constraint ref_kwd_exp_sane_text;
-\set ON_ERROR_STOP 1
+alter table ref.keyword_expansion drop constraint if exists ref_kwd_exp_sane_text;
 
 alter table ref.keyword_expansion
 	add constraint ref_kwd_exp_sane_text check (
@@ -48,9 +44,7 @@ alter table ref.keyword_expansion
 -- .binary_data
 comment on column ref.keyword_expansion.binary_data is 'This holds the binary data of non-textual snippets';
 
-\unset ON_ERROR_STOP
-alter table ref.keyword_expansion drop constraint ref_kwd_exp_sane_data;
-\set ON_ERROR_STOP 1
+alter table ref.keyword_expansion drop constraint if exists ref_kwd_exp_sane_data;
 
 
 alter table ref.keyword_expansion
@@ -62,9 +56,7 @@ alter table ref.keyword_expansion
 
 -- --------------------------------------------------------------
 -- table constraint
-\unset ON_ERROR_STOP
-alter table ref.keyword_expansion drop constraint ref_kwd_exp_binary_xor_textual;
-\set ON_ERROR_STOP 1
+alter table ref.keyword_expansion drop constraint if exists ref_kwd_exp_binary_xor_textual;
 
 
 alter table ref.keyword_expansion
@@ -89,10 +81,8 @@ alter table ref.keyword_expansion
 -- --------------------------------------------------------------
 -- views
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_keyword_expansions cascade;
-drop view ref.v_keyword_expansions cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_keyword_expansions cascade;
+drop view if exists ref.v_keyword_expansions cascade;
 
 create view ref.v_keyword_expansions as
 select
@@ -132,10 +122,8 @@ grant select on
 to group "gm-doctors";
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_your_keyword_expansions cascade;
-drop view ref.v_your_keyword_expansions cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_your_keyword_expansions cascade;
+drop view if exists ref.v_your_keyword_expansions cascade;
 
 create view ref.v_your_keyword_expansions as
 select distinct on (keyword) *

@@ -5,13 +5,7 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v10-blobs-v_doc_desc.sql,v 1.1 2008-12-01 21:46:33 ncq Exp $
--- $Revision: 1.1 $
-
--- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view blobs.v_doc_desc cascade;
-\set ON_ERROR_STOP 1
+drop view if exists blobs.v_doc_desc cascade;
 
 
 create view blobs.v_doc_desc as
@@ -39,10 +33,3 @@ grant select on blobs.v_doc_desc to group "gm-doctors";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v10-blobs-v_doc_desc.sql,v $', '$Revision: 1.1 $');
-
--- ==============================================================
--- $Log: v10-blobs-v_doc_desc.sql,v $
--- Revision 1.1  2008-12-01 21:46:33  ncq
--- - new
---
---

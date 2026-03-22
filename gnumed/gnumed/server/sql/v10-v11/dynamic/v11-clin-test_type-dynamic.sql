@@ -32,9 +32,7 @@ alter table clin.test_type
 		drop not null;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_test_types cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_test_types cascade;
 
 create view clin.v_test_types as
 select
@@ -77,16 +75,3 @@ grant select on clin.v_test_types to group "gm-doctors";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v11-clin-test_type-dynamic.sql,v $', '$Revision: 1.3 $');
-
--- ==============================================================
--- $Log: v11-clin-test_type-dynamic.sql,v $
--- Revision 1.3  2009-08-03 20:53:59  ncq
--- - drop not null on clin.test_org.fk_org
---
--- Revision 1.2  2009/05/24 16:31:35  ncq
--- - new v_test_types
---
--- Revision 1.1  2009/05/22 10:57:49  ncq
--- - new
---
---

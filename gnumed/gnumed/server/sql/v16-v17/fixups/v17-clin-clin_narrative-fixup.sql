@@ -5,13 +5,8 @@
 -- Author: karsten.hilbert@gmx.net
 --
 -- ==============================================================
-\set ON_ERROR_STOP 1
-
--- --------------------------------------------------------------
-\unset ON_ERROR_STOP
 -- observed in the wild at least once
-alter table clin.clin_narrative drop constraint clin_narrative_soap_cat_check cascade;
-\set ON_ERROR_STOP 1
+alter table clin.clin_narrative drop constraint if exists clin_narrative_soap_cat_check cascade;
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v17-clin-clin_narrative-fixup.sql', '17.9');

@@ -13,8 +13,6 @@
 --set default_transaction_read_only to off
 -- --------------------------------------------------------------
 
-\unset ON_ERROR_STOP
-
 set client_encoding to 'utf8';
 
 select i18n.upd_tx(quote_literal(E'fr'), quote_literal(E'British Columbia'), quote_literal(E'Colombie-Britannique'));
@@ -28,8 +26,6 @@ select i18n.upd_tx(quote_literal(E'fr'), quote_literal(E'Yukon Territory'), quot
 select i18n.upd_tx(quote_literal(E'fr'), quote_literal(E'adopted daughter'), quote_literal(E'\'belle-fille\''));
 select i18n.upd_tx(quote_literal(E'fr'), quote_literal(E'Austria'), quote_literal(E'Autriche'));
 select i18n.upd_tx(quote_literal(E'fr'), quote_literal(E'current medication list'), quote_literal(E'liste des médicaments actuelle'));
-
-\set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v18-i18n-fr_FR_translations.sql', '18.0');

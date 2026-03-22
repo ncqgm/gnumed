@@ -20,9 +20,7 @@ grant select on clin.lnk_code2procedure to group "gm-public";
 grant insert, update, delete on clin.lnk_code2procedure to group "gm-doctors";
 grant usage on clin.lnk_code2procedure_pk_seq to group "gm-doctors";
 
-\unset ON_ERROR_STOP
-alter table clin.lnk_code2procedure drop constraint clin_lc2proc_code_uniq_per_item cascade;
-\set ON_ERROR_STOP 1
+alter table clin.lnk_code2procedure drop constraint if exists clin_lc2proc_code_uniq_per_item cascade;
 
 alter table clin.lnk_code2procedure
 	add constraint clin_lc2proc_code_uniq_per_item
@@ -34,9 +32,7 @@ comment on column clin.lnk_code2procedure.fk_item is
 'Foreign key to clin.procedure';
 
 
-\unset ON_ERROR_STOP
-alter table clin.lnk_code2procedure drop constraint lnk_code2procedure_fk_item_fkey cascade;
-\set ON_ERROR_STOP 1
+alter table clin.lnk_code2procedure drop constraint if exists lnk_code2procedure_fk_item_fkey cascade;
 
 
 alter table clin.lnk_code2procedure
@@ -46,9 +42,7 @@ alter table clin.lnk_code2procedure
 		on delete cascade;				-- delete if procedure is deleted
 
 
-\unset ON_ERROR_STOP
-drop index idx_c_lc2proc_fk_item cascade;
-\set ON_ERROR_STOP 1
+drop index if exists idx_c_lc2proc_fk_item cascade;
 
 create index idx_c_lc2proc_fk_item on clin.lnk_code2procedure(fk_item);
 

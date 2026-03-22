@@ -5,16 +5,10 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v11-dem-v_pat_addresses.sql,v 1.1 2009-07-15 19:49:21 ncq Exp $
--- $Revision: 1.1 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view dem.v_pat_adresses cascade;
-\set ON_ERROR_STOP 1
+drop view if exists dem.v_pat_adresses cascade;
 
 
 create or replace view dem.v_pat_addresses as
@@ -81,10 +75,3 @@ grant select on dem.v_pat_addresses to group "gm-doctors";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v11-dem-v_pat_addresses.sql,v $', '$Revision: 1.1 $');
-
--- ==============================================================
--- $Log: v11-dem-v_pat_addresses.sql,v $
--- Revision 1.1  2009-07-15 19:49:21  ncq
--- - was dropped
---
---

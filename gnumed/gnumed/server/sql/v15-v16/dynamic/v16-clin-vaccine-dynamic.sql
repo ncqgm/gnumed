@@ -30,17 +30,13 @@ alter table clin.vaccine
 		set default null;
 
 
-\unset ON_ERROR_STOP
-drop index idx_c_vaccine_id_route cascade;
-\set ON_ERROR_STOP 1
+drop index if exists idx_c_vaccine_id_route cascade;
 
 create index idx_c_vaccine_id_route on clin.vaccine(id_route);
 
 
 -- .fk_brand
-\unset ON_ERROR_STOP
-alter table clin.vaccine drop constraint clin_vaccine_uniq_brand cascade;
-\set ON_ERROR_STOP 1
+alter table clin.vaccine drop constraint if exists clin_vaccine_uniq_brand cascade;
 
 alter table clin.vaccine
 	add constraint clin_vaccine_uniq_brand

@@ -5,18 +5,12 @@
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
--- $Id: v11-i18n-force_curr_lang.sql,v 1.3 2009-07-21 13:15:26 ncq Exp $
--- $Revision: 1.3 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 set check_function_bodies to on;
 --set default_transaction_read_only to off;
 
 -- =============================================
-\unset ON_ERROR_STOP
-drop function i18n.force_curr_lang(text, name) cascade;
-\set ON_ERROR_STOP 1
+drop function if exists i18n.force_curr_lang(text, name) cascade;
 
 
 create or replace function i18n.force_curr_lang(text, name)
@@ -91,16 +85,3 @@ comment on function i18n.tx_or_null(text) is
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v11-i18n-force_curr_lang.sql,v $', '$Revision: 1.3 $');
-
--- ==============================================================
--- $Log: v11-i18n-force_curr_lang.sql,v $
--- Revision 1.3  2009-07-21 13:15:26  ncq
--- - fix faulty table INSERT
---
--- Revision 1.2  2009/07/21 13:08:34  ncq
--- - fix faulty column access
---
--- Revision 1.1  2009/07/09 16:09:28  ncq
--- - force_curr_lang always set the user to gm-dbo rather than the intended one
---
---

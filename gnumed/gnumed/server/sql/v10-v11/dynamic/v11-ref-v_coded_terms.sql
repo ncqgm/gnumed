@@ -5,19 +5,13 @@
 -- Author: Karsten Hilbert
 --
 -- ==============================================================
--- $Id: v11-ref-v_coded_terms.sql,v 1.2 2009-06-10 21:06:07 ncq Exp $
--- $Revision: 1.2 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 set default_transaction_read_only to off;
 set check_function_bodies to on;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view ref.v_coded_terms cascade;
-\set ON_ERROR_STOP 1
+drop view if exists ref.v_coded_terms cascade;
 
 
 create view ref.v_coded_terms as
@@ -43,13 +37,3 @@ comment on view ref.v_coded_terms is
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v11-ref-v_coded_terms.sql,v $', '$Revision: 1.2 $');
-
--- ==============================================================
--- $Log: v11-ref-v_coded_terms.sql,v $
--- Revision 1.2  2009-06-10 21:06:07  ncq
--- - add language, long name, version
---
--- Revision 1.1  2009/06/09 14:52:20  ncq
--- - first version
---
---

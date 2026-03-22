@@ -13,9 +13,8 @@ comment on column clin.incoming_data_unmatched.comment is
 
 
 
-\unset ON_ERROR_STOP
-alter table clin.incoming_data_unmatched drop constraint unmatched_data_sane_comment cascade;
-\set ON_ERROR_STOP 1
+alter table clin.incoming_data_unmatched
+	drop constraint if exists unmatched_data_sane_comment cascade;
 
 
 alter table clin.incoming_data_unmatched

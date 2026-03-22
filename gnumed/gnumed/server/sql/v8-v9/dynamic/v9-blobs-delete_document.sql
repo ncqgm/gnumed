@@ -14,9 +14,7 @@
 set check_function_bodies to "on";
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop function blobs.delete_document(integer, integer) cascade;
-\set ON_ERROR_STOP 1
+drop function if exists blobs.delete_document(integer, integer) cascade;
 
 create or replace function blobs.delete_document(integer, integer)
 	returns boolean

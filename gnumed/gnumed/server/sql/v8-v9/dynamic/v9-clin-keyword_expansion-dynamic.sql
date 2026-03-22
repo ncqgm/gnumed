@@ -35,9 +35,7 @@ grant select, insert, update, delete on
 to group "gm-doctors";
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_keyword_expansions cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_keyword_expansions cascade;
 
 create view clin.v_keyword_expansions as
 select
@@ -69,9 +67,7 @@ grant select on
 to group "gm-doctors";
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_your_keyword_expansions cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_your_keyword_expansions cascade;
 
 create view clin.v_your_keyword_expansions as
 select distinct on (keyword) *

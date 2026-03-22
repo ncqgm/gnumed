@@ -5,17 +5,11 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v10-clin-v_coded_item_narrative.sql,v 1.1 2008-12-22 18:54:23 ncq Exp $
--- $Revision: 1.1 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 set check_function_bodies to on;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_coded_item_narrative cascade;
-\set ON_ERROR_STOP 1
+drop view if exists clin.v_coded_item_narrative cascade;
 
 
 create view clin.v_coded_item_narrative as
@@ -46,10 +40,3 @@ comment on view clin.v_coded_item_narrative is
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v10-clin-v_coded_item_narrative.sql,v $', '$Revision: 1.1 $');
-
--- ==============================================================
--- $Log: v10-clin-v_coded_item_narrative.sql,v $
--- Revision 1.1  2008-12-22 18:54:23  ncq
--- - was dropped
---
---

@@ -8,9 +8,7 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-alter table ref.paperwork_templates drop constraint paperwork_templates_engine_check cascade;
-\set ON_ERROR_STOP 1
+alter table ref.paperwork_templates drop constraint if exists paperwork_templates_engine_check cascade;
 
 
 alter table ref.paperwork_templates
@@ -29,9 +27,7 @@ comment on column ref.paperwork_templates.engine is
 
 -- --------------------------------------------------------------
 -- visual progress note template type
-\unset ON_ERROR_STOP
-insert into ref.form_types (name) values (i18n.i18n('visual progress note'));
-\set ON_ERROR_STOP 1
+insert into ref.form_types (name) values (i18n.i18n('visual progress note')) on conflict (name) do nothing;
 
 select i18n.upd_tx('de_DE', 'visual progress note', 'Bildnotiz');
 

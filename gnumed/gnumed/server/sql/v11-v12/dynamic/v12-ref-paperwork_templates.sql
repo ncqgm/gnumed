@@ -13,10 +13,7 @@
 
 -- --------------------------------------------------------------
 -- example form template
-\unset ON_ERROR_STOP
-insert into ref.form_types (name) values (i18n.i18n('current medication list'));
-\set ON_ERROR_STOP 1
-
+insert into ref.form_types (name) values (i18n.i18n('current medication list')) on conflict (name) do nothing;
 select i18n.upd_tx('de_DE', 'current medication list', 'Medikamentenliste');
 
 delete from ref.paperwork_templates where name_long = 'Current medication list (GNUmed default)';
@@ -41,9 +38,7 @@ insert into ref.paperwork_templates (
 
 -- --------------------------------------------------------------
 -- example referral template
-\unset ON_ERROR_STOP
-insert into ref.form_types (name) values (i18n.i18n('referral letter'));
-\set ON_ERROR_STOP 1
+insert into ref.form_types (name) values (i18n.i18n('referral letter')) on conflict (name) do nothing;
 
 select i18n.upd_tx('de_DE', 'referral letter', 'Überweisungsbrief');
 

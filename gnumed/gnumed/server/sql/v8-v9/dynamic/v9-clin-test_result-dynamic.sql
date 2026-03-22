@@ -5,10 +5,6 @@
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================
--- $Id: v9-clin-test_result-dynamic.sql,v 1.8 2008-08-17 18:14:16 ncq Exp $
--- $Revision: 1.8 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 set check_function_bodies to 'on';
 
@@ -23,9 +19,7 @@ comment on column clin.test_result.note_test_org is
 	'A comment on the test result provided by the tester or testing entity.';
 
 
-\unset ON_ERROR_STOP
-drop function clin.trf_invalidate_review_on_result_change() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.trf_invalidate_review_on_result_change() cascade;
 
 create function clin.trf_invalidate_review_on_result_change()
 	returns trigger
@@ -88,9 +82,7 @@ revoke delete on clin.reviewed_test_results from public, "gm-doctors", "gm-publi
 grant delete on clin.reviewed_test_results to "gm-dbo";
 
 
-\unset ON_ERROR_STOP
-drop function clin.f_fk_reviewer_default() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.f_fk_reviewer_default() cascade;
 
 create function clin.f_fk_reviewer_default()
 	returns integer
@@ -108,9 +100,7 @@ alter table clin.reviewed_test_results
 		set default clin.f_fk_reviewer_default();
 
 
-\unset ON_ERROR_STOP
-drop function clin.trf_notify_reviewer_of_review_change() cascade;
-\set ON_ERROR_STOP 1
+drop function if exists clin.trf_notify_reviewer_of_review_change() cascade;
 
 create function clin.trf_notify_reviewer_of_review_change()
 	returns trigger
@@ -198,36 +188,3 @@ select i18n.upd_tx('de_DE', 'results review changed for patient', 'Bewertung von
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v9-clin-test_result-dynamic.sql,v $', '$Revision: 1.8 $');
-
--- ==============================================================
--- $Log: v9-clin-test_result-dynamic.sql,v $
--- Revision 1.8  2008-08-17 18:14:16  ncq
--- - remove note as per list discussion
---
--- Revision 1.7  2008/08/17 10:33:08  ncq
--- - comment out note
---
--- Revision 1.6  2008/08/16 19:35:50  ncq
--- - invalidate existing review if test result value / unit / type changes
---
--- Revision 1.5  2008/06/24 14:03:55  ncq
--- - can't have DO NOTHING ON DELETE rule on reviews table as
---   that will prevent deletes cascaded from test result deletions,
---   instead, revoke DELETE from users
---
--- Revision 1.4  2008/04/22 21:21:03  ncq
--- - function for clin.reviewed_test_results.fk_reviwer default value
---
--- Revision 1.3  2008/04/14 17:14:48  ncq
--- - setup clin.test_result and clin.reviewed_test_results for notification
--- - popular request wants one review per result row, not one per provider per row
--- - notify previous reviewer by trigger of review change
---
--- Revision 1.2  2008/03/02 11:28:18  ncq
--- - renaming col must be done in static
---
--- Revision 1.1  2008/02/26 16:24:01  ncq
--- - note_provider -> note_test_org
--- - fk_test_org -> nullable
---
---
