@@ -279,7 +279,6 @@ def connect(host:str=None, port:int=5432, db:str=None, user:str=None, conn_name:
 	conn = pool.get_connection (
 		readonly = False,
 		pooled = False,
-		verbose = True,
 		connection_name = conn_name
 	)
 	conn_ref_count.append(conn)
@@ -1654,6 +1653,9 @@ def main():
 
 	global quiet
 	quiet = bool(_cfg.get(option = '--quiet', source_order = [('cli', 'return')]))
+
+	gmConnectionPool._PG_LOG_CHATTINESS = 'DEBUG2'
+	gmConnectionPool._PG_CONN_VERBOSITY = True
 
 	print_msg(",=========================================.")
 	print_msg("* Bootstrapping GNUmed database system... *")

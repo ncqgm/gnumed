@@ -942,7 +942,7 @@ class gmConnectionPool(gmBorg.cBorg):
 		# - assume verbose=True to mean we want debugging in the database, too
 		if verbose or _PG_CONN_VERBOSE:
 			_log.debug('setting client_min_messages to %s' % _PG_LOG_CHATTINESS)
-			SQL = 'SET client_min_messages TO %s' _PG_LOG_CHATTINESS
+			SQL = 'SET client_min_messages TO %s' % _PG_LOG_CHATTINESS
 			curs = conn.cursor()
 			try:
 				curs.execute(SQL)
