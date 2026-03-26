@@ -862,7 +862,7 @@ class gmConnectionPool(gmBorg.cBorg):
 		if readonly and pooled:
 			# monkey patch close() for pooled RO connections
 			conn.original_close = conn.close											# type: ignore [attr-defined]
-			conn.close = types.MethodType(_raise_exception_on_pooled_ro_conn_close)		# typeXX: ignore [assignment]
+			conn.close = types.MethodType(_raise_exception_on_pooled_ro_conn_close, conn)		# typeXX: ignore [assignment]
 		# set connection properties
 		# - client encoding
 		encoding = 'UTF8'
