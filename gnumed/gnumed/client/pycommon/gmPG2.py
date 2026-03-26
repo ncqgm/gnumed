@@ -2501,9 +2501,11 @@ def run_ro_queries (
 	return data
 
 #------------------------------------------------------------------------
-def __log_notices(notices_accessor=None):
-	for notice in notices_accessor.notices:
-		_log.debug(notice.replace('\n', '/').replace('\n', '/'))
+def log_notices(notices_accessor=None):
+	gmLog2.log_multiline (
+		line_prefix = ' >PG:',
+		text = [ n.strip('\n') for n in notices_accessor.notices ]
+	)
 	del notices_accessor.notices[:]
 
 #------------------------------------------------------------------------
@@ -2662,7 +2664,7 @@ def run_rw_queries (
 
 		if verbose:
 			gmConnectionPool.log_cursor_state(curs)
-		__log_notices(notices_accessor)
+		log_notices(notices_accessor)
 
 	if not return_data:
 		close_cursor()
@@ -3693,7 +3695,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#print(dbapi._psycopg.cursor)
 
 	#request_login_params(setup_pool = True, force_tui = True)
-	#gmConnectionPool._VERBOSE_PG_LOG = True
+	#gmConnectionPool._PG_CONN_VERBOSE = True
 
 	#test_run_query()
 

@@ -94,7 +94,7 @@ run from a local copy of the source tree (say an unpacked tarball
 or a GIT repo) rather than from a proper system-wide installation.
 .TP
 .B \--special=SPECIAL
-Used for debugging.
+Used for debugging. Use The Source, Luke.
 .TP
 .B \--version, -V
 Show version information about the GNUmed client and the
@@ -1041,6 +1041,15 @@ def setup_backend_environment():
 		value = db_version
 	)
 
+	if 'pg_verbose' in _cfg.get(option = 'special'):
+		gmConnectionPool._PG_CONN_VERBOSE = True
+
+	for opt in _cfg.get(option = 'special'):
+		if opt.startswith('pg_verbosity:'):
+			tmp, verbosity = opt.split(':')
+			gmConnectionPool._PG_LOG_CHATTINESS = verbosity
+			break
+
 #	# set up database connection timezone
 #	timezone = _cfg.get (
 #		group = 'backend',
@@ -1141,7 +1150,6 @@ def run_tool():
 		return gmPG2.run_collations_tool()
 
 	login, creds = gmPG2.request_login_params()
-	gmConnectionPool._VERBOSE_PG_LOG = _cfg.get(option = 'debug')
 	pool = gmConnectionPool.gmConnectionPool()
 	pool.credentials = creds
 	print('')

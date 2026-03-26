@@ -13,7 +13,8 @@ __license__ = "GPL v2 or later (details at https://www.gnu.org)"
 
 
 _DISABLE_CONNECTION_POOL = False		# set to True to disable the connection pool for debugging (= always return new connection)
-_VERBOSE_PG_LOG = False					# set to True to force-enable verbose connections
+_PG_CONN_VERBOSE = False				# set to True to force-enable verbose connections
+_PG_LOG_CHATTINESS = 'INFO'				# set to a client_min_message log level
 
 # standard library imports
 import os
@@ -861,7 +862,7 @@ class gmConnectionPool(gmBorg.cBorg):
 		if readonly and pooled:
 			# monkey patch close() for pooled RO connections
 			conn.original_close = conn.close											# type: ignore [attr-defined]
-			conn.close = types.MethodType(_raise_exception_on_pooled_ro_conn_close)		# typeXX: ignore [assignment]
+			conn.close = _raise_exception_on_pooled_ro_conn_close						# typeXX: ignore [assignment]
 		# set connection properties
 		# - client encoding
 		encoding = 'UTF8'
@@ -899,7 +900,6 @@ class gmConnectionPool(gmBorg.cBorg):
 		timezone, or datestyle, hence it can be used for
 		"service" connections for verifying encodings etc
 		"""
-#		# FIXME: support verbose
 		if credentials is None:
 			creds2use = self.__creds
 		else:
@@ -940,11 +940,12 @@ class gmConnectionPool(gmBorg.cBorg):
 		conn.autocommit = autocommit
 		conn.readonly = readonly
 		# - assume verbose=True to mean we want debugging in the database, too
-		if verbose or _VERBOSE_PG_LOG:
-			_log.debug('setting client_min_messages to DEBUG1')
+		if verbose or _PG_CONN_VERBOSE:
+			_log.debug('setting client_min_messages to %s' % _PG_LOG_CHATTINESS)
+			SQL = 'SET client_min_messages TO %s' _PG_LOG_CHATTINESS
 			curs = conn.cursor()
 			try:
-				curs.execute("SET client_min_messages TO debug1")
+				curs.execute(SQL)
 			except Exception:
 				_log.exception('cannot set <client_min_messages>')
 			finally:
