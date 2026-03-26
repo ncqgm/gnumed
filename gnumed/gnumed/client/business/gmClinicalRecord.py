@@ -165,6 +165,8 @@ class cClinicalRecord(object):
 			_here = gmPraxis.gmCurrentPraxisBranch()
 
 		self.__encounter = None
+		self.__last_encounter_xmin = None
+		self.__last_encounter_pk = None
 		self.__setup_active_encounter()
 
 		# register backend notification interests
@@ -225,17 +227,16 @@ class cClinicalRecord(object):
 			_log.debug('locally no encounter current, ignoring encounter modification signal')
 			return True
 
-		if int(kwds['pk_of_row']) != self.current_encounter['pk_encounter']:
-			_log.debug('DB reported modification of encounter: #%s', kwds['pk_of_row'])
-			_log.debug('our locally active encounter is: #%s', self.current_encounter['pk_encounter'])
+		if int(kwds['pk_of_row']) != self.__last_encounter_pk:
+			_log.debug('DB reports modification of encounter: #%s', kwds['pk_of_row'])
+			_log.debug('our locally active encounter is: #%s', self.__last_encounter_pk)
 			_log.debug('modified encounter != our encounter, ignoring')
 			return True
 
-		_log.debug('remote modification of our encounter signalled (local: #%s, remote: #%s)', self.current_encounter['pk_encounter'], kwds['pk_of_row'])
-
-		# did someone delete the current encounter from under our feet ?
+		_log.debug('update of encounter announced by DB (our enc: #%s, updated enc: #%s)', self.__last_encounter_pk, kwds['pk_of_row'])
+		# has the current encounter been deleted remotely ?
 		if kwds['operation'] == 'DELETE':
-			_log.error('local encounter has been DELETEd remotely, trying to get now-active encounter from database')
+			_log.error('local encounter has been DELETEd remotely, re-evaluating active encounter')
 			if self.current_encounter.is_modified():
 				_log.error('local encounter instance has .is_modified()=True, losing local changes')
 				_log.error('this hints at an error in .is_modified handling')
@@ -243,55 +244,24 @@ class cClinicalRecord(object):
 			self.current_encounter.unlock(exclusive = False)
 			self.__encounter = None
 			self.__setup_active_encounter()
-			gmDispatcher.send('current_encounter_switched')
 			return True
 
 		# get the current encounter as an extra instance
 		# from the database to check for changes
-		curr_enc_in_db = gmEncounter.cEncounter(aPK_obj = self.current_encounter['pk_encounter'])
-
-		# the encounter just retrieved and the active encounter
-		# have got the same transaction ID so there's no change
-		# in the database, there could be a local change in
-		# the active encounter but that doesn't matter because
-		# no one else can have written to the DB so far (XMIN match)
-		if curr_enc_in_db['xmin_encounter'] == self.current_encounter['xmin_encounter']:
-			_log.debug('in-client and in-DB instance of encounter #%s have matching XMINs (%s), DB has NOT been written to since we last loaded the encounter, checking:', self.current_encounter['pk_encounter'], self.current_encounter['xmin_encounter'])
-			if self.current_encounter.is_modified():
-				_log.error('encounter modification signalled from DB, with same XMIN as in local in-client instance of encounter, BUT local instance ALSO has .is_modified()=True')
-				_log.error('this may hint at an error with .is_modified handling')
-				gmTools.compare_dict_likes(self.current_encounter.fields_as_dict(), curr_enc_in_db.fields_as_dict(), 'modified enc in client', 'signalled enc loaded from DB')
-				# here we might want to ask the user for advice on how to proceed
-			else:
-				_log.debug('locally not flagged as modified')
+		curr_enc_in_db = gmEncounter.cEncounter(aPK_obj = self.__last_encounter_pk)
+		# same XMIN (transaction ID): encounter just retrieved
+		# and active encounter have the same payload
+		if curr_enc_in_db['xmin_encounter'] == self.__last_encounter_xmin:
+			_log.debug('in-client and in-DB instance of encounter #%s have matching XMINs (%s), DB has NOT been written to since we last loaded the encounter')
 			return True
 
-		# there must have been a change to the active encounter
-		# committed to the database from elsewhere (different XMIN),
-		# we must deny to propagate the change, however, if
+		# different XMIN: there must have been a change to the active
+		# encounter committed to the database from elsewhere,
+		# we must deny to propagate those changes, however, if
 		# there are pending local changes, or, rather, we should ask
 		# the user for advice
-		if self.current_encounter.is_modified():
-			gmTools.compare_dict_likes(self.current_encounter.fields_as_dict(), curr_enc_in_db.fields_as_dict(), 'modified enc in client', 'signalled enc loaded from DB')
-			raise ValueError('unsaved changes in locally active encounter [%s], cannot switch to DB state of encounter [%s]' % (
-				self.current_encounter['pk_encounter'],
-				curr_enc_in_db['pk_encounter']
-			))
-
-		# don't do this, because same_payload() does not compare _all_
-		# fields so we can get into a reality disconnect if we
-		# don't announce the modification
-#		if self.current_encounter.same_payload(another_object = curr_enc_in_db):
-#			_log.debug('clin.encounter_mod_db received but no change to active encounter payload')
-#			return True
-
-		# there was a change in the database from elsewhere;
-		# locally, however, we don't have any pending changes;
-		# therefore we can propagate the remote change locally
-		# without losing anything;
-		# this really should be the standard case
-		gmTools.compare_dict_likes(self.current_encounter.fields_as_dict(), curr_enc_in_db.fields_as_dict(), 'modified enc in client', 'enc loaded from DB')
-		_log.debug('active encounter modified remotely, no locally pending changes, reloading from DB and locally announcing the remote modification')
+		_log.debug('encounter #%s modified, XMIN change: %s -> %s', self.__last_encounter_pk, self.__last_encounter_xmin, curr_enc_in_db['xmin_encounter'])
+		_log.debug('reloading from DB and locally announcing remote modifications')
 		self.current_encounter.refetch_payload()
 		gmDispatcher.send('current_encounter_modified')
 		return True
@@ -1498,6 +1468,8 @@ WHERE
 			_log.debug('first setting of active encounter in this clinical record instance')
 			encounter.lock(exclusive = False)		# lock new
 			self.__encounter = encounter
+			self.__last_encounter_xmin = encounter['xmin_encounter']
+			self.__last_encounter_pk = encounter['pk_encounter']
 			gmDispatcher.send('current_encounter_switched')
 			return True
 
@@ -1511,13 +1483,13 @@ WHERE
 				self.__encounter['pk_encounter'],
 				encounter['pk_encounter']
 			))
-
 		prev_enc = self.__encounter
 		encounter.lock(exclusive = False)		# lock new
 		self.__encounter = encounter
+		self.__last_encounter_xmin = encounter['xmin_encounter']
+		self.__last_encounter_pk = encounter['pk_encounter']
 		prev_enc.unlock(exclusive = False)		# unlock old
 		gmDispatcher.send('current_encounter_switched')
-
 		return True
 
 	current_encounter = property(_get_current_encounter, _set_current_encounter)
@@ -1526,23 +1498,18 @@ WHERE
 	#--------------------------------------------------------
 	def __setup_active_encounter(self):
 		_log.debug('setting up active encounter for identity [%s]', self.pk_patient)
-
 		# log access to patient record (HIPAA, for example)
 		_delayed_execute(self.log_access, action = 'setting up active encounter for identity [%s]' % self.pk_patient)
-
 		# cleanup (not async, because we don't want recent encounters
 		# to become the active one just because they are recent)
 		self.remove_empty_encounters()
-
 		# activate very recent encounter if available
 		if self.__activate_very_recent_encounter():
 			return
 
 		fairly_recent_enc = self.__get_fairly_recent_encounter()
-
 		# create new encounter for the time being
 		self.start_new_encounter()
-
 		if fairly_recent_enc is None:
 			return
 
@@ -1627,140 +1594,6 @@ WHERE
 		_log.debug('"fairly recent" encounter [%s] found', enc_rows[0]['pk_encounter'])
 		return gmEncounter.cEncounter(row = {'data': enc_rows[0], 'pk_field': 'pk_encounter'})
 
-#	#------------------------------------------------------------------
-#	def __check_for_fairly_recent_encounter(self):
-#
-#		min_ttl = gmCfgDB.get4user (
-#			option = u'encounter.minimum_ttl',
-#			workplace = _here.active_workplace,
-#			default = u'1 hour 30 minutes'
-#		)
-#		max_ttl = gmCfgDB.get4user (
-#			option = u'encounter.maximum_ttl',
-#			workplace = _here.active_workplace,
-#			default = u'6 hours'
-#		)
-#
-#		# do we happen to have a "fairly recent" candidate ?
-#		cmd = gmEncounter.SQL_get_encounters % u"""pk_encounter = (
-#			SELECT pk_encounter
-#			FROM clin.v_most_recent_encounters
-#			WHERE
-#				pk_patient=%s
-#					AND
-#				last_affirmed BETWEEN (now() - %s::interval) AND (now() - %s::interval)
-#			ORDER BY
-#				last_affirmed DESC
-#			LIMIT 1
-#		)"""
-#		xxxxx FIXME: rework as dict
-#		xxxxx enc_rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': xxxxxxxx[self.pk_patient, max_ttl, min_ttl]}])
-#
-#		# none found
-#		if len(enc_rows) == 0:
-#			_log.debug('no <fairly recent> encounter (between [%s] and [%s] old) found' % (min_ttl, max_ttl))
-#			return
-#
-#		_log.debug('"fairly recent" encounter [%s] found', enc_rows[0]['pk_encounter'])
-#		fairly_recent_enc = gmEncounter.cEncounter(row = {'data': enc_rows[0], 'pk_field': 'pk_encounter'})
-#		gmDispatcher.send(u'ask_for_encounter_continuation', current = self.__encounter, fairly_recent_encounter = fairly_recent_enc)
-
-#	#------------------------------------------------------------------
-#	def __activate_fairly_recent_encounter(self, allow_user_interaction=True):
-#		"""Try to attach to a "fairly recent" encounter if there is one.
-#
-#		returns:
-#			False: no "fairly recent" encounter, create new one
-#	    	True: success
-#		"""
-#		if _func_ask_user is None:
-#			_log.debug('cannot ask user for guidance, not looking for fairly recent encounter')
-#			return False
-#
-#		if not allow_user_interaction:
-#			_log.exception('user interaction not desired, not looking for fairly recent encounter')
-#			return False
-#
-#		min_ttl = gmCfgDB.get4user (
-#			option = u'encounter.minimum_ttl',
-#			workplace = _here.active_workplace,
-#			default = u'1 hour 30 minutes'
-#		)
-#		max_ttl = gmCfgDB.get4user (
-#			option = u'encounter.maximum_ttl',
-#			workplace = _here.active_workplace,
-#			default = u'6 hours'
-#		)
-#		cmd = u"""
-#			SELECT pk_encounter
-#			FROM clin.v_most_recent_encounters
-#			WHERE
-#				pk_patient=%s
-#					AND
-#				last_affirmed BETWEEN (now() - %s::interval) AND (now() - %s::interval)
-#			ORDER BY
-#				last_affirmed DESC"""
-#		xxxxx FIXME: rework as dict
-#		enc_rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': xxxxxxx[self.pk_patient, max_ttl, min_ttl]}])
-#		# none found
-#		if len(enc_rows) == 0:
-#			_log.debug('no <fairly recent> encounter (between [%s] and [%s] old) found' % (min_ttl, max_ttl))
-#			return False
-#
-#		_log.debug('"fairly recent" encounter [%s] found', enc_rows[0][0])
-#
-#		encounter = gmEncounter.cEncounter(aPK_obj=enc_rows[0][0])
-#		# ask user whether to attach or not
-#		cmd = u"""
-#			SELECT title, firstnames, lastnames, gender, dob
-#			FROM dem.v_all_persons WHERE pk_identity=%s"""
-#		xxxxx FIXME: rework as dict
-#		pats = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': xxxxxxx[self.pk_patient]}])
-#		pat = pats[0]
-#		pat_str = u'%s %s %s (%s), %s  [#%s]' % (
-#			gmTools.coalesce(pat[0], u'')[:5],
-#			pat[1][:15],
-#			pat[2][:15],
-#			pat[3],
-#			pat[4].strftime('%Y %b %d'),
-#			self.pk_patient
-#		)
-#		msg = _(
-#			'%s\n'
-#			'\n'
-#			"This patient's chart was worked on only recently:\n"
-#			'\n'
-#			' %s  %s - %s  (%s)\n'
-#			'\n'
-#			' Reason for Encounter:\n'
-#			'  %s\n'
-#			' Assessment of Encounter:\n'
-#			'  %s\n'
-#			'\n'
-#			'Do you want to continue that consultation\n'
-#			'or do you want to start a new one ?\n'
-#		) % (
-#			pat_str,
-#			encounter['started'].strftime('%Y %b %d'),
-#			encounter['started'].strftime('%H:%M'), encounter['last_affirmed'].strftime('%H:%M'),
-#			encounter['l10n_type'],
-#			gmTools.coalesce(encounter['reason_for_encounter'], _('none given')),
-#			gmTools.coalesce(encounter['assessment_of_encounter'], _('none given')),
-#		)
-#		attach = False
-#		try:
-#			attach = _func_ask_user(msg = msg, caption = _('Starting patient encounter'), encounter = encounter)
-#		except Exception:
-#			_log.exception('cannot ask user for guidance, not attaching to existing encounter')
-#			return False
-#		if not attach:
-#			return False
-#
-#		# attach to existing
-#		self.current_encounter = encounter
-#		_log.debug('"fairly recent" encounter re-activated')
-#		return True
-
 	#------------------------------------------------------------------
 	def start_new_encounter(self):
 		enc_type = gmCfgDB.get4user (
@@ -1774,8 +1607,8 @@ WHERE
 		enc = gmEncounter.create_encounter(fk_patient = self.pk_patient, enc_type = enc_type)
 		enc['pk_org_unit'] = _here['pk_org_unit']
 		enc.save()
+		_log.debug('activating new encounter [%s]', enc['pk_encounter'])
 		self.current_encounter = enc
-		_log.debug('new encounter [%s] activated', enc['pk_encounter'])
 
 	#------------------------------------------------------------------
 	def get_encounters(self, since=None, until=None, id_list=None, episodes=None, issues=None, skip_empty=False, order_by=None, max_encounters=None):

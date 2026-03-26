@@ -104,25 +104,25 @@ def _ask_for_encounter_continuation(new_encounter=None, fairly_recent_encounter=
 	)
 	result = dlg.ShowModal()
 	dlg.DestroyLater()
-
-	# switch encounters
-	if result == wx.ID_YES:
-		_log.info('user wants to continue fairly-recent encounter')
-		curr_pat.emr.active_encounter = fairly_recent_encounter
-		if new_encounter.transfer_all_data_to_another_encounter(pk_target_encounter = fairly_recent_encounter['pk_encounter']):
-			if not gmEncounter.delete_encounter(pk_encounter = new_encounter['pk_encounter']):
-				gmGuiHelpers.gm_show_info (
-					_('Properly switched to fairly recent encounter but unable to delete newly-created encounter.'),
-					_('Pulling chart')
-				)
-		else:
-			gmGuiHelpers.gm_show_info (
-				_('Unable to transfer the data from newly-created to fairly recent encounter.'),
-				_('Pulling chart')
-			)
+	if result != wx.ID_YES:
+		gmDispatcher.send('current_encounter_switched')
+		_log.debug('stayed with newly created encounter')
 		return
 
-	_log.debug('stayed with newly created encounter')
+	# switch encounters
+	_log.info('user wants to continue fairly-recent encounter')
+	curr_pat.emr.active_encounter = fairly_recent_encounter
+	if new_encounter.transfer_all_data_to_another_encounter(pk_target_encounter = fairly_recent_encounter['pk_encounter']):
+		if not gmEncounter.delete_encounter(pk_encounter = new_encounter['pk_encounter']):
+			gmGuiHelpers.gm_show_info (
+				_('Properly switched to fairly recent encounter but unable to delete newly-created encounter.'),
+				_('Pulling chart')
+			)
+	else:
+		gmGuiHelpers.gm_show_info (
+			_('Unable to transfer the data from newly-created to fairly recent encounter.'),
+			_('Pulling chart')
+		)
 
 #----------------------------------------------------------------
 def __ask_for_encounter_continuation(**kwargs):
