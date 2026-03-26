@@ -2065,8 +2065,13 @@ class cPatient(cPerson):
 		cPerson.cleanup(self)
 
 	#----------------------------------------------------------
-	def get_emr(self):
+	def get_emr(self, can_instantiate:bool=True) -> cClinicalRecord:
 		_log.debug('accessing EMR for identity [%s], thread [%s]', self._payload['pk_identity'], threading.get_native_id())
+
+		if self.__emr is None:
+			if not can_instantiate:
+				return None
+
 		if self.is_patient is None:
 			_log.error('trying to access EMR without required permissions')
 			return None
@@ -2254,9 +2259,6 @@ class gmCurrentPatient(gmBorg.cBorg):
 		# give it some time
 		time.sleep(0.5)
 		self.patient = patient
-		# for good measure ...
-		# however, actually we want to get rid of that
-#		self.patient.emr
 		self.__send_selection_notification()		# does not block
 		return None
 
@@ -2404,9 +2406,11 @@ class gmCurrentPatient(gmBorg.cBorg):
 		# simply returns the .patient member value :-)
 		if attribute == 'patient':
 			raise AttributeError
+
 		if isinstance(self.patient, gmNull.cNull):
 			_log.error("[%s]: cannot getattr(%s, '%s'), patient attribute not connected to a patient", self, self.patient, attribute)
 			raise AttributeError("[%s]: cannot getattr(%s, '%s'), patient attribute not connected to a patient" % (self, self.patient, attribute))
+
 		return getattr(self.patient, attribute)
 
 	#--------------------------------------------------------
