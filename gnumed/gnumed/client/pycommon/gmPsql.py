@@ -57,15 +57,6 @@ class Psql:
 			_log.error('PG diags [%s]: %s', prop, val)
 
 	#---------------------------------------------------------------
-	def __log_notices(self):
-		for notice in self.conn.notices:
-			for line in notice.split('\n'):
-				line = line.strip('\n').strip()
-				if line:
-					_log.debug(line)
-		del self.conn.notices[:]
-
-	#---------------------------------------------------------------
 	def __log_session_auth(self):
 		curs = self.conn.cursor()
 		curs.execute('show session authorization')
@@ -73,6 +64,13 @@ class Psql:
 		curs.close()
 		_log.debug('session auth: %s', auth)
 		return auth
+
+	#---------------------------------------------------------------
+	def __log_notices(self):
+		for n in self.conn.notices:
+			for l in n.split('\n'):
+				_log.debug(' >PG: %s', l)
+		del self.conn.notices[:]
 
 	#---------------------------------------------------------------
 	def run_script(self, filename) -> bool:
