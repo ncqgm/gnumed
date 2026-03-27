@@ -83,6 +83,7 @@ DEP: removed LibreOffice forms engine
 
 FIX: more robust UI update when quickly scrolling document tree
 FIX: more robust handling of DICOM instance download issues
+FIX: more robust Orthanc DICOM instance parsing
 
 	1.8.23
 

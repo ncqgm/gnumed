@@ -1141,11 +1141,11 @@ class cOrthancServer:
 		for key in orthanc_study:
 			if key == 'MainDicomTags':
 				for mkey in orthanc_study['MainDicomTags']:
-					study_dict['all_tags'][mkey] = orthanc_study['MainDicomTags'][mkey].strip()
+					study_dict['all_tags'][mkey] = orthanc_study['MainDicomTags'][mkey]
 				continue
 			if key == 'PatientMainDicomTags':
 				for pkey in orthanc_study['PatientMainDicomTags']:
-					study_dict['all_tags'][pkey] = orthanc_study['PatientMainDicomTags'][pkey].strip()
+					study_dict['all_tags'][pkey] = orthanc_study['PatientMainDicomTags'][pkey]
 				continue
 			study_dict['all_tags'][key] = orthanc_study[key]
 		_log.debug('study: %s', list(study_dict['all_tags']))
@@ -1232,7 +1232,7 @@ class cOrthancServer:
 		for key in orthanc_series:
 			if key == 'MainDicomTags':
 				for mkey in orthanc_series['MainDicomTags']:
-					series_dict['all_tags'][mkey] = orthanc_series['MainDicomTags'][mkey].strip()
+					series_dict['all_tags'][mkey] = orthanc_series['MainDicomTags'][mkey]
 				continue
 			series_dict['all_tags'][key] = orthanc_series[key]
 		_log.debug('series: %s', list(series_dict['all_tags']))
