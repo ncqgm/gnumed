@@ -1183,7 +1183,7 @@ class cOrthancServer:
 					for key in orth_series:
 						if key == 'MainDicomTags':
 							for mkey in orth_series['MainDicomTags']:
-								series_dict['all_tags'][mkey] = orth_series['MainDicomTags'][mkey].strip()
+								series_dict['all_tags'][mkey] = orth_series['MainDicomTags'][mkey]
 							continue
 						series_dict['all_tags'][key] = orth_series[key]
 					_log.debug('series: %s', list(series_dict['all_tags']))
