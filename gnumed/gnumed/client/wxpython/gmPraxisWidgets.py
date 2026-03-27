@@ -238,8 +238,8 @@ def configure_workplace_plugins(parent=None):
 			value = new_plugins,
 			workplace = workplace
 		)
-
 		return True
+
 	#-----------------------------------
 	def edit_old(workplace=None):
 
@@ -299,8 +299,8 @@ def configure_workplace_plugins(parent=None):
 			value = new_plugins,
 			workplace = workplace
 		)
-
 		return True
+
 	#-----------------------------------
 	def clone(workplace=None):
 		if workplace is None:

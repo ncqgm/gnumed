@@ -118,7 +118,7 @@ def configure_medication_list_template(parent=None):
 		gmDispatcher.send(signal = 'statustext', msg = _('No medication list template configured.'), beep = True)
 		return None
 
-	gmCfgDB.set (
+	gmCfgDB.set4user (
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		option = option,
 		value = '%s - %s' % (template['name_long'], template['external_version'])
@@ -245,7 +245,7 @@ def configure_prescription_template(parent=None):
 		return None
 
 	option = 'form_templates.prescription'
-	gmCfgDB.set (
+	gmCfgDB.set4user (
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		option = option,
 		value = '%s - %s' % (template['name_long'], template['external_version'])

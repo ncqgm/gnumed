@@ -210,7 +210,7 @@ def configure_string_from_list_option(parent=None, message=None, option=None, bi
 	if choice == current_value:
 		return
 
-	gmCfgDB.set (
+	gmCfgDB.set4user (
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		option = option,
 		value = choice
@@ -247,16 +247,15 @@ def configure_list_from_list_option(parent=None, message=None, option=None, bias
 
 	picks = picker.get_picks()
 	picker.DestroyLater()
-	gmCfgDB.set (
+	gmCfgDB.set4user (
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		option = option,
 		value = picks
 	)
-
 	return
 
 #================================================================
-def configure_string_option(parent=None, message=None, option=None, bias='user', default_value='', validator=None):
+def configure_string_option(parent=None, message=None, option=None, bias='user', default_value='', validator=None) -> str:
 	current_value = gmCfgDB.get (
 		option = option,
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
@@ -300,7 +299,7 @@ def configure_string_option(parent=None, message=None, option=None, bias='user',
 			msg = _('Value [%s] not valid for option <%s>.') % (user_val, option),
 			beep = True
 		)
-	gmCfgDB.set (
+	gmCfgDB.set4user (
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		option = option,
 		value = user_val
@@ -308,7 +307,7 @@ def configure_string_option(parent=None, message=None, option=None, bias='user',
 	return user_val
 
 #================================================================
-def configure_boolean_option(parent=None, question=None, option=None, button_tooltips=None):
+def configure_boolean_option(parent=None, question=None, option=None, button_tooltips=None) -> bool:
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -321,7 +320,6 @@ def configure_boolean_option(parent=None, question=None, option=None, button_too
 	if button_tooltips is not None:
 		for idx in range(len(button_tooltips)):
 			tooltips[idx] = button_tooltips[idx]
-
 	dlg = gmGuiHelpers.c3ButtonQuestionDlg (
 		parent,
 		-1,
@@ -333,22 +331,13 @@ def configure_boolean_option(parent=None, question=None, option=None, button_too
 			{'label': _('Cancel'), 'tooltip': tooltips[2], 'default': True}
 		]
 	)
-
-	decision = dlg.ShowModal()
-	if decision == wx.ID_YES:
-		gmCfgDB.set (
-			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			option = option,
-			value = True
-		)
-	elif decision == wx.ID_NO:
-		gmCfgDB.set (
-			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			option = option,
-			value = False
-		)
-
-	return
+	decision = (dlg.ShowModal() == wx.ID_YES)
+	gmCfgDB.set4user (
+		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
+		option = option,
+		value = decision
+	)
+	return decision
 
 #================================================================
 if __name__ == '__main__':

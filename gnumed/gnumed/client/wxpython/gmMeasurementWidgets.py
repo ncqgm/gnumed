@@ -327,7 +327,7 @@ def configure_default_gnuplot_template(parent=None):
 		gmDispatcher.send(signal = 'statustext', msg = _('No default Gnuplot script template selected.'), beep = True)
 		return None
 
-	gmCfgDB.set (
+	gmCfgDB.set4user (
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		option = option,
 		value = '%s - %s' % (template['name_long'], template['external_version'])

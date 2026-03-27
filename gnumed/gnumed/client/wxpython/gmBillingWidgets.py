@@ -377,7 +377,7 @@ def configure_invoice_template(parent=None, with_vat=True):
 	else:
 		option = 'form_templates.invoice_no_vat'
 
-	gmCfgDB.set (
+	gmCfgDB.set4user (
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		option = option,
 		value = '%s - %s' % (template['name_long'], template['external_version'])

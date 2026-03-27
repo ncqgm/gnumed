@@ -413,7 +413,7 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None, workplace=None):
 	else:
 		p_list = defaults
 	# store for current user/current workplace
-	gmCfgDB.set(option = option, value = p_list, workplace = workplace)
+	gmCfgDB.set4user(option = option, value = p_list, workplace = workplace)
 	_log.debug("plugin load list stored: %s" % str(p_list))
 	return p_list
 

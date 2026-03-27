@@ -91,6 +91,20 @@ def set(owner:str=None, workplace:str=None, cookie:str=None, option:str=None, va
 	)
 
 #------------------------------------------------------------------
+def set4user(workplace:str=None, cookie:str=None, option:str=None, value=None) -> bool:
+	"""Set configuration value.
+
+	Calls set(...) on a module global instance of cCfgSQL() for the current DB user.
+	"""
+	return set (
+		owner = '',
+		workplace = workplace,
+		cookie = cookie,
+		option = option,
+		value = value
+	)
+
+#------------------------------------------------------------------
 def delete(conn=None, pk_option:int=None):
 	"""Delete configuration value.
 
@@ -343,6 +357,9 @@ class cCfgSQL:
 		if bias is None:
 			return None
 
+		if bias not in ['user', 'workplace']:
+			raise ValueError('<bias> must be "user" or "workplace"')
+
 		args = {
 			'opt': option,
 			'wp': workplace,
@@ -354,15 +371,11 @@ class cCfgSQL:
 		if bias == 'user':
 			# "Did *I* set this option for *any* workplace ?"
 			where_parts.append('c_vco.owner = CURRENT_USER')
-		elif bias == 'workplace':
+		else:
 			# "Did *anyone* set this option for *this* workplace ?"
 			where_parts.append('c_vco.workplace = %(wp)s')
-		else:
-			# well ...
-			raise ValueError('<bias> must be "user" or "workplace", or None')
-
-		cmd = 'SELECT * FROM cfg.v_cfg_options c_vco WHERE %s LIMIT 1' % (' AND '.join(where_parts))
-		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
+		SQL = 'SELECT * FROM cfg.v_cfg_options c_vco WHERE %s LIMIT 1' % (' AND '.join(where_parts))
+		rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
 		if rows:
 			return self.__auto_heal_pseudo_boolean_setting(setting = rows[0], default = default)
 
@@ -377,19 +390,19 @@ class cCfgSQL:
 			'c_vco.workplace IS NULL',
 			'c_vco.option = %(opt)s'
 		]
-		cmd = 'SELECT * FROM cfg.v_cfg_options c_vco WHERE %s LIMIT 1' % (' AND '.join(where_parts))
-		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
-		if not rows:
-			_log.warning('no site-wide default value for option [%s] in database' % option)
-			if default is None:
-				_log.warning('no default value for option [%s] supplied by caller' % option)
-				return None
+		SQL = 'SELECT * FROM cfg.v_cfg_options c_vco WHERE %s LIMIT 1' % (' AND '.join(where_parts))
+		rows = gmPG2.run_ro_queries(queries = [{'sql': SQL, 'args': args}])
+		if rows:
+			return self.__auto_heal_pseudo_boolean_setting(setting = rows[0], default = default)
 
-			_log.info('setting site-wide default for option [%s] to [%s]' % (option, default))
-			self.set(option = option, value = default)
-			return default
+		_log.warning('no site-wide default value for option [%s] in database' % option)
+		if default is None:
+			_log.warning('no default value for option [%s] supplied by caller' % option)
+			return None
 
-		return self.__auto_heal_pseudo_boolean_setting(setting = rows[0], default = default)
+		_log.info('setting site-wide default for option [%s] to [%s]' % (option, default))
+		self.set(option = option, value = default)
+		return default
 
 #=============================================================
 # main

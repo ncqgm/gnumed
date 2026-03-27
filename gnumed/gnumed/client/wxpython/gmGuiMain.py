@@ -1518,7 +1518,7 @@ class gmTopLevelFrame(wx.Frame):
 		if plugin is None:
 			return
 
-		gmCfgDB.set (
+		gmCfgDB.set4user (
 			option = 'horstspace.plugin_to_raise_after_startup',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			value = plugin
@@ -1663,7 +1663,7 @@ class gmTopLevelFrame(wx.Frame):
 		if plugin is None:
 			return
 
-		gmCfgDB.set (
+		gmCfgDB.set4user (
 			option = 'patient_search.plugin_to_raise_after_search',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			value = plugin
@@ -3177,22 +3177,22 @@ class gmTopLevelFrame(wx.Frame):
 		_log.info('GUI position at shutdown: [%s:%s]' % (curr_pos_x, curr_pos_y))
 		if 0 not in [curr_width, curr_height]:
 			try:
-				gmCfgDB.set (
+				gmCfgDB.set4user (
 					option = 'main.window.width',
 					value = curr_width,
 					workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 				)
-				gmCfgDB.set (
+				gmCfgDB.set4user (
 					option = 'main.window.height',
 					value = curr_height,
 					workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 				)
-				gmCfgDB.set (
+				gmCfgDB.set4user (
 					option = 'main.window.position.x',
 					value = curr_pos_x,
 					workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 				)
-				gmCfgDB.set (
+				gmCfgDB.set4user (
 					option = 'main.window.position.y',
 					value = curr_pos_y,
 					workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
