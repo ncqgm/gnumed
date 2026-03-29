@@ -16,8 +16,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
 else:
-	try:
-		_
+	try: _
 	except NameError:
 		from Gnumed.pycommon import gmI18N
 		gmI18N.activate_locale()
@@ -35,6 +34,7 @@ _log = logging.getLogger('gm.hints')
 	HINT_POPUP_BY_ITSELF,		# this hint is intended to be poppep up by itself
 	HINT_POPUP_IN_LIST			# this hint is intended to be popped up amongst a list of hints
 ) = (0, 1, 2)
+
 #============================================================
 # dynamic hints API
 #------------------------------------------------------------
@@ -151,6 +151,7 @@ def get_dynamic_hints(order_by=None, link_obj=None, return_pks=False):
 	rows = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'sql': cmd}])
 	if return_pks:
 		return [ r['pk_auto_hint'] for r in rows ]
+
 	return [ cDynamicHint(row = {'data': r, 'pk_field': 'pk_auto_hint'}) for r in rows ]
 
 #------------------------------------------------------------
@@ -189,33 +190,35 @@ def delete_dynamic_hint(link_obj=None, pk_hint=None):
 	return True
 
 #------------------------------------------------------------
-def get_hints_for_patient(pk_identity=None, pk_encounter=None):
+def get_hints_for_patient(pk_identity:int=None, pk_encounter:int=None) -> list[cDynamicHint]:
 	conn = gmPG2.get_connection()
 	curs = conn.cursor()
 	curs.callproc('clin.get_hints_for_patient', [pk_identity])
 	rows = curs.fetchall()
 	curs.close()
 	conn.rollback()
-
-	applying_rows = []
+	rows_that_apply = []
 	for row in rows:
 		if row['rationale4suppression'] is None:
-			applying_rows.append(row)
+			rows_that_apply.append(row)
 			continue
-		if row['rationale4suppression'].startswith('magic_tag::'):
-			_log.debug('hint with magic tag: %s', row['rationale4suppression'])
-			if 'suppression_needs_invalidation' in row['rationale4suppression']:
-				_log.debug('database asks for invalidation of suppression of hint [%s]', row)
-				if pk_encounter is not None:
-					invalidate_hint_suppression(pk_hint = row['pk_auto_hint'], pk_encounter = pk_encounter)
-			if 'does_not_apply' in row['rationale4suppression']:
-				continue
-			# we would need to reload the relevant hint at this time,
-			# however currently, only hints which do not apply ask
-			# for invalidation of suppression
-		applying_rows.append(row)
 
-	return [ cDynamicHint(row = {'data': r, 'pk_field': 'pk_auto_hint'}) for r in applying_rows ]
+		if not row['rationale4suppression'].startswith('magic_tag::'):
+			rows_that_apply.append(row)
+			continue
+
+		_log.debug('hint with magic tag: %s', row['rationale4suppression'])
+		if 'suppression_needs_invalidation' in row['rationale4suppression']:
+			_log.debug('database asks for invalidation of suppression of hint [%s]', row)
+			if pk_encounter is not None:
+				invalidate_hint_suppression(pk_hint = row['pk_auto_hint'], pk_encounter = pk_encounter)
+		if 'does_not_apply' in row['rationale4suppression']:
+			continue
+		# we would need to reload the relevant hint at this time,
+		# however currently, only hints which do not apply ask
+		# for invalidation of suppression
+		rows_that_apply.append(row)
+	return [ cDynamicHint(row = {'data': r, 'pk_field': 'pk_auto_hint'}) for r in rows_that_apply ]
 
 #------------------------------------------------------------
 def suppress_dynamic_hint(pk_hint=None, rationale=None, pk_encounter=None):
