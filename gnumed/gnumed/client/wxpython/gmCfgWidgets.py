@@ -88,14 +88,12 @@ def list_configuration(parent=None):
 
 	#---------------
 	def refresh(lctrl):
-		opts = gmCfgDB.get_all_options(order_by = 'owner, workplace, option')
-
+		opts = gmCfgDB.get_all_options(order_by = 'option, owner, workplace')
 		items = [ [
-			o['owner'],
-			o['workplace'],
 			o['option'],
+			gmTools.coalesce(o['owner'], ''),
+			gmTools.coalesce(o['workplace'], ''),
 			o['value'],
-			o['type'],
 			gmTools.coalesce(o['description'], '')
 		] for o in opts ]
 		lctrl.set_string_items(items)
@@ -107,18 +105,17 @@ def list_configuration(parent=None):
 			'\n'
 			' %s @ %s\n'
 			'\n'
-			' %s: %s\n'
+			' %s\n'
 			'%s'
 		) % (
 			gmTools.u_box_horiz_single * 3,
 			item['option'],
 			item['pk_cfg_item'],
 			gmTools.u_box_horiz_single * 3,
-			item['owner'],
-			item['workplace'],
-			item['type'],
-			gmTools.wrap(
-				text = item['value'],
+			gmTools.coalesce(item['owner'], _('<any user>')),
+			_('workplace "%s"') % item['workplace'] if item['workplace'] else _('<any workplace>'),
+			gmTools.wrap (
+				text = '%s' % item['value'],
 				width = 40,
 				subsequent_indent = ' ' * 8
 			),
@@ -160,7 +157,7 @@ def list_configuration(parent=None):
 		parent = parent,
 		msg = _('All configured options currently in the database.'),
 		caption = _('All configured options'),
-		columns = [ _('User'), _('Workplace'), _('Option'), _('Value'), _('Type'), _('Description') ],
+		columns = [ _('Option'), _('User'), _('Workplace'), _('Value'), _('Description') ],
 		refresh_callback = refresh,
 		delete_callback = delete,
 		ignore_OK_button = True,
