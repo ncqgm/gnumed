@@ -137,14 +137,13 @@ def configure_fallback_primary_provider(parent=None):
 #============================================================
 # workplace plugin configuration widgets
 #------------------------------------------------------------
-def configure_workplace_plugins(parent=None):
+def configure_workplace_plugins(parent=None) -> bool:
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
 	#-----------------------------------
 	def delete(workplace):
-
 		curr_workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		if workplace == curr_workplace:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete the active workplace.'), beep = True)
@@ -166,7 +165,6 @@ def configure_workplace_plugins(parent=None):
 				{'label': _('Do NOT delete'), 'tooltip': _('No, do NOT delete this workplace'), 'default': False}
 			]
 		)
-
 		decision = dlg.ShowModal()
 		if decision != wx.ID_YES:
 			dlg.DestroyLater()
@@ -174,15 +172,15 @@ def configure_workplace_plugins(parent=None):
 
 		include_cfg = dlg.checkbox_is_checked()
 		dlg.DestroyLater()
-
 		dbo_conn = gmAuthWidgets.get_dbowner_connection(procedure = _('delete workplace'))
 		if not dbo_conn:
 			return False
 
 		gmPraxis.delete_workplace(workplace = workplace, conn = dbo_conn, delete_config = include_cfg)
 		return True
+
 	#-----------------------------------
-	def edit(workplace=None):
+	def edit(workplace:str=None) -> bool:
 		if workplace is None:
 			dlg = wx.TextEntryDialog (
 				parent,
@@ -196,6 +194,7 @@ def configure_workplace_plugins(parent=None):
 			if workplace == '':
 				gmGuiHelpers.gm_show_error(_('Cannot save a new workplace without a name.'), _('Configuring GNUmed workplaces ...'))
 				return False
+
 			curr_plugins = []
 		else:
 			curr_plugins = gmTools.coalesce(gmCfgDB.get4workplace (
@@ -203,13 +202,11 @@ def configure_workplace_plugins(parent=None):
 				workplace = workplace
 				), []
 			)
-
 		msg = _(
 			'Pick the plugin(s) to be loaded the next time the client is restarted under the workplace:\n'
 			'\n'
 			'    [%s]\n'
 		) % workplace
-
 		picker = gmListWidgets.cItemPickerDlg (
 			parent,
 			-1,
@@ -227,67 +224,6 @@ def configure_workplace_plugins(parent=None):
 
 		new_plugins = picker.get_picks()
 		picker.DestroyLater()
-		if new_plugins == curr_plugins:
-			return True
-
-		if new_plugins is None:
-			return True
-
-		gmCfgDB.set (
-			option = 'horstspace.notebook.plugin_load_order',
-			value = new_plugins,
-			workplace = workplace
-		)
-		return True
-
-	#-----------------------------------
-	def edit_old(workplace=None):
-
-		available_plugins = gmPlugin.get_installed_plugins(plugin_dir='gui')
-		if workplace is None:
-			dlg = wx.TextEntryDialog (
-				parent,
-				_('Enter a descriptive name for the new workplace:'),
-				caption = _('Configuring GNUmed workplaces ...'),
-				value = '',
-				style = wx.OK | wx.CENTRE
-			)
-			dlg.ShowModal()
-			workplace = dlg.GetValue().strip()
-			if workplace == '':
-				gmGuiHelpers.gm_show_error(_('Cannot save a new workplace without a name.'), _('Configuring GNUmed workplaces ...'))
-				return False
-			curr_plugins = []
-			choices = available_plugins
-		else:
-			curr_plugins = gmTools.coalesce(gmCfgDB.get4workplace (
-				option = 'horstspace.notebook.plugin_load_order',
-				workplace = workplace
-				), []
-			)
-			choices = curr_plugins[:]
-			for p in available_plugins:
-				if p not in choices:
-					choices.append(p)
-
-		sels = range(len(curr_plugins))
-		new_plugins = gmListWidgets.get_choices_from_list (
-			parent = parent,
-			msg = _(
-				'\n'
-				'Select the plugin(s) to be loaded the next time\n'
-				'the client is restarted under the workplace:\n'
-				'\n'
-				' [%s]'
-				'\n'
-			) % workplace,
-			caption = _('Configuring GNUmed workplaces ...'),
-			choices = choices,
-			selections = sels,
-			columns = [_('Plugins')],
-			single_selection = False
-		)
-
 		if new_plugins == curr_plugins:
 			return True
 
@@ -336,6 +272,7 @@ def configure_workplace_plugins(parent=None):
 
 		lctrl.set_string_items(workplaces)
 		lctrl.set_selections(selections = sels)
+
 	#-----------------------------------
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
