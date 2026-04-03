@@ -867,7 +867,40 @@ def rename_file(filename:str, new_filename:str, overwrite:bool=False, allow_syml
 	return False
 
 #---------------------------------------------------------------------------
-def file2md5(filename:str=None, return_hex:bool=True):
+def file_statistics(filename:str=None) -> tuple[os.stat_result, str]:
+	"""Return os.stat() result and md5 of content for filename."""
+	return (os.stat(filename), file2md5(filename))
+
+#---------------------------------------------------------------------------
+def file_content_changed(filename:str=None, orig_size:int=None, orig_md5:str=None) -> bool:
+	"""Check file for content changes based on size/md5 sum.
+
+	Args:
+		filename: the file
+		orig_size: size to compare with
+		orig_md5: md5 to compare with, only tested if size unchanged
+	"""
+	try:
+		stats_now = os.stat(filename)
+	except OSError:
+		return None
+
+	if stats_now.st_size != orig_size:
+		return True
+
+	if file2md5(filename) != orig_md5:
+		return True
+
+	return False
+
+#---------------------------------------------------------------------------
+def file2md5(filename:str=None, return_hex:bool=True) -> str:
+	"""Compute md5 sum over content of file
+
+	Args:
+		filename: the file
+		return_hex: return hexadecimal representation
+	"""
 	blocksize = 2**10 * 128			# 128k, since md5 uses 128 byte blocks
 	_log.debug('md5(%s): <%s> byte blocks', filename, blocksize)
 	f = open(filename, mode = 'rb')

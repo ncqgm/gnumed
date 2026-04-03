@@ -86,9 +86,11 @@ def configure_visual_progress_note_editor():
 			'Enter the shell command with which to start\n'
 			'the image editor for visual progress notes.\n'
 			'\n'
-			'Any "%(img)s" included with the arguments\n'
-			'will be replaced by the file name of the\n'
-			'note template.'
+			'Any "%(img)s" included with the arguments will be\n'
+			'replaced by the file name of the note template.\n'
+			'\n'
+			'If you leave this unset GNUmed will show and store\n'
+			'the image but will not detect any modifications.'
 		),
 		option = 'external.tools.visual_soap_editor_cmd',
 		bias = 'user',
@@ -141,7 +143,6 @@ def select_visual_progress_note_template(parent=None):
 	)
 	result = dlg.ShowModal()
 	dlg.DestroyLater()
-
 	# 1) select from template
 	if result == wx.ID_YES:
 		_log.debug('visual progress note template from: database template')
@@ -153,10 +154,12 @@ def select_visual_progress_note_template(parent=None):
 		)
 		if template is None:
 			return (None, None)
+
 		filename = template.save_to_file()
 		if filename is None:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export visual progress note template for [%s].') % template['name_long'])
 			return (None, None)
+
 		return (filename, True)
 
 	# 2) select from disk file
@@ -165,6 +168,7 @@ def select_visual_progress_note_template(parent=None):
 		fname = select_file_as_visual_progress_note_template(parent = parent)
 		if fname is None:
 			return (None, None)
+
 		# create a copy of the picked file -- don't modify the original
 		ext = os.path.splitext(fname)[1]
 		tmp_name = gmTools.get_unique_filename(suffix = ext)
@@ -178,88 +182,72 @@ def select_visual_progress_note_template(parent=None):
 		fnames = gmDocumentWidgets.acquire_images_from_capture_device(device = None, calling_window = parent)
 		if fnames is None:
 			return (None, None)
+
 		if len(fnames) == 0:
 			return (None, None)
+
 		return (fnames[0], False)
 
 	_log.debug('no visual progress note template source selected')
 	return (None, None)
 
 #------------------------------------------------------------
-def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=False, doc_part=None, health_issue=None):
-	"""This assumes <filename> contains an image which can be handled by the configured image editor."""
-
-	if doc_part is not None:
-		filename = doc_part.save_to_file()
-		if filename is None:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export visual progress note to file.'))
-			return None
-
+def __get_visual_progress_notes_editor(filename:str=None) -> str:
 	editor = gmCfgDB.get4user (
 		option = 'external.tools.visual_soap_editor_cmd',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 	)
+	if editor:
+		return editor
 
-	if editor is None:
-		_log.error('no editor for visual progress notes configured, trying mimetype editor')
-		gmDispatcher.send(signal = 'statustext', msg = _('Editor for visual progress note not configured.'), beep = False)
-		mimetype = gmMimeLib.guess_mimetype(filename = filename)
-		editor = gmMimeLib.get_editor_cmd(mimetype = mimetype, filename = filename)
-		if editor is None:
-			_log.error('no editor for mimetype <%s> configured, trying mimetype viewer', mimetype)
-			success, msg = gmMimeLib.call_viewer_on_file(filename, block = True)
-			if not success:
-				_log.debug('problem running mimetype <%s> viewer', mimetype)
-				gmGuiHelpers.gm_show_error (
-					_(	'There is no editor for visual progress notes defined.\n'
-						'Also, there is no editor command defined for the file type\n'
-						'\n'
-						' [%s].\n'
-						'\n'
-						'Therefor GNUmed attempted to at least *show* this\n'
-						'visual progress note. That failed as well, however:\n'
-						'\n'
-						'%s'
-					) % (mimetype, msg),
-					_('Editing visual progress note')
-				)
-				editor = configure_visual_progress_note_editor()
-				if editor is None:
-					gmDispatcher.send(signal = 'statustext', msg = _('Editor for visual progress note not configured.'), beep = True)
-					return None
+	_log.error('no explicit editor for visual progress notes configured, trying editor based on mimetype')
+	mimetype = gmMimeLib.guess_mimetype(filename = filename)
+	editor = gmMimeLib.get_editor_cmd(mimetype = mimetype, filename = filename)
+	if editor:
+		return editor
 
-	if '%(img)s' in editor:
-		editor = editor % {'img': filename}
-	else:
-		editor = '%s %s' % (editor, filename)
+	_log.error('no editor for mimetype <%s> configured', mimetype)
+	editor = configure_visual_progress_note_editor()
+	if editor:
+		return editor
 
-	if discard_unmodified:
-		original_stat = os.stat(filename)
-		original_md5 = gmTools.file2md5(filename)
+	gmDispatcher.send(signal = 'statustext', msg = _('Editor for visual progress note left configured.'), beep = True)
+	return None
 
-	success = gmShellAPI.run_command_in_shell(editor, blocking = True)
-	if not success:
-		success, msg = gmMimeLib.call_viewer_on_file(filename, block = True)
-		if not success:
-			_log.debug('problem running mimetype <%s> viewer', mimetype)
-			gmGuiHelpers.gm_show_error (
-				_(	'There was a problem running the editor\n'
-					'\n'
-					' [%s] (%s)\n'
-					'\n'
-					'on the visual progress note.\n'
-					'\n'
-					'Therefor GNUmed attempted to at least *show* it.\n'
-					'That failed as well, however:\n'
-					'\n'
-					'%s'
-				) % (editor, mimetype, msg),
-				_('Editing visual progress note')
-			)
-			editor = configure_visual_progress_note_editor()
-			if editor is None:
-				gmDispatcher.send(signal = 'statustext', msg = _('Editor for visual progress note not configured.'), beep = True)
+#------------------------------------------------------------
+def __save_visual_progress_note(filename:str=None, episode=None, doc_part=None, health_issue=None):
+	if doc_part is not None:
+		_log.debug('updating visual progress note')
+		doc_part.update_data_from_file(fname = filename)
+		doc_part.set_reviewed(technically_abnormal = False, clinically_relevant = True)
 		return None
+
+	if not isinstance(episode, gmEpisode.cEpisode):
+		if episode is None:
+			episode = _('visual progress notes')
+		pat = gmPerson.gmCurrentPatient()
+		emr = pat.emr
+		episode = emr.add_episode(episode_name = episode.strip(), pk_health_issue = health_issue, is_open = False)
+	doc = gmDocumentWidgets.save_file_as_new_document (
+		filename = filename,
+		document_type = gmDocuments.DOCUMENT_TYPE_VISUAL_PROGRESS_NOTE,
+		episode = episode,
+		unlock_patient = False,
+		pk_org_unit = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit'],
+		date_generated = gmDateTime.pydt_now_here()
+	)
+	doc.set_reviewed(technically_abnormal = False, clinically_relevant = True)
+	return doc
+
+#------------------------------------------------------------
+def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=False, doc_part=None, health_issue=None):
+	"""This assumes <filename> contains an image which can be handled by the configured image editor."""
+
+	if doc_part:
+		filename = doc_part.save_to_file()
+		if filename is None:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export visual progress note to file.'))
+			return None
 
 	try:
 		open(filename, 'r').close()
@@ -276,57 +264,77 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 		)
 		return None
 
-	if discard_unmodified:
-		modified_stat = os.stat(filename)
-		# same size ?
-		if original_stat.st_size == modified_stat.st_size:
-			modified_md5 = gmTools.file2md5(filename)
-			# same hash ?
-			if original_md5 == modified_md5:
-				_log.debug('visual progress note (template) not modified')
-				# ask user to decide
-				msg = _(
-					'You either created a visual progress note from a template\n'
-					'in the database (rather than from a file on disk) or you\n'
-					'edited an existing visual progress note.\n'
+	editor = __get_visual_progress_notes_editor(filename = filename)
+	if editor is None:
+		_log.error('no editor configured, trying viewer')
+		success, msg = gmMimeLib.call_viewer_on_file(filename, block = True)
+		if not success:
+			gmGuiHelpers.gm_show_error (
+				_(	'There is no editor for visual progress notes defined.\n'
+					'Also, there is no editor command defined for image files.\n'
 					'\n'
-					'The template/original was not modified at all, however.\n'
+					'GNUmed attempted to at least *show* this\n'
+					'visual progress note. That failed as well:\n'
 					'\n'
-					'Do you still want to save the unmodified image as a\n'
-					'visual progress note into the EMR of the patient ?\n'
-				)
-				save_unmodified = gmGuiHelpers.gm_show_question (
-					msg,
-					_('Saving visual progress note')
-				)
-				if not save_unmodified:
-					_log.debug('user discarded unmodified note')
-					return
+					'%s'
+				) % msg,
+				_('Editing visual progress note')
+			)
+			return None
 
-	if doc_part is not None:
-		_log.debug('updating visual progress note')
-		doc_part.update_data_from_file(fname = filename)
-		doc_part.set_reviewed(technically_abnormal = False, clinically_relevant = True)
+		return __save_visual_progress_note (
+			filename = filename,
+			episode = episode,
+			doc_part = doc_part,
+			health_issue = health_issue
+		)
+
+	# placeholder configured in image viewer command ?
+	if '%(img)s' in editor:
+		editor = editor % {'img': filename}
+	else:
+		editor = '%s %s' % (editor, filename)
+	stat, md5 = gmTools.file_statistics(filename = filename)
+	success = gmShellAPI.run_command_in_shell(editor, blocking = True)
+	if success:
+		if discard_unmodified and not gmTools.file_content_changed(filename = filename, orig_size = stat.st_size, orig_md5 = md5):
+			return None
+
+		return __save_visual_progress_note (
+			filename = filename,
+			episode = episode,
+			doc_part = doc_part,
+			health_issue = health_issue
+		)
+
+	success, msg = gmMimeLib.call_viewer_on_file(filename, block = True)
+	if not success:
+		_log.debug('problem running mimetype <%s> viewer', mimetype)
+		gmGuiHelpers.gm_show_error (
+			_(	'There was a problem running the editor\n'
+				'\n'
+				' [%s] (%s)\n'
+				'\n'
+				'on the visual progress note.\n'
+				'\n'
+				'GNUmed attempted to at least *show* it.\n'
+				'That failed as well:\n'
+				'\n'
+				'%s'
+			) % (editor, mimetype, msg),
+			_('Editing visual progress note')
+		)
 		return None
 
-	if not isinstance(episode, gmEpisode.cEpisode):
-		if episode is None:
-			episode = _('visual progress notes')
-		pat = gmPerson.gmCurrentPatient()
-		emr = pat.emr
-		episode = emr.add_episode(episode_name = episode.strip(), pk_health_issue = health_issue, is_open = False)
+	if discard_unmodified and not gmTools.file_content_changed(filename = filename, orig_size = stat.st_size, orig_md5 = md5):
+		return None
 
-	doc = gmDocumentWidgets.save_file_as_new_document (
+	return __save_visual_progress_note (
 		filename = filename,
-		document_type = gmDocuments.DOCUMENT_TYPE_VISUAL_PROGRESS_NOTE,
 		episode = episode,
-		unlock_patient = False,
-		pk_org_unit = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit'],
-		date_generated = gmDateTime.pydt_now_here()
+		doc_part = doc_part,
+		health_issue = health_issue
 	)
-	doc.set_reviewed(technically_abnormal = False, clinically_relevant = True)
-
-	return doc
 
 #============================================================
 class cVisualSoapTemplatePhraseWheel(gmPhraseWheel.cPhraseWheel):

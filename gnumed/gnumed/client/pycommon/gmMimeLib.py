@@ -743,7 +743,7 @@ def call_viewer_on_file(filename:str=None, block:bool=None) -> tuple[bool, str]:
 			block: whether to detach from the viewer or not (no detach = block GNUmed client interface, None=use mailcap default
 
 		Returns:
-			True/False and potential error message
+			True/False and, potentially, an error message
 	"""
 	if not os.path.isdir(filename):
 		# is the file accessible at all ?

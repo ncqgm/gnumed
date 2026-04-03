@@ -990,8 +990,11 @@ def acquire_images_from_capture_device(device=None, calling_window=None) -> list
 		)
 		return None
 
-	_log.debug('acquired %s images', len(fnames))
+	if fnames is None:
+		_log.debug('unable to acquire images')
+		return None
 
+	_log.debug('acquired %s images', len(fnames))
 	return fnames
 
 #============================================================
