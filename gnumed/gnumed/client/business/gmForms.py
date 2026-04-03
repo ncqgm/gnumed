@@ -719,7 +719,7 @@ class cLaTeXForm(cFormEngine):
 	]
 	_macro_assign_regex = r'\$m\[[^[]+?==.*]m\$'			# greedy is OK because only one assignment per line allowed, but can be nested hence greedy is needed
 	_macro_use_regex = r'\$m\[[^=]+?]m\$'
-	_REGEX_LaTeX__usepackage__name = regex.compile(r'{\D+}')
+	_REGEX_LaTeX__usepackage__name = regex.compile(r'{\S+?}')
 
 	#--------------------------------------------------------
 	def __init__(self, template_file=None):
@@ -756,7 +756,7 @@ class cLaTeXForm(cFormEngine):
 				output_file.write(_LATEX_define_checkandloadpkg_cmd)
 				checkandloadpkg_defined = True
 			pkg_name = cLaTeXForm._REGEX_LaTeX__usepackage__name.findall(line)[0]
-			pkg_name = pkg_name[1:-1]
+			pkg_name = pkg_name.strip('{}')
 			parts = line.split('%', 1)
 			use_cmd = parts[0].strip()
 			comment = ''

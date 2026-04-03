@@ -137,7 +137,7 @@ def configure_fallback_primary_provider(parent=None):
 #============================================================
 # workplace plugin configuration widgets
 #------------------------------------------------------------
-def configure_workplace_plugins(parent=None) -> bool:
+def configure_workplace_plugins(parent=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -269,7 +269,6 @@ def configure_workplace_plugins(parent=None) -> bool:
 			sels = [workplaces.index(curr_workplace)]
 		except ValueError:
 			sels = []
-
 		lctrl.set_string_items(workplaces)
 		lctrl.set_selections(selections = sels)
 
