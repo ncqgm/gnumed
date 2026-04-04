@@ -309,11 +309,11 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 
 	success, msg = gmMimeLib.call_viewer_on_file(filename, block = True)
 	if not success:
-		_log.debug('problem running mimetype <%s> viewer', mimetype)
+		_log.debug('problem running mimetype viewer')
 		gmGuiHelpers.gm_show_error (
 			_(	'There was a problem running the editor\n'
 				'\n'
-				' [%s] (%s)\n'
+				' [%s]\n'
 				'\n'
 				'on the visual progress note.\n'
 				'\n'
@@ -321,7 +321,7 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 				'That failed as well:\n'
 				'\n'
 				'%s'
-			) % (editor, mimetype, msg),
+			) % (editor, msg),
 			_('Editing visual progress note')
 		)
 		return None
