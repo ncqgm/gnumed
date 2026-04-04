@@ -894,7 +894,7 @@ def file_content_changed(filename:str=None, orig_size:int=None, orig_md5:str=Non
 	return False
 
 #---------------------------------------------------------------------------
-def file2md5(filename:str=None, return_hex:bool=True) -> str:
+def file2md5(filename:str=None, return_hex:bool=True) -> bytes|str:
 	"""Compute md5 sum over content of file
 
 	Args:
