@@ -11,7 +11,7 @@ __license__ = "GPL v2 or later (details at https://www.gnu.org)"
 import sys
 import logging
 import urllib
-#from typing import overload
+from typing import overload, Literal
 
 
 import wx
@@ -662,6 +662,13 @@ def configure_vaccination_plans_url():
 	)
 
 #------------------------------------------------------------
+@overload
+def generate_failsafe_vaccination_history(pk_patient:int, max_width:int, eol:Literal[None]) -> list[str]: ...
+@overload
+def generate_failsafe_vaccination_history(pk_patient:int, max_width:int, eol:str) -> str: ...
+@overload
+def generate_failsafe_vaccination_history(pk_patient:int=None, max_width:int=80, eol:str=None) -> str|list[str]: ...
+
 def generate_failsafe_vaccination_history(pk_patient:int=None, max_width:int=80, eol:None|str=None) -> str|list[str]:
 	if not pk_patient:
 		pk_patient = gmPerson.gmCurrentPatient().ID

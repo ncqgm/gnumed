@@ -25,7 +25,7 @@ import importlib
 import datetime as pydt
 import re as regex
 import xml.sax.saxutils as xml_tools
-from typing import Any
+from typing import Any, overload, Literal, Optional
 from types import ModuleType
 # old:
 import pickle, zlib
@@ -869,7 +869,7 @@ def rename_file(filename:str, new_filename:str, overwrite:bool=False, allow_syml
 #---------------------------------------------------------------------------
 def file_statistics(filename:str=None) -> tuple[os.stat_result, str]:
 	"""Return os.stat() result and md5 of content for filename."""
-	return (os.stat(filename), file2md5(filename))
+	return (os.stat(filename), file2md5(filename, return_hex = True))
 
 #---------------------------------------------------------------------------
 def file_content_changed(filename:str=None, orig_size:int=None, orig_md5:str=None) -> bool:
@@ -894,7 +894,14 @@ def file_content_changed(filename:str=None, orig_size:int=None, orig_md5:str=Non
 	return False
 
 #---------------------------------------------------------------------------
-def file2md5(filename:str=None, return_hex:bool=True) -> bytes|str:
+@overload
+def file2md5(filename:str, return_hex:Literal[True]) -> str: ...
+@overload
+def file2md5(filename:str, return_hex:Literal[False]) -> bytes: ...
+@overload
+def file2md5(filename: Optional[str]=None, return_hex:bool=True) -> str | bytes: ...
+
+def file2md5(filename:Optional[str]=None, return_hex:bool=True) -> str | bytes:
 	"""Compute md5 sum over content of file
 
 	Args:

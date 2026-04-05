@@ -479,6 +479,7 @@ def acquire_pages_into_files(device=None, delay=None, filename=None, calling_win
 		- list of filenames: names of scanned pages, may be []
 		- None: unable to connect to scanner
 	"""
+	scanner:cTwainScanner | cXSaneScanner | cSaneScanner = None
 	_log.debug('trying TWAIN bridge')
 	try:
 		scanner = cTwainScanner(calling_window = calling_window)
