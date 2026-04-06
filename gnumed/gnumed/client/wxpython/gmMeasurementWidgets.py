@@ -10,6 +10,7 @@ import datetime as pyDT
 import decimal
 import os
 import os.path
+from typing import overload, Literal
 
 
 import wx
@@ -467,7 +468,12 @@ def print_measurements(tests=None) -> bool:
 	return True
 
 #----------------------------------------------------------------
-def generate_failsafe_test_results_list(pk_patient=None, test_results:list=None, max_width:int=80, eol:str=None) -> str|list:
+@overload
+def generate_failsafe_test_results_list(pk_patient:int, test_results:list[gmPathLab.cTestResult], max_width:int, eol:Literal[None]) -> list[str]: ...
+@overload
+def generate_failsafe_test_results_list(pk_patient:int, test_results:list[gmPathLab.cTestResult], max_width:int, eol:str) -> str: ...
+
+def generate_failsafe_test_results_list(pk_patient=None, test_results:list[gmPathLab.cTestResult]=None, max_width:int=80, eol:str=None) -> str|list[str]:
 	if not pk_patient:
 		pk_patient = gmPerson.gmCurrentPatient().ID
 	lines, footer = gmFormWidgets.generate_failsafe_form_wrapper (

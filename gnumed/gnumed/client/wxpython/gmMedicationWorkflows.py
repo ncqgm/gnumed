@@ -8,6 +8,7 @@ __license__ = "SPDX-License-Identifier: GPL-2.0-or-later"
 import logging
 import sys
 import urllib
+from typing import overload, Literal
 
 
 import wx
@@ -126,6 +127,11 @@ def configure_medication_list_template(parent=None):
 	return template
 
 #------------------------------------------------------------
+@overload
+def generate_failsafe_medication_list(pk_patient:int, max_width:int, eol:Literal[None]) -> list[str]: ...
+@overload
+def generate_failsafe_medication_list(pk_patient:int, max_width:int, eol:str) -> str: ...
+
 def generate_failsafe_medication_list(pk_patient:int=None, max_width:int=80, eol:str=None) -> str|list:
 	if not pk_patient:
 		pk_patient = gmPerson.gmCurrentPatient().ID
@@ -293,7 +299,12 @@ def get_prescription_template(parent=None):
 #------------------------------------------------------------
 # prescription workflows
 #------------------------------------------------------------
-def generate_failsafe_prescription(pk_patient:int=None, max_width:int=80, eol:str=None) -> str|list:
+@overload
+def generate_failsafe_prescription(pk_patient:int, max_width:int, eol:Literal[None]) -> list[str]: ...
+@overload
+def generate_failsafe_prescription(pk_patient:int, max_width:int, eol:str) -> str: ...
+
+def generate_failsafe_prescription(pk_patient:int=None, max_width:int=80, eol:None|str=None) -> str|list[str]:
 	if not pk_patient:
 		pk_patient = gmPerson.gmCurrentPatient().ID
 	lines, footer = gmFormWidgets.generate_failsafe_form_wrapper (

@@ -13,6 +13,7 @@ import sys
 import re as regex
 import logging
 import datetime as pydt
+from typing import overload, Literal
 
 
 import wx
@@ -65,7 +66,12 @@ _log = logging.getLogger('gm.ui')
 default_chunksize = 1 * 1024 * 1024		# 1 MB
 
 #============================================================
-def generate_failsafe_documents_list(pk_patient=None, max_width:int=80, eol:str=None) -> str|list:
+@overload
+def generate_failsafe_documents_list(pk_patient:int, max_width:int, eol:Literal[None]) -> list[str]: ...
+@overload
+def generate_failsafe_documents_list(pk_patient:int, max_width:int, eol:str) -> str: ...
+
+def generate_failsafe_documents_list(pk_patient:int=None, max_width:int=80, eol:str=None) -> str|list[str]:
 	if not pk_patient:
 		pk_patient = gmPerson.gmCurrentPatient().ID
 	from Gnumed.wxpython.gmFormWidgets import generate_failsafe_form_wrapper
