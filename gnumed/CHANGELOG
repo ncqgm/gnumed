@@ -2302,6 +2302,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v22
 ------------------------------------------------
 
+	22.34
+
+FIX: bootstrapping: chicken-egg-problem with gm-dbo vs groups creation
+
 	22.33
 
 FIX: boostrapping: gm-dbo cannot GRANT ...  WITH ADMIN to itself

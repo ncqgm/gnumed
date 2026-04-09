@@ -238,7 +238,7 @@ def user_exists(cursor=None, user=None):
 	return None
 
 #------------------------------------------------------------------
-def db_named_group_role_exists(cursor=None, group=None):
+def group_role_exists(cursor=None, group=None):
 	SQL = 'SELECT groname FROM pg_group WHERE groname = %(grp)s'
 	args = {'grp': group}
 	try:
@@ -256,28 +256,28 @@ def db_named_group_role_exists(cursor=None, group=None):
 	return False
 
 #------------------------------------------------------------------
-def create_db_named_group_role(cursor=None, group=None):
+def create_group_role(cursor=None, group=None, with_admin=False):
 
-	# does this group already exist ?
-	if db_named_group_role_exists(cursor, group):
-		return True
+	_log.debug('ensuring existance of group role [%s], with admin: %s', group, with_admin)
 
-	SQL = 'create group "%s"' % group
-	try:
-		cursor.execute(SQL)
-	except:
-		_log.exception(u">>>[%s]<<< failed for group [%s]", SQL, group)
-		return False
+	if not group_role_exists(cursor, group):
+		SQL = 'create group "%s"' % group
+		try:
+			cursor.execute(SQL)
+		except:
+			_log.exception(u">>>[%s]<<< failed for group [%s]", SQL, group)
+			return False
 
-	SQL = 'GRANT "%s" to "%s" WITH ADMIN OPTION;' % (group, _GM_DBO_ROLE)
-	try:
-		cursor.execute(SQL)
-	except:
-		_log.exception(u">>>[%s]<<< failed for group [%s]", SQL, group)
-		return False
+	if with_admin:
+		SQL = 'GRANT "%s" to "%s" WITH ADMIN OPTION;' % (group, _GM_DBO_ROLE)
+		try:
+			cursor.execute(SQL)
+		except:
+			_log.exception(u">>>[%s]<<< failed for group [%s]", SQL, group)
+			return False
 
 	# paranoia is good
-	if not db_named_group_role_exists(cursor, group):
+	if not group_role_exists(cursor, group):
 		return False
 
 	return True
@@ -494,13 +494,17 @@ class db_server:
 		_log.info(u"bootstrapping database roles")
 
 		# insert standard groups
-		if not self.__create_groups():
+		if not self.__create_groups(with_admin = False):
 			_log.error(u"Cannot create GNUmed standard groups roles.")
 			return None
 
 		# create GNUmed owner
 		if self.__create_dbowner() is None:
 			_log.error(u"Cannot install GNUmed database owner.")
+			return None
+
+		if not self.__create_groups(with_admin = True):
+			_log.error(u"Cannot create GNUmed standard groups roles WITH ADMIN.")
 			return None
 
 #		if not _import_schema(group=self.section, schema_opt='schema', conn=self.conn):
@@ -581,8 +585,9 @@ Make sure to remember the password for later use !
 		return True
 
 	#--------------------------------------------------------------
-	def __create_groups(self, aSection = None):
+	def __create_groups(self, aSection = None, with_admin = False):
 
+		_log.debug('creating group roles')
 		if aSection is None:
 			section = "GnuMed defaults"
 		else:
@@ -597,7 +602,7 @@ Make sure to remember the password for later use !
 
 		cursor = self.conn.cursor()
 		for group in groups:
-			if not create_db_named_group_role(cursor, group):
+			if not create_group_role(cursor, group, with_admin = with_admin):
 				cursor.close()
 				return False
 
@@ -705,7 +710,7 @@ class database:
 		# create authentication group
 		_log.info(u'creating database-specific authentication group role')
 		curs = self.conn.cursor()
-		if not create_db_named_group_role(cursor = curs, group = self.name):
+		if not create_group_role(cursor = curs, group = self.name):
 			curs.close()
 			_log.error(u'cannot create authentication group role')
 			return False
@@ -714,7 +719,7 @@ class database:
 
 		# paranoia check
 		curs = self.conn.cursor()
-		if not db_named_group_role_exists(cursor = curs, group = self.name):
+		if not group_role_exists(cursor = curs, group = self.name):
 			curs.close()
 			_log.error(u'cannot find authentication group role')
 			return False
