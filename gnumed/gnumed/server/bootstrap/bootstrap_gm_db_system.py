@@ -229,12 +229,16 @@ def user_exists(cursor=None, user=None):
 		_log.exception(u">>>[%s]<<< failed for user [%s]", SQL, user)
 		return None
 
-	res = cursor.fetchone()
-	if cursor.rowcount == 1:
+	rows = cursor.fetchall()
+	if len(rows) == 1:
 		_log.info(u"user [%s] exists", user)
 		return True
 
-	_log.info(u"user [%s] does not exist", user)
+	if len(rows) > 1:
+		log.error('more than one user found ??')
+		log.error(rows)
+	else:
+		_log.info(u"user [%s] does not exist", user)
 	return None
 
 #------------------------------------------------------------------
@@ -499,7 +503,7 @@ class db_server:
 			return None
 
 		# create GNUmed owner
-		if self.__create_dbowner() is None:
+		if not self.__create_dbowner():
 			_log.error(u"Cannot install GNUmed database owner.")
 			return None
 
@@ -519,7 +523,7 @@ class db_server:
 		dbowner_alias = cfg_get("GnuMed defaults", "database owner alias")
 		if dbowner_alias is None:
 			_log.error(u"Cannot load GNUmed database owner name from config file.")
-			return None
+			return False
 
 		cursor = self.conn.cursor()
 		# does this user already exist ?
@@ -548,6 +552,7 @@ class db_server:
 			_dbowner = user(anAlias = dbowner_alias, aPassword = 'should not matter')
 			return True
 
+		_log.info('creating new database owner role %s', _GM_DBO_ROLE)
 		print_msg ((
 """The database owner [%s] will be created.
 
@@ -565,22 +570,23 @@ Make sure to remember the password for later use !
 			'GRANT "%s" TO "%s" WITH ADMIN OPTION;'	% (self.db_named_group_role, _GM_DBO_ROLE)
 
 		]
-#		SQL = 'CREATE ROLE "%s" WITH ENCRYPTED PASSWORD \'%s\' CREATEDB CREATEROLE IN GROUP "%s", "gm-logins"' % (_GM_DBO_ROLE, _dbowner.password, self.db_named_group_role)
 		try:
 			for SQL in SQLs:
+				_log.info('running: %s', SQL)
 				cursor.execute(SQL)
 		except:
 			_log.error(">>>[%s]<<< failed.", SQL)
 			_log.exception("Cannot create GNUmed database owner [%s]." % _GM_DBO_ROLE)
 			cursor.close()
-			return None
+			return False
 
+		self.conn.commit()
 		# paranoia is good
 		if not user_exists(cursor, _GM_DBO_ROLE):
 			cursor.close()
-			return None
+			return False
 
-		self.conn.commit()
+#		self.conn.commit()
 		cursor.close()
 		return True
 
