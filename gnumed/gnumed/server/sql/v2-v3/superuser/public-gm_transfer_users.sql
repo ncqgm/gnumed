@@ -48,7 +48,8 @@ BEGIN
 		raise notice ''idx: %'', idx;
 		member_id := member_ids[idx];
 		raise notice ''user (group member) id: %'', member_id;
-		select into member_name usename from pg_user where usesysid = member_id;
+		--select into member_name usename from pg_user where usesysid = member_id;
+		select into member_name rolname from pg_roles where oid = member_id;
 		raise notice ''name: %'', member_name;
 		tmp := ''gm_transfer_users(text): transferring "''
 				|| member_name || ''" (''
