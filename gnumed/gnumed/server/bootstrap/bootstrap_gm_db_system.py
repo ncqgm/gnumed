@@ -221,15 +221,16 @@ CREATE INDEX %(idx_name)s ON %(idx_schema)s.%(idx_table)s(%(idx_col)s);
 
 #==================================================================
 def user_exists(cursor=None, user=None):
-	SQL = "SELECT usename FROM pg_user WHERE usename = %(usr)s"
-	args = {'usr': user}
+	SQL = "SELECT * FROM pg_roles WHERE rolname = '%s'" % user
+	_log.debug(SQL)
 	try:
-		cursor.execute(SQL, args)
+		cursor.execute(SQL)
 	except:
 		_log.exception(u">>>[%s]<<< failed for user [%s]", SQL, user)
-		return None
+		return False
 
 	rows = cursor.fetchall()
+	_log.debug(rows)
 	if len(rows) == 1:
 		_log.info(u"user [%s] exists", user)
 		return True
@@ -239,7 +240,7 @@ def user_exists(cursor=None, user=None):
 		log.error(rows)
 	else:
 		_log.info(u"user [%s] does not exist", user)
-	return None
+	return False
 
 #------------------------------------------------------------------
 def group_role_exists(cursor=None, group=None):
@@ -518,38 +519,43 @@ class db_server:
 		return True
 	#--------------------------------------------------------------
 	def __create_dbowner(self):
-		global _dbowner
+		_log.info('ensuring existance of database owner')
 
+		global _dbowner
 		dbowner_alias = cfg_get("GnuMed defaults", "database owner alias")
 		if dbowner_alias is None:
 			_log.error(u"Cannot load GNUmed database owner name from config file.")
 			return False
 
+		_log.debug('db owner alias: %s', dbowner_alias)
 		cursor = self.conn.cursor()
 		# does this user already exist ?
 		if user_exists(cursor, _GM_DBO_ROLE):
-			SQL = (
-				'GRANT "%s" TO "%s";'						# postgres in gm-logins (pg_dump/restore)
-				'GRANT "%s" TO "%s" WITH ADMIN OPTION;'		# gm-dbo in gm-logins; in v17 add: ", INHERIT FALSE, SET FALSE"
-				'GRANT "%s" TO "%s" WITH ADMIN OPTION;'		# gm-dbo in gnumed_vXX; in v17 add: ", INHERIT FALSE, SET FALSE"
-				'ALTER ROLE "%s" CREATEDB CREATEROLE;'
-			) % (
-				_GM_LOGINS_GROUP, _PG_SUPERUSER,
-				_GM_LOGINS_GROUP, _GM_DBO_ROLE,
-				self.db_named_group_role, _GM_DBO_ROLE,
-				_GM_DBO_ROLE
-			)
-			try:
-				cursor.execute(SQL)
-			except:
-				_log.error(u">>>[%s]<<< failed." % SQL)
-				_log.exception("Cannot add GNUmed database owner [%s] to groups [%s] and [%s]." % (_GM_DBO_ROLE, _GM_LOGINS_GROUP, self.db_named_group_role))
-				cursor.close()
-				return False
+			_log.info('db owner role exists, ensuring permissions')
+			SQLs = [
+				# postgres in gm-logins (pg_dump/restore)
+				'GRANT "%s" TO "%s";' % (_GM_LOGINS_GROUP, _PG_SUPERUSER),
+				# alter gm-dbo
+				'ALTER ROLE "%s" CREATEDB CREATEROLE;' % _GM_DBO_ROLE,
+				# gm-dbo in gm-logins; in v17 add: ", INHERIT FALSE, SET FALSE"
+				'GRANT "%s" TO "%s" WITH ADMIN OPTION;' % (_GM_LOGINS_GROUP, _GM_DBO_ROLE),
+				# gm-dbo in gnumed_vXX; in v17 add: ", INHERIT FALSE, SET FALSE"
+				'GRANT "%s" TO "%s" WITH ADMIN OPTION;' % (self.db_named_group_role, _GM_DBO_ROLE)
+			]
+			for SQL in SQLs:
+				_log.info('running: %s', SQL)
+				try:
+					cursor.execute(SQL)
+				except:
+					_log.error(u">>>[%s]<<< failed." % SQL)
+					_log.exception("Cannot add GNUmed database owner [%s] to groups [%s] and [%s]." % (_GM_DBO_ROLE, _GM_LOGINS_GROUP, self.db_named_group_role))
+					cursor.close()
+					return False
 
 			self.conn.commit()
 			cursor.close()
 			_dbowner = user(anAlias = dbowner_alias, aPassword = 'should not matter')
+			_log.debug('db owner user class instance: %s', _dbowner)
 			return True
 
 		_log.info('creating new database owner role %s', _GM_DBO_ROLE)
@@ -559,57 +565,52 @@ class db_server:
 You will have to provide a new password for it
 unless it is pre-defined in the configuration file.
 
-Make sure to remember the password for later use !
+MAKE SURE TO REMEMBER THE PASSWORD FOR LATER USE !
 """) % _GM_DBO_ROLE)
 		_dbowner = user(anAlias = dbowner_alias, force_interactive = True)
 		SQLs = [
+			# postgres in gm-logins (pg_dump/restore)
+			'GRANT "%s" TO "%s";' % (_GM_LOGINS_GROUP, _PG_SUPERUSER),
+			# create gm-dbo
 			'CREATE ROLE "%s" WITH ENCRYPTED PASSWORD \'%s\' CREATEDB CREATEROLE;' % (_GM_DBO_ROLE, _dbowner.password),
 			# gm-dbo in gm-logins; in v17 add: ", INHERIT FALSE, SET FALSE"
 			'GRANT "%s" TO "%s" WITH ADMIN OPTION;' % (_GM_LOGINS_GROUP, _GM_DBO_ROLE),
 			# gm-dbo in gnumed_vXX; in v17 add: ", INHERIT FALSE, SET FALSE"
 			'GRANT "%s" TO "%s" WITH ADMIN OPTION;'	% (self.db_named_group_role, _GM_DBO_ROLE)
-
 		]
-		try:
-			for SQL in SQLs:
-				_log.info('running: %s', SQL)
+		for SQL in SQLs:
+			_log.info('running: %s', SQL)
+			try:
 				cursor.execute(SQL)
-		except:
-			_log.error(">>>[%s]<<< failed.", SQL)
-			_log.exception("Cannot create GNUmed database owner [%s]." % _GM_DBO_ROLE)
-			cursor.close()
-			return False
+			except:
+				_log.error(">>>[%s]<<< failed.", SQL)
+				_log.exception("Cannot create GNUmed database owner [%s]." % _GM_DBO_ROLE)
+				cursor.close()
+				return False
 
+		cursor.close()
 		self.conn.commit()
 		# paranoia is good
-		if not user_exists(cursor, _GM_DBO_ROLE):
-			cursor.close()
-			return False
-
-#		self.conn.commit()
-		cursor.close()
-		return True
+		return user_exists(self.conn.cursor(), _GM_DBO_ROLE)
 
 	#--------------------------------------------------------------
 	def __create_groups(self, aSection = None, with_admin = False):
-
 		_log.debug('creating group roles')
 		if aSection is None:
 			section = "GnuMed defaults"
 		else:
 			section = aSection
-
 		groups = cfg_get(section, "groups")
 		if groups is None:
 			_log.error(u"Cannot load GNUmed group names from config file (section [%s])." % section)
 			groups = [self.db_named_group_role]
 		else:
 			groups.append(self.db_named_group_role)
-
 		cursor = self.conn.cursor()
 		for group in groups:
 			if not create_group_role(cursor, group, with_admin = with_admin):
 				cursor.close()
+				_log.error('problem creating group roles')
 				return False
 
 		self.conn.commit()
