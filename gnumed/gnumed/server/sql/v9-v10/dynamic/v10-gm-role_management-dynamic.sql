@@ -45,7 +45,8 @@ BEGIN
 	select into member_ids grolist from pg_group where groname = _source_group;
 	FOR idx IN coalesce(array_lower(member_ids, 1), 0) .. coalesce(array_upper(member_ids, 1), -1) LOOP
 		member_id := member_ids[idx];
-		select into member_name usename from pg_user where usesysid = member_id;
+		--select into member_name usename from pg_user where usesysid = member_id;
+		select into member_name rolname from pg_roles where oid = member_id;
 		tmp := ''gm_transfer_users(text): transferring "''
 				|| member_name || ''" (''
 				|| member_id || '') from group "''

@@ -2306,6 +2306,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 
 FIX: bootstrapping: chicken-egg-problem with gm-dbo vs groups creation
 FIX: bootstrapping: use pg_roles rather than pg_user b/c of collation dependance
+FIX: gm.transfer_users(): switch from pg_user to pg_roles
 
 	22.33
 
