@@ -536,7 +536,7 @@ class db_server:
 				# postgres in gm-logins (pg_dump/restore)
 				'GRANT "%s" TO "%s";' % (_GM_LOGINS_GROUP, _PG_SUPERUSER),
 				# alter gm-dbo
-				'ALTER ROLE "%s" CREATEDB CREATEROLE;' % _GM_DBO_ROLE,
+				'ALTER ROLE "%s" CREATEDB CREATEROLE LOGIN;' % _GM_DBO_ROLE,
 				# gm-dbo in gm-logins; in v17 add: ", INHERIT FALSE, SET FALSE"
 				'GRANT "%s" TO "%s" WITH ADMIN OPTION;' % (_GM_LOGINS_GROUP, _GM_DBO_ROLE),
 				# gm-dbo in gnumed_vXX; in v17 add: ", INHERIT FALSE, SET FALSE"
@@ -572,7 +572,7 @@ MAKE SURE TO REMEMBER THE PASSWORD FOR LATER USE !
 			# postgres in gm-logins (pg_dump/restore)
 			'GRANT "%s" TO "%s";' % (_GM_LOGINS_GROUP, _PG_SUPERUSER),
 			# create gm-dbo
-			'CREATE ROLE "%s" WITH ENCRYPTED PASSWORD \'%s\' CREATEDB CREATEROLE;' % (_GM_DBO_ROLE, _dbowner.password),
+			'CREATE ROLE "%s" WITH ENCRYPTED PASSWORD \'%s\' CREATEDB CREATEROLE LOGIN;' % (_GM_DBO_ROLE, _dbowner.password),
 			# gm-dbo in gm-logins; in v17 add: ", INHERIT FALSE, SET FALSE"
 			'GRANT "%s" TO "%s" WITH ADMIN OPTION;' % (_GM_LOGINS_GROUP, _GM_DBO_ROLE),
 			# gm-dbo in gnumed_vXX; in v17 add: ", INHERIT FALSE, SET FALSE"

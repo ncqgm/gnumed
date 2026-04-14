@@ -2308,6 +2308,7 @@ FIX: bootstrapping: chicken-egg-problem with gm-dbo vs groups creation
 FIX: bootstrapping: use pg_roles rather than pg_user b/c of collation dependance
 FIX: gm.transfer_users(): switch from pg_user to pg_roles
 FIX: bootstrapping: properly set ADMIN on groups when running several upgrades in a row
+FIX: bootstrapping: using CREATE ROLE for users requires explicit LOGIN
 
 	22.33
 

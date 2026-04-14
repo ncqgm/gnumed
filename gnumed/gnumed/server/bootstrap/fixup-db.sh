@@ -102,7 +102,7 @@ echo_msg "1) Verifying checksums in database (can take a while) ..."
 #	reading any column of a row (unTOASTED columns, that is)
 #	will effect reading the entire row, including OID, but
 #	there's no need to output that value
-pg_dump ${PORT_DEF} --username=gm-dbo --dbname=gnumed_v${VER} --compress=0 --no-sync --format=custom --file=/dev/null &> /dev/null
+pg_dump ${PORT_DEF} --username=gm-dbo --dbname=gnumed_v${VER} --compress=0 --no-sync --format=custom --file=/dev/null
 RETCODE="$?"
 if test "$RETCODE" != "0" ; then
 	echo "Verifying checksums on \"gnumed_v${VER}\" failed (${RETCODE})."
