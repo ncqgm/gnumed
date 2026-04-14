@@ -717,7 +717,7 @@ class database:
 		# create authentication group
 		_log.info(u'creating database-specific authentication group role')
 		curs = self.conn.cursor()
-		if not create_group_role(cursor = curs, group = self.name):
+		if not create_group_role(cursor = curs, group = self.name, with_admin = True):
 			curs.close()
 			_log.error(u'cannot create authentication group role')
 			return False
