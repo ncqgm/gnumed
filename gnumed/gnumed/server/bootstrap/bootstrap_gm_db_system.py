@@ -600,7 +600,7 @@ class cDatabase:
 			return False
 
 		# reconnect as owner to db
-		if not self.__connect_owner_to_gm_db():
+		if not self.__connect_owner_to_target_db():
 			_log.error("Cannot connect to database.")
 			return None
 
@@ -704,15 +704,15 @@ class cDatabase:
 		return self.conn and 1
 
 	#--------------------------------------------------------------
-	def __connect_owner_to_gm_db(self):
+	def __connect_owner_to_target_db(self):
 
-		_log.debug('__connect_owner_to_gm_db')
+		_log.debug('__connect_owner_to_target_db')
 		# reconnect as superuser to db
 		if not self.__connect_pg_superuser_to_target_db():
 			_log.error("Cannot connect to database.")
 			return False
 
-		self.conn.cookie = 'database.__connect_owner_to_gm_db via database.__connect_pg_superuser_to_target_db'
+		self.conn.cookie = 'database.__connect_owner_to_target_db via database.__connect_pg_superuser_to_target_db'
 		_log.debug('setting session authorization to user [%s]', _GM_DBO_ROLE)
 		curs = self.conn.cursor()
 		SQL = "SET SESSION AUTHORIZATION %(usr)s"

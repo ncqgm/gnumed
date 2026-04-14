@@ -74,7 +74,7 @@ function verify_database_integrity () {
 	#	reading any column of a row (unTOASTED columns, that is)
 	#	will effect reading the entire row, including OID, but
 	#	there's no need to output that value
-	pg_dump ${HOST_ARG} ${PORT_ARG} --username="${GM_DBO}" --compress=0 --no-sync --format=custom --file=/dev/null gnumed_v${VER} &> /dev/null
+	pg_dump ${HOST_ARG} ${PORT_ARG} --username="${GM_DBO}" --compress=0 --no-sync --format=custom --file=/dev/null gnumed_v${VER}
 	RETCODE="$?"
 	if test "$RETCODE" != "0" ; then
 		echo "Verifying data integrity CRCs on \"gnumed_v${VER}\" failed (${RETCODE})."
