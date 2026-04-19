@@ -7,7 +7,7 @@ __license__ = 'GPL v2 or later (details at https://www.gnu.org)'
 
 
 from Gnumed.wxpython import gmPlugin
-from Gnumed.wxpython.gmDocumentWidgets import cPACSPluginPnl
+from Gnumed.wxpython.gmPACSWidgets import cPACSPluginPnl
 from Gnumed.wxpython import gmAccessPermissionWidgets
 
 
