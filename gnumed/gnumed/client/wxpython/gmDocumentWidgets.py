@@ -1146,37 +1146,43 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 	# inherited event handlers
 	#--------------------------------------------------------
 	def _on_sort_by_age_selected(self, evt):
-		evt.Skip()
+		if evt:
+			evt.Skip()
 		self._doc_tree.sort_mode = 'age'
 		self._doc_tree.SetFocus()
 
 	#--------------------------------------------------------
 	def _on_sort_by_review_selected(self, evt):
-		evt.Skip()
+		if evt:
+			evt.Skip()
 		self._doc_tree.sort_mode = 'review'
 		self._doc_tree.SetFocus()
 
 	#--------------------------------------------------------
 	def _on_sort_by_episode_selected(self, evt):
-		evt.Skip()
+		if evt:
+			evt.Skip()
 		self._doc_tree.sort_mode = 'episode'
 		self._doc_tree.SetFocus()
 
 	#--------------------------------------------------------
 	def _on_sort_by_issue_selected(self, evt):
-		evt.Skip()
+		if evt:
+			evt.Skip()
 		self._doc_tree.sort_mode = 'issue'
 		self._doc_tree.SetFocus()
 
 	#--------------------------------------------------------
 	def _on_sort_by_type_selected(self, evt):
-		evt.Skip()
+		if evt:
+			evt.Skip()
 		self._doc_tree.sort_mode = 'type'
 		self._doc_tree.SetFocus()
 
 	#--------------------------------------------------------
 	def _on_sort_by_org_selected(self, evt):
-		evt.Skip()
+		if evt:
+			evt.Skip()
 		self._doc_tree.sort_mode = 'org'
 		self._doc_tree.SetFocus()
 
@@ -1802,6 +1808,48 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		return 0
 
 	#------------------------------------------------------------------------
+	def __compare_document_items_by_issue(self, data1, data2):
+		if (data1['health_issue'] is None) and (data2['health_issue'] is None):
+			return self.__compare_document_items_by_date(data1, data2)
+
+		if data1['health_issue'] is None:
+			return -1
+
+		if data2['health_issue'] is None:
+			return 1
+
+		h1 = data1['health_issue']
+		h2 = data2['health_issue']
+		if h1 < h2:
+			return -1
+
+		if h1 > h2:
+			return 1
+
+		return self.__compare_document_items_by_date(data1, data2)
+
+	#------------------------------------------------------------------------
+	def __compare_document_items_by_org(self, data1, data2):
+		if (data1['organization'] is None) and (data2['organization'] is None):
+			return self.__compare_document_items_by_date(data1, data2)
+
+		if data1['organization'] is None:
+			return 1
+
+		if data2['organization'] is None:
+			return -1
+
+		txt1 = '%s %s' % (data1['organization'], data1['unit'])
+		txt2 = '%s %s' % (data2['organization'], data2['unit'])
+		if txt1 < txt2:
+			return -1
+
+		if txt1 > txt2:
+			return 1
+
+		return self.__compare_document_items_by_date(data1, data2)
+
+	#------------------------------------------------------------------------
 	def __compare_document_items(self, data1, data2):
 		"""
 		-1: 1 < 2
@@ -1822,11 +1870,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			return self.__compare_document_items_by_date(data1, data2)
 
 		if self.__sort_mode == 'issue':
-			if data1['health_issue'] < data2['health_issue']:
-				return -1
-			if data1['health_issue'] > data2['health_issue']:
-				return 1
-			return self.__compare_document_items_by_date(data1, data2)
+			return self.__compare_document_items_by_issue(data1, data2)
 
 		if self.__sort_mode == 'review':
 			# equality
@@ -1909,11 +1953,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 		data1 = self.GetItemData(node1)
 		data2 = self.GetItemData(node2)
-		assert (type(data1) == type(data2)), 'nodes must be of same type for sorting'
-#		if type(data1) != type(data2):
-#			print(type(data1))
-#			print(type(data2))
-#			return 0
+		if data1 and data2:
+			assert (type(data1) == type(data2)), 'nodes must be of same type for sorting'
 
 		if isinstance(data1, gmDocuments.cDocument):
 			return self.__compare_document_items(data1, data2)
@@ -1981,48 +2022,50 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 	#--------------------------------------------------------
 	def __update_details_view(self):
+		node_data = self.__curr_node_data
+
 		# pseudo root node or "type"
-		if self.__curr_node_data is None:
+		if node_data is None:
 			self.__show_details_callback(document = None, part = None)
 			return
 
 		# document node
-		if isinstance(self.__curr_node_data, gmDocuments.cDocument):
-			self.__show_details_callback(document = self.__curr_node_data, part = None)
+		if isinstance(node_data, gmDocuments.cDocument):
+			self.__show_details_callback(document = node_data, part = None)
 			return
 
-		if isinstance(self.__curr_node_data, gmDocuments.cDocumentPart):
+		if isinstance(node_data, gmDocuments.cDocumentPart):
 			doc = self.GetItemData(self.GetItemParent(self.__curr_node))
-			self.__show_details_callback(document = doc, part = self.__curr_node_data)
+			self.__show_details_callback(document = doc, part = node_data)
 			return
 
-		if isinstance(self.__curr_node_data, gmOrganization.cOrgUnit):
-			self.__show_details_callback(org_unit = self.__curr_node_data)
+		if isinstance(node_data, gmOrganization.cOrgUnit):
+			self.__show_details_callback(org_unit = node_data)
 			return
 
-		if isinstance(self.__curr_node_data, pydt.datetime):
+		if isinstance(node_data, pydt.datetime):
 			# could be getting some statistics about the year
 			return
 
-		if isinstance(self.__curr_node_data, dict):
+		if isinstance(node_data, dict):
 			try:
-				issue = gmHealthIssue.cHealthIssue(aPK_obj = self.__curr_node_data['pk_health_issue'])
+				issue = gmHealthIssue.cHealthIssue(aPK_obj = node_data['pk_health_issue'])
 			except KeyError:
 				_log.debug('node data dict holds pseudo-issue for unattributed episodes, ignoring')
 				issue = None
 			try:
-				episode = gmEpisode.cEpisode(aPK_obj = self.__curr_node_data['pk_episode'])
+				episode = gmEpisode.cEpisode(aPK_obj = node_data['pk_episode'])
 			except KeyError:
 				episode = None
 			self.__show_details_callback(issue = issue, episode = episode)
 			return
 
 #		# string nodes are labels such as episodes which may or may not have children
-#		if isinstance(self.__curr_node_data, str):
+#		if isinstance(node_data, str):
 #			self.__show_details_callback(document = None, part = None)
 #			return
 
-		raise ValueError('invalid document tree node data type: %s' % type(self.__curr_node_data))
+		raise ValueError('invalid document tree node data type: %s' % type(node_data))
 
 	#--------------------------------------------------------
 	def _on_tree_item_selected(self, event):
