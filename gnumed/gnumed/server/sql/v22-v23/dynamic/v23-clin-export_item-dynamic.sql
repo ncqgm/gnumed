@@ -79,7 +79,8 @@ alter table clin.export_item
 
 alter table clin.export_item
 	add constraint clin_export_item_uniq_list_pos_per_identity
-		unique(fk_identity, list_position);
+		unique(fk_identity, list_position)
+		deferrable initially deferred;
 
 
 alter table clin.export_item
