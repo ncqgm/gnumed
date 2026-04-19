@@ -2541,7 +2541,7 @@ def create_test_result(encounter=None, episode=None, type=None, intended_reviewe
 def generate_failsafe_test_results_entries(pk_patient:int=None, test_results:list[cTestResult]=None, max_width:int=80) -> list[str]:
 	if not test_results:
 		if pk_patient:
-			test_results = get_test_results(pk_patient = 12, order_by = 'unified_abbrev, clin_when DESC')
+			test_results = get_test_results(pk_patient = pk_patient, order_by = 'unified_abbrev, clin_when DESC')
 	if not test_results:
 		return []
 
