@@ -63,7 +63,7 @@ else:
 			f.write("  non-live vaccine\n")
 		# get indications for this vaccine
 		cmd = """select * from clin.v_inds4vaccine where pk_vaccine = %s"""
-		indication_rows, ind_idx = gmPG.run_ro_query (
+		indication_rows = gmPG.run_ro_query (
 			'clinical',
 			cmd,
 			True,
@@ -110,7 +110,7 @@ else:
 		))
 		# get shots for this schedule
 		cmd = "select * from clin.v_vacc_defs4reg where pk_regime=%s order by vacc_seq_no"
-		shot_rows, shots_idx = gmPG.run_ro_query (
+		shot_rows = gmPG.run_ro_query (
 			'clinical',
 			cmd,
 			True,
