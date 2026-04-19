@@ -895,7 +895,7 @@ def user_needs_password_encryption_switch(user:str=None) -> bool:
 		'opt': 'password_encryption',
 		'val': 'scram-sha-256'
 	}
-	rows, idx = run_ro_queries(queries = [{'cmd': SQL, 'args': args}])
+	rows = run_ro_query(sql = SQL, args = args)
 	if not rows[0][0]:
 		return False
 
