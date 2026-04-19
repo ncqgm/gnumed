@@ -371,7 +371,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		with_documents=True,
 		with_tests=True,
 		with_vaccinations=True
-	):
+	) -> list[str]:
 		if not patient:
 			return []
 
@@ -402,7 +402,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 				lines.append('')
 				lines.append(_('Medications and Substances'))
 			for m in meds:
-				lines.append(m.format(left_margin = (left_margin + 1)))
+				lines.extend(m.format(left_margin = (left_margin + 1)))
 			del meds
 
 		# hospitalizations
@@ -491,7 +491,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		with_tests=True,
 		with_vaccinations=True,
 		with_external_care=True
-	):
+	) -> str:
 
 		lines = []
 
