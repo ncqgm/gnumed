@@ -558,21 +558,23 @@ where
 		if self.__active_workplace is not None:
 			return self.__active_workplace
 
-		self.__active_workplace = gmTools.coalesce (
-			_cfg.get (
-				group = 'workplace',
-				option = 'name',
-				source_order = [
-					('explicit', 'return'),
-					('workbase', 'return'),
-					('local', 'return'),
-					('user', 'return'),
-					('system', 'return'),
-				]
-			),
-			'Local Default'
+		_log.debug('setting up workplace')
+		wp = _cfg.get (
+			group = 'workplace',
+			option = 'name',
+			source_order = [
+				('explicit', 'return'),
+				('workbase', 'return'),
+				('local', 'return'),
+				('user', 'return'),
+				('system', 'return'),
+			]
 		)
-
+		if not wp:
+			wp = 'Local Default'
+			_log.debug('workplace not configured in any config file, falling back to built-in default')
+		_log.info('active workplace: %s', wp)
+		self.__active_workplace = wp
 		return self.__active_workplace
 
 	active_workplace = property(_get_workplace, _set_workplace)
