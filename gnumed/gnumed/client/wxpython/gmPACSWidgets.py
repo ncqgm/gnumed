@@ -27,60 +27,25 @@ else:
 		from Gnumed.pycommon import gmI18N
 		gmI18N.activate_locale()
 		gmI18N.install_domain()
-from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmMimeLib
-from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmDispatcher
-from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmShellAPI
-from Gnumed.pycommon import gmHooks
 from Gnumed.pycommon import gmNetworkTools
 from Gnumed.pycommon import gmConnectionPool
 
-
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
-from Gnumed.business import gmDocuments
-from Gnumed.business import gmHealthIssue
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmDICOM
 from Gnumed.business import gmProviderInbox
-from Gnumed.business import gmOrganization
-from Gnumed.business import gmEpisode
-
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmRegetMixin
-from Gnumed.wxpython import gmPhraseWheel
-from Gnumed.wxpython import gmEncounterWidgets
-from Gnumed.wxpython import gmListWidgets
 
 
 _log = logging.getLogger('gm.ui')
 
-#============================================================
-#============================================================
-#============================================================
-#============================================================
-#============================================================
-#============================================================
-#============================================================
-#============================================================
-#============================================================
-#============================================================
-#============================================================
-#============================================================
-#============================================================
-#============================================================
-#============================================================
-#============================================================
-#============================================================
-#============================================================
-# PACS
-#============================================================
-#============================================================
 #============================================================
 from Gnumed.wxGladeWidgets.wxgPACSPluginPnl import wxgPACSPluginPnl
 
@@ -1603,7 +1568,6 @@ if __name__ == '__main__':
 	#----------------------------------------------------------------
 	def test_plugin():
 		wx.Log.EnableLogging(enable = False)
-		#gmGuiTest.test_widget(cScanIdxDocsPnl, patient = 12)
 
 	#----------------------------------------------------------------
 	#----------------------------------------------------------------
