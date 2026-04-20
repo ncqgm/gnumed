@@ -35,5 +35,6 @@
 	</screenshot>
  </screenshots>
  <url type="homepage">https://www.gnumed.de</url>
- <update_contact>gnumed-devel_AT_gnu.org</update_contact>
+ <developer id="de.gnumed"><name>The GNUmed Team</name></developer>
+ <content_rating type="oars-1.1"/>
 </component>
