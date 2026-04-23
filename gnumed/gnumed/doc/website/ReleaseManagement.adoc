@@ -3,9 +3,11 @@ link:index.html[Home]
 .Release Management
 
 This page documents the suggested procedure to smoothly release a new
-version.
+version:
 
-:toc:
+* <<rel-xyrcn,Release Candidate>> (X.Y.rc1-n)
+* <<rel-xy0,Feature Release>> (X-Y-0)
+* <<rel-xyn,Maintenance Release>> (X-Y-1-n)
 
 == Before Release
 
@@ -21,7 +23,8 @@ tracker
 publisher topic]
 * initial round of link:ReleaseTesting[testing] for release fitness
 
-== Preparing _X.Y.rcN_ release candidates
+[#rel-xyrcn]
+== Preparing a Release Candidate (_X.Y.rc1-n_)
 
 === branch `master`
 
@@ -62,6 +65,8 @@ https://www.gnumed.de/downloads/[download area]
 * incorporate http://lists.gnu.org/archive/html/gnumed-devel/[feedback],
 fix https://bugs.launchpad.net/gnumed/+bugs[bugs]
 
+
+[#rel-xy0]
 == Preparing the _X.Y.0_ release
 
 * `git checkout master`
@@ -96,7 +101,8 @@ Create `rel-X-Y`:
 features]
 * update link:InstallerGuideHome[installation instructions]
 
-== Releasing an _X.Y.N_ version
+[#rel-xyn]
+== Doing a Maintenance Release (_X.Y.1-n_)
 
 * `git checkout rel-X-Y-maint`
 
@@ -134,16 +140,11 @@ _(wash/rinse/repeat as needed)_
 
 * upload to https://www.gnumed.de/downloads/["Savannah"]
 * adjust https://www.gnumed.de/downloads/gnumed-versions.txt[`gnumed-versions.txt` ]
-* update link:ReleaseStatus[release status] page
+* update link:index[release status] page
 
 * build packages for version X.Y.N
 ** Debian package
 ** Windows installer
-** Mandriva RPM
-** Suse RPM
-** Gentoo ebuild
-** MacOSX DMG image
-** ... ?
 * incorporate http://lists.gnu.org/archive/html/gnumed-devel/[feedback],
 fix https://bugs.launchpad.net/gnumed/+bugs[bugs]
 
