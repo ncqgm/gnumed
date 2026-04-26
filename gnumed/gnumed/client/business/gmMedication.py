@@ -3809,11 +3809,11 @@ def format_regimen_like_as_multiple_lines (
 
 	lines = []
 	# header
-	status = _('Ongoing')
+	status = _('Ongoing intake')
 	if regimen_like['discontinued'] and regimen_like['discontinued'] < gmDateTime.pydt_now_here():
-		status = _('Inactive')
+		status = _('Inactive intake')
 
-	lines.append(_('%s intake of "%s"') % (status, regimen_like['substance']) + '               ')
+	lines.append(_('%s of "%s"') % (status, regimen_like['substance']) + '               ')
 	# caveat
 	if allergy:
 		certainty = gmTools.bool2subst(allergy['definite'], _('definite'), _('suspected'))

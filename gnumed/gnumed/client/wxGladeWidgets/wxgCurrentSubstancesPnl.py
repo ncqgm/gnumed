@@ -31,44 +31,18 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
 		__szr_info.Add(self._LBL_gfr, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 
 		self._GSZR_lab = wx.GridSizer(0, 5, 2, 3)
-		__szr_info.Add(self._GSZR_lab, 1, wx.EXPAND, 3)
+		__szr_info.Add(self._GSZR_lab, 0, wx.EXPAND, 3)
 
 		self._GSZR_lab.Add((0, 0), 0, 0, 0)
 
 		self._GSZR_lab.Add((0, 0), 0, 0, 0)
 
 		self._GSZR_lab.Add((0, 0), 0, 0, 0)
-
-		self._HLINE_lab = wx.StaticLine(self, wx.ID_ANY)
-		self._HLINE_lab.Hide()
-		__szr_main.Add(self._HLINE_lab, 0, wx.BOTTOM | wx.EXPAND | wx.TOP, 2)
-
-		__szr_grouping = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_main.Add(__szr_grouping, 0, wx.EXPAND, 0)
-
-		__lbl_group = wx.StaticText(self, wx.ID_ANY, _("Sort by:"))
-		__szr_grouping.Add(__lbl_group, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
-
-		self._CHCE_grouping = wx.Choice(self, wx.ID_ANY, choices=[_("einlangerstring einlangerstring")])
-		self._CHCE_grouping.SetSelection(0)
-		__szr_grouping.Add(self._CHCE_grouping, 0, wx.EXPAND, 0)
-
-		__SLINE_grouping = wx.StaticLine(self, wx.ID_ANY, style=wx.LI_VERTICAL)
-		__szr_grouping.Add(__SLINE_grouping, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 10)
-
-		__lbl_filter = wx.StaticText(self, wx.ID_ANY, _("Include:"))
-		__szr_grouping.Add(__lbl_filter, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
-
-		self._CHBOX_show_discontinued = wx.CheckBox(self, wx.ID_ANY, _("Discontinued"))
-		self._CHBOX_show_discontinued.SetToolTip(_("Show discontinued substance intakes ?\n\nIf checked,  discontinued substance intakes will be shown, too.\n\nNote that this does not apply to discontinued (historic) regimen of ongoing substance intakes."))
-		__szr_grouping.Add(self._CHBOX_show_discontinued, 0, wx.EXPAND | wx.RIGHT, 5)
-
-		__szr_grouping.Add((20, 20), 1, wx.EXPAND, 0)
 
 		__szr_grid = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_main.Add(__szr_grid, 1, wx.EXPAND, 0)
 
-		self._grid_substances = cCurrentSubstancesGrid(self, wx.ID_ANY, size=(1, 1))
+		self._grid_substances = cCurrentSubstancesGrid(self, wx.ID_ANY)
 		__szr_grid.Add(self._grid_substances, 1, wx.EXPAND | wx.TOP, 5)
 
 		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
@@ -90,58 +64,62 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
 
 		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
 
+		self._CHBOX_show_discontinued = wx.CheckBox(self, wx.ID_ANY, _("Discontinued ##tx: \"discontinued intakes\""), style=wx.CHK_2STATE)
+		self._CHBOX_show_discontinued.SetToolTip(_("Show discontinued substance intakes ?\n\nIf checked,  discontinued substance intakes will be shown, too.\n\nNote that this does not apply to discontinued (historic) regimen of ongoing substance intakes."))
+		__szr_buttons.Add(self._CHBOX_show_discontinued, 0, wx.EXPAND, 5)
+
+		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+
 		self._BTN_print = wx.Button(self, wx.ID_PRINT, "", style=wx.BU_EXACTFIT)
 		self._BTN_print.SetToolTip(_("Print medication list."))
 		__szr_buttons.Add(self._BTN_print, 0, wx.EXPAND, 5)
 
-		self._BTN_rx = wx.Button(self, wx.ID_ANY, _(u"℞"), style=wx.BU_EXACTFIT)
+		self._BTN_rx = wx.Button(self, wx.ID_ANY, _(u" ℞ "), style=wx.BU_EXACTFIT)
 		self._BTN_rx.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
 		self._BTN_rx.SetToolTip(_("Prescribe:\n\n- selected substances or\n- via copy of the most recent prescription"))
 		__szr_buttons.Add(self._BTN_rx, 0, wx.EXPAND | wx.LEFT, 5)
 
 		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
 
-		self._BTN_info = wx.Button(self, wx.ID_ANY, _(u"🛈"), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
+		self._BTN_info = wx.Button(self, wx.ID_ANY, _(u" 🛈 "), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
 		self._BTN_info.SetForegroundColour(wx.Colour(0, 0, 255))
 		self._BTN_info.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
 		self._BTN_info.SetToolTip(_("Show in-depth information on the selected substance if available."))
 		__szr_buttons.Add(self._BTN_info, 0, wx.EXPAND, 5)
 
-		self._BTN_heart = wx.Button(self, wx.ID_ANY, _(u"🫀"), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
+		self._BTN_heart = wx.Button(self, wx.ID_ANY, _(u" 🫀 "), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
 		self._BTN_heart.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
 		self._BTN_heart.SetToolTip(_("Cardiological data."))
 		__szr_buttons.Add(self._BTN_heart, 0, wx.EXPAND, 5)
 
-		self._BTN_kidneys = wx.Button(self, wx.ID_ANY, _(u"🫘"), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
+		self._BTN_kidneys = wx.Button(self, wx.ID_ANY, _(u" 🫘 "), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
 		self._BTN_kidneys.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
 		self._BTN_kidneys.SetToolTip(_("Handling of drugs / the selected drug in the presence of renal insufficiency."))
 		__szr_buttons.Add(self._BTN_kidneys, 0, wx.EXPAND, 3)
 
-		self._BTN_lungs = wx.Button(self, wx.ID_ANY, _(u"🫁"), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
+		self._BTN_lungs = wx.Button(self, wx.ID_ANY, _(u" 🫁 "), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
 		self._BTN_lungs.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
 		self._BTN_lungs.SetToolTip(_("Pulmonary toxicity information."))
 		__szr_buttons.Add(self._BTN_lungs, 0, wx.EXPAND, 3)
 
-		self._BTN_pregnancy = wx.Button(self, wx.ID_ANY, _(u"🤰"), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
+		self._BTN_pregnancy = wx.Button(self, wx.ID_ANY, _(u" 🤰 "), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
 		self._BTN_pregnancy.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
 		self._BTN_pregnancy.SetToolTip(_("Embryo toxicity information."))
 		__szr_buttons.Add(self._BTN_pregnancy, 0, wx.EXPAND, 3)
 
-		__szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-
-		self._BTN_interactions = wx.Button(self, wx.ID_ANY, _(u"🗘?"), style=wx.BU_EXACTFIT)
+		self._BTN_interactions = wx.Button(self, wx.ID_ANY, _(u" 🗘? "), style=wx.BU_EXACTFIT)
 		self._BTN_interactions.SetForegroundColour(wx.Colour(255, 127, 0))
 		self._BTN_interactions.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
 		self._BTN_interactions.SetToolTip(_("Check for interactions between selected drugs.\n\nIncludes all drugs if none selected."))
 		__szr_buttons.Add(self._BTN_interactions, 0, wx.EXPAND, 5)
 
-		self._BTN_allergy = wx.Button(self, wx.ID_ANY, _(u"⚠!"), style=wx.BU_EXACTFIT)
+		self._BTN_allergy = wx.Button(self, wx.ID_ANY, _(u" ⚠! "), style=wx.BU_EXACTFIT)
 		self._BTN_allergy.SetForegroundColour(wx.Colour(255, 0, 0))
 		self._BTN_allergy.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
 		self._BTN_allergy.SetToolTip(_("Discontinue selected intake due to an allergy or intolerance."))
 		__szr_buttons.Add(self._BTN_allergy, 0, wx.EXPAND | wx.LEFT, 3)
 
-		self._BTN_adr = wx.Button(self, wx.ID_ANY, _(u"🖄"), style=wx.BU_EXACTFIT)
+		self._BTN_adr = wx.Button(self, wx.ID_ANY, _(u" 🖄 "), style=wx.BU_EXACTFIT)
 		self._BTN_adr.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
 		self._BTN_adr.SetToolTip(_("Report an Adverse Drug Reaction."))
 		__szr_buttons.Add(self._BTN_adr, 0, wx.EXPAND | wx.LEFT, 3)
@@ -153,30 +131,21 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
 
 		self.Layout()
 
-		self.Bind(wx.EVT_CHOICE, self._on_grouping_selected, self._CHCE_grouping)
-		self.Bind(wx.EVT_CHECKBOX, self._on_show_discontinued_checked, self._CHBOX_show_discontinued)
-		self.Bind(wx.EVT_BUTTON, self._on_add_button_pressed, self._BTN_add)
-		self.Bind(wx.EVT_BUTTON, self._on_edit_button_pressed, self._BTN_edit)
-		self.Bind(wx.EVT_BUTTON, self._on_delete_button_pressed, self._BTN_delete)
-		self.Bind(wx.EVT_BUTTON, self._on_print_button_pressed, self._BTN_print)
-		self.Bind(wx.EVT_BUTTON, self._on_rx_button_pressed, self._BTN_rx)
-		self.Bind(wx.EVT_BUTTON, self._on_info_button_pressed, self._BTN_info)
-		self.Bind(wx.EVT_BUTTON, self._on_heart_button_pressed, self._BTN_heart)
-		self.Bind(wx.EVT_BUTTON, self._on_kidneys_button_pressed, self._BTN_kidneys)
-		self.Bind(wx.EVT_BUTTON, self._on_lungs_button_pressed, self._BTN_lungs)
-		self.Bind(wx.EVT_BUTTON, self._on_pregnancy_button_pressed, self._BTN_pregnancy)
-		self.Bind(wx.EVT_BUTTON, self._on_interactions_button_pressed, self._BTN_interactions)
-		self.Bind(wx.EVT_BUTTON, self._on_allergy_button_pressed, self._BTN_allergy)
-		self.Bind(wx.EVT_BUTTON, self._on_adr_button_pressed, self._BTN_adr)
+		self._BTN_add.Bind(wx.EVT_BUTTON, self._on_add_button_pressed)
+		self._BTN_edit.Bind(wx.EVT_BUTTON, self._on_edit_button_pressed)
+		self._BTN_delete.Bind(wx.EVT_BUTTON, self._on_delete_button_pressed)
+		self._CHBOX_show_discontinued.Bind(wx.EVT_CHECKBOX, self._on_show_discontinued_checked)
+		self._BTN_print.Bind(wx.EVT_BUTTON, self._on_print_button_pressed)
+		self._BTN_rx.Bind(wx.EVT_BUTTON, self._on_rx_button_pressed)
+		self._BTN_info.Bind(wx.EVT_BUTTON, self._on_info_button_pressed)
+		self._BTN_heart.Bind(wx.EVT_BUTTON, self._on_heart_button_pressed)
+		self._BTN_kidneys.Bind(wx.EVT_BUTTON, self._on_kidneys_button_pressed)
+		self._BTN_lungs.Bind(wx.EVT_BUTTON, self._on_lungs_button_pressed)
+		self._BTN_pregnancy.Bind(wx.EVT_BUTTON, self._on_pregnancy_button_pressed)
+		self._BTN_interactions.Bind(wx.EVT_BUTTON, self._on_interactions_button_pressed)
+		self._BTN_allergy.Bind(wx.EVT_BUTTON, self._on_allergy_button_pressed)
+		self._BTN_adr.Bind(wx.EVT_BUTTON, self._on_adr_button_pressed)
 		# end wxGlade
-
-	def _on_grouping_selected(self, event):  # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
-		print("Event handler '_on_grouping_selected' not implemented!")
-		event.Skip()
-
-	def _on_show_discontinued_checked(self, event):  # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
-		print("Event handler '_on_show_discontinued_checked' not implemented!")
-		event.Skip()
 
 	def _on_add_button_pressed(self, event):  # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
 		print("Event handler '_on_add_button_pressed' not implemented!")
@@ -188,6 +157,10 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
 
 	def _on_delete_button_pressed(self, event):  # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
 		print("Event handler '_on_delete_button_pressed' not implemented!")
+		event.Skip()
+
+	def _on_show_discontinued_checked(self, event):  # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
+		print("Event handler '_on_show_discontinued_checked' not implemented!")
 		event.Skip()
 
 	def _on_print_button_pressed(self, event):  # wxGlade: wxgCurrentSubstancesPnl.<event_handler>

@@ -10,7 +10,6 @@ import datetime as pydt
 
 
 import wx
-import wx.grid
 
 
 if __name__ == '__main__':
@@ -50,22 +49,19 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl.__init__(self, *args, **kwargs)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
-		self.__grouping_choice_labels = [
-			{'label': _('Health issue'), 'data': 'issue'} ,
-			{'label': _('Episode'), 'data': 'episode'},
-			{'label': _('Started'), 'data': 'start'}
-		]
+#		self.__grouping_choice_labels = [
+#			{'label': _('Health issue'), 'data': 'issue'} ,
+#			{'label': _('Episode'), 'data': 'episode'},
+#			{'label': _('Started'), 'data': 'start'}
+#		]
 		self.__lab_panel = None
 
-		self.__init_ui()
+		#self.__init_ui()
 		self.__register_interests()
 
 	#-----------------------------------------------------
-	def __init_ui(self):
-		self._CHCE_grouping.Clear()
-		for option in self.__grouping_choice_labels:
-			self._CHCE_grouping.Append(option['label'], option['data'])
-		self._CHCE_grouping.SetSelection(0)
+#	def __init_ui(self):
+#		pass
 
 	#-----------------------------------------------------
 	# reget-on-paint mixin API
@@ -259,7 +255,6 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 	def __refresh_lab(self, patient):
 
 		self._GSZR_lab.Clear(True)		# also delete child windows
-		self._HLINE_lab.Hide()
 		if not patient:
 			self.Layout()
 			return
@@ -323,8 +318,6 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		# eventually add most-recent results from monitoring panel and substances monitoring
 		self.__refresh_most_recent_results(most_recent_results, loinc_max_age, loinc_max_age_str, loincs2monitor_data)
 		self.__refresh_missing_by_loinc(loincs2monitor - loincs_found, loincs2monitor_data)
-
-		self._HLINE_lab.Show()
 		self.Layout()
 
 	#--------------------------------------------------------
@@ -436,13 +429,6 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 	#--------------------------------------------------------
 	def _on_interactions_button_pressed(self, event):
 		self._grid_substances.check_interactions()
-	#--------------------------------------------------------
-	def _on_grouping_selected(self, event):
-		event.Skip()
-		selected_item_idx = self._CHCE_grouping.GetSelection()
-		if selected_item_idx is wx.NOT_FOUND:
-			return
-		self._grid_substances.grouping_mode = self._CHCE_grouping.GetClientData(selected_item_idx)
 
 	#--------------------------------------------------------
 	def _on_show_discontinued_checked(self, event):
@@ -494,7 +480,7 @@ if __name__ == "__main__":
 	del _
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
-	gmI18N.install_domain('gnumed')
+	gmI18N.install_domain('gnumed', prefer_local_catalog = True)
 
 	from Gnumed.wxpython import gmGuiTest
 

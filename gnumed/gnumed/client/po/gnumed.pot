@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-14 16:29+0100\n"
+"POT-Creation-Date: 2026-04-26 16:36+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -70,6 +70,11 @@ msgid ""
 "Your system does not seem to have a (working)\n"
 "editor or viewer registered for the file type\n"
 " [%s]"
+msgstr ""
+
+msgid ""
+"Hints##tx: notes on substance intake for patient/providers/ourselves in grid "
+"view"
 msgstr ""
 
 msgid "Translate this or i18n into <en_EN> will not work properly !"
@@ -721,16 +726,16 @@ msgstr ""
 msgid "GFR: ?"
 msgstr ""
 
-msgid "Sort by:"
+msgid "Add intake."
 msgstr ""
 
-msgid "einlangerstring einlangerstring"
+msgid "Edit selected intake."
 msgstr ""
 
-msgid "Include:"
+msgid "Delete selected intake."
 msgstr ""
 
-msgid "Discontinued"
+msgid "Discontinued ##tx: \"discontinued intakes\""
 msgstr ""
 
 msgid ""
@@ -742,19 +747,10 @@ msgid ""
 "substance intakes."
 msgstr ""
 
-msgid "Add intake."
-msgstr ""
-
-msgid "Edit selected intake."
-msgstr ""
-
-msgid "Delete selected intake."
-msgstr ""
-
 msgid "Print medication list."
 msgstr ""
 
-msgid "℞"
+msgid " ℞ "
 msgstr ""
 
 msgid ""
@@ -764,38 +760,38 @@ msgid ""
 "- via copy of the most recent prescription"
 msgstr ""
 
-msgid "🛈"
+msgid " 🛈 "
 msgstr ""
 
 msgid "Show in-depth information on the selected substance if available."
 msgstr ""
 
-msgid "🫀"
+msgid " 🫀 "
 msgstr ""
 
 msgid "Cardiological data."
 msgstr ""
 
-msgid "🫘"
+msgid " 🫘 "
 msgstr ""
 
 msgid ""
 "Handling of drugs / the selected drug in the presence of renal insufficiency."
 msgstr ""
 
-msgid "🫁"
+msgid " 🫁 "
 msgstr ""
 
 msgid "Pulmonary toxicity information."
 msgstr ""
 
-msgid "🤰"
+msgid " 🤰 "
 msgstr ""
 
 msgid "Embryo toxicity information."
 msgstr ""
 
-msgid "🗘?"
+msgid " 🗘? "
 msgstr ""
 
 msgid ""
@@ -804,13 +800,13 @@ msgid ""
 "Includes all drugs if none selected."
 msgstr ""
 
-msgid "⚠!"
+msgid " ⚠! "
 msgstr ""
 
 msgid "Discontinue selected intake due to an allergy or intolerance."
 msgstr ""
 
-msgid "🖄"
+msgid " 🖄 "
 msgstr ""
 
 msgid "Report an Adverse Drug Reaction."
@@ -3555,6 +3551,9 @@ msgstr ""
 msgid "Active problems"
 msgstr ""
 
+msgid "Include:"
+msgstr ""
+
 msgid "Schock index"
 msgstr ""
 
@@ -4139,6 +4138,9 @@ msgid "Aim"
 msgstr ""
 
 msgid "Advice"
+msgstr ""
+
+msgid "Discontinued"
 msgstr ""
 
 msgid "Select an existing or type in a new substance."
@@ -5121,10 +5123,22 @@ msgstr ""
 msgid "Research"
 msgstr ""
 
+msgid "🫀"
+msgstr ""
+
 msgid "Cardiac information relevant to this substance."
 msgstr ""
 
+msgid "🫘"
+msgstr ""
+
 msgid "Renal insufficiency information related to this substance."
+msgstr ""
+
+msgid "🫁"
+msgstr ""
+
+msgid "🤰"
 msgstr ""
 
 msgid "Edit staff details"
@@ -5828,7 +5842,7 @@ msgid "units"
 msgstr ""
 
 #, python-format
-msgid "Substance: %s %s"
+msgid "Substance: %s %s %s"
 msgstr ""
 
 #, python-format
@@ -6008,11 +6022,14 @@ msgstr ""
 msgid "Regimen revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
 msgstr ""
 
-msgid "Inactive"
+msgid "Ongoing intake"
+msgstr ""
+
+msgid "Inactive intake"
 msgstr ""
 
 #, python-format
-msgid "%s intake of \"%s\""
+msgid "%s of \"%s\""
 msgstr ""
 
 #, python-format
@@ -9378,9 +9395,11 @@ msgid ""
 "Enter the shell command with which to start\n"
 "the image editor for visual progress notes.\n"
 "\n"
-"Any \"%(img)s\" included with the arguments\n"
-"will be replaced by the file name of the\n"
-"note template."
+"Any \"%(img)s\" included with the arguments will be\n"
+"replaced by the file name of the note template.\n"
+"\n"
+"If you leave this unset GNUmed will show and store\n"
+"the image but will not detect any modifications."
 msgstr ""
 
 msgid "Choose file to use as template for new visual progress note"
@@ -9408,40 +9427,13 @@ msgstr ""
 msgid "Cannot export visual progress note template for [%s]."
 msgstr ""
 
+msgid "Editor for visual progress note left configured."
+msgstr ""
+
+msgid "visual progress notes"
+msgstr ""
+
 msgid "Cannot export visual progress note to file."
-msgstr ""
-
-msgid "Editor for visual progress note not configured."
-msgstr ""
-
-#, python-format
-msgid ""
-"There is no editor for visual progress notes defined.\n"
-"Also, there is no editor command defined for the file type\n"
-"\n"
-" [%s].\n"
-"\n"
-"Therefor GNUmed attempted to at least *show* this\n"
-"visual progress note. That failed as well, however:\n"
-"\n"
-"%s"
-msgstr ""
-
-msgid "Editing visual progress note"
-msgstr ""
-
-#, python-format
-msgid ""
-"There was a problem running the editor\n"
-"\n"
-" [%s] (%s)\n"
-"\n"
-"on the visual progress note.\n"
-"\n"
-"Therefor GNUmed attempted to at least *show* it.\n"
-"That failed as well, however:\n"
-"\n"
-"%s"
 msgstr ""
 
 #, python-format
@@ -9456,18 +9448,32 @@ msgstr ""
 msgid "Saving visual progress note"
 msgstr ""
 
+#, python-format
 msgid ""
-"You either created a visual progress note from a template\n"
-"in the database (rather than from a file on disk) or you\n"
-"edited an existing visual progress note.\n"
+"There is no editor for visual progress notes defined.\n"
+"Also, there is no editor command defined for image files.\n"
 "\n"
-"The template/original was not modified at all, however.\n"
+"GNUmed attempted to at least *show* this\n"
+"visual progress note. That failed as well:\n"
 "\n"
-"Do you still want to save the unmodified image as a\n"
-"visual progress note into the EMR of the patient ?\n"
+"%s"
 msgstr ""
 
-msgid "visual progress notes"
+msgid "Editing visual progress note"
+msgstr ""
+
+#, python-format
+msgid ""
+"There was a problem running the editor\n"
+"\n"
+" [%s]\n"
+"\n"
+"on the visual progress note.\n"
+"\n"
+"GNUmed attempted to at least *show* it.\n"
+"That failed as well:\n"
+"\n"
+"%s"
 msgstr ""
 
 #, python-format
@@ -9783,6 +9789,355 @@ msgstr ""
 msgid "Notes for the patient on this substance intake."
 msgstr ""
 
+msgid "Authority"
+msgstr ""
+
+msgid "Method"
+msgstr ""
+
+msgid "Body part"
+msgstr ""
+
+msgid "DICOM field"
+msgstr ""
+
+msgid "Show in DICOM viewer"
+msgstr ""
+
+msgid "Show in image viewer"
+msgstr ""
+
+msgid "Copy to export area"
+msgstr ""
+
+msgid "Save as DICOM file (.dcm)"
+msgstr ""
+
+msgid "Save as image file (.png)"
+msgstr ""
+
+msgid "Selected into export area"
+msgstr ""
+
+msgid "ZIP of selected into export area"
+msgstr ""
+
+msgid "All into export area"
+msgstr ""
+
+msgid "ZIP of all into export area"
+msgstr ""
+
+msgid "Save selected"
+msgstr ""
+
+msgid "Save ZIP of selected"
+msgstr ""
+
+msgid "Save all"
+msgstr ""
+
+msgid "Save ZIP of all"
+msgstr ""
+
+msgid "Add file to study (PDF/image)"
+msgstr ""
+
+msgid "Cannot connect without port (try 8042)."
+msgstr ""
+
+msgid "Invalid port (try 8042)."
+msgstr ""
+
+#, python-format
+msgid "Connect to [%s] @ port %s as \"%s\"."
+msgstr ""
+
+msgid "Cannot connect to PACS."
+msgstr ""
+
+#, python-format
+msgid "PACS (Orthanc): \"%s\" (AET \"%s\") [%s]"
+msgstr ""
+
+msgid "no SSL"
+msgstr ""
+
+msgid "SSL: in use"
+msgstr ""
+
+msgid "SSL: NOT in use"
+msgstr ""
+
+msgid "Server details:"
+msgstr ""
+
+msgid "Known PACS IDs:"
+msgstr ""
+
+#, python-format
+msgid "stored: \"%(value)s\" @ [%(issuer)s]"
+msgstr ""
+
+msgid "Patients found in PACS:"
+msgstr ""
+
+msgid "PACS: no patients with matching IDs found"
+msgstr ""
+
+msgid ""
+"PACS: more than one patient with matching IDs found, carefully check studies"
+msgstr ""
+
+#, python-format
+msgid "Studies found: %s"
+msgstr ""
+
+#, python-format
+msgid "%s series%s"
+msgstr ""
+
+msgid "Series"
+msgstr ""
+
+#, python-format
+msgid "Image %s/%s"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot show image:\n"
+"%s"
+msgstr ""
+
+msgid "Previewing DICOM image"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot show in DICOM or image viewer:\n"
+"%s"
+msgstr ""
+
+msgid "Cannot save image as DICOM file."
+msgstr ""
+
+msgid "Saving DICOM image"
+msgstr ""
+
+#, python-format
+msgid "Successfully saved as [%s]."
+msgstr ""
+
+msgid "Cannot save image as PNG file."
+msgstr ""
+
+#, python-format
+msgid "DICOM image of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
+msgstr ""
+
+msgid "Successfully stored in export area."
+msgstr ""
+
+msgid "Showing DICOM studies"
+msgstr ""
+
+msgid "Unable to show selected studies."
+msgstr ""
+
+msgid "Copying DICOM studies"
+msgstr ""
+
+msgid "Unable to put studies into export area."
+msgstr ""
+
+#, python-format
+msgid "DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\") [%s/]"
+msgstr ""
+
+msgid "Adding DICOM studies to export area"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot add the following path to the export area:\n"
+"%s "
+msgstr ""
+
+msgid "Unable to put ZIP of studies into export area."
+msgstr ""
+
+msgid "Exporting DICOM studies"
+msgstr ""
+
+#, python-format
+msgid ""
+"The DICOM studies are %s in compressed size.\n"
+"\n"
+"Really move into export area ?"
+msgstr ""
+
+#, python-format
+msgid "DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot add the following archive to the export area:\n"
+"%s "
+msgstr ""
+
+msgid "Select the directory into which to save the DICOM studies."
+msgstr ""
+
+msgid "Saving DICOM studies"
+msgstr ""
+
+msgid "Unable to save DICOM studies."
+msgstr ""
+
+#, python-format
+msgid "Successfully saved to [%s]."
+msgstr ""
+
+msgid "Select the directory into which to save the DICOM studies ZIP."
+msgstr ""
+
+msgid "Unable to save DICOM studies as ZIP."
+msgstr ""
+
+msgid "Adding file to DICOM study"
+msgstr ""
+
+msgid "For adding a file there must be exactly one (1) DICOM study selected."
+msgstr ""
+
+msgid "Select file (image or PDF) to add to DICOM study"
+msgstr ""
+
+msgid "PDF files"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot turn file\n"
+"\n"
+" %s\n"
+"\n"
+" into DICOM file."
+msgstr ""
+
+#, python-format
+msgid "Successfully uploaded [%s] to Orthanc DICOM server."
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot updload DICOM file\n"
+"\n"
+" %s\n"
+"\n"
+" into Orthanc PACS."
+msgstr ""
+
+#, python-format
+msgid "%s image(s)%s"
+msgstr ""
+
+msgid "Select the directory from which to recursively upload DICOM files."
+msgstr ""
+
+msgid "No files uploaded."
+msgstr ""
+
+msgid "Uploading DICOM files"
+msgstr ""
+
+msgid "Delete the uploaded DICOM files now ?"
+msgstr ""
+
+msgid ""
+"Some files have not been uploaded.\n"
+"\n"
+"Do you want to delete those DICOM files which *have* been sent to the PACS "
+"successfully ?"
+msgstr ""
+
+msgid ""
+"Information has been added to the PACS for the following patients:\n"
+"\n"
+msgstr ""
+
+#, python-format
+msgid "Working on: Orthanc \"%s\" (AET \"%s\" @ %s:%s, Version %s)"
+msgstr ""
+
+msgid "Successfully verified DICOM data of patient."
+msgstr ""
+
+msgid "DICOM data error"
+msgstr ""
+
+msgid ""
+"There seems to be a data error in the DICOM files\n"
+"stored in the Orthanc server.\n"
+"\n"
+"Please check the inbox."
+msgstr ""
+
+msgid ""
+"Checksum error in DICOM data of this patient.\n"
+"\n"
+msgstr ""
+
+#, python-format
+msgid ""
+"DICOM server: %s\n"
+"\n"
+msgstr ""
+
+#, python-format
+msgid ""
+"Orthanc patient ID [%s]\n"
+" %s: [%s]\n"
+msgstr ""
+
+msgid "error report"
+msgstr ""
+
+msgid "DICOM data corruption"
+msgstr ""
+
+msgid "Study date"
+msgstr ""
+
+msgid "Patient ID (DICOM study)"
+msgstr ""
+
+msgid "Birth date"
+msgstr ""
+
+msgid "Patient UID (Orthanc)"
+msgstr ""
+
+msgid "Modifying patient ID"
+msgstr ""
+
+#, python-format
+msgid ""
+"Really modify %s DICOM studies to have the new patient ID\n"
+"\n"
+" [%s]\n"
+"\n"
+"stored in the Orthanc DICOM server ?"
+msgstr ""
+
+msgid ""
+"I was unable to modify all DICOM studies selected.\n"
+"\n"
+"Please refer to the log file."
+msgstr ""
+
 msgid "icon_syringe"
 msgstr ""
 
@@ -9804,10 +10159,10 @@ msgstr ""
 msgid "icon_clinical_summary"
 msgstr ""
 
-msgid "Timeframe"
+msgid "Substance##tx: active ingredient"
 msgstr ""
 
-msgid "Notes"
+msgid "Timeframe"
 msgstr ""
 
 #, python-format
@@ -9834,6 +10189,16 @@ msgstr ""
 msgid "Checking for client updates"
 msgstr ""
 
+msgid "<any user>"
+msgstr ""
+
+#, python-format
+msgid "workplace \"%s\""
+msgstr ""
+
+msgid "<any workplace>"
+msgstr ""
+
 msgid "Deleting option"
 msgstr ""
 
@@ -9852,13 +10217,13 @@ msgstr ""
 msgid "All configured options"
 msgstr ""
 
+msgid "Option"
+msgstr ""
+
 msgid "User"
 msgstr ""
 
 msgid "Workplace"
-msgstr ""
-
-msgid "Option"
 msgstr ""
 
 msgid "Configuration"
@@ -10818,18 +11183,6 @@ msgid ""
 msgstr ""
 
 msgid "Configuring workplace plugins ..."
-msgstr ""
-
-#, python-format
-msgid ""
-"\n"
-"Select the plugin(s) to be loaded the next time\n"
-"the client is restarted under the workplace:\n"
-"\n"
-" [%s]\n"
-msgstr ""
-
-msgid "Plugins"
 msgstr ""
 
 msgid "Enter a name for the new workplace !"
@@ -12358,12 +12711,6 @@ msgstr ""
 msgid "Adding path to export area"
 msgstr ""
 
-#, python-format
-msgid ""
-"Cannot add the following path to the export area:\n"
-"%s "
-msgstr ""
-
 msgid "Select the documents to be put into the export area:"
 msgstr ""
 
@@ -13314,349 +13661,6 @@ msgid "Are you sure you want to delete the document ?"
 msgstr ""
 
 msgid "Deleting document"
-msgstr ""
-
-msgid "Authority"
-msgstr ""
-
-msgid "Method"
-msgstr ""
-
-msgid "Body part"
-msgstr ""
-
-msgid "DICOM field"
-msgstr ""
-
-msgid "Show in DICOM viewer"
-msgstr ""
-
-msgid "Show in image viewer"
-msgstr ""
-
-msgid "Copy to export area"
-msgstr ""
-
-msgid "Save as DICOM file (.dcm)"
-msgstr ""
-
-msgid "Save as image file (.png)"
-msgstr ""
-
-msgid "Selected into export area"
-msgstr ""
-
-msgid "ZIP of selected into export area"
-msgstr ""
-
-msgid "All into export area"
-msgstr ""
-
-msgid "ZIP of all into export area"
-msgstr ""
-
-msgid "Save selected"
-msgstr ""
-
-msgid "Save ZIP of selected"
-msgstr ""
-
-msgid "Save all"
-msgstr ""
-
-msgid "Save ZIP of all"
-msgstr ""
-
-msgid "Add file to study (PDF/image)"
-msgstr ""
-
-msgid "Cannot connect without port (try 8042)."
-msgstr ""
-
-msgid "Invalid port (try 8042)."
-msgstr ""
-
-#, python-format
-msgid "Connect to [%s] @ port %s as \"%s\"."
-msgstr ""
-
-msgid "Cannot connect to PACS."
-msgstr ""
-
-#, python-format
-msgid "PACS (Orthanc): \"%s\" (AET \"%s\") [%s]"
-msgstr ""
-
-msgid "no SSL"
-msgstr ""
-
-msgid "SSL: in use"
-msgstr ""
-
-msgid "SSL: NOT in use"
-msgstr ""
-
-msgid "Server details:"
-msgstr ""
-
-msgid "Known PACS IDs:"
-msgstr ""
-
-#, python-format
-msgid "stored: \"%(value)s\" @ [%(issuer)s]"
-msgstr ""
-
-msgid "Patients found in PACS:"
-msgstr ""
-
-msgid "PACS: no patients with matching IDs found"
-msgstr ""
-
-msgid ""
-"PACS: more than one patient with matching IDs found, carefully check studies"
-msgstr ""
-
-#, python-format
-msgid "Studies found: %s"
-msgstr ""
-
-#, python-format
-msgid "%s series%s"
-msgstr ""
-
-msgid "Series"
-msgstr ""
-
-#, python-format
-msgid "Image %s/%s"
-msgstr ""
-
-#, python-format
-msgid ""
-"Cannot show image:\n"
-"%s"
-msgstr ""
-
-msgid "Previewing DICOM image"
-msgstr ""
-
-#, python-format
-msgid ""
-"Cannot show in DICOM or image viewer:\n"
-"%s"
-msgstr ""
-
-msgid "Cannot save image as DICOM file."
-msgstr ""
-
-msgid "Saving DICOM image"
-msgstr ""
-
-#, python-format
-msgid "Successfully saved as [%s]."
-msgstr ""
-
-msgid "Cannot save image as PNG file."
-msgstr ""
-
-#, python-format
-msgid "DICOM image of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
-msgstr ""
-
-msgid "Successfully stored in export area."
-msgstr ""
-
-msgid "Showing DICOM studies"
-msgstr ""
-
-msgid "Unable to show selected studies."
-msgstr ""
-
-msgid "Copying DICOM studies"
-msgstr ""
-
-msgid "Unable to put studies into export area."
-msgstr ""
-
-#, python-format
-msgid "DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\") [%s/]"
-msgstr ""
-
-msgid "Adding DICOM studies to export area"
-msgstr ""
-
-msgid "Unable to put ZIP of studies into export area."
-msgstr ""
-
-msgid "Exporting DICOM studies"
-msgstr ""
-
-#, python-format
-msgid ""
-"The DICOM studies are %s in compressed size.\n"
-"\n"
-"Really move into export area ?"
-msgstr ""
-
-#, python-format
-msgid "DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
-msgstr ""
-
-#, python-format
-msgid ""
-"Cannot add the following archive to the export area:\n"
-"%s "
-msgstr ""
-
-msgid "Select the directory into which to save the DICOM studies."
-msgstr ""
-
-msgid "Saving DICOM studies"
-msgstr ""
-
-msgid "Unable to save DICOM studies."
-msgstr ""
-
-#, python-format
-msgid "Successfully saved to [%s]."
-msgstr ""
-
-msgid "Select the directory into which to save the DICOM studies ZIP."
-msgstr ""
-
-msgid "Unable to save DICOM studies as ZIP."
-msgstr ""
-
-msgid "Adding file to DICOM study"
-msgstr ""
-
-msgid "For adding a file there must be exactly one (1) DICOM study selected."
-msgstr ""
-
-msgid "Select file (image or PDF) to add to DICOM study"
-msgstr ""
-
-msgid "PDF files"
-msgstr ""
-
-#, python-format
-msgid ""
-"Cannot turn file\n"
-"\n"
-" %s\n"
-"\n"
-" into DICOM file."
-msgstr ""
-
-#, python-format
-msgid "Successfully uploaded [%s] to Orthanc DICOM server."
-msgstr ""
-
-#, python-format
-msgid ""
-"Cannot updload DICOM file\n"
-"\n"
-" %s\n"
-"\n"
-" into Orthanc PACS."
-msgstr ""
-
-#, python-format
-msgid "%s image(s)%s"
-msgstr ""
-
-msgid "Select the directory from which to recursively upload DICOM files."
-msgstr ""
-
-msgid "No files uploaded."
-msgstr ""
-
-msgid "Uploading DICOM files"
-msgstr ""
-
-msgid "Delete the uploaded DICOM files now ?"
-msgstr ""
-
-msgid ""
-"Some files have not been uploaded.\n"
-"\n"
-"Do you want to delete those DICOM files which *have* been sent to the PACS "
-"successfully ?"
-msgstr ""
-
-msgid ""
-"Information has been added to the PACS for the following patients:\n"
-"\n"
-msgstr ""
-
-#, python-format
-msgid "Working on: Orthanc \"%s\" (AET \"%s\" @ %s:%s, Version %s)"
-msgstr ""
-
-msgid "Successfully verified DICOM data of patient."
-msgstr ""
-
-msgid "DICOM data error"
-msgstr ""
-
-msgid ""
-"There seems to be a data error in the DICOM files\n"
-"stored in the Orthanc server.\n"
-"\n"
-"Please check the inbox."
-msgstr ""
-
-msgid ""
-"Checksum error in DICOM data of this patient.\n"
-"\n"
-msgstr ""
-
-#, python-format
-msgid ""
-"DICOM server: %s\n"
-"\n"
-msgstr ""
-
-#, python-format
-msgid ""
-"Orthanc patient ID [%s]\n"
-" %s: [%s]\n"
-msgstr ""
-
-msgid "error report"
-msgstr ""
-
-msgid "DICOM data corruption"
-msgstr ""
-
-msgid "Study date"
-msgstr ""
-
-msgid "Patient ID (DICOM study)"
-msgstr ""
-
-msgid "Birth date"
-msgstr ""
-
-msgid "Patient UID (Orthanc)"
-msgstr ""
-
-msgid "Modifying patient ID"
-msgstr ""
-
-#, python-format
-msgid ""
-"Really modify %s DICOM studies to have the new patient ID\n"
-"\n"
-" [%s]\n"
-"\n"
-"stored in the Orthanc DICOM server ?"
-msgstr ""
-
-msgid ""
-"I was unable to modify all DICOM studies selected.\n"
-"\n"
-"Please refer to the log file."
 msgstr ""
 
 #, python-format
@@ -17860,6 +17864,9 @@ msgid "progress notes (sash)"
 msgstr ""
 
 msgid "progress notes"
+msgstr ""
+
+msgid "Notes"
 msgstr ""
 
 msgid "&Notes"
