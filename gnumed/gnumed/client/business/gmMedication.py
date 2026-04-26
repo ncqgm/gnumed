@@ -2380,14 +2380,14 @@ def get_intakes_with_regimens (
 		where_parts.append('pk_substance = %(pk_subst)s')
 		args['pk_subst'] = pk_substance
 	if order_by:
-		order_by = 'ORDER BY %s' % order_by
+		order_by = '\nORDER BY %s' % order_by
 	else:
 		order_by = ''
-	cmd = _SQL_get_intake_with_regimen % ('%s %s' % (
+	sql = _SQL_get_intake_with_regimen % ('%s %s' % (
 		'\nAND '.join(where_parts),
 		order_by
 	))
-	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
+	rows = gmPG2.run_ro_queries(queries = [{'sql': sql, 'args': args}])
 	return [ cIntakeWithRegimen(row = {
 		'data': r,
 		'pk_obj': {'pk_intake_regimen': r['pk_intake_regimen'], 'pk_intake': r['pk_intake']}

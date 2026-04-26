@@ -132,7 +132,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		return self.__row_data.values()
 
 	#------------------------------------------------------------
-	def __populate_cells_by_substance(self, meds:list, emr):
+	def __populate_cells(self, meds:list, emr):
 		for row_idx in range(len(meds)):
 			med = meds[row_idx]
 			self.__row_data[row_idx] = med
@@ -202,7 +202,6 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 		emr = self.__patient.emr
 		meds = emr.get_intakes (
-			#order_by = self.__grouping2order_by_clauses[self.__grouping_mode],
 			order_by = self.__sort_col_idx2order_by_clauses[self.__sort_col_idx],
 			include_inactive = self.__filter_show_discontinued,
 			exclude_medications = False,
@@ -219,7 +218,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		self.SetColLabelValue(self.__sort_col_idx, sort_col_label)
 		self.AppendRows(numRows = len(meds))
 		self.__row_data = {}
-		self.__populate_cells_by_substance(meds, emr)
+		self.__populate_cells(meds, emr)
 		self.AutoSize()
 		self.EndBatch()
 
