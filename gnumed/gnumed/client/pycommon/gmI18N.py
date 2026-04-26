@@ -101,6 +101,8 @@ if __name__ == "__main__":
 system_locale = ''
 system_locale_level = {}
 
+TRANSLATOR_COMMENT_INDICATOR = r'##tx:'
+
 _translate_via_gettext = lambda x:x
 _substitutes_regex = regex.compile(r'%\(.+?\)s')
 
@@ -254,30 +256,61 @@ def __log_locale_settings(message=None):
 	__log_nl_langinfo(loc_enc)
 
 #---------------------------------------------------------------------------
+def __decomment_string(term:str) -> str:
+	"""Remove translator comment (%s) from string.""" % TRANSLATOR_COMMENT_INDICATOR
+	decommented = term.rsplit(sep = TRANSLATOR_COMMENT_INDICATOR, maxsplit = 1)[0]
+	if decommented.strip():
+		return decommented
+
+	_log.debug('string >>>%s<<< decomments to empty, returning full string', term)
+	return term
+
+#---------------------------------------------------------------------------
 def _translate_safely(term):
 	"""This wraps _().
 
 	It protects against translation errors such as a different number of "%s".
-	"""
-	translation = _translate_via_gettext(term)
 
+	It also removes trailing translator comments starting with %(ind)s:
+
+		'string to translate   ##tx: a free comment for translators, such as a hint regarding the intended meaning in-context'
+
+	GNUmed will strip trailing characters, starting with the
+	rightmost occurrence of '##tx:', up until the right-hand
+	end of the string. Note that whitespace trailing the
+	to-be-translated string is treated as significant:
+
+		'Note (##tx:):  ##tx: to mean <clinical note>, or <EMR entry>, not <indication> or <hint>'
+
+		-> 'Note (##tx:):  ' -> looked up for translation
+
+	In case stripping leads to an emtpy string the original
+	string is returned such that the translation issue will
+	show up in in the GUI.
+	""" % {'ind': TRANSLATOR_COMMENT_INDICATOR}
+	term_decommented = __decomment_string(term)
+	trans = _translate_via_gettext(term)
+	trans_decommented = __decomment_string(trans)
 	# different number of %s substitutes ?
-	if translation.count('%s') != term.count('%s'):
+	if trans_decommented.count('%s') != term_decommented.count('%s'):
 		_log.error('count("%s") mismatch, returning untranslated string')
 		_log.error('original   : %s', term)
-		_log.error('translation: %s', translation)
-		return term
+		_log.error('original   : %s (decommented)', term_decommented)
+		_log.error('translation: %s', trans)
+		_log.error('translation: %s (decommented)', trans_decommented)
+		return term_decommented
 
-	substitution_keys_in_original = set(_substitutes_regex.findall(term))
-	substitution_keys_in_translation = set(_substitutes_regex.findall(translation))
-
+	substitution_keys_in_original = set(_substitutes_regex.findall(term_decommented))
+	substitution_keys_in_translation = set(_substitutes_regex.findall(trans_decommented))
 	if not substitution_keys_in_translation.issubset(substitution_keys_in_original):
 		_log.error('"%(...)s" keys in translation not a subset of keys in original, returning untranslated string')
 		_log.error('original   : %s', term)
-		_log.error('translation: %s', translation)
-		return term
+		_log.error('original   : %s (decommented)', term_decommented)
+		_log.error('translation: %s', trans)
+		_log.error('translation: %s (decommented)', trans_decommented)
+		return term_decommented
 
-	return translation
+	return trans_decommented
 
 #---------------------------------------------------------------------------
 # external API
@@ -536,6 +569,7 @@ if __name__ == "__main__":
 	sys.path.insert(0, '../../')
 	from Gnumed.pycommon import gmLog2
 	gmLog2.print_logfile_name()
+
 	#----------------------------------------------------------------------
 	def test_strcoll():
 		candidates = [
@@ -562,12 +596,16 @@ if __name__ == "__main__":
 
 	#----------------------------------------------------------------------
 	def test_translating():
-		txt = 'test without placeholder'
-		print(txt, '->', _(txt))
-		txt = 'test with placeholder: %s'
-		print(txt, '->', _(txt))
-		txt = 'test with placeholder and percent (%) sign: %s'
-		print(txt, '->', _(txt))
+		print(_('Hints##tx: notes on substance intake for patient/providers/ourselves in grid view'))
+#		txt = 'test without placeholder'
+#		print(txt, '->', _(txt))
+#		txt = 'test with placeholder: %s'
+#		print(txt, '->', _(txt))
+#		txt = 'test with placeholder and percent (%) sign: %s'
+#		print(txt, '->', _(txt))
+#		txt = 'test with comment (starting with "##tx:")   ##tx: this is the comment'
+#		print('>>>%s<<<' % txt)
+#		print('==> >>>%s<<<' % _(txt))
 
 	#----------------------------------------------------------------------
 	print("======================================================================")
@@ -583,7 +621,7 @@ if __name__ == "__main__":
 
 	if len(sys.argv) > 2:
 		print('attempting to install domain:', sys.argv[2])
-		print(install_domain(domain = sys.argv[2]))
+		print(install_domain(domain = sys.argv[2], prefer_local_catalog = True))
 	else:
 		print('attempting to install "default" domain')
 		print(install_domain())
@@ -591,7 +629,7 @@ if __name__ == "__main__":
 	print(_(__orig_tag__))			# type: ignore
 
 	test_translating()
-	test_strcoll()
+	#test_strcoll()
 
 	# ********************************************************************* #
 	# == do not remove this line ========================================== #
