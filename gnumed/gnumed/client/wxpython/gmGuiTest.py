@@ -36,6 +36,12 @@ from Gnumed.business import gmStaff
 _log = logging.getLogger('gm.guitest')
 
 #==============================================================================
+# external helpers, so users don't need to import modules just for testing
+#------------------------------------------------------------------------------
+def get_patient():
+	return gmPerson.gmCurrentPatient()
+
+#==============================================================================
 def test_widget(widget_class, *widget_args, patient:int=-1, size=None, setup_db:bool=True, **widget_kwargs):
 	"""Test a wxPython widget.
 
@@ -147,7 +153,7 @@ if __name__ == '__main__':
 	del _
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
-	gmI18N.install_domain('gnumed')
+	gmI18N.install_domain('gnumed', prefer_local_catalog = True)
 
 	#--------------------------------------------------------------------------
 	def test__test_widget():

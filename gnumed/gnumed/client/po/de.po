@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-14 16:28+0100\n"
+"POT-Creation-Date: 2026-04-26 16:36+0200\n"
 "PO-Revision-Date: 2026-03-14 16:27+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
@@ -90,6 +90,11 @@ msgstr ""
 "In diesem System scheint kein (funktionierender) Betrachter/\n"
 "Editor für folgenden Dateityp registriert zu sein:\n"
 " [%s]"
+
+msgid ""
+"Hints##tx: notes on substance intake for patient/providers/ourselves in grid "
+"view"
+msgstr "Notizen"
 
 msgid "Translate this or i18n into <en_EN> will not work properly !"
 msgstr "Übersetzen oder Bauchplatscher !"
@@ -809,17 +814,17 @@ msgstr "Dokumententypen editieren"
 msgid "GFR: ?"
 msgstr "gFR: ?"
 
-msgid "Sort by:"
-msgstr "Sortierung:"
+msgid "Add intake."
+msgstr "Einnahme hinzufügen."
 
-msgid "einlangerstring einlangerstring"
-msgstr ""
+msgid "Edit selected intake."
+msgstr "Die markierte Einnahme bearbeiten."
 
-msgid "Include:"
-msgstr "Einschließen:"
+msgid "Delete selected intake."
+msgstr "Die markierte Einnahme löschen."
 
-msgid "Discontinued"
-msgstr "Beendet"
+msgid "Discontinued ##tx: \"discontinued intakes\""
+msgstr "Beendete"
 
 msgid ""
 "Show discontinued substance intakes ?\n"
@@ -836,19 +841,10 @@ msgstr ""
 "Achtung: dies bezieht sich nicht auf historische Einnahmepläne _aktiver_ "
 "Wirkstoffeinnahmen."
 
-msgid "Add intake."
-msgstr "Einnahme hinzufügen."
-
-msgid "Edit selected intake."
-msgstr "Die markierte Einnahme bearbeiten."
-
-msgid "Delete selected intake."
-msgstr "Die markierte Einnahme löschen."
-
 msgid "Print medication list."
 msgstr "Medikamentenliste drucken."
 
-msgid "℞"
+msgid " ℞ "
 msgstr ""
 
 msgid ""
@@ -862,38 +858,38 @@ msgstr ""
 "- den markierten Einträgen\n"
 "- einer Kopie des letzten Rezepts"
 
-msgid "🛈"
+msgid " 🛈 "
 msgstr ""
 
 msgid "Show in-depth information on the selected substance if available."
 msgstr "Fachinformationen zur markierten Substanz anzeigen, sofern verfügbar."
 
-msgid "🫀"
+msgid " 🫀 "
 msgstr ""
 
 msgid "Cardiological data."
 msgstr "Kardiologische Informationen."
 
-msgid "🫘"
+msgid " 🫘 "
 msgstr ""
 
 msgid ""
 "Handling of drugs / the selected drug in the presence of renal insufficiency."
 msgstr "Vorgehen bei Niereninsuffizienz."
 
-msgid "🫁"
+msgid " 🫁 "
 msgstr ""
 
 msgid "Pulmonary toxicity information."
 msgstr "Pneumologische Informationen."
 
-msgid "🤰"
+msgid " 🤰 "
 msgstr ""
 
 msgid "Embryo toxicity information."
 msgstr "Embryologische Informationen."
 
-msgid "🗘?"
+msgid " 🗘? "
 msgstr ""
 
 msgid ""
@@ -905,14 +901,14 @@ msgstr ""
 "\n"
 "Schließt alle ein, wenn keine markiert sind."
 
-msgid "⚠!"
+msgid " ⚠! "
 msgstr ""
 
 msgid "Discontinue selected intake due to an allergy or intolerance."
 msgstr ""
 "Den gewählten Eintrag wegen einer Allergie oder Unverträglichkeit beenden."
 
-msgid "🖄"
+msgid " 🖄 "
 msgstr ""
 
 msgid "Report an Adverse Drug Reaction."
@@ -4053,6 +4049,9 @@ msgstr "Letzte Informationen zum obigen Problem"
 msgid "Active problems"
 msgstr "Aktuelle Probleme"
 
+msgid "Include:"
+msgstr "Einschließen:"
+
 msgid "Schock index"
 msgstr "Schockindex"
 
@@ -4742,6 +4741,9 @@ msgstr "Ziel"
 
 msgid "Advice"
 msgstr "Hinweis"
+
+msgid "Discontinued"
+msgstr "Beendet"
 
 msgid "Select an existing or type in a new substance."
 msgstr "Wählen Sie eine Substanz oder geben Sie eine neue ein."
@@ -5933,13 +5935,25 @@ msgstr ""
 msgid "Research"
 msgstr "Recherche"
 
+msgid "🫀"
+msgstr ""
+
 msgid "Cardiac information relevant to this substance."
 msgstr ""
 "Kardiologische Fachinformationen zeigen, die für die Substanz relevant sind."
 
+msgid "🫘"
+msgstr ""
+
 msgid "Renal insufficiency information related to this substance."
 msgstr ""
 "Nephrologische Fachinformationen zeigen, die für die Substanz relevant sind."
+
+msgid "🫁"
+msgstr ""
+
+msgid "🤰"
+msgstr ""
 
 msgid "Edit staff details"
 msgstr "Mitarbeiterdaten .ändern"
@@ -6711,8 +6725,8 @@ msgid "units"
 msgstr "Einheiten"
 
 #, python-format
-msgid "Substance: %s %s"
-msgstr "Substanz: %s %s"
+msgid "Substance: %s %s %s"
+msgstr "Substanz: %s %s %s"
 
 #, python-format
 msgid "Regimen: %s"
@@ -6891,12 +6905,15 @@ msgstr "Revision Einnahme: #%(row_ver)s, %(mod_when)s durch %(mod_by)s."
 msgid "Regimen revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
 msgstr "Revision Einnahmeschema: #%(row_ver)s, %(mod_when)s durch %(mod_by)s."
 
-msgid "Inactive"
-msgstr "Inaktive"
+msgid "Ongoing intake"
+msgstr "Derzeitige Einnahme"
+
+msgid "Inactive intake"
+msgstr "Frühere Einnahme"
 
 #, python-format
-msgid "%s intake of \"%s\""
-msgstr "%s Einnahme von \"%s\""
+msgid "%s of \"%s\""
+msgstr "%s von \"%s\""
 
 #, python-format
 msgid "Amount: %s %s"
@@ -10621,14 +10638,16 @@ msgstr "Sie müssen auch wirklich einen Editor auswählen."
 msgid "The command [%s] is not found."
 msgstr "Der Programmpfad [%s] wurde nicht gefunden."
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "Enter the shell command with which to start\n"
 "the image editor for visual progress notes.\n"
 "\n"
-"Any \"%(img)s\" included with the arguments\n"
-"will be replaced by the file name of the\n"
-"note template."
+"Any \"%(img)s\" included with the arguments will be\n"
+"replaced by the file name of the note template.\n"
+"\n"
+"If you leave this unset GNUmed will show and store\n"
+"the image but will not detect any modifications."
 msgstr ""
 "Geben Sie die Befehlszeile zum Starten der\n"
 "Bildbearbeitungssoftware für Bildnotizen ein.\n"
@@ -10662,60 +10681,15 @@ msgstr "Bildquellen (Scanner, Kameras, usw)"
 msgid "Cannot export visual progress note template for [%s]."
 msgstr "Kann Bildnotiz-Vorlage [%s] nicht exportieren."
 
-msgid "Cannot export visual progress note to file."
-msgstr "Kann Bildnotiz nicht in eine Datei exportieren."
-
-msgid "Editor for visual progress note not configured."
+#, fuzzy
+msgid "Editor for visual progress note left configured."
 msgstr "Kein Editor für Bildnotizen konfiguriert."
 
-#, python-format
-msgid ""
-"There is no editor for visual progress notes defined.\n"
-"Also, there is no editor command defined for the file type\n"
-"\n"
-" [%s].\n"
-"\n"
-"Therefor GNUmed attempted to at least *show* this\n"
-"visual progress note. That failed as well, however:\n"
-"\n"
-"%s"
-msgstr ""
-"Es ist kein Editor für Bildnotizen eingestellt.\n"
-"Es ist auch kein Editor für Dateien folgenden Typs bekannt:\n"
-"\n"
-" [%s]\n"
-"\n"
-"Daher hat GNUmed versucht, die Bildnotiz wenigstens\n"
-"anzuzeigen. Das hat aber auch nicht funktioniert:\n"
-"\n"
-"%s"
+msgid "visual progress notes"
+msgstr "Bildnotizen"
 
-msgid "Editing visual progress note"
-msgstr "Bearbeite Bildnotiz"
-
-#, python-format
-msgid ""
-"There was a problem running the editor\n"
-"\n"
-" [%s] (%s)\n"
-"\n"
-"on the visual progress note.\n"
-"\n"
-"Therefor GNUmed attempted to at least *show* it.\n"
-"That failed as well, however:\n"
-"\n"
-"%s"
-msgstr ""
-"Der Editor für Bildnotizen\n"
-"\n"
-" [%s] (%s)\n"
-"\n"
-"funktionierte nicht.\n"
-"\n"
-"GNUmed versuchte, die Bildnotiz wenigstens anzuzeigen.\n"
-"Das hat aber auch nicht geklappt:\n"
-"\n"
-"%s"
+msgid "Cannot export visual progress note to file."
+msgstr "Kann Bildnotiz nicht in eine Datei exportieren."
 
 #, python-format
 msgid ""
@@ -10734,27 +10708,52 @@ msgstr ""
 msgid "Saving visual progress note"
 msgstr "Speichere Bildnotiz"
 
+#, fuzzy, python-format
 msgid ""
-"You either created a visual progress note from a template\n"
-"in the database (rather than from a file on disk) or you\n"
-"edited an existing visual progress note.\n"
+"There is no editor for visual progress notes defined.\n"
+"Also, there is no editor command defined for image files.\n"
 "\n"
-"The template/original was not modified at all, however.\n"
+"GNUmed attempted to at least *show* this\n"
+"visual progress note. That failed as well:\n"
 "\n"
-"Do you still want to save the unmodified image as a\n"
-"visual progress note into the EMR of the patient ?\n"
+"%s"
 msgstr ""
-"Sie haben diese Bildnotiz entweder aus einer Vorlage aus\n"
-"der Datenbank (anstelle aus einer Datei) erzeugt oder Sie\n"
-"haben eine existierende Bildnotiz bearbeitet.\n"
+"Es ist kein Editor für Bildnotizen eingestellt.\n"
+"Es ist auch kein Editor für Dateien folgenden Typs bekannt:\n"
 "\n"
-"Die Vorlage/Vornotiz wurde aber nicht verändert.\n"
+" [%s]\n"
 "\n"
-"Wollen Sie das unveränderte Bild trotzdem als Bildnotiz\n"
-"im Krankenblatt des Patienten speichern ?\n"
+"Daher hat GNUmed versucht, die Bildnotiz wenigstens\n"
+"anzuzeigen. Das hat aber auch nicht funktioniert:\n"
+"\n"
+"%s"
 
-msgid "visual progress notes"
-msgstr "Bildnotizen"
+msgid "Editing visual progress note"
+msgstr "Bearbeite Bildnotiz"
+
+#, fuzzy, python-format
+msgid ""
+"There was a problem running the editor\n"
+"\n"
+" [%s]\n"
+"\n"
+"on the visual progress note.\n"
+"\n"
+"GNUmed attempted to at least *show* it.\n"
+"That failed as well:\n"
+"\n"
+"%s"
+msgstr ""
+"Der Editor für Bildnotizen\n"
+"\n"
+" [%s] (%s)\n"
+"\n"
+"funktionierte nicht.\n"
+"\n"
+"GNUmed versuchte, die Bildnotiz wenigstens anzuzeigen.\n"
+"Das hat aber auch nicht geklappt:\n"
+"\n"
+"%s"
 
 #, python-format
 msgid " [part 1 of %s]"
@@ -11092,6 +11091,410 @@ msgstr "Ein Wirkstoff, optional mit Stärke, oder ein Arzneiprodukt."
 msgid "Notes for the patient on this substance intake."
 msgstr "Hinweise für den Patienten zur Einnahme dieses Wirkstoffs."
 
+msgid "Authority"
+msgstr "Zuständigkeit"
+
+msgid "Method"
+msgstr "Methode"
+
+msgid "Body part"
+msgstr "Körperteil"
+
+msgid "DICOM field"
+msgstr "DICOM-Feld"
+
+msgid "Show in DICOM viewer"
+msgstr "Bild in DICOM-Betrachter zeigen"
+
+msgid "Show in image viewer"
+msgstr "Bild in Bildbetrachter zeigen"
+
+msgid "Copy to export area"
+msgstr "In Sammelmappe legen"
+
+msgid "Save as DICOM file (.dcm)"
+msgstr "Als DICOM-Datei speichern (.dcm)"
+
+msgid "Save as image file (.png)"
+msgstr "Als Bilddatei speichern (.png)"
+
+msgid "Selected into export area"
+msgstr "Markierte in Sammelmappe"
+
+msgid "ZIP of selected into export area"
+msgstr "Markierte als ZIP in Sammelmappe"
+
+msgid "All into export area"
+msgstr "Alle in Sammelmappe"
+
+msgid "ZIP of all into export area"
+msgstr "ZIP aller in Sammelmappe"
+
+msgid "Save selected"
+msgstr "Markierte speichern"
+
+msgid "Save ZIP of selected"
+msgstr "Markierte als ZIP speichern"
+
+msgid "Save all"
+msgstr "Alle speichern"
+
+msgid "Save ZIP of all"
+msgstr "Alle als ZIP speichern"
+
+msgid "Add file to study (PDF/image)"
+msgstr "Datei (PDF/Bild) der Studie hinzufügen"
+
+msgid "Cannot connect without port (try 8042)."
+msgstr "Kann ohne Port nicht verbinden (versuchen Sie 8042)."
+
+msgid "Invalid port (try 8042)."
+msgstr "Ungültiger Port (versuchen Sie 8042)."
+
+#, python-format
+msgid "Connect to [%s] @ port %s as \"%s\"."
+msgstr "Verbinden mit [%s] @ port %s als \"%s\"."
+
+msgid "Cannot connect to PACS."
+msgstr "Kann keine Verbindung zum PACS herstellen."
+
+#, python-format
+msgid "PACS (Orthanc): \"%s\" (AET \"%s\") [%s]"
+msgstr "PACS (Orthanc): \"%s\" (AET \"%s\") [%s]"
+
+msgid "no SSL"
+msgstr "kein SSL"
+
+msgid "SSL: in use"
+msgstr "SSL: aktiv"
+
+msgid "SSL: NOT in use"
+msgstr "SSL: nicht in Gebrauch"
+
+msgid "Server details:"
+msgstr "Serverdetails:"
+
+msgid "Known PACS IDs:"
+msgstr "Bekannte PACS-IDs:"
+
+#, python-format
+msgid "stored: \"%(value)s\" @ [%(issuer)s]"
+msgstr "gespeichert: \"%(value)s\" @ [%(issuer)s]"
+
+msgid "Patients found in PACS:"
+msgstr "Im PACS gefundene Patienten:"
+
+msgid "PACS: no patients with matching IDs found"
+msgstr "PACS: kein Patient mit passender ID gefunden"
+
+msgid ""
+"PACS: more than one patient with matching IDs found, carefully check studies"
+msgstr ""
+"PACS: mehr als ein Patient mit passender ID gefunden, sorgfältig die Studien "
+"durchsehen"
+
+#, python-format
+msgid "Studies found: %s"
+msgstr "Studien gefunden: %s"
+
+#, python-format
+msgid "%s series%s"
+msgstr "%s Serie(n)%s"
+
+msgid "Series"
+msgstr "Serien"
+
+#, python-format
+msgid "Image %s/%s"
+msgstr "Bild %s/%s"
+
+#, python-format
+msgid ""
+"Cannot show image:\n"
+"%s"
+msgstr ""
+"Kann Bild nicht anzeigen:\n"
+"%s"
+
+msgid "Previewing DICOM image"
+msgstr "Zeige DICOM-Vorschau"
+
+#, python-format
+msgid ""
+"Cannot show in DICOM or image viewer:\n"
+"%s"
+msgstr ""
+"Kann Bild nicht in DICOM- oder Bildbetrachter anzeigen:\n"
+"%s"
+
+msgid "Cannot save image as DICOM file."
+msgstr "Kann Bild nicht im DICOM-Format speichern."
+
+msgid "Saving DICOM image"
+msgstr "Speichere DICOM-Bild"
+
+#, python-format
+msgid "Successfully saved as [%s]."
+msgstr "Erfolgreich gespeichert als [%s]."
+
+msgid "Cannot save image as PNG file."
+msgstr "Kann Bild nicht als PNG-Format speichern."
+
+#, python-format
+msgid "DICOM image of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
+msgstr "DICOM-Bild zu [%s] aus dem Orthanc-PACS \"%s\" (AET \"%s\")"
+
+msgid "Successfully stored in export area."
+msgstr "Erfolgreich in Sammelmappe gelegt."
+
+msgid "Showing DICOM studies"
+msgstr "DICOM-Studien zeigen"
+
+msgid "Unable to show selected studies."
+msgstr "Kann markierte Studien nicht anzeigen."
+
+msgid "Copying DICOM studies"
+msgstr "DICOM-Studien kopieren"
+
+msgid "Unable to put studies into export area."
+msgstr "Kann markierte Studien nicht in Sammelmappe legen."
+
+#, python-format
+msgid "DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\") [%s/]"
+msgstr "DICOM-Studien zu [%s] aus dem Orthanc PACS \"%s\" (AET \"%s\") [%s/]"
+
+msgid "Adding DICOM studies to export area"
+msgstr "DICOM-Studien in Sammelmappe legen"
+
+#, python-format
+msgid ""
+"Cannot add the following path to the export area:\n"
+"%s "
+msgstr ""
+"Kann folgendes Verzeichnis nicht in die Sammelmappe legen:\n"
+"%s "
+
+msgid "Unable to put ZIP of studies into export area."
+msgstr "Kann ZIP der markierten Studien nicht in Sammelmappe legen."
+
+msgid "Exporting DICOM studies"
+msgstr "DICOM-Studien exportieren"
+
+#, python-format
+msgid ""
+"The DICOM studies are %s in compressed size.\n"
+"\n"
+"Really move into export area ?"
+msgstr ""
+"Die DICOM-Studien belegen %s (komprimierte Größe).\n"
+"\n"
+"Wirklich in die Sammelmappe legen ?"
+
+#, python-format
+msgid "DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
+msgstr "DICOM-Studien zu [%s] aus dem Orthanc PACS \"%s\" (AET \"%s\")"
+
+#, python-format
+msgid ""
+"Cannot add the following archive to the export area:\n"
+"%s "
+msgstr ""
+"Kann folgendes Archiv nicht in die Sammelmappe legen:\n"
+"%s "
+
+msgid "Select the directory into which to save the DICOM studies."
+msgstr ""
+"Wählen Sie das Verzeichnis, in welches die Studien gespeichert werden sollen."
+
+msgid "Saving DICOM studies"
+msgstr "Speichere DICOM-Studien"
+
+msgid "Unable to save DICOM studies."
+msgstr "Kann DICOM-Studien nicht speichern."
+
+#, python-format
+msgid "Successfully saved to [%s]."
+msgstr "Erfolgreich gespeichert als [%s]."
+
+msgid "Select the directory into which to save the DICOM studies ZIP."
+msgstr ""
+"Wählen Sie das Verzeichnis, in welches das ZIP-Archiv der Studien "
+"gespeichert werden soll."
+
+msgid "Unable to save DICOM studies as ZIP."
+msgstr "Kann DICOM-Studien nicht als ZIP speichern."
+
+msgid "Adding file to DICOM study"
+msgstr "Ein Datei zu einer DICOM-Studie hinzufügen"
+
+msgid "For adding a file there must be exactly one (1) DICOM study selected."
+msgstr ""
+"Um einer Studie eine Datei hinzuzufügen, muß exakt eine (1) Studie markiert "
+"sein."
+
+msgid "Select file (image or PDF) to add to DICOM study"
+msgstr ""
+"Datei (Bild oder PDF) auswählen, die der Studie hinzugefügt werden soll"
+
+msgid "PDF files"
+msgstr "PDF-Dateien"
+
+#, python-format
+msgid ""
+"Cannot turn file\n"
+"\n"
+" %s\n"
+"\n"
+" into DICOM file."
+msgstr ""
+"Kann Datei\n"
+"\n"
+" %s\n"
+"\n"
+"nicht ins DICOM-Format umwandeln."
+
+#, python-format
+msgid "Successfully uploaded [%s] to Orthanc DICOM server."
+msgstr "[%s] erfolgreich in Orthanc DICOM-Server geladen."
+
+#, python-format
+msgid ""
+"Cannot updload DICOM file\n"
+"\n"
+" %s\n"
+"\n"
+" into Orthanc PACS."
+msgstr ""
+"Kann DICOM-Datei\n"
+"\n"
+" %s\n"
+"\n"
+"nicht ins Orthanc PACS laden."
+
+#, python-format
+msgid "%s image(s)%s"
+msgstr "%s Bild(er)%s"
+
+msgid "Select the directory from which to recursively upload DICOM files."
+msgstr ""
+"Wählen Sie das Verzeichnis, aus welchem DICOM-Dateien rekursiv hochgeladen "
+"werden sollen."
+
+msgid "No files uploaded."
+msgstr "Keine Dateien hochgeladen."
+
+msgid "Uploading DICOM files"
+msgstr "Lade DICOM-Dateien hoch"
+
+msgid "Delete the uploaded DICOM files now ?"
+msgstr "Die hochgeladenen DICOM-Dateien jetzt löschen ?"
+
+msgid ""
+"Some files have not been uploaded.\n"
+"\n"
+"Do you want to delete those DICOM files which *have* been sent to the PACS "
+"successfully ?"
+msgstr ""
+"Einige Dateien wurden nicht hochgeladen.\n"
+"\n"
+"Wollen Sie die _erfolgreich_ hochgeladenen DICOM-Dateien jetzt löschen ?"
+
+msgid ""
+"Information has been added to the PACS for the following patients:\n"
+"\n"
+msgstr ""
+"Für die folgenden Patienten wurden Daten ins PACS geladen:\n"
+"\n"
+
+#, python-format
+msgid "Working on: Orthanc \"%s\" (AET \"%s\" @ %s:%s, Version %s)"
+msgstr "Verbunden mit: Orthanc \"%s\" (AET \"%s\" @ %s:%s, Version %s)"
+
+msgid "Successfully verified DICOM data of patient."
+msgstr "DICOM-Daten dieses Patienten erfolgreich geprüft."
+
+msgid "DICOM data error"
+msgstr "DICOM-Datenfehler"
+
+msgid ""
+"There seems to be a data error in the DICOM files\n"
+"stored in the Orthanc server.\n"
+"\n"
+"Please check the inbox."
+msgstr ""
+"Es scheint einen Datenfehler in den DICOM-Dateien\n"
+"zu geben, die im Orthanc-Server gespeichert sind.\n"
+"\n"
+"Bitte den Posteingang prüfen."
+
+msgid ""
+"Checksum error in DICOM data of this patient.\n"
+"\n"
+msgstr ""
+"Prüfsummenfehler in den DICOM-Daten dieses Patienten.\n"
+"\n"
+
+#, python-format
+msgid ""
+"DICOM server: %s\n"
+"\n"
+msgstr ""
+"DICOM-Server: %s\n"
+"\n"
+
+#, python-format
+msgid ""
+"Orthanc patient ID [%s]\n"
+" %s: [%s]\n"
+msgstr ""
+"Pat-ID in Orthanc [%s]\n"
+" %s: [%s]\n"
+
+msgid "error report"
+msgstr "Fehlerbericht"
+
+msgid "DICOM data corruption"
+msgstr "DICOM-Datenfehler"
+
+msgid "Study date"
+msgstr "Datum der Studie"
+
+msgid "Patient ID (DICOM study)"
+msgstr "Patienten-ID (DICOM)"
+
+msgid "Birth date"
+msgstr "Geburtsdatum"
+
+msgid "Patient UID (Orthanc)"
+msgstr "Patienten-ID (Orthanc)"
+
+msgid "Modifying patient ID"
+msgstr "Patienten-ID bearbeiten"
+
+#, python-format
+msgid ""
+"Really modify %s DICOM studies to have the new patient ID\n"
+"\n"
+" [%s]\n"
+"\n"
+"stored in the Orthanc DICOM server ?"
+msgstr ""
+"Wirklich %s DICOM-Studien so verändern, daß als neue "
+"Patientenidentifikation\n"
+"\n"
+" [%s]\n"
+"\n"
+"im Orthanc DICOM-Server gespeichert wird ?"
+
+msgid ""
+"I was unable to modify all DICOM studies selected.\n"
+"\n"
+"Please refer to the log file."
+msgstr ""
+"GNUmed konnte nicht alle gewählten DICOM-Studien bearbeiten.\n"
+"\n"
+"Näheres ist in der Logdatei zu finden."
+
 msgid "icon_syringe"
 msgstr "icon_syringe"
 
@@ -11113,11 +11516,11 @@ msgstr "&Zusammenfassung"
 msgid "icon_clinical_summary"
 msgstr "icon_clinical_summary"
 
+msgid "Substance##tx: active ingredient"
+msgstr "Wirkstoff"
+
 msgid "Timeframe"
 msgstr "Zeitraum"
-
-msgid "Notes"
-msgstr "Karteieintrag"
 
 #, python-format
 msgid "Patient: %s"
@@ -11144,6 +11547,18 @@ msgstr "Ihre Installation (%s) ist auf dem neuesten Stand."
 msgid "Checking for client updates"
 msgstr "Updates suchen"
 
+#, fuzzy
+msgid "<any user>"
+msgstr "in Gebrauch"
+
+#, fuzzy, python-format
+msgid "workplace \"%s\""
+msgstr "Arbeitsplätze"
+
+#, fuzzy
+msgid "<any workplace>"
+msgstr "Arbeitsplatz klonen"
+
 msgid "Deleting option"
 msgstr "Löschen einer Konfigurationseinstellung"
 
@@ -11164,14 +11579,14 @@ msgstr "Alle derzeitigen Einstellungen aus der Datenbank."
 msgid "All configured options"
 msgstr "Alle Einstellungen"
 
+msgid "Option"
+msgstr "Einstellung"
+
 msgid "User"
 msgstr "Nutzer"
 
 msgid "Workplace"
 msgstr "Arbeitsplatz"
-
-msgid "Option"
-msgstr "Einstellung"
 
 msgid "Configuration"
 msgstr "Konfiguration"
@@ -12317,23 +12732,6 @@ msgstr ""
 
 msgid "Configuring workplace plugins ..."
 msgstr "Konfiguration der GNUmed-Arbeitsplätze ..."
-
-#, python-format
-msgid ""
-"\n"
-"Select the plugin(s) to be loaded the next time\n"
-"the client is restarted under the workplace:\n"
-"\n"
-" [%s]\n"
-msgstr ""
-"\n"
-"Wählen Sie die Module, die beim nächsten Start von GNUmed\n"
-"aktiv sein sollen für den Arbeitsplatz:\n"
-"\n"
-" [%s]\n"
-
-msgid "Plugins"
-msgstr "Module"
 
 msgid "Enter a name for the new workplace !"
 msgstr "Geben Sie dem neuen Arbeitsplatz einen aussagekräftigen Namen !"
@@ -14172,14 +14570,6 @@ msgstr "Wählen Sie ein Verzeichnis zur Aufnahme in die Sammelmappe"
 msgid "Adding path to export area"
 msgstr "Verzeichnis in die Sammelmappe legen"
 
-#, python-format
-msgid ""
-"Cannot add the following path to the export area:\n"
-"%s "
-msgstr ""
-"Kann folgendes Verzeichnis nicht in die Sammelmappe legen:\n"
-"%s "
-
 msgid "Select the documents to be put into the export area:"
 msgstr "Wählen Sie die Dokumente, die in die Sammelmappe gelegt werden sollen:"
 
@@ -15315,402 +15705,6 @@ msgstr "Sind Sie sicher, daß das Dokument gelöscht werden soll ?"
 
 msgid "Deleting document"
 msgstr "Dokument löschen"
-
-msgid "Authority"
-msgstr "Zuständigkeit"
-
-msgid "Method"
-msgstr "Methode"
-
-msgid "Body part"
-msgstr "Körperteil"
-
-msgid "DICOM field"
-msgstr "DICOM-Feld"
-
-msgid "Show in DICOM viewer"
-msgstr "Bild in DICOM-Betrachter zeigen"
-
-msgid "Show in image viewer"
-msgstr "Bild in Bildbetrachter zeigen"
-
-msgid "Copy to export area"
-msgstr "In Sammelmappe legen"
-
-msgid "Save as DICOM file (.dcm)"
-msgstr "Als DICOM-Datei speichern (.dcm)"
-
-msgid "Save as image file (.png)"
-msgstr "Als Bilddatei speichern (.png)"
-
-msgid "Selected into export area"
-msgstr "Markierte in Sammelmappe"
-
-msgid "ZIP of selected into export area"
-msgstr "Markierte als ZIP in Sammelmappe"
-
-msgid "All into export area"
-msgstr "Alle in Sammelmappe"
-
-msgid "ZIP of all into export area"
-msgstr "ZIP aller in Sammelmappe"
-
-msgid "Save selected"
-msgstr "Markierte speichern"
-
-msgid "Save ZIP of selected"
-msgstr "Markierte als ZIP speichern"
-
-msgid "Save all"
-msgstr "Alle speichern"
-
-msgid "Save ZIP of all"
-msgstr "Alle als ZIP speichern"
-
-msgid "Add file to study (PDF/image)"
-msgstr "Datei (PDF/Bild) der Studie hinzufügen"
-
-msgid "Cannot connect without port (try 8042)."
-msgstr "Kann ohne Port nicht verbinden (versuchen Sie 8042)."
-
-msgid "Invalid port (try 8042)."
-msgstr "Ungültiger Port (versuchen Sie 8042)."
-
-#, python-format
-msgid "Connect to [%s] @ port %s as \"%s\"."
-msgstr "Verbinden mit [%s] @ port %s als \"%s\"."
-
-msgid "Cannot connect to PACS."
-msgstr "Kann keine Verbindung zum PACS herstellen."
-
-#, python-format
-msgid "PACS (Orthanc): \"%s\" (AET \"%s\") [%s]"
-msgstr "PACS (Orthanc): \"%s\" (AET \"%s\") [%s]"
-
-msgid "no SSL"
-msgstr "kein SSL"
-
-msgid "SSL: in use"
-msgstr "SSL: aktiv"
-
-msgid "SSL: NOT in use"
-msgstr "SSL: nicht in Gebrauch"
-
-msgid "Server details:"
-msgstr "Serverdetails:"
-
-msgid "Known PACS IDs:"
-msgstr "Bekannte PACS-IDs:"
-
-#, python-format
-msgid "stored: \"%(value)s\" @ [%(issuer)s]"
-msgstr "gespeichert: \"%(value)s\" @ [%(issuer)s]"
-
-msgid "Patients found in PACS:"
-msgstr "Im PACS gefundene Patienten:"
-
-msgid "PACS: no patients with matching IDs found"
-msgstr "PACS: kein Patient mit passender ID gefunden"
-
-msgid ""
-"PACS: more than one patient with matching IDs found, carefully check studies"
-msgstr ""
-"PACS: mehr als ein Patient mit passender ID gefunden, sorgfältig die Studien "
-"durchsehen"
-
-#, python-format
-msgid "Studies found: %s"
-msgstr "Studien gefunden: %s"
-
-#, python-format
-msgid "%s series%s"
-msgstr "%s Serie(n)%s"
-
-msgid "Series"
-msgstr "Serien"
-
-#, python-format
-msgid "Image %s/%s"
-msgstr "Bild %s/%s"
-
-#, python-format
-msgid ""
-"Cannot show image:\n"
-"%s"
-msgstr ""
-"Kann Bild nicht anzeigen:\n"
-"%s"
-
-msgid "Previewing DICOM image"
-msgstr "Zeige DICOM-Vorschau"
-
-#, python-format
-msgid ""
-"Cannot show in DICOM or image viewer:\n"
-"%s"
-msgstr ""
-"Kann Bild nicht in DICOM- oder Bildbetrachter anzeigen:\n"
-"%s"
-
-msgid "Cannot save image as DICOM file."
-msgstr "Kann Bild nicht im DICOM-Format speichern."
-
-msgid "Saving DICOM image"
-msgstr "Speichere DICOM-Bild"
-
-#, python-format
-msgid "Successfully saved as [%s]."
-msgstr "Erfolgreich gespeichert als [%s]."
-
-msgid "Cannot save image as PNG file."
-msgstr "Kann Bild nicht als PNG-Format speichern."
-
-#, python-format
-msgid "DICOM image of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
-msgstr "DICOM-Bild zu [%s] aus dem Orthanc-PACS \"%s\" (AET \"%s\")"
-
-msgid "Successfully stored in export area."
-msgstr "Erfolgreich in Sammelmappe gelegt."
-
-msgid "Showing DICOM studies"
-msgstr "DICOM-Studien zeigen"
-
-msgid "Unable to show selected studies."
-msgstr "Kann markierte Studien nicht anzeigen."
-
-msgid "Copying DICOM studies"
-msgstr "DICOM-Studien kopieren"
-
-msgid "Unable to put studies into export area."
-msgstr "Kann markierte Studien nicht in Sammelmappe legen."
-
-#, python-format
-msgid "DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\") [%s/]"
-msgstr "DICOM-Studien zu [%s] aus dem Orthanc PACS \"%s\" (AET \"%s\") [%s/]"
-
-msgid "Adding DICOM studies to export area"
-msgstr "DICOM-Studien in Sammelmappe legen"
-
-msgid "Unable to put ZIP of studies into export area."
-msgstr "Kann ZIP der markierten Studien nicht in Sammelmappe legen."
-
-msgid "Exporting DICOM studies"
-msgstr "DICOM-Studien exportieren"
-
-#, python-format
-msgid ""
-"The DICOM studies are %s in compressed size.\n"
-"\n"
-"Really move into export area ?"
-msgstr ""
-"Die DICOM-Studien belegen %s (komprimierte Größe).\n"
-"\n"
-"Wirklich in die Sammelmappe legen ?"
-
-#, python-format
-msgid "DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
-msgstr "DICOM-Studien zu [%s] aus dem Orthanc PACS \"%s\" (AET \"%s\")"
-
-#, python-format
-msgid ""
-"Cannot add the following archive to the export area:\n"
-"%s "
-msgstr ""
-"Kann folgendes Archiv nicht in die Sammelmappe legen:\n"
-"%s "
-
-msgid "Select the directory into which to save the DICOM studies."
-msgstr ""
-"Wählen Sie das Verzeichnis, in welches die Studien gespeichert werden sollen."
-
-msgid "Saving DICOM studies"
-msgstr "Speichere DICOM-Studien"
-
-msgid "Unable to save DICOM studies."
-msgstr "Kann DICOM-Studien nicht speichern."
-
-#, python-format
-msgid "Successfully saved to [%s]."
-msgstr "Erfolgreich gespeichert als [%s]."
-
-msgid "Select the directory into which to save the DICOM studies ZIP."
-msgstr ""
-"Wählen Sie das Verzeichnis, in welches das ZIP-Archiv der Studien "
-"gespeichert werden soll."
-
-msgid "Unable to save DICOM studies as ZIP."
-msgstr "Kann DICOM-Studien nicht als ZIP speichern."
-
-msgid "Adding file to DICOM study"
-msgstr "Ein Datei zu einer DICOM-Studie hinzufügen"
-
-msgid "For adding a file there must be exactly one (1) DICOM study selected."
-msgstr ""
-"Um einer Studie eine Datei hinzuzufügen, muß exakt eine (1) Studie markiert "
-"sein."
-
-msgid "Select file (image or PDF) to add to DICOM study"
-msgstr ""
-"Datei (Bild oder PDF) auswählen, die der Studie hinzugefügt werden soll"
-
-msgid "PDF files"
-msgstr "PDF-Dateien"
-
-#, python-format
-msgid ""
-"Cannot turn file\n"
-"\n"
-" %s\n"
-"\n"
-" into DICOM file."
-msgstr ""
-"Kann Datei\n"
-"\n"
-" %s\n"
-"\n"
-"nicht ins DICOM-Format umwandeln."
-
-#, python-format
-msgid "Successfully uploaded [%s] to Orthanc DICOM server."
-msgstr "[%s] erfolgreich in Orthanc DICOM-Server geladen."
-
-#, python-format
-msgid ""
-"Cannot updload DICOM file\n"
-"\n"
-" %s\n"
-"\n"
-" into Orthanc PACS."
-msgstr ""
-"Kann DICOM-Datei\n"
-"\n"
-" %s\n"
-"\n"
-"nicht ins Orthanc PACS laden."
-
-#, python-format
-msgid "%s image(s)%s"
-msgstr "%s Bild(er)%s"
-
-msgid "Select the directory from which to recursively upload DICOM files."
-msgstr ""
-"Wählen Sie das Verzeichnis, aus welchem DICOM-Dateien rekursiv hochgeladen "
-"werden sollen."
-
-msgid "No files uploaded."
-msgstr "Keine Dateien hochgeladen."
-
-msgid "Uploading DICOM files"
-msgstr "Lade DICOM-Dateien hoch"
-
-msgid "Delete the uploaded DICOM files now ?"
-msgstr "Die hochgeladenen DICOM-Dateien jetzt löschen ?"
-
-msgid ""
-"Some files have not been uploaded.\n"
-"\n"
-"Do you want to delete those DICOM files which *have* been sent to the PACS "
-"successfully ?"
-msgstr ""
-"Einige Dateien wurden nicht hochgeladen.\n"
-"\n"
-"Wollen Sie die _erfolgreich_ hochgeladenen DICOM-Dateien jetzt löschen ?"
-
-msgid ""
-"Information has been added to the PACS for the following patients:\n"
-"\n"
-msgstr ""
-"Für die folgenden Patienten wurden Daten ins PACS geladen:\n"
-"\n"
-
-#, python-format
-msgid "Working on: Orthanc \"%s\" (AET \"%s\" @ %s:%s, Version %s)"
-msgstr "Verbunden mit: Orthanc \"%s\" (AET \"%s\" @ %s:%s, Version %s)"
-
-msgid "Successfully verified DICOM data of patient."
-msgstr "DICOM-Daten dieses Patienten erfolgreich geprüft."
-
-msgid "DICOM data error"
-msgstr "DICOM-Datenfehler"
-
-msgid ""
-"There seems to be a data error in the DICOM files\n"
-"stored in the Orthanc server.\n"
-"\n"
-"Please check the inbox."
-msgstr ""
-"Es scheint einen Datenfehler in den DICOM-Dateien\n"
-"zu geben, die im Orthanc-Server gespeichert sind.\n"
-"\n"
-"Bitte den Posteingang prüfen."
-
-msgid ""
-"Checksum error in DICOM data of this patient.\n"
-"\n"
-msgstr ""
-"Prüfsummenfehler in den DICOM-Daten dieses Patienten.\n"
-"\n"
-
-#, python-format
-msgid ""
-"DICOM server: %s\n"
-"\n"
-msgstr ""
-"DICOM-Server: %s\n"
-"\n"
-
-#, python-format
-msgid ""
-"Orthanc patient ID [%s]\n"
-" %s: [%s]\n"
-msgstr ""
-"Pat-ID in Orthanc [%s]\n"
-" %s: [%s]\n"
-
-msgid "error report"
-msgstr "Fehlerbericht"
-
-msgid "DICOM data corruption"
-msgstr "DICOM-Datenfehler"
-
-msgid "Study date"
-msgstr "Datum der Studie"
-
-msgid "Patient ID (DICOM study)"
-msgstr "Patienten-ID (DICOM)"
-
-msgid "Birth date"
-msgstr "Geburtsdatum"
-
-msgid "Patient UID (Orthanc)"
-msgstr "Patienten-ID (Orthanc)"
-
-msgid "Modifying patient ID"
-msgstr "Patienten-ID bearbeiten"
-
-#, python-format
-msgid ""
-"Really modify %s DICOM studies to have the new patient ID\n"
-"\n"
-" [%s]\n"
-"\n"
-"stored in the Orthanc DICOM server ?"
-msgstr ""
-"Wirklich %s DICOM-Studien so verändern, daß als neue "
-"Patientenidentifikation\n"
-"\n"
-" [%s]\n"
-"\n"
-"im Orthanc DICOM-Server gespeichert wird ?"
-
-msgid ""
-"I was unable to modify all DICOM studies selected.\n"
-"\n"
-"Please refer to the log file."
-msgstr ""
-"GNUmed konnte nicht alle gewählten DICOM-Studien bearbeiten.\n"
-"\n"
-"Näheres ist in der Logdatei zu finden."
 
 #, python-format
 msgid "You are logged in as %s%s.%s (%s). DB account <%s>."
@@ -20621,6 +20615,9 @@ msgstr "Verlaufsnotizen (Sash)"
 msgid "progress notes"
 msgstr "Verlaufsnotizen"
 
+msgid "Notes"
+msgstr "Notizen"
+
 msgid "&Notes"
 msgstr "Kartei: &Editor"
 
@@ -20673,6 +20670,52 @@ msgstr "Abbrechen"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
+
+#~ msgid "Sort by:"
+#~ msgstr "Sortierung:"
+
+#~ msgid "Inactive"
+#~ msgstr "Inaktive"
+
+#, python-format
+#~ msgid "%s intake of \"%s\""
+#~ msgstr "%s Einnahme von \"%s\""
+
+#~ msgid ""
+#~ "You either created a visual progress note from a template\n"
+#~ "in the database (rather than from a file on disk) or you\n"
+#~ "edited an existing visual progress note.\n"
+#~ "\n"
+#~ "The template/original was not modified at all, however.\n"
+#~ "\n"
+#~ "Do you still want to save the unmodified image as a\n"
+#~ "visual progress note into the EMR of the patient ?\n"
+#~ msgstr ""
+#~ "Sie haben diese Bildnotiz entweder aus einer Vorlage aus\n"
+#~ "der Datenbank (anstelle aus einer Datei) erzeugt oder Sie\n"
+#~ "haben eine existierende Bildnotiz bearbeitet.\n"
+#~ "\n"
+#~ "Die Vorlage/Vornotiz wurde aber nicht verändert.\n"
+#~ "\n"
+#~ "Wollen Sie das unveränderte Bild trotzdem als Bildnotiz\n"
+#~ "im Krankenblatt des Patienten speichern ?\n"
+
+#, python-format
+#~ msgid ""
+#~ "\n"
+#~ "Select the plugin(s) to be loaded the next time\n"
+#~ "the client is restarted under the workplace:\n"
+#~ "\n"
+#~ " [%s]\n"
+#~ msgstr ""
+#~ "\n"
+#~ "Wählen Sie die Module, die beim nächsten Start von GNUmed\n"
+#~ "aktiv sein sollen für den Arbeitsplatz:\n"
+#~ "\n"
+#~ " [%s]\n"
+
+#~ msgid "Plugins"
+#~ msgstr "Module"
 
 #~ msgid "Whole Timeline"
 #~ msgstr "Ganze Zeitlinie"
@@ -23032,9 +23075,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ msgstr ""
 #~ "Schützt\n"
 #~ "vor"
-
-#~ msgid "Inactive vaccine"
-#~ msgstr "Totimpfstoff"
 
 #~ msgid "indication"
 #~ msgstr "Indikation"
@@ -27785,9 +27825,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "normal"
 #~ msgstr "normal"
-
-#~ msgid "Workplaces"
-#~ msgstr "Arbeitsplätze"
 
 #~ msgid "GNUmed: Starting up ..."
 #~ msgstr "GNUmedL: Starte ..."

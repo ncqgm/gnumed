@@ -78,6 +78,7 @@ u_left_arrow = '\u2190'							# <--
 u_up_arrow = '\u2191'
 u_arrow2right = '\u2192'						# -->
 u_down_arrow = '\u2193'
+u_updown_arrow = '\u2195'
 u_left_arrow_with_tail = '\u21a2'				# <--<
 u_arrow2right_from_bar = '\u21a6'				# |->
 u_arrow2right_until_vertical_bar = '\u21e5'		# -->|

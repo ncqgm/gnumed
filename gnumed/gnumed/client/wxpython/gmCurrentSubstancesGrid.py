@@ -55,51 +55,26 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 		self.__patient = None
 		self.__row_data = {}
-		self.__prev_row = None
 		self.__prev_tooltip_row = None
-		self.__prev_cell_0 = None
 		self.__grouping_mode = 'issue'
 		self.__filter_show_discontinued = False
+		self.__sort_col_idx = 0
 
-		self.__grouping2col_labels = {
-			'issue': [
-				_('Health issue'),
-				_('Substance'),
-				_('Strength'),
-				_('Schedule'),
-				_('Timeframe'),
-				_('Notes')
-			],
-			'episode': [
-				_('Episode'),
-				_('Substance'),
-				_('Strength'),
-				_('Schedule'),
-				_('Timeframe'),
-				_('Notes')
-			],
-			'start': [
-				_('Episode'),
-				_('Substance'),
-				_('Strength'),
-				_('Schedule'),
-				_('Timeframe'),
-				_('Notes')
-			],
+		self.__COL_LABELS = [
+			_('Substance##tx: active ingredient'),
+			_('Strength'),
+			_('Schedule'),
+			_('Timeframe'),
+			_('Hints##tx: notes on substance intake for patient/providers/ourselves in grid view'),
+			_('Problem')
+		]
+
+		self.__SORTABLE_COLS = [0, 3, 5]
+		self.__sort_col_idx2order_by_clauses = {
+			0: 'substance, started DESC, episode',
+			3: 'started DESC, substance, episode',		# sort timeframe by "started"
+			5: 'pk_health_issue NULLS FIRST, episode, substance, started DESC'
 		}
-
-		self.__grouping2order_by_clauses = {
-			'issue': 'pk_health_issue NULLS FIRST, substance, started',
-			'episode': 'pk_health_issue NULLS FIRST, episode, substance, started',
-			'start': 'started DESC, substance, episode'
-		}
-
-		self.__grouping2cell_fillers = {
-			'issue': self.__fill_cells_by_issue,
-			'episode': self.__fill_cells_by_episode,
-			'start': self.__fill_cells_by_episode
-		}
-
 		self.__init_ui()
 		self.__register_events()
 
@@ -139,7 +114,6 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 					for row in range(top_left[0], bottom_right[0] + 1)
 					for col in range(top_left[1], bottom_right[1] + 1)
 			]
-
 		return set(selected_cells)
 
 	#------------------------------------------------------------
@@ -158,10 +132,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		return self.__row_data.values()
 
 	#------------------------------------------------------------
-	def __fill_cells_by_episode(self, meds, emr):
-		if self.__grouping_mode not in ['episode', 'start']:
-			return False
-
+	def __populate_cells_by_substance(self, meds:list, emr):
 		for row_idx in range(len(meds)):
 			med = meds[row_idx]
 			self.__row_data[row_idx] = med
@@ -184,120 +155,30 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 						#attr.SetTextColour('dark orange')	# slightly better
 						attr.SetTextColour('magenta')
 					self.SetRowAttr(row_idx, attr)
-			if med['pk_episode']:
-				if self.__prev_cell_0 == med['episode']:
-					epi = ''
-				else:
-					self.__prev_cell_0 = med['episode']
-					epi = gmTools.coalesce(med['episode'], '')
-			else:
-				self.__prev_cell_0 = None
-				epi = gmTools.u_diameter
-			self.SetCellValue(row_idx, 0, gmTools.wrap(text = epi, width = 40))
-			self.SetCellValue(row_idx, 1, med['substance'])
-			if med['amount']:
-				amount_unit = '%s %s' % (med['amount'], med['unit'])
-			else:
-				amount_unit = ''
-			self.SetCellValue(row_idx, 2, amount_unit)
-			self.SetCellValue(row_idx, 3, gmTools.coalesce(med['schedule'], ''))
-			self.SetCellValue(row_idx, 4, med.medically_formatted_timerange)
-			notes_lines = []
-			if med['notes4patient']:
-				notes_lines.append(_('Patient: %s') % med['notes4patient'])
-			if med['notes4provider']:
-				notes_lines.append(_('Provider: %s') % med['notes4provider'])
-			if med['notes4us']:
-				notes_lines.append(_('Internal: %s') % med['notes4us'])
-			if notes_lines:
-				self.SetCellValue(row_idx, 5, gmTools.wrap(text = '\n'.join(notes_lines), width = 50))
-		return True
-
-	#------------------------------------------------------------
-	def __fill_cells_by_issue(self, meds, emr):
-		if self.__grouping_mode != 'issue':
-			return False
-
-		for row_idx in range(len(meds)):
-			med = meds[row_idx]
-			self.__row_data[row_idx] = med
-			if med['discontinued']:
-				attr = self.GetOrCreateCellAttr(row_idx, 0)
-				attr.SetTextColour('grey')
-				self.SetRowAttr(row_idx, attr)
-			else:
-				atcs = []
-				if med['atc_substance'] is not None:
-					atcs.append(med['atc_substance'])
-				allg = emr.is_allergic_to(atcs = atcs, inns = [med['substance']])
-				if allg not in [None, False]:
-					attr = self.GetOrCreateCellAttr(row_idx, 0)
-					if allg['type'] == 'allergy':
-						attr.SetTextColour('red')
-					else:
-						#attr.SetTextColour('yellow')		# too light
-						#attr.SetTextColour('pink')			# too light
-						#attr.SetTextColour('dark orange')	# slightly better
-						attr.SetTextColour('magenta')
-					self.SetRowAttr(row_idx, attr)
-			if med['pk_health_issue']:
-				if self.__prev_cell_0 == med['health_issue']:
-					issue = ''
-				else:
-					self.__prev_cell_0 = med['health_issue']
-					issue = med['health_issue']
-			else:
-				self.__prev_cell_0 = None
-				issue = '%s%s' % (
-					gmTools.u_diameter,
-					gmTools.coalesce(med['episode'], '', ' (%s)')
-				)
-			self.SetCellValue(row_idx, 0, gmTools.wrap(text = issue, width = 40))
-			self.SetCellValue(row_idx, 1, med['substance'])
+			self.SetCellValue(row_idx, 0, med['substance'])
 			if med['amount']:
 				amount = '%s %s' % (med['amount'], med['unit'])
 			else:
 				amount = ''
-			self.SetCellValue(row_idx, 2, amount)
-			self.SetCellValue(row_idx, 3, gmTools.coalesce(med['schedule'], ''))
-			self.SetCellValue(row_idx, 4, med.medically_formatted_timerange)
+			self.SetCellValue(row_idx, 1, amount)
+			self.SetCellValue(row_idx, 2, gmTools.coalesce(med['schedule'], ''))
+			self.SetCellValue(row_idx, 3, gmTools.wrap(med.medically_formatted_timerange, width = 40))
 			notes_lines = []
 			if med['notes4patient']:
-				notes_lines.append(_('Patient: %s') % med['notes4patient'])
+				notes_lines.append(_('Patient: %s') % med['notes4patient'].strip())
 			if med['notes4provider']:
-				notes_lines.append(_('Provider: %s') % med['notes4provider'])
+				notes_lines.append(_('Provider: %s') % med['notes4provider'].strip())
 			if med['notes4us']:
-				notes_lines.append(_('Internal: %s') % med['notes4us'])
+				notes_lines.append(_('Internal: %s') % med['notes4us'].strip())
 			if notes_lines:
-				self.SetCellValue(row_idx, 5, gmTools.wrap(text = '\n'.join(notes_lines), width = 50))
+				txt = '\n'.join([ gmTools.wrap(text = nl, width = 55, subsequent_indent = '  ') for nl in notes_lines ])
+				self.SetCellValue(row_idx, 4, txt)
+			txt = '%s%s' % (
+				med['episode'],
+				gmTools.coalesce(med['health_issue'], '', ' (%s)')
+			)
+			self.SetCellValue(row_idx, 5, gmTools.wrap(text = txt, width = 45))
 		return True
-
-	#------------------------------------------------------------
-	def repopulate_grid(self):
-		self.empty_grid()
-		if self.__patient is None:
-			return
-
-		emr = self.__patient.emr
-		meds = emr.get_intakes (
-			order_by = self.__grouping2order_by_clauses[self.__grouping_mode],
-			include_inactive = self.__filter_show_discontinued,
-			exclude_medications = False,
-			exclude_potential_abuses = True
-		)
-		if not meds:
-			return
-
-		self.BeginBatch()
-		labels = self.__grouping2col_labels[self.__grouping_mode]
-		self.AppendCols(numCols = len(labels))
-		for col_idx in range(len(labels)):
-			self.SetColLabelValue(col_idx, labels[col_idx])
-		self.AppendRows(numRows = len(meds))
-		self.__row_data = {}
-		self.__grouping2cell_fillers[self.__grouping_mode](meds, emr)
-		self.AutoSize()
-		self.EndBatch()
 
 	#------------------------------------------------------------
 	def empty_grid(self):
@@ -312,6 +193,35 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		self.EndBatch()
 		self.__row_data = {}
 		self.__prev_cell_0 = None
+
+	#------------------------------------------------------------
+	def repopulate_grid(self):
+		self.empty_grid()
+		if self.__patient is None:
+			return
+
+		emr = self.__patient.emr
+		meds = emr.get_intakes (
+			#order_by = self.__grouping2order_by_clauses[self.__grouping_mode],
+			order_by = self.__sort_col_idx2order_by_clauses[self.__sort_col_idx],
+			include_inactive = self.__filter_show_discontinued,
+			exclude_medications = False,
+			exclude_potential_abuses = True
+		)
+		if not meds:
+			return
+
+		self.BeginBatch()
+		self.AppendCols(numCols = len(self.__COL_LABELS))
+		for col_idx in range(len(self.__COL_LABELS)):
+			self.SetColLabelValue(col_idx, self.__COL_LABELS[col_idx])
+		sort_col_label = '%s%s' % (gmTools.u_updown_arrow, self.__COL_LABELS[self.__sort_col_idx])
+		self.SetColLabelValue(self.__sort_col_idx, sort_col_label)
+		self.AppendRows(numRows = len(meds))
+		self.__row_data = {}
+		self.__populate_cells_by_substance(meds, emr)
+		self.AutoSize()
+		self.EndBatch()
 
 	#------------------------------------------------------------
 	def show_info_on_entry(self):
@@ -380,7 +290,6 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		)
 	#------------------------------------------------------------
 	def check_interactions(self):
-
 		if len(self.__row_data) == 0:
 			return
 
@@ -466,9 +375,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		self.EnableEditing(0)
 		self.EnableDragGridSize(1)
 		self.SetSelectionMode(wx.grid.Grid.GridSelectRows)
-
 		self.SetColLabelAlignment(wx.ALIGN_LEFT, wx.ALIGN_CENTRE)
-
 		self.SetRowLabelSize(0)
 		self.SetRowLabelAlignment(horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
 
@@ -483,15 +390,6 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		self.repopulate_grid()
 
 	patient = property(_get_patient, _set_patient)
-	#------------------------------------------------------------
-	def _get_grouping_mode(self):
-		return self.__grouping_mode
-
-	def _set_grouping_mode(self, mode):
-		self.__grouping_mode = mode
-		self.repopulate_grid()
-
-	grouping_mode = property(_get_grouping_mode, _set_grouping_mode)
 
 	#------------------------------------------------------------
 	def _get_filter_show_discontinued(self):
@@ -514,6 +412,8 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 		# editing cells
 		self.Bind(wx.grid.EVT_GRID_CELL_LEFT_DCLICK, self.__on_cell_left_dclicked)
+		# clicking column label for sorting)
+		self.Bind(wx.grid.EVT_GRID_COL_SORT, self.__on_header_clicked)
 
 	#------------------------------------------------------------
 	def __on_mouse_over_cells(self, evt):
@@ -551,6 +451,17 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		data = self.__row_data[row]
 		gmSubstanceIntakeWidgets.edit_intake_with_regimen(parent = self, intake_with_regimen = data)
 
+	#------------------------------------------------------------
+	def __on_header_clicked(self, evt):
+		if evt.Col == self.__sort_col_idx:
+			return
+
+		if evt.Col not in self.__SORTABLE_COLS:
+			return
+
+		self.__sort_col_idx = evt.Col
+		self.repopulate_grid()
+
 #============================================================
 # main
 #------------------------------------------------------------
@@ -565,14 +476,18 @@ if __name__ == '__main__':
 	del _
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
-	gmI18N.install_domain('gnumed')
+	gmI18N.install_domain('gnumed', prefer_local_catalog = True)
 
-#	from Gnumed.wxpython import gmGuiTest
+	from Gnumed.wxpython import gmGuiTest
+
+	from Gnumed.pycommon import gmLog2
+	gmLog2.print_logfile_name()
+	#----------------------------------------
+	def test_grid():
+		main_frame = gmGuiTest.setup_widget_test_env(patient = 12)#-1
+		the_grid = cCurrentSubstancesGrid(main_frame)
+		the_grid.patient = gmGuiTest.get_patient()
+		wx.GetApp().MainLoop()
 
 	#----------------------------------------
-	#pat = gmPerson.cPerson(12)
-	#gmGuiTest.test_widget(cCurrentSubstancesGrid, patient = 12)
-	#main_frame = gmGuiTest.setup_widget_test_env(patient = 12)
-#	my_widget = cCurrentSubstancesGrid(main_frame)
-#	my_widget.patient = gmPerson.gmCurrentPatient()
-#	wx.GetApp().MainLoop()
+	test_grid()
