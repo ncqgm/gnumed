@@ -43,6 +43,8 @@ class ScrollTxtWin (wx.Window):
 		'Dr John Jaarsveld',
 		'Uwe Koch Kronberg',
 		'Dr Jerzy Luszawski',
+		'María Scappini',
+		'Marc Angermann',
 		'et alii'
 	]
 
@@ -181,6 +183,7 @@ Marc ANGERMANN, MD
 
  - Rechnungsvorlage
  - bug reports
+ - Debian packaging
 
 == B ===========================================
 
