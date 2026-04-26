@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-26 16:36+0200\n"
-"PO-Revision-Date: 2026-03-14 16:27+0100\n"
+"POT-Creation-Date: 2026-04-26 18:32+0200\n"
+"PO-Revision-Date: 2026-04-26 16:46+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -10638,7 +10638,7 @@ msgstr "Sie müssen auch wirklich einen Editor auswählen."
 msgid "The command [%s] is not found."
 msgstr "Der Programmpfad [%s] wurde nicht gefunden."
 
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "Enter the shell command with which to start\n"
 "the image editor for visual progress notes.\n"
@@ -10652,9 +10652,11 @@ msgstr ""
 "Geben Sie die Befehlszeile zum Starten der\n"
 "Bildbearbeitungssoftware für Bildnotizen ein.\n"
 "\n"
-"Jedes \"%(img)s\" in der Befehlszeile wird\n"
-"beim Aufruf von GNUmed durch den Dateinamen\n"
-"der Vorlage ersetzt."
+"Jedes \"%(img)s\" in der Befehlszeile wird beim Aufruf\n"
+"von GNUmed durch den Dateinamen der Vorlage ersetzt.\n"
+"\n"
+"Wenn hier nichts eingestellt wird, wird die Bildnotiz angezeigt\n"
+"und gespeichert, es können aber Änderungen nicht verfolgt werden."
 
 msgid "Choose file to use as template for new visual progress note"
 msgstr "Wählen Sie eine Datei als Vorlage für die neue Bildnotiz"
@@ -10681,7 +10683,6 @@ msgstr "Bildquellen (Scanner, Kameras, usw)"
 msgid "Cannot export visual progress note template for [%s]."
 msgstr "Kann Bildnotiz-Vorlage [%s] nicht exportieren."
 
-#, fuzzy
 msgid "Editor for visual progress note left configured."
 msgstr "Kein Editor für Bildnotizen konfiguriert."
 
@@ -10708,7 +10709,7 @@ msgstr ""
 msgid "Saving visual progress note"
 msgstr "Speichere Bildnotiz"
 
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "There is no editor for visual progress notes defined.\n"
 "Also, there is no editor command defined for image files.\n"
@@ -10719,9 +10720,7 @@ msgid ""
 "%s"
 msgstr ""
 "Es ist kein Editor für Bildnotizen eingestellt.\n"
-"Es ist auch kein Editor für Dateien folgenden Typs bekannt:\n"
-"\n"
-" [%s]\n"
+"Es ist auch kein Editor für Bilder allgemein hinterlegt.\n"
 "\n"
 "Daher hat GNUmed versucht, die Bildnotiz wenigstens\n"
 "anzuzeigen. Das hat aber auch nicht funktioniert:\n"
@@ -10731,7 +10730,7 @@ msgstr ""
 msgid "Editing visual progress note"
 msgstr "Bearbeite Bildnotiz"
 
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "There was a problem running the editor\n"
 "\n"
@@ -10746,7 +10745,7 @@ msgid ""
 msgstr ""
 "Der Editor für Bildnotizen\n"
 "\n"
-" [%s] (%s)\n"
+" [%s]\n"
 "\n"
 "funktionierte nicht.\n"
 "\n"
@@ -11547,17 +11546,15 @@ msgstr "Ihre Installation (%s) ist auf dem neuesten Stand."
 msgid "Checking for client updates"
 msgstr "Updates suchen"
 
-#, fuzzy
 msgid "<any user>"
-msgstr "in Gebrauch"
+msgstr "<beliebiger Nutzer>"
 
-#, fuzzy, python-format
+#, python-format
 msgid "workplace \"%s\""
-msgstr "Arbeitsplätze"
+msgstr "Arbeitsplatz \"%s\""
 
-#, fuzzy
 msgid "<any workplace>"
-msgstr "Arbeitsplatz klonen"
+msgstr "<beliebiger Arbeitsplatz>"
 
 msgid "Deleting option"
 msgstr "Löschen einer Konfigurationseinstellung"
