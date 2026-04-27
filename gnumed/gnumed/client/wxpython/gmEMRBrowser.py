@@ -14,10 +14,16 @@ import wx
 import wx.lib.mixins.treemixin as treemixin
 
 
+# setup translation
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
-
+else:
+	try: _		# do we already have _() ?
+	except NameError:
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
 # GNUmed libs
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmTools
@@ -1616,10 +1622,6 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		self._LCTRL_journal.activate_callback = self._on_row_activated
 		self._TCTRL_details.SetValue('')
 
-		self.__load_timer = gmTimer.cTimer(callback = self._on_load_details, delay = 1000, cookie = 'EMRListJournalPluginDBLoadTimer')
-
-		self.__data = {}
-
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -1643,10 +1645,8 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		else:
 			raise ValueError('invalid EMR journal list sort state')
 
-		self._LCTRL_journal.set_columns([date_col_header, '', _('Entry'), _('Who / When')])
+		self._LCTRL_journal.set_columns([date_col_header, '', _('Entry')])
 		self._LCTRL_journal.set_resize_column(3)
-
-#		journal = gmPerson.gmCurrentPatient().emr.get_as_journal(order_by = order_by)
 		journal = gmPerson.gmCurrentPatient().emr.get_generic_emr_items (
 			pk_encounters = None,
 			pk_episodes = None,
@@ -1654,17 +1654,13 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 			use_active_encounter = True,
 			order_by = order_by
 		)
-
-#		self.__data = {}
 		items = []
 		data = []
 		prev_date = None
 		for entry in journal:
 			if entry['narrative'].strip() == '':
 				continue
-#			self.__register_journal_entry(entry)
 			soap_cat = gmSoapDefs.soap_cat2l10n[entry['soap_cat']]
-			who = '%s (%s)' % (entry['modified_by'], entry['date_modified'])
 			try:
 				entry_date = entry[date_fields[0]].strftime('%Y-%m-%d')
 			except KeyError:
@@ -1676,30 +1672,19 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 				prev_date = entry_date
 			lines_of_journal_entry = entry['narrative'].strip().split('\n')
 			first_line = lines_of_journal_entry[0]
-			items.append([date2show, soap_cat, first_line.rstrip(), who])
-#			data.append ({
-#				'table': entry['src_table'],
-#				'pk': entry['src_pk']
-#			})
+			items.append([date2show, soap_cat, first_line.rstrip()])
 			data.append(entry)
 			for line in lines_of_journal_entry[1:]:	# skip first line
 				if line.strip() == '':
 					continue
 				# only first line carries metadata
-				items.append(['', '', line.rstrip(), ''])
-#				data.append ({
-#					'table': entry['src_table'],
-#					'pk': entry['src_pk']
-#				})
+				items.append(['', '', line.rstrip()])
 				data.append(entry)
 
 		self._LCTRL_journal.set_string_items(items)
 		# maybe add coloring per-entry ?
-		#for item_idx in range(self._LCTRL_journal.ItemCount):
-		#	self._LCTRL_journal.SetItemBackgroundColour(item_idx, 'green')
-		self._LCTRL_journal.set_column_widths([wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE_USEHEADER])
+		self._LCTRL_journal.set_column_widths([wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
 		self._LCTRL_journal.set_data(data)
-
 		self._LCTRL_journal.SetFocus()
 		return True
 
@@ -1712,71 +1697,18 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		return True
 
 	#--------------------------------------------------------
-	def __register_journal_entry(self, entry):
-		if entry['src_table'] in self.__data:
-			if entry['src_pk'] in self.__data[entry['src_table']]:
-				return
-
-		else:
-			self.__data[entry['src_table']] = {}
-
-		self.__data[entry['src_table']][entry['src_pk']] = {}
-		self.__data[entry['src_table']][entry['src_pk']]['entry'] = entry
-		self.__data[entry['src_table']][entry['src_pk']]['formatted_instance'] = None
-		if entry['encounter_started'] is None:
-			enc_duration = gmTools.u_diameter
-		else:
-			enc_duration = '%s - %s' % (
-				entry['encounter_started'].strftime('%Y %b %d  %H:%M'),
-				entry['encounter_last_affirmed'].strftime('%H:%M')
-			)
-		self.__data[entry['src_table']][entry['src_pk']]['formatted_header'] = _(
-			'Chart entry: %s       [#%s in %s]\n'
-			' Modified: %s by %s (%s rev %s)\n'
-			'\n'
-			'Health issue: %s%s\n'
-			'Episode: %s%s\n'
-			'Encounter: %s%s'
-		) % (
-			gmGenericEMRItem.generic_item_type_str(entry['src_table']),
-			entry['src_pk'],
-			entry['src_table'],
-			entry['date_modified'],
-			entry['modified_by'],
-			gmTools.u_arrow2right,
-			entry['row_version'],
-			gmTools.coalesce(entry['health_issue'], gmTools.u_diameter, '%s'),
-			gmTools.bool2subst(entry['issue_active'], ' (' + _('active') + ')', ' (' + _('inactive') + ')', ''),
-			gmTools.coalesce(entry['episode'], gmTools.u_diameter, '%s'),
-			gmTools.bool2subst(entry['episode_open'], ' (' +  _('open') + ')', ' (' +  _('closed') + ')', ''),
-			enc_duration,
-			gmTools.coalesce(entry['encounter_l10n_type'], '', ' (%s)'),
-		)
-		self.__data[entry['src_table']][entry['src_pk']]['formatted_root_item'] = _(
-			'%s\n'
-			'\n'
-			'                        rev %s (%s) by %s in <%s>'
-		) % (
-			entry['narrative'].strip(),
-			entry['row_version'],
-			entry['date_modified'],
-			entry['modified_by'],
-			entry['src_table']
-		)
-
-	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
 	def _on_pre_patient_unselection(self):
 		self._LCTRL_journal.remove_items_safely()
 		self._TCTRL_details.SetValue('')
-		self.__data = {}
 		return True
 
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
 		if self.GetParent().GetCurrentPage() != self:
 			return True
+
 		self.repopulate_ui()
 		return True
 
@@ -1786,6 +1718,7 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		instance = data.specialized_item
 		if instance is None:
 			return
+
 		if gmGenericEMRItemWorkflows.edit_item_in_dlg(parent = self, item = instance):
 			self.repopulate_ui()
 
@@ -1793,51 +1726,6 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 	def _on_row_selected(self, evt):
 		data = self._LCTRL_journal.get_item_data(item_idx = evt.Index)
 		self._TCTRL_details.SetValue(data.format(eol = '\n'))
-		# FIXME: fire off get-details
-		return
-
-		data = self._LCTRL_journal.get_item_data(item_idx = evt.Index)
-		if self.__data[data['table']][data['pk']]['formatted_instance'] is None:
-			txt = _(
-				'%s\n'
-				'%s\n'
-				'%s'
-			) % (
-				self.__data[data['table']][data['pk']]['formatted_header'],
-				gmTools.u_box_horiz_4dashes * 40,
-				self.__data[data['table']][data['pk']]['formatted_root_item']
-			)
-			self._TCTRL_details.SetValue(txt)
-			self.__load_timer.Stop()
-			self.__load_timer.Start(oneShot = True)
-			return
-
-		txt = _(
-			'%s\n'
-			'%s\n'
-			'%s'
-		) % (
-			self.__data[data['table']][data['pk']]['formatted_header'],
-			gmTools.u_box_horiz_4dashes * 40,
-			self.__data[data['table']][data['pk']]['formatted_instance']
-		)
-		self._TCTRL_details.SetValue(txt)
-
-	#--------------------------------------------------------
-	def _on_load_details(self, cookie):
-		data = self._LCTRL_journal.get_selected_item_data(only_one = True)
-		if self.__data[data['table']][data['pk']]['formatted_instance'] is None:
-			self.__data[data['table']][data['pk']]['formatted_instance'] = gmClinicalRecord.format_clin_root_item(data['table'], data['pk'], patient = gmPerson.gmCurrentPatient())
-		txt = _(
-			'%s\n'
-			'%s\n'
-			'%s'
-		) % (
-			self.__data[data['table']][data['pk']]['formatted_header'],
-			gmTools.u_box_horiz_4dashes * 40,
-			self.__data[data['table']][data['pk']]['formatted_instance']
-		)
-		wx.CallAfter(self._TCTRL_details.SetValue, txt)
 
 	#--------------------------------------------------------
 	def _on_order_by_encounter_selected(self, event):
@@ -1868,30 +1756,32 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 #----------------------------------------------------------------
 if __name__ == '__main__':
 
-	_log.info("starting emr browser...")
+	if len(sys.argv) < 2:
+		sys.exit()
 
-	# obtain patient
-	patient = gmPersonSearch.ask_for_patient()
-	if patient is None:
-		print("No patient. Exiting gracefully...")
-		sys.exit(0)
-	gmPatSearchWidgets.set_active_patient(patient = patient)
+	if sys.argv[1] != 'test':
+		sys.exit()
 
-	# display standalone browser
-	#application = wx.PyWidgetTester(size=(800,600))
-	#emr_browser = cEMRBrowserPanel(application.frame, -1)
-	#emr_browser = None
-	#emr_browser.refresh_tree()
-	#application.frame.Show(True)
-	#application.MainLoop()
+	# setup a real translation
+	del _
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain('gnumed', prefer_local_catalog = True)
 
-	# clean up
-	if patient is not None:
-		try:
-			patient.cleanup()
-		except Exception:
-			print("error cleaning up patient")
+	from Gnumed.wxpython import gmGuiTest
 
-	_log.info("closing emr browser...")
+	#--------------------------------------------------------
+	def test_list_journal():
+		gmGuiTest.test_widget (
+			cEMRListJournalPluginPnl,
+			# *widget_args:
+			-1,					# say, for window ID
+			patient = 12,		# -1. ask
+			#size = None,
+			setup_db = True		# use TUI for setting up DB access
+			#, **widget_kwargs:
+			#other kw args needed for widget
+		)
 
-#================================================================
+	#--------------------------------------------------------
+	test_list_journal()

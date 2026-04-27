@@ -10,7 +10,7 @@
 
 -- --------------------------------------------------------------
 update cfg.cfg_item set
-	value = '["gmProviderInboxPlugin","gmWaitingListPlugin","gmPatientOverviewPlugin","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmSoapPlugin","gmCurrentSubstancesPlugin","gmMeasurementsGridPlugin","gmShowMedDocs","gmIncomingAreaPlugin","gmExportAreaPlugin","gmEMRTimelinePlugin","gmPrintManagerPlugin","gmDataMiningPlugin","gmSimpleSoapPlugin","gmEMRJournalPlugin","gmBillingPlugin","gmKOrganizerPlugin","gmXdtViewer"]'::jsonb
+	value = '["gmProviderInboxPlugin","gmWaitingListPlugin","gmPatientOverviewPlugin","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmSoapPlugin","gmCurrentSubstancesPlugin","gmMeasurementsGridPlugin","gmShowMedDocs","gmIncomingAreaPlugin","gmExportAreaPlugin","gmPrintManagerPlugin","gmDataMiningPlugin","gmSimpleSoapPlugin","gmEMRJournalPlugin","gmEMRListJournalPlugin","gmBillingPlugin","gmXdtViewer","gmEMRTimelinePlugin","gmKOrganizerPlugin"]'::jsonb
 where
 	pk in (
 		select pk_cfg_item

@@ -19,60 +19,61 @@ class wxgEMRListJournalPluginPnl(wx.ScrolledWindow):
 		# begin wxGlade: wxgEMRListJournalPluginPnl.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.BORDER_NONE | wx.TAB_TRAVERSAL
 		wx.ScrolledWindow.__init__(self, *args, **kwds)
-		self._RBTN_by_encounter = wx.RadioButton(self, wx.ID_ANY, _("&Encounter"))
-		self._RBTN_by_last_modified = wx.RadioButton(self, wx.ID_ANY, _("&Modification"))
-		self._RBTN_by_item_time = wx.RadioButton(self, wx.ID_ANY, _("&Event"))
-		self._BTN_edit = wx.Button(self, wx.ID_ANY, _("&Edit"), style=wx.BU_EXACTFIT)
-		self._BTN_delete = wx.Button(self, wx.ID_ANY, _("&Delete"), style=wx.BU_EXACTFIT)
-		self._SLINE_top = wx.StaticLine(self, wx.ID_ANY)
-		self._LCTRL_journal = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
-		self._TCTRL_details = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_BESTWRAP | wx.TE_MULTILINE | wx.TE_READONLY)
-
-		self.__set_properties()
-		self.__do_layout()
-
-		self.Bind(wx.EVT_RADIOBUTTON, self._on_order_by_encounter_selected, self._RBTN_by_encounter)
-		self.Bind(wx.EVT_RADIOBUTTON, self._on_order_by_last_mod_selected, self._RBTN_by_last_modified)
-		self.Bind(wx.EVT_RADIOBUTTON, self._on_order_by_item_time_selected, self._RBTN_by_item_time)
-		self.Bind(wx.EVT_BUTTON, self._on_edit_button_pressed, self._BTN_edit)
-		self.Bind(wx.EVT_BUTTON, self._on_delete_button_pressed, self._BTN_delete)
-		# end wxGlade
-
-	def __set_properties(self):
-		# begin wxGlade: wxgEMRListJournalPluginPnl.__set_properties
 		self.SetScrollRate(10, 10)
-		self._RBTN_by_encounter.SetToolTip(_("Order by start of encounter a chart entry is linked to."))
-		self._RBTN_by_encounter.SetValue(1)
-		self._RBTN_by_last_modified.SetToolTip(_("Order by time of most recent edit of each chart entry."))
-		self._RBTN_by_item_time.SetToolTip(_("Order by time documented as actual occurrence of each chart entry."))
-		self._BTN_edit.SetToolTip(_("Edit the selected chart entry."))
-		self._BTN_edit.Enable(False)
-		self._BTN_delete.SetToolTip(_("Delete selected chart entry."))
-		self._BTN_delete.Enable(False)
-		self._LCTRL_journal.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
-		self._TCTRL_details.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
-		# end wxGlade
 
-	def __do_layout(self):
-		# begin wxGlade: wxgEMRListJournalPluginPnl.__do_layout
 		__szr_main = wx.BoxSizer(wx.VERTICAL)
-		__szr_journal = wx.BoxSizer(wx.HORIZONTAL)
+
 		__szr_top = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_main.Add(__szr_top, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
+
 		__lbl_mode = wx.StaticText(self, wx.ID_ANY, _("Order by:"))
 		__szr_top.Add(__lbl_mode, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
+
+		self._RBTN_by_encounter = wx.RadioButton(self, wx.ID_ANY, _("&Encounter"))
+		self._RBTN_by_encounter.SetToolTip(_("Order by start of encounter a chart entry is linked to."))
+		self._RBTN_by_encounter.SetValue(1)
 		__szr_top.Add(self._RBTN_by_encounter, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
+
+		self._RBTN_by_last_modified = wx.RadioButton(self, wx.ID_ANY, _("&Modification"))
+		self._RBTN_by_last_modified.SetToolTip(_("Order by time of most recent edit of each chart entry."))
 		__szr_top.Add(self._RBTN_by_last_modified, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
+
+		self._RBTN_by_item_time = wx.RadioButton(self, wx.ID_ANY, _("&Event"))
+		self._RBTN_by_item_time.SetToolTip(_("Order by time documented as actual occurrence of each chart entry."))
 		__szr_top.Add(self._RBTN_by_item_time, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
+
+		self._BTN_edit = wx.Button(self, wx.ID_ANY, _("&Edit"), style=wx.BU_EXACTFIT)
+		self._BTN_edit.SetToolTip(_("Edit the selected chart entry."))
+		self._BTN_edit.Enable(False)
 		__szr_top.Add(self._BTN_edit, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
+
+		self._BTN_delete = wx.Button(self, wx.ID_ANY, _("&Delete"), style=wx.BU_EXACTFIT)
+		self._BTN_delete.SetToolTip(_("Delete selected chart entry."))
+		self._BTN_delete.Enable(False)
 		__szr_top.Add(self._BTN_delete, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
-		__szr_main.Add(__szr_top, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
-		__szr_main.Add(self._SLINE_top, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 0)
-		__szr_journal.Add(self._LCTRL_journal, 3, wx.EXPAND, 0)
-		__szr_journal.Add(self._TCTRL_details, 2, wx.EXPAND | wx.LEFT, 3)
+
+		self._SLINE_top = wx.StaticLine(self, wx.ID_ANY)
+		__szr_main.Add(self._SLINE_top, 0, wx.ALL | wx.EXPAND, 0)
+
+		__szr_journal = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_main.Add(__szr_journal, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
+
+		self._LCTRL_journal = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
+		__szr_journal.Add(self._LCTRL_journal, 3, wx.EXPAND, 0)
+
+		self._TCTRL_details = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_BESTWRAP | wx.TE_MULTILINE | wx.TE_READONLY)
+		__szr_journal.Add(self._TCTRL_details, 2, wx.EXPAND | wx.LEFT, 3)
+
 		self.SetSizer(__szr_main)
 		__szr_main.Fit(self)
+
 		self.Layout()
+
+		self._RBTN_by_encounter.Bind(wx.EVT_RADIOBUTTON, self._on_order_by_encounter_selected)
+		self._RBTN_by_last_modified.Bind(wx.EVT_RADIOBUTTON, self._on_order_by_last_mod_selected)
+		self._RBTN_by_item_time.Bind(wx.EVT_RADIOBUTTON, self._on_order_by_item_time_selected)
+		self._BTN_edit.Bind(wx.EVT_BUTTON, self._on_edit_button_pressed)
+		self._BTN_delete.Bind(wx.EVT_BUTTON, self._on_delete_button_pressed)
 		# end wxGlade
 
 	def _on_order_by_encounter_selected(self, event):  # wxGlade: wxgEMRListJournalPluginPnl.<event_handler>
