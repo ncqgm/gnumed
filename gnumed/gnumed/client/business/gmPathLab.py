@@ -245,7 +245,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 						SELECT DISTINCT ON (c_vtr1.pk_meta_test_type) c_vtr1.pk_test_type
 						FROM clin.v_test_results c_vtr1
 						WHERE
-							c_vtr1.pk_test_type IN %%(pks)s
+							c_vtr1.pk_test_type = ANY(%%(pks)s)
 								AND
 							c_vtr1.pk_patient = %%(pat)s
 								AND
@@ -254,7 +254,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 						SELECT DISTINCT ON (c_vtr2.pk_test_type) c_vtr2.pk_test_type
 						FROM clin.v_test_results c_vtr2
 						WHERE
-							c_vtr2.pk_test_type IN %%(pks)s
+							c_vtr2.pk_test_type = ANY(%%(pks)s)
 								AND
 							c_vtr2.pk_patient = %%(pat)s
 								AND
@@ -2302,9 +2302,9 @@ def get_most_recent_results_in_loinc_group(loincs=None, max_no_of_results=1, pat
 				pk_meta_test_type IS NOT NULL
 					AND
 				(-- retrieve test types which have .LOINC in <loincs>
-					(loinc IN %%(loincs)s)
+					(loinc = ANY(%%(loincs)s))
 						OR
-					(loinc_meta IN  %%(loincs)s)
+					(loinc_meta = ANY(%%(loincs)s))
 				)
 					AND
 				-- but no result for <patient>
