@@ -100,6 +100,8 @@ if __name__ == "__main__":
 	gmI18N.activate_locale()
 	gmI18N.install_domain('gnumed', prefer_local_catalog = True)
 
+	from Gnumed.wxpython import gmGuiTest
+
 	#--------------------------------------------------------
 	def test1():
 		...

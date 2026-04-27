@@ -51,7 +51,7 @@ def test_widget(widget_class, *widget_args, patient:int=-1, size=None, setup_db:
 			a_widget_class,
 			# *widget_args:
 			-1,					# say, for window ID
-			#patient = -1,		# ask
+			#patient = -1,		# -1: ask, None: none, ID: patient
 			#size = None,
 			setup_db = True		# use TUI for setting up DB access
 			#, **widget_kwargs:
