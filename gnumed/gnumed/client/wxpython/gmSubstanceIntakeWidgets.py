@@ -123,8 +123,9 @@ def manage_substance_intakes(parent=None, emr=None, include_inactive:bool=True):
 #		,left_extra_button = (_('Import'), _('Import consumable substances from a drug database.'), add_from_db)
 	)
 
+
 #------------------------------------------------------------
-def edit_intake_with_regimen(parent=None, intake_with_regimen=None, single_entry:bool=False):
+def edit_intake_with_regimen(parent=None, intake_with_regimen:gmMedication.cIntakeWithRegimen=None, single_entry:bool=False):
 	ea = cSubstanceIntakeEAPnl(parent, -1, intake = intake_with_regimen)
 	ea.mode = gmTools.coalesce(intake_with_regimen, 'new', 'edit')
 	dlg = gmEditArea.cGenericEditAreaDlg(parent, -1, edit_area = ea, single_entry = True)
@@ -143,12 +144,20 @@ def edit_intake_with_regimen(parent=None, intake_with_regimen=None, single_entry
 	return True
 
 #------------------------------------------------------------
+def edit_intake_regimen(parent=None, intake_regimen:gmMedication.cIntakeRegimen=None, single_entry:bool=False):
+	return edit_intake_with_regimen (
+		parent = parent,
+		intake_with_regimen = intake_regimen.as_intake_with_regimen,
+		single_entry = single_entry
+	)
+
+#------------------------------------------------------------
 def delete_intake_with_regimen(parent=None, intake=None):
 	msg = _(
 		'\n'
 		'[%s]\n'
 		'\n'
-		'It may be prudent to edit (before deletion) the details\n'
+		'It may be prudent to edit - before deletion - the details\n'
 		'of this substance intake entry so as to leave behind\n'
 		'some indication of why it was deleted.\n'
 	) % intake.format(single_line = True)

@@ -346,6 +346,7 @@ def get_generic_emr_items(encounters=None, episodes=None, issues=None, patient=N
 def generic_item_type_str(table):
 	try:
 		return _MAP_generic_emr_item_table2type_str[table]
+
 	except KeyError:
 		return _('unmapped entry type from table [%s]') % table
 

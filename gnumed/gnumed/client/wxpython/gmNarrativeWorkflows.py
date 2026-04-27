@@ -50,7 +50,13 @@ def edit_narrative(parent=None, narrative=None, single_entry=False):
 	if narrative['modified_by_raw'] == gmStaff.gmCurrentProvider()['db_user']:
 		msg = _('Your original progress note:')
 	else:
-		msg = _('Original progress note by %s [%s]\n(will be notified of changes):') % (
+		msg = _(
+			'Progress note (%s) -- %s (v%s)\n'
+			'Author: %s [%s] (will be notified of modifications)'
+		) % (
+			gmSoapDefs.soap_cat2l10n_str[narrative['soap_cat']],
+			narrative['modified_when'].strftime('%x %H:%M'),
+			narrative['row_version'],
 			narrative['modified_by'],
 			narrative['modified_by_raw']
 		)
@@ -61,7 +67,7 @@ def edit_narrative(parent=None, narrative=None, single_entry=False):
 		-1,
 		title = title,
 		msg = msg,
-		data = narrative.format(left_margin = ' ', fancy = True),
+		data = gmTools.wrap(text = narrative['narrative'].strip(), width = 75, initial_indent = ' ', subsequent_indent = ' '),
 		text = narrative['narrative'].strip()
 	)
 	decision = dlg.ShowModal()
