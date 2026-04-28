@@ -36,9 +36,7 @@ from Gnumed.business import gmHealthIssue
 from Gnumed.business import gmEncounter
 from Gnumed.business import gmPerson
 from Gnumed.business import gmGender
-from Gnumed.business import gmPersonSearch
 from Gnumed.business import gmSoapDefs
-from Gnumed.business import gmClinicalRecord
 from Gnumed.business import gmEpisode
 
 from Gnumed.wxpython import gmGuiHelpers
@@ -48,11 +46,9 @@ from Gnumed.wxpython import gmAllergyWidgets
 from Gnumed.wxpython import gmDemographicsWidgets
 from Gnumed.wxpython import gmNarrativeWidgets
 from Gnumed.wxpython import gmNarrativeWorkflows
-from Gnumed.wxpython import gmPatSearchWidgets
 from Gnumed.wxpython import gmVaccWidgets
 from Gnumed.wxpython import gmFamilyHistoryWidgets
 from Gnumed.wxpython import gmFormWidgets
-from Gnumed.wxpython import gmTimer
 from Gnumed.wxpython import gmHospitalStayWidgets
 from Gnumed.wxpython import gmProcedureWidgets
 from Gnumed.wxpython import gmGenericEMRItemWorkflows

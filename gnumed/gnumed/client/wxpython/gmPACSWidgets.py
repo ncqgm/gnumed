@@ -10,9 +10,7 @@ __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 import os.path
 import os
 import sys
-import re as regex
 import logging
-import datetime as pydt
 
 
 import wx

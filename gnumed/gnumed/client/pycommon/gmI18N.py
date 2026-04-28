@@ -73,7 +73,7 @@ if __name__ == "__main__":
 	del _
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
-	gmI18N.install_domain()
+	gmI18N.install_domain(domain = 'gnumed', prefer_local_catalog = True)
 """
 #===========================================================================
 # SPDX-License-Identifier: GPL-2.0-or-later
@@ -120,6 +120,64 @@ except AttributeError:
 __orig_tag__ = 'Translate this or i18n into <en_EN> will not work properly !'
 # ***************************************************************************
 # ***************************************************************************
+
+TRANSLATOR_NOTES = _("""Dear Translator !
+
+(You don't need to translate this text. It is intended for translation guidance only.)
+
+Strings to be translated can contain %s and %(keyword)s
+style placeholders, as well as comments.
+
+%(keyword)s-style placeholders:
+
+	They can be shuffled around inside the translation as
+	required by the target language.
+
+	If you are absolutely positive what you are doing the
+	translation must not necessarily contain _all_ of the
+	original %(keyword)s placeholders.
+
+%s-style placeholders:
+
+	They will be replaced in their pre-existing order, and
+	their number must match between orignal and translation.
+
+single-character trigger strings:
+
+	Some strings contain runs of a few characters not
+	resembling a known word. Such strings are used in, for
+	example, localizing keyboard shortcuts in, say,
+	date/time input fields, where certain characters trigger
+	generation of a certain dates (e.g. 't' -> today's
+	date).
+
+	In such cases order is important and a comment attached
+	to the original string should tell you so. You need not
+	(but can) translate the comment, it will be stripped off
+	when the string is used in the GUI.
+
+per-string translator comments:
+
+	Such comments will appear at the end of strings to
+	translate. They will start off with the sequence
+	'##tx:'. Anything beyond (and including) this indicator
+	will be stripped off during translation. There is no
+	need to translate the comment itself, the translation
+	may simply omit it. Comments will only appear on the
+	right-hand side of strings. Whitespace in front of the
+	indication is treated as significant. If a string
+	stripped of its comment evaluates to an empty string the
+	entire string (including the comment) is passed back as
+	the translation such that it will flag the issue right
+	in the frontend.
+
+	Such comments may be used to indicate the context of
+	original strings if they can be translated in different
+	ways depending on where they are used, eg: the word
+	Notes' may need to be translated to 'Notizen',
+	'Einträge', 'Hinweise', ... depending on which meaning
+	is needed.
+""")
 
 #===========================================================================
 def __split_locale_into_levels():
@@ -269,20 +327,20 @@ def __decomment_string(term:str) -> str:
 def _translate_safely(term):
 	"""This wraps _().
 
-	It protects against translation errors such as a different number of "%s".
+	It protects against translation errors such as a different number of "%%s".
 
 	It also removes trailing translator comments starting with %(ind)s:
 
 		'string to translate   ##tx: a free comment for translators, such as a hint regarding the intended meaning in-context'
 
 	GNUmed will strip trailing characters, starting with the
-	rightmost occurrence of '##tx:', up until the right-hand
+	rightmost occurrence of '%(ind)s', up until the right-hand
 	end of the string. Note that whitespace trailing the
 	to-be-translated string is treated as significant:
 
-		'Note (##tx:):  ##tx: to mean <clinical note>, or <EMR entry>, not <indication> or <hint>'
+		"Note (%(ind)s):  %(ind)s to mean <clinical note>, or <EMR entry>, not <indication> or <hint>"
 
-		-> 'Note (##tx:):  ' -> looked up for translation
+		-> "Note (%(ind)s):  " -> looked up for translation
 
 	In case stripping leads to an emtpy string the original
 	string is returned such that the translation issue will
