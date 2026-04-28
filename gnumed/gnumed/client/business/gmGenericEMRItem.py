@@ -190,9 +190,9 @@ class cGenericEMRItem(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def format_header(self, eol=None):
 		lines = []
-		lines.append('%s: %s       [#%s in %s]' % (
-			self.i18n_soap_cat,
+		lines.append('%s (%s)       [#%s in %s]' % (
 			self.item_type_str,
+			self.i18n_soap_cat,
 			self._payload['src_pk'],
 			self._payload['src_table']
 		))

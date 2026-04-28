@@ -55,14 +55,16 @@ class wxgEMRListJournalPluginPnl(wx.ScrolledWindow):
 		self._SLINE_top = wx.StaticLine(self, wx.ID_ANY)
 		__szr_main.Add(self._SLINE_top, 0, wx.ALL | wx.EXPAND, 0)
 
-		__szr_journal = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_main.Add(__szr_journal, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
+		self._SPL_journal = wx.SplitterWindow(self, wx.ID_ANY, style=wx.SP_NOBORDER | wx.SP_THIN_SASH)
+		self._SPL_journal.SetMinimumPaneSize(20)
+		self._SPL_journal.SetSashGravity(0.6)
+		__szr_main.Add(self._SPL_journal, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
 
-		self._LCTRL_journal = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
-		__szr_journal.Add(self._LCTRL_journal, 3, wx.EXPAND, 0)
+		self._LCTRL_journal = cReportListCtrl(self._SPL_journal, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
 
-		self._TCTRL_details = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_BESTWRAP | wx.TE_MULTILINE | wx.TE_READONLY)
-		__szr_journal.Add(self._TCTRL_details, 2, wx.EXPAND | wx.LEFT, 3)
+		self._TCTRL_details = wx.TextCtrl(self._SPL_journal, wx.ID_ANY, "", style=wx.TE_BESTWRAP | wx.TE_MULTILINE | wx.TE_READONLY)
+
+		self._SPL_journal.SplitVertically(self._LCTRL_journal, self._TCTRL_details)
 
 		self.SetSizer(__szr_main)
 		__szr_main.Fit(self)
