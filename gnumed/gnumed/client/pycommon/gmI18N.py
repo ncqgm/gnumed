@@ -647,53 +647,56 @@ if __name__ == "__main__":
 Strings to be translated can contain %s and %(keyword)s
 style placeholders, as well as comments.
 
+
 %(keyword)s-style placeholders:
 
-	They can be shuffled around inside the translation as
-	required by the target language.
+   They can be shuffled around inside the translation as
+   required by the target language.
 
-	If you are absolutely positive what you are doing the
-	translation must not necessarily contain _all_ of the
-	original %(keyword)s placeholders.
+   If you are absolutely positively sure you know what you
+   are doing the translation need not necessarily contain
+   _all_ of the original %(keyword)s placeholders.
+
 
 %s-style placeholders:
 
-	They will be replaced in their pre-existing order, and
-	their number must match between orignal and translation.
+   They will be replaced in their pre-existing order, and
+   their number must match between orignal and translation.
+
 
 single-character trigger strings:
 
-	Some strings contain runs of a few characters not
-	resembling a known word. Such strings are used in, for
-	example, localizing keyboard shortcuts in, say,
-	date/time input fields, where certain characters trigger
-	generation of a certain dates (e.g. 't' -> today's
-	date).
+   Some strings contain runs of a few characters not
+   resembling a known word. Such strings are used in, for
+   example, localizing keyboard shortcuts in, say, date/time
+   input fields, where certain characters trigger generation
+   of a certain dates (e.g. 't' -> today's date).
 
-	In such cases order is important and a comment attached
-	to the original string should tell you so. You need not
-	(but can) translate the comment, it will be stripped off
-	when the string is used in the GUI.
+   In such cases order is important and a comment attached
+   to the original string should tell you so. You need not
+   (but can) translate the comment, it will be stripped off
+   when the string is used in the GUI.
+
 
 per-string translator comments:
 
-	Such comments will appear at the end of strings to
-	translate. They will start off with the sequence
-	'##tx:'. Anything beyond (and including) this indicator
-	will be stripped off during translation. There is no
-	need to translate the comment itself, the translation
-	may simply omit it. Comments will only appear on the
-	right-hand side of strings. Whitespace in front of the
-	indication is treated as significant. If a string
-	stripped of its comment evaluates to an empty string the
-	entire string (including the comment) is passed back as
-	the translation such that it will flag the issue right
-	in the frontend.
+   Such comments may appear at the end of strings to
+   translate. They will start off with the indicator
+   sequence '##tx:'. Anything beyond (and including) the
+   right-most occurrence of that indicator will be stripped
+   off during translation. There is no need to translate the
+   comment itself, the translation may simply omit it.
 
-	Such comments may be used to indicate the context of
-	original strings if they can be translated in different
-	ways depending on where they are used, eg: the word
-	Notes' may need to be translated to 'Notizen',
-	'Einträge', 'Hinweise', ... depending on which meaning
-	is needed.
+   Whitespace to the left of the indication is treated as
+   significant. If a string, stripped of its comment,
+   evaluates to an empty string the original text (including
+   the comment) is passed back as the translation such that
+   it will flag the issue right in the frontend.
+
+   Such comments may be used to indicate the context of
+   original strings if they can be translated in different
+   ways depending on where they are used, eg: the word
+   'Notes' may need to be translated to 'Notizen',
+   'Einträge', 'Hinweise', ... depending on which meaning is
+   contextually correct.
 """)
