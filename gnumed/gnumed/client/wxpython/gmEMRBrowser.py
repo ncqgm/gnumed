@@ -52,6 +52,7 @@ from Gnumed.wxpython import gmFormWidgets
 from Gnumed.wxpython import gmHospitalStayWidgets
 from Gnumed.wxpython import gmProcedureWidgets
 from Gnumed.wxpython import gmGenericEMRItemWorkflows
+from Gnumed.wxpython import gmListWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -1616,7 +1617,10 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 
 		self._LCTRL_journal.select_callback = self._on_row_selected
 		self._LCTRL_journal.activate_callback = self._on_row_activated
+		self._LCTRL_journal.edit_callback = self._edit_item
 		self._TCTRL_details.SetValue('')
+		self.__soap2exclude = []
+		self.__item_types2exclude = ['clin.encounter']
 
 	#--------------------------------------------------------
 	# external API
@@ -1624,6 +1628,9 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 	def repopulate_ui(self):
 		self._LCTRL_journal.remove_items_safely()
 		self._TCTRL_details.SetValue('')
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			return
 
 		# <pk_episode NULLS FIRST> ensures that health issues get sorted before their episodes
 		if self._RBTN_by_encounter.Value:
@@ -1641,6 +1648,10 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		else:
 			raise ValueError('invalid EMR journal list sort state')
 
+		soap2exclude = None
+		if self._CHBOX_exclude.IsChecked():
+			soap2exclude = self.__soap2exclude
+			item_types2exclude = self.__item_types2exclude
 		self._LCTRL_journal.set_columns([date_col_header, '', _('Entry')])
 		self._LCTRL_journal.set_resize_column(3)
 		journal = gmPerson.gmCurrentPatient().emr.get_generic_emr_items (
@@ -1648,7 +1659,10 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 			pk_episodes = None,
 			pk_health_issues = None,
 			use_active_encounter = True,
-			order_by = order_by
+			order_by = order_by,
+			soap_cats = soap2exclude,
+			exclude_soap_cats = True,
+			item_types2exclude = self.__item_types2exclude
 		)
 		items = []
 		data = []
@@ -1709,14 +1723,26 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		return True
 
 	#--------------------------------------------------------
-	def _on_row_activated(self, evt):
-		data = self._LCTRL_journal.get_item_data(item_idx = evt.Index)
-		instance = data.specialized_item
+	def _edit_item(self, item=None):
+		if item is None:
+			item = self._LCTRL_results.get_selected_item_data(only_one = True)
+		if item is None:
+			return
+
+		instance = item.specialized_item
 		if instance is None:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot understand item [%s].') % item.item_type_str)
 			return
 
 		if gmGenericEMRItemWorkflows.edit_item_in_dlg(parent = self, item = instance):
 			self.repopulate_ui()
+		else:
+			self._LCTRL_journal.SetFocus()
+
+	#--------------------------------------------------------
+	def _on_row_activated(self, evt):
+		item = self._LCTRL_journal.get_item_data(item_idx = evt.Index)
+		return self._edit_item(item)
 
 	#--------------------------------------------------------
 	def _on_row_selected(self, evt):
@@ -1736,16 +1762,72 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		self.repopulate_ui()
 
 	#--------------------------------------------------------
-	def _on_edit_button_pressed(self, event):
+	def _on_exclude_toggled(self, event):
 		event.Skip()
+		self.repopulate_ui()
 
 	#--------------------------------------------------------
-	def _on_delete_button_pressed(self, event):
+	def _on_configure_soap_filter_button_pressed(self, event):
 		event.Skip()
+		dlg = gmListWidgets.cItemPickerDlg(None, -1, msg = 'Pick SOAP categories to exclude:')
+		dlg.set_columns([_('Available categories')], [_('Excluded categories')])
+		dlg.set_choices(choices = gmSoapDefs.soap_cats_str2list(), data = gmSoapDefs.KNOWN_SOAP_CATS)
+		dlg.set_picks(picks = gmSoapDefs.soap_cats_str2list(soap_cats = self.__soap2exclude), data = self.__soap2exclude)
+		result = dlg.ShowModal()
+		new_excludes = dlg.get_picks()
+		dlg.DestroyLater()
+		if result != wx.ID_OK:
+			return
+
+		self.soap2exclude = new_excludes
 
 	#--------------------------------------------------------
-#	def _on_button_find_pressed(self, event):
-#		self._TCTRL_details.show_find_dialog(title = _('Find text in EMR Journal'))
+	def _on_configure_type_filter_button_pressed(self, event):
+		event.Skip()
+		dlg = gmListWidgets.cItemPickerDlg(None, -1, msg = 'Pick item types to exclude:')
+		dlg.set_columns([_('Available item types')], [_('Excluded item types')])
+
+		choices = [ '%s (%s)' % (raw_type, l10n_type) for l10n_type, raw_type in gmGenericEMRItem._MAP_generic_emr_item_table2type_str.items() ]
+		picks = [ '%s (%s)' % (gmGenericEMRItem._MAP_generic_emr_item_table2type_str[raw_type], raw_type) for raw_type in self.__item_types2exclude ]
+		dlg.set_choices(choices = choices, data = list(gmGenericEMRItem._MAP_generic_emr_item_table2type_str.keys()))
+		dlg.set_picks(picks = picks, data = self.__item_types2exclude)
+		result = dlg.ShowModal()
+		new_item_types = dlg.get_picks()
+		dlg.DestroyLater()
+		if result != wx.ID_OK:
+			return
+
+		self.item_types2exclude = new_item_types
+
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def __set_soap2exclude(self, soap2exclude):
+		if set(soap2exclude) == set(self.__soap2exclude):
+			return
+
+		self.__soap2exclude = soap2exclude
+		self._BTN_configure_soap_filter.ToolTip = _('Exclude: %s##tx: excluding SOAP categories') % soap2exclude
+		if not self._CHBOX_exclude.IsChecked():
+			return
+
+		self.repopulate_ui()
+
+	soap2exclude = property(fset = __set_soap2exclude)
+
+	#--------------------------------------------------------
+	def __set_item_types2exclude(self, item_types2exclude):
+		if set(item_types2exclude) == set(self.__item_types2exclude):
+			return
+
+		self.__item_types2exclude = item_types2exclude
+		self._BTN_configure_type_filter.ToolTip = _('Exclude:\n%s##tx: excluding generic clinical item types') % '\n'.join(item_types2exclude)
+		if not self._CHBOX_exclude.IsChecked():
+			return
+
+		self.repopulate_ui()
+
+	item_types2exclude = property(fset = __set_item_types2exclude)
 
 #================================================================
 # MAIN

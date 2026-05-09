@@ -525,7 +525,7 @@ def is_beginning_of_time(dt:pydt.datetime) -> bool:
 	global PG_BEGINNING_OF_TIME
 	if not PG_BEGINNING_OF_TIME:
 		SQL = "SELECT '-infinity'::TIMESTAMP WITH TIME ZONE AT TIME ZONE 'UTC' AS big_bang"
-		rows = run_ro_query(sql= SQL)
+		rows = run_ro_query(sql = SQL)
 		PG_BEGINNING_OF_TIME = rows[0]['big_bang']
 		_log.debug("psycopg2 puts PG's Big Bang at: %s ('-infinity' at UTC)", PG_BEGINNING_OF_TIME)
 		pydt_bing_bang = pydt.datetime(1,1,1)

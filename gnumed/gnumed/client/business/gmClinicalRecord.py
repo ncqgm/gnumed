@@ -911,7 +911,7 @@ class cClinicalRecord(object):
 		)
 
 	#------------------------------------------------------------------
-	def get_generic_emr_items(self, pk_encounters=None, pk_episodes=None, pk_health_issues=None, use_active_encounter=False, order_by=None):
+	def get_generic_emr_items(self, pk_encounters=None, pk_episodes=None, pk_health_issues=None, use_active_encounter=False, order_by=None, soap_cats=None, exclude_soap_cats=False, item_types2exclude:list[str]=None):
 		if use_active_encounter:
 			active_encounter = self.active_encounter
 		else:
@@ -922,7 +922,10 @@ class cClinicalRecord(object):
 			episodes = pk_episodes,
 			issues = pk_health_issues,
 			active_encounter = active_encounter,
-			order_by = order_by
+			order_by = order_by,
+			soap_cats = soap_cats,
+			exclude_soap_cats = exclude_soap_cats,
+			item_types2exclude = item_types2exclude
 		)
 
 	#--------------------------------------------------------

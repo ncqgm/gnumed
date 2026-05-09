@@ -4,19 +4,13 @@ __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL v2 or later (for details see http://gnu.org)'
 #============================================================
 if __name__ == '__main__':
-	# we are the main script, setup a fake _() for now,
-	# such that it can be used in module level definitions
 	_ = lambda x:x
 else:
-	# we are being imported from elsewhere
-	try:
-		# do we already have _() ?
-		_
+	try: _
 	except NameError:
-		# no, so setup i18n handling
 		from Gnumed.pycommon import gmI18N
 		gmI18N.activate_locale()
-		gmI18N.install_domain()
+		gmI18N.install_domain(domain = 'gnumed')
 
 
 _U_ELLIPSIS = '\u2026'
@@ -60,30 +54,26 @@ l10n2soap_cat = {
 }
 
 #============================================================
-def soap_cats_str2list(soap_cats:str) -> list[str]:
+def soap_cats_str2list(soap_cats:list|str=None) -> list[str]:
 	"""Normalize SOAP categories, preserving order.
 
 	Args:
 		soap_cats: string or list
-		* None -> gmSoapDefs.KNOWN_SOAP_CATS (all)
+		* None -> process KNOWN_SOAP_CATS (all, that is)
 		* [] -> []
 		* '' -> []
 		* ' ' -> [None]	(admin)
 	"""
 	if soap_cats is None:
-		return KNOWN_SOAP_CATS
-
+		soap_cats = KNOWN_SOAP_CATS
+	soap_cats = list(set(soap_cats))
 	normalized_cats:list = []
 	for cat in soap_cats:
 		if cat in [' ', None]:
-			if None in normalized_cats:
-				continue
 			normalized_cats.append(None)
 			continue
 		cat = cat.casefold()
 		if cat in KNOWN_SOAP_CATS:
-			if cat in normalized_cats:
-				continue
 			normalized_cats.append(cat)
 	return normalized_cats
 
@@ -130,7 +120,7 @@ if __name__ == '__main__':
 	del _
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
-	gmI18N.install_domain()
+	gmI18N.install_domain(domain = 'gnumed', prefer_local_catalog = True)
 
 	#--------------------------------------------------------
 	def test_translation():

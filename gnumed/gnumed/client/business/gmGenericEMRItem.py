@@ -239,12 +239,13 @@ class cGenericEMRItem(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def __get_item_type_str(self):
 		try:
-			return _MAP_generic_emr_item_table2type_str[self._payload['src_table']]
+			tmp = _MAP_generic_emr_item_table2type_str[self._payload['src_table']]
 		except KeyError:
-			return '[%s:%s]' % (
+			tmp = '[%s:%s]' % (
 				self._payload['src_table'],
 				self._payload['src_pk']
 			)
+		return tmp
 
 	item_type_str = property(__get_item_type_str)
 
@@ -262,8 +263,24 @@ class cGenericEMRItem(gmBusinessDBObject.cBusinessDBObject):
 	specialized_item = property(__get_specialized_item)
 
 #------------------------------------------------------------
-def get_generic_emr_items(encounters=None, episodes=None, issues=None, patient=None, soap_cats=None, time_range=None, order_by=None, active_encounter=None, return_pks=False):
+def get_generic_emr_items (
+	encounters:list=None,
+	episodes:list=None,
+	issues:list=None,
+	patient=None,
+	soap_cats:str | list[str|None] | tuple[str|None]=None,
+	time_range=None,			# in days
+	order_by:str=None,
+	active_encounter:bool=None,
+	return_pks:bool=False,
+	exclude_soap_cats:bool=False,
+	item_types2exclude:list[str]=None
+) -> list[cGenericEMRItem] | list[int]:
+	"""Return generic EMR items.
 
+	Args:
+		timerange: number of days for going back in EMR
+	"""
 	faulty_args = (
 		(patient is None) and
 		(encounters is None) and
@@ -281,56 +298,58 @@ def get_generic_emr_items(encounters=None, episodes=None, issues=None, patient=N
 		order_by = 'ORDER BY clin_when, pk_episode, scr, modified_when, src_table'
 	else:
 		order_by = 'ORDER BY %s' % order_by
-
 	if (patient is None) and (active_encounter is not None):
 		patient = active_encounter['pk_patient']
-
 	where_parts = []
 	args = {}
-
 	if patient is not None:
-		where_parts.append('c_vej.pk_patient = %(pat)s')
+		where_parts.append('pk_patient = %(pat)s')
 		args['pat'] = patient
 	if soap_cats is not None:
+		cats = list(soap_cats)
 		# work around bug in psycopg2 not being able to properly
 		# adapt None to NULL inside tuples
-		if None in soap_cats:
-			where_parts.append('((c_vej.soap_cat = ANY(%(soap_cat)s)) OR (c_vej.soap_cat IS NULL))')
-			soap_cats.remove(None)
+		if None in cats:
+			where_arg = '((c_vej.soap_cat = ANY(%(soap_cat)s)) OR (c_vej.soap_cat IS NULL))'
+			cats.remove(None)
 		else:
-			where_parts.append('c_vej.soap_cat = ANY(%(soap_cat)s)')
-		args['soap_cat'] = soap_cats
+			where_arg = 'c_vej.soap_cat = ANY(%(soap_cat)s)'
+		if exclude_soap_cats:
+			where_arg = 'NOT (%s)' % where_arg
+		where_parts.append(where_arg)
+		args['soap_cat'] = cats
+	if item_types2exclude:
+		where_parts.append('NOT (src_table = ANY(%(item_types)s))')
+		args['item_types'] = item_types2exclude
 	if time_range is not None:
-		where_parts.append("c_vej.clin_when > (now() - '%s days'::interval)" % time_range)
+		where_parts.append("clin_when > (now() - '%s days'::interval)" % time_range)
 	if encounters is not None:
-		where_parts.append("c_vej.pk_encounter = ANY(%(encs)s)")
+		where_parts.append("pk_encounter = ANY(%(encs)s)")
 		args['encs'] = encounters
 	if episodes is not None:
-		where_parts.append("c_vej.pk_episode = ANY(%(epis)s)")
+		where_parts.append("pk_episode = ANY(%(epis)s)")
 		args['epis'] = episodes
 	if issues is not None:
-		where_parts.append("c_vej.pk_health_issue = ANY(%(issues)s)")
+		where_parts.append("pk_health_issue = ANY(%(issues)s)")
 		args['issues'] = issues
-
-	cmd_journal = _SQL_get_generic_emr_items
+	SQL_journal = _SQL_get_generic_emr_items
 	if len(where_parts) > 0:
-		cmd_journal += '\nWHERE\n\t'
-		cmd_journal += '\t\tAND\t'.join(where_parts)
-
-	if active_encounter is None:
-		cmd = cmd_journal + '\n' + order_by
-	else:
-		args['pk_enc'] = active_encounter['pk_encounter']
-		args['enc_start'] = active_encounter['started']
-		args['enc_last_affirmed'] = active_encounter['last_affirmed']
-		args['enc_type'] = active_encounter['l10n_type']
-		args['enc_pat'] = active_encounter['pk_patient']
-		cmd = __SQL_union % (
-			cmd_journal,
-			_SQL_get_hints_as_generic_emr_items
-		) + '\n' + order_by
-
-	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
+		SQL_journal += '\nWHERE\n\t'
+		SQL_journal += '\n\t\tAND '.join(where_parts)
+	SQL = SQL_journal + '\n' + order_by
+#	if active_encounter is None:
+#		cmd = SQL_journal + '\n' + order_by
+#	else:
+#		args['pk_enc'] = active_encounter['pk_encounter']
+#		args['enc_start'] = active_encounter['started']
+#		args['enc_last_affirmed'] = active_encounter['last_affirmed']
+#		args['enc_type'] = active_encounter['l10n_type']
+#		args['enc_pat'] = active_encounter['pk_patient']
+#		cmd = __SQL_union % (
+#			SQL_journal,
+#			_SQL_get_hints_as_generic_emr_items
+#		) + '\n' + order_by
+	rows = gmPG2.run_ro_query(sql = SQL, args = args)
 	if return_pks:
 		return [ {
 			'src_table': r['src_table'],

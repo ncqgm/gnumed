@@ -42,15 +42,16 @@ class wxgEMRListJournalPluginPnl(wx.ScrolledWindow):
 		self._RBTN_by_item_time.SetToolTip(_("Order by time documented as actual occurrence of each chart entry."))
 		__szr_top.Add(self._RBTN_by_item_time, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
 
-		self._BTN_edit = wx.Button(self, wx.ID_ANY, _("&Edit"), style=wx.BU_EXACTFIT)
-		self._BTN_edit.SetToolTip(_("Edit the selected chart entry."))
-		self._BTN_edit.Enable(False)
-		__szr_top.Add(self._BTN_edit, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
+		self._CHBOX_exclude = wx.CheckBox(self, wx.ID_ANY, _("Exclude:"), style=wx.CHK_2STATE)
+		__szr_top.Add(self._CHBOX_exclude, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 3)
 
-		self._BTN_delete = wx.Button(self, wx.ID_ANY, _("&Delete"), style=wx.BU_EXACTFIT)
-		self._BTN_delete.SetToolTip(_("Delete selected chart entry."))
-		self._BTN_delete.Enable(False)
-		__szr_top.Add(self._BTN_delete, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
+		self._BTN_configure_soap_filter = wx.Button(self, wx.ID_ANY, _("SOAP"))
+		self._BTN_configure_soap_filter.SetToolTip(_("Configure SOAP filtering."))
+		__szr_top.Add(self._BTN_configure_soap_filter, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 3)
+
+		self._BTN_configure_type_filter = wx.Button(self, wx.ID_ANY, _("Entry"))
+		self._BTN_configure_type_filter.SetToolTip(_("Configure entry type filtering."))
+		__szr_top.Add(self._BTN_configure_type_filter, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 3)
 
 		self._SLINE_top = wx.StaticLine(self, wx.ID_ANY)
 		__szr_main.Add(self._SLINE_top, 0, wx.ALL | wx.EXPAND, 0)
@@ -74,8 +75,9 @@ class wxgEMRListJournalPluginPnl(wx.ScrolledWindow):
 		self._RBTN_by_encounter.Bind(wx.EVT_RADIOBUTTON, self._on_order_by_encounter_selected)
 		self._RBTN_by_last_modified.Bind(wx.EVT_RADIOBUTTON, self._on_order_by_last_mod_selected)
 		self._RBTN_by_item_time.Bind(wx.EVT_RADIOBUTTON, self._on_order_by_item_time_selected)
-		self._BTN_edit.Bind(wx.EVT_BUTTON, self._on_edit_button_pressed)
-		self._BTN_delete.Bind(wx.EVT_BUTTON, self._on_delete_button_pressed)
+		self._CHBOX_exclude.Bind(wx.EVT_CHECKBOX, self._on_exclude_toggled)
+		self._BTN_configure_soap_filter.Bind(wx.EVT_BUTTON, self._on_configure_soap_filter_button_pressed)
+		self._BTN_configure_type_filter.Bind(wx.EVT_BUTTON, self._on_configure_type_filter_button_pressed)
 		# end wxGlade
 
 	def _on_order_by_encounter_selected(self, event):  # wxGlade: wxgEMRListJournalPluginPnl.<event_handler>
@@ -90,12 +92,16 @@ class wxgEMRListJournalPluginPnl(wx.ScrolledWindow):
 		print("Event handler '_on_order_by_item_time_selected' not implemented!")
 		event.Skip()
 
-	def _on_edit_button_pressed(self, event):  # wxGlade: wxgEMRListJournalPluginPnl.<event_handler>
-		print("Event handler '_on_edit_button_pressed' not implemented!")
+	def _on_exclude_toggled(self, event):  # wxGlade: wxgEMRListJournalPluginPnl.<event_handler>
+		print("Event handler '_on_exclude_toggled' not implemented!")
 		event.Skip()
 
-	def _on_delete_button_pressed(self, event):  # wxGlade: wxgEMRListJournalPluginPnl.<event_handler>
-		print("Event handler '_on_delete_button_pressed' not implemented!")
+	def _on_configure_soap_filter_button_pressed(self, event):  # wxGlade: wxgEMRListJournalPluginPnl.<event_handler>
+		print("Event handler '_on_configure_soap_filter_button_pressed' not implemented!")
+		event.Skip()
+
+	def _on_configure_type_filter_button_pressed(self, event):  # wxGlade: wxgEMRListJournalPluginPnl.<event_handler>
+		print("Event handler '_on_configure_type_filter_button_pressed' not implemented!")
 		event.Skip()
 
 # end of class wxgEMRListJournalPluginPnl

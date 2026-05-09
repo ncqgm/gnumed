@@ -36,6 +36,13 @@ import wx.lib.mixins.listctrl as listmixins
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
+else:
+	try: _		# do we already have _() ?
+	except NameError:
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
+
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.wxpython.gmGuiHelpers import decorate_window_title, undecorate_window_title
@@ -2583,6 +2590,7 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 	def __handle_edit(self):
 		if self.__edit_callback is None:
 			return
+
 		self.__edit_callback()
 
 	#------------------------------------------------------------
@@ -2700,16 +2708,17 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 			LIST_HITTEST_TORIGHT 2048
 		"""
 		event.Skip()
-
 		item_idx, where_flag = self.HitTest(wx.Point(event.X, event.Y))
-
+#		print(item_idx, '///', where_flag)
+#		i, flags, si = self.HitTestSubItem(wx.Point(event.X, event.Y))
+#		print(i, '///', flags, '///', si)
 		# pointer on item related area at all ?
 		if where_flag not in [
 			wx.LIST_HITTEST_ONITEMLABEL,
 			wx.LIST_HITTEST_ONITEMICON,
 			wx.LIST_HITTEST_ONITEMSTATEICON,
 			#wx.LIST_HITTEST_ONITEMRIGHT,
-			_WX__LIST_HITTEST_ONITEMRIGHT,
+			_WX__LIST_HITTEST_ONITEMRIGHT,					# not existant in wxPython 4.2
 			wx.LIST_HITTEST_ONITEM
 		]:
 			self.__tt_last_item = None						# not on any item
@@ -3547,8 +3556,10 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 		if callback is None:
 			self.__edit_callback = None
 			return
+
 		if not callable(callback):
 			raise ValueError('<edit> callback is not a callable: %s' % callback)
+
 		self.__edit_callback = callback
 
 	edit_callback = property(_get_edit_callback, _set_edit_callback)
@@ -3734,26 +3745,12 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	sys.path.insert(0, '../../')
-
+	del _
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
-	gmI18N.install_domain()
+	gmI18N.install_domain(domain = 'gnumed', prefer_local_catalog = True)
 
-	#------------------------------------------------------------
-	def test_wxMultiChoiceDialog():
-		#app = wx.PyWidgetTester(size = (400, 500))
-		dlg = wx.MultiChoiceDialog (
-			parent = None,
-			message = 'test message',
-			caption = 'test caption',
-			choices = ['a', 'b', 'c', 'd', 'e']
-		)
-		dlg.ShowModal()
-		sels = dlg.GetSelections()
-		print("selected:")
-		for sel in sels:
-			print(sel)
+	from Gnumed.wxpython import gmGuiTest
 
 	#------------------------------------------------------------
 	def test_get_choices_from_list():
@@ -3766,8 +3763,8 @@ if __name__ == '__main__':
 			choices = ['a', 'b', 'c']
 			lctrl.set_string_items(choices)
 
-		#app = 
-		wx.App()
+		gmGuiTest.setup_widget_test_env(patient = -1)
+
 		chosen = get_choices_from_list (
 #			msg = 'select a health issue\nfrom the list below\n',
 			caption = 'select health issues',
@@ -3796,7 +3793,6 @@ if __name__ == '__main__':
 
 	#------------------------------------------------------------
 	test_get_choices_from_list()
-	#test_wxMultiChoiceDialog()
 	#test_item_picker_dlg()
 
 #================================================================
