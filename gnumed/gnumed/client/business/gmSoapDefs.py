@@ -20,33 +20,33 @@ KNOWN_SOAP_CATS.append(None)		# admin category
 
 
 soap_cat2l10n = {
-	's': _('SOAP_char_S=S').replace('SOAP_char_S=', ''),
-	'o': _('SOAP_char_O=O').replace('SOAP_char_O=', ''),
-	'a': _('SOAP_char_A=A').replace('SOAP_char_A=', ''),
-	'p': _('SOAP_char_P=P').replace('SOAP_char_P=', ''),
-	'u': _('SOAP_char_U=U').replace('SOAP_char_U=', ''),
+	's': _('S##tx: single character for SOAP category <Subjective>'),
+	'o': _('O##tx: single character for SOAP category <Objective>'),
+	'a': _('A##tx: single character for SOAP category <Assessment>'),
+	'p': _('P##tx: single character for SOAP category <Plan>'),
+	'u': _('U##tx: single character for SOAP pseudo category <Unspecified>'),
 	'': _U_ELLIPSIS,		# admin
 	None: _U_ELLIPSIS		# admin
 }
 
 
 soap_cat2l10n_str = {
-	's': _('SOAP_string_Subjective=Subjective').replace('SOAP_string_Subjective=', ''),
-	'o': _('SOAP_string_Objective=Objective').replace('SOAP_string_Objective=', ''),
-	'a': _('SOAP_string_Assessment=Assessment').replace('SOAP_string_Assessment=', ''),
-	'p': _('SOAP_string_Plan=Plan').replace('SOAP_string_Plan=', ''),
-	'u': _('SOAP_string_Unspecified=Unspecified').replace('SOAP_string_Unspecified=', ''),
-	'':  _('SOAP_string_Administrative=Administrative').replace('SOAP_string_Administrative=', ''),
-	None: _('SOAP_string_Administrative=Administrative').replace('SOAP_string_Administrative=', '')
+	's': _('Subjective##tx: name for SOAP category <Subjective>'),
+	'o': _('Objective##tx: name for SOAP category <Objective>'),
+	'a': _('Assessment##tx: name for SOAP category <Assessment>'),
+	'p': _('Plan##tx: name for SOAP category <Plan>'),
+	'u': _('Unspecified##tx: name for SOAP pseudo category <Unspecified>'),
+	'':  _('Administrative##tx: name for SOAP pseudo category <Administrative>'),
+	None: _('Administrative##tx: name for SOAP pseudo category <Administrative>')
 }
 
 
 l10n2soap_cat = {
-	_('SOAP_char_S=S').replace('SOAP_char_S=', ''): 's',
-	_('SOAP_char_O=O').replace('SOAP_char_O=', ''): 'o',
-	_('SOAP_char_A=A').replace('SOAP_char_A=', ''): 'a',
-	_('SOAP_char_P=P').replace('SOAP_char_P=', ''): 'p',
-	_('SOAP_char_U=U').replace('SOAP_char_U=', ''): 'u',
+	'%s' % soap_cat2l10n['s']: 's',
+	'%s' % soap_cat2l10n['o']: 'o',
+	'%s' % soap_cat2l10n['a']: 'a',
+	'%s' % soap_cat2l10n['p']: 'p',
+	'%s' % soap_cat2l10n['u']: 'u',
 	_U_ELLIPSIS: None,
 	'.': None,
 	' ': None,
@@ -66,14 +66,18 @@ def soap_cats_str2list(soap_cats:list|str=None) -> list[str]:
 	"""
 	if soap_cats is None:
 		soap_cats = KNOWN_SOAP_CATS
-	soap_cats = list(set(soap_cats))
+	soap_cats = list(soap_cats)
 	normalized_cats:list = []
 	for cat in soap_cats:
 		if cat in [' ', None]:
+			if None in normalized_cats:
+				continue
 			normalized_cats.append(None)
 			continue
 		cat = cat.casefold()
 		if cat in KNOWN_SOAP_CATS:
+			if cat in normalized_cats:
+				continue
 			normalized_cats.append(cat)
 	return normalized_cats
 
@@ -125,7 +129,9 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_translation():
 		for c in KNOWN_SOAP_CATS:
-			print(c, soap_cat2l10n[c], soap_cat2l10n_str[c])
+			print('category:', c)
+			print(' l10n char:', soap_cat2l10n[c])
+			print(' l10n str:', soap_cat2l10n_str[c])
 
 	#--------------------------------------------------------
 	def test_are_valid_cats():
@@ -148,4 +154,4 @@ if __name__ == '__main__':
 
 	#--------------------------------------------------------
 	test_translation()
-	test_are_valid_cats()
+	#test_are_valid_cats()

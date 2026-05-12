@@ -901,16 +901,16 @@ class cTitlePhraseWheel(gmPhraseWheel.cPhraseWheel):
 class cGenderSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select a gender."""
 
-	_gender_map = None
+	_gender_map:dict = None
 
 	def __init__(self, *args, **kwargs):
 
 		if cGenderSelectionPhraseWheel._gender_map is None:
-			cmd = """
+			SQL = """
 				SELECT tag, l10n_name
 				from dem.v_gender_defs
 				order by l10n_name"""
-			rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
+			rows = gmPG2.run_ro_query(sql = SQL)
 			cGenderSelectionPhraseWheel._gender_map = {}
 			for gender in rows:
 				cGenderSelectionPhraseWheel._gender_map[gender['tag']] = {

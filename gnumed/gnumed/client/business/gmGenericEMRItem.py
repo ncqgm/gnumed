@@ -305,7 +305,7 @@ def get_generic_emr_items (
 	if patient is not None:
 		where_parts.append('pk_patient = %(pat)s')
 		args['pat'] = patient
-	if soap_cats is not None:
+	if soap_cats:
 		cats = list(soap_cats)
 		# work around bug in psycopg2 not being able to properly
 		# adapt None to NULL inside tuples

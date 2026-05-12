@@ -1620,7 +1620,9 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		self._LCTRL_journal.edit_callback = self._edit_item
 		self._TCTRL_details.SetValue('')
 		self.__soap2exclude = []
-		self.__item_types2exclude = ['clin.encounter']
+		self.__item_types2exclude = []
+		self.item_types2exclude = ['clin.encounter']
+		self._CHBOX_exclude.Value = True
 
 	#--------------------------------------------------------
 	# external API
@@ -1649,6 +1651,7 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 			raise ValueError('invalid EMR journal list sort state')
 
 		soap2exclude = None
+		item_types2exclude = None
 		if self._CHBOX_exclude.IsChecked():
 			soap2exclude = self.__soap2exclude
 			item_types2exclude = self.__item_types2exclude
@@ -1662,7 +1665,7 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 			order_by = order_by,
 			soap_cats = soap2exclude,
 			exclude_soap_cats = True,
-			item_types2exclude = self.__item_types2exclude
+			item_types2exclude = item_types2exclude
 		)
 		items = []
 		data = []
@@ -1687,10 +1690,9 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 			for line in lines_of_journal_entry[1:]:	# skip first line
 				if line.strip() == '':
 					continue
-				# only first line carries metadata
+				# only first line shows metadata
 				items.append(['', '', line.rstrip()])
 				data.append(entry)
-
 		self._LCTRL_journal.set_string_items(items)
 		# maybe add coloring per-entry ?
 		self._LCTRL_journal.set_column_widths([wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
@@ -1769,7 +1771,7 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 	#--------------------------------------------------------
 	def _on_configure_soap_filter_button_pressed(self, event):
 		event.Skip()
-		dlg = gmListWidgets.cItemPickerDlg(None, -1, msg = 'Pick SOAP categories to exclude:')
+		dlg = gmListWidgets.cItemPickerDlg(None, -1, title = _('SOAP categories to exclude'))
 		dlg.set_columns([_('Available categories')], [_('Excluded categories')])
 		dlg.set_choices(choices = gmSoapDefs.soap_cats_str2list(), data = gmSoapDefs.KNOWN_SOAP_CATS)
 		dlg.set_picks(picks = gmSoapDefs.soap_cats_str2list(soap_cats = self.__soap2exclude), data = self.__soap2exclude)
@@ -1784,9 +1786,8 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 	#--------------------------------------------------------
 	def _on_configure_type_filter_button_pressed(self, event):
 		event.Skip()
-		dlg = gmListWidgets.cItemPickerDlg(None, -1, msg = 'Pick item types to exclude:')
+		dlg = gmListWidgets.cItemPickerDlg(None, -1, title = _('Item types to exclude'))
 		dlg.set_columns([_('Available item types')], [_('Excluded item types')])
-
 		choices = [ '%s (%s)' % (raw_type, l10n_type) for l10n_type, raw_type in gmGenericEMRItem._MAP_generic_emr_item_table2type_str.items() ]
 		picks = [ '%s (%s)' % (gmGenericEMRItem._MAP_generic_emr_item_table2type_str[raw_type], raw_type) for raw_type in self.__item_types2exclude ]
 		dlg.set_choices(choices = choices, data = list(gmGenericEMRItem._MAP_generic_emr_item_table2type_str.keys()))

@@ -129,8 +129,8 @@ def get_all_options(order_by:str=None) -> list:
 		order_by = ''
 	else:
 		order_by = 'ORDER BY %s' % order_by
-	cmd = 'SELECT * FROM cfg.v_cfg_options %s' % order_by
-	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
+	SQL = 'SELECT * FROM cfg.v_cfg_options %s' % order_by
+	rows = gmPG2.run_ro_query(sql = SQL)
 	return rows
 
 #------------------------------------------------------------------
@@ -469,7 +469,7 @@ if __name__ == "__main__":
 	#---------------------------------------------------------
 	gmPG2.request_login_params(setup_pool = True)
 
-	log_all_options()
-	#test_get_all_options()
+	#log_all_options()
+	test_get_all_options()
 	#test_set()
 	#test_db_cfg()

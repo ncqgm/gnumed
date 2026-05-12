@@ -1508,19 +1508,17 @@ def strip_leading_empty_lines(lines=None, text=None, eol='\n', return_list=True)
 def strip_trailing_empty_lines(lines=None, text=None, eol='\n', return_list=True):
 	if lines is None:
 		lines = text.split(eol)
-
 	while True:
 		if lines[-1].strip(eol).strip() != '':
 			break
 		lines = lines[:-1]
-
 	if return_list:
 		return lines
 
 	return eol.join(lines)
 
 #---------------------------------------------------------------------------
-def strip_empty_lines(lines=None, text=None, eol='\n', return_list=True):
+def strip_empty_lines(lines:list[str]=None, text:str=None, eol:str='\n', return_list:bool=True):
 	return strip_trailing_empty_lines (
 		lines = strip_leading_empty_lines(lines = lines, text = text, eol = eol, return_list = True),
 		text = None,

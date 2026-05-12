@@ -682,7 +682,15 @@ def review_document(parent=None, document=None):
 
 #------------------------------------------------------------
 def edit_document_or_part(parent=None, document_or_part=None, single_entry=True):
-	return review_document_part(parent = parent, part = document_or_part)
+	#return review_document_part(parent = parent, part = document_or_part)
+
+	if isinstance(document_or_part, gmDocuments.cDocumentPart):
+		return display_document_part(parent = parent, part = document_or_part)
+
+	if isinstance(document_or_part, gmDocuments.cDocument):
+		for part in document_or_part.parts:
+			display_document_part(parent = parent, part = part)
+		return
 
 #------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgReviewDocPartDlg
