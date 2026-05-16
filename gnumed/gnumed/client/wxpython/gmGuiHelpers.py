@@ -15,6 +15,7 @@ import datetime as pyDT
 
 
 import wx
+import wx.lib.dialogs
 
 
 if __name__ == '__main__':
@@ -586,6 +587,8 @@ def __generate_provider_str():
 
 #---------------------------------------------------------------------------
 def decorate_window_title(title):
+	if title is None:
+		title = ''
 	if not title.startswith(gmTools._GM_TITLE_PREFIX):
 		title = '%s: %s' % (
 			gmTools._GM_TITLE_PREFIX,
@@ -693,6 +696,13 @@ def gm_show_question(question:str=None, title:str=None, cancel_button:bool=False
 		return False
 
 	return None
+
+#-------------------------------------------------------------------------
+def gm_show_multiline_text(text:str=None, title:str=None):
+	title = decorate_window_title(title)
+	style = wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER
+	dlg = wx.lib.dialogs.ScrolledMessageDialog(None, text, title, style = style)
+	dlg.ShowModal()
 
 #======================================================================
 __IS_DARK_THEME:bool=None	# hash calculation, requires client restart for dark/ligth theme change
