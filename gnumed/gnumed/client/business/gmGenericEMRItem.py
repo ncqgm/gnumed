@@ -8,6 +8,7 @@ __author__ = "<karsten.hilbert@gmx.net>"
 
 import sys
 import logging
+import datetime as pydt
 
 
 if __name__ == '__main__':
@@ -176,32 +177,52 @@ class cGenericEMRItem(gmBusinessDBObject.cBusinessDBObject):
 		lines = self.formatted_header
 		lines.append(gmTools.u_box_horiz_4dashes * 40)
 		lines.extend(self._payload['narrative'].strip().split('\n'))
-		lines.append('')
-		lines.append(_('                          rev %s (%s) by %s') % (
-			self._payload['row_version'],
-			self._payload['date_modified'],
-			self._payload['modified_by']
-		))
 		if eol is None:
 			return lines
 
 		return eol.join(lines)
 
 	#--------------------------------------------------------
+	def format_tech_info(self) -> list[str]:
+		lines = []
+		lines.append('%s [%s]' % (self.item_type_str, self._payload['real_soap_cat']))
+		lines.append(' ' + _('Table: %s##tx: EMR item source (database table, mostly)') % self._payload['src_table'])
+		lines.append(' ' + _('Revision: %s%s') % (
+			self._payload['row_version'],
+			(' (%s)' % _('newly inserted')) if (self._payload['row_version'] == 0) else ''
+		))
+		lines.append(' ' + _('Last modified:'))
+		lines.append('  %s (%s)' % (
+			self._payload['modified_when'].timestamp(),
+			_('UNIX timestamp')
+		))
+		format = '%Y-%m-%d (%b, %a) %H:%M:%S:%f %Z'
+		lines.append('  %s %s' % (
+			gmTools.u_arrow2right,
+			self._payload['modified_when'].astimezone(tz = pydt.timezone.utc).strftime(format)
+		))
+		lines.append('  %s %s (%s)' % (
+			gmTools.u_arrow2right,
+			self._payload['modified_when'].strftime(format),
+			_('local time')
+		))
+		lines.append(' ' + _('Modified by: %s') % self._payload['modified_by'])
+		lines.append(' %s PK: %s' % (
+			self._payload['src_table'],
+			self._payload['src_pk']
+		))
+		lines.append(' ' + _('Encounter PK: %s') % self._payload['pk_encounter'])
+		lines.append(' ' + _('Episode PK: %s') % self._payload['pk_episode'])
+		lines.append(' ' + _('Health Issue PK: %s') % self._payload['pk_health_issue'])
+		lines.append(' ' + _('Patient PK: %s') % self._payload['pk_patient'])
+		return lines
+
+	formatted_tech_info = property(fget = format_tech_info)
+
+	#--------------------------------------------------------
 	def format_header(self, eol=None):
 		lines = []
-		lines.append('%s (%s)       [#%s in %s]' % (
-			self.item_type_str,
-			self.i18n_soap_cat,
-			self._payload['src_pk'],
-			self._payload['src_table']
-		))
-		lines.append(_(' Modified: %s by %s (%s rev %s)') % (
-			self._payload['date_modified'],
-			self._payload['modified_by'],
-			gmTools.u_arrow2right,
-			self._payload['row_version']
-		))
+		lines.append('%s (%s)' % (self.item_type_str, self.i18n_soap_cat))
 		lines.append('')
 		if self._payload['health_issue'] is None:
 			issue_info = gmTools.u_diameter
@@ -395,8 +416,9 @@ if __name__ == '__main__':
 			return_pks = False
 		):
 			print('------------------------------')
-			print(item.format(eol = '\n'))
-			print(item.staff_id)
+			print('\n'.join(item.formatted_tech_info))
+#			print(item.format(eol = '\n'))
+#			print(item.staff_id)
 			input('<next>')
 			#print(item.specialized_item)
 			#input('<next>')
