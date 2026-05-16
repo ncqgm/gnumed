@@ -2712,13 +2712,16 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 #		print(item_idx, '///', where_flag)
 #		i, flags, si = self.HitTestSubItem(wx.Point(event.X, event.Y))
 #		print(i, '///', flags, '///', si)
+#		print('-----')
 		# pointer on item related area at all ?
 		if where_flag not in [
 			wx.LIST_HITTEST_ONITEMLABEL,
 			wx.LIST_HITTEST_ONITEMICON,
 			wx.LIST_HITTEST_ONITEMSTATEICON,
+			# not existant in wxPython 4.2:
 			#wx.LIST_HITTEST_ONITEMRIGHT,
-			_WX__LIST_HITTEST_ONITEMRIGHT,					# not existant in wxPython 4.2
+			# fake it:
+			_WX__LIST_HITTEST_ONITEMRIGHT,
 			wx.LIST_HITTEST_ONITEM
 		]:
 			self.__tt_last_item = None						# not on any item

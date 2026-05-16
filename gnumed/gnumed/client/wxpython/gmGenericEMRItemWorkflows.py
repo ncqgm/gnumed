@@ -49,7 +49,6 @@ from Gnumed.wxpython.gmDocumentWidgets import edit_document_or_part
 
 _log = logging.getLogger('gm.ui')
 
-#c: {'edit_in_dlg': edit_}
 __map_class2edit_call = {
 	cEpisode: {'edit_in_dlg': edit_episode},
 	cHealthIssue: {'edit_in_dlg': edit_health_issue},
@@ -69,6 +68,7 @@ __map_class2edit_call = {
 	cDocument: {'edit_in_dlg': edit_document_or_part},
 	cDocumentPart: {'edit_in_dlg': edit_document_or_part}
 }
+#c: {'edit_in_dlg': edit_}
 
 #================================================================
 def edit_item_in_dlg(parent=None, item=None):
