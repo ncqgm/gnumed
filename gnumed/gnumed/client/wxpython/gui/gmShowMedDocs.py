@@ -19,7 +19,7 @@ if __name__ == '__main__':
 class gmShowMedDocs(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate document tree."""
 
-	tab_name = _('Archive')
+	tab_name = _('Docs##tx: notebook plugin tab name for document archive')
 	required_minimum_role = 'full clinical access'
 
 	@gmAccessPermissionWidgets.verify_minimum_required_role (
