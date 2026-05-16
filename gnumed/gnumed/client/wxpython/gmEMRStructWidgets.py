@@ -37,6 +37,7 @@ from Gnumed.business import gmHealthIssue
 from Gnumed.business import gmEpisode
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmPerson
+from Gnumed.business.gmGenericEMRItem import cGenericEMRItem
 
 from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmGuiHelpers
@@ -66,6 +67,67 @@ def emr_access_spinner(time2spin=0):
 		wx.Yield()
 		time.sleep(sleep_time)
 		rounds += 1
+
+#================================================================
+# EMR entry item info button
+#----------------------------------------------------------------
+class cEmrItemInfoButton(wx.Button):
+	"""Button for EMR item info display.
+
+	Code using this button must set .emr_item =
+	some_emr_item as appropriate.
+
+	It will display a tooltip with technical information on
+	the attached item and a more detailed list of clinical
+	on non-clinical information on the attached item when
+	clicked.
+	"""
+	def __init__(self, *args, **kwargs):
+		try:
+			kwargs['style']
+		except KeyError:
+			kwargs['style'] = wx.BORDER_NONE | wx.BU_EXACTFIT
+		super().__init__(*args, **kwargs)
+		self.Label = ' 🛈 '			# info symbol
+		self.SetForegroundColour(wx.Colour('blue'))
+		self.__emr_item = None
+		self.__update_tooltip()
+		self.Bind(wx.EVT_BUTTON, self._on_button_pressed)
+
+	#-----------------------------------------
+	def __set_emr_item(self, emr_item=None):
+		self.__emr_item = emr_item
+		self.__update_tooltip()
+
+	emr_item = property(fset = __set_emr_item)
+
+	#-----------------------------------------
+	def __update_tooltip(self):
+		if not self.__emr_item:
+			self.ToolTip = _('no EMR item attached')
+			return
+
+		hint = _('Click me for more information.')
+		if isinstance(self.__emr_item, cGenericEMRItem):
+			tt = self.__emr_item.formatted_tech_info
+			tt.append(gmTools.u_box_horiz_4dashes * 40)
+			tt.append(hint)
+			self.ToolTip = '\n'.join(tt)
+			return
+
+	#-----------------------------------------
+	def _on_button_pressed(self, event):
+		event.Skip()
+		if not self.__emr_item:
+			return
+
+		lines = []
+		if isinstance(self.__emr_item, cGenericEMRItem):
+			lines.extend(self.__emr_item.formatted_tech_info)
+			lines.append(gmTools.u_box_horiz_4dashes * 40)
+			lines.extend(self.__emr_item.format())
+			gmGuiHelpers.gm_show_multiline_text(text = '\n'.join(lines), title = _('EMR entry details'))
+			return
 
 #================================================================
 # episode related widgets/functions
