@@ -1749,6 +1749,7 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 	#--------------------------------------------------------
 	def _on_row_selected(self, evt):
 		data = self._LCTRL_journal.get_item_data(item_idx = evt.Index)
+		self._BTN_emr_item_info.emr_item = data
 		self._TCTRL_details.SetValue(data.format(eol = '\n'))
 
 	#--------------------------------------------------------

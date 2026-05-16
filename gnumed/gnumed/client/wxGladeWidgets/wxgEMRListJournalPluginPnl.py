@@ -11,15 +11,15 @@ import gettext
 
 # begin wxGlade: extracode
 from Gnumed.wxpython.gmListWidgets import cReportListCtrl
+from Gnumed.wxpython.gmEMRStructWidgets import cEmrItemInfoButton
 # end wxGlade
 
 
-class wxgEMRListJournalPluginPnl(wx.ScrolledWindow):
+class wxgEMRListJournalPluginPnl(wx.Panel):
 	def __init__(self, *args, **kwds):
 		# begin wxGlade: wxgEMRListJournalPluginPnl.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.BORDER_NONE | wx.TAB_TRAVERSAL
-		wx.ScrolledWindow.__init__(self, *args, **kwds)
-		self.SetScrollRate(10, 10)
+		wx.Panel.__init__(self, *args, **kwds)
 
 		__szr_main = wx.BoxSizer(wx.VERTICAL)
 
@@ -52,6 +52,12 @@ class wxgEMRListJournalPluginPnl(wx.ScrolledWindow):
 		self._BTN_configure_type_filter = wx.Button(self, wx.ID_ANY, _("Entry"))
 		self._BTN_configure_type_filter.SetToolTip(_("Configure entry type filtering."))
 		__szr_top.Add(self._BTN_configure_type_filter, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 3)
+
+		__szr_top.Add((20, 20), 1, wx.EXPAND, 0)
+
+		self._BTN_emr_item_info = cEmrItemInfoButton(self, wx.ID_ANY, _(u"🛈"))
+		self._BTN_emr_item_info.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+		__szr_top.Add(self._BTN_emr_item_info, 0, wx.ALIGN_BOTTOM, 0)
 
 		self._SLINE_top = wx.StaticLine(self, wx.ID_ANY)
 		__szr_main.Add(self._SLINE_top, 0, wx.ALL | wx.EXPAND, 0)
