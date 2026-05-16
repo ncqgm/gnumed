@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-28 23:45+0200\n"
-"PO-Revision-Date: 2026-04-26 16:46+0200\n"
+"POT-Creation-Date: 2026-05-16 14:18+0200\n"
+"PO-Revision-Date: 2026-05-16 14:18+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -258,13 +258,13 @@ msgstr "Skript darf kein Link sein: [%s]."
 
 #, python-format
 msgid "Script must be readable by the calling user: [%s]."
-msgstr "Skript muß vom ausführenden Nutzer besessen werden: [%s]."
+msgstr "Ausführender Nutzer muß Leserechte haben: [%s]."
 
 #, python-format
 msgid ""
 "Script must be readable by the calling user only (permissions \"0600\"): "
 "[%s]."
-msgstr "Skript darf nur für den Nutzer lesbar sein (Rechte \"0600\"): [%s]."
+msgstr "NUR der ausführende Nutzer darf Leserechte (\"0600\") haben: [%s]."
 
 #, python-format
 msgid "Error running hook [%s] script."
@@ -5056,11 +5056,23 @@ msgid "Order by time documented as actual occurrence of each chart entry."
 msgstr ""
 "Nach Zeitpunkt des eigentlichen Geschehens des jeweiligen Eintrags ordnen."
 
-msgid "Edit the selected chart entry."
-msgstr "Den markierten Krankenblatteintrag bearbeiten."
+msgid "Exclude:"
+msgstr "Ausfiltern:"
 
-msgid "Delete selected chart entry."
-msgstr "Den markierten Krankenblatteintrag löschen."
+msgid "SOAP"
+msgstr "ABDT"
+
+msgid "Configure SOAP filtering."
+msgstr "ABDT-Filter konfigurieren."
+
+msgid "Entry"
+msgstr "Eintrag"
+
+msgid "Configure entry type filtering."
+msgstr "Filter nach Typ eines Eintrags konfigurieren."
+
+msgid "🛈"
+msgstr ""
 
 msgid "Chec&k"
 msgstr "&Prüfen"
@@ -7787,38 +7799,38 @@ msgstr "Grunderkrankung: %s%s%s"
 msgid "Unattributed episodes"
 msgstr "Nicht zugeordnete Episoden"
 
-msgid "SOAP_char_S=S"
-msgstr "SOAP_char_S=A"
+msgid "S##tx: single character for SOAP category <Subjective>"
+msgstr "A"
 
-msgid "SOAP_char_O=O"
-msgstr "SOAP_char_O=B"
+msgid "O##tx: single character for SOAP category <Objective>"
+msgstr "B"
 
-msgid "SOAP_char_A=A"
-msgstr "SOAP_char_A=D"
+msgid "A##tx: single character for SOAP category <Assessment>"
+msgstr "D"
 
-msgid "SOAP_char_P=P"
-msgstr "SOAP_char_P=T"
+msgid "P##tx: single character for SOAP category <Plan>"
+msgstr "T"
 
-msgid "SOAP_char_U=U"
-msgstr "SOAP_char_U=U"
+msgid "U##tx: single character for SOAP pseudo category <Unspecified>"
+msgstr "U"
 
-msgid "SOAP_string_Subjective=Subjective"
-msgstr "SOAP_string_Subjective=Anamnese"
+msgid "Subjective##tx: name for SOAP category <Subjective>"
+msgstr "Anamnese"
 
-msgid "SOAP_string_Objective=Objective"
-msgstr "SOAP_string_Objective=Befund"
+msgid "Objective##tx: name for SOAP category <Objective>"
+msgstr "Befund"
 
-msgid "SOAP_string_Assessment=Assessment"
-msgstr "SOAP_string_Assessment=Bewertung"
+msgid "Assessment##tx: name for SOAP category <Assessment>"
+msgstr "Diagnose"
 
-msgid "SOAP_string_Plan=Plan"
-msgstr "SOAP_string_Plan=Therapieplan"
+msgid "Plan##tx: name for SOAP category <Plan>"
+msgstr "Therapie"
 
-msgid "SOAP_string_Unspecified=Unspecified"
-msgstr "SOAP_string_Unspecified=Unbestimmt"
+msgid "Unspecified##tx: name for SOAP pseudo category <Unspecified>"
+msgstr "Unbekannt"
 
-msgid "SOAP_string_Administrative=Administrative"
-msgstr "SOAP_string_Administrative=Administrativ"
+msgid "Administrative##tx: name for SOAP pseudo category <Administrative>"
+msgstr "Verwaltung"
 
 #, python-format
 msgid "%s (auto-import %s)"
@@ -7940,12 +7952,44 @@ msgid "Inbox message"
 msgstr "Nachricht"
 
 #, python-format
-msgid "                          rev %s (%s) by %s"
-msgstr "                          v%s (%s) durch %s"
+msgid "Table: %s##tx: EMR item source (database table, mostly)"
+msgstr ""
 
 #, python-format
-msgid " Modified: %s by %s (%s rev %s)"
-msgstr " Geändert: %s durch %s (%s v%s)"
+msgid "Revision: %s%s"
+msgstr "Revision: %s%s"
+
+msgid "newly inserted"
+msgstr "neuer Eintrag"
+
+msgid "Last modified:"
+msgstr "Zuletzt geändert:"
+
+msgid "UNIX timestamp"
+msgstr "UNIX-Zeitstempel"
+
+msgid "local time"
+msgstr "Ortszeit"
+
+#, python-format
+msgid "Modified by: %s"
+msgstr "Geändert durch: %s"
+
+#, python-format
+msgid "Encounter PK: %s"
+msgstr "PK Kontakt: %s"
+
+#, python-format
+msgid "Episode PK: %s"
+msgstr "PK Episode: %s"
+
+#, python-format
+msgid "Health Issue PK: %s"
+msgstr "PK Grunderkrankungs: %s"
+
+#, python-format
+msgid "Patient PK: %s"
+msgstr "PK Patient: %s"
 
 #, python-format
 msgid "Health issue: %s"
@@ -8871,9 +8915,6 @@ msgstr "Zuletzt geändert"
 msgid "By"
 msgstr "Von"
 
-msgid "Entry"
-msgstr "Eintrag"
-
 msgid "When"
 msgstr "Wann"
 
@@ -8886,6 +8927,15 @@ msgstr "Krankenblatt als chronologisches Journal\n"
 
 msgid "Doc"
 msgstr "Arzt"
+
+msgid "no EMR item attached"
+msgstr "kein Krankenblatteintrag gesetzt"
+
+msgid "Click me for more information."
+msgstr "Weitere Informationen auf Knopfdruck."
+
+msgid "EMR entry details"
+msgstr "Details zum Eintrag im Krankenblatt"
 
 msgid "Adding a new episode"
 msgstr "Neue Episode hinzufügen"
@@ -19616,6 +19666,40 @@ msgstr "Finde Text im Krankenjournal"
 msgid "Happened"
 msgstr "Passiert"
 
+#, python-format
+msgid "Cannot understand item [%s]."
+msgstr "Eintragstyp [%s] unbekannt."
+
+msgid "SOAP categories to exclude"
+msgstr "Auszufilternde ABDT-Kategorien"
+
+msgid "Available categories"
+msgstr "Verfügbare Kategorien"
+
+msgid "Excluded categories"
+msgstr "Auszufilternde Kategorien"
+
+msgid "Item types to exclude"
+msgstr "Auszufilternde Eintragstypen"
+
+msgid "Available item types"
+msgstr "Bekannte Eintragstypen"
+
+msgid "Excluded item types"
+msgstr "Auszufilternde Eintragstypen"
+
+#, python-format
+msgid "Exclude: %s##tx: excluding SOAP categories"
+msgstr "Ausfiltern: %s"
+
+#, python-format
+msgid ""
+"Exclude:\n"
+"%s##tx: excluding generic clinical item types"
+msgstr ""
+"Ausfiltern:\n"
+"%s"
+
 msgid "Editing tag"
 msgstr "Symbol bearbeiten"
 
@@ -20458,10 +20542,10 @@ msgid "loading plugin <%s>"
 msgstr "lade Modul <%s>"
 
 msgid "EMR TL"
-msgstr "PA: Zeitstrahl"
+msgstr "KBl:Zeitstrahl"
 
 msgid "EMR: T&imeline"
-msgstr "Krankenblatt: &Zeitstrahl"
+msgstr "Krankenblatt (KBl): &Zeitstrahl"
 
 msgid "Overview"
 msgstr "Übersicht"
@@ -20482,10 +20566,10 @@ msgid "&SimpleNotes"
 msgstr "&EinfachKartei"
 
 msgid "EMR Tree"
-msgstr "PA: Baum"
+msgstr "KBl:Baum"
 
 msgid "EMR: &Tree"
-msgstr "Krankenblatt: &Baum"
+msgstr "Krankenblatt (KBl): &Baum"
 
 msgid "Print Manager"
 msgstr "Druckcenter"
@@ -20494,10 +20578,10 @@ msgid "&Print Manager"
 msgstr "&Druckcenter"
 
 msgid "EMR List"
-msgstr "PA: Liste"
+msgstr "KBl:Liste"
 
 msgid "EMR: &List Journal"
-msgstr "Krankenblatt: &Liste"
+msgstr "Krankenblatt (KBl): &Liste"
 
 msgid "&Vaccinations"
 msgstr "&Impfungen"
@@ -20539,10 +20623,10 @@ msgid "User &manual (local)"
 msgstr "&Handbuch (lokal)"
 
 msgid "EMR Text"
-msgstr "PA: Journal"
+msgstr "KBl:Journal"
 
 msgid "EMR: Te&xt Journal"
-msgstr "Krankenblatt: &Journal"
+msgstr "Krankenblatt (KBl): &Journal"
 
 msgid "Demographics"
 msgstr "Personalien"
@@ -20556,8 +20640,8 @@ msgstr "&Warteliste"
 msgid "Medication"
 msgstr "Medikamente"
 
-msgid "Archive"
-msgstr "Archiv"
+msgid "Docs##tx: notebook plugin tab name for document archive"
+msgstr "Dokumente"
 
 msgid "&Documents"
 msgstr "&Dokumente"
@@ -20641,10 +20725,10 @@ msgid "progress notes"
 msgstr "Verlaufsnotizen"
 
 msgid "Notes"
-msgstr "PA: Editor"
+msgstr "KBl:Editor"
 
 msgid "&Notes"
-msgstr "Krankenblatt: &Editor"
+msgstr "Krankenblatt (KBl): &Editor"
 
 msgid "Billing"
 msgstr "Abrechnung"
@@ -20695,6 +20779,65 @@ msgstr "Abbrechen"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
+
+#~ msgid "local##tx: as in \"local time\""
+#~ msgstr "örtlich"
+
+#~ msgid "UTC##tx: as in \"UTC time\""
+#~ msgstr "UTC"
+
+#, python-format
+#~ msgid "                          rev %s (%s) by %s"
+#~ msgstr "                          v%s (%s) durch %s"
+
+#, python-format
+#~ msgid " Modified: %s by %s (%s rev %s)"
+#~ msgstr " Geändert: %s durch %s (%s v%s)"
+
+#~ msgid "Docs"
+#~ msgstr "Dokumente"
+
+#~ msgid "Archive"
+#~ msgstr "Archiv"
+
+#~ msgid "SOAP_char_S=S"
+#~ msgstr "SOAP_char_S=A"
+
+#~ msgid "SOAP_char_O=O"
+#~ msgstr "SOAP_char_O=B"
+
+#~ msgid "SOAP_char_A=A"
+#~ msgstr "SOAP_char_A=D"
+
+#~ msgid "SOAP_char_P=P"
+#~ msgstr "SOAP_char_P=T"
+
+#~ msgid "SOAP_char_U=U"
+#~ msgstr "SOAP_char_U=U"
+
+#~ msgid "SOAP_string_Subjective=Subjective"
+#~ msgstr "SOAP_string_Subjective=Anamnese"
+
+#~ msgid "SOAP_string_Objective=Objective"
+#~ msgstr "SOAP_string_Objective=Befund"
+
+#~ msgid "SOAP_string_Assessment=Assessment"
+#~ msgstr "SOAP_string_Assessment=Bewertung"
+
+#~ msgid "SOAP_string_Plan=Plan"
+#~ msgstr "SOAP_string_Plan=Therapieplan"
+
+#~ msgid "SOAP_string_Unspecified=Unspecified"
+#~ msgstr "SOAP_string_Unspecified=Unbestimmt"
+
+#~ msgid "SOAP_string_Administrative=Administrative"
+#~ msgstr "SOAP_string_Administrative=Administrativ"
+
+#~ msgid "Edit the selected chart entry."
+#~ msgstr "Den markierten Krankenblatteintrag bearbeiten."
+
+#~ msgid "Delete selected chart entry."
+#~ msgstr "Den markierten Krankenblatteintrag löschen."
 
 #, python-format
 #~ msgid "Chart entry (%s): %s       [#%s in %s]"
@@ -22287,9 +22430,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Add a user defined icon"
 #~ msgstr "Eigene Symbole hinzufügen"
-
-#~ msgid "Edit categories"
-#~ msgstr "Kategorien bearbeiten"
 
 #~ msgid ""
 #~ "\n"
@@ -24595,9 +24735,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ msgid "Editing data"
 #~ msgstr "Daten bearbeiten"
 
-#~ msgid "Revision #%s"
-#~ msgstr "Revision #%s"
-
 #~ msgid "Please supply your email address here !"
 #~ msgstr "<bitte geben Sie Ihre E-Mail-Adresse ein>"
 
@@ -24606,9 +24743,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Close this dialog AND the GNUmed client."
 #~ msgstr "Diesen Dialog UND GNUmed schließen."
-
-#~ msgid "Clinical time"
-#~ msgstr "Medizinischer Zeitpunkt"
 
 #~ msgid "Save (D)"
 #~ msgstr "Speichern (D)"
@@ -24951,9 +25085,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "%d year(s) ago - %s"
 #~ msgstr "vor %d Jahr(en) - %s"
-
-#~ msgid "Included test types:\n"
-#~ msgstr "Enthaltene Meßmethoden:\n"
 
 #~ msgid "Referrer"
 #~ msgstr "Überweiser"
@@ -26175,9 +26306,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ msgstr ""
 #~ "Gruppiert unter \"%(name_meta)s\" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n"
 
-#~ msgid "Cannot start episode [%s]."
-#~ msgstr "Kann Episode [%s] nicht eröffnen."
-
 #~ msgid ""
 #~ "... or ...\n"
 #~ "\n"
@@ -26246,9 +26374,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Processed by:"
 #~ msgstr "Verarbeitet von:"
-
-#~ msgid "Last modified:"
-#~ msgstr "Zuletzt geändert:"
 
 #~ msgid "by:"
 #~ msgstr "von:"
@@ -26599,9 +26724,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Amount per dose: %s%s"
 #~ msgstr "Menge pro Dosis: %s%s"
-
-#~ msgid "Pick SOAP"
-#~ msgstr "ABDT wählen"
 
 #~ msgid "Owner"
 #~ msgstr "Besitzer"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-28 23:45+0200\n"
+"POT-Creation-Date: 2026-05-16 14:18+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4414,10 +4414,22 @@ msgstr ""
 msgid "Order by time documented as actual occurrence of each chart entry."
 msgstr ""
 
-msgid "Edit the selected chart entry."
+msgid "Exclude:"
 msgstr ""
 
-msgid "Delete selected chart entry."
+msgid "SOAP"
+msgstr ""
+
+msgid "Configure SOAP filtering."
+msgstr ""
+
+msgid "Entry"
+msgstr ""
+
+msgid "Configure entry type filtering."
+msgstr ""
+
+msgid "🛈"
 msgstr ""
 
 msgid "Chec&k"
@@ -6849,37 +6861,37 @@ msgstr ""
 msgid "Unattributed episodes"
 msgstr ""
 
-msgid "SOAP_char_S=S"
+msgid "S##tx: single character for SOAP category <Subjective>"
 msgstr ""
 
-msgid "SOAP_char_O=O"
+msgid "O##tx: single character for SOAP category <Objective>"
 msgstr ""
 
-msgid "SOAP_char_A=A"
+msgid "A##tx: single character for SOAP category <Assessment>"
 msgstr ""
 
-msgid "SOAP_char_P=P"
+msgid "P##tx: single character for SOAP category <Plan>"
 msgstr ""
 
-msgid "SOAP_char_U=U"
+msgid "U##tx: single character for SOAP pseudo category <Unspecified>"
 msgstr ""
 
-msgid "SOAP_string_Subjective=Subjective"
+msgid "Subjective##tx: name for SOAP category <Subjective>"
 msgstr ""
 
-msgid "SOAP_string_Objective=Objective"
+msgid "Objective##tx: name for SOAP category <Objective>"
 msgstr ""
 
-msgid "SOAP_string_Assessment=Assessment"
+msgid "Assessment##tx: name for SOAP category <Assessment>"
 msgstr ""
 
-msgid "SOAP_string_Plan=Plan"
+msgid "Plan##tx: name for SOAP category <Plan>"
 msgstr ""
 
-msgid "SOAP_string_Unspecified=Unspecified"
+msgid "Unspecified##tx: name for SOAP pseudo category <Unspecified>"
 msgstr ""
 
-msgid "SOAP_string_Administrative=Administrative"
+msgid "Administrative##tx: name for SOAP pseudo category <Administrative>"
 msgstr ""
 
 #, python-format
@@ -7000,11 +7012,43 @@ msgid "Inbox message"
 msgstr ""
 
 #, python-format
-msgid "                          rev %s (%s) by %s"
+msgid "Table: %s##tx: EMR item source (database table, mostly)"
 msgstr ""
 
 #, python-format
-msgid " Modified: %s by %s (%s rev %s)"
+msgid "Revision: %s%s"
+msgstr ""
+
+msgid "newly inserted"
+msgstr ""
+
+msgid "Last modified:"
+msgstr ""
+
+msgid "UNIX timestamp"
+msgstr ""
+
+msgid "local time"
+msgstr ""
+
+#, python-format
+msgid "Modified by: %s"
+msgstr ""
+
+#, python-format
+msgid "Encounter PK: %s"
+msgstr ""
+
+#, python-format
+msgid "Episode PK: %s"
+msgstr ""
+
+#, python-format
+msgid "Health Issue PK: %s"
+msgstr ""
+
+#, python-format
+msgid "Patient PK: %s"
 msgstr ""
 
 #, python-format
@@ -7889,9 +7933,6 @@ msgstr ""
 msgid "By"
 msgstr ""
 
-msgid "Entry"
-msgstr ""
-
 msgid "When"
 msgstr ""
 
@@ -7903,6 +7944,15 @@ msgid "Chronological EMR Journal\n"
 msgstr ""
 
 msgid "Doc"
+msgstr ""
+
+msgid "no EMR item attached"
+msgstr ""
+
+msgid "Click me for more information."
+msgstr ""
+
+msgid "EMR entry details"
 msgstr ""
 
 msgid "Adding a new episode"
@@ -17088,6 +17138,38 @@ msgstr ""
 msgid "Happened"
 msgstr ""
 
+#, python-format
+msgid "Cannot understand item [%s]."
+msgstr ""
+
+msgid "SOAP categories to exclude"
+msgstr ""
+
+msgid "Available categories"
+msgstr ""
+
+msgid "Excluded categories"
+msgstr ""
+
+msgid "Item types to exclude"
+msgstr ""
+
+msgid "Available item types"
+msgstr ""
+
+msgid "Excluded item types"
+msgstr ""
+
+#, python-format
+msgid "Exclude: %s##tx: excluding SOAP categories"
+msgstr ""
+
+#, python-format
+msgid ""
+"Exclude:\n"
+"%s##tx: excluding generic clinical item types"
+msgstr ""
+
 msgid "Editing tag"
 msgstr ""
 
@@ -17822,7 +17904,7 @@ msgstr ""
 msgid "Medication"
 msgstr ""
 
-msgid "Archive"
+msgid "Docs##tx: notebook plugin tab name for document archive"
 msgstr ""
 
 msgid "&Documents"
