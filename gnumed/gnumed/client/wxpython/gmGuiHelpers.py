@@ -703,6 +703,7 @@ def gm_show_multiline_text(text:str=None, title:str=None):
 	style = wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER
 	dlg = wx.lib.dialogs.ScrolledMessageDialog(None, text, title, style = style)
 	dlg.ShowModal()
+	dlg.DestroyLater()
 
 #======================================================================
 __IS_DARK_THEME:bool=None	# hash calculation, requires client restart for dark/ligth theme change
