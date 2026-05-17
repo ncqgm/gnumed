@@ -1104,6 +1104,33 @@ def get_col_names(link_obj:_TLnkObj=None, schema='public', table=None):
 	return [ row[0] for row in rows]
 
 #------------------------------------------------------------------------
+def get_row_history(link_obj:_TLnkObj=None, schema:str=None, table:str=None, pk:int|str=None) -> list:
+	args = {'schema': schema, 'table': table, 'pk': pk}
+	SQL = 'SELECT 1 FROM audit.audited_tables WHERE schema = %(schema)s and table_name = %(table)s'
+	rows = run_ro_query(link_obj = link_obj, sql = SQL, args = args)
+	if not rows:
+		_log.error('table [%s.%s] not registered for auditing', schema, table)
+		return None
+
+	rows = run_ro_query(link_obj = link_obj, sql = SQL_get_primary_key_name, args = args)
+	if not rows:
+		_log.error('table [%s.%s] does not have a primary key, cannot retrieve audited rows', schema, table)
+		return None
+
+	if len(rows) > 1:
+		_log.info('table [%s.%s] has multi-column primary key, cannot retrieve audited rows', schema, table)
+		return None
+
+	pk_name = rows[0][0]
+	where_parts = ["orig_tableoid = '%s.%s'::regclass" % (schema, table)]
+	where_parts.append('%s = %%(pk)s' % pk_name)
+	SQL = 'SELECT * FROM audit.log_%s' % table
+	SQL += '\nWHERE %s' % ' AND '.join(where_parts)
+	SQL += '\nORDER by orig_version'
+	rows = run_ro_query(link_obj = link_obj, sql = SQL, args = args)
+	return rows
+
+#------------------------------------------------------------------------
 #------------------------------------------------------------------------
 def revalidate_constraints(link_obj:_TLnkObj=None) -> str | bool:
 	"""Revalidate all database constraints.
@@ -3654,9 +3681,20 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 			print('user [%s]' % user, user_needs_password_encryption_switch(user))
 
 	#--------------------------------------------------------------------
+	def test_get_row_history():
+		request_login_params(setup_pool = True)
+		hx = get_row_history (
+			schema = 'clin',
+			table = 'episode',
+			pk = 1
+		)
+		for r in hx:
+			print (r)
+
+	#--------------------------------------------------------------------
 	# run tests
 
-	run_collations_tool()
+	#run_collations_tool()
 
 	# legacy:
 	#test_connection_pool()
@@ -3729,6 +3767,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_get_schema_structure()
 	#test___get_schema_structure()
 	#test_pg_temp_concat()
-	test_user_needs_password_encryption_switch()
+	#test_user_needs_password_encryption_switch()
+	test_get_row_history()
 
 # ======================================================================
