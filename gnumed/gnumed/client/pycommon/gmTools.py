@@ -2068,6 +2068,7 @@ def dicts2table_columns(dict_list, left_margin=0, eol='\n', keys2ignore=None, co
 		max_width_this_col = max(col_max_width[dict_idx], len(equality_value)) if show_only_changes else col_max_width[dict_idx]
 		max_len_str = '%s.%s' % (max_width_this_col, max_width_this_col)
 		field_template = ' %' + max_len_str + 's'
+		equal_field_template = ' %s' + (' ' * max_width_this_col)
 		d = dict_list[dict_idx]
 		for key in keys2show:
 			try:
@@ -2086,7 +2087,8 @@ def dicts2table_columns(dict_list, left_margin=0, eol='\n', keys2ignore=None, co
 				if lines[key][-1] != prev_vals[key]:
 					prev_vals[key] = '%s' % lines[key][-1]
 					continue
-				lines[key][-1] = field_template % equality_value
+					equal_field_template
+				lines[key][-1] = equal_field_template % equality_value
 
 	# format data into table
 	table_lines = []
