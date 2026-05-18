@@ -62,7 +62,7 @@ BEGIN
 		return NEW;
 	END IF;
 
-	NEW.row_version := 0;
+	NEW.row_version := 1;
 	NEW.modified_when := CURRENT_TIMESTAMP;
 	NEW.modified_by := SESSION_USER;
 	return NEW;
@@ -73,6 +73,7 @@ CREATE TRIGGER zt_ins_%(src_tbl)s
 	FOR EACH ROW EXECUTE PROCEDURE audit.ft_ins_%(src_tbl)s();
 """
 
+# pre-v21, because no gm.account_is_dbowner_or_staff()
 SQL_TEMPLATE_INSERT_NO_INSERTER_CHECK = """DROP FUNCTION IF EXISTS audit.ft_ins_%(src_tbl)s() cascade;
 
 CREATE FUNCTION audit.ft_ins_%(src_tbl)s()
@@ -81,7 +82,7 @@ CREATE FUNCTION audit.ft_ins_%(src_tbl)s()
 	SECURITY DEFINER
 	AS '
 BEGIN
-	NEW.row_version := 0;
+	NEW.row_version := 1;
 	NEW.modified_when := CURRENT_TIMESTAMP;
 	NEW.modified_by := SESSION_USER;
 	return NEW;
@@ -112,10 +113,7 @@ BEGIN
 		;
 		return NEW;
 	END IF;
-
-	NEW.row_version := OLD.row_version + 1;
-	NEW.modified_when := CURRENT_TIMESTAMP;
-	NEW.modified_by := SESSION_USER;
+	-- stash away OLD row before UPDATE
 	INSERT INTO audit.%(log_tbl)s (
 		orig_version, orig_when, orig_by, orig_tableoid, audit_action,
 		%(cols_clause)s
@@ -123,6 +121,9 @@ BEGIN
 		OLD.row_version, OLD.modified_when, OLD.modified_by, TG_RELID, TG_OP,
 		%(vals_clause)s
 	);
+	NEW.row_version := OLD.row_version + 1;
+	NEW.modified_when := CURRENT_TIMESTAMP;
+	NEW.modified_by := SESSION_USER;
 	return NEW;
 END;';
 
@@ -131,6 +132,7 @@ CREATE TRIGGER zt_upd_%(src_tbl)s
 	FOR EACH ROW EXECUTE PROCEDURE audit.ft_upd_%(src_tbl)s();
 """
 
+# pre-v21, because no gm.account_is_dbowner_or_staff()
 SQL_TEMPLATE_UPDATE_NO_UPDATER_CHECK = """DROP FUNCTION IF EXISTS audit.ft_upd_%(src_tbl)s() cascade;
 
 CREATE FUNCTION audit.ft_upd_%(src_tbl)s()
@@ -177,7 +179,7 @@ BEGIN
 		;
 		return OLD;
 	END IF;
-
+	-- stash away OLD row before DELETE
 	INSERT INTO audit.%(log_tbl)s (
 		orig_version, orig_when, orig_by, orig_tableoid, audit_action,
 		%(cols_clause)s
@@ -193,6 +195,7 @@ CREATE TRIGGER zt_del_%(src_tbl)s
 	FOR EACH ROW EXECUTE PROCEDURE audit.ft_del_%(src_tbl)s();
 """
 
+# pre-v21, because no gm.account_is_dbowner_or_staff()
 SQL_TEMPLATE_DELETE_NO_DELETER_CHECK = """DROP FUNCTION IF EXISTS audit.ft_del_%(src_tbl)s() cascade;
 
 CREATE FUNCTION audit.ft_del_%(src_tbl)s()
