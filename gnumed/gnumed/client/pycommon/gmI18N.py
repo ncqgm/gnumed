@@ -427,6 +427,9 @@ def install_domain(domain:str=None, language:str=None, prefer_local_catalog:bool
 	# this shouldn't fail
 	dummy = gettext.NullTranslations()
 	dummy.install()
+	global _translate_via_gettext
+	_translate_via_gettext = builtins._
+	builtins._ = _translate_safely
 	return True
 
 #---------------------------------------------------------------------------
