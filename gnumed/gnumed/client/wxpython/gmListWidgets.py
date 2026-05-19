@@ -1358,6 +1358,7 @@ class cColumnSorterMixin:
 
 		self.itemDataMap = None
 		self.__previous_sort_state = None
+		self.__unsortable_columns = []
 		self.SetColumnCount(numColumns)
 		self.Bind(wx.EVT_LIST_COL_CLICK, self.__on_col_click, self)
 
@@ -1421,10 +1422,24 @@ class cColumnSorterMixin:
 		return (key1, key2)
 
 	#------------------------------------------------------------
+	def _set_sortable_columns(self, sortable_columns):
+		self.__unsortable_columns = []
+		for col in range(self.ColumnCount):
+			if col in sortable_columns:
+				continue
+			self.__unsortable_columns.append(col)
+
+	sortable_columns = property(fset = _set_sortable_columns)
+
+	#------------------------------------------------------------
 	def __on_col_click(self, evt):
 		evt.Skip()
+		new_sort_col = evt.GetColumn()
+		if new_sort_col in self.__unsortable_columns:
+			return
+
 		oldCol = self._col
-		self._col = evt.GetColumn()
+		self._col = new_sort_col
 		self._colSortFlag[self._col] = int(not self._colSortFlag[self._col])
 		if self.__retain_selection_state:
 			self.RememberItemSelection()
