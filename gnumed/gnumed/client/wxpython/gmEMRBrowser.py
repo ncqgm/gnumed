@@ -1612,17 +1612,11 @@ from Gnumed.wxGladeWidgets import wxgEMRListJournalPluginPnl
 class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPluginPnl):
 
 	def __init__(self, *args, **kwds):
-
 		wxgEMRListJournalPluginPnl.wxgEMRListJournalPluginPnl.__init__(self, *args, **kwds)
-
-		self._LCTRL_journal.select_callback = self._on_row_selected
-		self._LCTRL_journal.activate_callback = self._on_row_activated
-		self._LCTRL_journal.edit_callback = self._edit_item
-		self._TCTRL_details.SetValue('')
 		self.__soap2exclude = []
 		self.__item_types2exclude = []
+		self.__init_ui()
 		self.item_types2exclude = ['clin.encounter']
-		self._CHBOX_exclude.Value = True
 
 	#--------------------------------------------------------
 	# external API
@@ -1657,6 +1651,7 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 			item_types2exclude = self.__item_types2exclude
 		self._LCTRL_journal.set_columns([date_col_header, '', _('Entry')])
 		self._LCTRL_journal.set_resize_column(3)
+		self._LCTRL_journal.sortable_columns = []
 		journal = gmPerson.gmCurrentPatient().emr.get_generic_emr_items (
 			pk_encounters = None,
 			pk_episodes = None,
@@ -1702,6 +1697,14 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 
 	#--------------------------------------------------------
 	# internal helpers
+	#--------------------------------------------------------
+	def __init_ui(self):
+		self._LCTRL_journal.select_callback = self._on_row_selected
+		self._LCTRL_journal.activate_callback = self._on_row_activated
+		self._LCTRL_journal.edit_callback = self._edit_item
+		self._TCTRL_details.SetValue('')
+		self._CHBOX_exclude.Value = True
+
 	#--------------------------------------------------------
 	def __register_events(self):
 		gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
