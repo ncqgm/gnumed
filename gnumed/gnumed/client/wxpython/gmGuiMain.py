@@ -3984,7 +3984,6 @@ class gmApp(wx.App):
 			_log.info('running on GTK (probably Linux)')
 		elif wx.Platform == '__WXMAC__':
 			_log.info('running on Mac OS')
-			wx.SystemOptions.SetOptionInt('mac.textcontrol-use-spell-checker', 1)
 		else:
 			_log.info('running on an unknown platform (%s)' % wx.Platform)
 
