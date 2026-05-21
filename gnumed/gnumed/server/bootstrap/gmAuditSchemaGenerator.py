@@ -24,6 +24,8 @@ import sys
 import logging
 
 
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmPG2
 
 
@@ -115,10 +117,10 @@ BEGIN
 	END IF;
 	-- stash away OLD row before UPDATE
 	INSERT INTO audit.%(log_tbl)s (
-		orig_version, orig_when, orig_by, orig_tableoid, audit_action,
+		row_version, version_created_when, version_created_by, src_row_pk_audit, src_table_oid, log_reason,
 		%(cols_clause)s
 	) VALUES (
-		OLD.row_version, OLD.modified_when, OLD.modified_by, TG_RELID, TG_OP,
+		OLD.row_version, OLD.modified_when, OLD.modified_by, OLD.pk_audit, TG_RELID, TG_OP,
 		%(vals_clause)s
 	);
 	NEW.row_version := OLD.row_version + 1;
@@ -145,10 +147,10 @@ BEGIN
 	NEW.modified_when := CURRENT_TIMESTAMP;
 	NEW.modified_by := SESSION_USER;
 	INSERT INTO audit.%(log_tbl)s (
-		orig_version, orig_when, orig_by, orig_tableoid, audit_action,
+		row_version, version_created_when, version_created_by, src_row_pk_audit, src_table_oid, log_reason,
 		%(cols_clause)s
 	) VALUES (
-		OLD.row_version, OLD.modified_when, OLD.modified_by, TG_RELID, TG_OP,
+		OLD.row_version, OLD.modified_when, OLD.modified_by, OLD.pk_audit, TG_RELID, TG_OP,
 		%(vals_clause)s
 	);
 	return NEW;
@@ -181,10 +183,10 @@ BEGIN
 	END IF;
 	-- stash away OLD row before DELETE
 	INSERT INTO audit.%(log_tbl)s (
-		orig_version, orig_when, orig_by, orig_tableoid, audit_action,
+		row_version, version_created_when, version_created_by, src_row_pk_audit, src_table_oid, log_reason,
 		%(cols_clause)s
 	) VALUES (
-		OLD.row_version, OLD.modified_when, OLD.modified_by, TG_RELID, TG_OP,
+		OLD.row_version, OLD.modified_when, OLD.modified_by, OLD.pk_audit, TG_RELID, TG_OP,
 		%(vals_clause)s
 	);
 	return OLD;
@@ -205,10 +207,10 @@ CREATE FUNCTION audit.ft_del_%(src_tbl)s()
 	AS '
 BEGIN
 	INSERT INTO audit.%(log_tbl)s (
-		orig_version, orig_when, orig_by, orig_tableoid, audit_action,
+		row_version, version_created_when, version_created_by, src_row_pk_audit, src_table_oid, log_reason,
 		%(cols_clause)s
 	) VALUES (
-		OLD.row_version, OLD.modified_when, OLD.modified_by, TG_RELID, TG_OP,
+		OLD.row_version, OLD.modified_when, OLD.modified_by, OLD.pk_audit, TG_RELID, TG_OP,
 		%(vals_clause)s
 	);
 	return OLD;
@@ -219,67 +221,27 @@ CREATE TRIGGER zt_del_%(src_tbl)s
 	FOR EACH ROW EXECUTE PROCEDURE audit.ft_del_%(src_tbl)s();
 """
 
-# we cannot do this because NOT VALID only applies to the time when
-# we add the constraint, the FK would still be enforced during later
-# INSERTs/UPDATEs
-#SQL_TEMPLATE_FK_MODIFIED_BY = """ALTER TABLE %(src_schema)s.%(src_tbl)s
-#	DROP CONSTRAINT IF EXISTS fk_%(src_schema)s_%(src_tbl)s_fk_modified_by CASCADE;
-#
-#-- this is set NOT VALID because it only serves to tell pg_dump
-#-- to dump dem.staff before other tables such that we do not run
-#-- into trouble with checking gm.is_dbowner_or_staff(SESSION_USER)
-#ALTER TABLE %(src_schema)s.%(src_tbl)s
-#	ADD CONSTRAINT fk_%(src_schema)s_%(src_tbl)s_fk_modified_by
-#		FOREIGN KEY (modified_by)
-#		REFERENCES dem.staff(db_user)
-#		ON UPDATE RESTRICT
-#		ON DELETE RESTRICT
-#	NOT VALID;"""
-#
-#SQL_TEMPLATE_DEM_STAFF_FK = """
-#ALTER TABLE dem.staff
-#	DROP CONSTRAINT IF EXISTS fk_dem_staff_fk_modified_by CASCADE;
-#"""
-
 SQL_TEMPLATE_CREATE_AUDIT_TRAIL_TABLE = """
 create table %(log_schema)s.%(log_tbl)s (
 	%(log_cols)s
 ) inherits (%(log_schema)s.%(log_base_tbl)s);
-
-COMMENT ON COLUMN %(log_schema)s.%(log_tbl)s.orig_version is
-	'the .row_version in the original row before the audited action took place, should be equal to .row_version';
-
-COMMENT ON COLUMN %(log_schema)s.%(log_tbl)s.orig_when is
-	'the .modified_when in the original row before the audited action took place, should be equal to .modified_when';
-
-COMMENT ON COLUMN %(log_schema)s.%(log_tbl)s.orig_by is
-	'the .modified_by in the original row before the audited action took place, should be equal to .modified_by';
-
-COMMENT ON COLUMN %(log_schema)s.%(log_tbl)s.orig_tableoid is
-	'the TG_RELID when the audit trigger was run';
 """
-
-#grant insert on %s.%s to group "gm-public"
 
 #------------------------------------------------------------------
 #------------------------------------------------------------------
 def audit_trail_table_ddl(aCursor=None, schema=None, table2audit=None):
 
 	audit_trail_table = '%s%s' % (LOG_TABLE_PREFIX, table2audit)
-
 	# which columns to potentially audit
 	cols2potentially_audit = gmPG2.get_col_defs(link_obj = aCursor, schema = schema, table = table2audit)
-
 	# which to skip
 	cols2skip = gmPG2.get_col_names(link_obj = aCursor, schema = AUDIT_SCHEMA, table = AUDIT_FIELDS_TABLE)
-
 	# which ones to really audit
 	cols2really_audit = []
 	for col in cols2potentially_audit[0]:
 		if col in cols2skip:
 			continue
 		cols2really_audit.append("\t%s %s" % (col, cols2potentially_audit[1][col]))
-
 	# does the audit trail target table exist ?
 	exists = gmPG2.table_exists(aCursor, AUDIT_SCHEMA, audit_trail_table)
 	if exists is None:
@@ -289,8 +251,10 @@ def audit_trail_table_ddl(aCursor=None, schema=None, table2audit=None):
 	if exists:
 		_log.info('audit trail table [audit.%s] already exists' % audit_trail_table)
 		# sanity check table structure
-		currently_audited_cols = gmPG2.get_col_defs(link_obj = aCursor, schema = AUDIT_SCHEMA, table = audit_trail_table)
-		currently_audited_cols = [ '\t%s %s' % (c, currently_audited_cols[1][c]) for c in currently_audited_cols[0] ]
+		col_defs = gmPG2.get_col_defs(link_obj = aCursor, schema = AUDIT_SCHEMA, table = audit_trail_table)
+		col_names = col_defs[0]
+		col_types = col_defs[1]
+		currently_audited_cols = [ '\t%s %s' % (col_name, col_types[col_name]) for col_name in col_names ]
 		for col in cols2really_audit:
 			try:
 				currently_audited_cols.index(col)
@@ -301,25 +265,25 @@ def audit_trail_table_ddl(aCursor=None, schema=None, table2audit=None):
 				_log.error('%s.%s:' % (AUDIT_SCHEMA, audit_trail_table))
 				_log.error('%s' % ','.join(currently_audited_cols))
 				return None
-		return []
+
+		return ''
 
 	# must create audit trail table
 	_log.info('no audit trail table found for [%s.%s]' % (schema, table2audit))
 	_log.info('creating audit trail table [audit.%s]' % audit_trail_table)
-
 	args = {
 		'log_schema': AUDIT_SCHEMA,
 		'log_base_tbl': AUDIT_TRAIL_PARENT_TABLE,
 		'log_tbl': audit_trail_table,
 		'log_cols': ',\n	'.join(cols2really_audit)
 	}
-	return [SQL_TEMPLATE_CREATE_AUDIT_TRAIL_TABLE % args, '']
+	return SQL_TEMPLATE_CREATE_AUDIT_TRAIL_TABLE % args
 
 #------------------------------------------------------------------
 def trigger_ddl(aCursor='default', schema=AUDIT_SCHEMA, audited_table=None):
 
 	target_columns = gmPG2.get_col_names(link_obj = aCursor, schema = schema, table = audited_table)
-	columns2skip = gmPG2.get_col_names(link_obj = aCursor, schema = AUDIT_SCHEMA, table =  AUDIT_FIELDS_TABLE)
+	columns2skip = gmPG2.get_col_names(link_obj = aCursor, schema = AUDIT_SCHEMA, table = AUDIT_FIELDS_TABLE)
 	columns = []
 	values = []
 	for column in target_columns:
@@ -344,8 +308,6 @@ def trigger_ddl(aCursor='default', schema=AUDIT_SCHEMA, audited_table=None):
 		ddl.append(SQL_TEMPLATE_UPDATE % args)
 		ddl.append('')
 		ddl.append(SQL_TEMPLATE_DELETE % args)
-		#ddl.append('')
-		#ddl.append(SQL_TEMPLATE_FK_MODIFIED_BY % args)
 	else:
 		# the *_NO_*_CHECK variants are needed for pre-v21 databases
 		# where gm.account_is_dbowner_or_staff() doesn't exist yet
@@ -365,20 +327,18 @@ def create_audit_ddl(aCursor):
 	# but we would have to potentially parse down several levels
 	# of interitance (such as with clin.clin_root_item) to find
 	# the actual leaf table to audit
-	cmd = "select schema, table_name from audit.audited_tables"
-	rows = gmPG2.run_ro_queries(link_obj = aCursor, queries = [{'sql': cmd}])
-	if len(rows) == 0:
+	SQL = "select schema, table_name from audit.audited_tables"
+	rows = gmPG2.run_ro_query(link_obj = aCursor, sql = SQL)
+	if not rows:
 		_log.info('no tables to audit')
 		return None
+
 	_log.debug('the following tables will be audited:')
 	_log.debug(rows)
 	ddl = []
-	#ddl.append('\\set check_function_bodies 1\n')
 	ddl.append('set check_function_bodies to on;\n\n')
-
 	# for each marked table
 	for row in rows:
-
 		if not gmPG2.table_exists(link_obj = aCursor, schema = row['schema'], table = row['table_name']):
 			_log.error('table to audit (%s) does not exist', row)
 			return None
@@ -388,16 +348,11 @@ def create_audit_ddl(aCursor):
 		if audit_trail_ddl is None:
 			_log.error('cannot generate audit trail DDL for audited table [%s]' % row['table_name'])
 			return None
-		ddl.extend(audit_trail_ddl)
-		if len(audit_trail_ddl) != 0:
-			ddl.append('-- ----------------------------------------------')
 
+		ddl.append(audit_trail_ddl)
 		# create functions and triggers on log table
 		ddl.extend(trigger_ddl(aCursor = aCursor, schema = row['schema'], audited_table = row['table_name']))
 		ddl.append('-- ----------------------------------------------')
-
-	#ddl.append(SQL_TEMPLATE_DEM_STAFF_FK)
-
 	return ddl
 
 #==================================================================
@@ -412,6 +367,7 @@ if __name__ == "__main__" :
 	if tmp != '':
 		AUDIT_TRAIL_PARENT_TABLE = tmp
 
+	gmPG2.request_login_params(setup_pool = True)#, user =None)
 	conn = gmPG2.get_connection(readonly=False, pooled=False)
 	curs = conn.cursor()
 
@@ -424,7 +380,7 @@ if __name__ == "__main__" :
 		print("error creating schema")
 		sys.exit(-1)
 
-	f = open('audit-trail-schema.sql', mode = 'wb', encoding = 'utf8')
+	f = open('audit-trail-schema.sql', mode = 'wt', encoding = 'utf8')
 	for line in schema:
 		f.write("%s;\n" % line)
 	f.close()
