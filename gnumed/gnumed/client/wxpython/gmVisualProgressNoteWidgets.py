@@ -211,7 +211,7 @@ def __get_visual_progress_notes_editor(filename:str=None) -> str:
 	if editor:
 		return editor
 
-	gmDispatcher.send(signal = 'statustext', msg = _('Editor for visual progress note left configured.'), beep = True)
+	gmDispatcher.send(signal = 'statustext', msg = _('Editor for visual progress note left unconfigured.'), beep = True)
 	return None
 
 #------------------------------------------------------------
