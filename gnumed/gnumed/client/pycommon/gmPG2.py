@@ -1079,7 +1079,7 @@ def get_col_indices(cursor = None):
 	return col_indices
 
 #------------------------------------------------------------------------
-def get_col_defs(link_obj:_TLnkObj=None, schema='public', table=None):
+def get_col_defs(link_obj:_TLnkObj=None, schema='public', table=None) -> list:
 	args = {'schema': schema, 'table': table}
 	rows = run_ro_queries(link_obj = link_obj, queries = [{'sql': SQL__col_defs4table, 'args': args}])
 	col_names = []
