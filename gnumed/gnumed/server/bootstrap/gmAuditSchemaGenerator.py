@@ -44,9 +44,13 @@ AUDIT_SCHEMA = 'audit'							# audit stuff lives in this schema
 # reasonably sure they are executed last
 
 # insert
-SQL_TEMPLATE_INSERT = """DROP FUNCTION IF EXISTS audit.ft_ins_%(src_tbl)s() cascade;
+SQL_TEMPLATE_INSERT = """-- old style
+DROP FUNCTION IF EXISTS audit.ft_ins_%(src_tbl)s() cascade;
 
-CREATE FUNCTION audit.ft_ins_%(src_tbl)s()
+-- with schema
+DROP FUNCTION IF EXISTS audit.ft_ins__%(src_schema)s__%(src_tbl)s() cascade;
+
+CREATE FUNCTION audit.ft_ins__%(src_schema)s__%(src_tbl)s()
 	RETURNS trigger
 	LANGUAGE 'plpgsql'
 	SECURITY DEFINER
@@ -63,22 +67,25 @@ BEGIN
 		;
 		return NEW;
 	END IF;
-
 	NEW.row_version := 1;
 	NEW.modified_when := CURRENT_TIMESTAMP;
 	NEW.modified_by := SESSION_USER;
 	return NEW;
 END;';
 
-CREATE TRIGGER zt_ins_%(src_tbl)s
+CREATE TRIGGER zt_ins__%(src_schema)s__%(src_tbl)s
 	BEFORE INSERT ON %(src_schema)s.%(src_tbl)s
-	FOR EACH ROW EXECUTE PROCEDURE audit.ft_ins_%(src_tbl)s();
+	FOR EACH ROW EXECUTE PROCEDURE audit.ft_ins__%(src_schema)s__%(src_tbl)s();
 """
 
 # pre-v21, because no gm.account_is_dbowner_or_staff()
-SQL_TEMPLATE_INSERT_NO_INSERTER_CHECK = """DROP FUNCTION IF EXISTS audit.ft_ins_%(src_tbl)s() cascade;
+SQL_TEMPLATE_INSERT_NO_INSERTER_CHECK = """-- old style
+DROP FUNCTION IF EXISTS audit.ft_ins_%(src_tbl)s() cascade;
 
-CREATE FUNCTION audit.ft_ins_%(src_tbl)s()
+-- with schema
+DROP FUNCTION IF EXISTS audit.ft_ins__%(src_schema)s__%(src_tbl)s() cascade;
+
+CREATE FUNCTION audit.ft_ins__%(src_schema)s__%(src_tbl)s()
 	RETURNS trigger
 	LANGUAGE 'plpgsql'
 	SECURITY DEFINER
@@ -92,13 +99,17 @@ END;';
 
 CREATE TRIGGER zt_ins_%(src_tbl)s
 	BEFORE INSERT ON %(src_schema)s.%(src_tbl)s
-	FOR EACH ROW EXECUTE PROCEDURE audit.ft_ins_%(src_tbl)s();
+	FOR EACH ROW EXECUTE PROCEDURE audit.ft_ins__%(src_schema)s__%(src_tbl)s();
 """
 
 # update
-SQL_TEMPLATE_UPDATE = """DROP FUNCTION IF EXISTS audit.ft_upd_%(src_tbl)s() cascade;
+SQL_TEMPLATE_UPDATE = """-- old style
+DROP FUNCTION IF EXISTS audit.ft_upd_%(src_tbl)s() cascade;
 
-CREATE FUNCTION audit.ft_upd_%(src_tbl)s()
+-- with schema
+DROP FUNCTION IF EXISTS audit.ft_upd__%(src_schema)s__%(src_tbl)s() cascade;
+
+CREATE FUNCTION audit.ft_upd__%(src_schema)s__%(src_tbl)s()
 	RETURNS trigger
 	LANGUAGE 'plpgsql'
 	SECURITY DEFINER
@@ -129,15 +140,19 @@ BEGIN
 	return NEW;
 END;';
 
-CREATE TRIGGER zt_upd_%(src_tbl)s
+CREATE TRIGGER zt_upd__%(src_schema)s__%(src_tbl)s
 	BEFORE UPDATE ON %(src_schema)s.%(src_tbl)s
-	FOR EACH ROW EXECUTE PROCEDURE audit.ft_upd_%(src_tbl)s();
+	FOR EACH ROW EXECUTE PROCEDURE audit.ft_upd__%(src_schema)s__%(src_tbl)s();
 """
 
 # pre-v21, because no gm.account_is_dbowner_or_staff()
-SQL_TEMPLATE_UPDATE_NO_UPDATER_CHECK = """DROP FUNCTION IF EXISTS audit.ft_upd_%(src_tbl)s() cascade;
+SQL_TEMPLATE_UPDATE_NO_UPDATER_CHECK = """-- old style
+DROP FUNCTION IF EXISTS audit.ft_upd_%(src_tbl)s() cascade;
 
-CREATE FUNCTION audit.ft_upd_%(src_tbl)s()
+-- with schema
+DROP FUNCTION IF EXISTS audit.ft_upd__%(src_schema)s__%(src_tbl)s() cascade;
+
+CREATE FUNCTION audit.ft_upd__%(src_schema)s__%(src_tbl)s()
 	RETURNS trigger
 	LANGUAGE 'plpgsql'
 	SECURITY DEFINER
@@ -156,15 +171,19 @@ BEGIN
 	return NEW;
 END;';
 
-CREATE TRIGGER zt_upd_%(src_tbl)s
+CREATE TRIGGER zt_upd__%(src_schema)s__%(src_tbl)s
 	BEFORE UPDATE ON %(src_schema)s.%(src_tbl)s
-	FOR EACH ROW EXECUTE PROCEDURE audit.ft_upd_%(src_tbl)s();
+	FOR EACH ROW EXECUTE PROCEDURE audit.ft_upd__%(src_schema)s__%(src_tbl)s();
 """
 
 # delete
-SQL_TEMPLATE_DELETE = """DROP FUNCTION IF EXISTS audit.ft_del_%(src_tbl)s() cascade;
+SQL_TEMPLATE_DELETE = """-- old style
+DROP FUNCTION IF EXISTS audit.ft_del_%(src_tbl)s() cascade;
 
-CREATE FUNCTION audit.ft_del_%(src_tbl)s()
+-- with schema
+DROP FUNCTION IF EXISTS audit.ft_del__%(src_schema)s__%(src_tbl)s() cascade;
+
+CREATE FUNCTION audit.ft_del__%(src_schema)s__%(src_tbl)s()
 	RETURNS trigger
 	LANGUAGE 'plpgsql'
 	SECURITY DEFINER
@@ -192,15 +211,19 @@ BEGIN
 	return OLD;
 END;';
 
-CREATE TRIGGER zt_del_%(src_tbl)s
+CREATE TRIGGER zt_del__%(src_schema)s__%(src_tbl)s
 	BEFORE DELETE ON %(src_schema)s.%(src_tbl)s
-	FOR EACH ROW EXECUTE PROCEDURE audit.ft_del_%(src_tbl)s();
+	FOR EACH ROW EXECUTE PROCEDURE audit.ft_del__%(src_schema)s__%(src_tbl)s();
 """
 
 # pre-v21, because no gm.account_is_dbowner_or_staff()
-SQL_TEMPLATE_DELETE_NO_DELETER_CHECK = """DROP FUNCTION IF EXISTS audit.ft_del_%(src_tbl)s() cascade;
+SQL_TEMPLATE_DELETE_NO_DELETER_CHECK = """-- old style
+DROP FUNCTION IF EXISTS audit.ft_del_%(src_tbl)s() cascade;
 
-CREATE FUNCTION audit.ft_del_%(src_tbl)s()
+-- with schema
+DROP FUNCTION IF EXISTS audit.ft_del__%(src_schema)s__%(src_tbl)s() cascade;
+
+CREATE FUNCTION audit.ft_del__%(src_schema)s__%(src_tbl)s()
 	RETURNS trigger
 	LANGUAGE 'plpgsql'
 	SECURITY DEFINER
@@ -216,9 +239,9 @@ BEGIN
 	return OLD;
 END;';
 
-CREATE TRIGGER zt_del_%(src_tbl)s
+CREATE TRIGGER zt_del__%(src_schema)s__%(src_tbl)s
 	BEFORE DELETE ON %(src_schema)s.%(src_tbl)s
-	FOR EACH ROW EXECUTE PROCEDURE audit.ft_del_%(src_tbl)s();
+	FOR EACH ROW EXECUTE PROCEDURE audit.ft_del__%(src_schema)s__%(src_tbl)s();
 """
 
 SQL_TEMPLATE_CREATE_AUDIT_TRAIL_TABLE = """
