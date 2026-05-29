@@ -254,6 +254,96 @@ alter table audit.audit_fields
 		unique (pk_audit, row_version);
 
 -- --------------------------------------------------------------
+drop view if exists audit.v_audit_trail cascade;
+
+create or replace view audit.v_audit_trail as
+	-- all audit log tables are children of audit.audit_trail
+	select
+		to_char(a_at.log_created_when, 'YYYY-MM-DD HH24:MI')
+			as event_when,
+		coalesce (
+			(select short_alias from dem.staff where db_user = a_at.log_created_by),
+			'<' || a_at.log_created_by || '>'
+		)
+			as event_by,
+		a_at.src_table_oid::regclass
+			as event_table,
+		a_at.row_version
+			as row_version_before,
+		case
+			when a_at.log_reason = 'DELETE' then NULL::integer
+			else (a_at.row_version + 1)
+		end
+			as row_version_after,
+		a_at.log_reason
+			as event,
+		a_at.log_created_when
+			as audit_when_ts,
+		a_at.src_row_pk_audit
+			as pk_audit
+	from
+		audit.audit_trail a_at
+
+union all
+
+	select
+		to_char(g_al.modified_when, 'YYYY-MM-DD HH24:MI')
+			as event_when,
+		coalesce (
+			(select short_alias from dem.staff where db_user = g_al.modified_by),
+			'<' || g_al.modified_by || '>'
+		)
+			as event_by,
+		'gm.access_log'::regclass
+			as event_table,
+		NULL::integer
+			as row_version_before,
+		'1'::integer
+			as row_version_after,
+		g_al.user_action
+			as event,
+		g_al.modified_when
+			as audit_when_ts,
+		g_al.pk_audit
+			as pk_audit
+	from
+		gm.access_log g_al
+	where
+		g_al.row_version = 1
+
+
+union all
+
+	-- all original data tables are children of audit.audit_fields
+	select
+		to_char(a_af.modified_when, 'YYYY-MM-DD HH24:MI')
+			as event_when,
+		coalesce (
+			(select short_alias from dem.staff where db_user = a_af.modified_by),
+			'<' || a_af.modified_by || '>'
+		)
+			as event_by,
+		a_af.tableoid::regclass
+			as event_table,
+		NULL::integer
+			as row_version_before,
+		'1'::integer
+			as row_version_after,
+		'INSERT'::text
+			as event,
+		a_af.modified_when
+			as audit_when_ts,
+		a_af.pk_audit
+			as pk_audit
+	from
+		audit.audit_fields a_af
+	where
+		a_af.row_version = 1
+;
+
+grant select on audit.v_audit_trail to group "gm-doctors";
+
+-- --------------------------------------------------------------
 -- this dance is necessary because the trigger is not there anymore to set row_version
 alter table audit.audit_fields alter column row_version set default 1;
 drop function if exists audit.ft_ins_access_log cascade;
