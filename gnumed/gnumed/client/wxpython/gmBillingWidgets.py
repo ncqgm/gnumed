@@ -510,7 +510,7 @@ def create_bill_from_items(bill_items=None):
 
 	bill = gmBilling.create_bill(invoice_id = invoice_id)
 	gmBilling.unlock_invoice_id(invoice_id)
-	_log.info('created bill [%s]', bill['invoice_id'])
+	_log.info('created bill, invoice ID set to [%s]', bill['invoice_id'])
 	bill.add_items(items = bill_items)
 	bill.set_missing_address_from_default()
 
@@ -697,34 +697,35 @@ def delete_bill(parent=None, bill=None):
 		parent,	-1,
 		caption = _('Deleting bill'),
 		question = _(
-			'When deleting the bill [%s]\n'
-			'do you want to keep its items (effectively \"unbilling\" them)\n'
-			'or do you want to also delete the bill items from the patient ?\n'
-		) % bill['invoice_id'],
+			'When deleting this bill do you want to keep its items\n'
+			'on the charge list (effectively \"unbilling\" them) or\n'
+			'do you want to also delete the bill items from the charge list ?\n'
+		),
 		button_defs = [
 			{'label': _('Delete + keep'), 'tooltip': _('Delete the bill but keep ("unbill") its items.'), 'default': True},
 			{'label': _('Delete all'), 'tooltip': _('Delete both the bill and its items from the patient.')}
 		],
 		show_checkbox = True,
 		checkbox_msg = _('Also remove invoice PDF'),
-		checkbox_tooltip = _('Also remove the invoice PDF from the document archive (because it will not correspond to the bill anymore).')
+		checkbox_tooltip = _('MAKE SURE THIS IS LAWFUL !\n\nAlso remove the invoice PDF from the document archive (because it will not correspond to the bill anymore).')
 	)
 	button_pressed = dlg.ShowModal()
 	delete_invoice = dlg.checkbox_is_checked()
+	delete_items = (button_pressed == wx.ID_NO)
 	dlg.DestroyLater()
-
 	if button_pressed == wx.ID_CANCEL:
 		return False
 
-	delete_items = (button_pressed == wx.ID_NO)
-
-	if delete_invoice:
-		if bill['pk_doc'] is not None:
+	if delete_invoice and bill['pk_doc']:
+		do_it = gmGuiHelpers.ask(question =_(
+			'Truly delete invoice document from document archive ?\n\n'
+			'Make sure this is lawful in your jurisdiction !'
+		))
+		if do_it:
 			gmDocuments.delete_document (
 				document_id = bill['pk_doc'],
 				encounter_id = gmPerson.cPatient(aPK_obj = bill['pk_patient']).emr.active_encounter['pk_encounter']
 			)
-
 	items = bill['pk_bill_items']
 	success = gmBilling.delete_bill(pk_bill = bill['pk_bill'])
 	if delete_items:
@@ -766,8 +767,7 @@ def remove_items_from_bill(parent=None, bill=None):
 		'%s (%s)' % (b['catalog_short'], b['catalog_version']),
 		b['pk_bill_item']
 	] for b in list_data ]
-
-	msg = _('Select the items you want to remove from bill [%s]:\n') % bill['invoice_id']
+	msg = _('Select the items you want to remove from the bill:\n')
 	items2remove = gmListWidgets.get_choices_from_list (
 		parent = parent,
 		msg = msg,
@@ -777,7 +777,6 @@ def remove_items_from_bill(parent=None, bill=None):
 		choices = list_items,
 		data = list_data
 	)
-
 	if items2remove is None:
 		return False
 
@@ -799,7 +798,7 @@ def remove_items_from_bill(parent=None, bill=None):
 		parent,	-1,
 		caption = _('Removing items from bill'),
 		question = _(
-			'%s items selected from bill [%s]\n'
+			'%s items selected from bill (invoice ID "%s")\n'
 			'\n'
 			'Do you want to only remove the selected items\n'
 			'from the bill ("unbill" them) or do you want\n'
@@ -906,14 +905,17 @@ def manage_bills(parent=None, patient=None):
 	#------------------------------------------------------------
 	def delete(bill):
 		return delete_bill(parent = parent, bill = bill)
+
 	#------------------------------------------------------------
 	def remove_items(bill):
 		return remove_items_from_bill(parent = parent, bill = bill)
+
 	#------------------------------------------------------------
 	def get_tooltip(item):
 		if item is None:
 			return None
 		return item.format()
+
 	#------------------------------------------------------------
 	def refresh(lctrl):
 		if patient is None:
@@ -943,18 +945,26 @@ def manage_bills(parent=None, patient=None):
 			])
 		lctrl.set_string_items(items)
 		lctrl.set_data(bills)
+
 	#------------------------------------------------------------
+	msg = _("""There is no functionality for modifying invoices (as opposed to bills) because that is illegal in many jurisdictions.
+
+		Note that deleting invoices (again, as opposed to bills) may also be unlawful.
+
+		Make sure to act by applicable law !"""
+	)
 	return gmListWidgets.get_choices_from_list (
 		parent = parent,
-		caption = _('Showing bills.'),
+		caption = _('Bills (invoiced or not)'),
+		msg = msg,
 		columns = [_('Close date'), _('Invoice ID'), _('Value'), _('Comment')],
 		single_selection = True,
 		edit_callback = edit,
 		delete_callback = delete,
 		refresh_callback = refresh,
 		middle_extra_button = (
-			'PDF',
-			_('Create if necessary, and show the corresponding invoice PDF'),
+			'Invoice',
+			_('Create if necessary, and show the corresponding invoice (PDF)'),
 			show_pdf
 		),
 		right_extra_button = (
