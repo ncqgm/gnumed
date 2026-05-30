@@ -989,9 +989,10 @@ def get_foreign_key_names(src_schema=None, src_table=None, src_column=None, targ
 	return rows
 
 #------------------------------------------------------------------------
-def get_child_tables(schema='public', table=None, link_obj=None):
+def get_child_tables(schema:str='public', table:str=None, link_obj:_TLnkObj=None):
 	"""Return child tables of <table>."""
-	cmd = """
+	args = {'schema': schema, 'table': table}
+	SQL = """
 select
 	pgn.nspname as namespace,
 	pgc.relname as table
@@ -1008,7 +1009,7 @@ where
 				relname = %(table)s
 		)
 	)"""
-	rows = run_ro_queries(link_obj = link_obj, queries = [{'sql': cmd, 'args': {'schema': schema, 'table': table}}])
+	rows = run_ro_query(link_obj = link_obj, sql = SQL, args = args)
 	return rows
 
 #------------------------------------------------------------------------
@@ -1079,7 +1080,7 @@ def get_col_indices(cursor = None):
 	return col_indices
 
 #------------------------------------------------------------------------
-def get_col_defs(link_obj:_TLnkObj=None, schema='public', table=None):
+def get_col_defs(link_obj:_TLnkObj=None, schema='public', table=None) -> list:
 	args = {'schema': schema, 'table': table}
 	rows = run_ro_queries(link_obj = link_obj, queries = [{'sql': SQL__col_defs4table, 'args': args}])
 	col_names = []
@@ -1104,29 +1105,21 @@ def get_col_names(link_obj:_TLnkObj=None, schema='public', table=None):
 	return [ row[0] for row in rows]
 
 #------------------------------------------------------------------------
-def get_row_history(link_obj:_TLnkObj=None, schema:str=None, table:str=None, pk:int|str=None) -> list:
-	args = {'schema': schema, 'table': table, 'pk': pk}
+def get_row_history(link_obj:_TLnkObj=None, schema:str=None, table:str=None, pk_audit:int=None) -> list:
+	args = {'schema': schema, 'table': table, 'pk_audit': pk_audit}
 	SQL = 'SELECT 1 FROM audit.audited_tables WHERE schema = %(schema)s and table_name = %(table)s'
 	rows = run_ro_query(link_obj = link_obj, sql = SQL, args = args)
 	if not rows:
 		_log.error('table [%s.%s] not registered for auditing', schema, table)
 		return None
 
-	rows = run_ro_query(link_obj = link_obj, sql = SQL_get_primary_key_name, args = args)
-	if not rows:
-		_log.error('table [%s.%s] does not have a primary key, cannot retrieve audited rows', schema, table)
-		return None
-
-	if len(rows) > 1:
-		_log.info('table [%s.%s] has multi-column primary key, cannot retrieve audited rows', schema, table)
-		return None
-
-	pk_name = rows[0][0]
-	where_parts = ["orig_tableoid = '%s.%s'::regclass" % (schema, table)]
-	where_parts.append('%s = %%(pk)s' % pk_name)
+	where_parts = [
+		"src_table_oid = '%s.%s'::regclass" % (schema, table),
+		'src_row_pk_audit = %(pk_audit)s'
+	]
 	SQL = 'SELECT * FROM audit.log_%s' % table
 	SQL += '\nWHERE %s' % ' AND '.join(where_parts)
-	SQL += '\nORDER by orig_version'
+	SQL += '\nORDER by row_version'
 	rows = run_ro_query(link_obj = link_obj, sql = SQL, args = args)
 	return rows
 
@@ -3686,7 +3679,7 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 		hx = get_row_history (
 			schema = 'clin',
 			table = 'episode',
-			pk = 1
+			pk_audit = 12178
 		)
 		for r in hx:
 			print (r)

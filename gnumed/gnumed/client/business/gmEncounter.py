@@ -939,13 +939,13 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 			WHERE pk = %(pk_encounter)s
 		UNION ALL (
 			SELECT
-				audit_action as audit__action_applied,
-				audit_when as audit__action_when,
-				audit_by as audit__action_by,
+				version_logged_why as audit__action_applied,
+				version_logged_when as audit__action_when,
+				version_logged_by as audit__action_by,
 				pk_audit,
-				orig_version as row_version,
-				orig_when as modified_when,
-				orig_by as modified_by,
+				row_version,
+				version_created_when as modified_when,
+				version_created_by as modified_by,
 				pk, fk_patient, fk_type, fk_location, source_time_zone, reason_for_encounter, assessment_of_encounter, started, last_affirmed
 			FROM audit.log_encounter
 			WHERE pk = %(pk_encounter)s

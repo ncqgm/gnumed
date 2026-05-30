@@ -473,7 +473,7 @@ def get_as_journal (
 				now() as modified_when,
 				to_char(now(), 'YYYY-MM-DD HH24:MI') AS date_modified,
 				current_user as modified_by,
-				0::integer as row_version,
+				1::integer as row_version,
 				NULL::integer as pk_episode,
 				%(pk_enc)s as pk_encounter,
 				'u'::text as real_soap_cat,

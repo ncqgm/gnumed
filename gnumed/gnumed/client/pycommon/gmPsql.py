@@ -69,7 +69,7 @@ class Psql:
 	def __log_notices(self):
 		for n in self.conn.notices:
 			for l in n.split('\n'):
-				_log.debug(' >PG: %s', l)
+				_log.debug(' >PG: %s', l) if l.strip() else None
 		del self.conn.notices[:]
 
 	#---------------------------------------------------------------

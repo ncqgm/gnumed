@@ -137,7 +137,7 @@ _SQL_get_hints_as_generic_emr_items = """SELECT
 	now() as modified_when,
 	to_char(now(), 'YYYY-MM-DD HH24:MI') AS date_modified,
 	current_user as modified_by,
-	0::integer as row_version,
+	1::integer as row_version,
 	NULL::integer as pk_episode,
 	%(pk_enc)s as pk_encounter,
 	'u'::text as real_soap_cat,
@@ -187,9 +187,9 @@ class cGenericEMRItem(gmBusinessDBObject.cBusinessDBObject):
 		lines = []
 		lines.append('%s [%s]' % (self.item_type_str, self._payload['real_soap_cat']))
 		lines.append(' ' + _('Table: %s##tx: EMR item source (database table, mostly)') % self._payload['src_table'])
-		lines.append(' ' + _('Revision: %s%s') % (
+		lines.append(' ' + _('Version: %s%s') % (
 			self._payload['row_version'],
-			(' (%s)' % _('newly inserted')) if (self._payload['row_version'] == 0) else ''
+			(' (%s)' % _('newly inserted')) if (self._payload['row_version'] == 1) else ''
 		))
 		lines.append(' ' + _('Last modified:'))
 		lines.append('  %s (%s)' % (

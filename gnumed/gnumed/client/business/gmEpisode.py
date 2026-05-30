@@ -218,7 +218,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 				subsequent_indent = '  ' + left_margin
 			)
 			row_ver = ''
-			if row['row_version'] > 0:
+			if row['row_version'] > 1:
 				row_ver = 'v%s: ' % row['row_version']
 			bottom_row = '%s%s %s, %s%s %s' % (
 				' ' * 40,
@@ -610,13 +610,13 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 			WHERE pk = %(pk_episode)s
 		UNION ALL (
 			SELECT
-				audit_action as audit__action_applied,
-				audit_when as audit__action_when,
-				audit_by as audit__action_by,
+				version_logged_why as audit__action_applied,
+				version_logged_when as audit__action_when,
+				version_logged_by as audit__action_by,
 				pk_audit,
-				orig_version as row_version,
-				orig_when as modified_when,
-				orig_by as modified_by,
+				row_version,
+				version_created_when as modified_when,
+				version_created_by as modified_by,
 				pk, fk_health_issue, description, is_open, fk_encounter,
 				diagnostic_certainty_classification,
 				summary

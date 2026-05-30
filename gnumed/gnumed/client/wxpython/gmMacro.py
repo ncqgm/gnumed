@@ -3129,7 +3129,8 @@ class cMacroPrimitives:
 	#-----------------------------------------------------------------
 	def version(self):
 		ver = _cfg.get(option = 'client_version')
-		return "GNUmed %s, %s $Revision: 1.51 $" % (ver, self.__class__.__name__)
+		return "GNUmed %s, %s" % (ver, self.__class__.__name__)
+
 	#-----------------------------------------------------------------
 	def shutdown_gnumed(self, auth_cookie=None, forced=False):
 		"""Shuts down this client instance."""

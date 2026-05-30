@@ -2733,7 +2733,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 			lines.append(_(' Notes: %s') % self._payload['notes4provider'])
 		if include_metadata:
 			lines.append('')
-			lines.append(_('Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s.') % {
+			lines.append(_('Version: #%(row_ver)s, %(mod_when)s by %(mod_by)s.') % {
 				'row_ver': self._payload['row_version'],
 				'mod_when': self._payload['modified_when'].strftime('%Y %b %d  %H:%M.%S'),
 				'mod_by': self._payload['modified_by']
