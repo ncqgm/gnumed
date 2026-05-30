@@ -653,13 +653,13 @@ class cBusinessDBObject(object):
 		if not rows:
 			return ['%s (no versions)' % title]
 
-		lines = ['%s (%s versions)' % (title, rows[0]['row_version'] + 1)]
-		column_labels = [ 'rev %s (%s)' % (r['row_version'], pydt_strftime(r['audit__action_when'], format = '%Y %b %d %H:%M', none_str = 'live row')) for r in rows ]
+		lines = ['%s (%s versions)' % (title, rows[0]['row_version'])]
+		column_labels = [ 'v%s (%s)' % (r['row_version'], pydt_strftime(r['version_logged_when'], format = '%Y %b %d %H:%M', none_str = 'live row')) for r in rows ]
 		lines.extend (dicts2table_columns (
 			rows,
 			left_margin = 1,
 			eol = None,
-			keys2ignore = ['audit__action_when', 'row_version', 'pk_audit'],
+			keys2ignore = ['version_logged_when', 'row_version', 'pk_audit'],
 			show_only_changes = True,
 			column_labels = column_labels,
 			date_format = '%Y %b %d %H:%M',

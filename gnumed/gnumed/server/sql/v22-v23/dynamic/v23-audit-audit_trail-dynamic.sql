@@ -11,6 +11,7 @@ set check_function_bodies to on;
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
+-- .pk_audit
 DO 'BEGIN
 		alter table audit.audit_trail rename column pk_audit to pk_audit_trail;
     EXCEPTION
@@ -22,6 +23,7 @@ not related to the primary key of the logged row,
 unique within the audit logging system';
 
 
+-- .orig_tableoid
 DO 'BEGIN
 		alter table audit.audit_trail rename column orig_tableoid to src_table_oid;
     EXCEPTION
@@ -49,7 +51,7 @@ comment on column audit.audit_trail.row_version is
 IOW, which row version was turned into this log entry';
 
 
-
+--.orig_by
 DO 'BEGIN
 		alter table audit.audit_trail rename column orig_by to version_created_by;
     EXCEPTION
@@ -61,6 +63,7 @@ comment on column audit.audit_trail.version_created_by is
 IOW, who created the row version that this log entry represents,';
 
 
+-- .orig_when
 DO 'BEGIN
 		alter table audit.audit_trail rename column orig_when to version_created_when;
     EXCEPTION
@@ -73,6 +76,7 @@ IOW, the creation timestamp of the row version this log entry represents,
 (not of this log record itself, for that see .version_logged_when)';
 
 
+-- .audit_action
 DO 'BEGIN
 		alter table audit.audit_trail rename column audit_action to version_logged_why;
     EXCEPTION
@@ -83,6 +87,7 @@ comment on column audit.audit_trail.version_logged_why is
 	'Why was this log entry created (UPDATE or DELETE to the original row).';
 
 
+-- .audit_by
 DO 'BEGIN
 		alter table audit.audit_trail rename column audit_by to version_logged_by;
     EXCEPTION
@@ -94,6 +99,7 @@ comment on column audit.audit_trail.version_logged_by is
 Should be equal to .modified_by of the *next* version of the logged row.';
 
 
+-- audit_when
 DO 'BEGIN
 		alter table audit.audit_trail rename column audit_when to version_logged_when;
     EXCEPTION
@@ -278,7 +284,7 @@ create or replace view audit.v_audit_trail as
 		a_at.version_logged_why
 			as event,
 		a_at.version_logged_when
-			as audit_when_ts,
+			as event_when_ts,
 		a_at.src_row_pk_audit
 			as pk_audit
 	from
@@ -303,7 +309,7 @@ union all
 		g_al.user_action
 			as event,
 		g_al.modified_when
-			as audit_when_ts,
+			as event_when_ts,
 		g_al.pk_audit
 			as pk_audit
 	from
@@ -332,7 +338,7 @@ union all
 		'INSERT'::text
 			as event,
 		a_af.modified_when
-			as audit_when_ts,
+			as event_when_ts,
 		a_af.pk_audit
 			as pk_audit
 	from
@@ -344,8 +350,12 @@ union all
 grant select on audit.v_audit_trail to group "gm-doctors";
 
 -- --------------------------------------------------------------
--- this dance is necessary because the trigger is not there anymore to set row_version
-alter table audit.audit_fields alter column row_version set default 1;
+-- this dance is necessary
+-- -.gm.log_script_insertion relies on a default for .row_version
+-- - we have to drop the INSERT trigger overriding .row_version (because
+--   audit column names changed so the existing trigger would fail, and
+--   it would also deliver the now-wrong default 0)
 drop function if exists audit.ft_ins_access_log cascade;
+alter table audit.audit_fields alter column row_version set default 1;
 select gm.log_script_insertion('v23-audit-audit_trail-dynamic.sql', 'v23');
 alter table audit.audit_fields alter column row_version drop default;
