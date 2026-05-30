@@ -116,7 +116,7 @@ alter table audit.audit_trail
 
 comment on column audit.audit_trail.src_row_pk_audit is
 'Value of .pk_audit of row in table this log entry came from,
-uniquely identifies this row, regardless of version';
+uniquely identifies this row, regardless of version, and regardless of which child table it is in';
 
 drop function if exists staging.fill_in__audit_trail__pk_audit() cascade;
 
@@ -233,11 +233,6 @@ END;';
 select staging.fill_in__audit_trail__pk_audit();
 
 drop function if exists staging.fill_in__audit_trail__pk_audit() cascade;
-
-drop index if exists audit.idx_uniq__audit__audit_trail__src_row_pk_audit cascade;
-
-create unique index idx_uniq__audit__audit_trail__src_row_pk_audit
-	on audit.audit_trail(src_row_pk_audit);
 
 alter table audit.audit_trail
 	alter column src_row_pk_audit
