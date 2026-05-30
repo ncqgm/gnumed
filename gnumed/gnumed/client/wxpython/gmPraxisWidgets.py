@@ -70,7 +70,7 @@ def show_audit_trail(parent=None):
 
 	#-----------------------------------
 	def refresh(lctrl):
-		cmd = 'SELECT * FROM audit.v_audit_trail ORDER BY audit_when_ts'
+		cmd = 'SELECT * FROM audit.v_audit_trail ORDER BY event_when_ts'
 		rows = gmPG2.run_ro_queries(link_obj = conn, queries = [{'sql': cmd}])
 		lctrl.set_string_items (
 			[ [
@@ -91,7 +91,7 @@ def show_audit_trail(parent=None):
 		parent = parent,
 		msg = '',
 		caption = _('GNUmed database audit log ...'),
-		columns = [ _('When'), _('Who'), _('Revisions'), _('Table'), _('Event'), '#' ],
+		columns = [ _('When'), _('Who'), _('Versions'), _('Table'), _('Event'), '#' ],
 		single_selection = True,
 		refresh_callback = refresh
 	)

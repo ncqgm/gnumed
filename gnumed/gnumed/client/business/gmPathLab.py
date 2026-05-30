@@ -1405,7 +1405,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 				tt += '\n\n'
 
 		if with_review:
-			tt += _('Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s.') % ({
+			tt += _('Versions: %(row_ver)s, last %(mod_when)s by %(mod_by)s.') % ({
 				'row_ver': self._payload['row_version'],
 				'mod_when': self._payload['modified_when'].strftime(date_format),
 				'mod_by': self._payload['modified_by']
