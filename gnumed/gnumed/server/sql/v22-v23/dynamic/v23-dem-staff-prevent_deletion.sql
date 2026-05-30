@@ -29,10 +29,10 @@ BEGIN
 	END IF;
 
 	-- does any log table contain the dem.staff.db_user we are about to delete ?
-	PERFORM 1 FROM audit.audit_trail WHERE version_created_by = OLD.db_user OR log_created_by = OLD.db_user LIMIT 1;
+	PERFORM 1 FROM audit.audit_trail WHERE version_created_by = OLD.db_user OR version_logged_by = OLD.db_user LIMIT 1;
 	IF FOUND THEN
 		RAISE EXCEPTION
-			''DELETE from dem.staff: Sanity check failed. User <%> is referenced from <.version_created_by> or <.log_created_by> of at least one audit table.'', OLD.db_user
+			''DELETE from dem.staff: Sanity check failed. User <%> is referenced from <.version_created_by> or <.version_logged_by> of at least one audit table.'', OLD.db_user
 			USING ERRCODE = ''foreign_key_violation''
 		;
 		RETURN NULL;

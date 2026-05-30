@@ -70,37 +70,37 @@ DO 'BEGIN
 comment on column audit.audit_trail.version_created_when is
 'value of .modified_when of the row in the table this log entry comes from,
 IOW, the creation timestamp of the row version this log entry represents,
-(not of this log record itself, for that see .log_created_when)';
+(not of this log record itself, for that see .version_logged_when)';
 
 
 DO 'BEGIN
-		alter table audit.audit_trail rename column audit_action to log_reason;
+		alter table audit.audit_trail rename column audit_action to version_logged_why;
     EXCEPTION
         WHEN undefined_column THEN RAISE NOTICE ''audit.audit_trail.audit_action does not exist'';
 	END
 ';
-comment on column audit.audit_trail.log_reason is
+comment on column audit.audit_trail.version_logged_why is
 	'Why was this log entry created (UPDATE or DELETE to the original row).';
 
 
 DO 'BEGIN
-		alter table audit.audit_trail rename column audit_by to log_created_by;
+		alter table audit.audit_trail rename column audit_by to version_logged_by;
     EXCEPTION
         WHEN undefined_column THEN RAISE NOTICE ''audit.audit_trail.audit_by does not exist'';
 	END
 ';
-comment on column audit.audit_trail.log_created_by is
+comment on column audit.audit_trail.version_logged_by is
 'Who created this log entry.
 Should be equal to .modified_by of the *next* version of the logged row.';
 
 
 DO 'BEGIN
-		alter table audit.audit_trail rename column audit_when to log_created_when;
+		alter table audit.audit_trail rename column audit_when to version_logged_when;
     EXCEPTION
         WHEN undefined_column THEN RAISE NOTICE ''audit.audit_trail.audit_when does not exist'';
 	END
 ';
-comment on column audit.audit_trail.log_created_when is
+comment on column audit.audit_trail.version_logged_when is
 	'When was this log entry created (not when the logged row was created).';
 
 -- -------------------------------------------------------------------
@@ -259,11 +259,11 @@ drop view if exists audit.v_audit_trail cascade;
 create or replace view audit.v_audit_trail as
 	-- all audit log tables are children of audit.audit_trail
 	select
-		to_char(a_at.log_created_when, 'YYYY-MM-DD HH24:MI')
+		to_char(a_at.version_logged_when, 'YYYY-MM-DD HH24:MI')
 			as event_when,
 		coalesce (
-			(select short_alias from dem.staff where db_user = a_at.log_created_by),
-			'<' || a_at.log_created_by || '>'
+			(select short_alias from dem.staff where db_user = a_at.version_logged_by),
+			'<' || a_at.version_logged_by || '>'
 		)
 			as event_by,
 		a_at.src_table_oid::regclass
@@ -271,13 +271,13 @@ create or replace view audit.v_audit_trail as
 		a_at.row_version
 			as row_version_before,
 		case
-			when a_at.log_reason = 'DELETE' then NULL::integer
+			when a_at.version_logged_why = 'DELETE' then NULL::integer
 			else (a_at.row_version + 1)
 		end
 			as row_version_after,
-		a_at.log_reason
+		a_at.version_logged_why
 			as event,
-		a_at.log_created_when
+		a_at.version_logged_when
 			as audit_when_ts,
 		a_at.src_row_pk_audit
 			as pk_audit
@@ -298,7 +298,7 @@ union all
 			as event_table,
 		NULL::integer
 			as row_version_before,
-		'1'::integer
+		1::integer
 			as row_version_after,
 		g_al.user_action
 			as event,
@@ -327,7 +327,7 @@ union all
 			as event_table,
 		NULL::integer
 			as row_version_before,
-		'1'::integer
+		1::integer
 			as row_version_after,
 		'INSERT'::text
 			as event,

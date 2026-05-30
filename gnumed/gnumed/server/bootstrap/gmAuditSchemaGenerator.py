@@ -128,7 +128,7 @@ BEGIN
 	END IF;
 	-- stash away OLD row before UPDATE
 	INSERT INTO audit.%(log_tbl)s (
-		row_version, version_created_when, version_created_by, src_row_pk_audit, src_table_oid, log_reason,
+		row_version, version_created_when, version_created_by, src_row_pk_audit, src_table_oid, version_logged_why,
 		%(cols_clause)s
 	) VALUES (
 		OLD.row_version, OLD.modified_when, OLD.modified_by, OLD.pk_audit, TG_RELID, TG_OP,
@@ -162,7 +162,7 @@ BEGIN
 	NEW.modified_when := CURRENT_TIMESTAMP;
 	NEW.modified_by := SESSION_USER;
 	INSERT INTO audit.%(log_tbl)s (
-		row_version, version_created_when, version_created_by, src_row_pk_audit, src_table_oid, log_reason,
+		row_version, version_created_when, version_created_by, src_row_pk_audit, src_table_oid, version_logged_why,
 		%(cols_clause)s
 	) VALUES (
 		OLD.row_version, OLD.modified_when, OLD.modified_by, OLD.pk_audit, TG_RELID, TG_OP,
@@ -202,7 +202,7 @@ BEGIN
 	END IF;
 	-- stash away OLD row before DELETE
 	INSERT INTO audit.%(log_tbl)s (
-		row_version, version_created_when, version_created_by, src_row_pk_audit, src_table_oid, log_reason,
+		row_version, version_created_when, version_created_by, src_row_pk_audit, src_table_oid, version_logged_why,
 		%(cols_clause)s
 	) VALUES (
 		OLD.row_version, OLD.modified_when, OLD.modified_by, OLD.pk_audit, TG_RELID, TG_OP,
@@ -230,7 +230,7 @@ CREATE FUNCTION audit.ft_del__%(src_schema)s__%(src_tbl)s()
 	AS '
 BEGIN
 	INSERT INTO audit.%(log_tbl)s (
-		row_version, version_created_when, version_created_by, src_row_pk_audit, src_table_oid, log_reason,
+		row_version, version_created_when, version_created_by, src_row_pk_audit, src_table_oid, version_logged_why,
 		%(cols_clause)s
 	) VALUES (
 		OLD.row_version, OLD.modified_when, OLD.modified_by, OLD.pk_audit, TG_RELID, TG_OP,
