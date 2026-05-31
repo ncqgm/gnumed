@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-16 14:18+0200\n"
+"POT-Creation-Date: 2026-05-31 14:26+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5969,7 +5969,7 @@ msgid " Notes: %s"
 msgstr ""
 
 #, python-format
-msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
+msgid "Version: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
 msgstr ""
 
 #, python-format
@@ -6009,6 +6009,10 @@ msgstr ""
 
 #, python-format
 msgid "Intake: %s"
+msgstr ""
+
+#, python-format
+msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
 msgstr ""
 
 msgid "Additional notes for healthcare professionals"
@@ -7016,10 +7020,13 @@ msgid "Table: %s##tx: EMR item source (database table, mostly)"
 msgstr ""
 
 #, python-format
-msgid "Revision: %s%s"
+msgid "Version: %s (%s)"
 msgstr ""
 
-msgid "newly inserted"
+msgid "Original##tx: ... of clinical record item"
+msgstr ""
+
+msgid "Revision##tx: ... of clinical record entry"
 msgstr ""
 
 msgid "Last modified:"
@@ -7068,6 +7075,9 @@ msgstr ""
 
 #, python-format
 msgid "Event: %s"
+msgstr ""
+
+msgid "no previous versions"
 msgstr ""
 
 #, python-format
@@ -7400,7 +7410,7 @@ msgid "Source data:\n"
 msgstr ""
 
 #, python-format
-msgid "Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s."
+msgid "Versions: %(row_ver)s, last %(mod_when)s by %(mod_by)s."
 msgstr ""
 
 #, python-format
@@ -7950,6 +7960,9 @@ msgid "no EMR item attached"
 msgstr ""
 
 msgid "Click me for more information."
+msgstr ""
+
+msgid "retrieving revision history"
 msgstr ""
 
 msgid "EMR entry details"
@@ -9536,7 +9549,7 @@ msgstr ""
 msgid "Cannot export visual progress note template for [%s]."
 msgstr ""
 
-msgid "Editor for visual progress note left configured."
+msgid "Editor for visual progress note left unconfigured."
 msgstr ""
 
 msgid "visual progress notes"
@@ -11018,11 +11031,10 @@ msgstr ""
 msgid "Deleting bill"
 msgstr ""
 
-#, python-format
 msgid ""
-"When deleting the bill [%s]\n"
-"do you want to keep its items (effectively \"unbilling\" them)\n"
-"or do you want to also delete the bill items from the patient ?\n"
+"When deleting this bill do you want to keep its items\n"
+"on the charge list (effectively \"unbilling\" them) or\n"
+"do you want to also delete the bill items from the charge list ?\n"
 msgstr ""
 
 msgid "Delete + keep"
@@ -11041,12 +11053,19 @@ msgid "Also remove invoice PDF"
 msgstr ""
 
 msgid ""
+"MAKE SURE THIS IS LAWFUL !\n"
+"\n"
 "Also remove the invoice PDF from the document archive (because it will not "
 "correspond to the bill anymore)."
 msgstr ""
 
-#, python-format
-msgid "Select the items you want to remove from bill [%s]:\n"
+msgid ""
+"Truly delete invoice document from document archive ?\n"
+"\n"
+"Make sure this is lawful in your jurisdiction !"
+msgstr ""
+
+msgid "Select the items you want to remove from the bill:\n"
 msgstr ""
 
 msgid "Removing items from bill"
@@ -11066,7 +11085,7 @@ msgstr ""
 
 #, python-format
 msgid ""
-"%s items selected from bill [%s]\n"
+"%s items selected from bill (invoice ID \"%s\")\n"
 "\n"
 "Do you want to only remove the selected items\n"
 "from the bill (\"unbill\" them) or do you want\n"
@@ -11083,6 +11102,11 @@ msgid ""
 msgstr ""
 
 msgid "Completely delete items from the patient."
+msgstr ""
+
+msgid ""
+"Also remove the invoice PDF from the document archive (because it will not "
+"correspond to the bill anymore)."
 msgstr ""
 
 msgid "Displaying invoice"
@@ -11117,10 +11141,20 @@ msgid ""
 "%(currency)s%(total_amount_with_vat)s"
 msgstr ""
 
-msgid "Showing bills."
+msgid ""
+"There is no functionality for modifying invoices (as opposed to bills) "
+"because that is illegal in many jurisdictions.\n"
+"\n"
+"\t\tNote that deleting invoices (again, as opposed to bills) may also be "
+"unlawful.\n"
+"\n"
+"\t\tMake sure to act by applicable law !"
 msgstr ""
 
-msgid "Create if necessary, and show the corresponding invoice PDF"
+msgid "Bills (invoiced or not)"
+msgstr ""
+
+msgid "Create if necessary, and show the corresponding invoice (PDF)"
 msgstr ""
 
 msgid "Unbill"
@@ -11224,6 +11258,9 @@ msgid "showing audit trail"
 msgstr ""
 
 msgid "GNUmed database audit log ..."
+msgstr ""
+
+msgid "Versions"
 msgstr ""
 
 msgid "Table"
@@ -11989,7 +12026,7 @@ msgstr ""
 msgid "debug"
 msgstr ""
 
-msgid "Please visit https://www.gnumed.org"
+msgid "Please visit https://www.gnumed.de"
 msgstr ""
 
 #, python-format

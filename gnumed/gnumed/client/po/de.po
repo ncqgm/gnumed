@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-16 14:18+0200\n"
-"PO-Revision-Date: 2026-05-16 14:18+0200\n"
+"POT-Creation-Date: 2026-05-31 14:26+0200\n"
+"PO-Revision-Date: 2026-05-31 14:25+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -6854,8 +6854,8 @@ msgid " Notes: %s"
 msgstr " Notizen: %s"
 
 #, python-format
-msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
-msgstr "Revision: #%(row_ver)s, %(mod_when)s durch %(mod_by)s."
+msgid "Version: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
+msgstr "Version: #%(row_ver)s, %(mod_when)s von %(mod_by)s."
 
 #, python-format
 msgid "Substance intake [#%s]                     "
@@ -6895,6 +6895,10 @@ msgstr " Patientenhinweis: %s"
 #, python-format
 msgid "Intake: %s"
 msgstr "Einnahme: %s"
+
+#, python-format
+msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
+msgstr "Revision: #%(row_ver)s, %(mod_when)s durch %(mod_by)s."
 
 msgid "Additional notes for healthcare professionals"
 msgstr "Zusätzliche medizinische Angaben"
@@ -7953,14 +7957,17 @@ msgstr "Nachricht"
 
 #, python-format
 msgid "Table: %s##tx: EMR item source (database table, mostly)"
-msgstr ""
+msgstr "Tabelle: %s"
 
 #, python-format
-msgid "Revision: %s%s"
-msgstr "Revision: %s%s"
+msgid "Version: %s (%s)"
+msgstr "Version: %s (%s)"
 
-msgid "newly inserted"
-msgstr "neuer Eintrag"
+msgid "Original##tx: ... of clinical record item"
+msgstr "Original"
+
+msgid "Revision##tx: ... of clinical record entry"
+msgstr "Revision"
 
 msgid "Last modified:"
 msgstr "Zuletzt geändert:"
@@ -7985,7 +7992,7 @@ msgstr "PK Episode: %s"
 
 #, python-format
 msgid "Health Issue PK: %s"
-msgstr "PK Grunderkrankungs: %s"
+msgstr "PK Grunderkrankung: %s"
 
 #, python-format
 msgid "Patient PK: %s"
@@ -8009,6 +8016,9 @@ msgstr "Kontakt: %s"
 #, python-format
 msgid "Event: %s"
 msgstr "Ereignis: %s"
+
+msgid "no previous versions"
+msgstr "kein Vorversionen"
 
 #, python-format
 msgid "unmapped entry type from table [%s]"
@@ -8352,8 +8362,8 @@ msgid "Source data:\n"
 msgstr "Quelldaten:\n"
 
 #, python-format
-msgid "Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s."
-msgstr "Revision: %(row_ver)s, zuletzt %(mod_when)s durch %(mod_by)s."
+msgid "Versions: %(row_ver)s, last %(mod_when)s by %(mod_by)s."
+msgstr "Versionen: %(row_ver)s, letzte %(mod_when)s von %(mod_by)s."
 
 #, python-format
 msgid "Target: %(clin_min_max)s%(clin_range)s"
@@ -8933,6 +8943,9 @@ msgstr "kein Krankenblatteintrag gesetzt"
 
 msgid "Click me for more information."
 msgstr "Weitere Informationen auf Knopfdruck."
+
+msgid "retrieving revision history"
+msgstr "vorherige Versionen laden"
 
 msgid "EMR entry details"
 msgstr "Details zum Eintrag im Krankenblatt"
@@ -10796,7 +10809,7 @@ msgstr "Bildquellen (Scanner, Kameras, usw)"
 msgid "Cannot export visual progress note template for [%s]."
 msgstr "Kann Bildnotiz-Vorlage [%s] nicht exportieren."
 
-msgid "Editor for visual progress note left configured."
+msgid "Editor for visual progress note left unconfigured."
 msgstr "Kein Editor für Bildnotizen konfiguriert."
 
 msgid "visual progress notes"
@@ -12512,13 +12525,12 @@ msgstr "Rechnung drucken"
 msgid "Deleting bill"
 msgstr "Rechnung löschen"
 
-#, python-format
 msgid ""
-"When deleting the bill [%s]\n"
-"do you want to keep its items (effectively \"unbilling\" them)\n"
-"or do you want to also delete the bill items from the patient ?\n"
+"When deleting this bill do you want to keep its items\n"
+"on the charge list (effectively \"unbilling\" them) or\n"
+"do you want to also delete the bill items from the charge list ?\n"
 msgstr ""
-"Sollen beim Löschen der Rechnung [%s]\n"
+"Sollen beim Löschen dieser Rechnung\n"
 "die Rechnungspositionen in offene Posten umgewandelt (storniert)\n"
 "werden oder sollen die Positionen komplett gelöscht werden ?\n"
 
@@ -12538,16 +12550,28 @@ msgid "Also remove invoice PDF"
 msgstr "PDF-Rechnungsbeleg auch löschen"
 
 msgid ""
+"MAKE SURE THIS IS LAWFUL !\n"
+"\n"
 "Also remove the invoice PDF from the document archive (because it will not "
 "correspond to the bill anymore)."
 msgstr ""
-"Den PDF-Rechnungsbeleg ebenfalls aus dem Dokumentenarchiv löschen (weil er "
-"nicht mehr mit der Rechnung übereinstimmen wird)."
+"Stellen Sie sicher, daß folgendes gesetzlich zulässig ist:\n"
+"\n"
+"Den Rechnungsbeleg (PDF) ebenfalls löschen (aus dem Archiv), weil er nicht "
+"mehr mit der Rechnung übereinstimmen wird."
 
-#, python-format
-msgid "Select the items you want to remove from bill [%s]:\n"
+msgid ""
+"Truly delete invoice document from document archive ?\n"
+"\n"
+"Make sure this is lawful in your jurisdiction !"
 msgstr ""
-"Wählen Sie die Posten der Rechnung [%s], die storniert werden sollen:\n"
+"Tatsächlich den Rechnungsbeleg aus dem Archiv löschen ?\n"
+"\n"
+"Stellen Sie sicher, daß das gesetzlich zulässig ist !"
+
+msgid "Select the items you want to remove from the bill:\n"
+msgstr ""
+"Wählen Sie diejenigen Posten der Rechnung, die storniert werden sollen:\n"
 
 msgid "Removing items from bill"
 msgstr "Rechnungsposten entfernen"
@@ -12572,7 +12596,7 @@ msgstr ""
 
 #, python-format
 msgid ""
-"%s items selected from bill [%s]\n"
+"%s items selected from bill (invoice ID \"%s\")\n"
 "\n"
 "Do you want to only remove the selected items\n"
 "from the bill (\"unbill\" them) or do you want\n"
@@ -12580,7 +12604,7 @@ msgid ""
 "\n"
 "Note that neither action is reversible."
 msgstr ""
-"%s Posten von Rechnung [%s] markiert\n"
+"%s Posten der Rechnung markiert (Rechnungs-ID \"%s\")\n"
 "\n"
 "Wollen Sie diese Posten lediglich stornieren\n"
 "oder wollen Sie die Posten auch komplett aus\n"
@@ -12599,6 +12623,13 @@ msgstr ""
 
 msgid "Completely delete items from the patient."
 msgstr "Rechnungsposten komplett löschen."
+
+msgid ""
+"Also remove the invoice PDF from the document archive (because it will not "
+"correspond to the bill anymore)."
+msgstr ""
+"Den PDF-Rechnungsbeleg ebenfalls aus dem Dokumentenarchiv löschen (weil er "
+"nicht mehr mit der Rechnung übereinstimmen wird)."
 
 msgid "Displaying invoice"
 msgstr "Rechnung anzeigen"
@@ -12641,11 +12672,27 @@ msgstr ""
 "ohne USt: %(currency)s%(total_amount)s / mit %(percent_vat)s%% USt: "
 "%(currency)s%(total_amount_with_vat)s"
 
-msgid "Showing bills."
-msgstr "Zeige Rechnungen."
+msgid ""
+"There is no functionality for modifying invoices (as opposed to bills) "
+"because that is illegal in many jurisdictions.\n"
+"\n"
+"\t\tNote that deleting invoices (again, as opposed to bills) may also be "
+"unlawful.\n"
+"\n"
+"\t\tMake sure to act by applicable law !"
+msgstr ""
+"Rechnungsbelege (anders als Rechnungen) zu bearbeiten ist nicht vorgesehen, "
+"weil dies in vielen Regionen ungesetzlich ist.\n"
+"\n"
+"\t\tEs kann auch ungesetzlich sein, Rechnungsbelege zu löschen.\n"
+"\n"
+"\t\tBeachten Sie die vor Ort gültige Rechtslage !"
 
-msgid "Create if necessary, and show the corresponding invoice PDF"
-msgstr "Zugehörigen PDF-Rechnungsbeleg (ggf erzeugen und) anzeigen"
+msgid "Bills (invoiced or not)"
+msgstr "Rechnungen (mit/ohne Rechnungsbelege)"
+
+msgid "Create if necessary, and show the corresponding invoice (PDF)"
+msgstr "Zugehörigen Rechnungsbeleg (PDF) anzeigen, ggf erzeugen"
 
 msgid "Unbill"
 msgstr "Stornieren"
@@ -12762,6 +12809,9 @@ msgstr "zeige Änderungsprotokoll"
 
 msgid "GNUmed database audit log ..."
 msgstr "Änderungsprotokoll der GNUmed-Datenbank ..."
+
+msgid "Versions"
+msgstr "Versionen"
 
 msgid "Table"
 msgstr "Tabelle"
@@ -13674,7 +13724,7 @@ msgstr "Version %s%s präsentiert von"
 msgid "debug"
 msgstr "debuggen"
 
-msgid "Please visit https://www.gnumed.org"
+msgid "Please visit https://www.gnumed.de"
 msgstr "Siehe auch https://www.gnumed.org"
 
 #, python-format
@@ -20779,6 +20829,16 @@ msgstr "Abbrechen"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
+
+#~ msgid "newly inserted"
+#~ msgstr "Originaleintrag"
+
+#, python-format
+#~ msgid "Revision: %s%s"
+#~ msgstr "Revision: %s%s"
+
+#~ msgid "Showing bills."
+#~ msgstr "Zeige Rechnungen."
 
 #~ msgid "local##tx: as in \"local time\""
 #~ msgstr "örtlich"
