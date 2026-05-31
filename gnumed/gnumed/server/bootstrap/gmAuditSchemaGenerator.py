@@ -40,7 +40,7 @@ def audit_trail_table_ddl(aCursor=None, schema=None, table2audit=None):
 	# which columns to potentially audit
 	cols2potentially_audit = gmPG2.get_col_defs(link_obj = aCursor, schema = schema, table = table2audit)
 	# which to skip
-	cols2skip = gmPG2.get_col_names(link_obj = aCursor, schema = gmPG2.AUDIT_SCHEMA, table = gmAuditSchemaDefs.AUDIT_FIELDS_TABLE)
+	cols2skip = gmPG2.get_col_names(link_obj = aCursor, schema = gmPG2.AUDIT_SCHEMA, table = gmPG2.AUDIT_FIELDS_TABLE)
 	# which ones to really audit
 	cols2really_audit = []
 	for col in cols2potentially_audit[0]:
@@ -88,7 +88,7 @@ def audit_trail_table_ddl(aCursor=None, schema=None, table2audit=None):
 def trigger_ddl(aCursor='default', schema=gmPG2.AUDIT_SCHEMA, audited_table=None):
 
 	target_columns = gmPG2.get_col_names(link_obj = aCursor, schema = schema, table = audited_table)
-	columns2skip = gmPG2.get_col_names(link_obj = aCursor, schema = gmPG2.AUDIT_SCHEMA, table = gmAuditSchemaDefs.AUDIT_FIELDS_TABLE)
+	columns2skip = gmPG2.get_col_names(link_obj = aCursor, schema = gmPG2.AUDIT_SCHEMA, table = gmPG2.AUDIT_FIELDS_TABLE)
 	columns = []
 	values = []
 	for column in target_columns:

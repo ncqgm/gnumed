@@ -46,6 +46,51 @@ comment on function dem.get_person_duplicates(IN _dob timestamp with time zone, 
 	'Look for persons matching (dob [day level], firstnames [case insensitive], lastnames [case insensitive], gender [case insensitive], comment [case insensitive])';
 
 -- --------------------------------------------------------------
+drop function if exists staging.deduplicate_named_identities() cascade;
+
+create function staging.deduplicate_named_identities()
+	returns void
+	language 'plpgsql'
+	as '
+DECLARE
+	__SQL text;
+	__dupes_by_pk_identity int[];
+BEGIN
+	__SQL := ''
+		select dupes_by_pk_identity from (
+			select
+				count(1) as dupe_count,
+				array_agg(pk_identity) as dupes_by_pk_identity
+			from dem.v_all_persons
+			group by
+				lower(lastnames),
+				lower(firstnames),
+				lower(gender),
+				date_trunc(''''day'''', dob),
+				lower(comment)
+		) as dupes
+		where dupe_count > 1;
+	'';
+	FOR __dupes_by_pk_identity IN
+		EXECUTE __SQL
+	LOOP
+		RAISE NOTICE ''found dupe (dem.identity.pk): %'', __dupes_by_pk_identity;
+		update
+			dem.identity
+		set
+			comment = coalesce(comment, '''') || '' ['' || timeofday() || '']''
+		where
+			pk = ANY(__dupes_by_pk_identity)
+		;
+	END LOOP;
+	RAISE NOTICE ''done'';
+END;';
+
+select staging.deduplicate_named_identities();
+
+drop function if exists staging.deduplicate_named_identities() cascade;
+
+-- --------------------------------------------------------------
 drop function if exists dem.assert_unique_named_identity() cascade;
 drop function if exists dem.trf_assert_unique_named_identity() cascade;
 

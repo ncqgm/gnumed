@@ -295,8 +295,8 @@ AUDIT_TRAIL_PARENT_TABLE = 'audit_trail'		# and inherit from this table
 AUDIT_FIELDS_TABLE = 'audit_fields'				# audited tables inherit these fields
 
 
-__MIND_MELD = r'_ı/'
-__LLAP = r'_\\//'
+__MIND_MELD = '_ı/'
+__LLAP = '_\\//'
 
 
 from typing import Sequence, Collection, TypedDict, NotRequired, MutableMapping
