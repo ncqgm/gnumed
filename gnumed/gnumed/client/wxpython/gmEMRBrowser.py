@@ -1867,4 +1867,5 @@ if __name__ == '__main__':
 		)
 
 	#--------------------------------------------------------
+	gmLog2.print_logfile_name()
 	test_list_journal()
