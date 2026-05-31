@@ -558,6 +558,7 @@ def manage_form_templates(parent=None, template_types=None, active_only=False, e
 	#-------------------------
 	def edit(template=None):
 		return edit_template(parent = parent, template = template)
+
 	#-------------------------
 	def delete(template):
 		delete = gmGuiHelpers.gm_show_question (
@@ -576,11 +577,20 @@ def manage_form_templates(parent=None, template_types=None, active_only=False, e
 			gmForms.delete_form_template(template = template)
 			return True
 		return False
+
 	#-------------------------
 	def refresh(lctrl):
 		templates = gmForms.get_form_templates(active_only = active_only, template_types = template_types, excluded_types = excluded_types)
-		lctrl.set_string_items(items = [ [t['name_long'], t['external_version'], gmForms.form_engine_names[t['engine']]] for t in templates ])
+		items = []
+		for t in templates:
+			try:
+				engine = gmForms.form_engine_names[t['engine']]
+			except KeyError:
+				continue		# engine unknown
+			items.append([t['name_long'], t['external_version'], engine])
+		lctrl.set_string_items(items = items)
 		lctrl.set_data(data = templates)
+
 	#-------------------------
 	template = gmListWidgets.get_choices_from_list (
 		parent = parent,
