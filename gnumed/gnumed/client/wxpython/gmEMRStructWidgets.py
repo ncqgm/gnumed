@@ -43,6 +43,7 @@ from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmEditArea
+from Gnumed.wxpython import gmAuthWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -88,7 +89,9 @@ class cEmrItemInfoButton(wx.Button):
 		except KeyError:
 			kwargs['style'] = wx.BORDER_NONE | wx.BU_EXACTFIT
 		super().__init__(*args, **kwargs)
-		self.Label = ' 🛈 '			# info symbol
+		self.__label__no_revisions = ' 🛈 '				# info symbol
+		self.__label__with_revisions = ' 🛈¹ '			# info symbol + footnote symbol
+		self.Label = self.__label__no_revisions
 		self.SetForegroundColour(wx.Colour('blue'))
 		self.__emr_item = None
 		self.__update_tooltip()
@@ -97,6 +100,10 @@ class cEmrItemInfoButton(wx.Button):
 	#-----------------------------------------
 	def __set_emr_item(self, emr_item=None):
 		self.__emr_item = emr_item
+		if emr_item['row_version'] == 1:
+			self.Label = self.__label__no_revisions
+		else:
+			self.Label = self.__label__with_revisions
 		self.__update_tooltip()
 
 	emr_item = property(fset = __set_emr_item)
@@ -126,7 +133,15 @@ class cEmrItemInfoButton(wx.Button):
 			lines.extend(self.__emr_item.formatted_tech_info)
 			lines.append(gmTools.u_box_horiz_4dashes * 40)
 			lines.extend(self.__emr_item.format())
-			gmGuiHelpers.gm_show_multiline_text(text = '\n'.join(lines), title = _('EMR entry details'))
+			dbo_conn = gmAuthWidgets.get_dbowner_connection(procedure = _('retrieving revision history'))
+			if dbo_conn:
+				lines.append(gmTools.u_box_horiz_4dashes * 40)
+				lines.extend(self.__emr_item.get_formatted_revision_history(link_obj = dbo_conn))
+			gmGuiHelpers.gm_show_multiline_text (
+				title = _('EMR entry details'),
+				text = '\n'.join(lines),
+				font_fixed_width = True
+			)
 			return
 
 #================================================================
