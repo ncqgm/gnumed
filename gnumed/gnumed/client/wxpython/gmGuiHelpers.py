@@ -698,10 +698,14 @@ def gm_show_question(question:str=None, title:str=None, cancel_button:bool=False
 	return None
 
 #-------------------------------------------------------------------------
-def gm_show_multiline_text(text:str=None, title:str=None):
+def gm_show_multiline_text(text:str=None, title:str=None, font_fixed_width:bool=False):
 	title = decorate_window_title(title)
 	style = wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER
 	dlg = wx.lib.dialogs.ScrolledMessageDialog(None, text, title, style = style)
+	if font_fixed_width:
+		font = dlg.GetFont()
+		font.Family = wx.FONTFAMILY_MODERN
+		dlg.SetFont(font)
 	dlg.ShowModal()
 	dlg.DestroyLater()
 
