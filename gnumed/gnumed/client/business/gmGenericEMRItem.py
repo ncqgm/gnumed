@@ -187,9 +187,9 @@ class cGenericEMRItem(gmBusinessDBObject.cBusinessDBObject):
 		lines = []
 		lines.append('%s [%s]' % (self.item_type_str, self._payload['real_soap_cat']))
 		lines.append(' ' + _('Table: %s##tx: EMR item source (database table, mostly)') % self._payload['src_table'])
-		lines.append(' ' + _('Version: %s%s') % (
+		lines.append(' ' + _('Version: %s (%s)') % (
 			self._payload['row_version'],
-			(' (%s)' % _('newly inserted')) if (self._payload['row_version'] == 1) else ''
+			_('Original##tx: ... of clinical record item') if (self._payload['row_version'] == 1) else _('Revision##tx: ... of clinical record entry')
 		))
 		lines.append(' ' + _('Last modified:'))
 		lines.append('  %s (%s)' % (
@@ -282,6 +282,49 @@ class cGenericEMRItem(gmBusinessDBObject.cBusinessDBObject):
 		return item_class(aPK_obj = self._payload['src_pk'])
 
 	specialized_item = property(__get_specialized_item)
+
+	#--------------------------------------------------------
+	def get_revision_history(self, link_obj:gmPG2._TLnkObj=None):
+		schema, table = self._payload['src_table'].split('.', 1)
+		hx = gmPG2.get_row_history (
+			link_obj = link_obj,
+			schema = schema,
+			table = table,
+			pk = self._payload['src_pk']
+		)
+		return hx
+
+	#--------------------------------------------------------
+	def get_formatted_revision_history(self, link_obj:gmPG2._TLnkObj=None):
+		hx = self.get_revision_history(link_obj = link_obj)
+		if not hx:
+			return ['%s (PK %s): %s' % (
+				self._payload['src_table'],
+				self._payload['src_pk'],
+				_('no previous versions')
+			)]
+
+		lines = ['%s, PK %s: %s version(s) before current state (= v%s)' % (
+			self._payload['src_table'],
+			self._payload['src_pk'],
+			len(hx),
+			self._payload['row_version']
+		)]
+		# loop over _all_ rows because the audit table can have chaged over time :(
+		column_labels = [ 'v%s (%s)' % (
+			h['row_version'], h['version_logged_when'].strftime('%Y %b %d %H:%M')
+		) for h in hx ]
+		lines.extend (gmTools.dicts2table_columns (
+			hx,
+			left_margin = 1,
+			eol = None,
+			keys2ignore = ['src_row_pk_audit', 'version_logged_when', 'version_logged_why', 'version_logged_by', 'row_version', 'src_table_oid', 'pk_audit_trail'],
+			show_only_changes = True,
+			column_labels = column_labels,
+			date_format = '%Y %b %d %H:%M',
+			equality_value = gmTools.u_arrow2right
+		))
+		return lines
 
 #------------------------------------------------------------
 def get_generic_emr_items (
@@ -416,7 +459,9 @@ if __name__ == '__main__':
 			return_pks = False
 		):
 			print('------------------------------')
-			print('\n'.join(item.formatted_tech_info))
+			#print('\n'.join(item.formatted_tech_info))
+#			print(item.get_revision_history())
+			print('\n'.join(item.get_formatted_revision_history()))
 #			print(item.format(eol = '\n'))
 #			print(item.staff_id)
 			input('<next>')
