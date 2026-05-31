@@ -1110,17 +1110,49 @@ def get_col_names(link_obj:_TLnkObj=None, schema='public', table=None):
 	"""Return column attributes of table"""
 	args = {'schema': schema, 'table': table}
 	rows = run_ro_queries(link_obj = link_obj, queries = [{'sql': SQL__cols4table, 'args': args}])
-	return [ row[0] for row in rows]
+	return [ row[0] for row in rows ]
 
 #------------------------------------------------------------------------
-def get_row_history(link_obj:_TLnkObj=None, schema:str=None, table:str=None, pk_audit:int=None) -> list:
-	args = {'schema': schema, 'table': table, 'pk_audit': pk_audit}
+def get_primary_key_column_names(link_obj:_TLnkObj=None, schema:str=None, table:str=None) -> list[str]:
+	args = {'schema': schema, 'table': table}
+	col_names = run_ro_query(sql = SQL_get_primary_key_name, args = args)
+	return [ c[0] for c in col_names ]
+
+#------------------------------------------------------------------------
+def get_row_history(link_obj:_TLnkObj=None, schema:str=None, table:str=None, pk_audit:int=None, pk:int|str=None) -> list:
+	assert gmTools.xor(pk, pk_audit, [None]), 'either <pk> or <pk_audit> must be passed in'
+
+	args = {'schema': schema, 'table': table, 'pk': pk}
 	SQL = 'SELECT 1 FROM audit.audited_tables WHERE schema = %(schema)s and table_name = %(table)s'
 	rows = run_ro_query(link_obj = link_obj, sql = SQL, args = args)
 	if not rows:
 		_log.error('table [%s.%s] not registered for auditing', schema, table)
 		return None
 
+	if not pk_audit:
+		pk_names = get_primary_key_column_names(link_obj = link_obj, schema = schema, table = table)
+		if not pk_names:
+			_log.error('table [%s.%s] does not have a primary key', schema, table)
+			return None
+
+		if len(pk_names) > 1:
+			_log.error('table [%s.%s] has multi-column primary key, cannot retrieve row history by PK', schema, table)
+			return None
+
+		pk_col = pk_names[0]
+		SQL = 'SELECT pk_audit FROM %s.%s WHERE %s = %%(pk)s' % (schema, table, pk_col)
+		rows = run_ro_query(link_obj = link_obj, sql = SQL, args = args)
+		if not rows:
+			_log.error('table [%s.%s] row with .%s=%s not found', schema, table, pk_col, pk)
+			return None
+
+		if len(rows) > 1:
+			_log.error('table [%s.%s] more than one row with .%s=%s found', schema, table, pk_col, pk)
+			return None
+
+		pk_audit = rows[0]['pk_audit']
+
+	args['pk_audit'] = pk_audit
 	where_parts = [
 		"src_table_oid = '%s.%s'::regclass" % (schema, table),
 		'src_row_pk_audit = %(pk_audit)s'
