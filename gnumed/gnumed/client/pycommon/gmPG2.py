@@ -287,8 +287,16 @@ WHERE
 	is_tc.constraint_type = 'PRIMARY KEY';
 """
 
-__MIND_MELD = '_ı/'
-__LLAP = '_\\//'
+
+# auditing system definitions
+AUDIT_LOG_TABLE_PREFIX = 'log_'					# the audit trail tables start with this prefix
+AUDIT_SCHEMA = 'audit'							# audit stuff lives in this schema
+AUDIT_TRAIL_PARENT_TABLE = 'audit_trail'		# and inherit from this table
+AUDIT_FIELDS_TABLE = 'audit_fields'				# audited tables inherit these fields
+
+
+__MIND_MELD = r'_ı/'
+__LLAP = r'_\\//'
 
 
 from typing import Sequence, Collection, TypedDict, NotRequired, MutableMapping
@@ -744,10 +752,10 @@ def get_db_fingerprint(conn=None, fname:str=None, with_dump:bool=False, eol:str=
 		('Objects', "SELECT COUNT(*) FROM blobs.doc_obj"),
 		('Organizations', "SELECT COUNT(*) FROM dem.org"),
 		("Organizational units", "SELECT COUNT(*) FROM dem.org_unit"),
-		('   Earliest .modified_when', "SELECT min(modified_when) FROM audit.audit_fields"),
-		('Most recent .modified_when', "SELECT max(modified_when) FROM audit.audit_fields"),
-		('      Earliest .audit_when', "SELECT min(audit_when) FROM audit.audit_trail"),
-		('   Most recent .audit_when', "SELECT max(audit_when) FROM audit.audit_trail")
+		('   Earliest .modified_when', "SELECT min(modified_when) FROM %s.%s" % (AUDIT_SCHEMA, AUDIT_FIELDS_TABLE)),
+		('Most recent .modified_when', "SELECT max(modified_when) FROM %s.%s" % (AUDIT_SCHEMA, AUDIT_FIELDS_TABLE)),
+		('   Earliest .version_logged_when', 'SELECT min(version_logged_when) FROM %s.%s' % (AUDIT_SCHEMA, AUDIT_TRAIL_PARENT_TABLE)),
+		('Most recent .version_logged_when', 'SELECT max(version_logged_when) FROM %s.%s' % (AUDIT_SCHEMA, AUDIT_TRAIL_PARENT_TABLE))
 	]
 	if conn is None:
 		conn = get_connection(readonly = True)
@@ -1117,7 +1125,7 @@ def get_row_history(link_obj:_TLnkObj=None, schema:str=None, table:str=None, pk_
 		"src_table_oid = '%s.%s'::regclass" % (schema, table),
 		'src_row_pk_audit = %(pk_audit)s'
 	]
-	SQL = 'SELECT * FROM audit.log_%s' % table
+	SQL = 'SELECT * FROM %s.%s%s' % (AUDIT_SCHEMA, AUDIT_LOG_TABLE_PREFIX, table)
 	SQL += '\nWHERE %s' % ' AND '.join(where_parts)
 	SQL += '\nORDER by row_version'
 	rows = run_ro_query(link_obj = link_obj, sql = SQL, args = args)

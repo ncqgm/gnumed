@@ -9,11 +9,6 @@ reasonably sure they are executed last.
 #==================================================================
 __license__ = "GPL v2 or later"		# (details at https://www.gnu.org)
 
-LOG_TABLE_PREFIX = 'log_'						# the audit trail tables start with this prefix
-AUDIT_TRAIL_PARENT_TABLE = 'audit_trail'		# and inherit from this table
-AUDIT_FIELDS_TABLE = 'audit_fields'				# audited tables inherit these fields
-AUDIT_SCHEMA = 'audit'							# audit stuff lives in this schema
-
 #==================================================================
 # SQL statements for auditing setup script
 #------------------------------------------------------------------
