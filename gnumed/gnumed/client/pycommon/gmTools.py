@@ -1250,7 +1250,7 @@ def bool2str(boolean=None, true_str='True', false_str='False'):
 	)
 
 #---------------------------------------------------------------------------
-def xor(val1, val2, mutually_exclusive_values:list=None, check_defined:bool=False) -> bool:
+def xor(val1, val2, mutually_exclusive_values:list=None) -> bool:
 	"""Test values for not BOTH being in list of mutually exclusive values.
 
 	This can be used to assert mutually exclusive function
@@ -2068,7 +2068,7 @@ def dicts2table_columns(dict_list, left_margin=0, eol='\n', keys2ignore=None, co
 		max_width_this_col = max(col_max_width[dict_idx], len(equality_value)) if show_only_changes else col_max_width[dict_idx]
 		max_len_str = '%s.%s' % (max_width_this_col, max_width_this_col)
 		field_template = ' %' + max_len_str + 's'
-		equal_field_template = ' %s' + (' ' * max_width_this_col)
+		equal_field_template = ' %s' + (' ' * (max_width_this_col-1))	# the -1 because we already have a ' ' in front of the %s
 		d = dict_list[dict_idx]
 		for key in keys2show:
 			try:
