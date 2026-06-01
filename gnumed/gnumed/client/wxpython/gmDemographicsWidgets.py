@@ -8,7 +8,9 @@ import sys
 import logging
 import os
 import datetime as pydt
+import csv
 
+import subprocess
 
 import wx
 import wx.lib.imagebrowser as wx_imagebrowser
@@ -430,6 +432,7 @@ class cKOrganizerSchedulePnl(gmDataMiningWidgets.cPatientListingPnl):
 
 		self.fname = os.path.expanduser(os.path.join(gmTools.gmPaths().tmp_dir, 'korganizer2gnumed.csv'))
 		self.reload_cmd = 'konsolekalendar --view --export-type csv --export-file %s' % self.fname
+		self.today = pydt.date.today().isoformat()
 
 	#--------------------------------------------------------
 	def _on_BTN_1_pressed(self, event):
@@ -445,11 +448,149 @@ class cKOrganizerSchedulePnl(gmDataMiningWidgets.cPatientListingPnl):
 			return
 
 		gmShellAPI.run_command_in_shell(command = cmd, blocking = False)
+
 	#--------------------------------------------------------
-	def reload_appointments(self):
+	def csv_from_all_appointments(self):
+		"""
+		Only called if konsolekalendar date-range bug is still
+		present. (As long as --view does not generate event
+		output, even if there are events for the day.)
+
+		Gets ALL the calendar's entries, filters only today's,
+		and re-saves self.fname so that it only includes those.
+
+		Could be slow, since it will have to get all of the
+		calendar entries.
+
+		Added: 2026 05 26
+		"""
+
+		# gets ALL calendar items in a csv -- the only functional output due to the bug
+		reload_cmd_alt = 'konsolekalendar --view --all --export-type csv --export-file %s' % self.fname
+
+		_log.info('Getting all of konsolekalendar\'s events. May be slow.')
+		gmShellAPI.run_command_in_shell(command=reload_cmd_alt, blocking=True) #this rewrites self.fname with ALL dates
+
+		tmp_fname = '%s.tmp' % self.fname
+
+		# filter and keep only today's appointments, via a today-only temp file
+		try:
+			csv_file = open(self.fname, mode = 'rt', encoding = 'utf-8-sig', errors = 'replace')
+		except IOError:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot access KOrganizer transfer file [%s]') % self.fname, beep = True)
+			return
+
+		try:
+			tmp_file = open(tmp_fname, mode = 'wt', encoding = 'utf-8', errors = 'replace')
+		except IOError:
+			csv_file.close()
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot write KOrganizer transfer file [%s]') % tmp_fname, beep = True)
+			return
+
+		csv_lines = gmTools.unicode_csv_reader (
+			csv_file,
+			delimiter = ','
+		)
+
+		csv_writer = csv.writer (
+			tmp_file,
+			delimiter = ',',
+			lineterminator = '\n'
+		)
+
+		_log.info('Starting filtering of appointments only for today')
+		for line in csv_lines:
+			if len(line) < 8:
+				continue
+
+			if line[0] == self.today:
+				csv_writer.writerow(line)
+
+		csv_file.close()
+		tmp_file.close()
+
+		# finally, rewrite self.fname
+		os.replace(tmp_fname, self.fname)
+		_log.info('done: today-only, KOrganizer transfer file created: %s', self.fname)
+
+	#--------------------------------------------------------
+	def gen_transfer_file(self):
+		"""
+		Generates the KOrganizer transfer file, a .csv file with
+		today's events.
+
+			- Determines whether there are any events for today at all.
+
+			- Determine whether the date-range bug in konsolekalendar
+			is present or not. (Should be fixed by version 6.7.2 of
+			konsolekalendar.)
+				Does that by comparing output results for:
+					--view (could be buggy)
+					--next (known to work)
+
+			- Generates .csv KOrganizer transfer file, bug or not.
+		"""
+
 		try: os.remove(self.fname)
 		except OSError: pass
-		gmShellAPI.run_command_in_shell(command=self.reload_cmd, blocking=True)
+
+		cmd = 'konsolekalendar'
+		today = f"\"{self.today}\""
+
+		_log.info('Starting checks for: any future events + if date-range bug is present')
+
+		# where the bug is: no output with --view
+		out_view = subprocess.run(
+			[cmd, '--view', '--time', '00:00:00', '--end-time', '23:59:59', '--export-type', 'csv'],
+			capture_output=True,
+			text=True
+			)
+
+		# what works for sure: output with --next (just one event)
+		out_next = subprocess.run(
+			[cmd, '--next', '--export-type', 'csv'],
+			capture_output=True,
+			text=True
+			)
+
+		if out_next.stdout: # if there are *any* next events
+			_log.debug('future events detected with --next option')
+			_log.debug('will check if any events for today')
+
+			if out_next.stdout.startswith(today):
+				_log.debug('there are events for today. will test if --view option works.')
+
+				if out_view.stdout:
+					_log.debug('konsolekalendar --view works!')
+					_log.debug('will proceed with generation of .csv KOrganizer transfer file for today')
+					gmShellAPI.run_command_in_shell(command=self.reload_cmd, blocking=True)
+					_log.debug('KOrganizer transfer file created: %s', self.fname)
+					return
+				elif not out_view.stdout:
+					_log.debug('it seems the konsolekalendar date-range bug is present in your version')
+					_log.debug('will try to generate the .csv with --all option (the long way)')
+					self.csv_from_all_appointments()
+					return
+
+			# if the --next event is not for today, but any other date:
+			elif not out_next.stdout.startswith(today):
+				_log.debug('there are no events for today. KOrganizer transfer file will be empty.')
+				gmShellAPI.run_command_in_shell(command=self.reload_cmd, blocking=True)
+				_log.debug('empty KOrganizer transfer file created: %s', self.fname)
+				return
+
+		elif not out_next.stdout:  # if there are NO future events at all in the calendar
+			_log.debug('there are no future events at all in the calendar. KOrganizer transfer file will be empty.')
+			gmShellAPI.run_command_in_shell(command=self.reload_cmd, blocking=True)
+			_log.debug('empty KOrganizer transfer file created: %s', self.fname)
+			return
+
+	#--------------------------------------------------------
+	def reload_appointments(self):
+
+		_log.info('Getting KOrganizer transfer file.')
+		self.gen_transfer_file()
+
 		try:
 			csv_file = open(self.fname , mode = 'rt', encoding = 'utf-8-sig', errors = 'replace')
 		except IOError:
@@ -479,6 +620,14 @@ class cKOrganizerSchedulePnl(gmDataMiningWidgets.cPatientListingPnl):
 		self._LCTRL_items.set_column_widths()
 		self._LCTRL_items.set_data(data = data)
 		self._LCTRL_items.patient_key = 0
+
+		_log.info('appointments for today reloaded, UI updated.')
+
+		if os.path.getsize(self.fname) == 0:
+			gmDispatcher.send(signal = 'statustext', msg = _('No appointments for today, so far.'), beep = False)
+			return
+		gmDispatcher.send(signal = 'statustext', msg = _('Appointments reloaded.'), beep = False)
+
 	#--------------------------------------------------------
 	# notebook plugins API
 	#--------------------------------------------------------
