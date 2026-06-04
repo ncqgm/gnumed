@@ -22,7 +22,8 @@ _log = logging.getLogger('gm.appointment')
 
 _KONSOLEKALENDAR_IS_BUGGY = None
 _KONSOLEKALENDAR_BINARY_NAME = 'konsolekalendar'
-_KONSOLEKALENDER_CALENDARS_LOGGED = False
+_KONSOLEKALENDAR_CALENDARS_LOGGED = False
+_KONSOLEKALENDAR_TIMEOUT = 2		# in seconds
 
 #============================================================
 def __konsolekalendar_is_buggy() -> bool:
@@ -35,6 +36,14 @@ def __konsolekalendar_is_buggy() -> bool:
 				--view (could be buggy)
 				--next (known to work)
 
+		Once it detects whether the bug is there or not it
+		will cache the result.
+
+	Returns:
+		True: buggy
+		False: not buggy
+		None: we don't know yet (will re-run the check on the next invocation)
+
 	Logic contributed by Maria.
 	"""
 	global _KONSOLEKALENDAR_IS_BUGGY
@@ -42,10 +51,10 @@ def __konsolekalendar_is_buggy() -> bool:
 		return _KONSOLEKALENDAR_IS_BUGGY
 
 	# just for kicks, log available calendars ;-)
-	global _KONSOLEKALENDER_CALENDARS_LOGGED
-	if not _KONSOLEKALENDER_CALENDARS_LOGGED:
+	global _KONSOLEKALENDAR_CALENDARS_LOGGED
+	if not _KONSOLEKALENDAR_CALENDARS_LOGGED:
 		cmd_line = [_KONSOLEKALENDAR_BINARY_NAME, '--verbose', '--list-calendars']
-		success, exitcode, stdout = gmShellAPI.run_process(cmd_line = cmd_line, timeout = 1, verbose = True)
+		success, exitcode, stdout = gmShellAPI.run_process(cmd_line = cmd_line, timeout = _KONSOLEKALENDAR_TIMEOUT, verbose = True)
 		if success:
 			_log.debug(stdout)
 		else:
@@ -53,8 +62,8 @@ def __konsolekalendar_is_buggy() -> bool:
 			# ignore in the hope it was a fluke
 
 	# what works for sure: output with --next (just one event)
-	cmd_line = [_KONSOLEKALENDAR_BINARY_NAME, '--verbose', '--next', '--export-type', 'csv']
-	success, exitcode, output_from_next = gmShellAPI.run_process(cmd_line = cmd_line, timeout = 2, verbose = True)
+	cmd_line = [_KONSOLEKALENDAR_BINARY_NAME, '--next', '--export-type', 'csv']		# no --verbose as that would produce output in any case
+	success, exitcode, output_from_next = gmShellAPI.run_process(cmd_line = cmd_line, timeout = _KONSOLEKALENDAR_TIMEOUT, verbose = True)
 	if not success:
 		_log.error('problem retrieving appointments from KOrganizer')
 		return None
@@ -66,30 +75,29 @@ def __konsolekalendar_is_buggy() -> bool:
 		_log.debug('no --next appointment found in KOrganizer, cannot check for bug')
 		return None
 
-	date_by_next = output_from_next[:10]
+	date_by_next = output_from_next[1:11]
 	_log.debug('--next appointment found in KOrganizer: %s', date_by_next)
 	# attempt --view retrieval
 	cmd_line = [
 		_KONSOLEKALENDAR_BINARY_NAME,
-		'--verbose',
+		#'--verbose',					# would produce output in any case
 		'--view',
 		'--date', date_by_next,
 		'--time', '00:00:00',
 		'--end-time', '23:59:59'
 		#,'--export-type', 'csv'		# should not matter ?
 	]
-	success, exitcode, output_from_view = gmShellAPI.run_process(cmd_line = cmd_line, timeout = 2, verbose = True)
+	success, exitcode, output_from_view = gmShellAPI.run_process(cmd_line = cmd_line, timeout = _KONSOLEKALENDAR_TIMEOUT, verbose = True)
 	if not success:
 		_log.error('problem retrieving appointments from KOrganizer, should not happen because it worked just moments ago')
 		return None
 
 	if output_from_view:
 		_KONSOLEKALENDAR_IS_BUGGY = False
-		return False
-
-	_log.error('KOrganizer via konsolekalendar: "--next" tells us there *are* events for [%s] but "--view" does not return them (known bug)', date_by_next)
-	_KONSOLEKALENDAR_IS_BUGGY = True
-	return True
+	else:
+		_log.error('KOrganizer via konsolekalendar: "--next" tells us there *are* events for [%s] but "--view" does not return them (known bug)', date_by_next)
+		_KONSOLEKALENDAR_IS_BUGGY = True
+	return _KONSOLEKALENDAR_IS_BUGGY
 
 #------------------------------------------------------------
 def __csv_from_all_appointments(target_date:str=None, verbose:bool=False) -> str:
@@ -114,9 +122,9 @@ def __csv_from_all_appointments(target_date:str=None, verbose:bool=False) -> str
 		'--view',
 		'--all',
 		'--export-type', 'csv',
-		'--export-file', '"%s"' % csv_fname_all
+		'--export-file', '%s' % csv_fname_all
 	]
-	success, exitcode, stdout = gmShellAPI.run_process(cmd_line = cmd_line, timeout = 4, verbose = verbose)
+	success, exitcode, stdout = gmShellAPI.run_process(cmd_line = cmd_line, timeout = _KONSOLEKALENDAR_TIMEOUT, verbose = verbose)
 	if not success:
 		_log.error('problem running konsolekalendar')
 		return None
@@ -153,7 +161,7 @@ def __csv_from_all_appointments(target_date:str=None, verbose:bool=False) -> str
 def get_appointments_for_today_from_korganizer(verbose:bool=False) -> str:
 	"""Generates the KOrganizer transfer file, a .csv file with today's events."""
 	today = pydt.date.today().isoformat()[:10]
-	if not __konsolekalendar_is_buggy():
+	if __konsolekalendar_is_buggy() is False:
 		csv_name = gmTools.get_unique_filename(prefix = 'konsolekalendar2gnumed-', suffix = '.csv')
 		cmd_line = [
 			_KONSOLEKALENDAR_BINARY_NAME,
@@ -162,16 +170,21 @@ def get_appointments_for_today_from_korganizer(verbose:bool=False) -> str:
 			'--time', '00:00:00',
 			'--end-time', '23:59:59',
 			'--export-type', 'csv',
-			'--export-file', '"%s"' % csv_name
+			'--export-file', '%s' % csv_name
 		]
-		success, exitcode, stdout = gmShellAPI.run_process(cmd_line = cmd_line, timeout = 2, verbose = verbose)
+		success, exitcode, stdout = gmShellAPI.run_process(cmd_line = cmd_line, timeout = _KONSOLEKALENDAR_TIMEOUT, verbose = verbose)
 		if success:
 			return csv_name
 
 		_log.error('problem running konsolekalendar')
 		return None
 
-	return __csv_from_all_appointments(taget_date = today, verbose = verbose)
+	# at this point konsolekalender is either buggy or we don't know (yet),
+	# if it's  buggy getting all appointments and filtering for the
+	# target date is the only way forward,
+	# if bugginess is undecided: let's give it a shot anyways given the
+	# off-chance the user might see appointments
+	return __csv_from_all_appointments(target_date = today, verbose = verbose)
 
 #============================================================
 # main
@@ -185,8 +198,15 @@ if __name__ == "__main__":
 		sys.exit()
 
 	gmTools.gmPaths()
+
+	from Gnumed.pycommon import gmLog2
+
 	#-------------------------------------------------------
 	def test():
-		print(get_appointments_for_today_from_korganizer(verbose = True))
+		print('buggy:', __konsolekalendar_is_buggy())
+		print('appts:', get_appointments_for_today_from_korganizer(verbose = True))
+
 	#-------------------------------------------------------
+	gmLog2.print_logfile_name()
+	_KONSOLEKALENDAR_TIMEOUT = 10
 	test()
