@@ -11,6 +11,7 @@ __license__ = "GPL v2 or later (details at https://www.gnu.org)"
 import sys
 import os
 import os.path
+import io
 import csv
 import tempfile
 import logging
@@ -945,9 +946,9 @@ def file2chunked_md5(filename=None, chunk_size=500*_MB):
 	return hex_digest
 
 #---------------------------------------------------------------------------
-default_csv_reader_rest_key = 'list_of_values_of_unknown_fields'
+default_csv_reader_rest_key = 'list_of_values_in_unknown_csv_fields'
 
-def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, encoding='utf-8', **kwargs):
+def csv_reader(csv_data_source:io.TextIOBase|list[list[str]], dialect=csv.excel, encoding:str='utf-8', **kwargs):
 	try:
 		is_dict_reader = kwargs['dict']
 		del kwargs['dict']
@@ -956,52 +957,9 @@ def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, encoding='utf-8', **
 
 	if is_dict_reader:
 		kwargs['restkey'] = default_csv_reader_rest_key
-		return csv.DictReader(unicode_csv_data, dialect=dialect, **kwargs)
-	return csv.reader(unicode_csv_data, dialect=dialect, **kwargs)
+		return csv.DictReader(csv_data_source, dialect = dialect, **kwargs)
 
-
-
-
-def old_unicode2charset_encoder(unicode_csv_data, encoding='utf-8'):
-	for line in unicode_csv_data:
-		yield line.encode(encoding)
-
-#def utf_8_encoder(unicode_csv_data):
-#	for line in unicode_csv_data:
-#		yield line.encode('utf-8')
-
-def old_unicode_csv_reader(unicode_csv_data, dialect=csv.excel, encoding='utf-8', **kwargs):
-
-	# csv.py doesn't do Unicode; encode temporarily as UTF-8:
-	try:
-		is_dict_reader = kwargs['dict']
-		del kwargs['dict']
-		if is_dict_reader is not True:
-			raise KeyError
-		kwargs['restkey'] = default_csv_reader_rest_key
-		csv_reader = csv.DictReader(old_unicode2charset_encoder(unicode_csv_data), dialect=dialect, **kwargs)
-	except KeyError:
-		is_dict_reader = False
-		csv_reader = csv.reader(old_unicode2charset_encoder(unicode_csv_data), dialect=dialect, **kwargs)
-
-	for row in csv_reader:
-		# decode ENCODING back to Unicode, cell by cell:
-		if is_dict_reader:
-			for key in row:
-				if key == default_csv_reader_rest_key:
-					old_data = row[key]
-					new_data = []
-					for val in old_data:
-						new_data.append(str(val, encoding))
-					row[key] = new_data
-					if default_csv_reader_rest_key not in csv_reader.fieldnames:
-						csv_reader.fieldnames.append(default_csv_reader_rest_key)
-				else:
-					row[key] = str(row[key], encoding)
-			yield row
-		else:
-			yield [ str(cell, encoding) for cell in row ]
-			#yield [str(cell, 'utf-8') for cell in row]
+	return csv.reader(csv_data_source, dialect = dialect, **kwargs)
 
 #---------------------------------------------------------------------------
 def fname_sanitize(filename:str) -> str:
@@ -2948,10 +2906,15 @@ second line\n
 			))
 
 	#-----------------------------------------------------------------------
+	def test_csv():
+		print(csv_reader('no such file', dialect=csv.excel, encoding='utf-8'))
+
+	#-----------------------------------------------------------------------
 	#test_xor()
 	#test_coalesce()
 	#test_capitalize()
-	test_import_module()
+	test_csv()
+	#test_import_module()
 	#test_mkdir()
 	#test_gmPaths()
 	#test_none_if()

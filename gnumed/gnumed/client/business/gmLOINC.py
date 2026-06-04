@@ -182,7 +182,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 
 	# import data from csv file into staging table
 	csv_file = open(data_fname, mode = 'rt', encoding = 'utf-8-sig', errors = 'replace')
-	loinc_reader = gmTools.unicode_csv_reader(csv_file, delimiter = "\t", quotechar = '"')
+	loinc_reader = gmTools.csv_reader(csv_file, delimiter = "\t", quotechar = '"')
 	curs = conn.cursor()
 	cmd = """INSERT INTO staging.loinc_staging values (%s%%s)""" % ('%s, ' * (len(loinc_fields) - 1))
 	first = False

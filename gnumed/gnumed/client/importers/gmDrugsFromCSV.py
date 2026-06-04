@@ -153,7 +153,7 @@ def create_sql(filename):
 
 	csv_file = open(filename, mode = 'rt', encoding = 'utf-8-sig')
 
-	csv_lines = gmTools.unicode_csv_reader (
+	csv_lines = gmTools.csv_reader (
 		csv_file,
 		fieldnames = field_names,
 		delimiter = ';',

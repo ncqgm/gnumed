@@ -180,7 +180,7 @@ def atc_import(cfg_fname=None, conn=None):
 
 	# import data
 	csv_file = open(data_fname, mode = 'rt', encoding = 'utf-8-sig', errors = 'replace')
-	atc_reader = gmTools.unicode_csv_reader(csv_file, delimiter = ",", quotechar = '"')
+	atc_reader = gmTools.csv_reader(csv_file, delimiter = ",", quotechar = '"')
 
 	# clean out staging area
 	curs = conn.cursor()

@@ -143,7 +143,7 @@ def __csv_from_all_appointments(target_date:str=None, verbose:bool=False) -> str
 		csv_file_all.close()
 		return None
 
-	csv_lines_all = gmTools.unicode_csv_reader(csv_file_all, delimiter = ',')
+	csv_lines_all = gmTools.csv_reader(csv_file_all, delimiter = ',')
 	csv_writer_target_date = csv.writer(csv_file_target_date, delimiter = ',', lineterminator = '\n')
 	if not target_date:
 		target_date = pydt.date.today().isoformat()[:10]
@@ -159,7 +159,12 @@ def __csv_from_all_appointments(target_date:str=None, verbose:bool=False) -> str
 
 #------------------------------------------------------------
 def get_appointments_for_today_from_korganizer(verbose:bool=False) -> str:
-	"""Generates the KOrganizer transfer file, a .csv file with today's events."""
+	"""Generates the KOrganizer transfer file, a .csv file with today's events.
+
+	Returns:
+		KOrganizer transfer CSV file name, as created by konsolekalendar, or None.
+		Note that the file may be empty, meaning there's no appointments.
+	"""
 	today = pydt.date.today().isoformat()[:10]
 	if __konsolekalendar_is_buggy() is False:
 		csv_name = gmTools.get_unique_filename(prefix = 'konsolekalendar2gnumed-', suffix = '.csv')

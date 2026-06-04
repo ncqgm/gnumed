@@ -155,7 +155,7 @@ class cGelbeListeCSVFile(object):
 
 		self.csv_file = open(filename, mode = 'rt', encoding = cGelbeListeCSVFile.default_encoding)
 
-		self.csv_lines = gmTools.unicode_csv_reader (
+		self.csv_lines = gmTools.csv_reader (
 			self.csv_file,
 			fieldnames = cGelbeListeCSVFile.csv_fieldnames,
 			delimiter = ';',
