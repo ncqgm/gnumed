@@ -9,6 +9,11 @@
 --set default_transaction_read_only to off;
 
 set check_function_bodies to on;
+-- --------------------------------------------------------------
+-- remove drug products where are not linked with any compoments
+-- vaccines are linked to a pseudo-dose "vaccine"
+-- products without a dose cannot be in use
+delete from ref.drug_product where pk = any(select pk_drug_product from ref.v_drug_products where array_length(components, 1) is null);
 
 -- --------------------------------------------------------------
 -- trigger to ensure that at the end of a tx a product still has components (doses) left
