@@ -11,6 +11,64 @@ set check_function_bodies to on;
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
+-- for some strange reason log tables in old database may (already/still)
+-- carry .row_version / .modified_by / .modified_when
+drop function if exists staging.drop_legacy_log_columns() cascade;
+
+create function staging.drop_legacy_log_columns()
+	returns void
+	language plpgsql
+	as '
+DECLARE
+	__cols2drop name[];
+	__col2drop name;
+	__SQL text;
+	__SQL__get_log_tables text;
+	__audit_table__name text;
+	__audit_table__table_oid oid;
+BEGIN
+	RAISE NOTICE ''dropping legacy columns from log tables'';
+	__cols2drop := ARRAY[''row_version'',''modified_by'',''modified_when''];
+	RAISE NOTICE ''%'', __cols2drop;
+	__SQL__get_log_tables := format (''
+		select
+			pg_cl.relname, pg_cl.oid
+		from
+			pg_namespace pg_ns, pg_class pg_cl
+		where
+			pg_cl.relnamespace = pg_ns.oid
+				and
+			pg_cl.oid in (
+				select inhrelid from pg_inherits where inhparent = (
+					select oid from pg_class where
+						relnamespace = (select oid from pg_namespace where nspname = ''''audit'''')
+							and
+						relname = ''''audit_trail''''
+				)
+			)
+	'');
+	-- loop over audit log tables
+	FOR __audit_table__name, __audit_table__table_oid IN
+		EXECUTE __SQL__get_log_tables
+	LOOP
+		RAISE NOTICE ''processing audit.% (oid %)'', __audit_table__name, __audit_table__table_oid;
+		FOREACH __col2drop IN ARRAY __cols2drop LOOP
+			__SQL := format(
+				''alter table audit.%s drop column if exists %s cascade'',
+				__audit_table__name,
+				__col2drop
+			);
+			EXECUTE __SQL;
+		END LOOP;
+	END LOOP;
+	RAISE NOTICE ''done'';
+END';
+
+select staging.drop_legacy_log_columns();
+
+drop function if exists staging.drop_legacy_log_columns() cascade;
+
+-- --------------------------------------------------------------
 -- .pk_audit
 DO 'BEGIN
 		alter table audit.audit_trail rename column pk_audit to pk_audit_trail;
