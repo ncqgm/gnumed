@@ -11,9 +11,9 @@ set check_function_bodies to on;
 set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-drop function if exists staging.increment_row_versions_in_logged_tables() cascade;
+drop function if exists staging.increment_row_versions_in_logged_tables(_schema_name name, _table_name name) cascade;
 
-create function staging.increment_row_versions_in_logged_tables()
+create function staging.increment_row_versions_in_logged_tables(_schema_name name, _table_name name)
 	returns void
 	language plpgsql
 	as '
@@ -27,7 +27,7 @@ DECLARE
 	__table_count integer;
 	__processed_tables text;
 BEGIN
-	RAISE NOTICE ''incrementing .row_version in audit.audit_fields'';
+	RAISE NOTICE ''incrementing .row_version in child tables of %.%'', _schema_name, _table_name;
 	__tables2skip := ARRAY[''clin.clin_root_item'',''clin.review_root'',''clin.lnk_code2item_root''];
 	__SQL__get_audited_tables := format (
 		''SELECT
@@ -41,10 +41,12 @@ BEGIN
 				AND
 			pg_i.inhparent = ANY(
 				SELECT oid FROM pg_class WHERE
-					relname = ANY(ARRAY[''''audit_fields'''', ''''clin_root_item'''', ''''review_root'''', ''''code2item_root''''])
+					relname = ''''%s''''
 						and
-					relnamespace = ANY(select oid from pg_namespace where nspname = ANY(ARRAY[''''audit'''', ''''clin'''']))
-			)''
+					relnamespace = (select oid from pg_namespace where nspname = ''''%s'''')
+			)'',
+			_table_name,
+			_schema_name
 	);
 	__table_count := 0;
 	__processed_tables := '''';
@@ -73,9 +75,12 @@ BEGIN
 	RAISE NOTICE ''done, table count: %, tables: %'', __table_count, __processed_tables;
 END;';
 
-select staging.increment_row_versions_in_logged_tables();
+select staging.increment_row_versions_in_logged_tables('audit', 'audit_fields');
+select staging.increment_row_versions_in_logged_tables('clin', 'review_root');
+select staging.increment_row_versions_in_logged_tables('clin', 'clin_root_item');
+select staging.increment_row_versions_in_logged_tables('clin', 'lnk_code2item_root');
 
-drop function if exists staging.increment_row_versions_in_logged_tables() cascade;
+drop function if exists staging.increment_row_versions_in_logged_tables(_schema_name name, _table_name name) cascade;
 
 alter table audit.audit_fields
 	alter column row_version
