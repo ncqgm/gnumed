@@ -8,9 +8,7 @@ import sys
 import logging
 import os
 import datetime as pydt
-import csv
 
-import subprocess
 
 import wx
 import wx.lib.imagebrowser as wx_imagebrowser
@@ -470,13 +468,14 @@ class cKOrganizerSchedulePnl(gmDataMiningWidgets.cPatientListingPnl):
 			gmDispatcher.send(signal = 'statustext', msg = _('No appointments for today, so far.'), beep = False)
 			return
 
-		csv_lines = gmTools.csv_reader(csv_file, delimiter = ',')
-		# start_date, start_time, end_date, end_time, title (patient), ort, comment, UID
-		items = []
-		data = []
-		for line in csv_lines:
-			items.append([line[5], line[0], line[1], line[3], line[4], line[6]])
-			data.append([line[4], line[7]])
+		with open(csv_fname, mode = 'rt', encoding = 'utf-8', errors = 'replace') as csv_file:
+			csv_lines = gmTools.csv_reader(csv_file, delimiter = ',')
+			items = []
+			data = []
+			# start_date, start_time, end_date, end_time, title (patient), ort, comment, UID
+			for line in csv_lines:
+				items.append([line[5], line[0], line[1], line[3], line[4], line[6]])
+				data.append([line[4], line[7]])
 		self._LCTRL_items.set_string_items(items = items)
 		self._LCTRL_items.set_column_widths()
 		self._LCTRL_items.set_data(data = data)

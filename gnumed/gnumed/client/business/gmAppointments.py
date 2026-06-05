@@ -6,7 +6,6 @@ __license__ = "GPL v2 or later"
 
 
 import csv
-import os
 import sys
 import logging
 import datetime as pydt
@@ -122,7 +121,7 @@ def __csv_from_all_appointments(target_date:str=None, verbose:bool=False) -> str
 		'--view',
 		'--all',
 		'--export-type', 'csv',
-		'--export-file', '%s' % csv_fname_all
+		'--export-file', csv_fname_all
 	]
 	success, exitcode, stdout = gmShellAPI.run_process(cmd_line = cmd_line, timeout = _KONSOLEKALENDAR_TIMEOUT, verbose = verbose)
 	if not success:
@@ -135,9 +134,9 @@ def __csv_from_all_appointments(target_date:str=None, verbose:bool=False) -> str
 		_log.error('cannot open transfer file [%s]', csv_fname_all)
 		return None
 
-	csv_name_target_date = gmTools.get_unique_filename(prefix = 'konsolekalendar2gnumed-', suffix = '.csv')
+	csv_fname_target_date = gmTools.get_unique_filename(prefix = 'konsolekalendar2gnumed-', suffix = '.csv')
 	try:
-		csv_file_target_date = open(csv_name_target_date, mode = 'wt', encoding = 'utf-8', errors = 'replace')
+		csv_file_target_date = open(csv_fname_target_date, mode = 'wt', encoding = 'utf-8', errors = 'replace')
 	except IOError:
 		_log.error('cannot open transfer file [%s]', csv_fname_target_date)
 		csv_file_all.close()
@@ -155,7 +154,7 @@ def __csv_from_all_appointments(target_date:str=None, verbose:bool=False) -> str
 		csv_writer_target_date.writerow(line)
 	csv_file_target_date.close()
 	csv_file_all.close()
-	return csv_name_target_date
+	return csv_fname_target_date
 
 #------------------------------------------------------------
 def get_appointments_for_today_from_korganizer(verbose:bool=False) -> str:
@@ -175,7 +174,7 @@ def get_appointments_for_today_from_korganizer(verbose:bool=False) -> str:
 			'--time', '00:00:00',
 			'--end-time', '23:59:59',
 			'--export-type', 'csv',
-			'--export-file', '%s' % csv_name
+			'--export-file', csv_name
 		]
 		success, exitcode, stdout = gmShellAPI.run_process(cmd_line = cmd_line, timeout = _KONSOLEKALENDAR_TIMEOUT, verbose = verbose)
 		if success:
