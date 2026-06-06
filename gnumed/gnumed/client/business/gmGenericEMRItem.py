@@ -335,7 +335,7 @@ def get_generic_emr_items (
 	soap_cats:str | list[str|None] | tuple[str|None]=None,
 	time_range=None,			# in days
 	order_by:str=None,
-	active_encounter:bool=None,
+	active_encounter:cEncounter=None,
 	return_pks:bool=False,
 	exclude_soap_cats:bool=False,
 	item_types2exclude:list[str]=None

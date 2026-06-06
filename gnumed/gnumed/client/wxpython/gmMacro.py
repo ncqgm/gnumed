@@ -768,6 +768,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		try:
 			codecs.encode(data_str, self.__data_encoding, 'strict')
 			return data_str
+
 		except UnicodeEncodeError:
 			_log.error('cannot strict-encode string into [%s]: %s', self.__data_encoding, data_str)
 
@@ -780,7 +781,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			_log.debug('cannot transliterate, <unidecode> module not installed')
 			return codecs.encode(data_str, self.__data_encoding, 'replace').decode(self.__data_encoding)
 
-		return unidecode.unidecode(data_str).decode('utf8')
+		return unidecode.unidecode(data_str)#.decode('utf8')
 
 	#--------------------------------------------------------
 	# __getitem__ API
@@ -1662,7 +1663,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		if 'select' in options:
 			options.remove('select')
-			branch = 'select branch'
+			branch = 'select branch'		# not implemented yet
 		else:
 			branch = gmPraxis.cPraxisBranch(aPK_obj = gmPraxis.gmCurrentPraxisBranch()['pk_praxis_branch'])
 

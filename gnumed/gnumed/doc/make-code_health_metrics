@@ -3,7 +3,7 @@
 PYFILE="$1"
 
 FAULTY_="E0606: Possibly using variable '_' before assignment"
-MYPY_CMD="mypy --pretty --allow-redefinition --no-strict-optional --ignore-missing-imports --follow-imports silent --show-error-codes --warn-unused-ignores"
+MYPY_CMD="mypy --pretty --allow-redefinition --no-strict-optional --ignore-missing-imports --follow-imports silent --show-error-codes --warn-unused-ignores --check-untyped-defs"
 
 if test "${PYFILE}" != "" ; then
 
@@ -77,7 +77,6 @@ for DIR in ${DIRS} ; do
 	done
 done
 ##--warn-unreachable
-##--check-untyped-defs
 ##--warn-return-any
 ##--html-report ./
 ## --allow-untyped-globals

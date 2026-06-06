@@ -26,7 +26,7 @@ import importlib
 import datetime as pydt
 import re as regex
 import xml.sax.saxutils as xml_tools
-from typing import Any, overload, Literal, Optional
+from typing import Any, overload, Literal, Optional, Iterable
 from types import ModuleType
 # old:
 import pickle, zlib
@@ -948,7 +948,7 @@ def file2chunked_md5(filename=None, chunk_size=500*_MB):
 #---------------------------------------------------------------------------
 default_csv_reader_rest_key = 'list_of_values_in_unknown_csv_fields'
 
-def csv_reader(csv_data_source:io.TextIOBase|list[list[str]], dialect=csv.excel, encoding:str='utf-8', **kwargs):
+def csv_reader(csv_data_source:Iterable[str], dialect=csv.excel, encoding:str='utf-8', **kwargs):
 	try:
 		is_dict_reader = kwargs['dict']
 		del kwargs['dict']
