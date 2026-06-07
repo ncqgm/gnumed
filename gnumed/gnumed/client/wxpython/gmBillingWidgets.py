@@ -800,9 +800,8 @@ def remove_items_from_bill(parent=None, bill=None):
 		question = _(
 			'%s items selected from bill (invoice ID "%s")\n'
 			'\n'
-			'Do you want to only remove the selected items\n'
-			'from the bill ("unbill" them) or do you want\n'
-			'to delete them entirely from the patient ?\n'
+			'Do you want to only remove the selected items from the bill ("unbill" them)\n'
+			'or do you want to delete them entirely from the patient ?\n'
 			'\n'
 			'Note that neither action is reversible.'
 		) % (
