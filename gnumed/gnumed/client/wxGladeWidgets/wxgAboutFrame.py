@@ -47,13 +47,13 @@ class wxgAboutFrame(wx.Frame):
 
 		sizer_2.Add((20, 20), 0, 0, 0)
 
-		self.label_version_client = wx.StaticText(self, wx.ID_ANY, _("Client version: ???"))
+		self.label_version_client = wx.StaticText(self, wx.ID_ANY, _("Client version: %s%s"))
 		self.label_version_client.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Sans"))
 		sizer_2.Add(self.label_version_client, 0, wx.LEFT, 20)
 
 		sizer_2.Add((20, 20), 1, 0, 0)
 
-		self.label_version_db = wx.StaticText(self, wx.ID_ANY, _("Database version: ???"), style=wx.ALIGN_CENTER_HORIZONTAL)
+		self.label_version_db = wx.StaticText(self, wx.ID_ANY, _("Database version: %s%s"), style=wx.ALIGN_CENTER_HORIZONTAL)
 		self.label_version_db.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Sans"))
 		sizer_2.Add(self.label_version_db, 0, wx.RIGHT, 20)
 
