@@ -32,23 +32,9 @@ class wxgAboutFrame(wx.Frame):
 		self.logo = wx.StaticBitmap(self, wx.ID_ANY, wx.NullBitmap)
 		sizer_main.Add(self.logo, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 20)
 
-		subtitle = wx.BoxSizer(wx.VERTICAL)
-		sizer_main.Add(subtitle, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
-
-		label_motto_4 = wx.StaticText(self, wx.ID_ANY, _("A Free, Libre, Open Source"), style=wx.ALIGN_CENTER_HORIZONTAL)
-		label_motto_4.SetFont(wx.Font(14, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Sans"))
-		subtitle.Add(label_motto_4, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
-
-		sizer_5 = wx.BoxSizer(wx.HORIZONTAL)
-		subtitle.Add(sizer_5, 0, wx.EXPAND, 0)
-
-		label_motto_3 = wx.StaticText(self, wx.ID_ANY, _("Electronic Medical Record "), style=wx.ALIGN_CENTER_HORIZONTAL)
-		label_motto_3.SetFont(wx.Font(14, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, 0, ""))
-		sizer_5.Add(label_motto_3, 0, 0, 0)
-
-		label_motto_6 = wx.StaticText(self, wx.ID_ANY, _("Project"), style=wx.ALIGN_CENTER_HORIZONTAL)
-		label_motto_6.SetFont(wx.Font(14, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Sans"))
-		sizer_5.Add(label_motto_6, 0, 0, 0)
+		label_subtitle = wx.StaticText(self, wx.ID_ANY, _("A Free, Libre, Open Source\nElectronic Medical Record"), style=wx.ALIGN_CENTER_HORIZONTAL)
+		label_subtitle.SetFont(wx.Font(14, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, 0, ""))
+		sizer_main.Add(label_subtitle, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
 
 		sizer_versions = wx.BoxSizer(wx.VERTICAL)
 		sizer_main.Add(sizer_versions, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 20)
@@ -76,11 +62,11 @@ class wxgAboutFrame(wx.Frame):
 		static_line_2 = wx.StaticLine(self, wx.ID_ANY)
 		sizer_versions.Add(static_line_2, 0, wx.BOTTOM | wx.EXPAND | wx.LEFT | wx.RIGHT, 15)
 
-		sizer_1 = wx.BoxSizer(wx.VERTICAL)
-		sizer_main.Add(sizer_1, 0, wx.BOTTOM | wx.EXPAND, 10)
+		sizer_credits_and_license = wx.BoxSizer(wx.VERTICAL)
+		sizer_main.Add(sizer_credits_and_license, 0, wx.BOTTOM | wx.EXPAND, 10)
 
 		sizer_credits = wx.BoxSizer(wx.HORIZONTAL)
-		sizer_1.Add(sizer_credits, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
+		sizer_credits_and_license.Add(sizer_credits, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
 
 		label_2 = wx.StaticText(self, wx.ID_ANY, _("Brought to you by"), style=wx.ALIGN_CENTER_HORIZONTAL)
 		sizer_credits.Add(label_2, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL, 4)
@@ -91,7 +77,7 @@ class wxgAboutFrame(wx.Frame):
 		sizer_scroll = wx.BoxSizer(wx.VERTICAL)
 
 		sizer_licensing = wx.BoxSizer(wx.HORIZONTAL)
-		sizer_1.Add(sizer_licensing, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
+		sizer_credits_and_license.Add(sizer_licensing, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
 
 		label_1 = wx.StaticText(self, wx.ID_ANY, _("under "))
 		sizer_licensing.Add(label_1, 0, wx.ALIGN_CENTER_VERTICAL, 0)
