@@ -37,7 +37,7 @@ class ScrollTxtWin (wx.Window):
 	"""
 	# control parameters
 	__scroll_speed=.3 	# pixels/milliseconds (?)
-	__delay=500		# milliseconds
+	__delay=1000		# milliseconds
 	name_list = [
 		'Dr Horst Herb',
 		'Karsten Hilbert',
@@ -107,11 +107,11 @@ class ScrollTxtWin (wx.Window):
 #====================================================================
 from Gnumed.wxGladeWidgets import wxgAboutFrame
 
-class AboutFrame (wxgAboutFrame.wxgAboutFrame):
+class cAboutFrame (wxgAboutFrame.wxgAboutFrame):
 	"""
 	About GNUmed
 	"""
-	def __init__(self, parent, ID, title, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.DEFAULT_FRAME_STYLE, version_c='???', version_db='???', debug=False):
+	def __init__(self, parent, ID, title, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.DEFAULT_FRAME_STYLE, version_client='???', version_db='???', debug=False):
 
 		# wx.Frame.__init__(self, parent, ID, title, pos, size, style)
 
@@ -124,7 +124,7 @@ class AboutFrame (wxgAboutFrame.wxgAboutFrame):
 
 		self.label_version_client.SetLabel (
 			_('Client version: %s%s') % (
-				version_c,
+				version_client,
 				gmTools.bool2subst(debug, ' (%s)' % _('debug'), '')
 			)
 		)
@@ -306,7 +306,7 @@ if __name__ == '__main__':
 	# set up dummy app
 	class TestApp (wx.App):
 		def OnInit (self):
-			frame = AboutFrame(None, -1, "About GNUmed", size=wx.Size(300, 250))
+			frame = cAboutFrame(None, -1, "About GNUmed", size=wx.Size(300, 250))
 			frame.Show(1)
 			return 1
 	#---------------------

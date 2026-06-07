@@ -1619,7 +1619,7 @@ def set_user_language(user:str=None, language:str=None) -> bool:
 		SQL = 'select i18n.set_curr_lang(%(lang)s)'
 	else:
 		SQL = 'select i18n.set_curr_lang(%(lang)s, %(usr)s)'
-	rows = run_rw_query(sql = SQL, args = args)
+	rows = run_rw_query(sql = SQL, args = args, return_data = True)
 	if not rows[0][0]:
 		_log.error('cannot set database language to [%s] for user [%s]', language, user)
 	return rows[0][0]

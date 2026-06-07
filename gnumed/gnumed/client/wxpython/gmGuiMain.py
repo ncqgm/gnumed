@@ -1138,11 +1138,11 @@ class gmTopLevelFrame(wx.Frame):
 	def OnAbout(self, event):
 
 		from Gnumed.wxpython import gmAbout
-		frame_about = gmAbout.AboutFrame (
-			parent=self,
-			ID=wx.ID_ANY,
-			title='About GNUmed',
-			version_c = _cfg.get(option = 'client_version'),
+		frame_about = gmAbout.cAboutFrame (
+			parent = self,
+			ID = wx.ID_ANY,
+			title = _('About GNUmed'),
+			version_client = _cfg.get(option = 'client_version'),
 			version_db = _cfg.get(option = 'database_version'),
 			debug = _cfg.get(option = 'debug')
 		)
