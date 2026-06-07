@@ -1137,23 +1137,18 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def OnAbout(self, event):
 
-		return
-
-		# segfaults on wxPhoenix
 		from Gnumed.wxpython import gmAbout
 		frame_about = gmAbout.AboutFrame (
-			self,
-			-1,
-			_("About GNUmed"),
-			size=wx.Size(350, 300),
-			style = wx.MAXIMIZE_BOX,
-			version = _cfg.get(option = 'client_version'),
+			parent=self,
+			ID=wx.ID_ANY,
+			title='About GNUmed',
+			version_c = _cfg.get(option = 'client_version'),
+			version_db = _cfg.get(option = 'database_version'),
 			debug = _cfg.get(option = 'debug')
 		)
 		frame_about.Centre(wx.BOTH)
 		gmTopLevelFrame.otherWin = frame_about
 		frame_about.Show(True)
-		frame_about.DestroyLater()
 
 	#----------------------------------------------
 	def __on_about_database(self, evt):

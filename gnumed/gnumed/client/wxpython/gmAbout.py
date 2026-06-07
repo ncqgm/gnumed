@@ -1,18 +1,33 @@
 # -*- coding: utf-8 -*-
+"""GNUmed About classes.
 
+This module contains classes for building the About Dialog
+(Scrolling text class and the actual About dialog class), as
+well as the list of contributors  for the Contributors dialog.
+"""
+#================================================================
 __author__ = "M.Bonert, K.Hilbert"
-__license__ = "GPL"
+__license__ = "GPL v2 or later (details at https://www.gnu.org)"
 
+
+# stdlib
+import os
 import sys
 
 
+# 3rd party
 import wx
 
 
+# GNUmed
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+	_ = lambda x:x
 from Gnumed.pycommon import gmTools
 
-if __name__ == '__main__':
-	_ = lambda x:x
+from Gnumed.wxpython import gmGuiHelpers
+
+
 
 ID_MENU = wx.NewId()
 #====================================================================
@@ -54,11 +69,14 @@ class ScrollTxtWin (wx.Window):
 	__delay_ctr = 1
 
 	def __init__ (self, parent):
-		wx.Window.__init__(self, parent, -1, size=(230,20), style=wx.SUNKEN_BORDER)
-		self.SetBackgroundColour(wx.Colour(255, 255, 255))
+		wx.Window.__init__(self, parent, -1, size=(250,23), style=wx.SUNKEN_BORDER)
+		if not gmGuiHelpers.is_probably_dark_theme():
+			self.SetBackgroundColour(wx.Colour(255, 255, 255))  # original white
+		else:
+			pass  # another color for dark theme
 		self.__delay_ctr_reset=self.__delay*self.__scroll_speed
 
-		self.moving_txt=wx.StaticText(self, -1, "", size=(230,20), style=wx.ALIGN_CENTRE | wx.ST_NO_AUTORESIZE)
+		self.moving_txt=wx.StaticText(self, -1, "", size=(250,23), style=wx.ALIGN_CENTRE | wx.ST_NO_AUTORESIZE)
 		self.moving_txt.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.NORMAL))
 		self.moving_txt.SetLabel(self.name_list[0])
 
@@ -66,7 +84,7 @@ class ScrollTxtWin (wx.Window):
 		self.Bind(wx.EVT_TIMER, self.OnTimer)
 		self.timer = wx.Timer(self, -1)
 		#self.timer.Start(self.__scroll_speed)
-		self.timer.Start(milliseconds = 1./self.__scroll_speed)
+		self.timer.Start(milliseconds = int(1./self.__scroll_speed))
 
 	def OnTimer(self, evt):
 		if(self.__scroll_ctr<-2 and self.__delay_ctr<self.__delay_ctr_reset):
@@ -86,81 +104,51 @@ class ScrollTxtWin (wx.Window):
 			if(self.__name_ctr>len(self.name_list)-1):
 				self.__name_ctr=0
 
-class AboutFrame (wx.Frame):
+#====================================================================
+from Gnumed.wxGladeWidgets import wxgAboutFrame
+
+class AboutFrame (wxgAboutFrame.wxgAboutFrame):
 	"""
 	About GNUmed
 	"""
-	def __init__(self, parent, ID, title, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.DEFAULT_FRAME_STYLE, version='???', debug=False):
-		wx.Frame.__init__(self, parent, ID, title, pos, size, style)
+	def __init__(self, parent, ID, title, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.DEFAULT_FRAME_STYLE, version_c='???', version_db='???', debug=False):
+
+		# wx.Frame.__init__(self, parent, ID, title, pos, size, style)
+
+		wxgAboutFrame.wxgAboutFrame.__init__(self, parent, ID, title, pos = pos, size = size, style = style)
 
 		self.SetIcon(gmTools.get_icon(wx = wx))
 
-		box = wx.BoxSizer(wx.VERTICAL)
-		if wx.Platform == '__WXMAC__':
-			box.Add((0,0), 2)
-		else:
-			box.Add((0,0), 2)
-		intro_txt=wx.StaticText(self, -1, _("Monty the Serpent && the FSF Present"))
-		intro_txt.SetFont(wx.Font(10,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
-		box.Add(intro_txt, 0, wx.ALIGN_CENTRE)
-		if wx.Platform == '__WXMAC__':
-			box.Add((0,0), 3)
-		else:
-			box.Add((0,0), 3)
-		gm_txt=wx.StaticText(self, -1, "GNUmed")
-		gm_txt.SetFont(wx.Font(30, wx.SWISS, wx.NORMAL, wx.NORMAL))
-		box.Add(gm_txt, 0, wx.ALIGN_CENTRE)
+		logo_fname = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'bitmaps', 'gnumedlogo.png'))
+		self.logo.SetBitmap(wx.Bitmap(logo_fname, wx.BITMAP_TYPE_ANY))
 
-		motto_txt=wx.StaticText(self, -1, _("Free eMedicine"))
-		motto_txt.SetFont(wx.Font(10,wx.SWISS,wx.NORMAL,wx.NORMAL,False,''))
-		box.Add(motto_txt, 0, wx.ALIGN_CENTRE)
-		if wx.Platform == '__WXMAC__':
-			box.Add((0,0), 4)
-		else:
-			box.Add((0,0), 4)
-		ver_txt=wx.StaticText (
-			self,
-			-1,
-			_('Version %s%s brought to you by') % (
-				version,
+		self.label_version_client.SetLabel (
+			_('Client version: %s%s') % (
+				version_c,
 				gmTools.bool2subst(debug, ' (%s)' % _('debug'), '')
 			)
 		)
-		ver_txt.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.NORMAL))
-		box.Add(ver_txt, 0, wx.ALIGN_CENTRE)
 
-		admins_txt=wx.StaticText(self, -1, "")
-		admins_txt.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.NORMAL))
-		box.Add(admins_txt, 0, wx.ALIGN_CENTRE)
+		self.label_version_db.SetLabel (
+			_('Database version: %s%s') % (
+				version_db,
+				gmTools.bool2subst(debug, ' (%s)' % _('debug'), '')
+			)
+		)
 
-		self.win=ScrollTxtWin(self)
-		box.Add(self.win, 0, wx.ALIGN_CENTRE)
-		if wx.Platform == '__WXMAC__':
-			box.Add((0,0), 1)
-		else:
-			box.Add((0,0), 1)
-		info_txt=wx.StaticText(self, -1, _("Please visit https://www.gnumed.de"))
-		info_txt.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.NORMAL))
-		box.Add(info_txt, 0, wx.ALIGN_CENTRE)
-		if wx.Platform == '__WXMAC__':
-			box.Add((0,0), 1)
-		else:
-			box.Add((0,0), 1)
-		btn = wx.Button(self, ID_MENU , _("Close"))
-		box.Add(btn,0, wx.ALIGN_CENTRE)
-		if wx.Platform == '__WXMAC__':
-			box.Add((0,0), 1)
-		else:
-			box.Add((0,0), 1)
-		wx.EVT_BUTTON(btn, ID_MENU, self.OnClose)
+		self.button_close.Bind(wx.EVT_BUTTON, self.OnClose)
+		self.Bind(wx.EVT_CLOSE, self.OnClose)
 
-		self.SetAutoLayout(True)
-		self.SetSizer(box)
+		self.win = ScrollTxtWin(self.panel_scroll_container)
+		self.panel_scroll_container.GetSizer().Add(self.win, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
+		self.panel_scroll_container.Layout()
 		self.Layout()
 
 	def OnClose (self, event):
-		self.win.timer.Stop ()
-		self.Destroy ()
+		self.win.timer.Stop()
+		self.Destroy()
+
+
 #====================================================================
 class cContributorsDlg(wx.Dialog):
 	# people who don't want to be listed here:
