@@ -124,7 +124,7 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 				cmt = self['comment'].strip()[:200]
 			else:
 				cmt = self['comment'].strip()
-			table_rows.append('\\multicolumn{11}{>{\\RaggedRight}p{27.9cm}}{%s}\\tabularnewline') % gmTools.tex_escape_string(cmt)
+			table_rows.append('\\multicolumn{11}{>{\\RaggedRight}p{27.9cm}}{%s}\\tabularnewline' % gmTools.tex_escape_string(cmt))
 		return table_rows
 
 	as_amts_latex = property(_get_as_amts_latex)

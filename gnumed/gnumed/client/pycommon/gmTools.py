@@ -11,7 +11,6 @@ __license__ = "GPL v2 or later (details at https://www.gnu.org)"
 import sys
 import os
 import os.path
-import io
 import csv
 import tempfile
 import logging
@@ -2020,7 +2019,7 @@ def dicts2table_columns(dict_list, left_margin=0, eol='\n', keys2ignore=None, co
 		col_max_width[dict_idx] = max(field_lengths)
 
 	# pivot data into dict of lists per line
-	lines = { k: [] for k in keys2show }
+	lines:dict[list] = { k: [] for k in keys2show }
 	prev_vals = {}
 	for dict_idx in range(len(dict_list)):
 		max_width_this_col = max(col_max_width[dict_idx], len(equality_value)) if show_only_changes else col_max_width[dict_idx]

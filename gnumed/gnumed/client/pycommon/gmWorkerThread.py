@@ -44,7 +44,7 @@ def execute_in_worker_thread(payload_function=None, payload_kwargs:dict=None, co
 		_log.exception('failed to copy.deepcopy(payload_kwargs): %s', payload_kwargs)
 		_log.error('using shallow copy and hoping for the best')
 		__payload_kwargs = copy.copy(payload_kwargs)
-	worker_thread = None
+	worker_thread:threading.Thread = None
 
 	#-------------------------------
 	def _run_payload():
@@ -128,7 +128,7 @@ if __name__ == "__main__":
 			for idx in range(5):
 				print('* (#%s in %s)' % (idx, info))
 				time.sleep(1 + (random.random()*4))
-			return '%s' % time.localtime()
+			return '%s' % str(time.localtime())
 
 		def print_dot_end_time(end_time):
 			"""Print the time printing dots ended.

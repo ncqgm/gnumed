@@ -180,7 +180,7 @@ def create_progress_note(soap=None, episode_id=None, encounter_id=None, link_obj
 	if soap is None:
 		return True
 
-	if not gmSoapDefs.are_valid_soap_cats(list(soap), allow_upper = True):
+	if not gmSoapDefs.are_valid_soap_cats(''.join(list(soap)), allow_upper = True):
 		raise ValueError('invalid SOAP category in <soap> dictionary: %s', soap)
 
 	if link_obj is None:

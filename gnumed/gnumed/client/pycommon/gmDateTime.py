@@ -1736,7 +1736,7 @@ def __single_slash(str2parse):
 		month = int(parts[0])
 		if month in range(1, 13):
 			fts = cFuzzyTimestamp (
-				timestamp = now.replace(year = int(parts[1], month = month)),
+				timestamp = now.replace(year = int(parts[1]), month = month),
 				accuracy = ACC_MONTHS
 			)
 			matches.append ({

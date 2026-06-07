@@ -67,7 +67,7 @@ class gmBackendListener(gmBorg.cBorg):
 
 		# check for messages every 'poll_interval' seconds
 		self._poll_interval = poll_interval
-		self._listener_thread = None
+		self._listener_thread:threading.Thread = None
 		self.__start_thread()
 
 		self.already_inited = True
@@ -138,7 +138,7 @@ class gmBackendListener(gmBorg.cBorg):
 		for sig in self.unspecific_notifications:
 			_log.info('stopping to listen for [%s]' % sig)
 			cmd = 'UNLISTEN "%s"' % sig
-			self._conn_lock.acquire(1)
+			self._conn_lock.acquire(True)
 			try:
 				self._cursor.execute(cmd)
 			finally:
@@ -147,7 +147,7 @@ class gmBackendListener(gmBorg.cBorg):
 	#-------------------------------
 	def __shutdown_connection(self):
 		_log.debug('shutting down connection with backend PID [%s]', self.backend_pid)
-		self._conn_lock.acquire(1)
+		self._conn_lock.acquire(True)
 		try:
 			self._conn.rollback()
 		except Exception:
@@ -259,11 +259,11 @@ class gmBackendListener(gmBorg.cBorg):
 		_have_quit_lock = None
 		while not _have_quit_lock:
 			# quitting ?
-			if self._quit_lock.acquire(0):
+			if self._quit_lock.acquire(False):
 				break
 
 			# wait at most self._poll_interval for new data
-			self._conn_lock.acquire(1)
+			self._conn_lock.acquire(True)
 			try:
 				ready_input_sockets = select.select([self._conn_fd], [], [], self._poll_interval)[0]
 			finally:
@@ -275,7 +275,7 @@ class gmBackendListener(gmBorg.cBorg):
 				time.sleep(0.3)
 				continue
 			# data available, wait for it to fully arrive
-			self._conn_lock.acquire(1)
+			self._conn_lock.acquire(True)
 			try:
 				self._conn.poll()
 			finally:
@@ -285,11 +285,11 @@ class gmBackendListener(gmBorg.cBorg):
 				# if self._quit_lock can be acquired we may be in
 				# __del__ in which case gmDispatcher is not
 				# guaranteed to exist anymore
-				if self._quit_lock.acquire(0):
+				if self._quit_lock.acquire(False):
 					_have_quit_lock = 1
 					break
 
-				self._conn_lock.acquire(1)
+				self._conn_lock.acquire(True)
 				try:
 					notification = self._conn.notifies.pop()
 				finally:
@@ -299,7 +299,7 @@ class gmBackendListener(gmBorg.cBorg):
 				# try sending intra-client signals:
 				self.__send_generic_signal(data)
 				self.__send_old_style_table_signal(data)
-				if self._quit_lock.acquire(0):
+				if self._quit_lock.acquire(False):
 					# there may be more notifications pendings
 					# but we don't care when quitting
 					_have_quit_lock = 1

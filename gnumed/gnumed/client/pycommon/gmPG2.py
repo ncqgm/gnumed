@@ -1599,7 +1599,7 @@ def get_current_user_language():
 	return rows[0][0]
 
 #------------------------------------------------------------------------
-def set_user_language(user=None, language=None):
+def set_user_language(user:str=None, language:str=None) -> bool:
 	"""Set the user language in the database.
 
 	user = None: current db user
@@ -1609,16 +1609,17 @@ def set_user_language(user=None, language=None):
 	args = {'usr': user, 'lang': language}
 	if language is None:
 		if user is None:
-			queries = [{'sql': 'select i18n.unset_curr_lang()'}]
+			SQL = 'select i18n.unset_curr_lang()'
 		else:
-			queries = [{'sql': 'select i18n.unset_curr_lang(%(usr)s)', 'args': args}]
-		queries.append({'sql': 'select True'})
+			SQL = 'select i18n.unset_curr_lang(%(usr)s)'
+		run_rw_query(sql = SQL, args = args)
+		return True
+
+	if user is None:
+		SQL = 'select i18n.set_curr_lang(%(lang)s)'
 	else:
-		if user is None:
-			queries = [{'sql': 'select i18n.set_curr_lang(%(lang)s)', 'args': args}]
-		else:
-			queries = [{'sql': 'select i18n.set_curr_lang(%(lang)s, %(usr)s)', 'args': args}]
-	rows = run_rw_queries(queries = queries, return_data = True)
+		SQL = 'select i18n.set_curr_lang(%(lang)s, %(usr)s)'
+	rows = run_rw_query(sql = SQL, args = args)
 	if not rows[0][0]:
 		_log.error('cannot set database language to [%s] for user [%s]', language, user)
 	return rows[0][0]

@@ -474,7 +474,7 @@ def send_email(sender=None, receiver=None, email=None, server=None, auth=None, d
 
 	import smtplib
 	failed = False
-	refused = []
+	refused:dict[str, tuple[int, bytes]] = []
 	try:
 		session = smtplib.SMTP(server)
 		session.set_debuglevel(debug)
