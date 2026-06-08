@@ -924,7 +924,7 @@ def manage_bills(parent=None, patient=None):
 		items = []
 		for b in bills:
 			if b['close_date'] is None:
-				close_date = _('<open>')
+				close_date = _('<open>##tx: open state of a bill')
 			else:
 				close_date = b['close_date'].strftime('%Y %b %d')
 			if b['total_amount'] is None:
