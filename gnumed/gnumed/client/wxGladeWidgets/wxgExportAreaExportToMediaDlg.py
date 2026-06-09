@@ -45,7 +45,7 @@ class wxgExportAreaExportToMediaDlg(wx.Dialog):
 
 	def __set_properties(self):
 		# begin wxGlade: wxgExportAreaExportToMediaDlg.__set_properties
-		self.SetTitle(_("Creating Patient Media"))
+		self.SetTitle(_("Creating Patient Media##tx:as in, removable media w/ patient data"))
 		self.SetSize((700, 500))
 		self._BTN_reload_media_list.SetToolTip(_("Reload the list of removable media."))
 		self._LBL_directory.SetFont(wx.Font(9, wx.DEFAULT, wx.SLANT, wx.NORMAL, 0, ""))
