@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-31 14:26+0200\n"
+"POT-Creation-Date: 2026-06-09 16:46+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3949,7 +3949,7 @@ msgstr ""
 msgid "Sort documents by"
 msgstr ""
 
-msgid "Age"
+msgid "Age##tx: sort documents displayed by age, newest first"
 msgstr ""
 
 msgid "Sort newest documents to top of tree."
@@ -4363,7 +4363,7 @@ msgstr ""
 msgid "Channel"
 msgstr ""
 
-msgid "Creating Patient Media"
+msgid "Creating Patient Media##tx:as in, removable media w/ patient data"
 msgstr ""
 
 msgid "Reload the list of removable media."
@@ -5390,6 +5390,43 @@ msgid ""
 "Rationale for\n"
 "suppression\n"
 "in this patient"
+msgstr ""
+
+msgid "About GNUmed"
+msgstr ""
+
+msgid "Monty the Serpent && the FSF Present"
+msgstr ""
+
+msgid ""
+"A Free, Libre, Open Source\n"
+"Electronic Medical Record"
+msgstr ""
+
+#, python-format
+msgid "Client version: %s%s"
+msgstr ""
+
+#, python-format
+msgid "Database version: %s%s"
+msgstr ""
+
+msgid "Brought to you by"
+msgstr ""
+
+msgid "under "
+msgstr ""
+
+msgid "GPL v2 or later licensing"
+msgstr ""
+
+msgid "https://www.gnu.org/licenses/gpl-3.0.html"
+msgstr ""
+
+msgid "Please visit the Project's Webpage"
+msgstr ""
+
+msgid "https://www.gnumed.de"
 msgstr ""
 
 msgid "Part ?/?"
@@ -11087,9 +11124,9 @@ msgstr ""
 msgid ""
 "%s items selected from bill (invoice ID \"%s\")\n"
 "\n"
-"Do you want to only remove the selected items\n"
-"from the bill (\"unbill\" them) or do you want\n"
-"to delete them entirely from the patient ?\n"
+"Do you want to only remove the selected items from the bill (\"unbill\" "
+"them)\n"
+"or do you want to delete them entirely from the patient ?\n"
 "\n"
 "Note that neither action is reversible."
 msgstr ""
@@ -11102,11 +11139,6 @@ msgid ""
 msgstr ""
 
 msgid "Completely delete items from the patient."
-msgstr ""
-
-msgid ""
-"Also remove the invoice PDF from the document archive (because it will not "
-"correspond to the bill anymore)."
 msgstr ""
 
 msgid "Displaying invoice"
@@ -11125,7 +11157,7 @@ msgid ""
 "Select the address you want to send the bill to."
 msgstr ""
 
-msgid "<open>"
+msgid "<open>##tx: open state of a bill"
 msgstr ""
 
 msgid "no items on bill"
@@ -12013,20 +12045,7 @@ msgstr ""
 msgid "list"
 msgstr ""
 
-msgid "Monty the Serpent && the FSF Present"
-msgstr ""
-
-msgid "Free eMedicine"
-msgstr ""
-
-#, python-format
-msgid "Version %s%s brought to you by"
-msgstr ""
-
 msgid "debug"
-msgstr ""
-
-msgid "Please visit https://www.gnumed.de"
 msgstr ""
 
 #, python-format
@@ -14716,7 +14735,7 @@ msgstr ""
 msgid "Backup content of the log to another file."
 msgstr ""
 
-msgid "email"
+msgid "email##tx: as a verb, send log to developers"
 msgstr ""
 
 msgid "Send log file to the authors for help."
@@ -14756,9 +14775,6 @@ msgid "Browse ..."
 msgstr ""
 
 msgid "Debugging ..."
-msgstr ""
-
-msgid "About GNUmed"
 msgstr ""
 
 msgid "About database"
@@ -15322,9 +15338,6 @@ msgstr ""
 msgid "Dynamic automatic hints"
 msgstr ""
 
-msgid "Codes and their respective terms"
-msgstr ""
-
 msgid "Communication channel types"
 msgstr ""
 
@@ -15373,12 +15386,6 @@ msgstr ""
 msgid "Medications: substance dosage"
 msgstr ""
 
-msgid "Medications: drug components"
-msgstr ""
-
-msgid "Medications: drug products and generic drugs"
-msgstr ""
-
 msgid "Workplace profiles (which plugins to load)"
 msgstr ""
 
@@ -15389,6 +15396,9 @@ msgid "Reference data sources"
 msgstr ""
 
 msgid "Gender definitions"
+msgstr ""
+
+msgid "Codes and their respective terms"
 msgstr ""
 
 msgid "Master data management"
@@ -17292,17 +17302,19 @@ msgstr ""
 msgid "Launch KOrganizer"
 msgstr ""
 
-msgid "KOrganizer is not installed."
-msgstr ""
-
-#, python-format
-msgid "Cannot access KOrganizer transfer file [%s]"
-msgstr ""
-
 msgid "Place"
 msgstr ""
 
 msgid "Start"
+msgstr ""
+
+msgid "KOrganizer is not installed."
+msgstr ""
+
+msgid "cannot load appointments"
+msgstr ""
+
+msgid "No appointments for today, so far."
 msgstr ""
 
 #, python-format

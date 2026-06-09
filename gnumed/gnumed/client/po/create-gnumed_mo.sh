@@ -20,8 +20,7 @@ echo " target language      : ${LANGNAME}"
 echo " raw translations     : ${POFILE}"
 echo " compiled translations: ${MOFILE}"
 echo ""
-msgfmt -v -c --statistics -o ${MOFILE} ${POFILE}
-
+msgfmt --verbose --check --check-accelerators --statistics -o ${MOFILE} ${POFILE}
 
 echo ""
 echo "activating translation ${LANGNAME}"

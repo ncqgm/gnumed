@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-31 14:26+0200\n"
-"PO-Revision-Date: 2026-05-31 14:25+0200\n"
+"POT-Creation-Date: 2026-06-09 16:46+0200\n"
+"PO-Revision-Date: 2026-06-09 16:50+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -4506,8 +4506,8 @@ msgstr "Diesen Dialog schließen."
 msgid "Sort documents by"
 msgstr "Sortiere Dokumente nach"
 
-msgid "Age"
-msgstr "Alter"
+msgid "Age##tx: sort documents displayed by age, newest first"
+msgstr "Zeitpunkt"
 
 msgid "Sort newest documents to top of tree."
 msgstr "Sortiere jüngste Dokumente nach oben."
@@ -4988,8 +4988,8 @@ msgstr ""
 msgid "Channel"
 msgstr "Kanal"
 
-msgid "Creating Patient Media"
-msgstr "Patienten-Datenträger erstellen"
+msgid "Creating Patient Media##tx:as in, removable media w/ patient data"
+msgstr "Erstelle Datenmedium"
 
 msgid "Reload the list of removable media."
 msgstr "Liste entfernbarer Medien neu laden."
@@ -6238,6 +6238,45 @@ msgstr ""
 "Begründung des\n"
 "Unterdrückens bei\n"
 "diesem Patienten"
+
+msgid "About GNUmed"
+msgstr "Über GNUmed"
+
+msgid "Monty the Serpent && the FSF Present"
+msgstr "Monty die Python && die FSF präsentieren"
+
+msgid ""
+"A Free, Libre, Open Source\n"
+"Electronic Medical Record"
+msgstr ""
+"Die elektronische Patientenakte:\n"
+"Quelloffen und frei."
+
+#, python-format
+msgid "Client version: %s%s"
+msgstr "Programmversion: %s%s"
+
+#, python-format
+msgid "Database version: %s%s"
+msgstr "Datenbankversion: %s%s"
+
+msgid "Brought to you by"
+msgstr "Geschaffen von"
+
+msgid "under "
+msgstr "unter"
+
+msgid "GPL v2 or later licensing"
+msgstr ""
+
+msgid "https://www.gnu.org/licenses/gpl-3.0.html"
+msgstr ""
+
+msgid "Please visit the Project's Webpage"
+msgstr "Zur Projekthomepage..."
+
+msgid "https://www.gnumed.de"
+msgstr ""
 
 msgid "Part ?/?"
 msgstr "Teil ?/?"
@@ -12598,13 +12637,13 @@ msgstr ""
 msgid ""
 "%s items selected from bill (invoice ID \"%s\")\n"
 "\n"
-"Do you want to only remove the selected items\n"
-"from the bill (\"unbill\" them) or do you want\n"
-"to delete them entirely from the patient ?\n"
+"Do you want to only remove the selected items from the bill (\"unbill\" "
+"them)\n"
+"or do you want to delete them entirely from the patient ?\n"
 "\n"
 "Note that neither action is reversible."
 msgstr ""
-"%s Posten der Rechnung markiert (Rechnungs-ID \"%s\")\n"
+"%s Posten der Rechnung markiert (Beleg-ID \"%s\")\n"
 "\n"
 "Wollen Sie diese Posten lediglich stornieren\n"
 "oder wollen Sie die Posten auch komplett aus\n"
@@ -12623,13 +12662,6 @@ msgstr ""
 
 msgid "Completely delete items from the patient."
 msgstr "Rechnungsposten komplett löschen."
-
-msgid ""
-"Also remove the invoice PDF from the document archive (because it will not "
-"correspond to the bill anymore)."
-msgstr ""
-"Den PDF-Rechnungsbeleg ebenfalls aus dem Dokumentenarchiv löschen (weil er "
-"nicht mehr mit der Rechnung übereinstimmen wird)."
 
 msgid "Displaying invoice"
 msgstr "Rechnung anzeigen"
@@ -12654,7 +12686,7 @@ msgstr ""
 "\n"
 "Wählen Sie die Zustelladresse für diese Rechnung."
 
-msgid "<open>"
+msgid "<open>##tx: open state of a bill"
 msgstr "<offen>"
 
 msgid "no items on bill"
@@ -13711,21 +13743,8 @@ msgstr "GMd-Bildschirmphoto"
 msgid "list"
 msgstr "Liste"
 
-msgid "Monty the Serpent && the FSF Present"
-msgstr "Monty die Python && die FSF präsentieren"
-
-msgid "Free eMedicine"
-msgstr "Freie eMedicine"
-
-#, python-format
-msgid "Version %s%s brought to you by"
-msgstr "Version %s%s präsentiert von"
-
 msgid "debug"
 msgstr "debuggen"
-
-msgid "Please visit https://www.gnumed.de"
-msgstr "Siehe auch https://www.gnumed.org"
 
 #, python-format
 msgid ""
@@ -16797,8 +16816,8 @@ msgstr "Logdatei in Texteditor anzeigen."
 msgid "Backup content of the log to another file."
 msgstr "Logdatei kopieren."
 
-msgid "email"
-msgstr "mailen"
+msgid "email##tx: as a verb, send log to developers"
+msgstr "senden"
 
 msgid "Send log file to the authors for help."
 msgstr "Logdatei an die GNUmed-Autoren senden."
@@ -16838,9 +16857,6 @@ msgstr "Stöbern ..."
 
 msgid "Debugging ..."
 msgstr "Fehlersuche ..."
-
-msgid "About GNUmed"
-msgstr "Über GNUmed"
 
 msgid "About database"
 msgstr "Über die Datenbank"
@@ -17664,9 +17680,6 @@ msgstr "Adressen (langsam)"
 msgid "Dynamic automatic hints"
 msgstr "Dynamische automatische Hinweise"
 
-msgid "Codes and their respective terms"
-msgstr "Codes und dazugehörige Termini"
-
 msgid "Communication channel types"
 msgstr "Kommunikationskanaltypen"
 
@@ -17715,12 +17728,6 @@ msgstr "Medikamente: Wirkstoffe"
 msgid "Medications: substance dosage"
 msgstr "Medikamente: Wirkstoffdosierungen"
 
-msgid "Medications: drug components"
-msgstr "Medikamente: Produktbestandteile"
-
-msgid "Medications: drug products and generic drugs"
-msgstr "Medikamente: Produkte und Pseudoprodukte"
-
 msgid "Workplace profiles (which plugins to load)"
 msgstr "Arbeitsplatz-Profile (Laden welcher Plugins)"
 
@@ -17732,6 +17739,9 @@ msgstr "Quellen für Referenzdaten"
 
 msgid "Gender definitions"
 msgstr "Geschlechtsdefinition"
+
+msgid "Codes and their respective terms"
+msgstr "Codes und dazugehörige Termini"
 
 msgid "Master data management"
 msgstr "Stammdatenverwaltung"
@@ -19841,18 +19851,20 @@ msgstr "Termine neu von KOrganizer holen"
 msgid "Launch KOrganizer"
 msgstr "KOrganizer aufrufen"
 
-msgid "KOrganizer is not installed."
-msgstr "KOrganizer ist nicht installiert."
-
-#, python-format
-msgid "Cannot access KOrganizer transfer file [%s]"
-msgstr "Kann Transferdatei [%s] für KOrganizer nicht öffnen."
-
 msgid "Place"
 msgstr "Ort"
 
 msgid "Start"
 msgstr "Beginn"
+
+msgid "KOrganizer is not installed."
+msgstr "KOrganizer ist nicht installiert."
+
+msgid "cannot load appointments"
+msgstr "kann Termine nicht laden"
+
+msgid "No appointments for today, so far."
+msgstr "Bislang keine Termine heute."
 
 #, python-format
 msgid ""
@@ -20830,12 +20842,40 @@ msgstr "Abbrechen"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
-#~ msgid "newly inserted"
-#~ msgstr "Originaleintrag"
+#~ msgid "Age"
+#~ msgstr "Alter"
+
+#~ msgid "Creating Patient Media"
+#~ msgstr "Patienten-Datenträger erstellen"
+
+#~ msgid ""
+#~ "Also remove the invoice PDF from the document archive (because it will "
+#~ "not correspond to the bill anymore)."
+#~ msgstr ""
+#~ "Den PDF-Rechnungsbeleg ebenfalls aus dem Dokumentenarchiv löschen (weil "
+#~ "er nicht mehr mit der Rechnung übereinstimmen wird)."
+
+#~ msgid "<open>"
+#~ msgstr "<offen>"
+
+#~ msgid "email"
+#~ msgstr "mailen"
+
+#~ msgid "Free eMedicine"
+#~ msgstr "Freie eMedicine"
+
+#~ msgid "Medications: drug components"
+#~ msgstr "Medikamente: Produktbestandteile"
+
+#~ msgid "Medications: drug products and generic drugs"
+#~ msgstr "Medikamente: Produkte und Pseudoprodukte"
 
 #, python-format
-#~ msgid "Revision: %s%s"
-#~ msgstr "Revision: %s%s"
+#~ msgid "Cannot access KOrganizer transfer file [%s]"
+#~ msgstr "Kann Transferdatei [%s] für KOrganizer nicht öffnen."
+
+#~ msgid "newly inserted"
+#~ msgstr "Originaleintrag"
 
 #~ msgid "Showing bills."
 #~ msgstr "Zeige Rechnungen."
