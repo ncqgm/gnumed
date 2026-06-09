@@ -81,7 +81,7 @@ class wxgAboutFrame(wx.Frame):
 		label_1 = wx.StaticText(self, wx.ID_ANY, _("under "))
 		sizer_licensing.Add(label_1, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
-		self.hyperlink_license = wx.adv.HyperlinkCtrl(self, wx.ID_ANY, _("GPL v2 or later licensing"), _("https://www.gnu.org/licenses/gpl-3.0.html"), style=wx.adv.HL_DEFAULT_STYLE)
+		self.hyperlink_license = wx.adv.HyperlinkCtrl(self, wx.ID_ANY, _("GPL v2 or later licensing"), _("https://www.gnu.org/licenses/old-licenses/gpl-2.0.html"), style=wx.adv.HL_DEFAULT_STYLE)
 		sizer_licensing.Add(self.hyperlink_license, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
 		self.hyperlink_webpage = wx.adv.HyperlinkCtrl(self, wx.ID_ANY, _("Please visit the Project's Webpage"), _("https://www.gnumed.de"), style=wx.adv.HL_DEFAULT_STYLE)
