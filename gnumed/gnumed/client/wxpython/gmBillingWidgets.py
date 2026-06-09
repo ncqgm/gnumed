@@ -165,15 +165,21 @@ class cBillablePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
 		mp.setThresholds(1, 2, 4)
 		self.matcher = mp
+
 	#------------------------------------------------------------
 	def _data2instance(self, link_obj=None):
-		return gmBilling.cBillable(aPK_obj = list(self._data.values())[0]['data'])
+		#return gmBilling.cBillable(aPK_obj = list(self._data.values())[0]['data'])
+		return gmBilling.cBillable(aPK_obj = self.GetData())
+
 	#------------------------------------------------------------
 	def _get_data_tooltip(self):
 		if self.GetData() is None:
 			return None
-		billable = gmBilling.cBillable(aPK_obj = list(self._data.values())[0]['data'])
+
+		#billable = gmBilling.cBillable(aPK_obj = list(self._data.values())[0]['data'])
+		billable = gmBilling.cBillable(aPK_obj = self.GetData())
 		return billable.format()
+
 	#------------------------------------------------------------
 	def set_from_instance(self, instance):
 		val = '%s (%s - %s)' % (
@@ -182,6 +188,7 @@ class cBillablePhraseWheel(gmPhraseWheel.cPhraseWheel):
 			instance['catalog_version']
 		)
 		self.SetText(value = val, data = instance['pk_billable'])
+
 	#------------------------------------------------------------
 	def set_from_pk(self, pk):
 		self.set_from_instance(gmBilling.cBillable(aPK_obj = pk))
@@ -1528,10 +1535,13 @@ class cBillItemEAPnl(wxgBillItemEAPnl.wxgBillItemEAPnl, gmEditArea.cGenericEditA
 	def _on_billable_selected(self, item):
 		if item is None:
 			return
+
 		if self._TCTRL_amount.GetValue().strip() != '':
 			return
+
 		val = '%s' % self._PRW_billable.GetData(as_instance = True)['raw_amount']
 		wx.CallAfter(self._TCTRL_amount.SetValue, val)
+
 	#----------------------------------------------------------------
 	def _on_billable_modified(self):
 		if self._PRW_billable.GetData() is None:
