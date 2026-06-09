@@ -972,7 +972,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 		Returns:
 			A class instance, typically a subclass of gmBusinessDBObject.cBusinessDBObject, or None.
 		"""
-		raise NotImplementedError('[%s]: cannot turn data object' % self.__class__.__name__)
+		raise NotImplementedError('[%s]: cannot turn into data object' % self.__class__.__name__)
 
 	#--------------------------------------------------------
 	def _get_raw_data(self):
