@@ -788,7 +788,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.__on_show_log_file, item)
 		item = menu_log.Append(-1, _('save'), _('Backup content of the log to another file.'))
 		self.Bind(wx.EVT_MENU, self.__on_backup_log_file, item)
-		item = menu_log.Append(-1, _('email'), _('Send log file to the authors for help.'))
+		item = menu_log.Append(-1, _('email##tx: as a verb, send log to developers'), _('Send log file to the authors for help.'))
 		self.Bind(wx.EVT_MENU, self.__on_email_log_file, item)
 
 		menu_browse = wx.Menu()
