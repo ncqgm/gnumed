@@ -544,30 +544,19 @@ def get_bill_receiver(pk_patient=None):
 	pass
 
 #------------------------------------------------------------
-def generate_invoice_id(template=None, pk_patient=None, person=None, date_format='%Y-%m-%d', time_format='%H%M%S'):
-	"""Generate invoice ID string, based on template.
-
-	No template given -> generate old style fixed format invoice ID.
-
-	Placeholders:
-		%(pk_pat)s
-		%(date)s
-		%(time)s
-			if included, $counter$ is not *needed* (but still possible)
-		%(firstname)s
-		%(lastname)s
-		%(dob)s
-
-		#counter#
-			will be replaced by a counter, counting up from 1 until the invoice id is unique, max 999999
+def invoice_id_exists_in_db(invoice_id:str):
+	search_term = r'^\s*%s\s*$' % gmPG2.sanitize_pg_regex(expression = invoice_id)
+	SQL = """
+		SELECT invoice_id FROM bill.bill WHERE invoice_id ~* %(search_term)s
+			UNION ALL
+		SELECT invoice_id FROM audit.log_bill WHERE invoice_id ~* %(search_term)s
 	"""
-	assert (None in [pk_patient, person]), u'either of <pk_patient> or <person> can be defined, but not both'
+	args = {'search_term': search_term}
+	rows = gmPG2.run_ro_query(sql = SQL, args = args)
+	return len(rows) > 0
 
-	if (template is None) or (template.strip() == u''):
-		template = DEFAULT_INVOICE_ID_TEMPLATE
-		date_format = '%Y-%m-%d'
-		time_format = '%H%M%S'
-	template = template.strip()
+#------------------------------------------------------------
+def __replace_invoice_id_placeholders(template:str=None, pk_patient:int=None, person=None, date_format:str='%Y-%m-%d', time_format='%H%M%S') -> str:
 	_log.debug('invoice ID template: %s', template)
 	if pk_patient is None:
 		if person is not None:
@@ -590,36 +579,98 @@ def generate_invoice_id(template=None, pk_patient=None, person=None, date_format
 			honor_estimation = False
 		).strip()
 	candidate_invoice_id = template % data
-	if '#counter#' not in candidate_invoice_id:
-		if '%(time)s' in template:
-			return candidate_invoice_id
-
-		candidate_invoice_id = candidate_invoice_id + ' [##counter#]'
-
 	_log.debug('invoice id candidate: %s', candidate_invoice_id)
+	return candidate_invoice_id
+
+#------------------------------------------------------------
+def __replace_invoice_id_counter(invoice_id:str) -> str:
+	if '#counter#' not in invoice_id:
+		_log.debug('no counter placeholder in: >>>%s<<<', invoice_id)
+		return invoice_id
+
+	_log.debug('invoice id candidate: %s', invoice_id)
 	# get existing invoice IDs consistent with candidate
-	search_term = r'^\s*%s\s*$' % gmPG2.sanitize_pg_regex(expression = candidate_invoice_id).replace('#counter#', r'\d+')
-	SQL = 'SELECT invoice_id FROM bill.bill WHERE invoice_id ~* %(search_term)s UNION ALL SELECT invoice_id FROM audit.log_bill WHERE invoice_id ~* %(search_term)s'
+	search_term = r'^\s*%s\s*$' % gmPG2.sanitize_pg_regex(expression = invoice_id).replace('#counter#', r'\d+')
+	SQL = """
+		SELECT invoice_id FROM bill.bill WHERE invoice_id ~* %(search_term)s
+			UNION ALL
+		SELECT invoice_id FROM audit.log_bill WHERE invoice_id ~* %(search_term)s
+	"""
 	args = {'search_term': search_term}
 	rows = gmPG2.run_ro_query(sql = SQL, args = args)
 	if len(rows) == 0:
-		return candidate_invoice_id.replace(u'#counter#', '1')
+		tmp = invoice_id.replace(u'#counter#', '1')
+		_log.debug('invoice id: %s', tmp)
+		return tmp
 
 	existing_invoice_ids = [ r['invoice_id'].strip() for r in rows ]
 	counter = None
 	counter_max = 999999
 	for idx in range(1, counter_max):
-		candidate = candidate_invoice_id.replace(u'#counter#', '%s' % idx)
+		candidate = invoice_id.replace(u'#counter#', '%s' % idx)
 		if candidate not in existing_invoice_ids:
 			counter = idx
 			break
 	if counter is None:
 		# exhausted the range, unlikely (1 million bills are possible
 		# even w/o any other invoice ID data) but technically possible
-		_log.debug('exhausted uniqueness space of [%s] invoice IDs per template', counter_max)
-		counter = '>%s[%s]' % (counter_max, data['time'])
+		_log.debug('exhausted uniqueness space of [%s] invoice IDs per template, adding in maximum-precision timestamp', counter_max)
+		counter = '>%s[%s]' % (counter_max, gmDateTime.pydt_now_here().strftime(r'%H%M%S.%f'))
 
-	return candidate_invoice_id.replace('#counter#', '%s' % counter)
+	invoice_id = invoice_id.replace('#counter#', '%s' % counter)
+	# make TOCTOU race window small
+	if invoice_id_exists_in_db(invoice_id):
+		_log.error('invoice ID exists despite all efforts: >>>%s<<<', )
+		return None
+
+	return invoice_id
+
+#------------------------------------------------------------
+def generate_invoice_id(template:str=None, pk_patient:int=None, person=None, date_format:str='%Y-%m-%d', time_format:str='%H%M%S') -> str:
+	"""Generate invoice ID string, based on template.
+
+		No template given -> generate old style fixed format invoice ID.
+
+		Placeholders:
+			%(pk_pat)s
+			%(date)s
+			%(time)s
+				if included, $counter$ is not *needed* (but still possible)
+			%(firstname)s
+			%(lastname)s
+			%(dob)s
+
+			#counter#
+				will be replaced by a counter, counting up from 1 until the invoice id is unique, max 999999
+
+		if still not unique, a maximum precision timestamp is added and the result
+		is checked for uniqueness, if that fails, we throw up our hands in despair
+	"""
+	assert (None in [pk_patient, person]), u'either of <pk_patient> or <person> can be defined, but not both'
+
+	if (template is None) or (template.strip() == u''):
+		template = DEFAULT_INVOICE_ID_TEMPLATE	# old style fixed-format
+		date_format = '%Y-%m-%d'				# old style fixed-format
+		time_format = '%H%M%S'					# old style fixed-format
+	template = template.strip()
+	candidate_invoice_id = __replace_invoice_id_placeholders (
+		template = template,
+		pk_patient = pk_patient,
+		person = person,
+		date_format = date_format,
+		time_format = time_format
+	)
+	if '#counter#' not in candidate_invoice_id:						# user does not want counter
+		if '%(time)s' in template:									# then, "time" must exist in template
+			if not invoice_id_exists_in_db(candidate_invoice_id):	# and ID must be unique
+				return candidate_invoice_id
+
+		_log.info('tacking counter placeholder onto invoice ID template in order to force uniqueness')
+		candidate_invoice_id = candidate_invoice_id + ' [##counter#]'
+	invoice_id = __replace_invoice_id_counter(candidate_invoice_id)
+	if not invoice_id:
+		_log.error('cannot generate invoice ID, try again later')
+	return invoice_id
 
 #------------------------------------------------------------
 def __generate_invoice_id_lock_token(invoice_id):
