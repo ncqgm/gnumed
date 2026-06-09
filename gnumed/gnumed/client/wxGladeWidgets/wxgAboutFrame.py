@@ -11,7 +11,6 @@ import wx.adv
 # end wxGlade
 
 # begin wxGlade: extracode
-_ = gettext.gettext
 # end wxGlade
 
 
