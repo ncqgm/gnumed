@@ -20,7 +20,7 @@ class wxgAboutFrame(wx.Frame):
 		# begin wxGlade: wxgAboutFrame.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE | wx.FRAME_TOOL_WINDOW
 		wx.Frame.__init__(self, *args, **kwds)
-		self.SetSize((550, 500))
+		self.SetSize((600, 500))
 		self.SetTitle(_("About GNUmed"))
 
 		sizer_main = wx.BoxSizer(wx.VERTICAL)
