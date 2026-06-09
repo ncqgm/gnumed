@@ -32,7 +32,7 @@
                             </events>
                             <tooltip>Sort newest documents to top of tree.</tooltip>
                             <style>wxRB_GROUP</style>
-                            <label>Age</label>
+                            <label>Age##tx: sort documents displayed by age, newest first</label>
                             <clicked>1</clicked>
                         </object>
                     </object>
