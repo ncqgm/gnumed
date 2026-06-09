@@ -800,9 +800,8 @@ def remove_items_from_bill(parent=None, bill=None):
 		question = _(
 			'%s items selected from bill (invoice ID "%s")\n'
 			'\n'
-			'Do you want to only remove the selected items\n'
-			'from the bill ("unbill" them) or do you want\n'
-			'to delete them entirely from the patient ?\n'
+			'Do you want to only remove the selected items from the bill ("unbill" them)\n'
+			'or do you want to delete them entirely from the patient ?\n'
 			'\n'
 			'Note that neither action is reversible.'
 		) % (
@@ -815,7 +814,7 @@ def remove_items_from_bill(parent=None, bill=None):
 		],
 		show_checkbox = True,
 		checkbox_msg = _('Also remove invoice PDF'),
-		checkbox_tooltip = _('Also remove the invoice PDF from the document archive (because it will not correspond to the bill anymore).')
+		checkbox_tooltip = _('MAKE SURE THIS IS LAWFUL !\n\nAlso remove the invoice PDF from the document archive (because it will not correspond to the bill anymore).')
 	)
 	button_pressed = dlg.ShowModal()
 	delete_invoice = dlg.checkbox_is_checked()
@@ -925,7 +924,7 @@ def manage_bills(parent=None, patient=None):
 		items = []
 		for b in bills:
 			if b['close_date'] is None:
-				close_date = _('<open>')
+				close_date = _('<open>##tx: open state of a bill')
 			else:
 				close_date = b['close_date'].strftime('%Y %b %d')
 			if b['total_amount'] is None:

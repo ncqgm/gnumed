@@ -23,7 +23,7 @@ class wxgSelectablySortedDocTreePnl(wx.ScrolledWindow):
 		__lbl_sort = wx.StaticText(self, wx.ID_ANY, _("Sort documents by"))
 		__szr_top_radio.Add(__lbl_sort, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT | wx.RIGHT, 5)
 
-		self._rbtn_sort_by_age = wx.RadioButton(self, wx.ID_ANY, _("Age"), style=wx.RB_GROUP)
+		self._rbtn_sort_by_age = wx.RadioButton(self, wx.ID_ANY, _("Age##tx: sort documents displayed by age, newest first"), style=wx.RB_GROUP)
 		self._rbtn_sort_by_age.SetToolTip(_("Sort newest documents to top of tree."))
 		self._rbtn_sort_by_age.SetValue(1)
 		__szr_top_radio.Add(self._rbtn_sort_by_age, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 10)

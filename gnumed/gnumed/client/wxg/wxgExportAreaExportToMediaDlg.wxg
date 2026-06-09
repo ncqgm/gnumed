@@ -4,7 +4,7 @@
 <application encoding="UTF-8" for_version="3.0" header_extension=".h" indent_amount="1" indent_symbol="tab" is_template="0" language="python" option="0" overwrite="1" path="../wxGladeWidgets/wxgExportAreaExportToMediaDlg.py" source_extension=".cpp" top_window="ExportAreaExportToMediaDlg" use_gettext="1" use_new_namespace="1">
     <object class="wxgExportAreaExportToMediaDlg" name="ExportAreaExportToMediaDlg" base="EditDialog">
         <size>700, 500</size>
-        <title>Creating Patient Media</title>
+        <title>Creating Patient Media##tx:as in, removable media w/ patient data</title>
         <style>wxDEFAULT_DIALOG_STYLE|wxMAXIMIZE_BOX|wxMINIMIZE_BOX|wxRESIZE_BORDER</style>
         <object class="wxBoxSizer" name="__szr_main" base="EditBoxSizer">
             <orient>wxVERTICAL</orient>
