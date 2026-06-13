@@ -24,6 +24,7 @@ else:
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmMatchProvider
+from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmCfgINI
@@ -740,12 +741,28 @@ def delete_bill(parent=None, bill=None):
 				document_id = bill['pk_doc'],
 				encounter_id = gmPerson.cPatient(aPK_obj = bill['pk_patient']).emr.active_encounter['pk_encounter']
 			)
-	items = bill['pk_bill_items']
+	items = bill.bill_items
+	old_bill_lines = []
+	old_bill_lines.append(bill.format())
+	old_bill_lines.append('')
+	for item in items:
+		old_bill_lines.append(item.format())
+		old_bill_lines.append('')
 	success = gmBilling.delete_bill(pk_bill = bill['pk_bill'])
 	if delete_items:
 		for item in items:
-			gmBilling.delete_bill_item(pk_bill_item = item)
+			gmBilling.delete_bill_item(pk_bill_item = item['pk_bill_item'])
 
+	fname = gmTools.get_unique_filename(prefix = 'gm-bill-', suffix = '.txt')
+	with open(fname, mode = 'wt', encoding = 'utf8', errors = 'replace') as bill_file:
+		bill_file.write('This is the content of the old bill.\n')
+		bill_file.write('\n')
+		bill_file.write('Keep this file or print it (not) for reference if needed.\n')
+		bill_file.write('\n')
+		bill_file.write('Filename: %s\n' % fname)
+		bill_file.write('\n')
+		bill_file.write('\n'.join(old_bill_lines))
+	gmMimeLib.call_viewer_on_file(filename = fname, block = False)
 	return success
 
 #----------------------------------------------------------------
@@ -951,7 +968,7 @@ def manage_bills(parent=None, patient=None):
 					b['apply_vat'],
 					_('%(currency)s%(total_amount_with_vat)s (with %(percent_vat)s%% VAT)') % b,
 					'%(currency)s%(total_amount)s' % b,
-					_('without VAT: %(currency)s%(total_amount)s / with %(percent_vat)s%% VAT: %(currency)s%(total_amount_with_vat)s') % b
+					_('without VAT: %(currency)s%(total_amount)s\nwith %(percent_vat)s%% VAT: %(currency)s%(total_amount_with_vat)s') % b
 				)
 			items.append ([
 				close_date,
@@ -963,11 +980,12 @@ def manage_bills(parent=None, patient=None):
 		lctrl.set_data(bills)
 
 	#------------------------------------------------------------
-	msg = _("""There is no functionality for modifying invoices (as opposed to bills) because that is illegal in many jurisdictions.
-
-		Note that deleting invoices (again, as opposed to bills) may also be unlawful.
-
-		Make sure to act by applicable law !"""
+	msg = _(
+		'There is no functionality for modifying invoices (as opposed to bills) because that is illegal in many jurisdictions.\n'
+		'\n'
+		'Note that deleting invoices may also be unlawful (again, as opposed to bills).\n'
+		'\n'
+		'Make sure to abide by applicable law !'
 	)
 	return gmListWidgets.get_choices_from_list (
 		parent = parent,
@@ -1310,6 +1328,7 @@ class cPersonBillItemsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			_('Browse list of billables.'),
 			self._browse_billables
 		)
+
 	#--------------------------------------------------------
 	def _add_item(self):
 		return edit_bill_item(parent = self, bill_item = None, single_entry = False)

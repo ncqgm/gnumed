@@ -183,11 +183,11 @@ def delete_billable(pk_billable=None):
 #============================================================
 # bill items
 #------------------------------------------------------------
-_SQL_get_bill_item_fields = u"SELECT * FROM bill.v_bill_items WHERE %s"
+_SQL_get_bill_item_fields = "SELECT * FROM bill.v_bill_items WHERE %s"
 
 class cBillItem(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = _SQL_get_bill_item_fields % u"pk_bill_item = %s"
+	_cmd_fetch_payload = _SQL_get_bill_item_fields % "pk_bill_item = %s"
 	_cmds_store_payload = [
 		"""UPDATE bill.bill_item SET
 				fk_provider = %(pk_provider)s,
