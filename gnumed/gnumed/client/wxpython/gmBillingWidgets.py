@@ -15,6 +15,12 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
+else:
+	try: _		# do we already have _() ?
+	except NameError:
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmMatchProvider
@@ -435,7 +441,7 @@ def get_invoice_template(parent=None, with_vat=True):
 def edit_bill(parent=None, bill=None, single_entry=False):
 
 	if bill is None:
-		# manually creating bills is not yet supported
+		# manually creating bills is not supported
 		return
 
 	ea = cBillEAPnl(parent, -1)
@@ -446,6 +452,7 @@ def edit_bill(parent=None, bill=None, single_entry=False):
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.DestroyLater()
 		return True
+
 	dlg.DestroyLater()
 	return False
 
@@ -709,12 +716,12 @@ def delete_bill(parent=None, bill=None):
 			'do you want to also delete the bill items from the charge list ?\n'
 		),
 		button_defs = [
-			{'label': _('Delete + keep'), 'tooltip': _('Delete the bill but keep ("unbill") its items.'), 'default': True},
-			{'label': _('Delete all'), 'tooltip': _('Delete both the bill and its items from the patient.')}
+			{'label': _('Revert'), 'tooltip': _('Revert the bill and RETURN its items to the charge list.'), 'default': True},
+			{'label': _('Delete'), 'tooltip': _('Delete the bill and REMOVE its items from the charge list.\n\nThis is not reversible.')}
 		],
 		show_checkbox = True,
 		checkbox_msg = _('Also remove invoice PDF'),
-		checkbox_tooltip = _('MAKE SURE THIS IS LAWFUL !\n\nAlso remove the invoice PDF from the document archive (because it will not correspond to the bill anymore).')
+		checkbox_tooltip = _('MAKE SURE THIS IS LAWFUL !\n\nAlso remove the associated invoice PDF from the document archive ?\n\n(it will no longer correspond to any bill)')
 	)
 	button_pressed = dlg.ShowModal()
 	delete_invoice = dlg.checkbox_is_checked()
@@ -742,116 +749,115 @@ def delete_bill(parent=None, bill=None):
 	return success
 
 #----------------------------------------------------------------
-def remove_items_from_bill(parent=None, bill=None):
-
-	if bill is None:
-		return False
-
-	list_data = bill.bill_items
-	if len(list_data) == 0:
-		return False
-
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
-
-	list_items = [ [
-		b['date_to_bill'].strftime('%Y %b %d'),
-		b['unit_count'],
-		'%s: %s%s' % (b['billable_code'], b['billable_description'], gmTools.coalesce(b['item_detail'], '', ' - %s')),
-		'%(curr)s %(total_val)s (%(count)s %(x)s %(unit_val)s%(x)s%(val_multiplier)s)' % {
-			'curr': b['currency'],
-			'total_val': b['total_amount'],
-			'count': b['unit_count'],
-			'x': gmTools.u_multiply,
-			'unit_val': b['net_amount_per_unit'],
-			'val_multiplier': b['amount_multiplier']
-		},
-		'%(curr)s%(vat)s (%(perc_vat)s%%)' % {
-			'vat': b['vat'],
-			'curr': b['currency'],
-			'perc_vat': b['vat_multiplier'] * 100
-		},
-		'%s (%s)' % (b['catalog_short'], b['catalog_version']),
-		b['pk_bill_item']
-	] for b in list_data ]
-	msg = _('Select the items you want to remove from the bill:\n')
-	items2remove = gmListWidgets.get_choices_from_list (
-		parent = parent,
-		msg = msg,
-		caption = _('Removing items from bill'),
-		columns = [_('Date'), _('Count'), _('Description'), _('Value'), _('VAT'), _('Catalog'), '#'],
-		single_selection = False,
-		choices = list_items,
-		data = list_data
-	)
-	if items2remove is None:
-		return False
-
-	if len(items2remove) == len(list_items):
-		gmGuiHelpers.gm_show_info (
-			title = _('Removing items from bill'),
-			info = _(
-				'Cannot remove all items from a bill because\n'
-				'GNUmed does not support empty bills.\n'
-				'\n'
-				'You must delete the bill itself if you want to\n'
-				'remove all items (at which point you can opt to\n'
-				'keep the items and only delete the bill).'
-			)
-		)
-		return False
-
-	dlg = gmGuiHelpers.c3ButtonQuestionDlg (
-		parent,	-1,
-		caption = _('Removing items from bill'),
-		question = _(
-			'%s items selected from bill (invoice ID "%s")\n'
-			'\n'
-			'Do you want to only remove the selected items from the bill ("unbill" them)\n'
-			'or do you want to delete them entirely from the patient ?\n'
-			'\n'
-			'Note that neither action is reversible.'
-		) % (
-			len(items2remove),
-			bill['invoice_id']
-		),
-		button_defs = [
-			{'label': _('"Unbill"'), 'tooltip': _('Only "unbill" items (remove from bill but do not delete from patient).'), 'default': True},
-			{'label': _('Delete'), 'tooltip': _('Completely delete items from the patient.')}
-		],
-		show_checkbox = True,
-		checkbox_msg = _('Also remove invoice PDF'),
-		checkbox_tooltip = _('MAKE SURE THIS IS LAWFUL !\n\nAlso remove the invoice PDF from the document archive (because it will not correspond to the bill anymore).')
-	)
-	button_pressed = dlg.ShowModal()
-	delete_invoice = dlg.checkbox_is_checked()
-	dlg.DestroyLater()
-
-	if button_pressed == wx.ID_CANCEL:
-		return False
-
-	# remember this because unlinking/deleting the items
-	# will remove the patient PK from the bill
-	pk_patient = bill['pk_patient']
-
-	for item in items2remove:
-		item['pk_bill'] = None
-		item.save()
-		if button_pressed == wx.ID_NO:
-			gmBilling.delete_bill_item(pk_bill_item = item['pk_bill_item'])
-
-	if delete_invoice:
-		if bill['pk_doc'] is not None:
-			gmDocuments.delete_document (
-				document_id = bill['pk_doc'],
-				encounter_id = gmPerson.cPatient(aPK_obj = pk_patient).emr.active_encounter['pk_encounter']
-			)
-
-	# delete bill, too, if empty
-	if len(bill.bill_items) == 0:
-		gmBilling.delete_bill(pk_bill = bill['pk_bill'])
-
-	return True
+#def remove_items_from_bill(parent=None, bill=None):
+#
+#	if bill is None:
+#		return False
+#
+#	list_data = bill.bill_items
+#	if len(list_data) == 0:
+#		return False
+#
+#	if parent is None:
+#		parent = wx.GetApp().GetTopWindow()
+#	list_items = [ [
+#		b['date_to_bill'].strftime('%Y %b %d'),
+#		b['unit_count'],
+#		'%s: %s%s' % (b['billable_code'], b['billable_description'], gmTools.coalesce(b['item_detail'], '', ' - %s')),
+#		'%(curr)s %(total_val)s (%(count)s %(x)s %(unit_val)s%(x)s%(val_multiplier)s)' % {
+#			'curr': b['currency'],
+#			'total_val': b['total_amount'],
+#			'count': b['unit_count'],
+#			'x': gmTools.u_multiply,
+#			'unit_val': b['net_amount_per_unit'],
+#			'val_multiplier': b['amount_multiplier']
+#		},
+#		'%(curr)s%(vat)s (%(perc_vat)s%%)' % {
+#			'vat': b['vat'],
+#			'curr': b['currency'],
+#			'perc_vat': b['vat_multiplier'] * 100
+#		},
+#		'%s (%s)' % (b['catalog_short'], b['catalog_version']),
+#		b['pk_bill_item']
+#	] for b in list_data ]
+#	msg = _('Select the items you want to remove from the bill:\n')
+#	items2remove = gmListWidgets.get_choices_from_list (
+#		parent = parent,
+#		msg = msg,
+#		caption = _('Removing items from bill'),
+#		columns = [_('Date'), _('Count'), _('Description'), _('Value'), _('VAT'), _('Catalog'), '#'],
+#		single_selection = False,
+#		choices = list_items,
+#		data = list_data
+#	)
+#	if items2remove is None:
+#		return False
+#
+#	if len(items2remove) == len(list_items):
+#		gmGuiHelpers.gm_show_info (
+#			title = _('Removing items from bill'),
+#			info = _(
+#				'Cannot remove all items from a bill because\n'
+#				'GNUmed does not support empty bills.\n'
+#				'\n'
+#				'You must delete the bill itself if you want to\n'
+#				'remove all items (at which point you can opt to\n'
+#				'keep the items and only delete the bill).'
+#			)
+#		)
+#		return False
+#
+#	dlg = gmGuiHelpers.c3ButtonQuestionDlg (
+#		parent,	-1,
+#		caption = _('Removing items from bill'),
+#		question = _(
+#			'%s items selected from bill (invoice ID "%s")\n'
+#			'\n'
+#			'Do you want to only remove the selected items from the bill ("unbill" them)\n'
+#			'or do you want to delete them entirely from the patient ?\n'
+#			'\n'
+#			'Note that neither action is reversible.'
+#		) % (
+#			len(items2remove),
+#			bill['invoice_id']
+#		),
+#		button_defs = [
+#			{'label': _('"Unbill"'), 'tooltip': _('Only "unbill" items (remove from bill but do not delete from patient).'), 'default': True},
+#			{'label': _('Delete'), 'tooltip': _('Completely delete items from the patient.')}
+#		],
+#		show_checkbox = True,
+#		checkbox_msg = _('Also remove invoice PDF'),
+#		checkbox_tooltip = _('MAKE SURE THIS IS LAWFUL !\n\nAlso remove the invoice PDF from the document archive (because it will not correspond to the bill anymore).')
+#	)
+#	button_pressed = dlg.ShowModal()
+#	delete_invoice = dlg.checkbox_is_checked()
+#	dlg.DestroyLater()
+#
+#	if button_pressed == wx.ID_CANCEL:
+#		return False
+#
+#	# remember this because unlinking/deleting the items
+#	# will remove the patient PK from the bill
+#	pk_patient = bill['pk_patient']
+#
+#	for item in items2remove:
+#		item['pk_bill'] = None
+#		item.save()
+#		if button_pressed == wx.ID_NO:
+#			gmBilling.delete_bill_item(pk_bill_item = item['pk_bill_item'])
+#
+#	if delete_invoice:
+#		if bill['pk_doc'] is not None:
+#			gmDocuments.delete_document (
+#				document_id = bill['pk_doc'],
+#				encounter_id = gmPerson.cPatient(aPK_obj = pk_patient).emr.active_encounter['pk_encounter']
+#			)
+#
+#	# delete bill, too, if empty
+#	if len(bill.bill_items) == 0:
+#		gmBilling.delete_bill(pk_bill = bill['pk_bill'])
+#
+#	return True
 
 #----------------------------------------------------------------
 def manage_bills(parent=None, patient=None):
@@ -860,7 +866,7 @@ def manage_bills(parent=None, patient=None):
 		parent = wx.GetApp().GetTopWindow()
 
 	#------------------------------------------------------------
-	def show_pdf(bill):
+	def show_invoice_pdf(bill):
 		if bill is None:
 			return False
 
@@ -868,8 +874,10 @@ def manage_bills(parent=None, patient=None):
 		invoice = bill.invoice
 		if invoice is not None:
 			success, msg = invoice.parts[-1].display_via_mime()
-			if not success:
-				gmGuiHelpers.gm_show_error(error = msg, title = _('Displaying invoice'))
+			if success:
+				return True
+
+			gmGuiHelpers.gm_show_error(error = msg, title = _('Displaying invoice'))
 			return False
 
 		# create it ?
@@ -897,6 +905,7 @@ def manage_bills(parent=None, patient=None):
 			)
 			edit_bill(parent = parent, bill = bill, single_entry = True)
 			if bill['pk_receiver_address'] is None:
+				gmGuiHelpers.gm_show_error(error = _('No billing address selected. Cannot create invoice'), title = _('Displaying invoice'))
 				return False
 
 		if bill['close_date'] is None:
@@ -912,14 +921,15 @@ def manage_bills(parent=None, patient=None):
 	def delete(bill):
 		return delete_bill(parent = parent, bill = bill)
 
-	#------------------------------------------------------------
-	def remove_items(bill):
-		return remove_items_from_bill(parent = parent, bill = bill)
+#	#------------------------------------------------------------
+#	def remove_items(bill):
+#		return remove_items_from_bill(parent = parent, bill = bill)
 
 	#------------------------------------------------------------
 	def get_tooltip(item):
 		if item is None:
 			return None
+
 		return item.format()
 
 	#------------------------------------------------------------
@@ -971,13 +981,13 @@ def manage_bills(parent=None, patient=None):
 		middle_extra_button = (
 			_('Invoice'),
 			_('Create if necessary, and show the corresponding invoice (PDF)'),
-			show_pdf
+			show_invoice_pdf
 		),
-		right_extra_button = (
-			_('Unbill'),
-			_('Select and remove items from a bill.'),
-			remove_items
-		),
+#		right_extra_button = (
+#			_('Unbill'),
+#			_('Select and remove items from a bill.'),
+#			remove_items
+#		),
 		list_tooltip_callback = get_tooltip
 	)
 
@@ -1648,11 +1658,18 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
+	del _		# setup a real translation
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
-	gmI18N.install_domain(domain = 'gnumed')
+	gmI18N.install_domain(domain = 'gnumed', prefer_local_catalog = True)
+
+	from Gnumed.wxpython import gmGuiTest
 
 	#----------------------------------------
-	#app = wx.PyWidgetTester(size = (600, 600))
-	#app.SetWidget(cXxxPhraseWheel, -1)
-	#app.MainLoop()
+	def test_manage_bills():
+		frame = gmGuiTest.setup_widget_test_env()
+		wx.CallLater(2000, manage_bills, parent = frame, patient = gmGuiTest.get_patient())
+		wx.GetApp().MainLoop()
+
+	#----------------------------------------
+	test_manage_bills()
