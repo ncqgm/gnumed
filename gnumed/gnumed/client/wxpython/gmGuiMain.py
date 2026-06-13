@@ -1778,7 +1778,12 @@ class gmTopLevelFrame(wx.Frame):
 			option = 'horstspace.notebook.tab_position',
 			bias = 'user',
 			default_value = 'bottom',
-			choices = [ _('Left'), _('Right'), _('Top'), _('Bottom') ],
+			choices = [
+				_('Left##tx: notebook tabs on the right'),
+				_('Right##tx: notebook tabs on the right'),
+				_('Top##tx: notebook tabs at top of page'),
+				_('Bottom##tx: notebook tabs at bottom of page')
+			],
 			columns = [_('Plugin tab position')],
 			data = [ 'left', 'right', 'top', 'bottom' ]
 		)

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-09 16:46+0200\n"
+"POT-Creation-Date: 2026-06-13 17:31+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5420,7 +5420,7 @@ msgstr ""
 msgid "GPL v2 or later licensing"
 msgstr ""
 
-msgid "https://www.gnu.org/licenses/gpl-3.0.html"
+msgid "https://www.gnu.org/licenses/old-licenses/gpl-2.0.html"
 msgstr ""
 
 msgid "Please visit the Project's Webpage"
@@ -11074,16 +11074,16 @@ msgid ""
 "do you want to also delete the bill items from the charge list ?\n"
 msgstr ""
 
-msgid "Delete + keep"
+msgid "Revert"
 msgstr ""
 
-msgid "Delete the bill but keep (\"unbill\") its items."
+msgid "Revert the bill and RETURN its items to the charge list."
 msgstr ""
 
-msgid "Delete all"
-msgstr ""
-
-msgid "Delete both the bill and its items from the patient."
+msgid ""
+"Delete the bill and REMOVE its items from the charge list.\n"
+"\n"
+"This is not reversible."
 msgstr ""
 
 msgid "Also remove invoice PDF"
@@ -11092,53 +11092,15 @@ msgstr ""
 msgid ""
 "MAKE SURE THIS IS LAWFUL !\n"
 "\n"
-"Also remove the invoice PDF from the document archive (because it will not "
-"correspond to the bill anymore)."
+"Also remove the associated invoice PDF from the document archive ?\n"
+"\n"
+"(it will no longer correspond to any bill)"
 msgstr ""
 
 msgid ""
 "Truly delete invoice document from document archive ?\n"
 "\n"
 "Make sure this is lawful in your jurisdiction !"
-msgstr ""
-
-msgid "Select the items you want to remove from the bill:\n"
-msgstr ""
-
-msgid "Removing items from bill"
-msgstr ""
-
-msgid "Count"
-msgstr ""
-
-msgid ""
-"Cannot remove all items from a bill because\n"
-"GNUmed does not support empty bills.\n"
-"\n"
-"You must delete the bill itself if you want to\n"
-"remove all items (at which point you can opt to\n"
-"keep the items and only delete the bill)."
-msgstr ""
-
-#, python-format
-msgid ""
-"%s items selected from bill (invoice ID \"%s\")\n"
-"\n"
-"Do you want to only remove the selected items from the bill (\"unbill\" "
-"them)\n"
-"or do you want to delete them entirely from the patient ?\n"
-"\n"
-"Note that neither action is reversible."
-msgstr ""
-
-msgid "\"Unbill\""
-msgstr ""
-
-msgid ""
-"Only \"unbill\" items (remove from bill but do not delete from patient)."
-msgstr ""
-
-msgid "Completely delete items from the patient."
 msgstr ""
 
 msgid "Displaying invoice"
@@ -11155,6 +11117,9 @@ msgid ""
 "There is no pre-configured billing address.\n"
 "\n"
 "Select the address you want to send the bill to."
+msgstr ""
+
+msgid "No billing address selected. Cannot create invoice"
 msgstr ""
 
 msgid "<open>##tx: open state of a bill"
@@ -11186,13 +11151,10 @@ msgstr ""
 msgid "Bills (invoiced or not)"
 msgstr ""
 
+msgid "Invoice"
+msgstr ""
+
 msgid "Create if necessary, and show the corresponding invoice (PDF)"
-msgstr ""
-
-msgid "Unbill"
-msgstr ""
-
-msgid "Select and remove items from a bill."
 msgstr ""
 
 msgid "Must select address (perhaps first add to patient) if closing bill."
@@ -11226,6 +11188,9 @@ msgstr ""
 msgid "Showing bill items."
 msgstr ""
 
+msgid "Count"
+msgstr ""
+
 msgid "$__replace_by_your_currency_symbol"
 msgstr ""
 
@@ -11234,9 +11199,6 @@ msgstr ""
 
 #, python-format
 msgid "Count %s Value %s Factor"
-msgstr ""
-
-msgid "Invoice"
 msgstr ""
 
 msgid "Invoice selected items"
@@ -15119,16 +15081,16 @@ msgstr ""
 msgid "Select the plugin tab position for the main notebook."
 msgstr ""
 
-msgid "Left"
+msgid "Left##tx: notebook tabs on the right"
 msgstr ""
 
-msgid "Right"
+msgid "Right##tx: notebook tabs on the right"
 msgstr ""
 
-msgid "Top"
+msgid "Top##tx: notebook tabs at top of page"
 msgstr ""
 
-msgid "Bottom"
+msgid "Bottom##tx: notebook tabs at bottom of page"
 msgstr ""
 
 msgid "Plugin tab position"
