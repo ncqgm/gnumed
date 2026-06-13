@@ -86,12 +86,12 @@ def test_widget(widget_class, *widget_args, patient:int=-1, size=None, setup_db:
 	return widget
 
 #==============================================================================
-def setup_widget_test_env(patient=-1):
+def setup_widget_test_env(patient:int=-1):
 	"""Setup widget test environment.
 
 	- connect to DB
 	- setup praxis branch
-	- setup active patient, asking for patient if not given
+	- setup active patient, asking for patient if not given and not None
 	- setup wx app
 	- setup wx frame as topwindow
 
@@ -109,9 +109,9 @@ def setup_widget_test_env(patient=-1):
 	gmPG2.request_login_params(setup_pool = True, force_tui = True)
 	if not __activate_patient(patient = patient):
 		sys.exit()
+
 	gmPraxis.gmCurrentPraxisBranch.from_first_branch()
 	gmStaff.set_current_provider_to_logged_on_user()
-
 	app = inspection.InspectableApp()
 	app.SetAssertMode(wx.APP_ASSERT_EXCEPTION | wx.APP_ASSERT_LOG)
 	app.InitInspection()
