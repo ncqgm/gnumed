@@ -969,7 +969,7 @@ def manage_bills(parent=None, patient=None):
 		delete_callback = delete,
 		refresh_callback = refresh,
 		middle_extra_button = (
-			'Invoice',
+			_('Invoice'),
 			_('Create if necessary, and show the corresponding invoice (PDF)'),
 			show_pdf
 		),
