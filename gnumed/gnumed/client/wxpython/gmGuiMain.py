@@ -1136,7 +1136,6 @@ class gmTopLevelFrame(wx.Frame):
 	# help menu
 	#----------------------------------------------
 	def OnAbout(self, event):
-
 		from Gnumed.wxpython import gmAbout
 		frame_about = gmAbout.cAboutFrame (
 			parent = self,
@@ -1144,7 +1143,9 @@ class gmTopLevelFrame(wx.Frame):
 			title = _('About GNUmed'),
 			version_client = _cfg.get(option = 'client_version'),
 			version_db = _cfg.get(option = 'database_version'),
-			debug = _cfg.get(option = 'debug')
+			debug = _cfg.get(option = 'debug'),
+			license = _cfg.get(option = 'license'),
+			license_url = _cfg.get(option = 'license_url')
 		)
 		frame_about.Centre(wx.BOTH)
 		gmTopLevelFrame.otherWin = frame_about

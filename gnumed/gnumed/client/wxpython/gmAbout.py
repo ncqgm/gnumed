@@ -23,13 +23,17 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
+else:
+	try: _		# do we already have _() ?
+	except NameError:
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
+
 from Gnumed.pycommon import gmTools
 
 from Gnumed.wxpython import gmGuiHelpers
 
-
-
-ID_MENU = wx.NewId()
 #====================================================================
 class ScrollTxtWin (wx.Window):
 	"""
@@ -111,34 +115,41 @@ class cAboutFrame (wxgAboutFrame.wxgAboutFrame):
 	"""
 	About GNUmed
 	"""
-	def __init__(self, parent, ID, title, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.DEFAULT_FRAME_STYLE, version_client='???', version_db='???', debug=False):
-
+	def __init__ (
+		self,
+		parent,
+		ID,
+		title,
+		pos=wx.DefaultPosition,
+		size=wx.DefaultSize,
+		style=wx.DEFAULT_FRAME_STYLE,
+		version_client:str=None,
+		version_db:str=None,
+		debug:bool=False,
+		license:str='GPL v2 or later',
+		license_url:str='https://www.gnu.org/licenses/old-licenses/gpl-2.0.html'
+	):
 		# wx.Frame.__init__(self, parent, ID, title, pos, size, style)
-
 		wxgAboutFrame.wxgAboutFrame.__init__(self, parent, ID, title, pos = pos, size = size, style = style)
-
 		self.SetIcon(gmTools.get_icon(wx = wx))
-
 		logo_fname = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'bitmaps', 'gnumedlogo.png'))
 		self.logo.SetBitmap(wx.Bitmap(logo_fname, wx.BITMAP_TYPE_ANY))
-
 		self.label_version_client.SetLabel (
 			_('Client version: %s%s') % (
 				version_client,
 				gmTools.bool2subst(debug, ' (%s)' % _('debug'), '')
 			)
 		)
-
 		self.label_version_db.SetLabel (
 			_('Database version: %s%s') % (
 				version_db,
 				gmTools.bool2subst(debug, ' (%s)' % _('debug'), '')
 			)
 		)
-
+		self.hyperlink_license.LabelText = license
+		self.hyperlink_license.URL = license_url
 		self.button_close.Bind(wx.EVT_BUTTON, self.OnClose)
 		self.Bind(wx.EVT_CLOSE, self.OnClose)
-
 		self.win = ScrollTxtWin(self.panel_scroll_container)
 		self.panel_scroll_container.GetSizer().Add(self.win, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
 		self.panel_scroll_container.Layout()
@@ -303,15 +314,35 @@ Andreas TILLE, Wernigerode
 # Main
 #====================================================================
 if __name__ == '__main__':
-	# set up dummy app
-	class TestApp (wx.App):
-		def OnInit (self):
-			frame = cAboutFrame(None, -1, "About GNUmed", size=wx.Size(300, 250))
-			frame.Show(1)
-			return 1
-	#---------------------
-	if len(sys.argv) > 1 and sys.argv[1] == 'test':
-		app = TestApp()
-		app.MainLoop()
 
-#------------------------------------------------------------
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
+
+	del _
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain(domain = 'gnumed', prefer_local_catalog = True)
+
+	from Gnumed.wxpython import gmGuiTest
+
+	#------------------------------------------------------
+	def test_about_frame():
+		main_frame = gmGuiTest.setup_widget_test_env(patient = None)
+		frame_about = cAboutFrame (
+			parent = None,
+			ID = wx.ID_ANY,
+			title = 'Test About GNUmed',
+			version_client = 'testing',
+			version_db = 'testing',
+			debug = True
+		)
+		frame_about.Centre(wx.BOTH)
+		main_frame.otherWin = frame_about
+		frame_about.Show(True)
+		wx.GetApp().MainLoop()
+
+	#------------------------------------------------------
+	test_about_frame()

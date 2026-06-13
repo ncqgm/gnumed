@@ -302,8 +302,8 @@ Use at your own risk. You have been warned. Take proper backups !
 #==========================================================
 # SPDX-License-Identifier: GPL-2.0-or-later
 __author__ = "H.Herb <hherb@gnumed.net>, K.Hilbert <karsten.hilbert@gmx.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>"
-__license__ = "GPL v2 or later (details at https://www.gnu.org)"
-
+__license__ = 'GPL v2 or later'		# this is the canonically valid license for all GNUmed files if not specified differently
+__license_url__ = 'https://www.gnu.org/licenses/old-licenses/gpl-2.0.html'
 
 # standard library
 import sys
@@ -708,10 +708,11 @@ def setup_cli():
 
 	global _cfg
 	_cfg = gmCfgINI.gmCfgData()
-	if not _cfg.add_cli (
+	cli_opts_added = _cfg.add_cli (
 		short_options = _known_short_options,
 		long_options = _known_long_options
-	):
+	)
+	if not cli_opts_added:
 		_log.error('cannot parse command line, aborting')
 		#print('GNUmed startup: error parsing command line')
 		handle_help_request(programmatically_requested = True) # does sys.exit()
@@ -719,42 +720,27 @@ def setup_cli():
 	val = _cfg.get(option = '--debug', source_order = [('cli', 'return')])
 	if val is None:
 		val = False
-	_cfg.set_option (
-		option = 'debug',
-		value = val
-	)
+	_cfg.set_option(option = 'debug', value = val)
 
 	val = _cfg.get(option = '--slave', source_order = [('cli', 'return')])
 	if val is None:
 		val = False
-	_cfg.set_option (
-		option = 'slave',
-		value = val
-	)
+	_cfg.set_option(option = 'slave', value = val)
 
 	val = _cfg.get(option = '--skip-update-check', source_order = [('cli', 'return')])
 	if val is None:
 		val = False
-	_cfg.set_option (
-		option = 'skip-update-check',
-		value = val
-	)
+	_cfg.set_option(option = 'skip-update-check', value = val)
 
 	val = _cfg.get(option = '--hipaa', source_order = [('cli', 'return')])
 	if val is None:
 		val = False
-	_cfg.set_option (
-		option = 'hipaa',
-		value = val
-	)
+	_cfg.set_option(option = 'hipaa', value = val)
 
 	val = _cfg.get(option = '--local-import', source_order = [('cli', 'return')])
 	if val is None:
 		val = False
-	_cfg.set_option (
-		option = 'local-import',
-		value = val
-	)
+	_cfg.set_option(option = 'local-import', value = val)
 
 	value = _cfg.get(option = '--special', source_order = [('cli', 'return')])
 	if value:
@@ -764,15 +750,10 @@ def setup_cli():
 		value = []
 	_cfg.set_option(option = 'special', value = value)
 
-	_cfg.set_option (
-		option = 'client_version',
-		value = current_client_version
-	)
-
-	_cfg.set_option (
-		option = 'client_branch',
-		value = current_client_branch
-	)
+	_cfg.set_option(option = 'client_version', value = current_client_version)
+	_cfg.set_option(option = 'client_branch', value = current_client_branch)
+	_cfg.set_option(option = 'license', value = __license__	)
+	_cfg.set_option(option = 'license_url',value = __license_url__)
 
 #==========================================================
 def handle_sig_term(signum, frame):
@@ -824,13 +805,11 @@ def generate_man_page(fname=None):
 #----------------------------------------------------------
 def handle_help_request(programmatically_requested:bool=False):
 	src = [('cli', 'return')]
-
 	help_requested = (
 		_cfg.get(option = '--help', source_order = src) or
 		_cfg.get(option = '-h', source_order = src) or
 		_cfg.get(option = '-?', source_order = src)
 	)
-
 	if help_requested or programmatically_requested:
 		input('\nHit <ENTER> to display commandline help\n')
 		if platform.system() == 'Windows':
@@ -845,18 +824,13 @@ def handle_help_request(programmatically_requested:bool=False):
 #==========================================================
 def handle_version_request():
 	gmTools._client_version = current_client_version
-
 	src = [('cli', 'return')]
-
 	version_requested = (
 		_cfg.get(option = '--version', source_order = src) or
 		_cfg.get(option = '-V', source_order = src)
 	)
-
 	if version_requested:
-
 		from Gnumed.pycommon.gmPG2 import map_client_branch2required_db_version, known_schema_hashes
-
 		print('GNUmed version information')
 		print('--------------------------')
 		print('client     : %s on branch [%s]' % (current_client_version, current_client_branch))
