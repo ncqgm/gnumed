@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-13 17:31+0200\n"
+"POT-Creation-Date: 2026-06-14 12:04+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -11065,42 +11065,23 @@ msgstr ""
 msgid "Printing invoice"
 msgstr ""
 
+msgid ""
+"Truly delete bill and remove bill items from charge list ?\n"
+"\n"
+"This can not be reversed."
+msgstr ""
+
+msgid ""
+"Also delete invoice PDF from document archive ?\n"
+"(there no longer exists a corresponding bill)\n"
+"\n"
+"Make sure this is lawful in your jurisdiction !"
+msgstr ""
+
 msgid "Deleting bill"
 msgstr ""
 
-msgid ""
-"When deleting this bill do you want to keep its items\n"
-"on the charge list (effectively \"unbilling\" them) or\n"
-"do you want to also delete the bill items from the charge list ?\n"
-msgstr ""
-
-msgid "Revert"
-msgstr ""
-
-msgid "Revert the bill and RETURN its items to the charge list."
-msgstr ""
-
-msgid ""
-"Delete the bill and REMOVE its items from the charge list.\n"
-"\n"
-"This is not reversible."
-msgstr ""
-
-msgid "Also remove invoice PDF"
-msgstr ""
-
-msgid ""
-"MAKE SURE THIS IS LAWFUL !\n"
-"\n"
-"Also remove the associated invoice PDF from the document archive ?\n"
-"\n"
-"(it will no longer correspond to any bill)"
-msgstr ""
-
-msgid ""
-"Truly delete invoice document from document archive ?\n"
-"\n"
-"Make sure this is lawful in your jurisdiction !"
+msgid "Reverting bill"
 msgstr ""
 
 msgid "Displaying invoice"
@@ -11134,27 +11115,35 @@ msgstr ""
 
 #, python-format
 msgid ""
-"without VAT: %(currency)s%(total_amount)s / with %(percent_vat)s%% VAT: "
-"%(currency)s%(total_amount_with_vat)s"
+"without VAT: %(currency)s%(total_amount)s\n"
+"with %(percent_vat)s%% VAT: %(currency)s%(total_amount_with_vat)s"
 msgstr ""
 
 msgid ""
 "There is no functionality for modifying invoices (as opposed to bills) "
 "because that is illegal in many jurisdictions.\n"
 "\n"
-"\t\tNote that deleting invoices (again, as opposed to bills) may also be "
-"unlawful.\n"
+"Note that deleting invoices may also be unlawful (again, as opposed to "
+"bills).\n"
 "\n"
-"\t\tMake sure to act by applicable law !"
+"Make sure to abide by applicable law !"
 msgstr ""
 
 msgid "Bills (invoiced or not)"
 msgstr ""
 
-msgid "Invoice"
+msgid "Invoice##tx: to invoice (create an invoice PDF from a bill)"
 msgstr ""
 
 msgid "Create if necessary, and show the corresponding invoice (PDF)"
+msgstr ""
+
+msgid ""
+"Revert##tx: as in: delete the bill and return its items onto the general "
+"charge list of the patient"
+msgstr ""
+
+msgid "Revert the bill and RETURN its items to the charge list."
 msgstr ""
 
 msgid "Must select address (perhaps first add to patient) if closing bill."
@@ -11199,6 +11188,9 @@ msgstr ""
 
 #, python-format
 msgid "Count %s Value %s Factor"
+msgstr ""
+
+msgid "Invoice"
 msgstr ""
 
 msgid "Invoice selected items"
