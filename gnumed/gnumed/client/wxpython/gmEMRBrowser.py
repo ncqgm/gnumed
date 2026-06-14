@@ -1616,6 +1616,18 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		self.__soap2exclude = []
 		self.__item_types2exclude = []
 		self.__init_ui()
+		# of the following types, show the first line of .narrative only (in
+		# the list, that is, the details view will have, well, all the details)
+		self.__first_line_only = [
+			'clin.test_result',
+			'clin.vaccination',
+			'clin.health_issue',
+			'blobs.doc_med',
+			'clin.family_history',
+			'clin.episode',
+			'clin.intake_regimen',
+			'clin.hospital_stay'
+		]
 		self.item_types2exclude = ['clin.encounter']
 
 	#--------------------------------------------------------
@@ -1682,7 +1694,10 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 			first_line = lines_of_journal_entry[0]
 			items.append([date2show, soap_cat, first_line.rstrip()])
 			data.append(entry)
-			for line in lines_of_journal_entry[1:]:	# skip first line
+			if entry['src_table'] in self.__first_line_only:
+				continue
+			# add 2+ lines, if any and desired
+			for line in lines_of_journal_entry[1:]:
 				if line.strip() == '':
 					continue
 				# only first line shows metadata

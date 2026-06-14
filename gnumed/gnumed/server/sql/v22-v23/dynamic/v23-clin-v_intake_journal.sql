@@ -21,20 +21,22 @@ select
 	c_i.clin_when,
 	c_i.modified_by,
 	c_i.soap_cat,
+	-- line 1
 	_('intake') || ': '
 		|| r_s.description
-		|| coalesce(' [' || r_s.atc || ']', '')
 		|| (case
-			when c_i.use_type = 0 then ' - ' || _('not (harmfully) used')
+			when c_i.use_type = 0 then ' - ' || _('medication')
 			when c_i.use_type = 1 then ' - ' || _('presently harmful use')
 			when c_i.use_type = 2 then ' - ' || _('presently addicted')
 			when c_i.use_type = 3 then ' - ' || _('previously addicted')
 			else ''
 		end)::text
-		|| coalesce(E'\n' || _('intake instructions') || ': ' || r_s.intake_instructions, '')
-		|| coalesce(E'\n' || _('patient notes') || ': ' || c_i.notes4patient, '')
-		|| coalesce(E'\n' || _('provider notes') || ': ' || c_i.narrative, '')
-		|| coalesce(E'\n' || _('internal notes') || ': ' || c_i.notes4us, '')
+	-- lines 2+
+	|| coalesce(E'\n' || _('intake instructions') || ': ' || r_s.intake_instructions, '')
+	|| coalesce(E'\n' || _('patient notes') || ': ' || c_i.notes4patient, '')
+	|| coalesce(E'\n' || _('provider notes') || ': ' || c_i.narrative, '')
+	|| coalesce(E'\n' || _('internal notes') || ': ' || c_i.notes4us, '')
+	|| coalesce(E'\nATC: ' || r_s.atc, '')
 	|| E'\n' || _('started: unknown')
 	|| E'\n' || _('discontinued: unknown')
 		as narrative,
@@ -103,8 +105,16 @@ select
 	c_ir.modified_by,
 	c_ir.soap_cat,
 	-- --- narrative ---
-	-- line: "start of intake (patient memory)"
-	_('intake with uncertain start') || coalesce(' (' || c_ir.comment_on_start || ')', '') || E'\n'
+	-- line 1
+	_('intake') || ': '
+		|| r_s.description || ' ' || c_ir.amount || c_ir.unit
+		|| coalesce(' "' || c_ir.comment_on_start || '"', '?')
+		|| ' - [' || c_ir.narrative || '] - '		-- schedule
+		|| coalesce('' || c_ir.discontinued, '...')
+	|| E'\n'
+	-- lines 2+
+--	-- line: "start of intake (patient memory)"
+--	_('intake with uncertain start') || coalesce(' (' || c_ir.comment_on_start || ')', '') || E'\n'
 	-- line: " planned for 6 months"
 	|| coalesce(' ' || _('planned for') || ' ' || c_ir.planned_duration || E'\n', '')
 	-- line: " discontinued 1999-03-03 (developed a rash)"
@@ -114,10 +124,10 @@ select
 		|| E'\n',
 		''
 	)
-	-- line: "Metoprolol 100mg/tablet [ATC code]"
-	|| r_s.description || ' '
-	|| c_ir.amount || c_ir.unit
-	|| coalesce(' [' || r_s.atc || ']', '')
+--	-- line: "Metoprolol 100mg/tablet [ATC code]"
+--	|| r_s.description || ' '
+--	|| c_ir.amount || c_ir.unit
+	|| coalesce('ATC: ' || r_s.atc, '')
 	|| (case
 		when c_i.use_type = 0 then ' - ' || _('not (harmfully) used')
 		when c_i.use_type = 1 then ' - ' || _('presently harmful use')
@@ -201,8 +211,14 @@ select
 	c_ir.modified_by,
 	c_ir.soap_cat,
 	-- --- narrative ---
+	-- line 1
+	_('started') || ': '
+		|| r_s.description || ' ' || c_ir.amount || c_ir.unit
+		|| ' [' || c_ir.narrative || ']'		-- schedule
+	|| E'\n'
+	-- lines 2+
 	-- line: "start of intake (patient memory)"
-	_('start of intake') || coalesce(' (' || c_ir.comment_on_start || ')', '') || E'\n'
+	|| coalesce(' ' || c_ir.comment_on_start, '') || E'\n'
 	-- line: " planned for 6 months"
 	|| coalesce(' ' || _('planned for') || ' ' || c_ir.planned_duration || E'\n', '')
 	-- line: " discontinued 1999-03-03 (developed a rash)"
@@ -212,10 +228,10 @@ select
 		|| E'\n',
 		''
 	)
-	-- line: "Metoprolol 100mg/tablet [ATC code]"
-	|| r_s.description || ' '
-	|| c_ir.amount || c_ir.unit
-	|| coalesce(' [' || r_s.atc || ']', '')
+--	-- line: "Metoprolol 100mg/tablet [ATC code]"
+--	|| r_s.description || ' '
+--	|| c_ir.amount || c_ir.unit
+	|| coalesce('ATC: ' || r_s.atc, '')
 	|| (case
 		when c_i.use_type = 0 then ' - ' || _('not (harmfully) used')
 		when c_i.use_type = 1 then ' - ' || _('presently harmful use')
@@ -300,10 +316,12 @@ select
 	c_ir.modified_by,
 	c_ir.soap_cat,
 	-- --- narrative ---
-	-- line: "stop of intake (developed a rash)"
-	_('stop of intake')
-		|| coalesce(' (' || c_ir.discontinue_reason || ')', '')
-		|| E'\n'
+	-- line 1
+	_('stopped') || ': '
+		|| r_s.description || ' ' 
+		|| coalesce(' - ' || c_ir.discontinue_reason, '')
+	|| E'\n'
+	-- lines 2+
 	-- line: " planned for 6 months"
 	|| coalesce(' ' || _('planned for') || ' ' || c_ir.planned_duration || E'\n', '')
 	-- line: " started 1999-03-03 (patient memory)"

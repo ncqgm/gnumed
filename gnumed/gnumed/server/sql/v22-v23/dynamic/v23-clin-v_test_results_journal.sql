@@ -7,10 +7,12 @@
 -- ==============================================================
 \set ON_ERROR_STOP 1
 
+set default_transaction_read_only to off;
+
 -- --------------------------------------------------------------
 drop view if exists clin.v_test_results_journal cascade;
 
-
+--create or replace view clin.v_test_results_journal as
 create view clin.v_test_results_journal as
 select
 	c_vtr.pk_patient
@@ -24,12 +26,14 @@ select
 	c_vtr.soap_cat
 		as soap_cat,
 	coalesce ((
-		c_vtr.unified_name || ' ('
-		|| c_vtr.unified_abbrev
-		|| coalesce(' [#' || c_vtr.unified_loinc || ']', '') || '): '
+		-- line 1
+		c_vtr.unified_abbrev || ': '
 		|| c_vtr.unified_val::text || ' '
-		|| coalesce(c_vtr.val_unit, '') || ' '
-		|| coalesce('(' || c_vtr.abnormality_indicator || ')', '') || E'\n'
+		|| coalesce(c_vtr.val_unit, '')
+		|| coalesce(c_vtr.abnormality_indicator, '')
+		|| ' (' || c_vtr.unified_name || E')\n'
+		-- line 2+
+		|| coalesce('LOINC:' || c_vtr.unified_loinc || E'\n', E'\n')
 		|| _('Range: ')
 			|| coalesce(c_vtr.unified_target_min::text, '') || ' - '
 			|| coalesce(c_vtr.unified_target_max::text, '') || ' / '

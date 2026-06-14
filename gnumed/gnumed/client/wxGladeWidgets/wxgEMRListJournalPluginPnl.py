@@ -29,18 +29,18 @@ class wxgEMRListJournalPluginPnl(wx.Panel):
 		__lbl_mode = wx.StaticText(self, wx.ID_ANY, _("Order by:"))
 		__szr_top.Add(__lbl_mode, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 
+		self._RBTN_by_item_time = wx.RadioButton(self, wx.ID_ANY, _("&Event"), style=wx.RB_GROUP)
+		self._RBTN_by_item_time.SetToolTip(_("Order by time documented as actual occurrence of each chart entry."))
+		self._RBTN_by_item_time.SetValue(1)
+		__szr_top.Add(self._RBTN_by_item_time, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
+
 		self._RBTN_by_encounter = wx.RadioButton(self, wx.ID_ANY, _("&Encounter"))
 		self._RBTN_by_encounter.SetToolTip(_("Order by start of encounter a chart entry is linked to."))
-		self._RBTN_by_encounter.SetValue(1)
 		__szr_top.Add(self._RBTN_by_encounter, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 
 		self._RBTN_by_last_modified = wx.RadioButton(self, wx.ID_ANY, _("&Modification"))
 		self._RBTN_by_last_modified.SetToolTip(_("Order by time of most recent edit of each chart entry."))
-		__szr_top.Add(self._RBTN_by_last_modified, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
-
-		self._RBTN_by_item_time = wx.RadioButton(self, wx.ID_ANY, _("&Event"))
-		self._RBTN_by_item_time.SetToolTip(_("Order by time documented as actual occurrence of each chart entry."))
-		__szr_top.Add(self._RBTN_by_item_time, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
+		__szr_top.Add(self._RBTN_by_last_modified, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
 
 		self._CHBOX_exclude = wx.CheckBox(self, wx.ID_ANY, _("Exclude:"), style=wx.CHK_2STATE)
 		__szr_top.Add(self._CHBOX_exclude, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 3)
@@ -78,13 +78,17 @@ class wxgEMRListJournalPluginPnl(wx.Panel):
 
 		self.Layout()
 
+		self._RBTN_by_item_time.Bind(wx.EVT_RADIOBUTTON, self._on_order_by_item_time_selected)
 		self._RBTN_by_encounter.Bind(wx.EVT_RADIOBUTTON, self._on_order_by_encounter_selected)
 		self._RBTN_by_last_modified.Bind(wx.EVT_RADIOBUTTON, self._on_order_by_last_mod_selected)
-		self._RBTN_by_item_time.Bind(wx.EVT_RADIOBUTTON, self._on_order_by_item_time_selected)
 		self._CHBOX_exclude.Bind(wx.EVT_CHECKBOX, self._on_exclude_toggled)
 		self._BTN_configure_soap_filter.Bind(wx.EVT_BUTTON, self._on_configure_soap_filter_button_pressed)
 		self._BTN_configure_type_filter.Bind(wx.EVT_BUTTON, self._on_configure_type_filter_button_pressed)
 		# end wxGlade
+
+	def _on_order_by_item_time_selected(self, event):  # wxGlade: wxgEMRListJournalPluginPnl.<event_handler>
+		print("Event handler '_on_order_by_item_time_selected' not implemented!")
+		event.Skip()
 
 	def _on_order_by_encounter_selected(self, event):  # wxGlade: wxgEMRListJournalPluginPnl.<event_handler>
 		print("Event handler '_on_order_by_encounter_selected' not implemented!")
@@ -92,10 +96,6 @@ class wxgEMRListJournalPluginPnl(wx.Panel):
 
 	def _on_order_by_last_mod_selected(self, event):  # wxGlade: wxgEMRListJournalPluginPnl.<event_handler>
 		print("Event handler '_on_order_by_last_mod_selected' not implemented!")
-		event.Skip()
-
-	def _on_order_by_item_time_selected(self, event):  # wxGlade: wxgEMRListJournalPluginPnl.<event_handler>
-		print("Event handler '_on_order_by_item_time_selected' not implemented!")
 		event.Skip()
 
 	def _on_exclude_toggled(self, event):  # wxGlade: wxgEMRListJournalPluginPnl.<event_handler>
