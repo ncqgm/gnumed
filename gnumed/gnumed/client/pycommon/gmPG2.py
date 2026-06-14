@@ -403,12 +403,12 @@ def request_login_params (
 		try:
 			# try wxPython GUI
 			login, creds = __request_login_params_gui_wx()
+			if setup_pool:
+				pool = gmConnectionPool.gmConnectionPool()
+				pool.credentials = creds
+			return login, creds
 		except Exception:
 			_log.exception('cannot request creds via wxPython')
-		if setup_pool:
-			pool = gmConnectionPool.gmConnectionPool()
-			pool.credentials = creds
-		return login, creds
 
 	# well, either we are on the console or
 	# wxPython does not work, use text mode
