@@ -232,8 +232,8 @@ BEGIN
 		END IF;
 
 		-- get name of primary key column
-		__SQL := format (''
-			SELECT pg_attribute.attname AS pk_col
+		__SQL := ''
+			SELECT pg_attribute.attname
 			FROM pg_index, pg_class, pg_attribute, pg_namespace
 			WHERE
 				pg_class.oid = $1
@@ -247,13 +247,15 @@ BEGIN
 				pg_attribute.attnum = any(pg_index.indkey)
 					AND
 				indisprimary
-		'');
+		'';
 		EXECUTE __SQL INTO __src_table__pk_name USING __src_table__table_oid;
 		RAISE NOTICE ''-> audit.%: updating from % (oid %) via PK column %'', __audit_table__name, CAST(__src_table__table_oid AS regclass), __src_table__table_oid, __src_table__pk_name;
-		__SQL := format (
-			''select pk_audit_trail, %s as pk from %s order by pk'',
+		__SQL := format (''
+			select pk_audit_trail, %s as pk
+			from %s order by %s'',
 			__src_table__pk_name,
-			CAST(__audit_table__table_oid AS regclass)
+			CAST(__audit_table__table_oid AS regclass),
+			__src_table__pk_name
 		);
 		-- loop over rows in this audit log table
 		FOR __audit_row IN EXECUTE __SQL LOOP
