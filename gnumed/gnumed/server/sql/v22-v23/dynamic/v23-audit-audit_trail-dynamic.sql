@@ -188,6 +188,7 @@ DECLARE
 	__table_exists bool;
 	__audit_table__name text;
 	__audit_table__table_oid oid;
+	__src_table__table_name name;
 	__src_table__table_oid oid;
 	__src_table__pk_name text;
 	__audit_row record;
@@ -216,7 +217,12 @@ BEGIN
 			)
 	LOOP
 		RAISE NOTICE ''processing audit.% (oid %)'', __audit_table__name, __audit_table__table_oid;
-		__SQL := format(''select src_table_oid from audit.%s limit 1'', __audit_table__name);
+		__src_table__table_name := substring(__audit_table__name FROM 5);
+		__SQL := format(
+			''select distinct src_table_oid from audit.%s where src_table_oid::regclass::text ~ ''''^.+\.%s$'''';'',
+			__audit_table__name,
+			__src_table__table_name
+		);
 		EXECUTE __SQL INTO __src_table__table_oid;
 		IF __src_table__table_oid IS NOT DISTINCT FROM NULL THEN
 			RAISE NOTICE ''-> audit.%: no log records to update'', __audit_table__name;
