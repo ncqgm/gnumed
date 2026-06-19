@@ -18,21 +18,24 @@ class wxgGenericEditAreaDlg(wx.Dialog):
 		# begin wxGlade: wxgGenericEditAreaDlg.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_DIALOG_STYLE | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX | wx.RESIZE_BORDER
 		wx.Dialog.__init__(self, *args, **kwds)
-		self.SetSize(wx.DLG_UNIT(self, wx.Size(393, 203)))
+		self.SetSize(wx.DLG_UNIT(self, wx.Size(393, 205)))
 		self.SetTitle(_("GNUmed generic EditArea dialog"))
 		self.SetMinSize((450, 300))
 
 		_szr_main = wx.BoxSizer(wx.VERTICAL)
 
+		self._LBL_message = wx.StaticText(self, wx.ID_ANY, "", style=wx.ALIGN_LEFT)
+		self._LBL_message.Hide()
+		_szr_main.Add(self._LBL_message, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 5)
+
 		__szr_pnl_ea = wx.BoxSizer(wx.HORIZONTAL)
-		_szr_main.Add(__szr_pnl_ea, 1, wx.ALL | wx.EXPAND, 5)
+		_szr_main.Add(__szr_pnl_ea, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 5)
 
 		self._PNL_ea = wx.ScrolledWindow(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.TAB_TRAVERSAL)
 		self._PNL_ea.SetScrollRate(10, 10)
 		__szr_pnl_ea.Add(self._PNL_ea, 1, wx.EXPAND, 0)
 
 		self._TCTRL_status = wx.TextCtrl(self, wx.ID_ANY, _("Info"), style=wx.TE_READONLY)
-		self._TCTRL_status.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
 		self._TCTRL_status.SetForegroundColour(wx.Colour(255, 127, 0))
 		_szr_main.Add(self._TCTRL_status, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 10)
 
@@ -79,12 +82,12 @@ class wxgGenericEditAreaDlg(wx.Dialog):
 		self.Layout()
 		self.Centre()
 
-		self.Bind(wx.EVT_BUTTON, self._on_save_button_pressed, self._BTN_save)
-		self.Bind(wx.EVT_BUTTON, self._on_left_extra_button_pressed, self._BTN_extra_left)
-		self.Bind(wx.EVT_BUTTON, self._on_forward_button_pressed, self._BTN_forward)
-		self.Bind(wx.EVT_BUTTON, self._on_revert_button_pressed, self._BTN_revert)
-		self.Bind(wx.EVT_BUTTON, self._on_clear_button_pressed, self._BTN_clear)
-		self.Bind(wx.EVT_BUTTON, self._on_lucky_button_pressed, self._BTN_lucky)
+		self._BTN_save.Bind(wx.EVT_BUTTON, self._on_save_button_pressed)
+		self._BTN_extra_left.Bind(wx.EVT_BUTTON, self._on_left_extra_button_pressed)
+		self._BTN_forward.Bind(wx.EVT_BUTTON, self._on_forward_button_pressed)
+		self._BTN_revert.Bind(wx.EVT_BUTTON, self._on_revert_button_pressed)
+		self._BTN_clear.Bind(wx.EVT_BUTTON, self._on_clear_button_pressed)
+		self._BTN_lucky.Bind(wx.EVT_BUTTON, self._on_lucky_button_pressed)
 		# end wxGlade
 
 	def _on_save_button_pressed(self, event):  # wxGlade: wxgGenericEditAreaDlg.<event_handler>

@@ -206,7 +206,18 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 	def _set_status_text(self, msg, beep=False):
 		gmDispatcher.send(signal = 'statustext_ea', msg = msg, beep = beep)
 
-	StatusText = property(lambda x:x, _set_status_text)
+	StatusText = property(fset = _set_status_text)
+	statustext = property(fset = _set_status_text)
+
+	#----------------------------------------------------------------
+	def _set_message(self, msg:str=None):
+		if msg is None:
+			msg = ''
+		self._LBL_message.Label = msg
+		self._LBL_message.Show() if msg else self._LBL_message.Hide()
+		self._LBL_message.Refresh()
+
+	message = property(fset = _set_message)
 
 	#----------------------------------------------------------------
 	# generic edit area dialog API
