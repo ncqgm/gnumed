@@ -439,7 +439,7 @@ def get_invoice_template(parent=None, with_vat=True):
 #================================================================
 # per-patient bill related widgets
 #----------------------------------------------------------------
-def edit_bill(parent=None, bill=None, single_entry=False):
+def edit_bill(parent=None, bill=None, single_entry=False, msg:str=None):
 
 	if bill is None:
 		# manually creating bills is not supported
@@ -450,6 +450,7 @@ def edit_bill(parent=None, bill=None, single_entry=False):
 	ea.mode = gmTools.coalesce(bill, 'new', 'edit')
 	dlg = gmEditArea.cGenericEditAreaDlg(parent, -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(bill, _('Adding new bill'), _('Editing bill')))
+	dlg.message = msg
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.DestroyLater()
 		return True
@@ -496,7 +497,7 @@ def create_bill_from_items(bill_items=None):
 			has_errors = True
 			break
 	if has_errors:
-		gmGuiHelpers.gm_show_warning(title = _('Checking invoice items'), warning = msg)
+		gmGuiHelpers.warn(title = _('Checking invoice items'), warning = msg)
 		return None
 
 	# create bill
@@ -517,7 +518,7 @@ def create_bill_from_items(bill_items=None):
 			break
 		invoice_id = None
 	if invoice_id is None:
-		gmGuiHelpers.gm_show_warning (
+		gmGuiHelpers.warn (
 			title = _('Generating bill'),
 			warning = _('Could not generate invoice ID.\n\nTry again later.')
 		)
@@ -548,7 +549,7 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 	# FIXME: could ask whether to set fk_receiver_identity
 	# FIXME: but this would need enabling the bill EA to edit same
 	if bill_patient_not_active:
-		activate_patient = gmGuiHelpers.gm_show_question (
+		activate_patient = gmGuiHelpers.ask (
 			title = _('Creating invoice'),
 			question = _(
 				'Patient on bill is not the active patient.\n'
@@ -573,11 +574,16 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 			return False
 
 	if None in [ bill['close_date'], bill['pk_receiver_address'], bill['apply_vat'] ]:
-		edit_bill(parent = parent, bill = bill, single_entry = True)
+		edit_bill (
+			parent = parent,
+			bill = bill,
+			single_entry = True,
+			message = _('Please set closing date, receiver address, and VAT status.')
+		)
 		# cannot invoice open bills
 		if bill['close_date'] is None:
 			_log.error('cannot create invoice from bill, bill not closed')
-			gmGuiHelpers.gm_show_warning (
+			gmGuiHelpers.warn (
 				title = _('Creating invoice'),
 				warning = _(
 					'Cannot create invoice from bill.\n'
@@ -590,7 +596,7 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 		# cannot create invoice if no receiver address
 		if bill['pk_receiver_address'] is None:
 			_log.error('cannot create invoice from bill, lacking receiver address')
-			gmGuiHelpers.gm_show_warning (
+			gmGuiHelpers.warn (
 				title = _('Creating invoice'),
 				warning = _(
 					'Cannot create invoice from bill.\n'
@@ -603,7 +609,7 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 		# cannot create invoice if applying VAT is undecided
 		if bill['apply_vat'] is None:
 			_log.error('cannot create invoice from bill, apply_vat undecided')
-			gmGuiHelpers.gm_show_warning (
+			gmGuiHelpers.warn (
 				title = _('Creating invoice'),
 				warning = _(
 					'Cannot create invoice from bill.\n'
@@ -616,7 +622,7 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 	# find template
 	template = get_invoice_template(parent = parent, with_vat = bill['apply_vat'])
 	if template is None:
-		gmGuiHelpers.gm_show_warning (
+		gmGuiHelpers.warn (
 			title = _('Creating invoice'),
 			warning = _(
 				'Cannot create invoice from bill\n'
@@ -684,7 +690,7 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 			bill['pk_doc'] = doc['pk_doc']
 			bill.save()
 		else:
-			gmGuiHelpers.gm_show_warning (
+			gmGuiHelpers.warn (
 				title = _('Saving invoice'),
 				warning = ('Cannot save invoice into document archive.')
 			)
@@ -800,7 +806,7 @@ def manage_bills(parent=None, patient=None):
 			return False
 
 		# create it ?
-		create_it = gmGuiHelpers.gm_show_question (
+		create_it = gmGuiHelpers.ask (
 			title = _('Displaying invoice'),
 			question = _(
 				'Cannot find an existing\n'
@@ -814,7 +820,7 @@ def manage_bills(parent=None, patient=None):
 
 		# prepare invoicing
 		if not bill.set_missing_address_from_default():
-			gmGuiHelpers.gm_show_warning (
+			gmGuiHelpers.warn (
 				title = _('Creating invoice'),
 				warning = _(
 					'There is no pre-configured billing address.\n'
@@ -1039,7 +1045,7 @@ class cBillEAPnl(wxgBillEAPnl.wxgBillEAPnl, gmEditArea.cGenericEditAreaMixin):
 			person = gmPerson.cPerson(aPK_obj = self.data['pk_patient'])
 		)
 		if adr is None:
-			gmGuiHelpers.gm_show_info (
+			gmGuiHelpers.inform (
 				title = _('Selecting address'),
 				info = _('GNUmed does not know any addresses for this patient.')
 			)
@@ -1238,13 +1244,16 @@ class cPersonBillItemsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		if item['pk_bill'] is not None:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete already invoiced bill items.'), beep = True)
 			return False
-		go_ahead = gmGuiHelpers.gm_show_question (
-			_(	'Do you really want to delete this\n'
-				'bill item from the patient ?'),
-			_('Deleting bill item')
+		go_ahead = gmGuiHelpers.ask (
+			question = _(
+				'Do you really want to delete this\n'
+				'bill item from the patient ?'
+			),
+			title = _('Deleting bill item')
 		)
 		if not go_ahead:
 			return False
+
 		gmBilling.delete_bill_item(pk_bill_item = item['pk_bill_item'])
 		return True
 	#--------------------------------------------------------
@@ -1519,7 +1528,7 @@ class cBillingPluginPnl(wxgBillingPluginPnl.wxgBillingPluginPnl, gmRegetMixin.cR
 	#--------------------------------------------------------
 	def _on_insert_bill_item_button_pressed(self, event):
 		if self._PRW_billable.GetData() is None:
-			gmGuiHelpers.gm_show_warning (
+			gmGuiHelpers.warn (
 				_('No billable item selected.\n\nCannot insert bill item.'),
 				_('Inserting bill item')
 			)
@@ -1530,7 +1539,7 @@ class cBillingPluginPnl(wxgBillingPluginPnl.wxgBillingPluginPnl, gmRegetMixin.cR
 		else:
 			converted, factor = gmTools.input2decimal(val)
 			if not converted:
-				gmGuiHelpers.gm_show_warning (
+				gmGuiHelpers.warn (
 					_('"Factor" must be a number\n\nCannot insert bill item.'),
 					_('Inserting bill item')
 				)
