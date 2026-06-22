@@ -9,6 +9,9 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
+select audit.register_table_for_auditing('clin'::name, 'reviewed_test_results'::name);
+
+-- --------------------------------------------------------------
 drop view if exists clin.v_test_results cascade;
 
 create view clin.v_test_results as
