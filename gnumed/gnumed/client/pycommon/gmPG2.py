@@ -386,7 +386,8 @@ def __request_login_params_gui_wx():
 def request_login_params (
 	setup_pool:bool=False,
 	force_tui:bool=False,
-	user:str=None
+	user:str=None,
+	force_gui:bool=False
 ) -> tuple[gmLoginInfo.LoginInfo, gmConnectionPool.cPGCredentials]:
 	"""Request login parameters for database connection.
 
@@ -395,7 +396,7 @@ def request_login_params (
 		force_tui: do not attempt to use wxPython as UI
 
 	Returns:
-		A tuple with login info.
+		A tuple with credentials as (login info, pool credentials).
 	"""
 	# are we inside X ?
 	# if we aren't wxGTK would crash hard at the C-level with "can't open Display"
@@ -407,8 +408,12 @@ def request_login_params (
 				pool = gmConnectionPool.gmConnectionPool()
 				pool.credentials = creds
 			return login, creds
+
 		except Exception:
 			_log.exception('cannot request creds via wxPython')
+			if force_gui:
+				_log.error('GUI login required, but failed')
+				raise
 
 	# well, either we are on the console or
 	# wxPython does not work, use text mode
