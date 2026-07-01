@@ -4,6 +4,7 @@ __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.ne
 __license__ = "GPL v2 or later"
 
 # std lib
+import copy
 import sys
 import os.path
 import logging
@@ -25,6 +26,7 @@ else:
 		gmI18N.activate_locale()
 		gmI18N.install_domain()
 # GNUmed libs
+from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmLog2
@@ -1607,28 +1609,164 @@ class cEMRJournalPluginPnl(wxgEMRJournalPluginPnl.wxgEMRJournalPluginPnl):
 		self._TCTRL_journal.show_find_dialog(title = _('Find text in EMR Journal'))
 
 #================================================================
+from Gnumed.wxGladeWidgets import wxgConfigureListJournalDlg
+
+class cConfigureListJournalDlg(wxgConfigureListJournalDlg.wxgConfigureListJournalDlg):
+
+	def __init__(self, *args, **kwds):
+		super().__init__(*args, **kwds)
+		self.__init_ui()
+		self.__option = 'horstspace.emr_list_journal.filter_rules'
+		cfg:dict = gmCfgDB.get4user (
+			option = self.__option,
+			workplace = None
+		)
+		self.__cfg = self.__normalize_cfg(cfg)
+
+	#--------------------------------------------------------
+	def save_filter_rules(self) -> dict:
+		self.__cfg['soap2exclude'] = []
+		self.__cfg['soap2exclude'].append('s') if self._CHBOX_SOAP_s.IsChecked() else None
+		self.__cfg['soap2exclude'].append('o') if self._CHBOX_SOAP_o.IsChecked() else None
+		self.__cfg['soap2exclude'].append('a') if self._CHBOX_SOAP_a.IsChecked() else None
+		self.__cfg['soap2exclude'].append('p') if self._CHBOX_SOAP_p.IsChecked() else None
+		self.__cfg['soap2exclude'].append('u') if self._CHBOX_SOAP_u.IsChecked() else None
+		self.__cfg['soap2exclude'].append(None) if self._CHBOX_SOAP_none.IsChecked() else None
+		gmCfgDB.set (
+			owner = '',
+			workplace = None,
+			option = self.__option,
+			value = self.__cfg
+		)
+		return self.__cfg
+
+	#--------------------------------------------------------
+	def __init_ui(self):
+		self._LCTRL_chart_entry_type.set_columns([_('Chart entry type'), _('Database table')])
+		items = list(zip (
+			gmGenericEMRItem._MAP_generic_emr_item_table2type_str.values(),
+			gmGenericEMRItem._MAP_generic_emr_item_table2type_str.keys()
+		))
+		self._LCTRL_chart_entry_type.set_string_items(items = items)
+		self._LCTRL_chart_entry_type.set_data(data = [ i[1] for i in items ])
+		self._LCTRL_chart_entry_type.set_column_widths([wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
+		self._LCTRL_chart_entry_type.select_callback = self._on_chart_entry_type_selected
+
+	#--------------------------------------------------------
+	def __update_by_soap_from_cfg(self):
+		self._CHBOX_SOAP_s.Value = ('s' in self.__cfg['soap2exclude'])
+		self._CHBOX_SOAP_o.Value = ('o' in self.__cfg['soap2exclude'])
+		self._CHBOX_SOAP_a.Value = ('a' in self.__cfg['soap2exclude'])
+		self._CHBOX_SOAP_p.Value = ('p' in self.__cfg['soap2exclude'])
+		self._CHBOX_SOAP_u.Value = ('u' in self.__cfg['soap2exclude'])
+		self._CHBOX_SOAP_none.Value = (None in self.__cfg['soap2exclude'])
+
+	#--------------------------------------------------------
+	def __update_by_entry_type_from_cfg(self, entry_type:str=None, source_type:str=None):
+		try:
+			type_cfg = self.__cfg['chart_entries'][source_type]
+		except KeyError:
+			_log.error(self.__cfg)
+			_log.exception('invalid chart entry type: %s (%s)', entry_type, source_type)
+			return
+
+		self._LBL_chart_entry_type.Label = _('Chart entry type "%s" options:') % entry_type
+		self._LBL_chart_entry_type.Refresh()
+		self._CHBOX_one_liner_chart_entry_type.Value = type_cfg['one_liner']
+		self._CHBOX_SOAP_s_item.Value = ('s' in type_cfg['soap2exclude'])
+		self._CHBOX_SOAP_o_item.Value = ('o' in type_cfg['soap2exclude'])
+		self._CHBOX_SOAP_a_item.Value = ('a' in type_cfg['soap2exclude'])
+		self._CHBOX_SOAP_p_item.Value = ('p' in type_cfg['soap2exclude'])
+		self._CHBOX_SOAP_u_item.Value = ('u' in type_cfg['soap2exclude'])
+		self._CHBOX_SOAP_none_item.Value = (None in type_cfg['soap2exclude'])
+
+	#--------------------------------------------------------
+	# event handlers
+	#--------------------------------------------------------
+	def _on_chart_entry_type_selected(self, event):
+		item_data = self._LCTRL_chart_entry_type.get_selected_item_data(only_one = True)
+		if not item_data:
+			return
+
+		self._CHBOX_one_liner_chart_entry_type.Enable(True)
+		self._CHBOX_SOAP_s_item.Enable(True)
+		self._CHBOX_SOAP_o_item.Enable(True)
+		self._CHBOX_SOAP_a_item.Enable(True)
+		self._CHBOX_SOAP_p_item.Enable(True)
+		self._CHBOX_SOAP_u_item.Enable(True)
+		self._CHBOX_SOAP_none_item.Enable(True)
+		entry_type = self._LCTRL_chart_entry_type.get_selected_string_items(only_one = True)
+		self.__update_by_entry_type_from_cfg (
+			entry_type = entry_type,
+			source_type = item_data
+		)
+
+	#--------------------------------------------------------
+	def _on_one_liner_toggled(self, event):
+		event.Skip()
+		item_data = self._LCTRL_chart_entry_type.get_selected_item_data(only_one = True)
+		if not item_data:
+			return
+
+		self.__cfg['chart_entries'][item_data]['one_liner'] = self._CHBOX_one_liner_chart_entry_type.IsChecked()
+
+	#--------------------------------------------------------
+	def _on_soap_per_item_toggled(self, event):
+		event.Skip()
+		item_data = self._LCTRL_chart_entry_type.get_selected_item_data(only_one = True)
+		if not item_data:
+			return
+
+		type_cfg = self.__cfg['chart_entries'][item_data]
+		type_cfg['soap2exclude'] = []
+		type_cfg['soap2exclude'].append('s') if self._CHBOX_SOAP_s_item.IsChecked() else None
+		type_cfg['soap2exclude'].append('o') if self._CHBOX_SOAP_o_item.IsChecked() else None
+		type_cfg['soap2exclude'].append('a') if self._CHBOX_SOAP_a_item.IsChecked() else None
+		type_cfg['soap2exclude'].append('p') if self._CHBOX_SOAP_p_item.IsChecked() else None
+		type_cfg['soap2exclude'].append('u') if self._CHBOX_SOAP_u_item.IsChecked() else None
+		type_cfg['soap2exclude'].append(None) if self._CHBOX_SOAP_none_item.IsChecked() else None
+
+	#--------------------------------------------------------
+	def __normalize_cfg(self, cfg:dict=None) -> dict:
+		if cfg is None:
+			_cfg = {}
+		else:
+			_cfg = copy.deepcopy(cfg)
+		try:
+			_cfg['soap2exclude']
+		except KeyError:
+			_cfg['soap2exclude'] = [None]
+		try:
+			_cfg['chart_entries']
+		except KeyError:
+			_cfg['chart_entries'] = {}
+		for chart_entry_type in gmGenericEMRItem._MAP_generic_emr_item_table2type_str.keys():
+			try:
+				_cfg['chart_entries'][chart_entry_type]
+			except KeyError:
+				_cfg['chart_entries'][chart_entry_type] = {}
+			try:
+				_cfg['chart_entries'][chart_entry_type]['one_liner']
+			except KeyError:
+				_cfg['chart_entries'][chart_entry_type]['one_liner'] = True
+			try:
+				_cfg['chart_entries'][chart_entry_type]['soap2exclude']
+			except KeyError:
+				if chart_entry_type == 'clin.encounter':
+					_cfg['chart_entries'][chart_entry_type]['soap2exclude'] = ['s', 'o', 'a', 'p', 'u', None]
+				else:
+					_cfg['chart_entries'][chart_entry_type]['soap2exclude'] = []
+		return _cfg
+
+#================================================================
 from Gnumed.wxGladeWidgets import wxgEMRListJournalPluginPnl
 
 class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPluginPnl):
 
 	def __init__(self, *args, **kwds):
 		wxgEMRListJournalPluginPnl.wxgEMRListJournalPluginPnl.__init__(self, *args, **kwds)
-		self.__soap2exclude = []
-		self.__item_types2exclude = []
 		self.__init_ui()
-		# of the following types, show the first line of .narrative only (in
-		# the list, that is, the details view will have, well, all the details)
-		self.__first_line_only = [
-			'clin.test_result',
-			'clin.vaccination',
-			'clin.health_issue',
-			'blobs.doc_med',
-			'clin.family_history',
-			'clin.episode',
-			'clin.intake_regimen',
-			'clin.hospital_stay'
-		]
-		self.item_types2exclude = ['clin.encounter']
+		self.__reload_filter_rules(mark_apply = True)
 
 	#--------------------------------------------------------
 	# external API
@@ -1659,8 +1797,8 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		soap2exclude = None
 		item_types2exclude = None
 		if self._CHBOX_exclude.IsChecked():
-			soap2exclude = self.__soap2exclude
-			item_types2exclude = self.__item_types2exclude
+			soap2exclude = ''.join(self.__filter_rules['soap2exclude'])
+			item_types2exclude = self.__chart_entry_types2exclude
 		self._LCTRL_journal.set_columns([date_col_header, '', _('Entry')])
 		self._LCTRL_journal.set_resize_column(3)
 		self._LCTRL_journal.sortable_columns = []
@@ -1680,6 +1818,11 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		for entry in journal:
 			if entry['narrative'].strip() == '':
 				continue
+			if self._CHBOX_exclude.IsChecked():
+				if entry['src_table'] in self.__chart_entry_types2partially_exclude:
+					if entry['soap_cat'] in self.__filter_rules['chart_entries'][entry['src_table']]['soap2exclude']:
+						# skip _this_ SOAP category of _this_ entry type
+						continue
 			soap_cat = gmSoapDefs.soap_cat2l10n[entry['soap_cat']]
 			try:
 				entry_date = entry[date_fields[0]].strftime('%Y-%m-%d')
@@ -1694,7 +1837,7 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 			first_line = lines_of_journal_entry[0]
 			items.append([date2show, soap_cat, first_line.rstrip()])
 			data.append(entry)
-			if entry['src_table'] in self.__first_line_only:
+			if entry['src_table'] in self.__show_first_line_only_in_list:
 				continue
 			# add 2+ lines, if any and desired
 			for line in lines_of_journal_entry[1:]:
@@ -1718,13 +1861,45 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		self._LCTRL_journal.activate_callback = self._on_row_activated
 		self._LCTRL_journal.edit_callback = self._edit_item
 		self._TCTRL_details.SetValue('')
-		self._CHBOX_exclude.Value = True
+		self._CHBOX_exclude.Value = False
 
 	#--------------------------------------------------------
 	def __register_events(self):
 		gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._on_post_patient_selection)
 		return True
+
+	#--------------------------------------------------------
+	def __reload_filter_rules(self, mark_apply:bool=False):
+		self.__show_first_line_only_in_list = []
+		self.__chart_entry_types2exclude = []
+		self.__chart_entry_types2partially_exclude = []
+		self.__filter_rules:dict = gmCfgDB.get4user (
+			option = 'horstspace.emr_list_journal.filter_rules',
+			workplace = None
+		)
+		if self.__filter_rules is None:
+			self._CHBOX_exclude.Value = False
+			return
+
+		SOAPs = set(gmSoapDefs.KNOWN_SOAP_CATS)
+		for entry_type, type_cfg in self.__filter_rules['chart_entries'].items():
+			if type_cfg['one_liner']:
+				self.__show_first_line_only_in_list.append(entry_type)
+			if SOAPs == set(type_cfg['soap2exclude']):
+				self.__chart_entry_types2exclude.append(entry_type)
+			else:
+				self.__chart_entry_types2partially_exclude.append(entry_type)
+		if mark_apply:
+			self._CHBOX_exclude.Value = True
+
+	#--------------------------------------------------------
+	def __configure_filter_rules(self):
+		dlg = cConfigureListJournalDlg(self, -1)
+		result = dlg.ShowModal()
+		if result == wx.ID_OK:
+			self.__filter_rules = dlg.save_filter_rules()
+			self.repopulate_ui()
 
 	#--------------------------------------------------------
 	# event handlers
@@ -1785,69 +1960,21 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 	#--------------------------------------------------------
 	def _on_exclude_toggled(self, event):
 		event.Skip()
+		if self.__filter_rules is None:
+			self.__configure_filter_rules()
+		if self.__filter_rules is None:
+			return
+
 		self.repopulate_ui()
 
 	#--------------------------------------------------------
-	def _on_configure_soap_filter_button_pressed(self, event):
+	def _on_config_button_pressed(self, event):
 		event.Skip()
-		dlg = gmListWidgets.cItemPickerDlg(None, -1, title = _('SOAP categories to exclude'))
-		dlg.set_columns([_('Available categories')], [_('Excluded categories')])
-		dlg.set_choices(choices = gmSoapDefs.soap_cats_str2list(), data = gmSoapDefs.KNOWN_SOAP_CATS)
-		dlg.set_picks(picks = gmSoapDefs.soap_cats_str2list(soap_cats = self.__soap2exclude), data = self.__soap2exclude)
-		result = dlg.ShowModal()
-		new_excludes = dlg.get_picks()
-		dlg.DestroyLater()
-		if result != wx.ID_OK:
-			return
+		self.__configure_filter_rules()
 
-		self.soap2exclude = new_excludes
-
-	#--------------------------------------------------------
-	def _on_configure_type_filter_button_pressed(self, event):
-		event.Skip()
-		dlg = gmListWidgets.cItemPickerDlg(None, -1, title = _('Item types to exclude'))
-		dlg.set_columns([_('Available item types')], [_('Excluded item types')])
-		choices = [ '%s (%s)' % (raw_type, l10n_type) for l10n_type, raw_type in gmGenericEMRItem._MAP_generic_emr_item_table2type_str.items() ]
-		picks = [ '%s (%s)' % (gmGenericEMRItem._MAP_generic_emr_item_table2type_str[raw_type], raw_type) for raw_type in self.__item_types2exclude ]
-		dlg.set_choices(choices = choices, data = list(gmGenericEMRItem._MAP_generic_emr_item_table2type_str.keys()))
-		dlg.set_picks(picks = picks, data = self.__item_types2exclude)
-		result = dlg.ShowModal()
-		new_item_types = dlg.get_picks()
-		dlg.DestroyLater()
-		if result != wx.ID_OK:
-			return
-
-		self.item_types2exclude = new_item_types
-
-	#--------------------------------------------------------
-	# properties
-	#--------------------------------------------------------
-	def __set_soap2exclude(self, soap2exclude):
-		if set(soap2exclude) == set(self.__soap2exclude):
-			return
-
-		self.__soap2exclude = soap2exclude
-		self._BTN_configure_soap_filter.ToolTip = _('Exclude: %s##tx: excluding SOAP categories') % soap2exclude
-		if not self._CHBOX_exclude.IsChecked():
-			return
-
-		self.repopulate_ui()
-
-	soap2exclude = property(fset = __set_soap2exclude)
-
-	#--------------------------------------------------------
-	def __set_item_types2exclude(self, item_types2exclude):
-		if set(item_types2exclude) == set(self.__item_types2exclude):
-			return
-
-		self.__item_types2exclude = item_types2exclude
-		self._BTN_configure_type_filter.ToolTip = _('Exclude:\n%s##tx: excluding generic clinical item types') % '\n'.join(item_types2exclude)
-		if not self._CHBOX_exclude.IsChecked():
-			return
-
-		self.repopulate_ui()
-
-	item_types2exclude = property(fset = __set_item_types2exclude)
+#	#--------------------------------------------------------
+#	# properties
+#	#--------------------------------------------------------
 
 #================================================================
 # MAIN
@@ -1874,7 +2001,7 @@ if __name__ == '__main__':
 			cEMRListJournalPluginPnl,
 			# *widget_args:
 			-1,					# say, for window ID
-			patient = 12,		# -1. ask
+			patient = -1,		# -1: ask
 			#size = None,
 			setup_db = True		# use TUI for setting up DB access
 			#, **widget_kwargs:
@@ -1882,5 +2009,14 @@ if __name__ == '__main__':
 		)
 
 	#--------------------------------------------------------
+	def test_config_list_journal():
+		main_frame = gmGuiTest.setup_widget_test_env(patient = 12)
+		dlg = cConfigureListJournalDlg(main_frame)#, size = (800, 600))
+		#dlg.whatever_else_is_necessary(...)
+		wx.CallLater(2000, dlg.ShowModal)
+		wx.GetApp().MainLoop()
+
+	#--------------------------------------------------------
 	gmLog2.print_logfile_name()
 	test_list_journal()
+	#test_config_list_journal()

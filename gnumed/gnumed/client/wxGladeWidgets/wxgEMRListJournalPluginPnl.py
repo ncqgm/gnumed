@@ -26,7 +26,7 @@ class wxgEMRListJournalPluginPnl(wx.Panel):
 		__szr_top = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_main.Add(__szr_top, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
 
-		__lbl_mode = wx.StaticText(self, wx.ID_ANY, _("Order by:"))
+		__lbl_mode = wx.StaticText(self, wx.ID_ANY, _("Sort by:"))
 		__szr_top.Add(__lbl_mode, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 
 		self._RBTN_by_item_time = wx.RadioButton(self, wx.ID_ANY, _("&Event"), style=wx.RB_GROUP)
@@ -42,22 +42,19 @@ class wxgEMRListJournalPluginPnl(wx.Panel):
 		self._RBTN_by_last_modified.SetToolTip(_("Order by time of most recent edit of each chart entry."))
 		__szr_top.Add(self._RBTN_by_last_modified, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
 
-		self._CHBOX_exclude = wx.CheckBox(self, wx.ID_ANY, _("Exclude:"), style=wx.CHK_2STATE)
+		self._CHBOX_exclude = wx.CheckBox(self, wx.ID_ANY, _("Apply filters"), style=wx.CHK_2STATE)
 		__szr_top.Add(self._CHBOX_exclude, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 3)
 
-		self._BTN_configure_soap_filter = wx.Button(self, wx.ID_ANY, _("SOAP"))
-		self._BTN_configure_soap_filter.SetToolTip(_("Configure SOAP filtering."))
-		__szr_top.Add(self._BTN_configure_soap_filter, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 3)
-
-		self._BTN_configure_type_filter = wx.Button(self, wx.ID_ANY, _("Entry"))
-		self._BTN_configure_type_filter.SetToolTip(_("Configure entry type filtering."))
-		__szr_top.Add(self._BTN_configure_type_filter, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 3)
+		self._BTN_config = wx.Button(self, wx.ID_ANY, _(u" ⚙ "), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
+		self._BTN_config.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+		self._BTN_config.SetToolTip(_("Configure filters."))
+		__szr_top.Add(self._BTN_config, 0, wx.EXPAND, 0)
 
 		__szr_top.Add((20, 20), 1, wx.EXPAND, 0)
 
-		self._BTN_emr_item_info = cEmrItemInfoButton(self, wx.ID_ANY, _(u"🛈"))
+		self._BTN_emr_item_info = cEmrItemInfoButton(self, wx.ID_ANY, _(u" 🛈 "), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
 		self._BTN_emr_item_info.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
-		__szr_top.Add(self._BTN_emr_item_info, 0, wx.ALIGN_BOTTOM, 0)
+		__szr_top.Add(self._BTN_emr_item_info, 0, wx.ALIGN_BOTTOM | wx.LEFT, 3)
 
 		self._SLINE_top = wx.StaticLine(self, wx.ID_ANY)
 		__szr_main.Add(self._SLINE_top, 0, wx.ALL | wx.EXPAND, 0)
@@ -82,8 +79,7 @@ class wxgEMRListJournalPluginPnl(wx.Panel):
 		self._RBTN_by_encounter.Bind(wx.EVT_RADIOBUTTON, self._on_order_by_encounter_selected)
 		self._RBTN_by_last_modified.Bind(wx.EVT_RADIOBUTTON, self._on_order_by_last_mod_selected)
 		self._CHBOX_exclude.Bind(wx.EVT_CHECKBOX, self._on_exclude_toggled)
-		self._BTN_configure_soap_filter.Bind(wx.EVT_BUTTON, self._on_configure_soap_filter_button_pressed)
-		self._BTN_configure_type_filter.Bind(wx.EVT_BUTTON, self._on_configure_type_filter_button_pressed)
+		self._BTN_config.Bind(wx.EVT_BUTTON, self._on_config_button_pressed)
 		# end wxGlade
 
 	def _on_order_by_item_time_selected(self, event):  # wxGlade: wxgEMRListJournalPluginPnl.<event_handler>
@@ -102,12 +98,8 @@ class wxgEMRListJournalPluginPnl(wx.Panel):
 		print("Event handler '_on_exclude_toggled' not implemented!")
 		event.Skip()
 
-	def _on_configure_soap_filter_button_pressed(self, event):  # wxGlade: wxgEMRListJournalPluginPnl.<event_handler>
-		print("Event handler '_on_configure_soap_filter_button_pressed' not implemented!")
-		event.Skip()
-
-	def _on_configure_type_filter_button_pressed(self, event):  # wxGlade: wxgEMRListJournalPluginPnl.<event_handler>
-		print("Event handler '_on_configure_type_filter_button_pressed' not implemented!")
+	def _on_config_button_pressed(self, event):  # wxGlade: wxgEMRListJournalPluginPnl.<event_handler>
+		print("Event handler '_on_config_button_pressed' not implemented!")
 		event.Skip()
 
 # end of class wxgEMRListJournalPluginPnl
