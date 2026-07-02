@@ -54,7 +54,6 @@ from Gnumed.wxpython import gmFormWidgets
 from Gnumed.wxpython import gmHospitalStayWidgets
 from Gnumed.wxpython import gmProcedureWidgets
 from Gnumed.wxpython import gmGenericEMRItemWorkflows
-from Gnumed.wxpython import gmListWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -1631,7 +1630,7 @@ class cConfigureListJournalDlg(wxgConfigureListJournalDlg.wxgConfigureListJourna
 		self.__cfg['soap2exclude'].append('a') if self._CHBOX_SOAP_a.IsChecked() else None
 		self.__cfg['soap2exclude'].append('p') if self._CHBOX_SOAP_p.IsChecked() else None
 		self.__cfg['soap2exclude'].append('u') if self._CHBOX_SOAP_u.IsChecked() else None
-		self.__cfg['soap2exclude'].append(None) if self._CHBOX_SOAP_none.IsChecked() else None
+		self.__cfg['soap2exclude'].append('') if self._CHBOX_SOAP_none.IsChecked() else None
 		gmCfgDB.set (
 			owner = '',
 			workplace = None,
@@ -1659,7 +1658,7 @@ class cConfigureListJournalDlg(wxgConfigureListJournalDlg.wxgConfigureListJourna
 		self._CHBOX_SOAP_a.Value = ('a' in self.__cfg['soap2exclude'])
 		self._CHBOX_SOAP_p.Value = ('p' in self.__cfg['soap2exclude'])
 		self._CHBOX_SOAP_u.Value = ('u' in self.__cfg['soap2exclude'])
-		self._CHBOX_SOAP_none.Value = (None in self.__cfg['soap2exclude'])
+		self._CHBOX_SOAP_none.Value = ('' in self.__cfg['soap2exclude'])
 
 	#--------------------------------------------------------
 	def __update_by_entry_type_from_cfg(self, entry_type:str=None, source_type:str=None):
@@ -1678,7 +1677,7 @@ class cConfigureListJournalDlg(wxgConfigureListJournalDlg.wxgConfigureListJourna
 		self._CHBOX_SOAP_a_item.Value = ('a' in type_cfg['soap2exclude'])
 		self._CHBOX_SOAP_p_item.Value = ('p' in type_cfg['soap2exclude'])
 		self._CHBOX_SOAP_u_item.Value = ('u' in type_cfg['soap2exclude'])
-		self._CHBOX_SOAP_none_item.Value = (None in type_cfg['soap2exclude'])
+		self._CHBOX_SOAP_none_item.Value = ('' in type_cfg['soap2exclude'])
 
 	#--------------------------------------------------------
 	# event handlers
@@ -1719,12 +1718,18 @@ class cConfigureListJournalDlg(wxgConfigureListJournalDlg.wxgConfigureListJourna
 
 		type_cfg = self.__cfg['chart_entries'][item_data]
 		type_cfg['soap2exclude'] = []
-		type_cfg['soap2exclude'].append('s') if self._CHBOX_SOAP_s_item.IsChecked() else None
-		type_cfg['soap2exclude'].append('o') if self._CHBOX_SOAP_o_item.IsChecked() else None
-		type_cfg['soap2exclude'].append('a') if self._CHBOX_SOAP_a_item.IsChecked() else None
-		type_cfg['soap2exclude'].append('p') if self._CHBOX_SOAP_p_item.IsChecked() else None
-		type_cfg['soap2exclude'].append('u') if self._CHBOX_SOAP_u_item.IsChecked() else None
-		type_cfg['soap2exclude'].append(None) if self._CHBOX_SOAP_none_item.IsChecked() else None
+		if self._CHBOX_SOAP_s_item.IsChecked():
+			type_cfg['soap2exclude'].append('s')
+		if self._CHBOX_SOAP_o_item.IsChecked():
+			type_cfg['soap2exclude'].append('o')
+		if self._CHBOX_SOAP_a_item.IsChecked():
+			type_cfg['soap2exclude'].append('a')
+		if self._CHBOX_SOAP_p_item.IsChecked():
+			type_cfg['soap2exclude'].append('p')
+		if self._CHBOX_SOAP_u_item.IsChecked():
+			type_cfg['soap2exclude'].append('u')
+		if self._CHBOX_SOAP_none_item.IsChecked():
+			type_cfg['soap2exclude'].append('')
 
 	#--------------------------------------------------------
 	def __normalize_cfg(self, cfg:dict=None) -> dict:
@@ -1735,7 +1740,7 @@ class cConfigureListJournalDlg(wxgConfigureListJournalDlg.wxgConfigureListJourna
 		try:
 			_cfg['soap2exclude']
 		except KeyError:
-			_cfg['soap2exclude'] = [None]
+			_cfg['soap2exclude'] = ['']
 		try:
 			_cfg['chart_entries']
 		except KeyError:
@@ -1753,7 +1758,7 @@ class cConfigureListJournalDlg(wxgConfigureListJournalDlg.wxgConfigureListJourna
 				_cfg['chart_entries'][chart_entry_type]['soap2exclude']
 			except KeyError:
 				if chart_entry_type == 'clin.encounter':
-					_cfg['chart_entries'][chart_entry_type]['soap2exclude'] = ['s', 'o', 'a', 'p', 'u', None]
+					_cfg['chart_entries'][chart_entry_type]['soap2exclude'] = ['s', 'o', 'a', 'p', 'u', '']
 				else:
 					_cfg['chart_entries'][chart_entry_type]['soap2exclude'] = []
 		return _cfg
@@ -1818,11 +1823,13 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		for entry in journal:
 			if entry['narrative'].strip() == '':
 				continue
+			entry_type = entry['src_table']
 			if self._CHBOX_exclude.IsChecked():
-				if entry['src_table'] in self.__chart_entry_types2partially_exclude:
-					if entry['soap_cat'] in self.__filter_rules['chart_entries'][entry['src_table']]['soap2exclude']:
-						# skip _this_ SOAP category of _this_ entry type
-						continue
+				if entry_type in self.__chart_entry_types2partially_exclude:
+					type_cfg = self.__filter_rules['chart_entries'][entry_type]
+					#_log.debug('type: >%s<, soap: %s, skipping: %s', entry_type, entry['soap_cat'], self.__filter_rules['chart_entries'][entry_type]['soap2exclude'])
+					if entry['soap_cat'] in type_cfg['soap2exclude']:
+						continue	# skip _this_ SOAP category of _this_ entry type
 			soap_cat = gmSoapDefs.soap_cat2l10n[entry['soap_cat']]
 			try:
 				entry_date = entry[date_fields[0]].strftime('%Y-%m-%d')
@@ -1837,7 +1844,7 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 			first_line = lines_of_journal_entry[0]
 			items.append([date2show, soap_cat, first_line.rstrip()])
 			data.append(entry)
-			if entry['src_table'] in self.__show_first_line_only_in_list:
+			if entry_type in self.__show_first_line_only_in_list:
 				continue
 			# add 2+ lines, if any and desired
 			for line in lines_of_journal_entry[1:]:
@@ -1878,6 +1885,7 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 			option = 'horstspace.emr_list_journal.filter_rules',
 			workplace = None
 		)
+		_log.debug('rules: %s', self.__filter_rules)
 		if self.__filter_rules is None:
 			self._CHBOX_exclude.Value = False
 			return
@@ -1886,10 +1894,15 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		for entry_type, type_cfg in self.__filter_rules['chart_entries'].items():
 			if type_cfg['one_liner']:
 				self.__show_first_line_only_in_list.append(entry_type)
-			if SOAPs == set(type_cfg['soap2exclude']):
+			if set(type_cfg['soap2exclude']) == SOAPs:
+				_log.debug('%s: %s', entry_type, type_cfg['soap2exclude'])
 				self.__chart_entry_types2exclude.append(entry_type)
 			else:
-				self.__chart_entry_types2partially_exclude.append(entry_type)
+				if type_cfg['soap2exclude']:
+					self.__chart_entry_types2partially_exclude.append(entry_type)
+		_log.debug('one-liners   : %s', self.__show_first_line_only_in_list)
+		_log.debug('excluded     : %s', self.__chart_entry_types2exclude)
+		_log.debug('SOAP-partials: %s', self.__chart_entry_types2partially_exclude)
 		if mark_apply:
 			self._CHBOX_exclude.Value = True
 
@@ -1899,6 +1912,7 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		result = dlg.ShowModal()
 		if result == wx.ID_OK:
 			self.__filter_rules = dlg.save_filter_rules()
+			self.__reload_filter_rules()
 			self.repopulate_ui()
 
 	#--------------------------------------------------------
