@@ -2826,9 +2826,9 @@ if __name__ == '__main__':
 	#print("\n\nRetrieving communication media enum (id, description): %s" % comms)
 	#test_export_area()
 	#test_ext_id()
-	#test_vcf()
 
 	gmPG2.request_login_params(setup_pool = True)
+	test_vcf()
 	#test_set_active_pat()
 	#test_mecard()
 	#test_ext_id()
@@ -2837,6 +2837,6 @@ if __name__ == '__main__':
 	#test_get_person_duplicates()
 	#test_get_potential_person_dupes()
 	#test_description_gender()
-	test_aux_info()
+	#test_aux_info()
 
 #============================================================

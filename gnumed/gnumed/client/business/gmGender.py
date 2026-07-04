@@ -80,8 +80,8 @@ class cGenderDef(gmBusinessDBObject.cBusinessDBObject):
 		self.refetch_payload(link_obj = link_obj)
 
 	#--------------------------------------------------------
-	def save_payload(self, conn:gmPG2.dbapi.extras.DictConnection=None) -> tuple[bool, tuple]:
-		result = super().save_payload(conn = conn)
+	def save_payload(self, conn:gmPG2.dbapi.extras.DictConnection=None, verbose:bool=False) -> tuple[bool, tuple]:
+		result = super().save_payload(conn = conn, verbose = verbose)
 		invalidate_genders_cache()
 		return result
 

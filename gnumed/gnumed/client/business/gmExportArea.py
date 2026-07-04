@@ -831,13 +831,14 @@ class cExportArea(object):
 		if len(form.final_output_filenames) == 0:
 			return True
 
-		items = []
+		items:list[cExportItem] = []
 		for fname in form.final_output_filenames:
 			item = self.add_file(filename = fname)
 			if item is None:
 				for prev_item in items:
 					delete_export_item(pk_export_item = prev_item['pk_export_item'])
 				return False
+
 			items.append(item)
 			item['description'] = _('form: %s %s (%s)') % (form.template['name_long'], form.template['external_version'], fname)
 			item['designation'] = designation

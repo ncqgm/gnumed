@@ -13,6 +13,7 @@ __license__ = "GPL"
 # stdlib
 import sys
 import re as regex
+from typing import overload
 
 
 # 3rd party
@@ -35,7 +36,7 @@ _log = logging.getLogger('macosx')
 
 color_prw_invalid = 'pink'
 color_prw_partially_invalid = 'yellow'
-color_prw_valid = None				# this is used by code outside this module
+color_prw_valid:wx._core.Colour = None		# this is used by code outside this module
 COLOR_BG_PRW_WITH_FOCUS = 'light yellow'
 
 #default_phrase_separators = r'[;/|]+'
@@ -62,8 +63,10 @@ def shutdown():
 class _cPRWTimer(wx.Timer):
 
 	def __init__(self, *args, **kwargs):
+		self.callback = kwargs['callback']
+		del kwargs['callback']
 		wx.Timer.__init__(self, *args, **kwargs)
-		self.callback = lambda x:x
+		#self.callback = lambda x:x
 		global _timers
 		_timers.append(self)
 
@@ -199,6 +202,11 @@ class cPhraseWheelBase(wx.TextCtrl):
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
+	@overload
+	def GetData(self): ...
+	@overload
+	def GetData(self, can_create:bool=False, as_instance:bool=False, link_obj=None): ...
+
 	def GetData(self, can_create:bool=False, as_instance:bool=False, link_obj=None):
 		"""Retrieve the data associated with the displayed string(s).
 
@@ -857,8 +865,8 @@ class cPhraseWheelBase(wx.TextCtrl):
 	# timer handling
 	#--------------------------------------------------------
 	def __init_timer(self):
-		self.__timer = _cPRWTimer()
-		self.__timer.callback = self._on_timer_fired
+		self.__timer = _cPRWTimer(callback = self._on_timer_fired)
+		#self.__timer.callback = self._on_timer_fired
 		# initially stopped
 		self.__timer.Stop()
 	#--------------------------------------------------------

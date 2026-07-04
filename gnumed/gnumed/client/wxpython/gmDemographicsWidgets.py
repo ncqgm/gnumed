@@ -8,6 +8,7 @@ import sys
 import logging
 import os
 import datetime as pydt
+from typing import Any
 
 
 import wx
@@ -1026,7 +1027,7 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl, 
 		return validity
 	#----------------------------------------------------------------
 	def _save_as_new(self):
-		data = {}
+		data:dict[str, Any] = {}
 		data['pk_type'] = None
 		data['name'] = self._PRW_type.GetValue().strip()
 		data['value'] = self._TCTRL_value.GetValue().strip()
@@ -1042,6 +1043,7 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl, 
 
 		self.data = data
 		return True
+
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 		self.data['name'] = self._PRW_type.GetValue().strip()

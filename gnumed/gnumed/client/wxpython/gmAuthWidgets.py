@@ -44,6 +44,9 @@ from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmExceptionHandlingWidgets
 
 
+current_db_name:str = None
+
+
 _log = logging.getLogger('gm.ui')
 _cfg = gmCfgINI.gmCfgData()
 

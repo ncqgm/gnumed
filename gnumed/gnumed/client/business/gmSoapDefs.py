@@ -82,7 +82,7 @@ def soap_cats_str2list(soap_cats:list|str=None) -> list[str]:
 	return normalized_cats
 
 #============================================================
-def are_valid_soap_cats(soap_cats:str, allow_upper:bool=True) -> bool:
+def are_valid_soap_cats(soap_cats:str|list, allow_upper:bool=True) -> bool:
 	"""Check whether _soap_cats_ contains valid category markers only.
 
 	Args:
@@ -102,7 +102,7 @@ def are_valid_soap_cats(soap_cats:str, allow_upper:bool=True) -> bool:
 	return True
 
 #============================================================
-def normalize_soap_cat(soap_cat:str) -> str: # | bool:
+def normalize_soap_cat(soap_cat:str) -> str|bool:
 	soap_cat = soap_cat.casefold()
 	if soap_cat in KNOWN_SOAP_CATS:
 		return soap_cat

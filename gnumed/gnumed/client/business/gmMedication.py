@@ -333,8 +333,8 @@ class cSubstance(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 	#--------------------------------------------------------
-	def save_payload(self, conn=None):
-		success, data = super().save_payload(conn = conn)
+	def save_payload(self, conn=None, verbose:bool=False):
+		success, data = super().save_payload(conn = conn, verbose = verbose)
 		if not success:
 			return (success, data)
 
@@ -1678,8 +1678,8 @@ class cDrugProduct(gmBusinessDBObject.cBusinessDBObject):
 		return (' ' * left_margin) + ('\n' + (' ' * left_margin)).join(lines)
 
 	#--------------------------------------------------------
-	def save_payload(self, conn=None):
-		success, data = super().save_payload(conn = conn)
+	def save_payload(self, conn=None, verbose:bool=False):
+		success, data = super().save_payload(conn = conn, verbose = verbose)
 
 		if not success:
 			return (success, data)

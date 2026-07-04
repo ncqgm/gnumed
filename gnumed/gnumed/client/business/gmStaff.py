@@ -315,7 +315,7 @@ class gmCurrentProvider(gmBorg.cBorg):
 		"""
 		# make sure we do have a provider pointer
 		try:
-			self.provider
+			self.provider:cStaff
 		except AttributeError:
 			self.provider = gmNull.cNull()
 

@@ -267,14 +267,17 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 			result = self._refresh_as_new()
 			self._valid_for_save()
 			return result
+
 		elif self.__mode == 'edit':
 			result = self._refresh_from_existing()
 			self._valid_for_save()
 			return result
+
 		elif self.__mode == 'new_from_existing':
 			result = self._refresh_as_new_from_existing()
 			self._valid_for_save()
 			return result
+
 		else:
 			raise ValueError('[%s] <mode> must be in %s' % (self.__class__.__name__, edit_area_modes))
 
@@ -286,6 +289,33 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 	def display_ctrl_as_valid(self, ctrl=None, valid=None):
 		ctrl.SetBackgroundColour(self.__tctrl_validity_colors[valid])
 		ctrl.Refresh()
+
+	#----------------------------------------------------------------
+	# need to be overridden in subclasses
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		_log.debug('_refresh_as_new() not implemented')
+
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		_log.debug('_refresh_as_new_from_existing() not implemented')
+		self._refresh_as_new()
+
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		_log.debug('_refresh_from_existing() not implemented')
+
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+		_log.debug('_valid_for_save() not implemented')
+
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+		_log.debug('_save_as_new() not implemented')
+
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		_log.debug('_save_as_update() not implemented')
 
 #====================================================================
 from Gnumed.wxGladeWidgets import wxgGenericEditAreaDlg

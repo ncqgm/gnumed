@@ -39,6 +39,7 @@ import logging
 import re as regex
 import shutil
 import tempfile
+from typing import Any
 
 
 if __name__ == "__main__":
@@ -211,7 +212,7 @@ def set_option_in_INI_file(filename=None, group=None, option=None, value=None, e
 	shutil.copy2(sink_name, filename)
 
 #==================================================================
-def parse_INI_stream(stream=None, encoding=None):
+def parse_INI_stream(stream=None, encoding:str=None) -> dict:
 	"""Parse an iterable for INI-style data.
 
 	Returns a dict by sections containing a dict of values per section.
@@ -297,6 +298,7 @@ def parse_INI_stream(stream=None, encoding=None):
 		raise SyntaxError('end of config stream but still in list')
 
 	return data
+
 #==================================================================
 class gmCfgData(gmBorg.cBorg):
 
@@ -308,18 +310,22 @@ class gmCfgData(gmBorg.cBorg):
 			self.source_files = {}
 
 	#--------------------------------------------------
-	def get(self, group=None, option=None, source_order=None):
+	def get(self, group=None, option=None, source_order=None) -> list[Any]|Any|None:
 		"""Get the value of a configuration option in a config file.
 
-		<source_order> the order in which config files are searched
-			a list of tuples (source, policy)
-			policy:
-				return: return only this value immediately
-				append: append to list of potential values to return
-				extend: if the value per source happens to be a list
-				        extend (rather than append to) the result list
+		Args:
+			<source_order> the order in which config files are searched
+				a list of tuples (source, policy)
+				policy:
+					return: return only this value immediately
+					append: append to list of potential values to return
+					extend: if the value per source happens to be a list
+					        extend (rather than append to) the result list
 
-		returns NONE when there's no value for an option
+		Returns:
+			NONE when there's no value for an option,
+			the value if a source's policy is "return"
+			a list of values for the option, one per source
 		"""
 		if source_order is None:
 			source_order = [('internal', 'return')]
@@ -470,10 +476,11 @@ class gmCfgData(gmBorg.cBorg):
 
 		data = {}
 		for opt, val in opts:
+			option_pat = '%s::%s' % ('cli', opt)
 			if val == '':
-				data['%s::%s' % ('cli', opt)] = True
+				data[option_path] = True
 			else:
-				data['%s::%s' % ('cli', opt)] = val
+				data[option_path] = val
 		self.__cfg_data['cli'] = data
 		return True
 
