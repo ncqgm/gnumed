@@ -668,11 +668,18 @@ def gm_show_warning(warning:str=None, title:str=None):
 	dlg.DestroyLater()
 
 #-------------------------------------------------------------------------
-def ask(question:str=None, title:str=None, cancel_button:bool=False) -> bool | None:
-	return gm_show_question (
+def ask(question:str=None, title:str=None, cancel_button:bool=False, buttons:list[dict]=None) -> bool | None:
+	if not buttons:
+		return gm_show_question (
+			question = question,
+			title = title,
+			cancel_button = cancel_button
+		)
+
+	return gm_show_rich_question (
 		question = question,
 		title = title,
-		cancel_button = cancel_button
+		buttons = buttons
 	)
 
 #-------------------------------------------------------------------------
