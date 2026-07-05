@@ -264,19 +264,19 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 		Then calls _valid_for_save().
 		"""
 		if self.__mode == 'new':
-			result = self._refresh_as_new()
+			self._refresh_as_new()
 			self._valid_for_save()
-			return result
+			return
 
 		elif self.__mode == 'edit':
-			result = self._refresh_from_existing()
+			self._refresh_from_existing()
 			self._valid_for_save()
-			return result
+			return
 
 		elif self.__mode == 'new_from_existing':
-			result = self._refresh_as_new_from_existing()
+			self._refresh_as_new_from_existing()
 			self._valid_for_save()
-			return result
+			return
 
 		else:
 			raise ValueError('[%s] <mode> must be in %s' % (self.__class__.__name__, edit_area_modes))
@@ -293,28 +293,28 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 	#----------------------------------------------------------------
 	# need to be overridden in subclasses
 	#----------------------------------------------------------------
-	def _refresh_as_new(self):
+	def _refresh_as_new(self) -> None:
 		_log.debug('_refresh_as_new() not implemented')
 
 	#----------------------------------------------------------------
-	def _refresh_as_new_from_existing(self):
+	def _refresh_as_new_from_existing(self) -> None:
 		_log.debug('_refresh_as_new_from_existing() not implemented')
 		self._refresh_as_new()
 
 	#----------------------------------------------------------------
-	def _refresh_from_existing(self):
+	def _refresh_from_existing(self) -> None:
 		_log.debug('_refresh_from_existing() not implemented')
 
 	#----------------------------------------------------------------
-	def _valid_for_save(self):
+	def _valid_for_save(self) -> bool:
 		_log.debug('_valid_for_save() not implemented')
 
 	#----------------------------------------------------------------
-	def _save_as_new(self):
+	def _save_as_new(self) -> bool:
 		_log.debug('_save_as_new() not implemented')
 
 	#----------------------------------------------------------------
-	def _save_as_update(self):
+	def _save_as_update(self) -> bool:
 		_log.debug('_save_as_update() not implemented')
 
 #====================================================================

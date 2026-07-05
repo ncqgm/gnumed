@@ -1501,7 +1501,7 @@ class cPDFForm(cFormEngine):
 			raw_str_lines = raw_str_val.split('\x00\\n')
 			value_template_lines = []
 			for raw_str_line in raw_str_lines:
-				value_template_lines.append(raw_str_line.decode('utf_16_be'))
+				value_template_lines.append(raw_str_line.encode('utf_16_be'))
 
 			replaced_lines = []
 			for value_template in value_template_lines:

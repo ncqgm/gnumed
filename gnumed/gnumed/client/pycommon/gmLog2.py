@@ -292,7 +292,7 @@ def add_word2hide(word:str):
 		__words2hide.append(str(word))
 
 #---------------------------------------------------------------
-__original_logger_write_func = None
+__original_logger_write_func:callable = None
 
 def __safe_logger_write_func(s):
 	for word in __words2hide:

@@ -678,7 +678,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		return True, new_parts
 
 	#--------------------------------------------------------
-	def _get_has_unreviewed_parts(self):
+	def _get_has_unreviewed_parts(self) -> bool:
 		try:
 			return self.__has_unreviewed_parts			# pylint: disable=access-member-before-definition
 
@@ -688,7 +688,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		cmd = "SELECT EXISTS(SELECT 1 FROM blobs.v_obj4doc_no_data WHERE pk_doc = %(pk)s AND reviewed IS FALSE)"
 		args = {'pk': self.pk_obj}
 		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
-		self.__has_unreviewed_parts = rows[0][0]
+		self.__has_unreviewed_parts:bool = rows[0][0]
 		return self.__has_unreviewed_parts
 
 	has_unreviewed_parts = property(_get_has_unreviewed_parts)
@@ -1291,7 +1291,7 @@ def get_ext_ref():
 
 #============================================================
 def check_mimetypes_in_archive():
-	mimetypes = {}
+	mimetypes:dict[str, dict[str, int|str]] = {}
 	cmd = 'SELECT pk FROM blobs.doc_med'
 	doc_pks = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
 	print('Detecting mimetypes in document archive ...')

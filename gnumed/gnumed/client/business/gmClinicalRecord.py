@@ -50,7 +50,7 @@ from Gnumed.business.gmDemographicRecord import get_occupations
 
 _log = logging.getLogger('gm.emr')
 
-_here = None
+_here:'gmPraxis.gmCurrentPraxisBranch' = None
 #============================================================
 # helper functions
 #------------------------------------------------------------
@@ -346,16 +346,18 @@ class cClinicalRecord(object):
 	#--------------------------------------------------------
 	# API: pregnancy
 	#--------------------------------------------------------
-	def _get_gender(self):
+	def _get_gender(self) -> str:
 		if self.__gender is not None:
 			return self.__gender
+
 		cmd = 'SELECT gender, dob FROM dem.v_all_persons WHERE pk_identity = %(pat)s'
 		args = {'pat': self.pk_patient}
 		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
-		self.__gender = rows[0]['gender']
+		self.__gender:str = rows[0]['gender']
 		self.__dob = rows[0]['dob']
+		return self.__gender
 
-	def _set_gender(self, gender):
+	def _set_gender(self, gender:str):
 		self.__gender = gender
 
 	gender = property(_get_gender, _set_gender)

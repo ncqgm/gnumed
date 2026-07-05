@@ -222,7 +222,7 @@ def parse_INI_stream(stream=None, encoding:str=None) -> dict:
 	if encoding is None:
 		encoding = 'utf8'
 
-	data = {}
+	data:dict[str, Any] = {}
 	current_group = None
 	current_option = None
 	current_option_path = None
@@ -304,7 +304,7 @@ class gmCfgData(gmBorg.cBorg):
 
 	def __init__(self):
 		try:
-			self.__cfg_data
+			self.__cfg_data:dict[str, Any]
 		except AttributeError:
 			self.__cfg_data = {}
 			self.source_files = {}
@@ -329,7 +329,7 @@ class gmCfgData(gmBorg.cBorg):
 		"""
 		if source_order is None:
 			source_order = [('internal', 'return')]
-		results = []
+		results:list = []
 		for source, policy in source_order:
 			_log.debug('searching "%s" in [%s] in %s', option, group, source)
 			if group is None:
@@ -476,7 +476,7 @@ class gmCfgData(gmBorg.cBorg):
 
 		data = {}
 		for opt, val in opts:
-			option_pat = '%s::%s' % ('cli', opt)
+			option_path = '%s::%s' % ('cli', opt)
 			if val == '':
 				data[option_path] = True
 			else:
