@@ -578,7 +578,7 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 			parent = parent,
 			bill = bill,
 			single_entry = True,
-			message = _('Please set closing date, receiver address, and VAT status.')
+			msg = _('Please set closing date, receiver address, and VAT status.')
 		)
 		# cannot invoice open bills
 		if bill['close_date'] is None:
