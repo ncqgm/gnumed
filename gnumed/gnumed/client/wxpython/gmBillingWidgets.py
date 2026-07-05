@@ -798,25 +798,27 @@ def manage_bills(parent=None, patient=None):
 		# find invoice
 		invoice = bill.invoice
 		if invoice is not None:
-			success, msg = invoice.parts[-1].display_via_mime()
-			if success:
-				return True
-
-			gmGuiHelpers.gm_show_error(error = msg, title = _('Displaying invoice'))
-			return False
-
-		# create it ?
-		create_it = gmGuiHelpers.ask (
-			title = _('Displaying invoice'),
-			question = _(
-				'Cannot find an existing\n'
-				'invoice PDF for this bill.\n'
-				'\n'
-				'Do you want to create one ?'
-			),
-		)
-		if not create_it:
-			return False
+			regenerate = gmGuiHelpers.ask (
+				title = _('Displaying invoice'),
+				question = _(
+					'Show existing invoice PDF or regenerate new PDF ?\n'
+					'\n'
+					'Generating a new PDF is useful when the\n'
+					'invoice template was changed.\n'
+					'\n'
+					'It will contain the very same bill items\n'
+					'and the same invoice ID.'
+				),
+				buttons = [
+					{'label': _('Existing'), 'tooltip': _('Show existing invoice PDF'), 'default': True},
+					{'label': _('Regenerate'), 'tooltip': _('Regenerate invoice PDF and show'), 'default': False}
+				]
+			)
+			if not regenerate:
+				success, msg = invoice.parts[-1].display_via_mime()
+				if not success:
+					gmGuiHelpers.gm_show_error(error = msg, title = _('Displaying invoice'))
+				return success
 
 		# prepare invoicing
 		if not bill.set_missing_address_from_default():
