@@ -119,6 +119,7 @@ import gmAuditSchemaGenerator
 
 
 _log = logging.getLogger('gm.bootstrapper')
+_QUIET = False
 #faulthandler.enable(file = gmLog2._logfile)
 _cfg = gmCfgINI.gmCfgData()
 _interactive = None
@@ -572,17 +573,17 @@ class cDatabase:
 		# reindex db so upgrade doesn't fail on broken index
 		llap = []
 		reindexed = self.reindex_all()
-		llap.append(reindexed)
 		if not reindexed:
 			_log.error('cannot REINDEX cloned target database')
 			return False
 
+		llap.append(reindexed)
 		revalidated = self.revalidate_constraints()
-		llap.append(revalidated)
 		if not revalidated:
 			_log.error('cannot VALIDATE CONSTRAINTs in cloned target database')
 			return False
 
+		llap.append(revalidated)
 		if not self.validate_collations(use_the_source_luke = llap):
 			_log.error('cannot validate collations in cloned target database')
 			return False
@@ -873,7 +874,7 @@ class cDatabase:
 				tag_of_check, SQL__old_db = def_of_check.split('::::')
 			except:
 				_log.exception('error in plausibility check, aborting')
-				_log.erorr('old DB: [%s]', def_of_check)
+				_log.error('old DB: [%s]', def_of_check)
 				_log.error('new DB: [%s]', SQL__new_db)
 				print_msg("    ... failed (check definition error)")
 				all_tests_successful = False
@@ -1579,8 +1580,9 @@ def exit_with_msg(aMsg = None):
 
 #------------------------------------------------------------------
 def print_msg(msg=None):
-	if quiet:
+	if _QUIET:
 		return
+
 	print(msg)
 
 #==============================================================================
@@ -1648,11 +1650,6 @@ def handle_cfg():
 #==================================================================
 #==================================================================
 def main():
-
-	_cfg.add_cli(long_options = ['conf-file=', 'log-file=', 'quiet'])
-
-	global quiet
-	quiet = bool(_cfg.get(option = '--quiet', source_order = [('cli', 'return')]))
 
 	gmConnectionPool._PG_LOG_CHATTINESS = 'DEBUG2'
 	gmConnectionPool._PG_CONN_VERBOSITY = True
@@ -1722,9 +1719,9 @@ if __name__ != "__main__":
 
 
 gmI18N.activate_locale()
-
+_cfg.add_cli(long_options = ['conf-file=', 'log-file=', 'quiet'])
+_QUIET = bool(_cfg.get(option = '--quiet', source_order = [('cli', 'return')]))
 _log.info('startup')
-
 try:
 	main()
 except Exception:
@@ -1737,7 +1734,5 @@ finally:
 			_log.warning('%s', conn)
 			_log.warning('closing connection')
 			conn.close()
-
 _log.info('after main, before sys.exit(0)')
-
 sys.exit(0)

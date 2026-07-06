@@ -392,11 +392,11 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 			tt = _('allergy state not obtained')
 		tt += '\n'
 		# allergies
-		display = []
+		allergies4display = []
 		for allergy in emr.get_allergies():
 			# in field: "true" allergies only, not intolerances
 			if allergy['type'] == 'allergy':
-				display.append(allergy['descriptor'][:10].strip() + gmTools.u_ellipsis)
+				allergies4display.append(allergy['descriptor'][:10].strip() + gmTools.u_ellipsis)
 			# in tooltip
 			if allergy['definite']:
 				certainty = _('definite')
@@ -411,21 +411,21 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 				certainty,
 				reaction
 			)
-		if display:
-			display = ','.join(display)
+		if allergies4display:
+			allergies_str = ','.join(allergies4display)
 		else:
 			if state:
 				if state['has_allergy'] == gmAllergy.ALLERGY_STATE_NONE:
 					color = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT)
-				display = state.state_symbol
+				allergies_str = state.state_symbol
 				if state['last_confirmed']:
-					display += state['last_confirmed'].strftime(' (%Y %b)')
+					allergies_str += state['last_confirmed'].strftime(' (%Y %b)')
 			else:
 				color = 'yellow'
-				display = _('obtain')
+				allergies_str = _('obtain')
 		self._LBL_allergies.SetForegroundColour(color)
 		self._TCTRL_allergies.SetForegroundColour(color)
-		self._TCTRL_allergies.SetValue(display)
+		self._TCTRL_allergies.SetValue(allergies_str)
 		self._TCTRL_allergies.SetToolTip(tt)
 
 #===========================================================	

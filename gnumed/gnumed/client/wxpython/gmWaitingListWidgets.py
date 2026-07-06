@@ -96,8 +96,8 @@ class cWaitingListEntryEditAreaPnl(wxgWaitingListEntryEditAreaPnl.wxgWaitingList
 
 		praxis = gmPraxis.gmCurrentPraxisBranch()
 		pats = praxis.waiting_list_patients
-		zones = {}
-		zones.update([ [p['waiting_zone'], None] for p in pats if p['waiting_zone'] is not None ])
+		zones:dict = {}
+		zones.update([ (p['waiting_zone'], None) for p in pats if p['waiting_zone'] is not None ])
 		self._PRW_zone.update_matcher(items = list(zones))
 
 	#--------------------------------------------------------
@@ -218,6 +218,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		enc['reason_for_encounter'] = rfe
 		enc.save()
 		self.__id_most_recently_activated_patient = None
+
 	#--------------------------------------------------------
 	def _on_get_list_tooltip(self, entry):
 
@@ -250,12 +251,13 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 			gmDateTime.format_interval_medically(entry['waiting_time']),
 			gmTools.coalesce(entry['comment'], '', '\n%s')
 		)
-
 		return tt
+
 	#--------------------------------------------------------
 	def __register_events(self):
 		gmDispatcher.connect(signal = 'clin.waiting_list_mod_db', receiver = self._on_waiting_list_modified)
 		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._on_post_patient_selection)
+
 	#--------------------------------------------------------
 	def __refresh_waiting_list(self):
 		self.__id_most_recently_activated_patient = None
@@ -265,8 +267,8 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		pats = praxis.waiting_list_patients
 
 		# set matcher to all zones currently in use
-		zones = {}
-		zones.update([ [p['waiting_zone'], None] for p in pats if p['waiting_zone'] is not None ])
+		zones:dict = {}
+		zones.update([ (p['waiting_zone'], None) for p in pats if p['waiting_zone'] is not None ])
 		self._PRW_zone.update_matcher(items = list(zones))
 
 		# filter patient list by zone and set waiting list

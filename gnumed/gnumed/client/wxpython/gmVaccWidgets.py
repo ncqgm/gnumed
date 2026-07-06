@@ -847,7 +847,7 @@ def manage_vaccinations(parent=None, latest_only:bool=False, expand_indications=
 		else:
 			shots = emr.get_vaccinations(order_by = 'date_given DESC, pk_vaccination')
 			if expand_indications:
-				shots_by_ind = {}
+				shots_by_ind:dict[str, list[gmVaccination.cVaccination]] = {}
 				for shot in shots:
 					for ind in shot['indications']:
 						try:

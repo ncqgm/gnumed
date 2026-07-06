@@ -304,9 +304,9 @@ class gmCfgData(gmBorg.cBorg):
 
 	def __init__(self):
 		try:
-			self.__cfg_data:dict[str, Any]
+			self.__cfg_data
 		except AttributeError:
-			self.__cfg_data = {}
+			self.__cfg_data:dict[str, Any] = {}
 			self.source_files = {}
 
 	#--------------------------------------------------
@@ -390,6 +390,7 @@ class gmCfgData(gmBorg.cBorg):
 			_log.warning('overriding source <%s> with [%s]', source, stream)
 
 		self.__cfg_data[source] = data
+
 	#--------------------------------------------------
 	def add_file_source(self, source=None, filename=None, encoding='utf8'):
 		"""Add a source (a file) to the instance."""
