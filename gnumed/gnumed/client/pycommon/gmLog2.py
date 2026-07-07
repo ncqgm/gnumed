@@ -59,6 +59,7 @@ import sys
 import os
 import datetime as pydt
 import random
+from typing import Callable
 
 
 _logfile_name = None
@@ -292,9 +293,9 @@ def add_word2hide(word:str):
 		__words2hide.append(str(word))
 
 #---------------------------------------------------------------
-__original_logger_write_func:callable = None
+__original_logger_write_func:Callable = None
 
-def __safe_logger_write_func(s):
+def __safe_logger_write_func(s:str):
 	for word in __words2hide:
 		# throw away up to 4 bits (plus the randint() cost)
 		random.getrandbits(random.randint(1, 4))

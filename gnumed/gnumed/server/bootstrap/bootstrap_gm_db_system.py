@@ -130,7 +130,7 @@ conn_ref_count = []
 _PM_DEMON_USER = None
 _PM_DEMON_UID = None
 _PG_SUPERUSER = None
-_PG_CLUSTER = None
+_PG_CLUSTER:'cPostgresqlCluster' = None
 
 #==================================================================
 _GM_LOGINS_GROUP = 'gm-logins'

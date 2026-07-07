@@ -27,6 +27,7 @@ import os
 import csv
 import re as regex
 import datetime as pydt
+from typing import Callable
 
 
 import wx
@@ -73,25 +74,26 @@ def set_minimum_column_width_policy(policy:str='content'):
 # FIXME: configurable callback on double-click action
 
 def get_choices_from_list (
-			parent=None,
-			msg=None,
-			caption=None,
-			columns=None,
-			choices=None,
-			data=None,
-			selections=None,
-			edit_callback=None,
-			new_callback=None,
-			delete_callback=None,
-			refresh_callback=None,
-			single_selection=False,
-			can_return_empty=False,
-			ignore_OK_button=False,
-			close_on_activate=False,
-			left_extra_button=None,
-			middle_extra_button=None,
-			right_extra_button=None,
-			list_tooltip_callback=None):
+		parent=None,
+		msg:str=None,
+		caption:str=None,
+		columns:list=None,
+		choices:list=None,
+		data:list=None,
+		selections:list=None,
+		edit_callback:Callable=None,
+		new_callback:Callable=None,
+		delete_callback:Callable=None,
+		refresh_callback:Callable=None,
+		single_selection:bool=False,
+		can_return_empty:bool=False,
+		ignore_OK_button:bool=False,
+		close_on_activate:bool=False,
+		left_extra_button=None,
+		middle_extra_button=None,
+		right_extra_button=None,
+		list_tooltip_callback:Callable=None
+	):
 	"""Let user select item(s) from a list.
 
 	- new_callback: ()
@@ -200,12 +202,12 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self.edit_callback = None				# called when EDIT button pressed, data of topmost selected item passed in
 		self.delete_callback = None				# called when DELETE button pressed, data of topmost selected item passed in
 
-		self.can_return_empty = False
+		self.can_return_empty:bool = False
 		self.ignore_OK_button = False			# by default do show/use the OK button
 
 		self.select_callback = None				# called when an item is selected, data of topmost selected item passed in
 		self._LCTRL_items.select_callback = self._on_list_item_selected_in_listctrl
-		self.close_on_activate = False
+		self.close_on_activate:bool = False
 		self._LCTRL_items.activate_callback = self._on_list_item_activated_in_listctrl
 		if single_selection:
 			self._LCTRL_items.SetSingleStyle(wx.LC_SINGLE_SEL, add = True)
@@ -303,8 +305,9 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 	def _on_left_extra_button_pressed(self, event):
 		if self.__left_extra_button_wants_list:
 			item_data = self._LCTRL_items
+			xxxxxxxxxxxxxxxxxxxxxx
 		else:
-			item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
+			item_data = self._LCTRL_items.get_selected_item_data(only_one = True)
 		if not self.__left_extra_button_callback(item_data):
 			self._LCTRL_items.SetFocus()
 			return
@@ -489,21 +492,21 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 	#------------------------------------------------------------
 	# properties
 	#------------------------------------------------------------
-	def _set_ignore_OK_button(self, ignored):
+	def _set_ignore_OK_button(self, ignored:bool):
 		self.__ignore_OK_button = ignored
 		if self.__ignore_OK_button:
 			self._BTN_ok.Hide()
 			self._BTN_ok.Enable(False)
 		else:
 			self._BTN_ok.Show()
-			if self._LCTRL_items.get_selected_items(only_one=True) == -1:
+			if self._LCTRL_items.get_selected_items(only_one = True) == -1:
 				if self.can_return_empty:
 					self._BTN_ok.Enable(True)
 				else:
 					self._BTN_ok.Enable(False)
 					self._BTN_cancel.SetDefault()
 
-	ignore_OK_button = property(lambda x:x, _set_ignore_OK_button)
+	ignore_OK_button = property(fset = _set_ignore_OK_button)
 
 	#------------------------------------------------------------
 	def _set_left_extra_button(self, definition):
@@ -587,13 +590,13 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 	def _get_new_callback(self):
 		return self.__new_callback
 
-	def _set_new_callback(self, callback):
+	def _set_new_callback(self, callback:Callable):
 		if callback is not None:
 			if self.__refresh_callback is None:
 				raise ValueError('refresh callback must be set before new callback can be set')
 			if not callable(callback):
 				raise ValueError('<new> callback is not a callable: %s' % callback)
-		self.__new_callback = callback
+		self.__new_callback:Callable = callback
 
 		if callback is None:
 			self._BTN_new.Enable(False)
@@ -610,11 +613,11 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 	def _get_edit_callback(self):
 		return self.__edit_callback
 
-	def _set_edit_callback(self, callback):
+	def _set_edit_callback(self, callback:Callable):
 		if callback is not None:
 			if not callable(callback):
 				raise ValueError('<edit> callback is not a callable: %s' % callback)
-		self.__edit_callback = callback
+		self.__edit_callback:Callable = callback
 
 		if callback is None:
 			self._BTN_edit.Enable(False)
@@ -631,13 +634,13 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 	def _get_delete_callback(self):
 		return self.__delete_callback
 
-	def _set_delete_callback(self, callback):
+	def _set_delete_callback(self, callback:Callable):
 		if callback is not None:
 			if self.__refresh_callback is None:
 				raise ValueError('refresh callback must be set before delete callback can be set')
 			if not callable(callback):
 				raise ValueError('<delete> callback is not a callable: %s' % callback)
-		self.__delete_callback = callback
+		self.__delete_callback:Callable = callback
 		if callback is None:
 			self._BTN_delete.Enable(False)
 			self._BTN_delete.Hide()
@@ -653,7 +656,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 	def _get_refresh_callback(self):
 		return self.__refresh_callback
 
-	def _set_refresh_callback_helper(self):
+	def _helper4_set_refresh_callback(self):
 		wx.BeginBusyCursor()
 		self._LCTRL_items.RememberItemSelection()
 		try:
@@ -664,13 +667,13 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			wx.EndBusyCursor()
 		self._LCTRL_items.SetFocus()
 
-	def _set_refresh_callback(self, callback):
+	def _set_refresh_callback(self, callback:Callable):
 		if callback is not None:
 			if not callable(callback):
 				raise ValueError('<refresh> callback is not a callable: %s' % callback)
-		self.__refresh_callback = callback
+		self.__refresh_callback:Callable = callback
 		if callback is not None:
-			wx.CallAfter(self._set_refresh_callback_helper)
+			wx.CallAfter(self._helper4_set_refresh_callback)
 
 	refresh_callback = property(_get_refresh_callback, _set_refresh_callback)
 
@@ -678,30 +681,31 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 	def _get_select_callback(self):
 		return self.__select_callback
 
-	def _set_select_callback(self, callback):
+	def _set_select_callback(self, callback:Callable):
 		if callback is not None:
 			if not callable(callback):
 				raise ValueError('<select> callback is not a callable: %s' % callback)
-		self.__select_callback = callback
+		self.__select_callback:Callable = callback
 
 	select_callback = property(_get_select_callback, _set_select_callback)
 
 	#------------------------------------------------------------
-	def _set_list_tooltip_callback(self, callback):
+	def _set_list_tooltip_callback(self, callback:Callable):
 		self._LCTRL_items.item_tooltip_callback = callback
 
-	list_tooltip_callback = property(lambda x:x, _set_list_tooltip_callback)
+	list_tooltip_callback = property(fset = _set_list_tooltip_callback)
 	#def _get_tooltip(self, item):		# inside a class
 	#def _get_tooltip(item):			# outside a class
 	#------------------------------------------------------------
-	def _set_message(self, message):
+	def _set_message(self, message:str):
 		if message is None:
 			self._LBL_message.Hide()
 			return
+
 		self._LBL_message.SetLabel(message)
 		self._LBL_message.Show()
 
-	message = property(lambda x:x, _set_message)
+	message = property(fset = _set_message)
 
 #================================================================
 from Gnumed.wxGladeWidgets import wxgGenericListManagerPnl
@@ -964,13 +968,13 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 	def _get_new_callback(self):
 		return self.__new_callback
 
-	def _set_new_callback(self, callback):
+	def _set_new_callback(self, callback:Callable):
 		if callback is not None:
 			if self.__refresh_callback is None:
 				raise ValueError('refresh callback must be set before new callback can be set')
 			if not callable(callback):
 				raise ValueError('<new> callback is not a callable: %s' % callback)
-		self.__new_callback = callback
+		self.__new_callback:Callable = callback
 
 		if callback is None:
 			self._BTN_add.Enable(False)
@@ -987,11 +991,11 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 	def _get_edit_callback(self):
 		return self.__edit_callback
 
-	def _set_edit_callback(self, callback):
+	def _set_edit_callback(self, callback:Callable):
 		if callback is not None:
 			if not callable(callback):
 				raise ValueError('<edit> callback is not a callable: %s' % callback)
-		self.__edit_callback = callback
+		self.__edit_callback:Callable = callback
 
 		if callback is None:
 			self._BTN_edit.Enable(False)
@@ -1008,13 +1012,13 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 	def _get_delete_callback(self):
 		return self.__delete_callback
 
-	def _set_delete_callback(self, callback):
+	def _set_delete_callback(self, callback:Callable):
 		if callback is not None:
 			if self.__refresh_callback is None:
 				raise ValueError('refresh callback must be set before delete callback can be set')
 			if not callable(callback):
 				raise ValueError('<delete> callback is not a callable: %s' % callback)
-		self.__delete_callback = callback
+		self.__delete_callback:Callable = callback
 		if callback is None:
 			self._BTN_remove.Enable(False)
 			self._BTN_remove.Hide()
@@ -1030,7 +1034,7 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 	def _get_refresh_callback(self):
 		return self.__refresh_callback
 
-	def _set_refresh_callback_helper(self):
+	def _helper4_set_refresh_callback(self):
 		wx.BeginBusyCursor()
 		self._LCTRL_items.RememberItemSelection()
 		try:
@@ -1040,13 +1044,13 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 		finally:
 			wx.EndBusyCursor()
 
-	def _set_refresh_callback(self, callback):
+	def _set_refresh_callback(self, callback:Callable):
 		if callback is not None:
 			if not callable(callback):
 				raise ValueError('<refresh> callback is not a callable: %s' % callback)
-		self.__refresh_callback = callback
+		self.__refresh_callback:Callable = callback
 		if callback is not None:
-			wx.CallAfter(self._set_refresh_callback_helper)
+			wx.CallAfter(self._helper4_set_refresh_callback)
 
 	refresh_callback = property(_get_refresh_callback, _set_refresh_callback)
 
@@ -1054,11 +1058,11 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 	def _get_select_callback(self):
 		return self.__select_callback
 
-	def _set_select_callback(self, callback):
+	def _set_select_callback(self, callback:Callable):
 		if callback is not None:
 			if not callable(callback):
 				raise ValueError('<select> callback is not a callable: %s' % callback)
-		self.__select_callback = callback
+		self.__select_callback:Callable = callback
 
 	select_callback = property(_get_select_callback, _set_select_callback)
 
@@ -1082,7 +1086,7 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 		if definition is None:
 			self._BTN_extra_left.Enable(False)
 			self._BTN_extra_left.Hide()
-			self.__left_extra_button_callback = None
+			self.__left_extra_button_callback:Callable = None
 			return
 
 		(label, tooltip, callback) = definition
@@ -1101,7 +1105,7 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 		if definition is None:
 			self._BTN_extra_middle.Enable(False)
 			self._BTN_extra_middle.Hide()
-			self.__middle_extra_button_callback = None
+			self.__middle_extra_button_callback:Callable = None
 			return
 
 		(label, tooltip, callback) = definition
@@ -1120,7 +1124,7 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 		if definition is None:
 			self._BTN_extra_right.Enable(False)
 			self._BTN_extra_right.Hide()
-			self.__right_extra_button_callback = None
+			self.__right_extra_button_callback:Callable = None
 			return
 
 		(label, tooltip, callback) = definition
@@ -1585,7 +1589,7 @@ class SelectionStateMixin:
 	def __init__(self):
 		assert(isinstance(self, wx.ListCtrl)), '<%s> must be mixed in with wx.ListCtrl'
 		self.__previously_selected_items = []
-		self.__item_identity_callback = None
+		self.__item_identity_callback:Callable = None
 
 	#------------------------------------------------------------
 	# external API
@@ -1717,20 +1721,20 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 		self.__data = None
 
 		# event callbacks
-		self.__select_callback = None
-		self.__deselect_callback = None
-		self.__activate_callback = None
-		self.__new_callback = None
-		self.__edit_callback = None
-		self.__delete_callback = None
-		self.__dnd_callback = None
+		self.__select_callback:Callable = None
+		self.__deselect_callback:Callable = None
+		self.__activate_callback:Callable = None
+		self.__new_callback:Callable = None
+		self.__edit_callback:Callable = None
+		self.__delete_callback:Callable = None
+		self.__dnd_callback:Callable = None
 
 		# context menu
-		self.__extend_popup_menu_callback = None
+		self.__extend_popup_menu_callback:Callable = None
 		self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self._on_list_item_rightclicked)	# (also handled by MENU key on EVT_LIST_KEY_DOWN)
 
 		# row tooltips
-		self.__item_tooltip_callback = None
+		self.__item_tooltip_callback:Callable = None
 		self.__tt_last_item = None
 		self.__tt_static_part_base = ''
 		self.__tt_static_part = self.__tt_static_part_base
@@ -2354,7 +2358,7 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 	item_data = property(get_item_data)
 
 	#------------------------------------------------------------
-	def get_selected_item_data(self, only_one=False):
+	def get_selected_item_data(self, only_one=False) -> None|list:
 		if self.__is_single_selection or only_one:
 			if self.__data is None:
 				return None
@@ -2365,7 +2369,7 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 
 			return self.__data[self.map_item_idx2data_idx(idx)]
 
-		data = []
+		data:list = []
 		if self.__data is None:
 			return data
 
@@ -3607,8 +3611,8 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 	#------------------------------------------------------------
 	# cColumnSorterMixin API
 	#------------------------------------------------------------
-	def _generate_map_for_sorting(self):
-		dict2sort = {}
+	def _generate_map_for_sorting(self) -> dict:
+		dict2sort:dict = {}
 		row_count = self.GetItemCount()
 		if row_count == 0:
 			return dict2sort

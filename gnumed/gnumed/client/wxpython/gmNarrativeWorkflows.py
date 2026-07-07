@@ -859,7 +859,7 @@ def select_narrative_from_episodes(parent=None, soap_cats=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	selected_soap = {}
+	selected_soap:dict[int, str] = {}
 	selected_issue_pks = []
 	selected_episode_pks = []
 	selected_narrative_pks = []

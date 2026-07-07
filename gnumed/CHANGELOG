@@ -66,6 +66,7 @@ IMPROVED: buttons: make shrinking to label size configurable [thanks María]
 IMPROVED: datetime picker: support "Today/toMorrow/Yesterday = day X" syntax
 IMPROVED: medication intakes: support several regimen per substance
 IMPROVED: billing: no longer allow removing items from a bill
+IMPROVED: EMR: list journal functionality
 
 FIX: CLI: --wxp= not needed anymore
 FIX: CLI: --ui= not needed anymore

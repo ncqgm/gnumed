@@ -381,7 +381,7 @@ class gmCurrentPraxisBranch(gmBorg.cBorg):
 			self.has_been_initialized
 		except AttributeError:
 			self.branch = None
-			self.has_been_initialized = True
+			self.has_been_initialized:bool = True
 			self.__helpdesk = None
 			self.__active_workplace = None
 
@@ -532,7 +532,7 @@ where
 			return ''
 		return gmTools.coalesce(rows[0][0], '').strip()
 
-	def _set_db_logon_banner(self, banner):
+	def _set_db_logon_banner(self, banner:str=None):
 		queries = [
 			{'sql': 'delete from cfg.db_logon_banner'}
 		]

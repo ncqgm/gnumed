@@ -1193,7 +1193,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 				info += ' Orthanc: %s\n' % orth_pat_id
 				already_seen.append(orth_pat_id)
 			except Exception:
-				_log.execption('cannot retrieve/process Orthanc data for patient [%s]', orth_pat_id)
+				_log.exception('cannot retrieve/process Orthanc data for patient [%s]', orth_pat_id)
 			continue
 		wx.EndBusyCursor()
 		if not info:
