@@ -63,7 +63,7 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmHooks
 from Gnumed.pycommon import gmBackendListener
-from Gnumed.pycommon import gmLog2
+from Gnumed.pycommon import gmLog
 from Gnumed.pycommon import gmNetworkTools
 from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmConnectionPool
@@ -918,7 +918,7 @@ class gmTopLevelFrame(wx.Frame):
 		wx.Bell()
 		_log.warning('unhandled event detected: QUERY_END_SESSION')
 		_log.info('we should be saving ourselves from here')
-		gmLog2.flush()
+		gmLog.flush()
 		print('unhandled event detected: QUERY_END_SESSION')
 	#----------------------------------------------
 	def _on_end_session(self, *args, **kwargs):
@@ -926,7 +926,7 @@ class gmTopLevelFrame(wx.Frame):
 		wx.Bell()
 		wx.Bell()
 		_log.warning('unhandled event detected: END_SESSION')
-		gmLog2.flush()
+		gmLog.flush()
 		print('unhandled event detected: END_SESSION')
 
 	#-----------------------------------------------
@@ -2520,11 +2520,11 @@ class gmTopLevelFrame(wx.Frame):
 			curr_pat.locked = True
 	#----------------------------------------------
 	def __on_show_log_file(self, evt):
-		gmLog2.flush()
-		gmMimeLib.call_viewer_on_file(gmLog2._logfile_name, block = False)
+		gmLog.flush()
+		gmMimeLib.call_viewer_on_file(gmLog._logfile_name, block = False)
 	#----------------------------------------------
 	def __on_backup_log_file(self, evt):
-		name = os.path.basename(gmLog2._logfile_name)
+		name = os.path.basename(gmLog._logfile_name)
 		name, ext = os.path.splitext(name)
 		new_name = '%s_%s%s' % (name, pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), ext)
 		new_path = gmTools.gmPaths().user_work_dir
@@ -2544,8 +2544,8 @@ class gmTopLevelFrame(wx.Frame):
 			return True
 
 		_log.warning('syncing log file for backup to [%s]', new_name)
-		gmLog2.flush()
-		shutil.copy2(gmLog2._logfile_name, new_name)
+		gmLog.flush()
+		shutil.copy2(gmLog._logfile_name, new_name)
 		gmDispatcher.send('statustext', msg = _('Log file backed up as [%s].') % new_name)
 	#----------------------------------------------
 	def __on_email_log_file(self, evt):
@@ -3561,7 +3561,7 @@ class gmApp(wx.App):
 		wx.Bell()
 		_log.warning('unhandled event detected: QUERY_END_SESSION')
 		_log.info('we should be saving ourselves from here')
-		gmLog2.flush()
+		gmLog.flush()
 		print('unhandled event detected: QUERY_END_SESSION')
 	#----------------------------------------------
 	def _on_end_session(self, *args, **kwargs):
@@ -3569,7 +3569,7 @@ class gmApp(wx.App):
 		wx.Bell()
 		wx.Bell()
 		_log.warning('unhandled event detected: END_SESSION')
-		gmLog2.flush()
+		gmLog.flush()
 		print('unhandled event detected: END_SESSION')
 	#----------------------------------------------
 	def _on_app_activated(self, evt):
@@ -4139,7 +4139,7 @@ def log_colors_known2wx():
 		wx.Yield()
 		col = col_db.Find(col_name)
 		log_lines.append(f'{col_name:<25} {col.red:<6} {col.green:<6} {col.blue:<6} {col.IsOk()}')
-	gmLog2.log_multiline (
+	gmLog.log_multiline (
 		level = logging.DEBUG,
 		message = 'RGB colors known by name on this system:',
 		text = '\n'.join(log_lines)

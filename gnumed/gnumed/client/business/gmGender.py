@@ -12,7 +12,7 @@ import logging
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog2
+from Gnumed.pycommon import gmLog
 from Gnumed.pycommon import gmI18N
 if __name__ == '__main__':
 	_ = lambda x:x
@@ -273,7 +273,7 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	gmLog2.print_logfile_name()
+	gmLog.print_logfile_name()
 
 	#--------------------------------------------------------
 	def test_gender_list():

@@ -35,7 +35,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmLoginInfo
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmDateTime
-from Gnumed.pycommon import gmLog2
+from Gnumed.pycommon import gmLog
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmConnectionPool
 from Gnumed.pycommon.gmTools import prompted_input
@@ -335,7 +335,7 @@ def __request_login_params_tui(user:str=None):
 			login.user = prompted_input(prompt = "user name", default = '')
 		tmp = 'password for "%s" (not shown): ' % login.user
 		login.password = getpass.getpass(tmp)
-		gmLog2.add_word2hide(login.password)
+		gmLog.add_word2hide(login.password)
 		login.port = prompted_input(prompt = "port", default = 5432)
 	except KeyboardInterrupt:
 		_log.warning("user cancelled text mode login dialog")
@@ -373,7 +373,7 @@ def __request_login_params_gui_wx():
 	if login is None:
 		raise gmExceptions.ConnectionError(_("Can't connect to database without login information!"))
 
-	gmLog2.add_word2hide(login.password)
+	gmLog.add_word2hide(login.password)
 	creds = gmConnectionPool.cPGCredentials()
 	creds.database = login.database
 	creds.host = login.host
@@ -2568,7 +2568,7 @@ def run_ro_queries (
 
 #------------------------------------------------------------------------
 def log_notices(notices_accessor=None):
-	gmLog2.log_multiline (
+	gmLog.log_multiline (
 		line_prefix = ' >PG:',
 		text = [ n.strip('\n') for n in notices_accessor.notices ]
 	)
@@ -2714,13 +2714,13 @@ def run_rw_queries (
 				close_conn
 			)
 			__perhaps_reraise_as_permissions_error(pg_exc, curs)
-			gmLog2.log_stack_trace()
+			gmLog.log_stack_trace()
 			raise
 
 		except Exception:						# other exceptions
 			_log.exception('error running query in RW connection')
 			gmConnectionPool.log_cursor_state(curs)
-			gmLog2.log_stack_trace()
+			gmLog.log_stack_trace()
 			__safely_close_cursor_and_rollback_close_conn (
 				close_cursor,
 				rollback_tx,
@@ -2743,7 +2743,7 @@ def run_rw_queries (
 		data = curs.fetchall()
 	except Exception:
 		_log.exception('error fetching data from RW query')
-		gmLog2.log_stack_trace()
+		gmLog.log_stack_trace()
 		__safely_close_cursor_and_rollback_close_conn (
 			close_cursor,
 			rollback_tx,
@@ -3088,7 +3088,7 @@ if __name__ == "__main__":
 	#from Gnumed.pycommon.gmTools import file2md5
 
 	logging.basicConfig(level=logging.DEBUG)
-	gmLog2.print_logfile_name()
+	gmLog.print_logfile_name()
 
 	#--------------------------------------------------------------------
 	def test_file2bytea():

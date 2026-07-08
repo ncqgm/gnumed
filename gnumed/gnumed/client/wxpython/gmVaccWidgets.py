@@ -1155,7 +1155,7 @@ if __name__ == "__main__":
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	from Gnumed.pycommon import gmLog2
+	from Gnumed.pycommon import gmLog
 
 	#------------------------------------------------------------------
 	def test_failsafe_vacc_hx():
@@ -1187,7 +1187,7 @@ if __name__ == "__main__":
 		wx.GetApp().MainLoop()
 
 	#------------------------------------------------------------------
-	gmLog2.print_logfile_name()
+	gmLog.print_logfile_name()
 	#test_manage_vaccines()
 	test_manage_vaccinations()
 	#test_cVaccinePhraseWheel()

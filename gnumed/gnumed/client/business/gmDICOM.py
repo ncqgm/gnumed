@@ -1777,8 +1777,8 @@ if __name__ == "__main__":
 	if len(sys.argv) == 1:
 		sys.exit()
 
-	from Gnumed.pycommon import gmLog2
-	gmLog2.print_logfile_name()
+	from Gnumed.pycommon import gmLog
+	gmLog.print_logfile_name()
 
 	if sys.argv[1] != 'test':
 		fname = sys.argv[1]

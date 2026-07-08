@@ -13,7 +13,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmLog2
+from Gnumed.pycommon import gmLog
 
 
 _log = logging.getLogger('gm.printing')
@@ -246,7 +246,7 @@ def _print_files_by_os_startfile(filenames=None):
 					os.startfile(fname)				# pylint: disable=no-member
 		except Exception:
 			_log.exception('os.startfile() failed')
-			gmLog2.log_stack_trace()
+			gmLog.log_stack_trace()
 			return False
 	return True
 

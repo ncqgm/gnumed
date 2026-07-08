@@ -9,7 +9,7 @@ Theory of operation:
 This module tailors the standard logging framework to
 the needs of GNUmed.
 
-By importing gmLog2 into your code you'll get the root
+By importing gmLog into your code you'll get the root
 logger send to a unicode file with messages in a format useful
 for debugging. The filename is either taken from the
 command line (--log-file=...) or derived from the name
@@ -32,7 +32,7 @@ By importing "logging" and getting a logger your modules
 never need to worry about the real message destination or whether
 at any given time there's a valid logger available.
 
-Your MAIN module simply imports gmLog2 and all other modules
+Your MAIN module simply imports gmLog and all other modules
 will merrily and automagically start logging away.
 
 
@@ -399,7 +399,7 @@ if __name__ == '__main__':
 	def test():
 		print_logfile_name()
 		log_step(message = 'testing')
-		logger = logging.getLogger('gmLog2.test')
+		logger = logging.getLogger('gmLog.test')
 		log_step()
 		logger.error('test %s', [1,2,3])
 		log_step(message = 'still testing')

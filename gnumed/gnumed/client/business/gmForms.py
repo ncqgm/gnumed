@@ -31,7 +31,7 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmMatchProvider
-from Gnumed.pycommon import gmLog2
+from Gnumed.pycommon import gmLog
 from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmCfgINI
@@ -477,7 +477,7 @@ class cAbiWordForm(cFormEngine):
 			open(instance_file, 'r').close()
 		except Exception:
 			_log.exception('cannot access form instance file [%s]', instance_file)
-			gmLog2.log_stack_trace()
+			gmLog.log_stack_trace()
 			return None
 		self.instance_filename = instance_file
 
@@ -1008,7 +1008,7 @@ class cLaTeXForm(cFormEngine):
 			open(instance_file, 'r').close()
 		except Exception:
 			_log.exception('cannot access form instance file [%s]', instance_file)
-			gmLog2.log_stack_trace()
+			gmLog.log_stack_trace()
 			return None
 
 		self.instance_filename = instance_file
@@ -1193,7 +1193,7 @@ class cXeTeXForm(cFormEngine):
 			open(instance_file, 'r').close()
 		except Exception:
 			_log.exception('cannot access form instance file [%s]', instance_file)
-			gmLog2.log_stack_trace()
+			gmLog.log_stack_trace()
 			return None
 
 		self.instance_filename = instance_file
@@ -1800,7 +1800,7 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	gmLog2.print_logfile_name()
+	gmLog.print_logfile_name()
 
 	gmDateTime.init()
 

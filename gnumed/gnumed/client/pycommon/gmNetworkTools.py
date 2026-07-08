@@ -21,7 +21,7 @@ import webbrowser
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
-from Gnumed.pycommon import gmLog2
+from Gnumed.pycommon import gmLog
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmCfgINI
@@ -80,7 +80,7 @@ def download_file(url, filename=None, suffix=None):
 		dl_name, headers = urllib.request.urlretrieve(url, filename)
 	except (ValueError, OSError, IOError):
 		_log.exception('cannot download from [%s]', url)
-		gmLog2.log_stack_trace()
+		gmLog.log_stack_trace()
 		return None
 
 	_log.debug('%s' % headers)
@@ -163,7 +163,7 @@ def unzip_data_pack(filename=None):
 		data_pack = zipfile.ZipFile(filename, 'r')
 	except (zipfile.BadZipfile):
 		_log.exception('cannot unzip data pack [%s]', filename)
-		gmLog2.log_stack_trace()
+		gmLog.log_stack_trace()
 		return None
 
 	data_pack.extractall(unzip_dir)
@@ -490,7 +490,7 @@ def send_email(sender=None, receiver=None, email=None, server=None, auth=None, d
 	except smtplib.SMTPException:
 		failed = True
 		_log.exception('cannot send email')
-		gmLog2.log_stack_trace()
+		gmLog.log_stack_trace()
 
 	if len(refused) > 0:
 		_log.error("refused recipients: %s" % refused)

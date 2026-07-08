@@ -3324,8 +3324,8 @@ if __name__ == '__main__':
 	gmI18N.activate_locale()
 	gmI18N.install_domain('gnumed')
 	from Gnumed.pycommon import gmPG2
-	from Gnumed.pycommon import gmLog2
-	gmLog2.print_logfile_name()
+	from Gnumed.pycommon import gmLog
+	gmLog.print_logfile_name()
 
 	#--------------------------------------------------------
 	def __test_placeholders():

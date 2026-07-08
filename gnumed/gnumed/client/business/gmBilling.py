@@ -893,7 +893,6 @@ if __name__ == "__main__":
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-#	from Gnumed.pycommon import gmLog2
 #	from Gnumed.pycommon import gmI18N
 #	from Gnumed.business import gmPerson
 	from Gnumed.business import gmPraxis

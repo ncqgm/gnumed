@@ -23,7 +23,7 @@ import shutil
 # GNUmed libs
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog2
+from Gnumed.pycommon import gmLog
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmMimeLib
@@ -77,7 +77,7 @@ def create_encrypted_zip_archive_from_dir(source_dir:str, comment:str=None, over
 		_log.error('<passphrase> must be at least 5 characters/signs/digits')
 		return None
 
-	gmLog2.add_word2hide(passphrase)
+	gmLog.add_word2hide(passphrase)
 	source_dir = os.path.abspath(source_dir)
 	if not os.path.isdir(source_dir):
 		_log.error('<source_dir> does not exist or is not a directory: %s', source_dir)
@@ -384,7 +384,7 @@ def decrypt_pdf(filename:str=None, passphrase:str=None, verbose:bool=False) -> s
 	assert (filename is not None), '<filename> must not be None'
 	assert (passphrase is not None), '<passphrase> must not be None'
 
-	gmLog2.add_word2hide(passphrase)
+	gmLog.add_word2hide(passphrase)
 	_log.debug('attempting PDF decryption')
 	for cmd in ['qpdf', 'qpdf.exe']:
 		found, binary = gmShellAPI.detect_external_binary(binary = cmd)
@@ -518,7 +518,7 @@ def encrypt_file_symmetric_7z(filename:str=None, passphrase:str=None, comment:st
 		_log.error('<passphrase> must be at least 5 characters/signs/digits')
 		return None
 
-	gmLog2.add_word2hide(passphrase)
+	gmLog.add_word2hide(passphrase)
 
 	#add 7z/winzip url to comment.txt
 	_log.debug('attempting 7z AES encryption')
@@ -578,7 +578,7 @@ def encrypt_pdf(filename:str=None, passphrase:str=None, verbose:bool=False, remo
 		_log.error('<passphrase> must be at least 5 characters/signs/digits')
 		return None
 
-	gmLog2.add_word2hide(passphrase)
+	gmLog.add_word2hide(passphrase)
 	_log.debug('attempting PDF encryption')
 	for cmd in ['qpdf', 'qpdf.exe']:
 		found, binary = gmShellAPI.detect_external_binary(binary = cmd)
@@ -858,7 +858,7 @@ def encrypt_data_with_7z(data, passphrase:str=None, verbose:bool=False) -> str:
 		_log.error('<passphrase> must be at least 5 characters/signs/digits')
 		return None
 
-	gmLog2.add_word2hide(passphrase)
+	gmLog.add_word2hide(passphrase)
 	_log.debug('attempting 7z AES encryption')
 	for cmd in ['7z', '7z.exe']:
 		found, binary = gmShellAPI.detect_external_binary(binary = cmd)
@@ -916,7 +916,7 @@ def encrypt_data_with_gpg_symmetrically(data, passphrase:str=None, comment:str=N
 		_log.error('<passphrase> must be at least 5 characters/signs/digits')
 		return None
 
-	gmLog2.add_word2hide(passphrase)
+	gmLog.add_word2hide(passphrase)
 	_log.debug('attempting GPG AES encryption')
 	for cmd in ['gpg2', 'gpg', 'gpg2.exe', 'gpg.exe']:
 		found, binary = gmShellAPI.detect_external_binary(binary = cmd)
@@ -1112,7 +1112,7 @@ if __name__ == '__main__':
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 
-	gmLog2.print_logfile_name()
+	gmLog.print_logfile_name()
 
 	#-----------------------------------------------------------------------
 	def test_gpg_decrypt():

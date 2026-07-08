@@ -23,7 +23,7 @@ import lxml.etree as lxml_etree
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
-	from Gnumed.pycommon import gmLog2
+	from Gnumed.pycommon import gmLog
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 from Gnumed.business import gmPerson
@@ -336,7 +336,7 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	print('log file:', gmLog2._logfile_name)
+	print('log file:', gmLog._logfile_name)
 
 	gmDateTime.init()
 

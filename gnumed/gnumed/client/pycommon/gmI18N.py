@@ -570,8 +570,8 @@ if __name__ == "__main__":
 	del _
 
 	sys.path.insert(0, '../../')
-	from Gnumed.pycommon import gmLog2
-	gmLog2.print_logfile_name()
+	from Gnumed.pycommon import gmLog
+	gmLog.print_logfile_name()
 
 	#----------------------------------------------------------------------
 	def test_strcoll():

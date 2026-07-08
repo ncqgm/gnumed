@@ -16,7 +16,7 @@ from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmNull
 from Gnumed.pycommon import gmBorg
-from Gnumed.pycommon import gmLog2
+from Gnumed.pycommon import gmLog
 from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmTools
 
@@ -59,7 +59,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 				rows = gmPG2.run_ro_queries(queries = [{'sql': cmd}])
 			except Exception:
 				_log.exception('cannot instantiate staff instance')
-				gmLog2.log_stack_trace()
+				gmLog.log_stack_trace()
 				raise ValueError('cannot instantiate staff instance for database account CURRENT_USER')
 			if len(rows) == 0:
 				raise ValueError('no staff record for database account CURRENT_USER')

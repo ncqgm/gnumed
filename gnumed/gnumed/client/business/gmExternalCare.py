@@ -190,7 +190,6 @@ if __name__ == "__main__":
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	#from Gnumed.pycommon import gmLog2
 	#-----------------------------------------
 	def test_get_care_items():
 		for item in get_external_care_items(pk_identity = 12, order_by = 'provider'):

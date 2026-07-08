@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmCfgINI
-from Gnumed.pycommon import gmLog2
+from Gnumed.pycommon import gmLog
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmNetworkTools
@@ -113,7 +113,7 @@ def __handle_exceptions_on_shutdown(t, v, tb):
 	if t == RuntimeError:
 		return True
 
-	gmLog2.log_stack_trace('exception on shutdown', t, v, tb)
+	gmLog.log_stack_trace('exception on shutdown', t, v, tb)
 	return True
 
 #-------------------------------------------------------------------------
@@ -166,7 +166,7 @@ def __handle_access_violation(t, v, tb):
 
 	_log.error('access permissions violation detected')
 	wx.EndBusyCursor()
-	gmLog2.flush()
+	gmLog.flush()
 	txt = ' ' + v.errmsg
 	if v.source is not None:
 		txt += _('\n Source: %s') % v.source
@@ -195,9 +195,9 @@ def __handle_lost_db_connection(t, v, tb):
 		return False
 
 	gmPG2.log_pg_exception_details(v)
-	gmLog2.log_stack_trace('lost connection', t, v, tb)
+	gmLog.log_stack_trace('lost connection', t, v, tb)
 	wx.EndBusyCursor()
-	gmLog2.flush()
+	gmLog.flush()
 	gmGuiHelpers.gm_show_error (
 		title = _('Lost connection'),
 		error = _(
@@ -255,7 +255,7 @@ def handle_uncaught_exception_wx(t, v, tb):
 	if __handle_lost_db_connection(t, v, tb):
 		return
 
-	gmLog2.log_stack_trace(None, t, v, tb)
+	gmLog.log_stack_trace(None, t, v, tb)
 
 	# only do this here or else we can invalidate the stack trace
 	# by Windows throwing an exception ... |-(
@@ -280,7 +280,7 @@ def handle_uncaught_exception_wx(t, v, tb):
 		_log.error('user comment: %s', comment.strip())
 
 	_log.warning('syncing log file for backup to [%s]', new_name)
-	gmLog2.flush()
+	gmLog.flush()
 	# keep a copy around
 	shutil.copy2(_LOGFILE_NAME, new_name)
 
@@ -289,7 +289,7 @@ def install_wx_exception_handler():
 	# localize data so during an exception we need to
 	# call as little outside code as necessary
 	global _LOGFILE_NAME
-	_LOGFILE_NAME = gmLog2._logfile_name
+	_LOGFILE_NAME = gmLog._logfile_name
 	global _LOCAL_ACCOUNT
 	_LOCAL_ACCOUNT = os.path.basename(os.path.expanduser('~'))
 	global _APP_PID
@@ -428,7 +428,7 @@ def mail_log(parent=None, comment=None, helpdesk=None, sender=None, exception=No
 	if include_log:
 		_log.error(comment)
 		_log.warning('syncing log file for emailing')
-		gmLog2.flush()
+		gmLog.flush()
 		attachments = [ [_LOGFILE_NAME, 'text/plain', 'quoted-printable'] ]
 	else:
 		attachments = None
@@ -488,7 +488,7 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 		if (comment is not None) and (comment.strip() != ''):
 			_log.error('user comment: %s', comment.strip())
 		_log.warning('syncing log file for backup to [%s]', self.logfile)
-		gmLog2.flush()
+		gmLog.flush()
 		try:
 			shutil.copy2(_LOGFILE_NAME, self.logfile)
 		except IOError:
@@ -525,7 +525,7 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 	def _on_view_log_button_pressed(self, evt):
 		evt.Skip()
 		from Gnumed.pycommon import gmMimeLib
-		gmLog2.flush()
+		gmLog.flush()
 		gmMimeLib.call_viewer_on_file(_LOGFILE_NAME, block = False)
 
 # ========================================================================

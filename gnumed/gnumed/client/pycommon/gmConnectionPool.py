@@ -38,7 +38,7 @@ import psycopg2.errorcodes as PG_error_codes
 # GNUmed module imports
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog2
+from Gnumed.pycommon import gmLog
 from Gnumed.pycommon import gmBorg
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
@@ -784,7 +784,7 @@ class cPGCredentials:
 
 	def _set_password(self, password:str=None):
 		if password is not None:
-			gmLog2.add_word2hide(password)
+			gmLog.add_word2hide(password)
 		self.__password = password
 		_log.info('password was set')
 
@@ -1385,7 +1385,7 @@ def log_pg_settings(curs) -> bool:
 		_log.exception('cannot log actual collation version (probably PG < 15)')
 		curs.execute('SELECT * FROM pg_database WHERE datname = current_database()')
 	config = curs.fetchall()
-	gmLog2.log_multiline(10, message = 'PG database config', text = gmTools.format_dict_like(dict(config[0]), tabular = True))
+	gmLog.log_multiline(10, message = 'PG database config', text = gmTools.format_dict_like(dict(config[0]), tabular = True))
 	return True
 
 #--------------------------------------------------
@@ -1455,7 +1455,7 @@ Query
 		# query level:
 		query
 	)
-	gmLog2.log_multiline(logging.DEBUG, message = 'Link state:', line_prefix = '', text = txt)
+	gmLog.log_multiline(logging.DEBUG, message = 'Link state:', line_prefix = '', text = txt)
 
 #--------------------------------------------------
 def log_conn_state(conn:psycopg2.extras.DictConnection) -> None:
@@ -1516,7 +1516,7 @@ def log_role_permissions(curs, role:str=None):
 		_log.debug('no permissions')
 		return
 
-	gmLog2.log_multiline (
+	gmLog.log_multiline (
 		message = msg,
 		line_prefix = ' ',
 		text = [ '%(privilege_type)10s  ON  %(name_1)s.%(name_2)s.%(name_3)s (%(object_type)s)' % p for p in perms ]
@@ -1597,7 +1597,7 @@ if __name__ == "__main__":
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	gmLog2.print_logfile_name()
+	gmLog.print_logfile_name()
 
 	#--------------------------------------------------------------------
 	def test_exceptions():

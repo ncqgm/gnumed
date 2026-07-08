@@ -7,7 +7,7 @@ __license__ = 'GPL v2 or later (details at https://www.gnu.org)'
 import sys, logging
 sys.path.insert(0, '../../')
 
-from Gnumed.pycommon import gmLog2, gmI18N
+from Gnumed.pycommon import gmLog, gmI18N
 gmI18N.activate_locale()
 _log = logging.getLogger('gm.test')
 
@@ -40,18 +40,5 @@ try:
 	print "==> success"
 except Exception:
 	_log.exception('query failed')
-	gmLog2.log_stack_trace('query failed')
+	gmLog.log_stack_trace('query failed')
 	print "==> failure"
-
-# =======================================================================
-# $Log: test-psycopg2_datetime-as_gnumed.py,v $
-# Revision 1.3  2009-02-18 13:46:02  ncq
-# - add example for succeeding time zone
-#
-# Revision 1.2  2009/02/17 17:47:07  ncq
-# - adjust path
-#
-# Revision 1.1  2009/02/10 18:47:25  ncq
-# - more TZ trouble test cases
-#
-#

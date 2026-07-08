@@ -203,7 +203,7 @@ if __name__ == "__main__":
 
 	gmTools.gmPaths()
 
-	from Gnumed.pycommon import gmLog2
+	from Gnumed.pycommon import gmLog
 
 	#-------------------------------------------------------
 	def test():
@@ -211,6 +211,6 @@ if __name__ == "__main__":
 		print('appts:', get_appointments_for_today_from_korganizer(verbose = True))
 
 	#-------------------------------------------------------
-	gmLog2.print_logfile_name()
+	gmLog.print_logfile_name()
 	_KONSOLEKALENDAR_TIMEOUT = 10
 	test()

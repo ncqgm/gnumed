@@ -101,7 +101,7 @@ sys.path.insert(0, local_python_base_dir)
 
 # GNUmed imports
 try:
-	from Gnumed.pycommon import gmLog2
+	from Gnumed.pycommon import gmLog
 except ImportError:
 	print("""Please make sure the GNUmed Python modules are in the Python path !""")
 	raise
@@ -120,7 +120,7 @@ import gmAuditSchemaGenerator
 
 _log = logging.getLogger('gm.bootstrapper')
 _QUIET = False
-#faulthandler.enable(file = gmLog2._logfile)
+#faulthandler.enable(file = gmLog._logfile)
 _cfg = gmCfgINI.gmCfgData()
 _interactive = None
 _keep_temp_files = False
@@ -539,7 +539,7 @@ class cDatabase:
 
 		# fingerprint source db (previous GNUmed version)
 		try:
-			gmLog2.log_multiline (
+			gmLog.log_multiline (
 				logging.INFO,
 				message = 'source database fingerprint',
 				text = gmPG2.get_db_fingerprint(conn = self.conn, eol = '\n')
@@ -1572,7 +1572,7 @@ def exit_with_msg(aMsg = None):
 	print('')
 	print("Please check the log file for details:")
 	print('')
-	print(' ', gmLog2._logfile_name)
+	print(' ', gmLog._logfile_name)
 	print('')
 	_log.error(aMsg)
 	_log.info('shutdown')
@@ -1636,7 +1636,7 @@ def handle_cfg():
 		db = _bootstrapped_dbs[db_key]
 	if db is not None:
 		try:
-			gmLog2.log_multiline (
+			gmLog.log_multiline (
 				logging.INFO,
 				message = 'target database fingerprint',
 				text = gmPG2.get_db_fingerprint(conn = db.conn, eol = '\n')
@@ -1709,7 +1709,7 @@ def main():
 	db.check_holy_auth_line()
 	_log.info("shutdown")
 	print("Done bootstrapping GNUmed database: We very likely succeeded.")
-	print('log:', gmLog2._logfile_name)
+	print('log:', gmLog._logfile_name)
 
 #==================================================================
 #==================================================================

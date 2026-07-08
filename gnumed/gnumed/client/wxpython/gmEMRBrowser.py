@@ -29,7 +29,7 @@ else:
 from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmLog2
+from Gnumed.pycommon import gmLog
 
 from Gnumed.exporters import gmPatientExporter
 
@@ -199,7 +199,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			_log.error('node.IsOk(): %s', item.IsOk())		# already survived this further up
 			_log.error('is root node: %s', item == self.GetRootItem())
 			_log.error('node attributes: %s', dir(item))
-			gmLog2.log_stack_trace()
+			gmLog.log_stack_trace()
 			return 'invalid item'
 
 		if isinstance(node_data, gmHealthIssue.cHealthIssue):
@@ -343,7 +343,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			_log.error('node.IsOk(): %s', self.__curr_node.IsOk())		# already survived this further up
 			_log.error('is root node: %s', self.__curr_node == self.GetRootItem())
 			_log.error('node attributes: %s', dir(self.__curr_node))
-			gmLog2.log_stack_trace()
+			gmLog.log_stack_trace()
 
 		if isinstance(node_data, gmHealthIssue.cHealthIssue):
 			self.__update_text_for_issue_node(node_data)
@@ -2031,6 +2031,6 @@ if __name__ == '__main__':
 		wx.GetApp().MainLoop()
 
 	#--------------------------------------------------------
-	gmLog2.print_logfile_name()
+	gmLog.print_logfile_name()
 	test_list_journal()
 	#test_config_list_journal()

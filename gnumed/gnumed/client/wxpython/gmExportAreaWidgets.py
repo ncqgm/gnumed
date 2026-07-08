@@ -27,7 +27,7 @@ from Gnumed.pycommon import gmPrinting
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmNetworkTools
 from Gnumed.pycommon import gmCfgINI
-from Gnumed.pycommon import gmLog2
+from Gnumed.pycommon import gmLog
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmExportArea
@@ -1231,7 +1231,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			if not retry:
 				return None					# user changed her mind
 
-		gmLog2.add_word2hide(master_pwd)		# confidentiality
+		gmLog.add_word2hide(master_pwd)		# confidentiality
 		# reget password
 		msg = _(
 			'Once more enter master passphrase for safekeeping of paperwork passphrases.\n'
@@ -1281,7 +1281,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			if not retry:
 				return None					# user changed her mind
 
-		gmLog2.add_word2hide(obj_passphrase)		# confidentiality
+		gmLog.add_word2hide(obj_passphrase)		# confidentiality
 		# reget password
 		msg = _(
 			'Once more enter passphrase to protect the object with.\n'

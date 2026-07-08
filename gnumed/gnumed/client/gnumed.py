@@ -581,15 +581,15 @@ def setup_local_repo_path():
 #==========================================================
 def setup_logging():
 	try:
-		from Gnumed.pycommon import gmLog2 as _gmLog2
+		from Gnumed.pycommon import gmLog as _gmLog
 	except ImportError:
 		print(import_error_sermon % '\n '.join(sys.path))
 		sys.exit(1)
 
-	setup_fault_handler(target = _gmLog2._logfile)
-	global gmLog2
-	gmLog2 = _gmLog2
-	gmLog2.print_logfile_name()
+	setup_fault_handler(target = _gmLog._logfile)
+	global gmLog
+	gmLog = _gmLog
+	gmLog.print_logfile_name()
 	global _log
 	_log = logging.getLogger('gm.launcher')
 
@@ -758,7 +758,7 @@ def setup_cli():
 #==========================================================
 def handle_sig_term(signum, frame):
 	_log.critical('SIGTERM (SIG%s) received, shutting down ...' % signum)
-	gmLog2.flush()
+	gmLog.flush()
 	print('GNUmed: SIGTERM (SIG%s) received, shutting down ...' % signum)
 	if frame is not None:
 		print('%s::%s@%s' % (frame.f_code.co_filename, frame.f_code.co_name, frame.f_lineno))
@@ -924,7 +924,7 @@ which need to live at a known location."""
 	__migrate_old_user_gnumed_conf()
 	# symlink log file into temporary directory for easier debugging (everything in one place)
 	logfile_link = os.path.join(paths.tmp_dir, 'zzz-gnumed.log')
-	gmTools.mklink (gmLog2._logfile.name, logfile_link, overwrite = False)
+	gmTools.mklink(gmLog._logfile.name, logfile_link, overwrite = False)
 
 #==========================================================
 def setup_date_time():

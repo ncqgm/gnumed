@@ -36,7 +36,7 @@ from Gnumed.pycommon import gmConnectionPool
 from Gnumed.pycommon import gmBackendListener
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmCfgINI
-from Gnumed.pycommon import gmLog2
+from Gnumed.pycommon import gmLog
 
 from Gnumed.business import gmPraxis
 
@@ -205,7 +205,7 @@ def __database_is_acceptable_for_use(require_version:bool=True, expected_version
 		if insanity_level == 2:
 			return False
 
-	gmLog2.log_multiline (
+	gmLog.log_multiline (
 		logging.DEBUG,
 		message = 'DB seems suitable for use, fingerprint:',
 		text = gmPG2.get_db_fingerprint(eol = '\n')
@@ -238,7 +238,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 			break
 
 		# obscure unconditionally, it could be a valid password
-		gmLog2.add_word2hide(login.password)
+		gmLog.add_word2hide(login.password)
 		# try getting a connection to verify the parameters do work
 		creds = gmConnectionPool.cPGCredentials()
 		creds.database = login.database
@@ -296,7 +296,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 			)
 		gmExceptionHandlingWidgets.set_is_public_database(_cfg.get(option = 'is_public_db'))
 		gmExceptionHandlingWidgets.set_helpdesk(_cfg.get(option = 'helpdesk'))
-		gmLog2.log_multiline (
+		gmLog.log_multiline (
 			logging.DEBUG,
 			message = 'fingerprint',
 			text = gmPG2.get_db_fingerprint(eol = '\n')
@@ -335,7 +335,7 @@ Please enter the current password for <%s>:""") % (
 		if dbo_password == '':
 			return None
 
-	gmLog2.add_word2hide(dbo_password)
+	gmLog.add_word2hide(dbo_password)
 
 	# 2) connect as gm-dbo
 	pool = gmConnectionPool.gmConnectionPool()
@@ -384,7 +384,7 @@ def change_gmdbowner_password():
 	if dbo_pwd_new_1.strip() == '':
 		return False
 
-	gmLog2.add_word2hide(dbo_pwd_new_1)
+	gmLog.add_word2hide(dbo_pwd_new_1)
 
 	dbo_pwd_new_2 = wx.GetPasswordFromUser (
 		message = _("""Enter the NEW password for the GNUmed database owner, again.

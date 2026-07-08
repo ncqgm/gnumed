@@ -21,7 +21,7 @@ from xml.etree import ElementTree as etree
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLog2
+from Gnumed.pycommon import gmLog
 from Gnumed.pycommon import gmI18N
 if __name__ == '__main__':
 	_ = lambda x:x
@@ -318,7 +318,7 @@ class cDTO_person(object):
 				)
 			except Exception:
 				_log.exception('cannot import <external ID> from external data source')
-				gmLog2.log_stack_trace()
+				gmLog.log_stack_trace()
 
 		for comm in self.comm_channels:
 			try:
@@ -328,7 +328,7 @@ class cDTO_person(object):
 				)
 			except Exception:
 				_log.exception('cannot import <comm channel> from external data source')
-				gmLog2.log_stack_trace()
+				gmLog.log_stack_trace()
 
 		for adr in self.addresses:
 			try:
@@ -344,7 +344,7 @@ class cDTO_person(object):
 				)
 			except Exception:
 				_log.exception('cannot import <address> from external data source')
-				gmLog2.log_stack_trace()
+				gmLog.log_stack_trace()
 
 		return self.identity
 	#--------------------------------------------------------
@@ -2493,7 +2493,7 @@ def create_identity(gender=None, dob=None, lastnames:str=None, firstnames:str=No
 		rows = gmPG2.run_rw_queries(queries = queries, return_data = True)
 	except Exception:
 		_log.exception('cannot create identity')
-		gmLog2.log_stack_trace()
+		gmLog.log_stack_trace()
 		return None
 
 	ident = cPerson(aPK_obj = rows[0][0])
@@ -2596,7 +2596,7 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	gmLog2.print_logfile_name()
+	gmLog.print_logfile_name()
 
 	gmDateTime.init()
 

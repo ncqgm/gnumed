@@ -24,7 +24,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmI18N
-from Gnumed.pycommon import gmLog2
+from Gnumed.pycommon import gmLog
 
 
 _log = logging.getLogger('gm.scanning')
@@ -124,7 +124,7 @@ class cTwainScanner:
 			self.__scanner = self.__src_manager.OpenSource()
 		except _twain_module.excDSOpenFailed:
 			_log.exception('cannot open TWAIN data source (image capture device)')
-			gmLog2.log_stack_trace()
+			gmLog.log_stack_trace()
 			return False
 
 		if self.__scanner is None:

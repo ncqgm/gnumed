@@ -479,8 +479,8 @@ if __name__ == '__main__':
 
 	from Gnumed.wxpython import gmGuiTest
 
-	from Gnumed.pycommon import gmLog2
-	gmLog2.print_logfile_name()
+	from Gnumed.pycommon import gmLog
+	gmLog.print_logfile_name()
 	#----------------------------------------
 	def test_grid():
 		main_frame = gmGuiTest.setup_widget_test_env(patient = 12)#-1
