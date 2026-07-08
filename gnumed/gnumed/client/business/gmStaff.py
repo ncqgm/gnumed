@@ -315,9 +315,9 @@ class gmCurrentProvider(gmBorg.cBorg):
 		"""
 		# make sure we do have a provider pointer
 		try:
-			self.provider:cStaff
+			self.provider
 		except AttributeError:
-			self.provider = gmNull.cNull()
+			self.provider:cStaff = gmNull.cNull()
 
 		# user wants copy of currently logged on provider
 		if provider is None:
@@ -404,6 +404,12 @@ if __name__ == '__main__':
 		print(provider.public_key_file)
 
 	#--------------------------------------------------------
+	def test_provider_no_conn():
+		provider = gmCurrentProvider()
+		print(provider)
+		print(provider.provider)
+
+	#--------------------------------------------------------
 	def test_set_pubkey():
 		staff = cStaff(aPK_obj = 1)
 		print(staff)
@@ -417,10 +423,12 @@ if __name__ == '__main__':
 		print('key files:', get_public_keys_of_passphrase_trustees(as_files = True))
 
 	#--------------------------------------------------------
-	gmPG2.request_login_params(setup_pool = True, force_tui = True)
+	#test_provider_no_conn()
+	#sys.exit(0)
 
-	test_staff()
-	#test_current_provider()
+	gmPG2.request_login_params(setup_pool = True, force_tui = True)
+	#test_staff()
+	test_current_provider()
 	#test_trustee_pkeys()
 	#test_set_pubkey()
 

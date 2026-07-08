@@ -303,9 +303,8 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 
 	#------------------------------------------------------------
 	def _on_left_extra_button_pressed(self, event):
-		if self.__left_extra_button_wants_list:
+		if self.__left_extra_button_wants_listctrl:
 			item_data = self._LCTRL_items
-			xxxxxxxxxxxxxxxxxxxxxx
 		else:
 			item_data = self._LCTRL_items.get_selected_item_data(only_one = True)
 		if not self.__left_extra_button_callback(item_data):
@@ -328,7 +327,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 
 	#------------------------------------------------------------
 	def _on_middle_extra_button_pressed(self, event):
-		if self.__middle_extra_button_wants_list:
+		if self.__middle_extra_button_wants_listctrl:
 			item_data = self._LCTRL_items
 		else:
 			item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
@@ -352,7 +351,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 
 	#------------------------------------------------------------
 	def _on_right_extra_button_pressed(self, event):
-		if self.__right_extra_button_wants_list:
+		if self.__right_extra_button_wants_listctrl:
 			item_data = self._LCTRL_items
 		else:
 			item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
@@ -514,19 +513,19 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			self._BTN_extra_left.Enable(False)
 			self._BTN_extra_left.Hide()
 			self.__left_extra_button_callback = None
-			self.__left_extra_button_wants_list = False
+			self.__left_extra_button_wants_listctrl = False
 			return
 
 		if len(definition) == 3:
 			(label, tooltip, callback) = definition
-			wants_list = False
+			wants_listctrl = False
 		else:
-			(label, tooltip, callback, wants_list) = definition
+			(label, tooltip, callback, wants_listctrl) = definition
 
 		if not callable(callback):
 			raise ValueError('<left extra button> callback is not a callable: %s' % callback)
 		self.__left_extra_button_callback = callback
-		self.__left_extra_button_wants_list = wants_list
+		self.__left_extra_button_wants_listctrl = wants_listctrl
 		self._BTN_extra_left.SetLabel(label)
 		self._BTN_extra_left.SetToolTip(tooltip)
 		self._BTN_extra_left.Enable(True)
@@ -540,19 +539,19 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			self._BTN_extra_middle.Enable(False)
 			self._BTN_extra_middle.Hide()
 			self.__middle_extra_button_callback = None
-			self.__middle_extra_button_wants_list = False
+			self.__middle_extra_button_wants_listctrl = False
 			return
 
 		if len(definition) == 3:
 			(label, tooltip, callback) = definition
-			wants_list = False
+			wants_listctrl = False
 		else:
-			(label, tooltip, callback, wants_list) = definition
+			(label, tooltip, callback, wants_listctrl) = definition
 
 		if not callable(callback):
 			raise ValueError('<middle extra button> callback is not a callable: %s' % callback)
 		self.__middle_extra_button_callback = callback
-		self.__middle_extra_button_wants_list = wants_list
+		self.__middle_extra_button_wants_listctrl = wants_listctrl
 		self._BTN_extra_middle.SetLabel(label)
 		self._BTN_extra_middle.SetToolTip(tooltip)
 		self._BTN_extra_middle.Enable(True)
@@ -566,19 +565,19 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			self._BTN_extra_right.Enable(False)
 			self._BTN_extra_right.Hide()
 			self.__right_extra_button_callback = None
-			self.__right_extra_button_wants_list = False
+			self.__right_extra_button_wants_listctrl = False
 			return
 
 		if len(definition) == 3:
 			(label, tooltip, callback) = definition
-			wants_list = False
+			wants_listctrl = False
 		else:
-			(label, tooltip, callback, wants_list) = definition
+			(label, tooltip, callback, wants_listctrl) = definition
 
 		if not callable(callback):
 			raise ValueError('<right extra button> callback is not a callable: %s' % callback)
 		self.__right_extra_button_callback = callback
-		self.__right_extra_button_wants_list = wants_list
+		self.__right_extra_button_wants_listctrl = wants_listctrl
 		self._BTN_extra_right.SetLabel(label)
 		self._BTN_extra_right.SetToolTip(tooltip)
 		self._BTN_extra_right.Enable(True)

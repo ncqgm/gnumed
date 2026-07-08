@@ -34,44 +34,69 @@ from Gnumed.wxpython import gmGuiHelpers
 
 _log = logging.getLogger('gm.gui')
 
-_prev_excepthook = None
-application_is_closing = False
 
+_PREV_EXCEPTHOOK = None
+_APP_PID:int = None
+_LOGFILE_NAME:str = None
+_LOCAL_ACCOUNT:str = None
+_IS_PUBLIC_DATABASE:bool = None
+_CLIENT_VERSION:str = None
+_SENDER_EMAIL:str = None
+_HELPDESK:str = None
+_STAFF_NAME:str = None
+_application_is_closing:bool = False
+
+_BUG_REPORT_TEMPLATE = """\
+Report sent via GNUmed's handler for unexpected exceptions.
+
+user comment  : %s
+
+client version: %s
+
+system account: %s
+staff member  : %s
+sender email  : %s
+
+ # enable Launchpad bug tracking
+ affects gnumed
+ tag automatic-report
+ importance medium
+
+%s
+"""
 #=========================================================================
 def set_client_version(version):
-	global _client_version
-	_client_version = version
+	global _CLIENT_VERSION
+	_CLIENT_VERSION = version
 
 #-------------------------------------------------------------------------
 def set_sender_email(email):
-	global _sender_email
-	_sender_email = email
+	global _SENDER_EMAIL
+	_SENDER_EMAIL = email
 
 #-------------------------------------------------------------------------
 def set_helpdesk(helpdesk):
-	global _helpdesk
-	_helpdesk = helpdesk
+	global _HELPDESK
+	_HELPDESK = helpdesk
 
 #-------------------------------------------------------------------------
 def set_staff_name(staff_name):
-	global _staff_name
-	_staff_name = staff_name
+	global _STAFF_NAME
+	_STAFF_NAME = staff_name
 
 #-------------------------------------------------------------------------
 def set_is_public_database(value):
-	global _is_public_database
-	_is_public_database = value
+	global _IS_PUBLIC_DATABASE
+	_IS_PUBLIC_DATABASE = value
 
 #-------------------------------------------------------------------------
 # exception handlers
 #-------------------------------------------------------------------------
 def __ignore_dead_objects_from_async(t, v, tb):
-
 	if t != RuntimeError:
 		return False
 
 	wx.EndBusyCursor()
-
 	# try to ignore those, they come about from doing
 	# async work in wx as Robin tells us
 	_log.error('RuntimeError = dead object: %s', v)
@@ -81,7 +106,7 @@ def __ignore_dead_objects_from_async(t, v, tb):
 #-------------------------------------------------------------------------
 def __handle_exceptions_on_shutdown(t, v, tb):
 
-	if not application_is_closing:
+	if not _application_is_closing:
 		return False
 
 	# dead object error ?
@@ -237,7 +262,7 @@ def handle_uncaught_exception_wx(t, v, tb):
 	# careful: MSW does reference counting on Begin/End* :-(
 	wx.EndBusyCursor()
 
-	name = os.path.basename(_logfile_name)
+	name = os.path.basename(_LOGFILE_NAME)
 	name, ext = os.path.splitext(name)
 	new_name = os.path.expanduser(os.path.join (
 		'~',
@@ -257,49 +282,44 @@ def handle_uncaught_exception_wx(t, v, tb):
 	_log.warning('syncing log file for backup to [%s]', new_name)
 	gmLog2.flush()
 	# keep a copy around
-	shutil.copy2(_logfile_name, new_name)
+	shutil.copy2(_LOGFILE_NAME, new_name)
 
 #------------------------------------------------------------------------
 def install_wx_exception_handler():
-
-	global _logfile_name
-	_logfile_name = gmLog2._logfile_name
-
-	global _local_account
-	_local_account = os.path.basename(os.path.expanduser('~'))
-
+	# localize data so during an exception we need to
+	# call as little outside code as necessary
+	global _LOGFILE_NAME
+	_LOGFILE_NAME = gmLog2._logfile_name
+	global _LOCAL_ACCOUNT
+	_LOCAL_ACCOUNT = os.path.basename(os.path.expanduser('~'))
+	global _APP_PID
+	_APP_PID = os.getpid()
+	_log.debug('registered PID [%s] for aborting if necessary', _APP_PID)
 	set_helpdesk(gmPraxis.gmCurrentPraxisBranch().helpdesk)
-	set_staff_name(_local_account)
+	set_staff_name(_LOCAL_ACCOUNT)
 	set_is_public_database(False)
 	set_sender_email(None)
 	set_client_version('gmExceptionHandlingWidgets.py <default>')
-
 	gmDispatcher.connect(signal = 'application_closing', receiver = _on_application_closing)
-
-	global APP_PID
-	APP_PID = os.getpid()
-	_log.debug('registered PID [%s] for aborting if necessary', APP_PID)
-
-	global _prev_excepthook
-	_prev_excepthook = sys.excepthook
+	global _PREV_EXCEPTHOOK
+	_PREV_EXCEPTHOOK = sys.excepthook
 	sys.excepthook = handle_uncaught_exception_wx
-
 	return True
 
 #------------------------------------------------------------------------
 def uninstall_wx_exception_handler():
-	if _prev_excepthook is None:
+	if _PREV_EXCEPTHOOK is None:
 		sys.excepthook = sys.__excepthook__
 		return True
-	sys.excepthook = _prev_excepthook
+	sys.excepthook = _PREV_EXCEPTHOOK
 	return True
 
 #------------------------------------------------------------------------
 def _on_application_closing():
-	global application_is_closing
+	global _application_is_closing
 	# used to ignore a few exceptions, such as when the
 	# C++ object has been destroyed before the Python one
-	application_is_closing = True
+	_application_is_closing = True
 
 # ========================================================================
 def mail_log(parent=None, comment=None, helpdesk=None, sender=None, exception=None):
@@ -324,7 +344,7 @@ def mail_log(parent=None, comment=None, helpdesk=None, sender=None, exception=No
 			flags = regex.UNICODE
 		)
 	if len(receivers) == 0:
-		if _is_public_database:
+		if _IS_PUBLIC_DATABASE:
 			receivers = ['gnumed-bugs@gnu.org']
 
 	receiver_string = wx.GetTextFromUser (
@@ -347,7 +367,6 @@ def mail_log(parent=None, comment=None, helpdesk=None, sender=None, exception=No
 		receiver_string,
 		flags = regex.UNICODE
 	)
-
 	dlg = gmGuiHelpers.c2ButtonQuestionDlg (
 		parent,
 		-1,
@@ -370,14 +389,14 @@ def mail_log(parent=None, comment=None, helpdesk=None, sender=None, exception=No
 		show_checkbox = True,
 		checkbox_msg = _('include log file in bug report')
 	)
-	dlg._CHBOX_dont_ask_again.SetValue(_is_public_database)
+	dlg._CHBOX_dont_ask_again.SetValue(_IS_PUBLIC_DATABASE)
 	go_ahead = dlg.ShowModal()
 	if go_ahead == wx.ID_NO:
 		dlg.DestroyLater()
 		return
 
 	include_log = dlg._CHBOX_dont_ask_again.GetValue()
-	if not _is_public_database:
+	if not _IS_PUBLIC_DATABASE:
 		if include_log:
 			result = gmGuiHelpers.gm_show_question (
 				_(
@@ -395,52 +414,30 @@ def mail_log(parent=None, comment=None, helpdesk=None, sender=None, exception=No
 				_('Sending bug report')
 			)
 			include_log = (result is True)
-
 	if sender is None:
 		sender = _('<not supplied>')
 	else:
 		if sender.strip() == '':
 			sender = _('<not supplied>')
-
 	if exception is None:
 		exc_info = ''
 	else:
 		t, v, tb = exception
 		exc_info = 'Exception:\n\n type: %s\n value: %s\n\nTraceback:\n\n%s' % (t, v, ''.join(traceback.format_tb(tb)))
-
-	msg = """\
-Report sent via GNUmed's handler for unexpected exceptions.
-
-user comment  : %s
-
-client version: %s
-
-system account: %s
-staff member  : %s
-sender email  : %s
-
- # enable Launchpad bug tracking
- affects gnumed
- tag automatic-report
- importance medium
-
-%s
-""" % (comment, _client_version, _local_account, _staff_name, sender, exc_info)
+	msg = _BUG_REPORT_TEMPLATE % (comment, _CLIENT_VERSION, _LOCAL_ACCOUNT, _STAFF_NAME, sender, exc_info)
 	if include_log:
 		_log.error(comment)
 		_log.warning('syncing log file for emailing')
 		gmLog2.flush()
-		attachments = [ [_logfile_name, 'text/plain', 'quoted-printable'] ]
+		attachments = [ [_LOGFILE_NAME, 'text/plain', 'quoted-printable'] ]
 	else:
 		attachments = None
-
 	dlg.DestroyLater()
-
 	wx.BeginBusyCursor()
 	_cfg = gmCfgINI.gmCfgData()
 	try:
 		gmNetworkTools.compose_and_send_email (
-			sender = '%s <%s>' % (_staff_name, gmNetworkTools.default_mail_sender),
+			sender = '%s <%s>' % (_STAFF_NAME, gmNetworkTools.default_mail_sender),
 			receiver = receivers,
 			subject = '<bug>: %s' % comment,
 			message = msg,
@@ -470,11 +467,11 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 
 		wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg.__init__(self, *args, **kwargs)
 
-		self.Title = '%s [PID %s]' % (self.Title, APP_PID)
+		self.Title = '%s [PID %s]' % (self.Title, _APP_PID)
 
-		if _sender_email is not None:
-			self._TCTRL_sender.SetValue(_sender_email)
-		self._TCTRL_helpdesk.SetValue(_helpdesk)
+		if _SENDER_EMAIL is not None:
+			self._TCTRL_sender.SetValue(_SENDER_EMAIL)
+		self._TCTRL_helpdesk.SetValue(_HELPDESK)
 		self._TCTRL_logfile.SetValue(self.logfile)
 		t, v, tb = self.__exception
 		self._TCTRL_traceback.SetValue ('%s: %s\n%s: %s\n%s' % (
@@ -493,7 +490,7 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 		_log.warning('syncing log file for backup to [%s]', self.logfile)
 		gmLog2.flush()
 		try:
-			shutil.copy2(_logfile_name, self.logfile)
+			shutil.copy2(_LOGFILE_NAME, self.logfile)
 		except IOError:
 			_log.error('cannot backup log file')
 		top_win = wx.GetApp().GetTopWindow()
@@ -506,7 +503,7 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 		print('running os.abort()')
 		os.abort()
 		print('running os.kill(9) on current process')
-		os.kill(APP_PID, 9)
+		os.kill(_APP_PID, 9)
 		print('running sys.exit()')
 		sys.exit(-999)
 		# ideas:
@@ -529,6 +526,6 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 		evt.Skip()
 		from Gnumed.pycommon import gmMimeLib
 		gmLog2.flush()
-		gmMimeLib.call_viewer_on_file(_logfile_name, block = False)
+		gmMimeLib.call_viewer_on_file(_LOGFILE_NAME, block = False)
 
 # ========================================================================

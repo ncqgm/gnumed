@@ -74,11 +74,15 @@ else:
 # GNUmed module imports
 from Gnumed.pycommon import ...
 
-# CONSTANTS
-A_FIXED_VALUE = 'abc'
+# CONSTANTS (and set-once module-level variables)
+A_FIXED_VALUE:int = -1
+_A_PSEUDO_PRIVATE_FIXED_VALUE:str = 'only use here'
+TO_BE_SET_ONCE_AT_STARTUP:list[str|int] = None
 
-# globals
+# module global class instances
 _log = logging.getLogger('gm.ABCD')
+_cfg = ...
+
 #============================================================
 
 ... code ...
