@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-14 22:53+0200\n"
-"PO-Revision-Date: 2026-06-14 12:08+0200\n"
+"POT-Creation-Date: 2026-07-08 19:55+0200\n"
+"PO-Revision-Date: 2026-07-05 23:11+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -4837,6 +4837,85 @@ msgstr "Einheit"
 msgid "pro"
 msgstr "per"
 
+msgid "dialog"
+msgstr "Dialog"
+
+msgid "Filter out SOAP categories, regardless of chart entry type:"
+msgstr "ABDT-Kategorien ausblenden, unabhängig vom Typ des Karteieintrags:"
+
+msgid ""
+"Chart entry types: Types of entries in the patient chart, such as\n"
+"- vaccination\n"
+"- procedure\n"
+"- episode\n"
+"- narrative\n"
+"...\n"
+"\n"
+"SOAP: The category of a chart entry.\n"
+" S: Subjective\n"
+" O: Objective\n"
+" A: Assessment\n"
+" P: Plan\n"
+" U: Unspecified (but a clinical entry)\n"
+" Empty: Administrative (non-clinical entries)\n"
+"\n"
+"Some entries will always be of a given category (eg medication intakes are "
+"\"Plan\"), while others may be of varying category (progress notes can be "
+"any of SOAP)."
+msgstr ""
+"Karteieintragstypen: Arten von Einträgen in der Akte, z.B.:\n"
+"- Impfung\n"
+"- Maßnahme\n"
+"- Episode\n"
+"- Verlaufsnotiz\n"
+"...\n"
+"\n"
+"ABDT: Die Kategorie eines Eintrags.\n"
+" A: Anamnese\n"
+" B: Befund\n"
+" D: Diagnose / Einschätzung\n"
+" T: Therapieplan\n"
+" U: Unspezifiziert (aber medizinisch)\n"
+" leer: administrativ (nicht-medizinisch)\n"
+"\n"
+"Manche Eintragstypen sind immer in derselben Kategorie (Medikamenteneinnahme "
+"- \"Therapie\"), andere können in unterschiedlichen Kategorien auftreten "
+"(Verlaufsnotizen sind ABDT)."
+
+msgid "Unspecified"
+msgstr "Unbestimmt"
+
+msgid "Administrative"
+msgstr "Verwaltung"
+
+msgid "<chart entry type>"
+msgstr ""
+
+msgid "Show as one-liner.##tx: emr list journal entry type display option"
+msgstr "Als Einzeiler zeigen."
+
+msgid ""
+"Mark to show this chart entry type as a one-liner in the journal listing. "
+"Full details will still be displayed in the details view on the right."
+msgstr ""
+"Ankreuzen, wenn von diesem Eintragstyp in der Journalliste nur die erste "
+"Zeile gezeigt werden soll. Die vollständige Darstellung findet sich in der "
+"Detailansicht."
+
+msgid "Filter out SOAP categories for entry:"
+msgstr "ABDT-Kategorien für diesen Typ Karteieintrag ausblenden:"
+
+msgid ""
+"If all categories are selected, the chart entry type will be filtered out "
+"entirely.\n"
+"\n"
+"If none are selected, the chart entry will not be filtered out at all."
+msgstr ""
+"nWerden alle Kategorien markiert, wird dieser Eintragstyp vollständig "
+"ausgeblendet.\n"
+"\n"
+"Werden keine markiert, unterliegt dieser Typ keiner Filterung."
+
 msgid "Set &translation"
 msgstr "&Übersetzung speichern"
 
@@ -5037,8 +5116,15 @@ msgstr ""
 msgid "Removable media"
 msgstr "Entfernbares Medium"
 
-msgid "Order by:"
-msgstr "Sortieren nach:"
+msgid "Sort by:"
+msgstr "Sortierung:"
+
+msgid "&Event"
+msgstr "&Ereignis"
+
+msgid "Order by time documented as actual occurrence of each chart entry."
+msgstr ""
+"Nach Zeitpunkt des eigentlichen Geschehens des jeweiligen Eintrags ordnen."
 
 msgid "Order by start of encounter a chart entry is linked to."
 msgstr "Nach Beginn des APK, zu welchem ein Eintrag gehört, ordnen."
@@ -5049,30 +5135,14 @@ msgstr "&Bearbeitung"
 msgid "Order by time of most recent edit of each chart entry."
 msgstr "Nach Zeitpunkt der letzten Bearbeitung des jeweiligen Eintrags ordnen."
 
-msgid "&Event"
-msgstr "&Ereignis"
+msgid "Apply filters"
+msgstr "Filter anwenden"
 
-msgid "Order by time documented as actual occurrence of each chart entry."
+msgid " ⚙ "
 msgstr ""
-"Nach Zeitpunkt des eigentlichen Geschehens des jeweiligen Eintrags ordnen."
 
-msgid "Exclude:"
-msgstr "Ausfiltern:"
-
-msgid "SOAP"
-msgstr "ABDT"
-
-msgid "Configure SOAP filtering."
-msgstr "ABDT-Filter konfigurieren."
-
-msgid "Entry"
-msgstr "Eintrag"
-
-msgid "Configure entry type filtering."
-msgstr "Filter nach Typ eines Eintrags konfigurieren."
-
-msgid "🛈"
-msgstr ""
+msgid "Configure filters."
+msgstr "Filter konfigurieren."
 
 msgid "Chec&k"
 msgstr "&Prüfen"
@@ -6435,6 +6505,9 @@ msgstr "Krankenjournal nach letztem Bearbeitungszeitpunkt sortieren."
 
 msgid "Show search dialog."
 msgstr "Suchfunktion anzeigen."
+
+msgid "Order by:"
+msgstr "Sortieren nach:"
 
 msgid "THIS IS NOT A VERIFIED MEASUREMENT. DO NOT USE FOR ACTUAL CARE."
 msgstr "KEINE GEEICHTE MESSUNG. NICHT ZUR BEHANDLUNG ZUGELASSEN."
@@ -8919,12 +8992,6 @@ msgstr ""
 "%sAPKs: %s (%s - %s)\n"
 "%sZuletzt bearbeitet: %s\n"
 
-msgid "Unspecified"
-msgstr "Unbestimmt"
-
-msgid "Administrative"
-msgstr "Verwaltung"
-
 msgid ""
 "An error occurred while retrieving a text\n"
 "dump of the EMR for the active patient.\n"
@@ -8964,6 +9031,9 @@ msgstr "Zuletzt geändert"
 msgid "By"
 msgstr "Von"
 
+msgid "Entry"
+msgstr "Eintrag"
+
 msgid "When"
 msgstr "Wann"
 
@@ -8978,7 +9048,7 @@ msgid "Doc"
 msgstr "Arzt"
 
 msgid "no EMR item attached"
-msgstr "kein Krankenblatteintrag gesetzt"
+msgstr "kein Krankenblatteintrag markiert"
 
 msgid "Click me for more information."
 msgstr "Weitere Informationen auf Knopfdruck."
@@ -12511,6 +12581,9 @@ msgstr ""
 msgid "Cannot activate patient #%s."
 msgstr "Kann Patienten [#%s] nicht aktivieren."
 
+msgid "Please set closing date, receiver address, and VAT status."
+msgstr "Rechnungsdatum, Empfänger und MWST-Status setzen."
+
 msgid ""
 "Cannot create invoice from bill.\n"
 "\n"
@@ -12591,15 +12664,33 @@ msgid "Displaying invoice"
 msgstr "Rechnung anzeigen"
 
 msgid ""
-"Cannot find an existing\n"
-"invoice PDF for this bill.\n"
+"Show existing invoice PDF or regenerate new PDF ?\n"
 "\n"
-"Do you want to create one ?"
+"Generating a new PDF is useful when the\n"
+"invoice template was changed.\n"
+"\n"
+"It will contain the very same bill items\n"
+"and the same invoice ID."
 msgstr ""
-"Es scheint keinen Rechnungsbeleg\n"
-"(PDF) für diese Rechnung zu geben.\n"
+"Den existierenden Rechnungsbeleg zeigen oder einen neuen erzeugen ?\n"
 "\n"
-"Neuen Beleg erzeugen ?"
+"Ein neuer Rechnungsbeleg kann sinnvoll sein,\n"
+"wenn die Rechnungsvorlage geändert wurde.\n"
+"\n"
+"Der Beleg wird dieselben Posten und dieselbe\n"
+"Rechnungsnummer enthalten."
+
+msgid "Existing"
+msgstr "Existierend"
+
+msgid "Show existing invoice PDF"
+msgstr "Existierenden Rechnungsbelegs zeigen"
+
+msgid "Regenerate"
+msgstr "Erstellen"
+
+msgid "Regenerate invoice PDF and show"
+msgstr "Rechnungsbeleg neu erstellen und anzeigen"
 
 msgid ""
 "There is no pre-configured billing address.\n"
@@ -19661,42 +19752,22 @@ msgstr "Neue &Einträge %s"
 msgid "Find text in EMR Journal"
 msgstr "Finde Text im Krankenjournal"
 
+msgid "Chart entry type"
+msgstr "Typ Karteieintrag"
+
+msgid "Database table"
+msgstr "Datenbanktabelle"
+
+#, python-format
+msgid "Chart entry type \"%s\" options:"
+msgstr "Optionen für Karteieinträge vom Typ \"%s\":"
+
 msgid "Happened"
 msgstr "Passiert"
 
 #, python-format
 msgid "Cannot understand item [%s]."
 msgstr "Eintragstyp [%s] unbekannt."
-
-msgid "SOAP categories to exclude"
-msgstr "Auszufilternde ABDT-Kategorien"
-
-msgid "Available categories"
-msgstr "Verfügbare Kategorien"
-
-msgid "Excluded categories"
-msgstr "Auszufilternde Kategorien"
-
-msgid "Item types to exclude"
-msgstr "Auszufilternde Eintragstypen"
-
-msgid "Available item types"
-msgstr "Bekannte Eintragstypen"
-
-msgid "Excluded item types"
-msgstr "Auszufilternde Eintragstypen"
-
-#, python-format
-msgid "Exclude: %s##tx: excluding SOAP categories"
-msgstr "Ausfiltern: %s"
-
-#, python-format
-msgid ""
-"Exclude:\n"
-"%s##tx: excluding generic clinical item types"
-msgstr ""
-"Ausfiltern:\n"
-"%s"
 
 msgid "Editing tag"
 msgstr "Symbol bearbeiten"
@@ -20781,6 +20852,53 @@ msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid ""
+#~ "Cannot find an existing\n"
+#~ "invoice PDF for this bill.\n"
+#~ "\n"
+#~ "Do you want to create one ?"
+#~ msgstr ""
+#~ "Es scheint keinen Rechnungsbeleg\n"
+#~ "(PDF) für diese Rechnung zu geben.\n"
+#~ "\n"
+#~ "Neuen Beleg erzeugen ?"
+
+#~ msgid "Exclude:"
+#~ msgstr "Ausfiltern:"
+
+#~ msgid "SOAP"
+#~ msgstr "ABDT"
+
+#~ msgid "Configure entry type filtering."
+#~ msgstr "Filter nach Typ eines Eintrags konfigurieren."
+
+#~ msgid "Available categories"
+#~ msgstr "Verfügbare Kategorien"
+
+#~ msgid "Excluded categories"
+#~ msgstr "Auszufilternde Kategorien"
+
+#~ msgid "Item types to exclude"
+#~ msgstr "Auszufilternde Eintragstypen"
+
+#~ msgid "Available item types"
+#~ msgstr "Bekannte Eintragstypen"
+
+#~ msgid "Excluded item types"
+#~ msgstr "Auszufilternde Eintragstypen"
+
+#, python-format
+#~ msgid "Exclude: %s##tx: excluding SOAP categories"
+#~ msgstr "Ausfiltern: %s"
+
+#, python-format
+#~ msgid ""
+#~ "Exclude:\n"
+#~ "%s##tx: excluding generic clinical item types"
+#~ msgstr ""
+#~ "Ausfiltern:\n"
+#~ "%s"
+
+#~ msgid ""
 #~ "When deleting this bill do you want to keep its items\n"
 #~ "on the charge list (effectively \"unbilling\" them) or\n"
 #~ "do you want to also delete the bill items from the charge list ?\n"
@@ -21009,9 +21127,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ "%s\n"
 #~ "\n"
 #~ "                        Rev %s (%s) von %s in <%s>"
-
-#~ msgid "Sort by:"
-#~ msgstr "Sortierung:"
 
 #~ msgid "Inactive"
 #~ msgstr "Inaktive"
@@ -24982,9 +25097,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ "leer ?\n"
 #~ "DICOMDIR ?\n"
 #~ "documents/ ?"
-
-#~ msgid "Existing data:"
-#~ msgstr "Existierende Daten:"
 
 #~ msgid "Include"
 #~ msgstr "Einschließen"

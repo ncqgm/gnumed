@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-14 22:54+0200\n"
+"POT-Creation-Date: 2026-07-08 19:55+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4230,6 +4230,60 @@ msgstr ""
 msgid "pro"
 msgstr ""
 
+msgid "dialog"
+msgstr ""
+
+msgid "Filter out SOAP categories, regardless of chart entry type:"
+msgstr ""
+
+msgid ""
+"Chart entry types: Types of entries in the patient chart, such as\n"
+"- vaccination\n"
+"- procedure\n"
+"- episode\n"
+"- narrative\n"
+"...\n"
+"\n"
+"SOAP: The category of a chart entry.\n"
+" S: Subjective\n"
+" O: Objective\n"
+" A: Assessment\n"
+" P: Plan\n"
+" U: Unspecified (but a clinical entry)\n"
+" Empty: Administrative (non-clinical entries)\n"
+"\n"
+"Some entries will always be of a given category (eg medication intakes are "
+"\"Plan\"), while others may be of varying category (progress notes can be "
+"any of SOAP)."
+msgstr ""
+
+msgid "Unspecified"
+msgstr ""
+
+msgid "Administrative"
+msgstr ""
+
+msgid "<chart entry type>"
+msgstr ""
+
+msgid "Show as one-liner.##tx: emr list journal entry type display option"
+msgstr ""
+
+msgid ""
+"Mark to show this chart entry type as a one-liner in the journal listing. "
+"Full details will still be displayed in the details view on the right."
+msgstr ""
+
+msgid "Filter out SOAP categories for entry:"
+msgstr ""
+
+msgid ""
+"If all categories are selected, the chart entry type will be filtered out "
+"entirely.\n"
+"\n"
+"If none are selected, the chart entry will not be filtered out at all."
+msgstr ""
+
 msgid "Set &translation"
 msgstr ""
 
@@ -4396,7 +4450,13 @@ msgstr ""
 msgid "Removable media"
 msgstr ""
 
-msgid "Order by:"
+msgid "Sort by:"
+msgstr ""
+
+msgid "&Event"
+msgstr ""
+
+msgid "Order by time documented as actual occurrence of each chart entry."
 msgstr ""
 
 msgid "Order by start of encounter a chart entry is linked to."
@@ -4408,28 +4468,13 @@ msgstr ""
 msgid "Order by time of most recent edit of each chart entry."
 msgstr ""
 
-msgid "&Event"
+msgid "Apply filters"
 msgstr ""
 
-msgid "Order by time documented as actual occurrence of each chart entry."
+msgid " ⚙ "
 msgstr ""
 
-msgid "Exclude:"
-msgstr ""
-
-msgid "SOAP"
-msgstr ""
-
-msgid "Configure SOAP filtering."
-msgstr ""
-
-msgid "Entry"
-msgstr ""
-
-msgid "Configure entry type filtering."
-msgstr ""
-
-msgid "🛈"
+msgid "Configure filters."
 msgstr ""
 
 msgid "Chec&k"
@@ -5558,6 +5603,9 @@ msgid "Show journal ordered by time of last modification."
 msgstr ""
 
 msgid "Show search dialog."
+msgstr ""
+
+msgid "Order by:"
 msgstr ""
 
 msgid "THIS IS NOT A VERIFIED MEASUREMENT. DO NOT USE FOR ACTUAL CARE."
@@ -7943,12 +7991,6 @@ msgid ""
 "%sLast worked on: %s\n"
 msgstr ""
 
-msgid "Unspecified"
-msgstr ""
-
-msgid "Administrative"
-msgstr ""
-
 msgid ""
 "An error occurred while retrieving a text\n"
 "dump of the EMR for the active patient.\n"
@@ -7978,6 +8020,9 @@ msgid "Last modified"
 msgstr ""
 
 msgid "By"
+msgstr ""
+
+msgid "Entry"
 msgstr ""
 
 msgid "When"
@@ -11026,6 +11071,9 @@ msgstr ""
 msgid "Cannot activate patient #%s."
 msgstr ""
 
+msgid "Please set closing date, receiver address, and VAT status."
+msgstr ""
+
 msgid ""
 "Cannot create invoice from bill.\n"
 "\n"
@@ -11088,10 +11136,25 @@ msgid "Displaying invoice"
 msgstr ""
 
 msgid ""
-"Cannot find an existing\n"
-"invoice PDF for this bill.\n"
+"Show existing invoice PDF or regenerate new PDF ?\n"
 "\n"
-"Do you want to create one ?"
+"Generating a new PDF is useful when the\n"
+"invoice template was changed.\n"
+"\n"
+"It will contain the very same bill items\n"
+"and the same invoice ID."
+msgstr ""
+
+msgid "Existing"
+msgstr ""
+
+msgid "Show existing invoice PDF"
+msgstr ""
+
+msgid "Regenerate"
+msgstr ""
+
+msgid "Regenerate invoice PDF and show"
 msgstr ""
 
 msgid ""
@@ -17136,39 +17199,21 @@ msgstr ""
 msgid "Find text in EMR Journal"
 msgstr ""
 
+msgid "Chart entry type"
+msgstr ""
+
+msgid "Database table"
+msgstr ""
+
+#, python-format
+msgid "Chart entry type \"%s\" options:"
+msgstr ""
+
 msgid "Happened"
 msgstr ""
 
 #, python-format
 msgid "Cannot understand item [%s]."
-msgstr ""
-
-msgid "SOAP categories to exclude"
-msgstr ""
-
-msgid "Available categories"
-msgstr ""
-
-msgid "Excluded categories"
-msgstr ""
-
-msgid "Item types to exclude"
-msgstr ""
-
-msgid "Available item types"
-msgstr ""
-
-msgid "Excluded item types"
-msgstr ""
-
-#, python-format
-msgid "Exclude: %s##tx: excluding SOAP categories"
-msgstr ""
-
-#, python-format
-msgid ""
-"Exclude:\n"
-"%s##tx: excluding generic clinical item types"
 msgstr ""
 
 msgid "Editing tag"
