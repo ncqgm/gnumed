@@ -582,14 +582,16 @@ def manage_form_templates(parent=None, template_types=None, active_only=False, e
 	def refresh(lctrl):
 		templates = gmForms.get_form_templates(active_only = active_only, template_types = template_types, excluded_types = excluded_types)
 		items = []
+		data = []
 		for t in templates:
 			try:
 				engine = gmForms.form_engine_names[t['engine']]
 			except KeyError:
-				continue		# engine unknown
+				continue		# engine unknown, skip
 			items.append([t['name_long'], t['external_version'], engine])
+			data.append(t)
 		lctrl.set_string_items(items = items)
-		lctrl.set_data(data = templates)
+		lctrl.set_data(data = data)
 
 	#-------------------------
 	template = gmListWidgets.get_choices_from_list (

@@ -2205,7 +2205,14 @@ class cReportListCtrl(DnDMixin, listmixins.ListCtrlAutoWidthMixin, cColumnSorter
 		if data is not None:
 			item_count = self.GetItemCount()
 			if len(data) != item_count:
-				_log.debug('<data> length (%s) must be equal to number of list items (%s)  (%s, thread [%s])', len(data), item_count, self.debug, threading.get_native_id())
+				msg = '[%s]: <data> length (%s) must be equal to number of list items (%s)  (%s, thread [%s])' % (
+					self.__class__.__name__,
+					len(data),
+					item_count,
+					self.debug,
+					threading.get_native_id()
+				)
+				_log.debug(msg)
 			for item_idx in range(len(data)):
 				self.SetItemData(item_idx, item_idx)
 		self.__data = data
