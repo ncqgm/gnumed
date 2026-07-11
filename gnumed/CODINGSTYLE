@@ -134,6 +134,9 @@ if __name__ == "__main__":
 		...
 		$m[%_if_dbg]m$\usepackage[an option]{a package name}
 
+	tables
+		use longtable and tabularx -> combined as xltabular
+
 
 #=== snip =========================================================================
 					SQL
