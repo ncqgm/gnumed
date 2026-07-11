@@ -665,14 +665,15 @@ form_engines['T'] = cTextForm
 _LATEX_define_checkandloadpkg_cmd = r"""
 % defining new command for checked loading of packages
 \makeatletter
-\newcommand{\checkandloadpkg}[2]{
-	\makeatletter
-	\typeout{GNUmed: attempting to load <#1>}
-	\IfFileExists{#1}
-		{\typeout{GNUmed: found, loading}#2}
-		{\typeout{GNUmed: not found, aborting compilation}\stop}
-	\makeatother
-}\makeatother
+\newcommand{\checkandloadpkg}[2]{%
+	\makeatletter%
+	\typeout{GNUmed: attempting to load <#1>}%
+	\IfFileExists{#1}%
+		{\typeout{GNUmed: found, loading}#2}%
+		{\typeout{GNUmed: not found, aborting compilation}\batchmode\stop}%
+	\makeatother%
+}
+\makeatother
 
 """
 class cLaTeXForm(cFormEngine):
@@ -763,7 +764,6 @@ class cLaTeXForm(cFormEngine):
 			if len(parts) > 1:
 				comment = '\t\t%%%s' % parts[1]
 			output_file.write(r'\checkandloadpkg{%s.sty}{%s}%s' % (pkg_name, use_cmd, comment))
-			output_file.write('\n')
 		return output_filename
 
 	#--------------------------------------------------------

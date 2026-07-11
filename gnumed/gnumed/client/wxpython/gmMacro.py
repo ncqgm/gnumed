@@ -2244,16 +2244,16 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_variant_current_meds_table(self, data=None):
 		return gmMedication.format_substance_intake (
 			emr = self.pat.emr,
-			output_format = self.__esc_style,
-			table_type = 'by-product'
+			output_format = self.__esc_style
 		)
+
 	#--------------------------------------------------------
 	def _get_variant_current_meds_notes(self, data=None):
 		return gmMedication.format_substance_intake_notes (
 			emr = self.pat.emr,
-			output_format = self.__esc_style,
-			table_type = 'by-product'
+			output_format = self.__esc_style
 		)
+
 	#--------------------------------------------------------
 	def _get_variant_lab_table(self, data=None):
 		return gmPathLab.format_test_results (

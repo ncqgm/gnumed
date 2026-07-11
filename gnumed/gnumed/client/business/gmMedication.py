@@ -3462,120 +3462,112 @@ def generate_failsafe_medication_list_entries(pk_patient:int=None, max_width:int
 #------------------------------------------------------------
 # other formatting
 #------------------------------------------------------------
-def format_substance_intake_notes(emr=None, output_format='latex', table_type=u'by-product'):
+_LATEX__current_meds_notes = """%% --- current medication list notes ---
+%s
+%% requires "\\usepackage{xltabular}"
+\\makeatletter
+\\@ifpackageloaded{xltabular}%%
+	{\\typeout{GNUmed: xltabular package is loaded}}%%
+	{\\typeout{GNUmed: xltabular not loaded, aborting compilation}\\batchmode\\stop}
+\\makeatother
+\\providecommand{\\tnl}{\\tabularnewline}
+\\begin{xltabular}{\\textwidth}{|lX|}
+\\hline
+%s & %s\\tnl
+\\hline
+%s
+\\end{xltabular}
+%%  ^^^ current medication list notes ^^^
+"""
 
-	tex = '%s\n' % _('Additional notes for healthcare professionals')
-	tex += '%%%% requires "\\usepackage{longtable}"\n'
-	tex += '%%%% requires "\\usepackage{tabu}"\n'
-	tex += '\\begin{longtabu} to \\textwidth {|X[,L]|r|X[,L]|}\n'
-	tex += '\\hline\n'
-	tex += '%s {\\scriptsize (%s)} & %s & %s\\\\\n' % (_('Substance'), _('Drug Product'), _('Strength'), _('Aim'))
-	tex += '\\hline\n'
-	tex += '%s\n'			# this is where the lines end up
-	tex += '\\end{longtabu}\n'
-
+def format_substance_intake_notes(emr=None, output_format='latex') -> str:
 	current_meds = emr.get_current_medications (
 		include_inactive = False,
-		include_unapproved = False,
-		order_by = 'product, substance'
+		order_by = 'substance'
 	)
-	# create lines
-	lines = []
+	table_rows = []
+	line1_template = '{\\small %s %s} & {\\scriptsize %s}\\tnl'
+	line2_template = '\\multicolumn{2}{|X|}{{\\scriptsize %s}}\\tnl'
 	for med in current_meds:
-		if med['aim'] is None:
-			aim = ''
-		else:
-			aim = '{\\scriptsize %s}' % gmTools.tex_escape_string(med['aim'])
-		lines.append('%s {\\small (%s: {\\tiny %s})} & %s%s & %s\\\\' % (
+		epi_issue = '%s%s' % (
+			med['episode'],
+			gmTools.coalesce(med['health_issue'], '', ' (%s)')
+		)
+		strength = '%s%s' % (med['amount'], med.formatted_units)
+		table_rows.append(line1_template % (
 			gmTools.tex_escape_string(med['substance']),
-			gmTools.tex_escape_string(med['l10n_preparation']),
-			gmTools.tex_escape_string(med['drug_product']),
-			med['amount'],
-			gmTools.tex_escape_string(med.formatted_units),
-			aim
+			gmTools.tex_escape_string(strength),
+			gmTools.tex_escape_string(epi_issue)
 		))
-		lines.append(u'\\hline')
-
-	return tex % '\n'.join(lines)
+		if med['notes4provider']:
+			table_rows.append(line2_template % gmTools.tex_escape_string(med['notes4provider'].strip('\n')))
+		table_rows.append('\\hline')
+	latex = _LATEX__current_meds_notes % (
+		gmTools.tex_escape_string(_('Additional information for healthcare professionals##tx: about current medications, that is')),
+		gmTools.tex_escape_string(_('Substance##tx: as in "active ingredient"')),
+		gmTools.tex_escape_string(_('Episode (Issue)')),
+		'\n'.join(table_rows)
+	)
+	return latex
 
 #------------------------------------------------------------
-def format_substance_intake(emr=None, output_format='latex', table_type='by-product'):
+_LATEX__current_meds_table = """%% --- current medication list table ---
+%s {\\tiny (%s)}
+%% requires "\\usepackage{xltabular}"
+\\makeatletter
+\\@ifpackageloaded{xltabular}%%
+	{\\typeout{GNUmed: xltabular package is loaded}}%%
+	{\\typeout{GNUmed: xltabular not loaded, aborting compilation}\\batchmode\\stop}
+\\makeatother
+\\providecommand{\\tnl}{\\tabularnewline}
+\\begin{xltabular}{\\textwidth}{|llX|}
+\\hline
+%s & %s & %s\\tnl
+\\hline
+%s
+\\end{xltabular}
+%%  ^^^ current medication list table ^^^
+"""
 
-	# FIXME: add intake_instructions
-
-	tex = '%s {\\tiny (%s)}\n' % (
-		gmTools.tex_escape_string(_('Medication list')),
-		gmTools.tex_escape_string(_('ordered by brand'))
-	)
-	tex += '%% requires "\\usepackage{longtable}"\n'
-	tex += '%% requires "\\usepackage{tabu}"\n'
-	tex += u'\\begin{longtabu} to \\textwidth {|X[-1,L]|X[2.5,L]|}\n'
-	tex += u'\\hline\n'
-	tex += u'%s & %s\\\\\n' % (
-		gmTools.tex_escape_string(_('Drug')),
-		gmTools.tex_escape_string(_('Regimen / Advice'))
-	)
-	tex += '\\hline\n'
-	tex += '%s\n'
-	tex += '\\end{longtabu}\n'
-
-	# aggregate medication data
+def format_substance_intake(emr=None, output_format='latex') -> str:
 	current_meds = emr.get_current_medications (
 		include_inactive = False,
-		include_unapproved = False,
-		order_by = 'product, substance'
+		order_by = 'substance'
 	)
-	line_data = {}
+	line1_template = '{\\Large %s} & {\\normalsize %s} & {\\large %s}\\tnl'
+	line2_template = '\\multicolumn{3}{|X|}{{\\small %s}}\\tnl'
+	table_rows = []
 	for med in current_meds:
-		identifier = med['drug_product']
-
-		try:
-			line_data[identifier]
-		except KeyError:
-			line_data[identifier] = {'drug_product': '', 'l10n_preparation': '', 'schedule': '', 'notes': [], 'strengths': []}
-
-		line_data[identifier]['drug_product'] = identifier
-		line_data[identifier]['strengths'].append('%s %s%s' % (med['substance'][:20], med['amount'], med.formatted_units))
-		if med['l10n_preparation'] not in identifier:
-			line_data[identifier]['l10n_preparation'] = med['l10n_preparation']
+		strength = '%s%s' % (med['amount'], med.formatted_units)
 		sched_parts = []
-		if med['planned_duration'] is not None:
-			sched_parts.append(gmDateTime.format_interval(med['planned_duration'], gmDateTime.ACC_DAYS, verbose = True))
-		if med['schedule'] is not None:
+		if med['schedule']:
 			sched_parts.append(med['schedule'])
-		line_data[identifier]['schedule'] = ': '.join(sched_parts)
-		if med['notes'] is not None:
-			if med['notes'] not in line_data[identifier]['notes']:
-				line_data[identifier]['notes'].append(med['notes'])
-	# format aggregated data
-	already_seen = []
-	lines = []
-	#line1_template = u'\\rule{0pt}{3ex}{\\Large %s} %s & %s \\\\'
-	line1_template = u'{\\Large %s} %s & %s\\\\'
-	line2_template = u'{\\tiny %s}                     & {\\scriptsize %s}\\\\'
-	line3_template = u'                                & {\\scriptsize %s}\\\\'
-	for med in current_meds:
-		identifier = med['drug_product']
-		if identifier in already_seen:
-			continue
-		already_seen.append(identifier)
-		lines.append (line1_template % (
-			gmTools.tex_escape_string(line_data[identifier]['drug_product']),
-			gmTools.tex_escape_string(line_data[identifier]['l10n_preparation']),
-			gmTools.tex_escape_string(line_data[identifier]['schedule'])
+		if med['planned_duration']:
+			sched_parts.append('(%s)' % gmDateTime.format_interval (
+				med['planned_duration'],
+				gmDateTime.ACC_DAYS,
+				verbose = True
+			))
+		schedule = ' '.join(sched_parts)
+		table_rows.append(line1_template % (
+			gmTools.tex_escape_string(med['substance']),
+			gmTools.tex_escape_string(strength),
+			gmTools.tex_escape_string(schedule)
 		))
-		strengths = gmTools.tex_escape_string(' / '.join(line_data[identifier]['strengths']))
-		if len(line_data[identifier]['notes']) == 0:
-			first_note = ''
-		else:
-			first_note = gmTools.tex_escape_string(line_data[identifier]['notes'][0])
-		lines.append(line2_template % (strengths, first_note))
-		if len(line_data[identifier]['notes']) > 1:
-			for note in line_data[identifier]['notes'][1:]:
-				lines.append(line3_template % gmTools.tex_escape_string(note))
-		lines.append('\\hline')
-
-	return tex % '\n'.join(lines)
+		if med['notes4patient']:
+			table_rows.append(line2_template % gmTools.tex_escape_string(med['notes4patient'].strip('\n')))
+		if med['intake_instructions']:
+			table_rows.append(line2_template % gmTools.tex_escape_string(med['intake_instructions'].strip('\n')))
+		table_rows.append('\\hline')
+	latex = _LATEX__current_meds_table % (
+		gmTools.tex_escape_string(_('Medication list')),
+		gmTools.tex_escape_string(_('ordered by substance')),
+		gmTools.tex_escape_string(_('Substance##tx: as in "active ingredient"')),
+		gmTools.tex_escape_string(_('Strength')),
+		gmTools.tex_escape_string(_('Regimen')),
+		'\n'.join(table_rows)
+	)
+	return latex
 
 #============================================================
 # convenience functions
@@ -4213,6 +4205,8 @@ if __name__ == "__main__":
 	gmI18N.install_domain()
 	gmDateTime.init()
 
+	from Gnumed.business import gmPraxis
+
 	#--------------------------------------------------------
 	# generic
 	#--------------------------------------------------------
@@ -4562,20 +4556,28 @@ if __name__ == "__main__":
 		return
 
 	#--------------------------------------------------------
+	def test_format_substance_intake():
+		gmPraxis.gmCurrentPraxisBranch.from_first_branch()
+		import gmClinicalRecord
+		emr = gmClinicalRecord.cClinicalRecord(12)
+		print(format_substance_intake(emr = emr, output_format = 'latex'))
+		print(format_substance_intake_notes(emr = emr, output_format = 'latex'))
+
+	#--------------------------------------------------------
 	# generic
 	#test_URLs()
 	#test_generate_renal_insufficiency_urls()
-	test_generate_liver_information_urls()
+	#test_generate_liver_information_urls()
 	#test_interaction_check()
 	#test_format_units()
+	#sys.exit()
 
-	sys.exit()
 	gmPG2.request_login_params(setup_pool = True)
 	#test_format_medication_list()
 	#test_format_regimen_like_as_multiple_lines()
 	#test_format_regimen_like_as_single_line()
 	#test_get_substances()
-	test_get_doses()
+	#test_get_doses()
 	#test_get_components()
 	#test_get_drugs()
 	#test_get_intakes()
@@ -4587,6 +4589,7 @@ if __name__ == "__main__":
 	#test_delete_intake()
 	#test_get_habit_drugs()
 	#test_can_format()
+	test_format_substance_intake()
 
 	# AMTS
 	#test_generate_amts_data_template_definition_file()
