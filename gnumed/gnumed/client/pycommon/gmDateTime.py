@@ -536,7 +536,7 @@ def __split_up_interval(interval) -> dict[str,int]:
 	leftover_seconds = (leftover_days * AVG_SECONDS_PER_DAY) + interval.seconds
 	parts['days'], leftover_secs = divmod(leftover_seconds, AVG_SECONDS_PER_DAY)
 	parts['hours'], leftover_secs = divmod(leftover_secs, 3600)
-	parts['mins'], parts['secs'] = divmod(leftover_secs, 60)
+	parts['minutes'], parts['seconds'] = divmod(leftover_secs, 60)
 	return parts
 
 #---------------------------------------------------------------------------
@@ -566,11 +566,11 @@ def __format_interval__special_cases (
 		if accuracy_wanted < ACC_MINUTES:
 			return _('0 hours') if verbose else '0/24'
 
-	if parts['years'] + parts['months'] + parts['weeks'] + parts['days'] + parts['hours'] + parts['mins'] == 0:
+	if parts['years'] + parts['months'] + parts['weeks'] + parts['days'] + parts['hours'] + parts['minutes'] == 0:
 		if accuracy_wanted < ACC_SECONDS:
 			return _('0 minutes') if verbose else '0/60'
 
-	if parts['years'] + parts['months'] + parts['weeks'] + parts['days'] + parts['hours'] + parts['mins'] + parts['secs'] == 0:
+	if parts['years'] + parts['months'] + parts['weeks'] + parts['days'] + parts['hours'] + parts['minutes'] + parts['seconds'] == 0:
 		return _('0 seconds') if verbose else '0s'
 
 	return None
