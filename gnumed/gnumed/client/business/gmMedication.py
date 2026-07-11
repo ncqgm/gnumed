@@ -50,6 +50,7 @@ from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmHooks
 from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmTex
 
 from Gnumed.business import gmATC
 from Gnumed.business import gmAllergy
@@ -3464,13 +3465,9 @@ def generate_failsafe_medication_list_entries(pk_patient:int=None, max_width:int
 #------------------------------------------------------------
 _LATEX__current_meds_notes = """%% --- current medication list notes ---
 %s
-%% requires "\\usepackage{xltabular}"
-\\makeatletter
-\\@ifpackageloaded{xltabular}%%
-	{\\typeout{GNUmed: xltabular package is loaded}}%%
-	{\\typeout{GNUmed: xltabular not loaded, aborting compilation}\\batchmode\\stop}
-\\makeatother
-\\providecommand{\\tnl}{\\tabularnewline}
+%% define \\tnl:
+%s
+%s
 \\begin{xltabular}{\\textwidth}{|lX|}
 \\hline
 %s & %s\\tnl
@@ -3503,6 +3500,8 @@ def format_substance_intake_notes(emr=None, output_format='latex') -> str:
 			table_rows.append(line2_template % gmTools.tex_escape_string(med['notes4provider'].strip('\n')))
 		table_rows.append('\\hline')
 	latex = _LATEX__current_meds_notes % (
+		gmTex.require_package(package = 'xltabular'),
+		gmTex.LATEX__define_tnl_as_tabularnewline,
 		gmTools.tex_escape_string(_('Additional information for healthcare professionals##tx: about current medications, that is')),
 		gmTools.tex_escape_string(_('Substance##tx: as in "active ingredient"')),
 		gmTools.tex_escape_string(_('Episode (Issue)')),
@@ -3512,14 +3511,10 @@ def format_substance_intake_notes(emr=None, output_format='latex') -> str:
 
 #------------------------------------------------------------
 _LATEX__current_meds_table = """%% --- current medication list table ---
+%s
+%% define \\tnl:
+%s
 %s {\\tiny (%s)}
-%% requires "\\usepackage{xltabular}"
-\\makeatletter
-\\@ifpackageloaded{xltabular}%%
-	{\\typeout{GNUmed: xltabular package is loaded}}%%
-	{\\typeout{GNUmed: xltabular not loaded, aborting compilation}\\batchmode\\stop}
-\\makeatother
-\\providecommand{\\tnl}{\\tabularnewline}
 \\begin{xltabular}{\\textwidth}{|llX|}
 \\hline
 %s & %s & %s\\tnl
@@ -3560,6 +3555,8 @@ def format_substance_intake(emr=None, output_format='latex') -> str:
 			table_rows.append(line2_template % gmTools.tex_escape_string(med['intake_instructions'].strip('\n')))
 		table_rows.append('\\hline')
 	latex = _LATEX__current_meds_table % (
+		gmTex.require_package(package = 'xltabular'),
+		gmTex.LATEX__define_tnl_as_tabularnewline,
 		gmTools.tex_escape_string(_('Medication list')),
 		gmTools.tex_escape_string(_('ordered by substance')),
 		gmTools.tex_escape_string(_('Substance##tx: as in "active ingredient"')),
