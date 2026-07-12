@@ -8,8 +8,9 @@ __license__ = "GPL v2 or later"
 
 # standard library imports
 import logging
-import sys
+import os
 import re as regex
+import sys
 
 # 3rd party library imports
 # docutils
@@ -26,18 +27,23 @@ if __name__ == '__main__':
 #		gmI18N.activate_locale()
 #		gmI18N.install_domain()
 # GNUmed module imports
+from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon.gmTools import u_euro, u_sum
 
 _log = logging.getLogger('gm.tex')
 
 #============================================================
+__pdflatex_version_logged:bool = False
+__pdflatex_executable:str = None
+__xelatex_version_logged:bool = False
+__xelatex_executable:str = None
 _REGEX_LaTeX__usepackage__name = regex.compile(r'{\S+?}')
 LATEX__define_tnl_as_tabularnewline = r'\providecommand{\tnl}{\tabularnewline}'
 
 #------------------------------------------------------------
 _LATEX__require_pkg_code = r"""%% this document requires "\usepackage{%(pkg)s}", checking:
 \makeatletter
-\@ifpackageloaded{xltabular}%%
+\@ifpackageloaded{%(pkg)s}%%
 	{\typeout{GNUmed: <%(pkg)s> package is loaded}}%%
 	{\typeout{GNUmed: <%(pkg)s> not loaded, aborting compilation}\batchmode\stop}
 \makeatother"""
@@ -83,19 +89,18 @@ def wrap_usepackage_cmd(filename:str=None) -> str:
 		if not line.lstrip().startswith(r'\usepackage'):
 			output_file.write(line)
 			continue
-
-		_log.debug(r'\usepackage found')
 		if not gmcheckandloadpkg_defined:
 			output_file.write(_LATEX__define_gmcheckandloadpkg_cmd)
 			gmcheckandloadpkg_defined = True
 		pkg_name = _REGEX_LaTeX__usepackage__name.findall(line)[0]
 		pkg_name = pkg_name.strip('{}')
 		parts = line.split('%', 1)
-		use_cmd = parts[0].strip()
+		usepackage_cmd = parts[0].strip()
 		comment = ''
 		if len(parts) > 1:
 			comment = '\t\t%%%s' % parts[1]
-		output_file.write(r'\gmcheckandloadpkg{%s.sty}{%s}%s' % (pkg_name, use_cmd, comment))
+		_log.debug(r'wrapping [%s] found', usepackage_cmd)
+		output_file.write(r'\gmcheckandloadpkg{%s.sty}{%s}%s' % (pkg_name, usepackage_cmd, comment))
 	output_file.close()
 	input_file.close()
 	return output_filename
@@ -180,6 +185,147 @@ def rst2latex_snippet(rst_text):
 	)
 	return parts['body']
 
+#------------------------------------------------------------
+def __detect_xelatex() -> bool:
+	global __xelatex_version_logged
+	global __xelatex_executable
+	if not __xelatex_version_logged:
+		__xelatex_version_logged = True
+		found, __xelatex_executable = gmShellAPI.detect_external_binary(binary = 'xelatex')
+		if not found:
+			_log.error('xelatex not found')
+			return False
+
+		cmd_line = [__xelatex_executable, '-version']
+		success, ret_code, stdout = gmShellAPI.run_process(cmd_line = cmd_line, encoding = 'utf8', verbose = True)
+		if not success:
+			_log.error('[%s] failed, XeLaTeX not usable', cmd_line)
+			return False
+
+		_log.debug('XeLaTeX found')
+	return True
+
+#------------------------------------------------------------
+def __detect_pdflatex() -> bool:
+	global __pdflatex_version_logged
+	global __pdflatex_executable
+	if not __pdflatex_version_logged:
+		__pdflatex_version_logged = True
+		found, __pdflatex_executable = gmShellAPI.detect_external_binary(binary = 'pdflatex')
+		if not found:
+			_log.error('pdflatex not found')
+			return False
+
+		cmd_line = [__pdflatex_executable, '-version']
+		success, ret_code, stdout = gmShellAPI.run_process(cmd_line = cmd_line, encoding = 'utf8', verbose = True)
+		if not success:
+			_log.error('[%s] failed, PdfLaTeX not usable', cmd_line)
+			return False
+
+		_log.debug('PdfLaTeX found')
+	return True
+
+#------------------------------------------------------------
+def __compile_with_pdflatex(sandbox_dir:str=None, latex_filename:str=None) -> bool:
+	cmd_final = [
+		__pdflatex_executable,
+		'-recorder',
+		'-interaction=nonstopmode',
+		"-output-directory=%s" % sandbox_dir
+	]
+	cmd_draft = cmd_final + ['-draftmode']
+	# LaTeX can need up to three runs to get cross references et al right
+	for cmd2run in [cmd_draft, cmd_draft, cmd_final]:
+		success, ret_code, stdout = gmShellAPI.run_process (
+			cmd_line = cmd2run + [latex_filename],
+			acceptable_return_codes = [0],
+			encoding = 'utf8',
+			verbose = True	#_cfg.get(option = 'debug')
+		)
+		if success:
+			continue
+		_log.error('problem running pdflatex, cannot generate PDF, trying diagnostics')
+		__check_latex_file(latex_filename = latex_filename)
+		return None
+
+	return '%s.pdf' % os.path.splitext(latex_filename)[0]
+
+#------------------------------------------------------------
+def __check_latex_file(latex_filename:str=None):
+	found, binary = gmShellAPI.find_first_binary(binaries = ['lacheck', 'miktex-lacheck.exe'])
+	if not found:
+		_log.debug('lacheck not found')
+	else:
+		cmd_line = [binary, latex_filename]
+		success, ret_code, stdout = gmShellAPI.run_process(cmd_line = cmd_line, encoding = 'utf8', verbose = True)
+	found, binary = gmShellAPI.find_first_binary(binaries = ['chktex', 'ChkTeX.exe'])
+	if not found:
+		_log.debug('chcktex not found')
+	else:
+		cmd_line = [binary, '--verbosity=2', '--headererr', latex_filename]
+		success, ret_code, stdout = gmShellAPI.run_process(cmd_line = cmd_line, encoding = 'utf8', verbose = True)
+
+#------------------------------------------------------------
+def __compile_with_xelatex(sandbox_dir:str=None, latex_filename:str=None) -> bool:
+	cmd_final = [
+		__xelatex_executable,
+		'-recorder',
+		'-interaction=nonstopmode',
+		"-output-directory=%s" % sandbox_dir
+	]
+	cmd_draft = cmd_final + ['-no-pdf']		# akin to -draftmode
+	# LaTeX can need up to three runs to get cross references et al right
+	for cmd2run in [cmd_draft, cmd_draft, cmd_final]:
+		success, ret_code, stdout = gmShellAPI.run_process (
+			cmd_line = cmd2run + [latex_filename],
+			acceptable_return_codes = [0],
+			encoding = 'utf8',
+			verbose = True	#_cfg.get(option = 'debug')
+		)
+		if success:
+			continue
+		_log.error('problem running xelatex, cannot generate PDF')	#, trying diagnostics')
+#		__check_latex_file(latex_filename = latex_filename)
+		return None
+
+	return '%s.pdf' % os.path.splitext(latex_filename)[0]
+
+#------------------------------------------------------------
+def compile_latex_to_pdf(latex_filename:str=None, verbose:bool=False, is_sandboxed:bool=False) -> str:
+	"""Compile LaTeX code to PDF using xelatex or pdflatex.
+
+	Args:
+		is_sandboxed: whether or not already sandboxed (no need to create a sandbox for compiling)
+
+	Returns:
+		Name of resulting PDF, or None on failure.
+	"""
+	xelatex_avail = __detect_xelatex()
+	__detect_pdflatex()
+	if not (xelatex_avail or __pdflatex_executable):
+		_log.error('[%s] failed, LaTeX not usable', cmd_line)
+		return None
+
+	if is_sandboxed:
+		sandbox_dir = os.path.split(latex_filename)[0]
+	else:
+		sandbox_dir = gmTools.mk_sandbox_dir(prefix = gmTools.fname_stem(latex_filename) + '_')
+		shutil.copy(latex_filename, sandbox_dir)
+		latex_filename = os.path.join(sandbox_dir, os.path.split(latex_filename)[1])
+	_log.debug('LaTeX sandbox directory: [%s]', sandbox_dir)
+	if xelatex_avail:
+		pdf_name = __compile_with_xelatex(sandbox_dir = sandbox_dir, latex_filename = latex_filename)
+		if pdf_name is not None:
+			return pdf_name
+
+		_log.error('issue compiling with xelatex, trying with pdflatex')
+	pdf_name = __compile_with_pdflatex(sandbox_dir = sandbox_dir, latex_filename = latex_filename)
+	if pdf_name is not None:
+		return pdf_name
+
+	_log.error('issue compiling with pdflatex, too')
+	return None
+
 #============================================================
 # main
 #------------------------------------------------------------
@@ -244,4 +390,6 @@ if __name__ == "__main__":
 	#--------------------------------------------------------
 	#test_require_package()
 	#test_tex_escape()
-	test_rst2latex_snippet()
+	#test_rst2latex_snippet()
+	print(__detect_pdflatex())
+	print(__pdflatex_executable)

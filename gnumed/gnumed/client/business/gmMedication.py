@@ -3465,14 +3465,15 @@ def generate_failsafe_medication_list_entries(pk_patient:int=None, max_width:int
 #------------------------------------------------------------
 _LATEX__current_meds_notes = """%% --- current medication list notes ---
 %s
+%s
 %% define \\tnl:
 %s
 %s
-\\begin{xltabular}{\\textwidth}{|lX|}
-\\hline
+\\begin{xltabular}{\\textwidth}{lX}
+\\toprule
 %s & %s\\tnl
-\\hline
 %s
+\\bottomrule
 \\end{xltabular}
 %%  ^^^ current medication list notes ^^^
 """
@@ -3484,8 +3485,9 @@ def format_substance_intake_notes(emr=None, output_format='latex') -> str:
 	)
 	table_rows = []
 	line1_template = '{\\small %s %s} & {\\scriptsize %s}\\tnl'
-	line2_template = '\\multicolumn{2}{|X|}{{\\scriptsize %s}}\\tnl'
+	line2_template = '\\multicolumn{2}{X}{{\\scriptsize %s}}\\tnl'
 	for med in current_meds:
+		table_rows.append('\\midrule')
 		epi_issue = '%s%s' % (
 			med['episode'],
 			gmTools.coalesce(med['health_issue'], '', ' (%s)')
@@ -3498,8 +3500,8 @@ def format_substance_intake_notes(emr=None, output_format='latex') -> str:
 		))
 		if med['notes4provider']:
 			table_rows.append(line2_template % gmTex.tex_escape_string(med['notes4provider'].strip('\n')))
-		table_rows.append('\\hline')
 	latex = _LATEX__current_meds_notes % (
+		gmTex.require_package(package = 'booktabs'),
 		gmTex.require_package(package = 'xltabular'),
 		gmTex.LATEX__define_tnl_as_tabularnewline,
 		gmTex.tex_escape_string(_('Additional information for healthcare professionals##tx: about current medications, that is')),
@@ -3512,14 +3514,15 @@ def format_substance_intake_notes(emr=None, output_format='latex') -> str:
 #------------------------------------------------------------
 _LATEX__current_meds_table = """%% --- current medication list table ---
 %s
+%s
 %% define \\tnl:
 %s
 %s {\\tiny (%s)}
-\\begin{xltabular}{\\textwidth}{|llX|}
-\\hline
+\\begin{xltabular}{\\textwidth}{llX}
+\\toprule
 %s & %s & %s\\tnl
-\\hline
 %s
+\\bottomrule
 \\end{xltabular}
 %%  ^^^ current medication list table ^^^
 """
@@ -3530,9 +3533,10 @@ def format_substance_intake(emr=None, output_format='latex') -> str:
 		order_by = 'substance'
 	)
 	line1_template = '{\\Large %s} & {\\normalsize %s} & {\\large %s}\\tnl'
-	line2_template = '\\multicolumn{3}{|X|}{{\\small %s}}\\tnl'
+	line2_template = '\\multicolumn{3}{X}{{\\small %s}}\\tnl'
 	table_rows = []
 	for med in current_meds:
+		table_rows.append('\\midrule')
 		strength = '%s%s' % (med['amount'], med.formatted_units)
 		sched_parts = []
 		if med['schedule']:
@@ -3553,8 +3557,8 @@ def format_substance_intake(emr=None, output_format='latex') -> str:
 			table_rows.append(line2_template % gmTex.tex_escape_string(med['notes4patient'].strip('\n')))
 		if med['intake_instructions']:
 			table_rows.append(line2_template % gmTex.tex_escape_string(med['intake_instructions'].strip('\n')))
-		table_rows.append('\\hline')
 	latex = _LATEX__current_meds_table % (
+		gmTex.require_package(package = 'booktabs'),
 		gmTex.require_package(package = 'xltabular'),
 		gmTex.LATEX__define_tnl_as_tabularnewline,
 		gmTex.tex_escape_string(_('Medication list')),

@@ -1,4 +1,4 @@
-# coding: utf8
+# -*- coding: utf-8 -*-
 #==============================================================
 # GNUmed database schema change script
 #
@@ -35,6 +35,18 @@ def run(conn=None):
 			where
 				name_long = 'Vaccination history (GNUmed default)'""",
 		filename = os.path.join('..', 'sql', 'v22-v23', 'data', 'v23-GNUmed-default_vaccination_history_template.tex'),
+		conn = conn
+	)
+
+	# current meds list
+	gmPG2.file2bytea (
+		query = """
+			UPDATE ref.paperwork_templates SET
+				data = %(data)s::bytea,
+				external_version = '23.0'
+			where
+				name_long = 'Current medication list (GNUmed default)'""",
+		filename = os.path.join('..', 'sql', 'v22-v23', 'data', 'v23-GNUmed-default_medication_list_template.tex'),
 		conn = conn
 	)
 
