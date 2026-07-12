@@ -15,6 +15,7 @@ if __name__ == '__main__':
 	_ = lambda x:x
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
+from Gnumed.business import gmTex
 
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
@@ -559,21 +560,21 @@ def format_latest_vaccinations(output_format='latex', emr=None):
 def __format_latest_vaccinations_latex(vaccinations=None):
 
 	if not vaccinations:
-		return '\\noindent %s' % gmTools.tex_escape_string(_('No vaccinations recorded.'))
+		return '\\noindent %s' % gmTex.tex_escape_string(_('No vaccinations recorded.'))
 
 	tex =  '\\noindent %s {\\tiny (%s)\\par}\n' % (
-		gmTools.tex_escape_string(_('Latest vaccinations')),
-		gmTools.tex_escape_string(_('per target condition'))
+		gmTex.tex_escape_string(_('Latest vaccinations')),
+		gmTex.tex_escape_string(_('per target condition'))
 	)
 	tex += '\n'
 	tex += '\\noindent \\begin{tabular}{|l|l|l|l|l|l|}\n'
 	tex += '\\hline\n'
 	tex += '%s & %s & {\\footnotesize %s} & {\\footnotesize %s} & {\\footnotesize %s\\footnotemark} & {\\footnotesize $\\Sigma$\\footnotemark}\\\\\n' % (
-		gmTools.tex_escape_string(_('Target')),
-		gmTools.tex_escape_string(_('Last given')),
-		gmTools.tex_escape_string(_('Vaccine')),
-		gmTools.tex_escape_string(_('Lot #')),
-		gmTools.tex_escape_string(_('SoaP'))
+		gmTex.tex_escape_string(_('Target')),
+		gmTex.tex_escape_string(_('Last given')),
+		gmTex.tex_escape_string(_('Vaccine')),
+		gmTex.tex_escape_string(_('Lot #')),
+		gmTex.tex_escape_string(_('SoaP'))
 	)
 	tex += '\\hline\n'
 	tex += '\n'
@@ -583,11 +584,11 @@ def __format_latest_vaccinations_latex(vaccinations=None):
 	tex += '\\end{tabular}\n'
 	tex += '\n'
 	tex += '\\addtocounter{footnote}{-1}\n'
-	tex += '\\footnotetext{%s}\n' % gmTools.tex_escape_string (
+	tex += '\\footnotetext{%s}\n' % gmTex.tex_escape_string (
 		_('SoaP -- "S"ubjective: Reported. "P"lan: Administered here/taken from trustworthy records.')
 	)
 	tex += '\\addtocounter{footnote}{1}\n'
-	tex += '\\footnotetext{$\\Sigma$ -- %s}\n' % gmTools.tex_escape_string (
+	tex += '\\footnotetext{$\\Sigma$ -- %s}\n' % gmTex.tex_escape_string (
 		_('Total number of vaccinations recorded for the corresponding target condition.')
 	)
 	tex += '\n'
@@ -597,24 +598,24 @@ def __format_latest_vaccinations_latex(vaccinations=None):
 	for target in targets:
 		target_count, vacc = vaccinations[target]
 		lines += row_template % (
-			gmTools.tex_escape_string(target),
-			gmTools.tex_escape_string(vacc['date_given'].strftime('%Y %b %d')),
-			gmTools.tex_escape_string(gmTools.coalesce(vacc['vaccine'], _('generic'))),
-			gmTools.tex_escape_string(vacc['batch_no']),
+			gmTex.tex_escape_string(target),
+			gmTex.tex_escape_string(vacc['date_given'].strftime('%Y %b %d')),
+			gmTex.tex_escape_string(gmTools.coalesce(vacc['vaccine'], _('generic'))),
+			gmTex.tex_escape_string(vacc['batch_no']),
 			vacc['soap_cat'].upper(),
 			target_count
 		)
 		if vacc['site']:
-			tag = gmTools.tex_escape_string(_('Injection site'))
-			site = gmTools.tex_escape_string(vacc['site'])
+			tag = gmTex.tex_escape_string(_('Injection site'))
+			site = gmTex.tex_escape_string(vacc['site'])
 			lines += ' & \\multicolumn{5}{l|}{\\scriptsize %s: %s\\par}\\\\\n' % (tag, site)
 		if vacc['reaction']:
-			tag = gmTools.tex_escape_string(_('Reaction'))
-			reaction = gmTools.tex_escape_string(vacc['reaction'])
+			tag = gmTex.tex_escape_string(_('Reaction'))
+			reaction = gmTex.tex_escape_string(vacc['reaction'])
 			lines += ' & \\multicolumn{5}{l|}{\\scriptsize %s: %s\\par}\\\\\n' % (tag, reaction)
 		if vacc['comment']:
-			tag = gmTools.tex_escape_string(_('Comment'))
-			cmt = gmTools.tex_escape_string(vacc['comment'])
+			tag = gmTex.tex_escape_string(_('Comment'))
+			cmt = gmTex.tex_escape_string(vacc['comment'])
 			lines += ' & \\multicolumn{5}{l|}{\\scriptsize %s: %s\\par}\\\\\n' % (tag, cmt)
 		lines += '\\hline\n'
 	return tex % lines

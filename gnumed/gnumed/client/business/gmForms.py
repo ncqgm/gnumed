@@ -725,7 +725,7 @@ class cLaTeXForm(cFormEngine):
 		# remove extra linefeeds which the docutils ReST2LaTeX
 		# converter likes to add but which makes pdflatex go
 		# crazy when ending up inside, say, KOMAScript variables
-		return gmTools.rst2latex_snippet(text).strip()
+		return gmTex.rst2latex_snippet(text).strip()
 
 	#--------------------------------------------------------
 	def substitute_placeholders(self, data_source=None):
@@ -752,7 +752,7 @@ class cLaTeXForm(cFormEngine):
 				f.write('\n')
 			f.write('%------------------------------------------------------------------\n')
 			f.close()
-		data_source.escape_function = gmTools.tex_escape_string
+		data_source.escape_function = gmTex.tex_escape_string
 		data_source.escape_style = 'latex'
 		macros_fname = self.__expand_macros(input_filename = self.template_filename)
 		path, fname = os.path.split(macros_fname)
@@ -906,7 +906,7 @@ class cLaTeXForm(cFormEngine):
 					# enable reStructuredText processing
 					data_source.escape_function = self._rst2latex_transform
 				else:
-					data_source.escape_function = gmTools.tex_escape_string
+					data_source.escape_function = gmTex.tex_escape_string
 				original_ph_def = placeholder
 				_log.debug(' placeholder: >>>%s<<<', original_ph_def)
 				# normalize start/end
@@ -922,10 +922,10 @@ class cLaTeXForm(cFormEngine):
 					val = data_source[placeholder]
 				except Exception:
 					_log.exception('error with placeholder [%s]', original_ph_def)
-					val = gmTools.tex_escape_string(_('error with placeholder [%s]') % original_ph_def)
+					val = gmTex.tex_escape_string(_('error with placeholder [%s]') % original_ph_def)
 				if val is None:
 					_log.debug('error with placeholder [%s]', original_ph_def)
-					val = gmTools.tex_escape_string(_('error with placeholder [%s]') % original_ph_def)
+					val = gmTex.tex_escape_string(_('error with placeholder [%s]') % original_ph_def)
 				_log.debug(' value      : >>>%s<<<', val)
 				line = line.replace(original_ph_def, val)
 			output_file.write(line)
@@ -1033,7 +1033,7 @@ class cXeTeXForm(cFormEngine):
 			data_source.set_placeholder('form_version_internal', gmTools.coalesce(self.template['gnumed_revision'], '', '%s'))
 			data_source.set_placeholder('form_last_modified', self.template['last_modified'].strftime('%Y-%b-%d %H:%M'))
 
-		data_source.escape_function = gmTools.xetex_escape_string
+		data_source.escape_function = gmTex.xetex_escape_string
 		data_source.escape_style = 'xetex'
 
 		path, ext = os.path.splitext(self.template_filename)
@@ -1100,11 +1100,11 @@ class cXeTeXForm(cFormEngine):
 						val = data_source[placeholder]
 					except Exception:
 						_log.exception('error with placeholder [%s]', placeholder)
-						val = gmTools.tex_escape_string(_('error with placeholder [%s]') % placeholder)
+						val = gmTex.tex_escape_string(_('error with placeholder [%s]') % placeholder)
 
 					if val is None:
 						_log.debug('error with placeholder [%s]', placeholder)
-						val = _('error with placeholder [%s]') % gmTools.tex_escape_string(placeholder)
+						val = _('error with placeholder [%s]') % gmTex.tex_escape_string(placeholder)
 
 					line = line.replace(placeholder, val)
 

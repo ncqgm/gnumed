@@ -3031,7 +3031,7 @@ def delete_substance_intake(pk_intake:int=None, delete_regimen:bool=False, link_
 #------------------------------------------------------------
 def format_substance_intake_as_amts_latex(intake=None, strict=True):
 
-	_esc = gmTools.tex_escape_string
+	_esc = gmTex.tex_escape_string
 
 	# %(contains)s & %(product)s & %(amount)s%(unit)s & %(preparation)s & \multicolumn{4}{l|}{%(schedule)s} & Einheit & %(notes)s & %(aim)s \tabularnewline{}\hline
 	cells = []
@@ -3492,19 +3492,19 @@ def format_substance_intake_notes(emr=None, output_format='latex') -> str:
 		)
 		strength = '%s%s' % (med['amount'], med.formatted_units)
 		table_rows.append(line1_template % (
-			gmTools.tex_escape_string(med['substance']),
-			gmTools.tex_escape_string(strength),
-			gmTools.tex_escape_string(epi_issue)
+			gmTex.tex_escape_string(med['substance']),
+			gmTex.tex_escape_string(strength),
+			gmTex.tex_escape_string(epi_issue)
 		))
 		if med['notes4provider']:
-			table_rows.append(line2_template % gmTools.tex_escape_string(med['notes4provider'].strip('\n')))
+			table_rows.append(line2_template % gmTex.tex_escape_string(med['notes4provider'].strip('\n')))
 		table_rows.append('\\hline')
 	latex = _LATEX__current_meds_notes % (
 		gmTex.require_package(package = 'xltabular'),
 		gmTex.LATEX__define_tnl_as_tabularnewline,
-		gmTools.tex_escape_string(_('Additional information for healthcare professionals##tx: about current medications, that is')),
-		gmTools.tex_escape_string(_('Substance##tx: as in "active ingredient"')),
-		gmTools.tex_escape_string(_('Episode (Issue)')),
+		gmTex.tex_escape_string(_('Additional information for healthcare professionals##tx: about current medications, that is')),
+		gmTex.tex_escape_string(_('Substance##tx: as in "active ingredient"')),
+		gmTex.tex_escape_string(_('Episode (Issue)')),
 		'\n'.join(table_rows)
 	)
 	return latex
@@ -3545,23 +3545,23 @@ def format_substance_intake(emr=None, output_format='latex') -> str:
 			))
 		schedule = ' '.join(sched_parts)
 		table_rows.append(line1_template % (
-			gmTools.tex_escape_string(med['substance']),
-			gmTools.tex_escape_string(strength),
-			gmTools.tex_escape_string(schedule)
+			gmTex.tex_escape_string(med['substance']),
+			gmTex.tex_escape_string(strength),
+			gmTex.tex_escape_string(schedule)
 		))
 		if med['notes4patient']:
-			table_rows.append(line2_template % gmTools.tex_escape_string(med['notes4patient'].strip('\n')))
+			table_rows.append(line2_template % gmTex.tex_escape_string(med['notes4patient'].strip('\n')))
 		if med['intake_instructions']:
-			table_rows.append(line2_template % gmTools.tex_escape_string(med['intake_instructions'].strip('\n')))
+			table_rows.append(line2_template % gmTex.tex_escape_string(med['intake_instructions'].strip('\n')))
 		table_rows.append('\\hline')
 	latex = _LATEX__current_meds_table % (
 		gmTex.require_package(package = 'xltabular'),
 		gmTex.LATEX__define_tnl_as_tabularnewline,
-		gmTools.tex_escape_string(_('Medication list')),
-		gmTools.tex_escape_string(_('ordered by substance')),
-		gmTools.tex_escape_string(_('Substance##tx: as in "active ingredient"')),
-		gmTools.tex_escape_string(_('Strength')),
-		gmTools.tex_escape_string(_('Regimen')),
+		gmTex.tex_escape_string(_('Medication list')),
+		gmTex.tex_escape_string(_('ordered by substance')),
+		gmTex.tex_escape_string(_('Substance##tx: as in "active ingredient"')),
+		gmTex.tex_escape_string(_('Strength')),
+		gmTex.tex_escape_string(_('Regimen')),
 		'\n'.join(table_rows)
 	)
 	return latex

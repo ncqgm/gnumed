@@ -16,6 +16,7 @@ from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmTools
+from Gnumed.business import gmTex
 
 
 _log = logging.getLogger('gm.allergy')
@@ -117,14 +118,14 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 		)
 		if strict:
 			state = state[:31]
-		table_rows.append('\\multicolumn{11}{>{\\RaggedRight}p{27.9cm}}{\\rule{0pt}{4.5mm} \\fontsize{14pt}{16pt}\\selectfont %s\\label{AnchorAllergieDetails}}\\tabularnewline' % gmTools.tex_escape_string(state))
+		table_rows.append('\\multicolumn{11}{>{\\RaggedRight}p{27.9cm}}{\\rule{0pt}{4.5mm} \\fontsize{14pt}{16pt}\\selectfont %s\\label{AnchorAllergieDetails}}\\tabularnewline' % gmTex.tex_escape_string(state))
 		# Freitextzeile: 200 Zeichen, @..., \textwidth
 		if self['comment'] is not None:
 			if strict:
 				cmt = self['comment'].strip()[:200]
 			else:
 				cmt = self['comment'].strip()
-			table_rows.append('\\multicolumn{11}{>{\\RaggedRight}p{27.9cm}}{%s}\\tabularnewline' % gmTools.tex_escape_string(cmt))
+			table_rows.append('\\multicolumn{11}{>{\\RaggedRight}p{27.9cm}}{%s}\\tabularnewline' % gmTex.tex_escape_string(cmt))
 		return table_rows
 
 	as_amts_latex = property(_get_as_amts_latex)
@@ -359,14 +360,14 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_as_amts_latex(self, strict=True):
 		# Freitextzeile: 200 Zeichen, @...
-		cells = ['\\multicolumn{1}{>{\\RaggedRight}p{4cm}}{%s}' % gmTools.tex_escape_string(self['descriptor'])]
+		cells = ['\\multicolumn{1}{>{\\RaggedRight}p{4cm}}{%s}' % gmTex.tex_escape_string(self['descriptor'])]
 		txt = '%s%s' % (
 			self['l10n_type'],
 			gmTools.coalesce(self['reaction'], '', ': %s')
 		)
 		if strict:
 			txt = txt[:(200-len(self['descriptor']))]
-		cells.append('\\multicolumn{10}{>{\\RaggedRight}p{23.9cm}}{%s}' % gmTools.tex_escape_string(txt))
+		cells.append('\\multicolumn{10}{>{\\RaggedRight}p{23.9cm}}{%s}' % gmTex.tex_escape_string(txt))
 		table_row = ' & '.join(cells)
 		table_row += '\\tabularnewline'
 		return table_row

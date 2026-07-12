@@ -149,8 +149,8 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon.gmDateTime import pydt_strftime
-from Gnumed.pycommon.gmTools import tex_escape_string
-from Gnumed.pycommon.gmTools import xetex_escape_string
+from Gnumed.pycommon.gmTex import tex_escape_string
+from Gnumed.pycommon.gmTex import xetex_escape_string
 from Gnumed.pycommon.gmTools import compare_dict_likes
 from Gnumed.pycommon.gmTools import format_dict_like
 from Gnumed.pycommon.gmTools import dicts2table_columns

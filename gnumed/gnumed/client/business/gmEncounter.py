@@ -19,6 +19,7 @@ from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmBusinessDBObject
+from Gnumed.business import gmTex
 
 from Gnumed.business import gmSoapDefs
 from Gnumed.business import gmCoding
@@ -393,28 +394,24 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 			date_format = '%A, %b %d %Y'
 
 		tex =  '% -------------------------------------------------------------\n'
-		tex += '% much recommended: \\usepackage(tabu)\n'
-		tex += '% much recommended: \\usepackage(longtable)\n'
-		tex += '% best wrapped in: "\\begin{longtabu} to \\textwidth {lX[,L]}"\n'
-		tex += '% -------------------------------------------------------------\n'
 		tex += '\\hline \n'
 		tex += '\\multicolumn{2}{l}{%s: %s ({\\footnotesize %s - %s})} \\tabularnewline \n' % (
-			gmTools.tex_escape_string(self._payload['l10n_type']),
-			gmTools.tex_escape_string(self._payload['started'].strftime(date_format)),
-			gmTools.tex_escape_string(self._payload['started'].strftime('%H:%M')),
-			gmTools.tex_escape_string(self._payload['last_affirmed'].strftime('%H:%M'))
+			gmTex.tex_escape_string(self._payload['l10n_type']),
+			gmTex.tex_escape_string(self._payload['started'].strftime(date_format)),
+			gmTex.tex_escape_string(self._payload['started'].strftime('%H:%M')),
+			gmTex.tex_escape_string(self._payload['last_affirmed'].strftime('%H:%M'))
 		)
 		tex += '\\hline \n'
 
 		if self._payload['reason_for_encounter'] is not None:
 			tex += '%s & %s \\tabularnewline \n' % (
-				gmTools.tex_escape_string(_('RFE')),
-				gmTools.tex_escape_string(self._payload['reason_for_encounter'])
+				gmTex.tex_escape_string(_('RFE')),
+				gmTex.tex_escape_string(self._payload['reason_for_encounter'])
 			)
 		if self._payload['assessment_of_encounter'] is not None:
 			tex += '%s & %s \\tabularnewline \n' % (
-				gmTools.tex_escape_string(_('AOE')),
-				gmTools.tex_escape_string(self._payload['assessment_of_encounter'])
+				gmTex.tex_escape_string(_('AOE')),
+				gmTex.tex_escape_string(self._payload['assessment_of_encounter'])
 			)
 
 		from Gnumed.business.gmHealthIssue import diagnostic_certainty_classification2str
@@ -423,9 +420,9 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 			if len(soaps) == 0:
 				continue
 			tex += '\\multicolumn{2}{l}{\\emph{%s: %s%s}} \\tabularnewline \n' % (
-				gmTools.tex_escape_string(_('Problem')),
-				gmTools.tex_escape_string(epi['description']),
-				gmTools.tex_escape_string (
+				gmTex.tex_escape_string(_('Problem')),
+				gmTex.tex_escape_string(epi['description']),
+				gmTex.tex_escape_string (
 					gmTools.coalesce (
 						value2test = diagnostic_certainty_classification2str(epi['diagnostic_certainty_classification']),
 						return_instead = '',
@@ -436,9 +433,9 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 			)
 			if epi['pk_health_issue'] is not None:
 				tex += '\\multicolumn{2}{l}{\\emph{%s: %s%s}} \\tabularnewline \n' % (
-					gmTools.tex_escape_string(_('Health issue')),
-					gmTools.tex_escape_string(epi['health_issue']),
-					gmTools.tex_escape_string (
+					gmTex.tex_escape_string(_('Health issue')),
+					gmTex.tex_escape_string(epi['health_issue']),
+					gmTex.tex_escape_string (
 						gmTools.coalesce (
 							value2test = diagnostic_certainty_classification2str(epi['diagnostic_certainty_classification_issue']),
 							return_instead = '',
@@ -449,8 +446,8 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 				)
 			for soap in soaps:
 				tex += '{\\small %s} & {\\small %s} \\tabularnewline \n' % (
-					gmTools.tex_escape_string(gmSoapDefs.soap_cat2l10n[soap['soap_cat']]),
-					gmTools.tex_escape_string(soap['narrative'], replace_eol = True)
+					gmTex.tex_escape_string(gmSoapDefs.soap_cat2l10n[soap['soap_cat']]),
+					gmTex.tex_escape_string(soap['narrative'], replace_eol = True)
 				)
 			tex += ' & \\tabularnewline \n'
 

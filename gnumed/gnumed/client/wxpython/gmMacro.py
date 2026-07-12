@@ -31,6 +31,7 @@ from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmCrypto
 from Gnumed.pycommon import gmDispatcher
+from Gnumed.business import gmTex
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmGender
@@ -2438,7 +2439,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 	#--------------------------------------------------------
 	def _get_variant_tex_escape(self, data=None):
-		return gmTools.tex_escape_string(text = data)
+		return gmTex.tex_escape_string(text = data)
 
 	#--------------------------------------------------------
 	def _get_variant_url_escape(self, data=None):
@@ -3008,9 +3009,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			if isinstance(val, datetime.datetime):
 				dict2return[key] = val.strftime(date_format)
 				if self.__esc_style in ['latex', 'tex']:
-					dict2return[key] = gmTools.tex_escape_string(dict2return[key])
+					dict2return[key] = gmTex.tex_escape_string(dict2return[key])
 				elif self.__esc_style in ['xetex', 'xelatex']:
-					dict2return[key] = gmTools.xetex_escape_string(dict2return[key])
+					dict2return[key] = gmTex.xetex_escape_string(dict2return[key])
 				continue
 			try:
 				dict2return[key] = str(val, encoding = 'utf8', errors = 'replace')
@@ -3021,9 +3022,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 					val = '%s' % str(val)
 					dict2return[key] = val.decode('utf8', 'replace')
 			if self.__esc_style in ['latex', 'tex']:
-				dict2return[key] = gmTools.tex_escape_string(dict2return[key])
+				dict2return[key] = gmTex.tex_escape_string(dict2return[key])
 			elif self.__esc_style in ['xetex', 'xelatex']:
-				dict2return[key] = gmTools.xetex_escape_string(dict2return[key])
+				dict2return[key] = gmTex.xetex_escape_string(dict2return[key])
 		return dict2return
 
 #---------------------------------------------------------------------
