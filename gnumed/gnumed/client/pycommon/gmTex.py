@@ -25,9 +25,8 @@ if __name__ == '__main__':
 #		from Gnumed.pycommon import gmI18N
 #		gmI18N.activate_locale()
 #		gmI18N.install_domain()
-
 # GNUmed module imports
-#from Gnumed.pycommon import ...
+from Gnumed.pycommon.gmTools import u_euro, u_sum
 
 _log = logging.getLogger('gm.tex')
 
@@ -196,8 +195,6 @@ if __name__ == "__main__":
 #	from Gnumed.pycommon import gmI18N
 #	gmI18N.activate_locale()
 #	gmI18N.install_domain(domain = 'gnumed', prefer_local_catalog = True)
-
-	from Gnumed.pycommon.gmTools import u_euro, u_sum
 
 	#--------------------------------------------------------
 	def test_require_package():

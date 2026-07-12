@@ -31,7 +31,7 @@ from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmCrypto
 from Gnumed.pycommon import gmDispatcher
-from Gnumed.business import gmTex
+from Gnumed.pycommon import gmTex
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmGender

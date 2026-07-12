@@ -16,7 +16,7 @@ from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmTools
-from Gnumed.business import gmTex
+from Gnumed.pycommon import gmTex
 
 
 _log = logging.getLogger('gm.allergy')

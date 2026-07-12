@@ -15,8 +15,7 @@ if __name__ == '__main__':
 	_ = lambda x:x
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
-from Gnumed.business import gmTex
-
+from Gnumed.pycommon import gmTex
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 from Gnumed.business import gmMedication

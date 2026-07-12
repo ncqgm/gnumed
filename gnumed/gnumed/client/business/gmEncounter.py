@@ -19,7 +19,7 @@ from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmBusinessDBObject
-from Gnumed.business import gmTex
+from Gnumed.pycommon import gmTex
 
 from Gnumed.business import gmSoapDefs
 from Gnumed.business import gmCoding
