@@ -691,6 +691,7 @@ class cLaTeXForm(cFormEngine):
 	_version_checked = False
 	_mimetypes = [
 		'application/x-latex',
+		'application/x-xetex',
 		'application/x-tex',
 		'text/latex',
 		'text/tex',
@@ -974,8 +975,8 @@ class cLaTeXForm(cFormEngine):
 
 		self.instance_filename = instance_file
 		_log.debug('ignoring <format> directive [%s], generating PDF', format)
-		sandboxed_pdf_name = gmMimeLib.convert_latex_to_pdf (
-			filename = self.instance_filename,
+		sandboxed_pdf_name = gmTex.compile_latex_to_pdf (
+			latex_filename = self.instance_filename,
 			verbose = _cfg.get(option = 'debug'),
 			is_sandboxed = True
 		)
@@ -1779,6 +1780,25 @@ if __name__ == '__main__':
 		template.update_template_from_file(filename = sys.argv[3])
 
 	#--------------------------------------------------------
+	def generate_all_bmps():
+		path = os.path.abspath(sys.argv[2])
+		for pat_id in range(1,200):
+			print('patient', pat_id)
+			if not gmPerson.set_active_patient(patient = pat_id):
+				continue
+			gmStaff.gmCurrentProvider(provider = gmStaff.cStaff())
+			form = cLaTeXForm(template_file = path)
+			from Gnumed.wxpython import gmMacro
+			ph = gmMacro.gmPlaceholderHandler()
+			ph.debug = True
+			form.substitute_placeholders(data_source = ph)
+			pdf_name = form.generate_output()
+			if not pdf_name:
+				print(pat_id, '- issue with PDF')
+				continue
+			shutil.copy2(pdf_name, './tmp/bmp-%s.pdf' % pat_id)
+
+	#--------------------------------------------------------
 	def test_latex_form():
 		pat = gmPersonSearch.ask_for_patient()
 		if pat is None:
@@ -1871,7 +1891,8 @@ if __name__ == '__main__':
 	gmPG2.request_login_params(setup_pool = True)
 	if not gmPraxis.gmCurrentPraxisBranch.from_first_branch():
 		print('no praxis')
-	test_latex_form()
+	generate_all_bmps()
+	#test_latex_form()
 	#test_pdf_form()
 	#test_abiword_form()
 	#test_text_form()
