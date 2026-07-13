@@ -185,7 +185,7 @@ class cGelbeListeCSVFile(object):
 		except Exception: pass
 
 		if truncate:
-			try: os.open(self.filename, 'wb').close
+			try: open(self.filename, mode = 'wb').close()
 			except Exception: pass
 	#--------------------------------------------------------
 	def _get_has_unknown_fields(self):

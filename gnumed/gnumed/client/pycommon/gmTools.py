@@ -30,6 +30,9 @@ from types import ModuleType
 # old:
 import pickle, zlib
 
+# 3rd party library imports
+# docutils
+du_core = None
 
 # GNUmed libs
 if __name__ == '__main__':

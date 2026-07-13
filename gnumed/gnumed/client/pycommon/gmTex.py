@@ -10,6 +10,7 @@ __license__ = "GPL v2 or later"
 import logging
 import os
 import re as regex
+import shutil
 import sys
 
 # 3rd party library imports
@@ -28,7 +29,7 @@ if __name__ == '__main__':
 #		gmI18N.install_domain()
 # GNUmed module imports
 from Gnumed.pycommon import gmShellAPI
-from Gnumed.pycommon.gmTools import u_euro, u_sum
+from Gnumed.pycommon.gmTools import u_euro, u_sum, mk_sandbox_dir, fname_stem
 
 _log = logging.getLogger('gm.tex')
 
@@ -70,9 +71,9 @@ def require_package(package:str=None) -> str:
 
 #------------------------------------------------------------
 def wrap_usepackage_cmd(filename:str=None) -> str:
-	"""Replaces \\usepackage with \gmcheckandloadpkg in <latex_file>.
+	r"""Replaces \usepackage with \gmcheckandloadpkg in <latex_file>.
 
-	Only one \\usepackage per line and only at start of lines.
+	Only one \usepackage per line and only at start of lines.
 
 	Args:
 		filename: name of file to process
@@ -226,7 +227,7 @@ def __detect_pdflatex() -> bool:
 	return True
 
 #------------------------------------------------------------
-def __compile_with_pdflatex(sandbox_dir:str=None, latex_filename:str=None) -> bool:
+def __compile_with_pdflatex(sandbox_dir:str=None, latex_filename:str=None) -> str:
 	cmd_final = [
 		__pdflatex_executable,
 		'-recorder',
@@ -266,7 +267,7 @@ def __check_latex_file(latex_filename:str=None):
 		success, ret_code, stdout = gmShellAPI.run_process(cmd_line = cmd_line, encoding = 'utf8', verbose = True)
 
 #------------------------------------------------------------
-def __compile_with_xelatex(sandbox_dir:str=None, latex_filename:str=None) -> bool:
+def __compile_with_xelatex(sandbox_dir:str=None, latex_filename:str=None) -> str:
 	cmd_final = [
 		__xelatex_executable,
 		'-recorder',
@@ -303,13 +304,13 @@ def compile_latex_to_pdf(latex_filename:str=None, verbose:bool=False, is_sandbox
 	xelatex_avail = __detect_xelatex()
 	__detect_pdflatex()
 	if not (xelatex_avail or __pdflatex_executable):
-		_log.error('[%s] failed, LaTeX not usable', cmd_line)
+		_log.error('neither xelatex nor pdflatex found, LaTeX not usable')
 		return None
 
 	if is_sandboxed:
 		sandbox_dir = os.path.split(latex_filename)[0]
 	else:
-		sandbox_dir = gmTools.mk_sandbox_dir(prefix = gmTools.fname_stem(latex_filename) + '_')
+		sandbox_dir = mk_sandbox_dir(prefix = fname_stem(latex_filename) + '_')
 		shutil.copy(latex_filename, sandbox_dir)
 		latex_filename = os.path.join(sandbox_dir, os.path.split(latex_filename)[1])
 	_log.debug('LaTeX sandbox directory: [%s]', sandbox_dir)
