@@ -174,7 +174,6 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 		if attribute == 'last_confirmed':
 			if value == 'now':
 				value = pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone)
-
 		elif attribute == 'has_allergy':
 			if value not in ALLERGY_STATES:
 				raise ValueError('invalid allergy state [%s]' % value)

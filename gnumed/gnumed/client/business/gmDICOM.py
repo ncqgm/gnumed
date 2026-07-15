@@ -1787,7 +1787,9 @@ if __name__ == "__main__":
 		run_file2dicom_tool(fname, dcm_template)
 		sys.exit()
 
-	orthanc = None
+	orthanc:cOrthancServer = None
+	host:str = None
+	port:str|int = None
 	#--------------------------------------------------------
 	def orthanc_console(host, port):
 		print('Please enter patient name parts, separated by SPACE.')
