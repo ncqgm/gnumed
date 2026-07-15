@@ -236,12 +236,10 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		emr = curr_pat.emr
 		msg_lines = []
 		tt_lines = []
-
 		# allergies
 		state = emr.allergy_state
-
 		if state is None:  # for a brand-new patient, no state ever set
-			msg_lines.append(_('Allergies: unknown'))
+			msg_lines.append(_('Allergies: unobtained'))
 		else:
 			if state['last_confirmed'] is None:
 				confirmed = _('never')
@@ -250,7 +248,6 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 			msg_lines.append(_('%s, last confirmed %s') % (state.state_string, confirmed))
 			if state['comment']:
 				msg_lines.append(_('Comment (%s): %s') % (state['comment'], state['modified_by']))
-
 		allgs = emr.get_allergies()
 		for allergy in allgs:
 			msg_lines.append(' %s: %s (%s)' % (
