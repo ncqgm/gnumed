@@ -1782,7 +1782,8 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def generate_all_bmps():
 		path = os.path.abspath(sys.argv[2])
-		for pat_id in range(1,200):
+		#for pat_id in range(26,27):
+		for pat_id in [12, 26, 91, 111, 122, 145, 195, 300, 313, 314, 323, 324, 325, 351, 352, 357, 374, 401, 419, 423, 461, 482]:
 			print('patient', pat_id)
 			if not gmPerson.set_active_patient(patient = pat_id):
 				continue
@@ -1891,8 +1892,8 @@ if __name__ == '__main__':
 	gmPG2.request_login_params(setup_pool = True)
 	if not gmPraxis.gmCurrentPraxisBranch.from_first_branch():
 		print('no praxis')
-	generate_all_bmps()
-	#test_latex_form()
+	#generate_all_bmps()
+	test_latex_form()
 	#test_pdf_form()
 	#test_abiword_form()
 	#test_text_form()

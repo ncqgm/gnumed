@@ -125,6 +125,16 @@ if __name__ == "__main__":
 					LaTeX:
 #==================================================================================
 
+	write LaTeX code suitable for XeTeX (not pdflatex anymore)
+		-> can handle fonts appropriate to unicode blocks
+
+	maybe \usepackage{iftex} and
+	\ifpdftex
+	 pdflatex stuff such as certain packages to load or certain code to run
+	\else
+	 XeTeX stuff, such as font setup
+	\fi
+
 	use {} after commands generated from Python code to prevent run-in with surrounding text
 
 	use % at end of lines where appropriate
