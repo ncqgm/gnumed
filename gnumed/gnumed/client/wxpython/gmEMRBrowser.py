@@ -1934,7 +1934,7 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 	#--------------------------------------------------------
 	def _edit_item(self, item=None):
 		if item is None:
-			item = self._LCTRL_results.get_selected_item_data(only_one = True)
+			item = self._LCTRL_journal.get_selected_item_data(only_one = True)
 		if item is None:
 			return
 
