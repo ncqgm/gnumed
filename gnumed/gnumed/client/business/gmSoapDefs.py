@@ -107,7 +107,7 @@ def normalize_soap_cat(soap_cat:str) -> str|bool:
 	if soap_cat in KNOWN_SOAP_CATS:
 		return soap_cat
 
-	return False		# type: ignore [return-value]
+	return False
 
 #============================================================
 if __name__ == '__main__':

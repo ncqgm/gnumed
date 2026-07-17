@@ -768,7 +768,7 @@ class cPatientSearcher_SQL:
 
 		# parse into name/date parts
 		date_count = 0
-		name_parts = []
+		name_parts:list[str] = []
 		date_part = ''
 		for part in parts_list:
 			# any digit signifies a date,		 FIXME: what about "<40" ?
