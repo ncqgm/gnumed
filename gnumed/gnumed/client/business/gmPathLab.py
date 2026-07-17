@@ -182,7 +182,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 		if len(self.included_loincs) == 0:
 			txt += _('no tests')
 		else:
-			tts_by_loinc = {}
+			tts_by_loinc:dict[str, cMeasurementType] = {}
 			for loinc in self._payload['loincs']:
 				tts_by_loinc[loinc] = []
 			for ttype in self.test_types:
@@ -1829,13 +1829,15 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			factor = decimal.Decimal(0.5)
 			val = val[1:]
 		elif val[0] == '>':
-			factor = 2
+			factor:int = 2
 			val = val[1:]
 		else:
 			return None
+
 		success, val = gmTools.input2decimal(initial = val)
 		if not success:
 			return None
+
 		return val * factor
 
 	estimate_numeric_value_from_alpha = property(_get_estimate_numeric_value_from_alpha)
@@ -2650,7 +2652,6 @@ def __tests2latex_cell(results=None, show_time=False, show_range=True):
 				or
 			t['unified_target_max'] is not None
 		)
-
 		if not has_range:
 			lines.append(tmp)
 			continue
@@ -2673,9 +2674,9 @@ def __format_test_results_latex(results=None):
 		return '\\noindent %s' % _('No test results to format.')
 
 	# discover the columns and rows
-	dates = {}
-	tests = {}
-	grid = {}
+	dates:dict = {}
+	tests:dict = {}
+	grid:dict[str, dict[str, cMeasurementResult]] = {}
 	for result in results:
 #		row_label = u'%s \\ \\tiny (%s)}' % (result['unified_abbrev'], result['unified_name'])
 		row_label = result['unified_abbrev']
@@ -2798,7 +2799,7 @@ def export_results_for_gnuplot(results=None, filename=None, show_year=True, pati
 		filename = gmTools.get_unique_filename(prefix = 'gm2gpl-', suffix = '.dat', tmp_dir = sandbox_dir)
 
 	# sort results into groups by test type
-	results_grouped_by_test_type = {}
+	results_grouped_by_test_type:dict[str, cTestResult] = {}
 	for r in results:
 		try:
 			results_grouped_by_test_type[r['unified_name']].append(r)
@@ -3059,7 +3060,7 @@ def get_pending_requests(limit=250):
 		try:
 			requests.append(cLabRequest(aPK_obj=row[0]))
 		except gmExceptions.ConstructorError:
-			_log.exception('skipping pending lab request [%s]' % row[0], sys.exc_info(), verbose=0)
+			_log.exception('skipping pending lab request [%s]' % row[0], sys.exc_info())
 	return (too_many, requests)
 
 #------------------------------------------------------------
