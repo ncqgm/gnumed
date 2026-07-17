@@ -34,6 +34,8 @@
 \else
  \usepackage{polyglossia}					% Deutsch und Trennung
  \usepackage{fontspec}						% xelatex fonts definition
+ %\usepackage{ucharclasses}					% switch fonts based on unicode character class
+ %\usepackage{navigator}					% store data files in PDF (patient, praxis)
 \fi
 \usepackage{textcomp}						% symbols for textmode escaping, does not mix with "ucs", unless utf8x used
 \usepackage{marvosym}						% symbols: Handy, Telefon, E-Mail
@@ -283,6 +285,25 @@ $<allergies::%(descriptor)s & %(l10n_type)s & {\footnotesize %(reaction)s}\\\hli
 			ucfilespec=patient.vcf
 		]{$<patient_vcf::::>$}
 	}{\typeout{[$<patient_vcf::::>$] (patient VCF) not found}}
+\else
+	{}
+%	% VCF of creator
+%	\IfFileExists{$<praxis_vcf::::>$}{%
+%		\embeddedfile%
+%			[01) Praxis - digital business card (originator)]%
+%			{praxisVCF}%
+%			[praxis.vcf]%
+%			{$<praxis_vcf::::>$}
+%	}{\typeout{[$<praxis_vcf::::>$] not found}}
+
+%	% VCF of patient
+%	\IfFileExists{$<patient_vcf::::>$}{%
+%		\embeddedfile%
+%			[02) Patient - digital business card]%
+%			{patientVCF}%
+%			[patient.vcf]%
+%			{$<patient_vcf::::>$}
+%	}{\typeout{[$<patient_vcf::::>$] (patient VCF) not found}}
 \fi
 %------------------------------------------------------------------
 
