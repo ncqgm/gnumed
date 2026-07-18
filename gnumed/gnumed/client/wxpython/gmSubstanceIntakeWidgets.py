@@ -577,9 +577,9 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		pat_notes = []
 		if self._TCTRL_patient_notes.Value.strip():
 			pat_notes.append(self._TCTRL_patient_notes.Value.strip())
-		doc_notes = []
+		provider_notes = []
 		if self._TCTRL_provider_notes.Value.strip():
-			doc_notes.append(self._TCTRL_provider_notes.Value.strip())
+			provider_notes.append(self._TCTRL_provider_notes.Value.strip())
 		our_notes = []
 		if self._TCTRL_our_notes.Value.strip():
 			our_notes.append(self._TCTRL_our_notes.Value.strip())
@@ -593,7 +593,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 			if intake['notes4patient']:
 				pat_notes.append(intake['notes4patient'])
 			if intake['notes4provider']:
-				doc_notes.append(intake['notes4provider'])
+				provider_notes.append(intake['notes4provider'])
 			if intake['notes4us']:
 				our_notes.append(intake['notes4us'])
 		else:
@@ -604,7 +604,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 				link_obj = conn4tx
 			)
 		intake['notes4patient'] = '\n'.join(pat_notes)
-		intake['notes4provider'] = '\n'.join(doc_notes)
+		intake['notes4provider'] = '\n'.join(provider_notes)
 		intake['notes4us'] = '\n'.join(our_notes)
 		if self._TCTRL_schedule.Value.strip() == '':
 			# no schedule means there cannot be regimen data because of prior validation
