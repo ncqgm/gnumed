@@ -280,24 +280,22 @@ limit 25
 
 	#----------------------------------------------------------------
 	def _save_as_new(self):
-
 		pat = gmPerson.gmCurrentPatient()
 		emr = pat.emr
-
 		stay = self._PRW_hospital_stay.GetData()
 		if stay is None:
 			epi = self._PRW_episode.GetData(can_create = True)
 		else:
 			epi = gmHospitalStay.cHospitalStay(aPK_obj = stay)['pk_episode']
-
 		proc = emr.add_performed_procedure (
 			episode = epi,
 			location = self._PRW_location.GetData(),
 			hospital_stay = stay,
 			procedure = self._PRW_procedure.GetValue().strip()
 		)
-
-		if self._DPRW_date.GetData() is not None:
+		if self._DPRW_date.GetData() is None:
+			proc['clin_when'] = gmDateTime.pydt_now_here()
+		else:
 			proc['clin_when'] = self._DPRW_date.GetData().get_pydt()
 		if self._DPRW_end.GetData() is None:
 			proc['clin_end'] = None
@@ -307,16 +305,14 @@ limit 25
 		proc['comment'] = self._TCTRL_comment.GetValue()
 		proc['pk_doc'] = self._PRW_document.GetData()
 		proc.save()
-
 		proc.generic_codes = [ c['data'] for c in self._PRW_codes.GetData() ]
-
 		self.data = proc
-
 		return True
 
 	#----------------------------------------------------------------
 	def _save_as_update(self):
-		self.data['clin_when'] = self._DPRW_date.GetData().get_pydt()
+		if self._DPRW_date.GetData() is not None:
+			self.data['clin_when'] = self._DPRW_date.GetData().get_pydt()
 		self.data['is_ongoing'] = self._CHBOX_ongoing.IsChecked()
 		self.data['pk_org_unit'] = self._PRW_location.GetData()
 		self.data['pk_hospital_stay'] = self._PRW_hospital_stay.GetData()
@@ -332,9 +328,7 @@ limit 25
 		else:
 			self.data['pk_episode'] = gmHospitalStay.cHospitalStay(aPK_obj = self._PRW_hospital_stay.GetData())['pk_episode']
 		self.data.save()
-
 		self.data.generic_codes = [ c['data'] for c in self._PRW_codes.GetData() ]
-
 		return True
 
 	#----------------------------------------------------------------

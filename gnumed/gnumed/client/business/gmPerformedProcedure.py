@@ -272,31 +272,26 @@ def get_latest_performed_procedure(patient=None):
 	return cPerformedProcedure(row = {'data': rows[0], 'pk_field': 'pk_procedure'})
 
 #-----------------------------------------------------------
-def create_performed_procedure(encounter=None, episode=None, location=None, hospital_stay=None, procedure=None):
-
-	queries = [{
-		'sql': """
-			INSERT INTO clin.procedure (
-				fk_encounter,
-				fk_episode,
-				soap_cat,
-				fk_org_unit,
-				fk_hospital_stay,
-				narrative
-			) VALUES (
-				%(enc)s,
-				%(epi)s,
-				'p',
-				%(loc)s,
-				%(stay)s,
-				gm.nullify_empty_string(%(proc)s)
-			)
-			RETURNING pk""",
-		'args': {'enc': encounter, 'epi': episode, 'loc': location, 'stay': hospital_stay, 'proc': procedure}
-	}]
-
-	rows = gmPG2.run_rw_queries(queries = queries, return_data = True)
-
+def create_performed_procedure(encounter=None, episode=None, location=None, hospital_stay=None, procedure:str=None) -> cPerformedProcedure:
+	SQL = """
+		INSERT INTO clin.procedure (
+			fk_encounter,
+			fk_episode,
+			soap_cat,
+			fk_org_unit,
+			fk_hospital_stay,
+			narrative
+		) VALUES (
+			%(enc)s,
+			%(epi)s,
+			'p',
+			%(loc)s,
+			%(stay)s,
+			gm.nullify_empty_string(%(proc)s)
+		)
+		RETURNING pk"""
+	args = {'enc': encounter, 'epi': episode, 'loc': location, 'stay': hospital_stay, 'proc': procedure}
+	rows = gmPG2.run_rw_query(sql = SQL, args = args, return_data = True)
 	return cPerformedProcedure(aPK_obj = rows[0][0])
 
 #-----------------------------------------------------------
