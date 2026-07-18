@@ -578,8 +578,8 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		if self._TCTRL_patient_notes.Value.strip():
 			pat_notes.append(self._TCTRL_patient_notes.Value.strip())
 		doc_notes = []
-		if self._TCTRL_patient_notes.Value.strip():
-			doc_notes.append(self._TCTRL_patient_notes.Value.strip())
+		if self._TCTRL_provider_notes.Value.strip():
+			doc_notes.append(self._TCTRL_provider_notes.Value.strip())
 		our_notes = []
 		if self._TCTRL_our_notes.Value.strip():
 			our_notes.append(self._TCTRL_our_notes.Value.strip())
