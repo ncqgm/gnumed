@@ -2645,6 +2645,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 				clin_when = %(last_checked_when)s,
 				notes4patient = gm.nullify_empty_string(%(notes4patient)s),
 				narrative = gm.nullify_empty_string(%(notes4provider)s),
+				notes4us = gm.nullify_empty_string(%(notes4us)s),
 				use_type = %(use_type)s,
 				fk_episode = %(pk_episode)s,
 				fk_encounter = %(pk_encounter)s
