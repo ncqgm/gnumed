@@ -297,7 +297,8 @@ limit 25
 			procedure = self._PRW_procedure.GetValue().strip()
 		)
 
-		proc['clin_when'] = self._DPRW_date.GetData().get_pydt()
+		if self._DPRW_date.GetData() is not None:
+			proc['clin_when'] = self._DPRW_date.GetData().get_pydt()
 		if self._DPRW_end.GetData() is None:
 			proc['clin_end'] = None
 		else:
