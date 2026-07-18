@@ -86,16 +86,6 @@ $<if_debugging:://%::>$\geometry{pass,verbose}							% put geometry into log fil
 $<if_debugging:://%::>$\renewcommand\ShowFrameLinethickness{0.25pt}		% configure showframe
 $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure showframe
 
-% language and font
-\ifpdftex
- {}
-\else
- \setdefaultlanguage{german}
- \setmainfont{Latin Modern Roman}
- \setsansfont{Latin Modern Sans}
- \setmonofont{Latin Modern Mono}
-\fi
-
 % - PDF metadata
 \hypersetup{
 	pdftitle = {Current Medication List: $m[PtFirstLast]m$, $m[PtDOB]m$},
@@ -106,6 +96,15 @@ $<if_debugging:://%::>$\renewcommand*\ShowFrameColor{\color{red}}		% configure s
 	pdfprintscaling = None
 }
 
+% language and font
+\ifpdftex
+ {}
+\else
+ \setdefaultlanguage{german}
+ \setmainfont{Latin Modern Roman}
+ \setsansfont{Latin Modern Sans}
+ \setmonofont{Latin Modern Mono}
+\fi
 % - base font: sans serif Latin Modern
 \renewcommand*\familydefault{\sfdefault}
 
