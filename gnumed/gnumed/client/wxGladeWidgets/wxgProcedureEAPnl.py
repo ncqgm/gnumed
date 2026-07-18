@@ -20,7 +20,7 @@ class wxgProcedureEAPnl(wx.ScrolledWindow):
 		wx.ScrolledWindow.__init__(self, *args, **kwds)
 		self.SetScrollRate(10, 10)
 
-		_gszr_main = wx.FlexGridSizer(12, 2, 1, 3)
+		_gszr_main = wx.FlexGridSizer(11, 2, 1, 3)
 
 		__lbl_procedure = wx.StaticText(self, wx.ID_ANY, _("Procedure"))
 		__lbl_procedure.SetForegroundColour(wx.Colour(255, 0, 0))
@@ -33,11 +33,11 @@ class wxgProcedureEAPnl(wx.ScrolledWindow):
 
 		__lbl_date = wx.StaticText(self, wx.ID_ANY, _("Date"))
 		__lbl_date.SetForegroundColour(wx.Colour(255, 0, 0))
+		__lbl_date.SetToolTip(_("When did this procedure take place ?\n\nLeave blank to use today's date."))
 		_gszr_main.Add(__lbl_date, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
 		from Gnumed.wxpython.gmDateTimeInput import cFuzzyTimestampInput
 		self._DPRW_date = cFuzzyTimestampInput(self, wx.ID_ANY, "")
-		self._DPRW_date.SetToolTip(_("When did this procedure take place ?\n\nLeave blank to use today's date."))
 		_gszr_main.Add(self._DPRW_date, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 
 		__lbl_end = wx.StaticText(self, wx.ID_ANY, _("End"))
@@ -127,14 +127,6 @@ class wxgProcedureEAPnl(wx.ScrolledWindow):
 		self._PRW_document = cDocumentPhraseWheel(self, wx.ID_ANY, "")
 		self._PRW_document.SetToolTip(_("The document most relevant to this procedure (say, the most recent one)."))
 		_gszr_main.Add(self._PRW_document, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-
-		_lbl_codes = wx.StaticText(self, wx.ID_ANY, _("Codes"))
-		_gszr_main.Add(_lbl_codes, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-
-		from Gnumed.wxpython.gmCodingWidgets import cGenericCodesPhraseWheel
-		self._PRW_codes = cGenericCodesPhraseWheel(self, wx.ID_ANY, "")
-		self._PRW_codes.SetToolTip(_("Codes relevant to this procedure."))
-		_gszr_main.Add(self._PRW_codes, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 
 		_gszr_main.AddGrowableCol(1)
 		self.SetSizer(_gszr_main)
