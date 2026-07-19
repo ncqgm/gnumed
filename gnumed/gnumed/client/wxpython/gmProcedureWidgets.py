@@ -305,7 +305,6 @@ limit 25
 		proc['comment'] = self._TCTRL_comment.GetValue()
 		proc['pk_doc'] = self._PRW_document.GetData()
 		proc.save()
-		proc.generic_codes = [ c['data'] for c in self._PRW_codes.GetData() ]
 		self.data = proc
 		return True
 
@@ -328,7 +327,6 @@ limit 25
 		else:
 			self.data['pk_episode'] = gmHospitalStay.cHospitalStay(aPK_obj = self._PRW_hospital_stay.GetData())['pk_episode']
 		self.data.save()
-		self.data.generic_codes = [ c['data'] for c in self._PRW_codes.GetData() ]
 		return True
 
 	#----------------------------------------------------------------
@@ -342,7 +340,6 @@ limit 25
 		self._PRW_location.SetText()
 		self._PRW_episode.SetText()
 		self._PRW_procedure.SetText()
-		self._PRW_codes.SetText()
 		self._PRW_document.SetText()
 		self._TCTRL_comment.SetValue('')
 
@@ -382,9 +379,6 @@ limit 25
 			self._PRW_location.SetText()
 			self._PRW_location.Enable(False)
 			self._PRW_episode.Enable(False)
-
-		val, data = self._PRW_codes.generic_linked_codes2item_dict(self.data.generic_codes)
-		self._PRW_codes.SetText(val, data)
 
 		self._PRW_procedure.SetFocus()
 
