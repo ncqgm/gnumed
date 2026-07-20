@@ -3464,7 +3464,7 @@ def generate_failsafe_medication_list_entries(pk_patient:int=None, max_width:int
 #------------------------------------------------------------
 # other formatting
 #------------------------------------------------------------
-_LATEX__current_meds_notes = """%% --- current medication list notes ---
+_LATEX__current_meds_notes = """{ %% --- current medication list notes --------------------------
 %s
 %s
 %% define \\tnl:
@@ -3476,8 +3476,8 @@ _LATEX__current_meds_notes = """%% --- current medication list notes ---
 %s
 \\bottomrule
 \\end{xltabular}
-%%  ^^^ current medication list notes ^^^
-"""
+%%  ^^^ current medication list notes ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+}"""
 
 def format_substance_intake_notes(emr=None, output_format='latex') -> str:
 	current_meds = emr.get_current_medications (
@@ -3513,7 +3513,7 @@ def format_substance_intake_notes(emr=None, output_format='latex') -> str:
 	return latex
 
 #------------------------------------------------------------
-_LATEX__current_meds_table = """%% --- current medication list table ---
+_LATEX__current_meds_table = """{ %% --- current medication list table -------------------
 %s
 %s
 %% define \\tnl:
@@ -3525,8 +3525,8 @@ _LATEX__current_meds_table = """%% --- current medication list table ---
 %s
 \\bottomrule
 \\end{xltabular}
-%%  ^^^ current medication list table ^^^
-"""
+%% ^^^ current medication list table ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+}"""
 
 def format_substance_intake(emr=None, output_format='latex') -> str:
 	current_meds = emr.get_current_medications (
