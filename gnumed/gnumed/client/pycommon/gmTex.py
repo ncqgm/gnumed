@@ -34,22 +34,31 @@ from Gnumed.pycommon.gmTools import u_euro, u_sum, mk_sandbox_dir, fname_stem
 _log = logging.getLogger('gm.tex')
 
 #============================================================
-__pdflatex_version_logged:bool = False
-__pdflatex_executable:str = None
-__xelatex_version_logged:bool = False
-__xelatex_executable:str = None
-_REGEX_LaTeX__usepackage__name = regex.compile(r'{\S+?}')
-LATEX__define_tnl_as_tabularnewline = r'\providecommand{\tnl}{\tabularnewline}'
+# potentially external:
 
-#------------------------------------------------------------
-_LATEX__require_pkg_code = r"""%% this document requires "\usepackage{%(pkg)s}", checking:
+LATEX__define_tnl_as_tabularnewline = r'\providecommand{\tnl}{\tabularnewline}%'
+
+_REGEX_LaTeX__usepackage__name = regex.compile(r'{\S+?}')
+
+
+_LATEX__require_pkg_code = r"""%% "\usepackage{%(pkg)s}" required, checking:
 \makeatletter
 \@ifpackageloaded{%(pkg)s}%%
 	{\typeout{GNUmed: <%(pkg)s> package is loaded}}%%
 	{\typeout{GNUmed: <%(pkg)s> not loaded, aborting compilation}\batchmode\stop}
-\makeatother"""
+\makeatother%"""
 
-#------------------------------------------------------------
+
+# the following LaTeX code defines a shorthand for putting multi-line text
+# into table cells with \newline (or \\) support which shrinks to the minimum
+# width and top-aligns with other cells
+_LATEX__define_pCell_cmd = r"""%% define pCell command for table cells:
+%s
+\providecommand{\pCell}[2][t]{\pbox[#1]{\linewidth}{#2\strut}}%""" % (
+	_LATEX__require_pkg_code % {'pkg': 'pbox'}
+)
+
+
 _LATEX__define_gmcheckandloadpkg_cmd = r"""
 % defining new command for checked loading of packages
 % aborts immediately if package does not seem available
@@ -65,6 +74,14 @@ _LATEX__define_gmcheckandloadpkg_cmd = r"""
 \makeatother
 
 """
+#------------------------------------------------------------
+# internal:
+__pdflatex_version_logged:bool = False
+__pdflatex_executable:str = None
+__xelatex_version_logged:bool = False
+__xelatex_executable:str = None
+
+
 #============================================================
 def require_package(package:str=None) -> str:
 	return _LATEX__require_pkg_code % {'pkg': package}
