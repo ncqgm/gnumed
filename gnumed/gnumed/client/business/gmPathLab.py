@@ -31,6 +31,7 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmHooks
 from Gnumed.pycommon import gmCfgINI
+from Gnumed.pycommon import gmTex
 
 from Gnumed.business import gmOrganization
 from Gnumed.business import gmCoding
@@ -2628,47 +2629,46 @@ def __tests2latex_cell(results=None, show_time=False, show_range=True):
 	if len(results) == 0:
 		return ''
 
-	lines = []
-	for t in results:
-
+	lines_in_cell = []
+	for result in results:
 		tmp = ''
-
+		parts = []
 		if show_time:
-			tmp += '\\tiny %s ' % t['clin_when'].strftime('%H:%M')
-
-		tmp += '\\normalsize %.8s' % t['unified_val']
-
-		lines.append(tmp)
-		tmp = '\\tiny %s' % gmTools.coalesce(t['val_unit'], '', '%s ')
-
+			parts.append(r'{\tiny %s}' % gmTex.tex_escape_string(result['clin_when'].strftime('%H:%M')))
+		parts.append(r'{\normalsize %.8s}' % gmTex.tex_escape_string(result['unified_val']))
+		lines_in_cell.append(' '.join(parts))
+		parts = []
+		if result['val_unit']:
+			parts.append(result['val_unit'])
 		if not show_range:
-			lines.append(tmp)
+			if parts:
+				lines_in_cell.append(r'{\tiny %s}' % gmTex.tex_escape_string(parts[0]))
 			continue
 
 		has_range = (
-			t['unified_target_range'] is not None
+			result['unified_target_range']
 				or
-			t['unified_target_min'] is not None
+			result['unified_target_min']
 				or
-			t['unified_target_max'] is not None
+			result['unified_target_max']
 		)
 		if not has_range:
-			lines.append(tmp)
+			if parts:
+				lines_in_cell.append(r'{\tiny %s}' % gmTex.tex_escape_string(parts[0]))
 			continue
 
-		if t['unified_target_range'] is not None:
-			tmp += '[%s]' % t['unified_target_range']
+		if result['unified_target_range']:
+			parts.append('[%s]' % gmTex.tex_escape_string(result['unified_target_range']))
 		else:
-			tmp += '[%s%s]' % (
-				gmTools.coalesce(t['unified_target_min'], '--', '%s--'),
-				gmTools.coalesce(t['unified_target_max'], '', '%s')
-			)
-		lines.append(tmp)
-
-	return ' \\\\ '.join(lines)
+			parts.append('[%s%s]' % (
+				gmTex.tex_escape_string(gmTools.coalesce(result['unified_target_min'], '--', '%s--')),
+				gmTex.tex_escape_string(gmTools.coalesce(result['unified_target_max'], '', '%s'))
+			))
+		lines_in_cell.append(r'{\tiny %s}' % ' '.join(parts))
+	return r'\pCell{%s}' %  r' \newline '.join(lines_in_cell)
 
 #------------------------------------------------------------
-def __format_test_results_latex(results=None):
+def __old__format_test_results_latex(results=None):
 
 	if len(results) == 0:
 		return '\\noindent %s' % _('No test results to format.')
@@ -2676,12 +2676,18 @@ def __format_test_results_latex(results=None):
 	# discover the columns and rows
 	dates:dict = {}
 	tests:dict = {}
-	grid:dict[str, dict[str, cMeasurementResult]] = {}
+	grid:dict[str, dict[str, cTestResult]] = {}
 	for result in results:
-#		row_label = u'%s \\ \\tiny (%s)}' % (result['unified_abbrev'], result['unified_name'])
-		row_label = result['unified_abbrev']
+#		row_label = r'%s \\ {\tiny (%s)}' % (
+#			gmTex.tex_escape_string(result['unified_abbrev']),
+#			gmTex.tex_escape_string(result['unified_name'])
+#		)
+		row_label = gmTex.tex_escape_string(result['unified_abbrev'])
 		tests[row_label] = None
-		col_label = '{\\scriptsize %s}' % result['clin_when'].strftime('%Y-%m-%d')
+		col_label = r'{\scriptsize %s\\%s}' % (
+			result['clin_when'].strftime('%Y'),
+			gmTex.tex_escape_string(result['clin_when'].strftime('%b %d'))
+		)
 		dates[col_label] = None
 		try:
 			grid[row_label]
@@ -2743,6 +2749,102 @@ def __format_test_results_latex(results=None):
 		rows.append(' & '.join(cells))
 
 	return tex % ' \\tabularnewline\n \\hline\n'.join(rows)
+
+
+#------------------------------------------------------------
+__LATEX__test_results_table = r"""%% --- test results table ------------------------------------
+{
+%(req_typearea)s
+%(req_xltabular)s
+%% define \tnl:
+%(tnl)s
+%(pCell)s
+%% switch to A1 landscape pages
+\KOMAoptions{%%
+	paper=a1,%%
+	paper=landscape%%
+}
+\recalctypearea		%% this starts a new page
+
+\begin{xltabular}{\textwidth}{r|%(col_defs)sX}
+{} & %(col_labels)s & {} \tnl
+\toprule
+%(rows)s
+\bottomrule
+\end{xltabular}
+
+\recalctypearea		%% going back to previous page layout
+}
+%% --- test results table ------------------------------------
+"""
+
+def __format_test_results_latex(results=None):
+
+	if len(results) == 0:
+		return r'\noindent %s' % _('No test results to format.')
+
+	# discover the columns and rows
+	dates:dict = {}
+	tests:dict = {}
+	grid:dict[str, dict[str, cMeasurementResult]] = {}
+	for result in results:
+#		row_label = r'\shortstack[r]{\large %s} \\ {\tiny (%s)}' % (
+#			gmTex.tex_escape_string(result['unified_abbrev']),
+#			gmTex.tex_escape_string(result['unified_name'])
+#		)
+		row_label = r'\pCell{{\large %s} \newline {\tiny (%s)}}' % (
+			gmTex.tex_escape_string(result['unified_abbrev']),
+			gmTex.tex_escape_string(result['unified_name'])
+		)
+		tests[row_label] = None
+		col_label = r'\pCell{{\scriptsize %s} \newline {\scriptsize %s}}' % (
+			result['clin_when'].strftime('%Y'),
+			gmTex.tex_escape_string(result['clin_when'].strftime('%b %d'))
+		)
+		dates[col_label] = None
+		try:
+			grid[row_label]
+		except KeyError:
+			grid[row_label] = {}
+		try:
+			grid[row_label][col_label].append(result)
+		except KeyError:
+			grid[row_label][col_label] = [result]
+	col_labels = sorted(dates, reverse = True)
+	del dates
+	row_labels = sorted(tests)
+	del tests
+	args = {
+		'req_typearea': gmTex.require_package(package = 'typearea'),
+		'req_xltabular': gmTex.require_package(package = 'xltabular'),
+		'tnl': gmTex.LATEX__define_tnl_as_tabularnewline,
+		'pCell': gmTex._LATEX__define_pCell_cmd,
+		'col_defs': len(col_labels) * r'l|',
+		'col_labels': r' & '.join(col_labels)
+	}
+	table_row_template = r'%s & {} \tnl'
+	table_rows = []
+	# loop over table_rows
+	for test_type in row_labels:
+		cells = [test_type]
+		# loop over cols per row
+		for result_date in col_labels:
+			try:
+				# get tests for this (row/col) position
+				tests = grid[test_type][result_date]
+			except KeyError:
+				# none there, so insert empty cell
+				cells.append(' {} ')
+				continue
+			cell = __tests2latex_cell (
+				results = tests,
+				show_time = (len(tests) > 1),
+				show_range = True
+			)
+			cells.append(cell)
+		table_rows.append(table_row_template % ' & '.join(cells))
+	args['rows'] = '\n\\midrule\n'.join(table_rows)
+	return __LATEX__test_results_table % args
 
 #============================================================
 GPLOT_DATAFILE_HEADER = """#
@@ -3243,9 +3345,10 @@ if __name__ == '__main__':
 			cTestResult(aPK_obj=3)
 #			cTestResult(aPK_obj=4)
 		]
-		print(format_test_results(results = results))
-		for r in results:
-			print(r.format())
+		print(__format_test_results_latex(results = results))
+#		for r in results:
+#			print(r.format())
+
 	#--------------------------------------------------------
 	def test_calculate_bmi():
 		done, data = calculate_bmi(mass = sys.argv[2], height = sys.argv[3])
@@ -3355,10 +3458,10 @@ if __name__ == '__main__':
 	#test_pending()
 	#test_meta_test_type()
 	#test_test_type()
-	#test_format_test_results()
+	test_format_test_results()
 	#test_calculate_bmi()
 	#test_test_panel()
-	test_get_test_results()
+	#test_get_test_results()
 	#test_get_most_recent_results_for_panel()
 	#test_get_most_recent_results_in_loinc_group()
 	#test_export_result_for_gnuplot()
