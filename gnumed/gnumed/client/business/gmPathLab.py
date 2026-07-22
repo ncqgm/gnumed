@@ -2631,11 +2631,9 @@ def __tests2latex_cell(results=None, show_time=False, show_range=True):
 
 	lines_in_cell = []
 	for result in results:
-		tmp = ''
-		parts = []
+		parts = [r'{\normalsize %.8s}' % gmTex.tex_escape_string(result['unified_val'])]
 		if show_time:
-			parts.append(r'{\tiny %s}' % gmTex.tex_escape_string(result['clin_when'].strftime('%H:%M')))
-		parts.append(r'{\normalsize %.8s}' % gmTex.tex_escape_string(result['unified_val']))
+			parts.append(r'{\tiny (%s)}' % gmTex.tex_escape_string(result['clin_when'].strftime('%H:%M')))
 		lines_in_cell.append(' '.join(parts))
 		parts = []
 		if result['val_unit']:
@@ -2665,116 +2663,38 @@ def __tests2latex_cell(results=None, show_time=False, show_range=True):
 				gmTex.tex_escape_string(gmTools.coalesce(result['unified_target_max'], '', '%s'))
 			))
 		lines_in_cell.append(r'{\tiny %s}' % ' '.join(parts))
-	return r'\pCell{%s}' %  r' \newline '.join(lines_in_cell)
-
-#------------------------------------------------------------
-def __old__format_test_results_latex(results=None):
-
-	if len(results) == 0:
-		return '\\noindent %s' % _('No test results to format.')
-
-	# discover the columns and rows
-	dates:dict = {}
-	tests:dict = {}
-	grid:dict[str, dict[str, cTestResult]] = {}
-	for result in results:
-#		row_label = r'%s \\ {\tiny (%s)}' % (
-#			gmTex.tex_escape_string(result['unified_abbrev']),
-#			gmTex.tex_escape_string(result['unified_name'])
-#		)
-		row_label = gmTex.tex_escape_string(result['unified_abbrev'])
-		tests[row_label] = None
-		col_label = r'{\scriptsize %s\\%s}' % (
-			result['clin_when'].strftime('%Y'),
-			gmTex.tex_escape_string(result['clin_when'].strftime('%b %d'))
-		)
-		dates[col_label] = None
-		try:
-			grid[row_label]
-		except KeyError:
-			grid[row_label] = {}
-		try:
-			grid[row_label][col_label].append(result)
-		except KeyError:
-			grid[row_label][col_label] = [result]
-
-	col_labels = sorted(dates, reverse = True)
-	del dates
-	row_labels = sorted(tests)
-	del tests
-
-	col_def = len(col_labels) * '>{\\raggedleft}p{1.7cm}|'
-
-	# format them
-	tex = """\\noindent %s
-
-\\noindent \\begin{tabular}{|l|%s}
-\\hline
- & %s \\tabularnewline
-\\hline
-
-%%s \\tabularnewline
-
-\\hline
-
-\\end{tabular}""" % (
-		_('Test results'),
-		col_def,
-		' & '.join(col_labels)
-	)
-
-	rows = []
-
-	# loop over rows
-	for rl in row_labels:
-		cells = [rl]
-		# loop over cols per row
-		for cl in col_labels:
-			try:
-				# get tests for this (row/col) position
-				tests = grid[rl][cl]
-			except KeyError:
-				# none there, so insert empty cell
-				cells.append(' ')
-				continue
-
-			cells.append (
-				__tests2latex_cell (
-					results = tests,
-					show_time = (len(tests) > 1),
-					show_range = True
-				)
-			)
-
-		rows.append(' & '.join(cells))
-
-	return tex % ' \\tabularnewline\n \\hline\n'.join(rows)
-
+	return r'\pCell{%s}' %  r' \\ '.join(lines_in_cell)
 
 #------------------------------------------------------------
 __LATEX__test_results_table = r"""%% --- test results table ------------------------------------
-{
 %(req_typearea)s
 %(req_xltabular)s
+
+%% switch to A0 landscape pages
+\BeforeRestoreareas*{\clearpage}
+\storeareas\gmRestoreTypeAreaValues
+\clearpage
+\KOMAoptions{%%
+	paper=a0,%%
+	paper=landscape,%%
+	BCOR=1mm,%%
+	DIV=20%%
+}
+\activateareas
 %% define \tnl:
 %(tnl)s
 %(pCell)s
-%% switch to A1 landscape pages
-\KOMAoptions{%%
-	paper=a1,%%
-	paper=landscape%%
-}
-\recalctypearea		%% this starts a new page
 
-\begin{xltabular}{\textwidth}{r|%(col_defs)sX}
+%% the trailing X-column is always empty and ensures that the table
+%% sits flush left and gets stretched all the way to the right margin
+\begin{xltabular}{\textwidth}{l|%(col_defs)sX}
 {} & %(col_labels)s & {} \tnl
 \toprule
 %(rows)s
 \bottomrule
 \end{xltabular}
 
-\recalctypearea		%% going back to previous page layout
-}
+\gmRestoreTypeAreaValues	%% go back to previous page layout
 %% --- test results table ------------------------------------
 """
 
@@ -2788,16 +2708,12 @@ def __format_test_results_latex(results=None):
 	tests:dict = {}
 	grid:dict[str, dict[str, cMeasurementResult]] = {}
 	for result in results:
-#		row_label = r'\shortstack[r]{\large %s} \\ {\tiny (%s)}' % (
-#			gmTex.tex_escape_string(result['unified_abbrev']),
-#			gmTex.tex_escape_string(result['unified_name'])
-#		)
-		row_label = r'\pCell{{\large %s} \newline {\tiny (%s)}}' % (
+		row_label = r'\pCell{{\large %s} \\ {\tiny (%s)}}' % (
 			gmTex.tex_escape_string(result['unified_abbrev']),
 			gmTex.tex_escape_string(result['unified_name'])
 		)
 		tests[row_label] = None
-		col_label = r'\pCell{{\scriptsize %s} \newline {\scriptsize %s}}' % (
+		col_label = r'\pCell{{\scriptsize %s} \\ {\scriptsize %s}}' % (
 			result['clin_when'].strftime('%Y'),
 			gmTex.tex_escape_string(result['clin_when'].strftime('%b %d'))
 		)
@@ -3350,6 +3266,20 @@ if __name__ == '__main__':
 #			print(r.format())
 
 	#--------------------------------------------------------
+	def test_format_all_test_results():
+		from Gnumed.business import gmClinicalRecord
+		from Gnumed.business import gmPraxis
+		gmPraxis.gmCurrentPraxisBranch.from_first_branch()
+		max_emr = 100
+		for idx in range(1, max_emr):
+			try:
+				emr = gmClinicalRecord.cClinicalRecord(idx)
+			except Exception:
+				continue
+			results = emr.get_test_results()
+			print(__format_test_results_latex(results = results))
+
+	#--------------------------------------------------------
 	def test_calculate_bmi():
 		done, data = calculate_bmi(mass = sys.argv[2], height = sys.argv[3])
 		bmi, low, high = data
@@ -3458,7 +3388,8 @@ if __name__ == '__main__':
 	#test_pending()
 	#test_meta_test_type()
 	#test_test_type()
-	test_format_test_results()
+	#test_format_test_results()
+	test_format_all_test_results()
 	#test_calculate_bmi()
 	#test_test_panel()
 	#test_get_test_results()
