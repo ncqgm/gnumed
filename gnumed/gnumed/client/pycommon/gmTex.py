@@ -36,25 +36,27 @@ _log = logging.getLogger('gm.tex')
 #============================================================
 # potentially external:
 
-LATEX__define_tnl_as_tabularnewline = r'\providecommand{\tnl}{\tabularnewline}%'
+LATEX__define_tnl_as_tabularnewline = r'\providecommand{\tnl}{\tabularnewline}%%'
 
 _REGEX_LaTeX__usepackage__name = regex.compile(r'{\S+?}')
 
 
-_LATEX__require_pkg_code = r"""%% "\usepackage{%(pkg)s}" required, checking:
+_LATEX__require_pkg_code = r"""%% requires "\usepackage{%(pkg)s}":
 \makeatletter
 \@ifpackageloaded{%(pkg)s}%%
 	{\typeout{GNUmed: <%(pkg)s> package is loaded}}%%
 	{\typeout{GNUmed: <%(pkg)s> not loaded, aborting compilation}\batchmode\stop}
-\makeatother%"""
+\makeatother%%"""
 
 
 # the following LaTeX code defines a shorthand for putting multi-line text
-# into table cells with \newline (or \\) support which shrinks to the minimum
-# width and top-aligns with other cells
+# into table cells with \\ (line break) support which also shrink to the
+# minimum width and top-align with other cells
+# note that \newline does not work, it must be '\\'
+# also, cell content must not contain "&" (use tex_escape_string)
 _LATEX__define_pCell_cmd = r"""%% define pCell command for table cells:
 %s
-\providecommand{\pCell}[2][t]{\pbox[#1]{\linewidth}{#2\strut}}%""" % (
+\providecommand{\pCell}[2][t]{\pbox[#1]{\linewidth}{#2}}%%""" % (
 	_LATEX__require_pkg_code % {'pkg': 'pbox'}
 )
 
@@ -125,14 +127,14 @@ def wrap_usepackage_cmd(filename:str=None) -> str:
 
 #------------------------------------------------------------
 def tex_escape_string(text:str=None, replace_known_unicode:bool=True, replace_eol:bool=False, keep_visual_eol:bool=False, strip_whitespace:bool=True) -> str:
-	"""Check for special TeX characters and transform them.
+	r"""Check for special TeX characters and transform them.
 
 	Args:
 		text: plain (unicode) text to escape for LaTeX processing,
 			note that any valid LaTeX code contained within will be
 			escaped, too
-		replace_eol: replaces "\n" with "\\newline{}"
-		keep_visual_eol: replaces "\n" with "\\newline{}%\n" such that
+		replace_eol: replaces "\n" with "\newline{}", careful with that, does not do what it seems
+		keep_visual_eol: replaces "\n" with "\newline{}%\n" such that
 			both LaTeX will know to place a line break
 			at this point as well as the visual formatting
 			is preserved in the LaTeX source (think multi-
@@ -146,19 +148,19 @@ def tex_escape_string(text:str=None, replace_known_unicode:bool=True, replace_eo
 	text = text.replace('{', '-----{{{{{-----')
 	text = text.replace('}', '-----}}}}}-----')
 
-	text = text.replace('\\', '\\textbackslash{}')			# requires \usepackage{textcomp} in LaTeX source
+	text = text.replace('\\', r'\textbackslash{}')			# requires \usepackage{textcomp} in LaTeX source
 
-	text = text.replace('-----{{{{{-----', '\\{{}')
-	text = text.replace('-----}}}}}-----', '\\}{}')
+	text = text.replace('-----{{{{{-----', r'\{{}')
+	text = text.replace('-----}}}}}-----', r'\}{}')
 
-	text = text.replace('^', '\\textasciicircum{}')
-	text = text.replace('~', '\\textasciitilde{}')
+	text = text.replace('^', r'\textasciicircum{}')
+	text = text.replace('~', r'\textasciitilde{}')
 
-	text = text.replace('%', '\\%{}')
-	text = text.replace('&', '\\&{}')
-	text = text.replace('#', '\\#{}')
-	text = text.replace('$', '\\${}')
-	text = text.replace('_', '\\_{}')
+	text = text.replace('%', r'\%{}')
+	text = text.replace('&', r'\&{}')
+	text = text.replace('#', r'\#{}')
+	text = text.replace('$', r'\${}')
+	text = text.replace('_', r'\_{}')
 	if replace_eol:
 		if keep_visual_eol:
 			text = text.replace('\n', '\\newline{}%\n')
@@ -167,8 +169,8 @@ def tex_escape_string(text:str=None, replace_known_unicode:bool=True, replace_eo
 
 	if replace_known_unicode:
 		# this should NOT be replaced for Xe(La)Tex
-		text = text.replace(u_euro, '\\euro{}')		# requires \usepackage[official]{eurosym} in LaTeX source
-		text = text.replace(u_sum, '$\\Sigma$')
+		text = text.replace(u_euro, r'\euro{}')		# requires \usepackage[official]{eurosym} in LaTeX source
+		text = text.replace(u_sum, r'$\Sigma$')
 
 	if strip_whitespace:
 		return text.strip()
