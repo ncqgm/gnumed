@@ -402,7 +402,7 @@ __known_variant_placeholders = {
 
 	'current_meds_table': "emits a LaTeX table, no arguments",
 	'current_meds_notes': "emits a LaTeX table, no arguments",
-	'lab_table': "emits a LaTeX table, no arguments",
+	'lab_table': "emits a LaTeX table, args: <select> - if not set, *all* results are formatted, else the selection",
 	'test_results': "args: <%(field)s-template>//<date format>//<line separator (EOL)>",
 	'most_recent_test_results': """most recent test results formatted as defined in <template>:
 		args: <dfmt=...>//<tmpl=...>//<sep=...>
@@ -2257,8 +2257,19 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 	#--------------------------------------------------------
 	def _get_variant_lab_table(self, data=None):
+		args = self._parse_ph_options(options_data = data, switch_defaults = {'select': False})
+		if not args['select']:
+			results = self.pat.emr.get_test_results_by_date()
+		else:
+			from Gnumed.wxpython.gmMeasurementWidgets import manage_measurements
+			results = manage_measurements(single_selection = False, emr = self.pat.emr)
+			if results is None:
+				if self.debug:
+					return self._escape(_('no results for this patient (available or selected)'))
+				return self._escape('')
+
 		return gmPathLab.format_test_results (
-			results = self.pat.emr.get_test_results_by_date(),
+			results = results,
 			output_format = self.__esc_style
 		)
 

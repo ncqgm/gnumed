@@ -50,4 +50,17 @@ def run(conn=None):
 		conn = conn
 	)
 
+	# most recent lab results
+	gmPG2.file2bytea (
+		query = """
+			UPDATE ref.paperwork_templates SET
+				data = %(data)s::bytea,
+				external_version = '23.0'
+			WHERE
+				name_long = 'lab: most recent results (GNUmed default)'
+			""",
+		filename = os.path.join('..', 'sql', 'v22-v23', 'data', 'v23-GNUmed-default-latest_lab-template.tex'),
+		conn = conn
+	)
+
 #==============================================================
