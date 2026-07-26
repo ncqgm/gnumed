@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-08 19:55+0200\n"
-"PO-Revision-Date: 2026-07-05 23:11+0200\n"
+"POT-Creation-Date: 2026-07-26 15:59+0200\n"
+"PO-Revision-Date: 2026-07-12 12:02+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -2741,17 +2741,23 @@ msgstr "Alle Aktionen abbrechen und den Dialog schließen."
 msgid "Note"
 msgstr "Notiz"
 
-msgid "Ongoing"
-msgstr "Laufend"
-
-msgid "+"
-msgstr "+"
+msgid "Procedure"
+msgstr "Maßnahme"
 
 msgid "The actual procedure performed on the patient."
 msgstr "Die eigentliche Maßnahme, die beim Patienten durchgeführt wurde."
 
-msgid "When did this procedure take place ?"
-msgstr "Wann fand diese Maßnahme statt ?"
+msgid ""
+"When did this procedure take place ?\n"
+"\n"
+"Leave blank to use today's date."
+msgstr ""
+"Wann fand diese Maßnahme statt ?\n"
+"\n"
+"Bei fehlender Eingabe wird das heutige Datum verwendet."
+
+msgid "End"
+msgstr "Ende"
 
 msgid ""
 "When did this procedure end ?\n"
@@ -2762,6 +2768,9 @@ msgstr ""
 "Bis wann dauerte diese Maßnahme ?\n"
 "\n"
 "Bei laufenden oder Maßnahmen ohne signifikante Dauer leer lassen."
+
+msgid "Ongoing"
+msgstr "Laufend"
 
 msgid "Select if procedure is ongoing (say, desensibilization)."
 msgstr "Markieren, wenn die Maßnahme andauert (z.B. Desensibilisierung)."
@@ -2775,8 +2784,14 @@ msgstr ""
 "\n"
 "Schließt sich aus mit \"Krankenhausaufenthalt\". Erfordert \"Episode\"."
 
+msgid "+"
+msgstr "+"
+
 msgid "Manage organizations and units."
 msgstr "Organisationen und deren Abteilungen verwalten."
+
+msgid "and Episode"
+msgstr "und Episode"
 
 msgid ""
 "Select, or enter for creation, the episode to which this procedure will "
@@ -2788,6 +2803,12 @@ msgstr ""
 "\n"
 "Schließt sich aus mit \"Krankenhausaufenthalt\". Erfordert \"Ort\"."
 
+msgid "... or ..."
+msgstr "... oder ..."
+
+msgid "Hospitalization"
+msgstr "Krankenhausaufenthalt"
+
 msgid "During which hospitalization was this procedure performed."
 msgstr "Während welches Krankenhausaufenthaltes diese Maßnahme stattfand."
 
@@ -2797,30 +2818,12 @@ msgstr "Einen Krankenhausaufenthalt hinzufügen."
 msgid "A comment on the procedure (say, the relevant outcome)."
 msgstr "Ein Kommentar zur Maßnahme (etwa das Ergebnis)."
 
+msgid "Document"
+msgstr "Dokument"
+
 msgid ""
 "The document most relevant to this procedure (say, the most recent one)."
 msgstr "Das relevanteste Dokument zu dieser Maßnahme (z.B. das jüngste)."
-
-msgid "Codes relevant to this procedure."
-msgstr "Codes für diese Maßnahme."
-
-msgid "Procedure"
-msgstr "Maßnahme"
-
-msgid "End"
-msgstr "Ende"
-
-msgid "and Episode"
-msgstr "und Episode"
-
-msgid "... or ..."
-msgstr "... oder ..."
-
-msgid "Hospitalization"
-msgstr "Krankenhausaufenthalt"
-
-msgid "Document"
-msgstr "Dokument"
 
 msgid "Enter the actual ID (number, identifier, ...) here."
 msgstr "Geben Sie hier die ID (Nummer, Aktenzeichen, ...) ein."
@@ -7012,23 +7015,28 @@ msgstr "Einnahme: %s"
 msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
 msgstr "Revision: #%(row_ver)s, %(mod_when)s durch %(mod_by)s."
 
-msgid "Additional notes for healthcare professionals"
-msgstr "Zusätzliche medizinische Angaben"
+msgid ""
+"Additional information for healthcare professionals##tx: about current "
+"medications, that is"
+msgstr "Zusätzliche medizinische Angaben für Fachkräfte"
 
-msgid "Drug Product"
-msgstr "Medikament"
+msgid "Substance##tx: as in \"active ingredient\""
+msgstr "Wirkstoff"
 
-msgid "Strength"
-msgstr "Stärke"
+msgid "Episode (Issue)"
+msgstr "Episode (Grunderkrankung)"
 
 msgid "Medication list"
 msgstr "Medikamentenliste"
 
-msgid "ordered by brand"
-msgstr "nach Handelsnamen geordnet"
+msgid "ordered by substance"
+msgstr "nach Wirkstoffen geordnet"
 
-msgid "Regimen / Advice"
-msgstr "Einnahme / Hinweis"
+msgid "Strength"
+msgstr "Stärke"
+
+msgid "Regimen"
+msgstr "Einnahmeplan"
 
 msgid "nicotine"
 msgstr "Nikotin"
@@ -8507,9 +8515,6 @@ msgstr "unbekanntes Format [%s] für die Ausgabe von Meßwerten"
 
 msgid "No test results to format."
 msgstr "Keine Meßwerte zu formatieren."
-
-msgid "Test results"
-msgstr "Meßwerte"
 
 #, python-format
 msgid "plotted %s (GNUmed v%s)"
@@ -18196,6 +18201,9 @@ msgstr "Diese Medikation / Substanzeinnahme jetzt löschen ?"
 msgid "Deleting medication / substance intake"
 msgstr "Medikation / Substanzeinnahme löschen"
 
+msgid "Allergies: unobtained"
+msgstr "Allergien: nicht erfragt"
+
 msgid "never"
 msgstr "nie"
 
@@ -20222,7 +20230,7 @@ msgid ""
 "\n"
 "You may have to contact your administrator for help."
 msgstr ""
-"Die Datenbankeinstellungen sind riskant gewählt:\n"
+"Die Datenbankeinstellungen bergen eventuell Risiken:\n"
 "\n"
 "%s\n"
 "\n"
@@ -20850,6 +20858,18 @@ msgstr "Abbrechen"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
+
+#~ msgid "Test results"
+#~ msgstr "Meßwerte"
+
+#~ msgid "Codes relevant to this procedure."
+#~ msgstr "Codes für diese Maßnahme."
+
+#~ msgid "Drug Product"
+#~ msgstr "Medikament"
+
+#~ msgid "Regimen / Advice"
+#~ msgstr "Einnahme / Hinweis"
 
 #~ msgid ""
 #~ "Cannot find an existing\n"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-08 19:55+0200\n"
+"POT-Creation-Date: 2026-07-26 15:59+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2409,16 +2409,19 @@ msgstr ""
 msgid "Note"
 msgstr ""
 
-msgid "Ongoing"
-msgstr ""
-
-msgid "+"
+msgid "Procedure"
 msgstr ""
 
 msgid "The actual procedure performed on the patient."
 msgstr ""
 
-msgid "When did this procedure take place ?"
+msgid ""
+"When did this procedure take place ?\n"
+"\n"
+"Leave blank to use today's date."
+msgstr ""
+
+msgid "End"
 msgstr ""
 
 msgid ""
@@ -2426,6 +2429,9 @@ msgid ""
 "\n"
 "Leave empty for ongoing or \"one-off\" procedures without a significant "
 "duration."
+msgstr ""
+
+msgid "Ongoing"
 msgstr ""
 
 msgid "Select if procedure is ongoing (say, desensibilization)."
@@ -2437,7 +2443,13 @@ msgid ""
 "Mutually exclusive with \"Hospitalization\". Requires \"Episode\"."
 msgstr ""
 
+msgid "+"
+msgstr ""
+
 msgid "Manage organizations and units."
+msgstr ""
+
+msgid "and Episode"
 msgstr ""
 
 msgid ""
@@ -2445,6 +2457,12 @@ msgid ""
 "relate.\n"
 "\n"
 "Mutually exclusive with \"Hospitalization\". Requires \"Location\"."
+msgstr ""
+
+msgid "... or ..."
+msgstr ""
+
+msgid "Hospitalization"
 msgstr ""
 
 msgid "During which hospitalization was this procedure performed."
@@ -2456,29 +2474,11 @@ msgstr ""
 msgid "A comment on the procedure (say, the relevant outcome)."
 msgstr ""
 
+msgid "Document"
+msgstr ""
+
 msgid ""
 "The document most relevant to this procedure (say, the most recent one)."
-msgstr ""
-
-msgid "Codes relevant to this procedure."
-msgstr ""
-
-msgid "Procedure"
-msgstr ""
-
-msgid "End"
-msgstr ""
-
-msgid "and Episode"
-msgstr ""
-
-msgid "... or ..."
-msgstr ""
-
-msgid "Hospitalization"
-msgstr ""
-
-msgid "Document"
 msgstr ""
 
 msgid "Enter the actual ID (number, identifier, ...) here."
@@ -6100,22 +6100,27 @@ msgstr ""
 msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
 msgstr ""
 
-msgid "Additional notes for healthcare professionals"
+msgid ""
+"Additional information for healthcare professionals##tx: about current "
+"medications, that is"
 msgstr ""
 
-msgid "Drug Product"
+msgid "Substance##tx: as in \"active ingredient\""
 msgstr ""
 
-msgid "Strength"
+msgid "Episode (Issue)"
 msgstr ""
 
 msgid "Medication list"
 msgstr ""
 
-msgid "ordered by brand"
+msgid "ordered by substance"
 msgstr ""
 
-msgid "Regimen / Advice"
+msgid "Strength"
+msgstr ""
+
+msgid "Regimen"
 msgstr ""
 
 msgid "nicotine"
@@ -7527,9 +7532,6 @@ msgid "unknown test results output format [%s]"
 msgstr ""
 
 msgid "No test results to format."
-msgstr ""
-
-msgid "Test results"
 msgstr ""
 
 #, python-format
@@ -15800,6 +15802,9 @@ msgid "Now delete substance intake entry ?"
 msgstr ""
 
 msgid "Deleting medication / substance intake"
+msgstr ""
+
+msgid "Allergies: unobtained"
 msgstr ""
 
 msgid "never"
