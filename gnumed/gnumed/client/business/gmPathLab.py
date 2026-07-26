@@ -2690,6 +2690,7 @@ __LATEX__test_results_table = r"""%% --- test results table --------------------
 \begin{xltabular}{\textwidth}{l|%(col_defs)sX}
 {} & %(col_labels)s & {} \tnl
 \toprule
+\endhead
 %(rows)s
 \bottomrule
 \end{xltabular}
@@ -2708,7 +2709,7 @@ def __format_test_results_latex(results=None):
 	tests:dict = {}
 	grid:dict[str, dict[str, cMeasurementResult]] = {}
 	for result in results:
-		row_label = r'\pCell{{\large %s} \\ {\tiny (%s)}}' % (
+		row_label = r'\pCell{{\large %s} \\ {\tiny %s}}' % (
 			gmTex.tex_escape_string(result['unified_abbrev']),
 			gmTex.tex_escape_string(result['unified_name'])
 		)

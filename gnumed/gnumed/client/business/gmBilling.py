@@ -989,7 +989,7 @@ if __name__ == "__main__":
 	#--------------------------------------------------
 
 	#test_generate_scan2pay_string()
-	#test_generate_scan2pay_qrcode()
+	test_generate_scan2pay_qrcode()
 	#sys.exit()
 
 	gmPG2.request_login_params(setup_pool = True)
@@ -997,4 +997,4 @@ if __name__ == "__main__":
 	#test_me()
 	#test_default_address()
 	#test_get_scan2pay_data()
-	test_generate_invoice_id()
+	#test_generate_invoice_id()
