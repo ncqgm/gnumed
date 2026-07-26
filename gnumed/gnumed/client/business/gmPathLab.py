@@ -183,7 +183,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 		if len(self.included_loincs) == 0:
 			txt += _('no tests')
 		else:
-			tts_by_loinc:dict[str, cMeasurementType] = {}
+			tts_by_loinc:dict[str, list[cMeasurementType]] = {}
 			for loinc in self._payload['loincs']:
 				tts_by_loinc[loinc] = []
 			for ttype in self.test_types:
@@ -2707,7 +2707,7 @@ def __format_test_results_latex(results=None):
 	# discover the columns and rows
 	dates:dict = {}
 	tests:dict = {}
-	grid:dict[str, dict[str, cMeasurementResult]] = {}
+	grid:dict[str, dict[str, list[cTestResult]]] = {}
 	for result in results:
 		row_label = r'\pCell{{\large %s} \\ {\tiny %s}}' % (
 			gmTex.tex_escape_string(result['unified_abbrev']),
@@ -2730,7 +2730,6 @@ def __format_test_results_latex(results=None):
 	col_labels = sorted(dates, reverse = True)
 	del dates
 	row_labels = sorted(tests)
-	del tests
 	args = {
 		'req_typearea': gmTex.require_package(package = 'typearea'),
 		'req_xltabular': gmTex.require_package(package = 'xltabular'),
@@ -2741,6 +2740,7 @@ def __format_test_results_latex(results=None):
 	}
 	table_row_template = r'%s & {} \tnl'
 	table_rows = []
+	tests = None
 	# loop over table_rows
 	for test_type in row_labels:
 		cells = [test_type]
@@ -2818,7 +2818,7 @@ def export_results_for_gnuplot(results=None, filename=None, show_year=True, pati
 		filename = gmTools.get_unique_filename(prefix = 'gm2gpl-', suffix = '.dat', tmp_dir = sandbox_dir)
 
 	# sort results into groups by test type
-	results_grouped_by_test_type:dict[str, cTestResult] = {}
+	results_grouped_by_test_type:dict[str, list[cTestResult]] = {}
 	for r in results:
 		try:
 			results_grouped_by_test_type[r['unified_name']].append(r)
@@ -3060,13 +3060,15 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 #------------------------------------------------------------
 def get_pending_requests(limit=250):
 	lim = limit + 1
-	cmd = "select pk from lab_request where is_pending is true limit %s" % lim
-	rows = gmPG2.run_ro_queries(queries = cmd)
+	SQL = "select pk from lab_request where is_pending is true limit %s" % lim
+	rows = gmPG2.run_ro_query(sql = SQL)
 	if rows is None:
 		_log.error('error retrieving pending lab requests')
 		return (None, None)
+
 	if len(rows) == 0:
 		return (False, [])
+
 	# more than LIMIT rows ?
 	if len(rows) == lim:
 		too_many = True
@@ -3091,11 +3093,11 @@ def get_next_request_ID(lab=None, incrementor_func=None):
 	  - if supplied it is applied to the most recently used ID
 	"""
 	if type(lab) == int:
-		lab_snippet = 'vlr.fk_test_org=%s'
+		lab_snippet = 'vlr.fk_test_org=%(lab)s'
 	else:
-		lab_snippet = 'vlr.lab_name=%s'
+		lab_snippet = 'vlr.lab_name=%(lab)s'
 		lab = str(lab)
-	cmd =  """
+	SQL =  """
 		select request_id
 		from lab_request lr0
 		where lr0.clin_when = (
@@ -3103,12 +3105,14 @@ def get_next_request_ID(lab=None, incrementor_func=None):
 			from v_lab_requests vlr
 			where %s
 		)""" % lab_snippet
-	rows = gmPG2.run_ro_queries(cmd, None, lab)
+	rows = gmPG2.run_ro_query(sql = cmd, args = {'lab': lab})
 	if rows is None:
 		_log.warning('error getting most recently used request ID for lab [%s]' % lab)
 		return ''
+
 	if len(rows) == 0:
 		return ''
+
 	most_recent = rows[0][0]
 	# apply supplied incrementor
 	if incrementor_func is not None:
@@ -3118,6 +3122,7 @@ def get_next_request_ID(lab=None, incrementor_func=None):
 			_log.error('cannot call incrementor function [%s]' % str(incrementor_func))
 			return most_recent
 		return next
+
 	# try to be smart ourselves
 	for pos in range(len(most_recent)):
 		header = most_recent[:pos]
@@ -3225,17 +3230,20 @@ if __name__ == '__main__':
 		print(time.time())
 		print(lab_req.get_patient())
 		print(time.time())
+
 	#--------------------------------------------------------
 	def test_unreviewed():
 		#data = get_unreviewed_results()
 		data = []
 		for result in data:
 			print(result)
+
 	#--------------------------------------------------------
 	def test_pending():
 		data = get_pending_requests()
 		for result in data:
 			print(result)
+
 	#--------------------------------------------------------
 	def test_create_measurement_type():
 		print(create_measurement_type (
