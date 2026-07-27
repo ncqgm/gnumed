@@ -41,7 +41,7 @@ class cSingleFileImageViewerPnl(wxgSingleFileImageViewerPnl):
 			fname = None
 		self.__filename = None
 		self.__current_page = 0
-		self.__image_pages = 0
+		self.__image_pages:list[str] = []
 		super().__init__(*args, **kwargs)
 		self.filename = fname
 

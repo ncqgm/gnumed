@@ -56,7 +56,9 @@ $<if_debugging:://%::>$\usepackage{interfaces}				% provides \papergraduate
 $<if_debugging:://%::>$\usepackage{showkeys}				% print labels (anchors and stuff) as margin notes
 $<if_debugging:://%::>$\usepackage[noframe]{showframe}		% show page margins as boxes
 $<if_debugging:://%::>$\usepackage[verbose]{layout}			% generate a page with the current layout
+\ifpdftex
 $<if_debugging:://%::>$\usepackage[pass]{geometry}			% nicely display geometry in log file
+\fi
 $<if_debugging:://%::>$\usepackage{afterpage}				% add stuff after next page bread
 % load last:
 \usepackage{hyperref}						% aktive URLs, needs to be loaded last, most of the time

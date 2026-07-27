@@ -3105,7 +3105,7 @@ def get_next_request_ID(lab=None, incrementor_func=None):
 			from v_lab_requests vlr
 			where %s
 		)""" % lab_snippet
-	rows = gmPG2.run_ro_query(sql = cmd, args = {'lab': lab})
+	rows = gmPG2.run_ro_query(sql = SQL, args = {'lab': lab})
 	if rows is None:
 		_log.warning('error getting most recently used request ID for lab [%s]' % lab)
 		return ''

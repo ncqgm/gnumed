@@ -1335,31 +1335,35 @@ if __name__ == '__main__':
 
 	#from Gnumed.pycommon import gmPG2, gmMatchProvider
 
-	prw = None				# used for access from display_values_*
+	prw:cPhraseWheel = None			# used for access from display_values_*
 	#--------------------------------------------------------
 	def display_values_set_focus(*args, **kwargs):
 		print("got focus:")
 		print("value:", prw.GetValue())
 		print("data :", prw.GetData())
 		return True
+
 	#--------------------------------------------------------
 	def display_values_lose_focus(*args, **kwargs):
 		print("lost focus:")
 		print("value:", prw.GetValue())
 		print("data :", prw.GetData())
 		return True
+
 	#--------------------------------------------------------
 	def display_values_modified(*args, **kwargs):
 		print("modified:")
 		print("value:", prw.GetValue())
 		print("data :", prw.GetData())
 		return True
+
 	#--------------------------------------------------------
 	def display_values_selected(*args, **kwargs):
 		print("selected:")
 		print("value:", prw.GetValue())
 		print("data :", prw.GetData())
 		return True
+
 	#--------------------------------------------------------
 	#--------------------------------------------------------
 #	def test_prw_fixed_list():
@@ -1438,5 +1442,3 @@ if __name__ == '__main__':
 	#test_prw_fixed_list()
 	#test_prw_sql2()
 #	test_prw_patients()
-
-#==================================================

@@ -129,7 +129,7 @@ from Gnumed.wxpython import gmExportAreaWidgets
 
 
 _cfg = gmCfgINI.gmCfgData()
-_provider = None
+_provider:gmStaff.gmCurrentProvider = None
 _scripting_listener = None
 _original_wxEndBusyCursor = None
 if __name__ == '__main__':
