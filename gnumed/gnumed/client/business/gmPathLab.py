@@ -2637,10 +2637,10 @@ def __tests2latex_cell(results=None, show_time=False, show_range=True):
 		lines_in_cell.append(' '.join(parts))
 		parts = []
 		if result['val_unit']:
-			parts.append(result['val_unit'])
+			parts.append(gmTex.tex_escape_string(result['val_unit']))
 		if not show_range:
 			if parts:
-				lines_in_cell.append(r'{\tiny %s}' % gmTex.tex_escape_string(parts[0]))
+				lines_in_cell.append(r'{\tiny %s}' % parts[0])
 			continue
 
 		has_range = (
@@ -2652,16 +2652,16 @@ def __tests2latex_cell(results=None, show_time=False, show_range=True):
 		)
 		if not has_range:
 			if parts:
-				lines_in_cell.append(r'{\tiny %s}' % gmTex.tex_escape_string(parts[0]))
+				lines_in_cell.append(r'{\tiny %s}' % parts[0])
 			continue
 
 		if result['unified_target_range']:
-			parts.append('[%s]' % gmTex.tex_escape_string(result['unified_target_range']))
+			parts.append(gmTex.tex_escape_string('[%s]' % result['unified_target_range']))
 		else:
-			parts.append('[%s%s]' % (
-				gmTex.tex_escape_string(gmTools.coalesce(result['unified_target_min'], '--', '%s--')),
-				gmTex.tex_escape_string(gmTools.coalesce(result['unified_target_max'], '', '%s'))
-			))
+			parts.append(gmTex.tex_escape_string('[%s%s]' % (
+				gmTools.coalesce(result['unified_target_min'], '--', '%s--'),
+				gmTools.coalesce(result['unified_target_max'], '', '%s')
+			)))
 		lines_in_cell.append(r'{\tiny %s}' % ' '.join(parts))
 	return r'\pCell{%s}' %  r' \\ '.join(lines_in_cell)
 
