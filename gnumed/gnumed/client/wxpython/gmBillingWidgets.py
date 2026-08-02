@@ -798,7 +798,7 @@ def manage_bills(parent=None, patient=None):
 		# find invoice
 		invoice = bill.invoice
 		if invoice is not None:
-			regenerate = gmGuiHelpers.ask (
+			show_existing = gmGuiHelpers.ask (
 				title = _('Displaying invoice'),
 				question = _(
 					'Show existing invoice PDF or regenerate new PDF ?\n'
@@ -814,8 +814,9 @@ def manage_bills(parent=None, patient=None):
 					{'label': _('Regenerate'), 'tooltip': _('Regenerate invoice PDF and show'), 'default': False}
 				]
 			)
-			if not regenerate:
-				success, msg = invoice.parts[-1].display_via_mime()
+			if show_existing:
+				for part in invoice.parts:
+					success, msg = part.display_via_mime()
 				if not success:
 					gmGuiHelpers.gm_show_error(error = msg, title = _('Displaying invoice'))
 				return success
@@ -838,7 +839,7 @@ def manage_bills(parent=None, patient=None):
 		if bill['close_date'] is None:
 			bill['close_date'] = gmDateTime.pydt_now_here()
 			bill.save()
-		return create_invoice_from_bill(parent = parent, bill = bill, print_it = True, keep_a_copy = True)
+		return create_invoice_from_bill(parent = parent, bill = bill, print_it = False, keep_a_copy = True)
 
 	#------------------------------------------------------------
 	def edit(bill):
@@ -1286,6 +1287,7 @@ class cPersonBillItemsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			bill['close_date'] = gmDateTime.pydt_now_here()
 			bill.save()
 		create_invoice_from_bill(parent = self, bill = bill, print_it = True, keep_a_copy = True)
+
 	#--------------------------------------------------------
 	def _browse_billables(self, item):
 		manage_billables(parent = self)

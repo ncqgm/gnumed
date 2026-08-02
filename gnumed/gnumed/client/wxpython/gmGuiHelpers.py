@@ -676,11 +676,21 @@ def ask(question:str=None, title:str=None, cancel_button:bool=False, buttons:lis
 			cancel_button = cancel_button
 		)
 
-	return gm_show_rich_question (
+	decision = gm_show_rich_question (
 		question = question,
 		title = title,
 		buttons = buttons
 	)
+	if decision == wx.ID_YES:
+		return True
+
+	if decision == wx.ID_NO:
+		return False
+
+	if decision == wx.ID_CANCEL:
+		return None
+
+	raise ValueError('invalid result from gm_show_rich_question()')
 
 #-------------------------------------------------------------------------
 def gm_show_question(question:str=None, title:str=None, cancel_button:bool=False) -> bool | None:
