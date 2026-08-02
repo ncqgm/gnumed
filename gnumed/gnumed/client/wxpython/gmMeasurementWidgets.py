@@ -283,8 +283,8 @@ def manage_measurements(parent=None, single_selection=False, emr=None, measureme
 		delete_callback = delete,
 		list_tooltip_callback = get_tooltip,
 		left_extra_button = (_('Review'), _('Review current selection'), do_review, True),
-		middle_extra_button = (_('Plot'), _('Plot current selection'), do_plot, False),
-		right_extra_button = (_('Print'), _('Print current selection'), do_print, False)
+		middle_extra_button = (_('Plot'), _('Plot current selection'), do_plot, True),
+		right_extra_button = (_('Print'), _('Print current selection'), do_print, True)
 	)
 
 #================================================================
