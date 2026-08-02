@@ -2170,7 +2170,7 @@ def get_icon(wx=None):
 	return icon
 
 #---------------------------------------------------------------------------
-def create_qrcode(text:str=None, filename:str=None, qr_filename:str=None, verbose:bool=False, ecc_level:str='H', create_svg:bool=False) -> str:
+def create_qrcode(text:str=None, filename:str=None, qr_filename:str=None, verbose:bool=False, ecc_level:str='H', create_svg:bool=False, version:int=None) -> str:
 	"""Create a QR code from text or a file.
 
 	Args:
@@ -2209,7 +2209,7 @@ def create_qrcode(text:str=None, filename:str=None, qr_filename:str=None, verbos
 				suffix = fname_extension(filename) + '.png'
 			)
 	_log.debug('[%s] -> [%s]', filename, qr_filename)
-	qr = pyqrcode.create(text, encoding = 'utf8', error = ecc_level)
+	qr = pyqrcode.create(text, encoding = 'utf8', error = ecc_level, version = version)
 	if verbose:
 		print('input file:', filename)
 		print('output file:', qr_filename)

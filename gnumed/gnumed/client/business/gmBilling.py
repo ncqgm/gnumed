@@ -741,6 +741,7 @@ def generate_scan2pay_qrcode(data:str=None, create_svg:bool=False):
 		verbose = False,
 		ecc_level = 'M',		# Wikipedia says must be M
 		create_svg = create_svg
+		#, version = 13			# max size is 13 (1-40)
 	)
 
 #------------------------------------------------------------
@@ -757,9 +758,9 @@ def generate_scan2pay_string (
 	https://www.scan2pay.info
 	--------------------------------
 	BCD														# (3) fixed, barcode tag
-	002														# (3) fixed, version
+	002														# (3) region
 	1														# (1) charset, 1 = utf8
-	SCT														# (3) fixed
+	SCT														# (3) SEPA transfer, not "instant"
 	$<praxis_id::BIC//Bank//%(value)s::11>$					# (11) <BIC>
 	$2<range_of::$<current_provider_name::%(lastnames)s::>$,$<praxis::%(praxis)s::>$::70>2$			# (70) <Name of beneficiary> "Empfänger" - Praxis
 	$<praxis_id::IBAN//Bank//%(value)s::34>$				# (34) <IBAN>
@@ -781,15 +782,17 @@ def generate_scan2pay_string (
 	data = {}
 	data['IBAN'] = IBAN[:34]
 	data['beneficiary'] = beneficiary[:70]
+	data['region'] = '001'
 	if not BIC:
 		BIC = ''
+		data['region'] = '002'
 	data['BIC'] = BIC[:11]
 	data['amount'] = str(amount)[:9]
 	data['ref'] = invoice_id[:140]
-	if not comment:
-		comment = gmDateTime.pydt_now_here().strftime('%Y %b %d')
-	data['cmt'] = comment[:70]
-	data_str = 'BCD\n002\n1\nSCT\n%(BIC)s\n%(beneficiary)s\n%(IBAN)s\nEUR%(amount)s\n\n\n%(ref)s\n%(cmt)s' % data
+	data['cmt'] = ''
+	if comment:
+		data['cmt'] = '\n%s' % comment[:70]
+	data_str = 'BCD\n%(region)s\n1\nSCT\n%(BIC)s\n%(beneficiary)s\n%(IBAN)s\nEUR%(amount)s\n\n\n%(ref)s%(cmt)s' % data
 	data_str_bytes = bytes(data_str, 'utf8')[:331]
 	return str(data_str_bytes, 'utf8')
 
@@ -836,7 +839,7 @@ def __get_scan2pay_data(branch, bill, provider=None, comment=None):
 	https://www.scan2pay.info
 	--------------------------------
 	BCD														# (3) fixed, barcode tag
-	002														# (3) fixed, version
+	002														# (3) region
 	1														# (1) charset, 1 = utf8
 	SCT														# (3) fixed
 	$<praxis_id::BIC//Bank//%(value)s::11>$					# (11) <BIC>
@@ -869,16 +872,18 @@ def __get_scan2pay_data(branch, bill, provider=None, comment=None):
 	BICs = branch.get_external_ids(id_type = 'BIC', issuer = 'Bank')
 	if len(BICs) == 0:
 		data['BIC'] = ''
+		data['region'] == '002'		# BIC req for non-EWR countries, so when no BIC: region = 002 = EWR-only
 	else:
 		data['BIC'] = BICs[0]['value'][:11]
+		data['region'] == '001'
 	data['amount'] = bill['total_amount_with_vat'][:9]
 	data['ref'] = (_('Inv: %s, %s') % (
 		bill['invoice_id'],
 		gmDateTime.pydt_now_here().strftime('%d.%B %Y')
 	))[:140]
 	data['cmt'] = gmTools.coalesce(comment, '', '\n%s')[:70]
-
-	data_str = 'BCD\n002\n1\nSCT\n%(BIC)s\n%(beneficiary)s\n%(IBAN)s\nEUR%(amount)s\n\n\n%(ref)s%(cmt)s' % data
+	# hardcode UTF8 charset
+	data_str = 'BCD\n%(region)s\n1\nSCT\n%(BIC)s\n%(beneficiary)s\n%(IBAN)s\nEUR%(amount)s\n\n\n%(ref)s%(cmt)s' % data
 	data_str_bytes = bytes(data_str, 'utf8')[:331]
 	return str(data_str_bytes, 'utf8')
 
@@ -976,11 +981,16 @@ if __name__ == "__main__":
 	#--------------------------------------------------
 	def test_generate_scan2pay_qrcode():
 		scan2pay = generate_scan2pay_string (
-			IBAN = 'DE014032403423',
-			beneficiary = 'GNUmed developers',
-			BIC = 'NDOLSD99X',
-			amount = '1.99',
-			invoice_id = 'GM-01-1234-x034'
+			beneficiary = 'name',
+			IBAN = 'account',
+			BIC = 'bank',
+			amount = '1.1',
+			invoice_id = 'reason'
+			#IBAN = 'DE014032403423',
+			#beneficiary = 'GNUmed developers',
+			#BIC = 'NDOLSD99X',
+			#amount = '1.99',
+			#invoice_id = 'GM-01-1234-x034'
 			#, comment = 'test'
 		)
 		print(scan2pay)
@@ -990,7 +1000,6 @@ if __name__ == "__main__":
 
 	#test_generate_scan2pay_string()
 	test_generate_scan2pay_qrcode()
-	#sys.exit()
 
 	gmPG2.request_login_params(setup_pool = True)
 
