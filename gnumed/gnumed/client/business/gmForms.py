@@ -686,9 +686,9 @@ class cLaTeXForm(cFormEngine):
 
 		$m[some_macro]m$
 
-	Five macro expansion passes are run before placeholders takes place.
+	Up to five macro expansion passes are run before placeholder substitution takes place.
 	"""
-	_version_checked = False
+#	_version_checked = False
 	_mimetypes = [
 		'application/x-latex',
 		'application/x-xetex',
@@ -761,7 +761,7 @@ class cLaTeXForm(cFormEngine):
 		output_fname = input_fname
 		for current_pass in range(1,6):
 			_log.debug('substitution pass #%s', current_pass)
-			output_fname = os.path.join(path, '%s.placeholders-replaced.%s.tex' % (fname, current_pass))
+			output_fname = os.path.join(path, '%s.ph-repl.%s.tex' % (gmTools.fname_stem(fname), current_pass))
 			self.__substitute_placeholders (
 				iteration = current_pass,
 				input_filename = input_fname,
@@ -792,12 +792,10 @@ class cLaTeXForm(cFormEngine):
 				macros_in_line = regex.findall(cLaTeXForm._macro_assign_regex, line, regex.IGNORECASE)
 				if not macros_in_line:
 					continue
-
 				if len(macros_in_line) > 1:
 					_log.error(' error: more than one macro assignment in line:')
 					_log.error(' %s' % line)
 					continue
-
 				macro_def = macros_in_line[0]
 				_log.debug(' found macro assignment: %s', macro_def)
 				macro_def = macro_def[3:-3]
@@ -822,10 +820,11 @@ class cLaTeXForm(cFormEngine):
 		while True:
 			if iteration > 5:
 				break
-			output_filename = os.path.join(path, '%s.macro-use-expanded.%s.tex' % (fname, iteration))
+			output_filename = os.path.join(path, '%s.m-exp.%s.tex' % (gmTools.fname_stem(fname), iteration))
 			any_macros_found = self.__expand_macro_use (
 				input_filename = prev_output_filename,
-				output_filename = output_filename
+				output_filename = output_filename,
+				iteration = iteration
 			)
 			if any_macros_found:
 				filename2return = output_filename
@@ -836,7 +835,7 @@ class cLaTeXForm(cFormEngine):
 		return filename2return
 
 	#--------------------------------------------------------
-	def __expand_macro_use(self, input_filename:str=None, output_filename:str=None) -> bool:
+	def __expand_macro_use(self, input_filename:str=None, output_filename:str=None, iteration:int=None) -> bool:
 		_log.debug('expanding macro usage')
 		macro_values = self.__load_macro_values(input_filename)
 		if not macro_values:
@@ -859,6 +858,15 @@ class cLaTeXForm(cFormEngine):
 			any_macros_found = True
 			_log.debug(' %s macro(s) detected in line:', len(macros_in_line))
 			_log.debug(' >>>%s<<<', line.rstrip('\n'))
+			if line.lstrip().startswith('%'):
+				output_file.write(line.replace(r'% %%', r'%% [m%s]' % iteration, 1))
+			else:
+				leading_whitespace = line[:-len(line.lstrip())]
+				output_file.write('%s%% [m%s] %s' % (
+					leading_whitespace,
+					iteration,
+					line.lstrip()
+				))
 			for macro_def in macros_in_line:
 				_log.debug(' replacing macro "%s"', macro_def)
 				macro_name = macro_def[3:-3]
@@ -886,12 +894,19 @@ class cLaTeXForm(cFormEngine):
 			if line.strip() in ['', '\r', '\n', '\r\n']:
 				output_file.write(line)
 				continue
-			# TeX-comment-only lines
+			# skip TeX-comment-only lines
 			if line.lstrip().startswith('%'):
-				# but not "double-comment" lines, those may contain placeholders for setting macro values
-				if not line.lstrip().startswith('% %%'):
-					output_file.write(line)
-					continue
+#				# but not "double-comment" lines, those may contain placeholders for setting macro values
+#				if not line.lstrip().startswith('% %%'):
+#					output_file.write(line)
+#					continue
+				# lines starting with '% %%' may contain placeholders inside macros but
+				# they have been expanded out into non-comment LaTeX code lines earlier,
+				# no need to replace them in macros,
+				# also, there may be macros defined which do not get used, eventually,
+				# in which case substitution is useless
+				output_file.write(line)
+				continue
 
 			# 1) find placeholders in this line
 			placeholders_in_line = regex.findall(ph_regex, line, regex.IGNORECASE)
@@ -902,6 +917,12 @@ class cLaTeXForm(cFormEngine):
 			# 2) replace them
 			_log.debug(' %s placeholder(s) detected in line:', len(placeholders_in_line))
 			_log.debug(' >>>%s<<<', line.rstrip('\n'))
+			leading_whitespace = line[:-len(line.lstrip())]
+			output_file.write('%s%% [p%s] %s' % (
+				leading_whitespace,
+				iteration,
+				line.lstrip()
+			))
 			for placeholder in placeholders_in_line:
 				if 'free_text' in placeholder:
 					# enable reStructuredText processing
