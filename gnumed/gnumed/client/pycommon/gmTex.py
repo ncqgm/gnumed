@@ -29,7 +29,7 @@ if __name__ == '__main__':
 #		gmI18N.install_domain()
 # GNUmed module imports
 from Gnumed.pycommon import gmShellAPI
-from Gnumed.pycommon.gmTools import u_euro, u_sum, mk_sandbox_dir, fname_stem
+from Gnumed.pycommon.gmTools import u_euro, u_sum, mk_sandbox_dir, fname_stem, fname_stem_with_path
 
 _log = logging.getLogger('gm.tex')
 
@@ -74,7 +74,6 @@ _LATEX__define_gmcheckandloadpkg_cmd = r"""
 	\makeatother%
 }
 \makeatother
-
 """
 #------------------------------------------------------------
 # internal:
@@ -100,7 +99,7 @@ def wrap_usepackage_cmd(filename:str=None) -> str:
 	Returns:
 		Name of processed file.
 	"""
-	output_filename = '%s.safe-usepackage.tex' % filename
+	output_filename = '%s.safe-usepkg.tex' % fname_stem_with_path(filename)
 	_log.debug(' [%s] -> [%s]', filename, output_filename)
 	input_file = open(filename, mode = 'rt', encoding = 'utf-8-sig')
 	output_file = open(output_filename, mode = 'wt', encoding = 'utf8')
@@ -116,7 +115,7 @@ def wrap_usepackage_cmd(filename:str=None) -> str:
 		pkg_name = pkg_name.strip('{}')
 		parts = line.split('%', 1)
 		usepackage_cmd = parts[0].strip()
-		comment = ''
+		comment = '\n'
 		if len(parts) > 1:
 			comment = '\t\t%%%s' % parts[1]
 		_log.debug(r'wrapping [%s] found', usepackage_cmd)
