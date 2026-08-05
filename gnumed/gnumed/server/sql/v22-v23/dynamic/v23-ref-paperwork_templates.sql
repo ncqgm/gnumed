@@ -6,7 +6,7 @@
 --
 -- ==============================================================
 \set ON_ERROR_STOP 1
---set default_transaction_read_only to off;
+set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
 DELETE FROM ref.paperwork_templates WHERE name_long = 'Begleitbrief ohne medizinische Daten [K.Hilbert]';
@@ -16,6 +16,52 @@ UPDATE ref.paperwork_templates SET
 	name_long = 'Begleitbrief [K.Hilbert]'
 WHERE
 	name_long = 'Begleitbrief mit Diagnosen [K.Hilbert]';
+
+-- --------------------------------------------------------------
+-- invoices
+DELETE FROM ref.paperwork_templates WHERE name_long = 'Invoice with VAT (GNUmed default)';
+
+INSERT INTO ref.paperwork_templates (
+	fk_template_type,
+	instance_type,
+	name_short,
+	name_long,
+	external_version,
+	engine,
+	filename,
+	data
+) values (
+	(select pk from ref.form_types where name = 'invoice'),
+	'invoice',
+	'Invoice (VAT)',
+	'Invoice with VAT (GNUmed default)',
+	'23.0',
+	'L',
+	'invoice.tex',
+	'real template missing'::bytea
+);
+
+DELETE FROM ref.paperwork_templates WHERE name_long = 'Invoice without VAT (GNUmed default)';
+
+INSERT INTO ref.paperwork_templates (
+	fk_template_type,
+	instance_type,
+	name_short,
+	name_long,
+	external_version,
+	engine,
+	filename,
+	data
+) values (
+	(select pk from ref.form_types where name = 'invoice'),
+	'invoice',
+	'Invoice (w/o VAT)',
+	'Invoice without VAT (GNUmed default)',
+	'23.0',
+	'L',
+	'invoice.tex',
+	'real template missing'::bytea
+);
 
 -- --------------------------------------------------------------
 ALTER TABLE ref.paperwork_templates

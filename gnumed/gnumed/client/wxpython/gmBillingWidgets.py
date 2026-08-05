@@ -533,7 +533,7 @@ def create_bill_from_items(bill_items=None):
 	return bill
 
 #----------------------------------------------------------------
-def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_copy=True) -> bool:
+def create_invoice_from_bill(parent=None, bill:gmBilling.cBill=None, print_it:bool=False, keep_a_copy:bool=True) -> bool:
 
 	bill_patient_not_active = False
 	# do we have a current patient ?
@@ -676,7 +676,9 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 	if keep_a_copy:
 		files2import = []
 		files2import.extend(invoice.final_output_filenames)
-		files2import.extend(invoice.re_editable_filenames)
+		# do _not_ store re-editable files as that would
+		# make it easier to modify bills
+		#files2import.extend(invoice.re_editable_filenames)
 		doc = gmDocumentWidgets.save_files_as_new_document (
 			parent = parent,
 			filenames = files2import,
@@ -695,6 +697,8 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 				warning = ('Cannot save invoice into document archive.')
 			)
 	if not print_it:
+		for part in doc.parts:
+			part.display_via_mime()
 		return True
 
 	_cfg = gmCfgINI.gmCfgData()
@@ -801,16 +805,14 @@ def manage_bills(parent=None, patient=None):
 			show_existing = gmGuiHelpers.ask (
 				title = _('Displaying invoice'),
 				question = _(
-					'Show existing invoice PDF or regenerate new PDF ?\n'
+					'Show existing invoice PDF or generate new PDF ?\n'
 					'\n'
-					'Generating a new PDF is useful when the\n'
-					'invoice template was changed.\n'
+					'Generating a new PDF is useful when the invoice template changed.\n'
 					'\n'
-					'It will contain the very same bill items\n'
-					'and the same invoice ID.'
+					'It will contain both the same bill items and invoice ID.'
 				),
 				buttons = [
-					{'label': _('Existing'), 'tooltip': _('Show existing invoice PDF'), 'default': True},
+					{'label': _('Show##tx: as in "show existing invoice PDF"'), 'tooltip': _('Show existing invoice PDF'), 'default': True},
 					{'label': _('Regenerate'), 'tooltip': _('Regenerate invoice PDF and show'), 'default': False}
 				]
 			)

@@ -1,0 +1,438 @@
+%------------------------------------------------------------------
+% generic letter template based on scrlttr2
+%
+% Author: Karsten Hilbert
+% Author: karsten.hilbert@gmx.net
+% License: GPL v2 or later
+%
+% requires pdflatex to be run with -recorder option
+%------------------------------------------------------------------
+%
+% %% $m[%_if_dbg==$1<if_debugging:://%::>1$]m$
+%
+% documentclass with options for *all* packages:
+\documentclass[
+	version=last,							% use latest scrlttr2 code
+	BCOR=0mm,								% keine BindeCORrektur
+	paper=portrait,							% not landscape
+	paper=a4,								% set paper size
+	fontsize=11pt,							% set fontsize early such that recalctypearea is not necessary
+	foldmarks=true,							% switch on foldmarks
+	foldmarks=HPV,							% select ALL foldmarks (Horz/Punch/Vert)
+	enlargefirstpage=on,					% allow for more text on first page, if possible
+	firsthead=true,							% do show Sender information on first page
+	fromalign=left,							% center Sender information at top of first page
+	fromrule=afteraddress,					% horiz rule after Sender address at top of first page
+	fromurl=false,							% explizit in der Fußzeile
+	fromemail=false,						% explizit in der Fußzeile
+	fromfax=false,							% explizit in der Fußzeile
+	fromphone=false,						% explizit in der Fußzeile
+	frommobilephone=false,					% explizit in der Fußzeile
+	fromlogo=true,							% at top of page, if available
+	symbolicnames=true,						% use MarvoSym symbols for <from*> labelling rather than textual labels
+	locfield=wide,							% make available lots of space in the location field
+	headsepline=true,						% do show line below page header
+	footsepline=true,						% do show line above page footer
+	pagenumber=footright					% where to place page number by default
+]{scrlttr2}
+
+% package loading:
+\usepackage{iftex}
+\usepackage{scrlayer-scrpage}				% header and footer control
+\ifpdftex
+ \usepackage[ngerman]{babel}				% Deutsch und Trennung
+ \usepackage[utf8]{inputenc}				% input is UTF8
+ \usepackage[T1]{fontenc}					% fonts are T1
+ \usepackage{lmodern}						% sans serif Latin Modern
+ \usepackage{embedfile}						% store data files in PDF (patient, praxis)
+\else
+ \usepackage{polyglossia}					% Deutsch und Trennung
+ \usepackage{fontspec}						% xelatex fonts definition
+ %\usepackage{ucharclasses}					% switch fonts based on unicode character class
+ %\usepackage{navigator}					% store data files in PDF (patient, praxis)
+\fi
+\usepackage{textcomp}						% symbols for textmode escaping, does not mix with "ucs", unless utf8x used
+\usepackage{marvosym}						% symbols: Handy, Telefon, E-Mail
+\usepackage[official]{eurosym}				% official EURO symbol
+\usepackage{array}							% improved table column styles
+\usepackage{graphicx}						% enhanced graphics loading (logo and signature)
+\usepackage[space,extendedchars]{grffile}	% better access to graphics files
+\usepackage[export]{adjustbox}				% improved options for \includegraphics
+\usepackage{ragged2e}						% improved alignment
+\usepackage{lastpage}						% easy access to page number of last page
+%\usepackage[abspath]{currfile}				% generically refer to LaTeX input file
+\usepackage{calc}							% \widthof (for signature)
+\usepackage{microtype}						% micro-adjustments to typesetting
+\usepackage{booktabs}
+\usepackage{xltabular}
+% debugging
+$m[%_if_dbg]m$\usepackage{interfaces}			% provides \papergraduate
+$m[%_if_dbg]m$\usepackage{showkeys}				% print labels (anchors and stuff) as margin notes
+$m[%_if_dbg]m$\usepackage[noframe]{showframe}	% show page margins as boxes
+$m[%_if_dbg]m$\usepackage[verbose]{layout}		% generate a page with the current layout
+$m[%_if_dbg]m$\usepackage[pass]{geometry}		% nicely display geometry in log file
+$m[%_if_dbg]m$\usepackage{afterpage}			% add stuff after next page break
+% load last:
+\usepackage{hyperref}							% aktive URLs, needs to be loaded last, most of the time
+
+
+% package setup:
+% - debugging
+\listfiles														% list all input files used
+\errorcontextlines 10000										% list lots of context lines with errors
+\RequirePackage[l2tabu, orthodox]{nag}							% show unorthodox/faulty/obsolete uses
+\hypersetup{debug=true}											% extra debugging log messages
+% %\tracingtabu=3												% trace tabu tables if using tabu package
+$m[%_if_dbg]m$\usetikz{basic}									% needed for \papergraduate from package interfaces
+$m[%_if_dbg]m$\overfullrule=2cm									% mark overfull horizontal boxes
+$m[%_if_dbg]m$\LoadLetterOption{visualize}						% visualize letter title page layout
+$m[%_if_dbg]m$\showfields{head,foot,address,location,refline}	% show srlttr2 fields
+$m[%_if_dbg]m$\geometry{pass,verbose}							% put geometry into log file
+$m[%_if_dbg]m$\renewcommand\ShowFrameLinethickness{0.25pt}		% configure showframe
+$m[%_if_dbg]m$\renewcommand*\ShowFrameColor{\color{red}}		% configure showframe
+
+
+% GNUmed macros
+% %% $m[PtFirstLast==$1<name::%(firstnames)s %(lastnames)s::>1$]m$
+% %% $m[PtFirstLAST==$1<firstname::::>1$ $1<lastname::::1>1$\textsc{$1<lastname::::2-99>1$}]m$
+% %% $m[PtTitle==$2<if_not_empty::$1<title::::>1$//%s //::>2$]m$
+% %% $m[PtDOB==$1<date_of_birth::%d.%m.%Y::>1$]m$
+% %% $m[PtAdrStrH==$1<adr_street::home::>1$]m$
+% %% $m[PtAdrZipH==$1<adr_postcode::home::>1$]m$
+% %% $m[PtAdrLocH==$1<adr_location::home::>1$]m$
+% %% $m[PtAdrNumH==$1<adr_number::home::>1$]m$
+% %% $m[Pt4Header==$2<if_not_empty::$1<title::::>1$//%s //::>2$$1<lastname::::1>1$\textsc{$1<lastname::::2-99>1$}, $1<firstname::::>1$ ($1<date_of_birth::%d.%B %Y::>1$)]m$
+% %% $m[Pt4Subj==Patient: $m[PtTitle]m$$m[PtFirstLAST]m$ (geb $m[PtDOB]m$)$2<if_not_empty::$m[PtAdrStrH]m$//\\//::>2$]m$
+% %% $m[PtAdr4Subj==$2<if_not_empty::$m[PtAdrStrH]m$//Adresse: $m[PtAdrStrH]m$ $m[PtAdrNumH]m$, $m[PtAdrZipH]m$ $m[PtAdrLocH]m$//%% no address available::>2$]m$
+% %% $m[PtMcfQR==$1<patient_mcf::fmt=qr//tmpl=%s::>1$]m$
+%
+% %% $m[GmFormTmpl==$1<form_name_long::::>1$, $1<form_version::::>1$ [$1<form_version_internal::::>1$, $1<form_last_modified::::>1$]]m$
+%
+% %% $m[Prov==$1<current_provider::::>1$]m$
+% %% $m[ProvTitle==$2<if_not_empty::$1<current_provider_name::%(title)s::>1$//%s //::>2$]m$
+% %% $m[ProvTitleFirstLast==$m[ProvTitle]m$$1<current_provider_name::%(firstnames)s %(lastnames)s::>1$]m$
+% %% $m[ProvFA50==$1<current_provider_external_id::Fachgebiet//Ärztekammer::50>1$]m$
+% %% $m[ProvFirstLast==$1<current_provider_name::%(firstnames)s %(lastnames)s::>1$]m$
+% %% $m[ProvFLast==$1<current_provider_name::%(firstnames)s::1>1$$1<current_provider_name::%(lastnames)s::>1$]m$
+% %% $m[ProvFL==$1<current_provider_name::%(firstnames)s::1>1$.$1<current_provider_name::%(lastnames)s::1>1$]m$
+%
+% %% $m[PrxBrPrx==$1<praxis::%(branch)s, %(praxis)s::>1$]m$
+% %% $m[PrxMcfQR==$1<praxis_mcf::fmt=qr//tmpl=%s::>1$]m$
+% %% $m[PrxCountry==$1<praxis_address::%(country)s::>1$]m$
+% %% $m[PrxCountryU==$2<url_escape::$1<praxis_address::%(country)s::>1$::>2$]m$
+% %% $m[PrxUrb==$1<praxis_address::%(urb)s::>1$]m$
+% %% $m[PrxUrbU==$2<url_escape::$1<praxis_address::%(urb)s::>1$::>2$]m$
+% %% $m[PrxZip==$1<praxis_address::%(postcode)s::>1$]m$
+% %% $m[PrxStreet==$1<praxis_address::%(street)s::>1$]m$
+% %% $m[PrxStreetU==$2<url_escape::$1<praxis_address::%(street)s::>1$::>2$]m$
+% %% $m[PrxNumber==$1<praxis_address::%(number)s::>1$]m$
+% %% $m[PrxNumberU==$2<url_escape::$1<praxis_address::%(number)s::>1$::>2$]m$
+% %% $m[PrxSubunit==$2<if_not_empty::$1<praxis_address::%(subunit)s::>1$// (%s)//::>2$]m$
+% %% $m[PrxAdrURL==http://nominatim.openstreetmap.org/search/$m[PrxCountryU]m$/$m[PrxUrbU]m$/$m[PrxStreetU]m$/$m[PrxNumberU]m$?limit=3]m$
+% %% $m[PrxAdrHREF==\href{$m[PrxAdrURL]m$}{$m[PrxStreet]m$ $m[PrxNumber]m$$m[PrxSubunit]m$, $m[PrxZip]m$ $m[PrxUrb]m$}]m$
+% %% $m[PrxAdrQrHREF==\href{$m[PrxAdrURL]m$}{\includegraphics[width=30mm]{$m[PrxMcfQR]m$}}]m$
+% %% $m[PrxCommW==$1<praxis_comm::web::>1$]m$
+% %% $m[PrxCommW60==$1<praxis_comm::web::60>1$]m$
+% %% $m[PrxCommW60HREF==\href{http://%s}{$m[PrxCommW60]m$}]m$
+% %% $m[PrxCommE60==$1<praxis_comm::email::60>1$]m$
+% %% $m[PrxIBAN==$1<praxis_id::IBAN//Bank//%(value)s::30>1$]m$
+% %% $m[PrxScan2PayHREF==\href{https://www.scan2pay.info}{\includegraphics[width=15mm]{$1<praxis_scan2pay::fmt=qr::>1$}}]m$
+%
+%- %% $m[==]m$
+%- %% $m[==]m$
+
+
+% - PDF metadata
+\hypersetup{%
+	pdftitle = {Patient: $m[PtFirstLast]m$, $m[PtDOB]m$},
+	pdfauthor = {$m[Prov]m$, $m[PrxBrPrx]m$},
+	pdfsubject = {Begleitbrief},
+	pdfproducer = {GNUmed $1<client_version::::>1$, Template $m[GmFormTmpl]m$},
+	pdfdisplaydoctitle = true,
+	pdfprintscaling = None
+}
+
+
+% language and font
+\ifpdftex
+ {}
+\else
+ \setdefaultlanguage{german}
+ \setmainfont{Latin Modern Roman}
+ \setsansfont{Latin Modern Sans}
+ \setmonofont{Latin Modern Mono}
+\fi
+% - base font: sans serif Latin Modern
+\renewcommand*\familydefault{\sfdefault}
+
+%------------------------------------------------------------------
+\begin{document}
+
+
+% letter options and settings:
+%\LoadLetterOption{DIN}				% suitable for C4/C5/C6/C6-lang
+% - Adressfeld etwas weiter oben (per Faltmarkenverschiebung)
+\LoadLetterOption{DINmtext}			% suitable for C6/C6-lang only
+
+
+% - sender details
+\setkomavar{fromname}{$m[ProvTitleFirstLast]m$$2<if_not_empty::$m[ProvFA50]m$//, FA für %s//::>2$}
+\setkomavar{fromaddress}{%
+	\small
+		$3<ph_cfg::argumentsdivider//#3#//%% <%(name)s> set to [%(value)s]::>3$
+	$1<praxis::%(praxis)s, %(branch)s::120>1$$2<if_not_empty::$m[PrxStreet]m$//\\//::>2$
+	$3<if_not_empty::$m[PrxStreet]m$#3#$m[PrxAdrHREF]m$#3#%% no praxis address available::>3$
+		$3<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>3$
+}
+% %% $m[PrxLogoPngName==$1<data_snippet::praxis-logo//%s//image/png//.png::>1$]m$
+% %% $m[PrxLogoIncl==$1<data_snippet::praxis-logo//\includegraphics[width=20mm]{%s}//image/png//.png::250>1$]m$
+% %% $m[PrxLogoInclGfxOrHREF==$2<if_not_empty::$m[PrxCommW]m$//\href{http://%s}{$m[PrxLogoIncl]m$}//$m[PrxLogoIncl]m$::>2$]m$
+\setkomavar{fromlogo}{%
+		$3<ph_cfg::argumentsdivider//#3#//%% <%(name)s> set to [%(value)s]::>3$
+		$2<ph_cfg::argumentsdivider//#2#//%% <%(name)s> set to [%(value)s]::>2$
+	$3<if_not_empty::$m[PrxLogoPngName]m$#3#$m[PrxLogoInclGfxOrHREF]m$#3#$2<if_not_empty::$m[PrxIBAN]m$#2#$m[PrxScan2PayHREF]m$ %% no praxis logo available#2#% no praxis logo available::>2$::>3$
+		$2<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>2$
+		$3<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>3$
+}
+% explicit backaddress, not calculated from <from*> values
+\setkomavar{backaddress}{$m[ProvFLast]m$\\$1<praxis_address::%(street)s %(number)s\\%(postcode)s %(urb)s::60>1$}
+\setkomavar{location}{%
+	\begin{tabular}[t]{cc}%
+		Praxis & scan2pay%
+		\\
+	$3<ph_cfg::argumentsdivider//#3#//%% <%(name)s> set to [%(value)s]::>3$
+	$2<ph_cfg::argumentsdivider//#2#//%% <%(name)s> set to [%(value)s]::>2$
+		% Praxis
+		$3<if_not_empty::$m[PrxStreet]m$#3#$m[PrxAdrQrHREF]m$#3#\includegraphics[width=30mm]{$m[PrxMcfQR]m$}::>3$%
+			& %
+		% scan2pay
+		$2<if_not_empty::$m[PrxIBAN]m$#2#$m[PrxScan2PayHREF]m$#2# {}::>2$%
+		\\
+%		\includegraphics[width=30mm]{$m[PtMcfQR]m$} & $3<if_not_empty::$m[PrxStreet]m$#3#$m[PrxAdrQrHREF]m$#3#\includegraphics[width=30mm]{$m[PrxMcfQR]m$} %% no praxis address available::>3$
+%		\includegraphics[width=30mm]{$m[PtMcfQR]m$} & $3<if_not_empty::$m[PrxStreet]m$#3#$m[PrxAdrQrHREF]m$#3#\includegraphics[width=30mm]{$m[PrxMcfQR]m$} %% no praxis address available::>3$
+	$2<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>2$
+	$3<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>3$
+	\end{tabular}%
+}
+\setkomavar{backaddress}{$<current_provider::::>$\\$<praxis_address::%(street)s %(number)s\\%(postcode)s %(urb)s::60>$}
+\setkomavar{invoice}{$<bill::%(invoice_id)s::>$}
+\setkomavar{title}{Invoice}
+% not needed:
+%\setkomavar{fromurl}{}
+%\setkomavar{fromemail}{}
+%\setkomavar{fromfax}{}
+%\setkomavar{fromphone}{}
+%\setkomavar{frommobilephone}{}
+
+
+% - reference line
+\setkomavar{myref}{$2<free_text::"Our reference" (z.B. "$m[ProvFL]m$" für $m[ProvFirstLast]m$)//$m[ProvFL]m$::40>2$}
+%\setkomavar{yourref}{$2<free_text::"Your reference"::40>2$}
+%\setkomavar{yourmail}{$2<free_text::"Your communications at"::20>2$}
+\setkomavar{date}{$1<today::%d.%B %Y::50>1$}
+\setkomavar{place}{$1<praxis_address::%(urb)s::120>1$}
+
+%\setkomavar{frombank}{\footnotesize Bank Details: Starship Trust\\Acc. Num. 000\,00\,00\,000\\Bank code 000\,000\,00\\IBAN xxxxxxxxxxxxxxxx}
+\setkomavar{frombank}{%
+	\footnotesize Bank Details: {$1<praxis_id::Bankname//Bank//%(value)s::60>1$}\\%
+	BIC $1<praxis_id::BIC//Bank//%(value)s::30>1$\\%
+	IBAN $m[PrxIBAN]m$%
+%	Acc. Num. 000\,00\,00\,000\\%
+%	Bank code 000\,000\,00\\%
+%	IBAN xxxxxxxxxxxxxxxx%
+}
+
+
+% - Subject, namely patient data
+% %% $m[Subject==$2<free_text::Betreff (Patientenstammdaten werden hinzugefügt)::120>2$]m$
+\setkomavar{subject}[]{%
+	$3<if_not_empty::$m[Subject]m$//%s\\//%% no additional Subject by user::>3$
+	$m[Pt4Subj]m$
+	$m[PtAdr4Subj]m$
+}
+
+
+% - signature
+\setkomavar{signature}{%
+		$3<ph_cfg::argumentsdivider//#3#//%% <%(name)s> set to [%(value)s]::>3$
+	$3<if_not_empty::$2<data_snippet::autograph-$1<current_provider_lastnames::::>1$_$1<current_provider_firstnames::::>1$//\includegraphics[width=30mm]{%s}//image/png//.png::250>2$#3#%s\\#3#%% no signature file available::>3$
+		$3<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>3$
+	\rule{\widthof{\tiny{}(Der Unterzeichner haftet nicht für unsignierte Änderungen des Inhalts.)}}{.1pt}\\
+	$m[ProvTitleFirstLast]m$\\
+	$2<if_not_empty::$m[ProvFA50]m$//FA für %s\\//%% no speciality available::>2$
+	{\tiny{}(Der Unterzeichner haftet nicht für unsignierte Änderungen des Inhalts.)}
+}
+\renewcommand*{\raggedsignature}{\raggedright}
+\makeatletter
+\setplength{sigbeforevskip}{1.8cm}							% Definiere vertikalen Abstand vor der Unterschrift
+\makeatother
+
+
+% - headings starting on second page
+\lehead{$m[Pt4Header]m$}
+\lohead{$m[Pt4Header]m$}
+\cehead{}
+\cohead{}
+\rehead{Page \thepage/\pageref{LastPage}}
+\rohead{Page \thepage/\pageref{LastPage}}
+
+
+% - footer on first page
+\setkomavar{firstfoot}{%
+	\rule{\textwidth}{.3pt}
+	\parbox[t]{\textwidth}{%
+		\tiny
+		\begin{tabular}[t]{ll}%
+			\Telefon{}       & $1<praxis_comm::workphone::60>1$\\
+			\FAX{}           & $1<praxis_comm::fax::60>1$\\
+				$2<ph_cfg::argumentsdivider//#2#//%% <%(name)s> set to [%(value)s]::>2$
+			\Email{}         & $2<if_not_empty::$m[PrxCommE60]m$#2#\href{mailto:$m[PrxCommE60]m$}{$m[PrxCommE60]m$}\\#2#\\ %% no praxis email available::>2$
+			\ComputerMouse{} & $2<if_not_empty::$m[PrxCommW60]m$#2#$m[PrxCommW60HREF]m$#2#%% no praxis web address available::>2$
+				$2<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>2$
+		\end{tabular}%
+		\hfill
+		\begin{tabular}[t]{ll}%
+			\multicolumn{2}{l}{$2<if_not_empty::$m[ProvFA50]m$//FA für %s//::>2$}\\
+			BSNR       & $1<praxis_id::KV-BSNR//KV//%(value)s::25>1$\\
+			LANR       & $1<current_provider_external_id::KV-LANR//KV::25>1$\\
+			\multicolumn{2}{l}{GNUmed $1<client_version::::>1$ (\href{https://www.gnumed.org}{www.gnumed.org})}
+		\end{tabular}%
+		\hfill
+		\begin{tabular}[t]{ll}%
+			\multicolumn{2}{l}{$1<praxis_id::Bankname//Bank//%(value)s::60>1$}\\
+			IBAN       & $m[PrxIBAN]m$\\
+			BIC        & $1<praxis_id::BIC//Bank//%(value)s::30>1$\\
+			\multicolumn{2}{l}{Vorlage $1<form_name_long::::60>1$ v$1<form_version::::20>1$}
+		\end{tabular}%
+	}
+}
+
+
+% - footer starting on second page
+\lefoot{{\tiny{}$1<current_provider::::>1$, $1<praxis::%(praxis)s: %(branch)s::120>1$}}
+\lofoot{{\tiny{}$1<current_provider::::>1$, $1<praxis::%(praxis)s: %(branch)s::120>1$}}
+\cefoot{}
+\cofoot{}
+\refoot{{\tiny{}$1<today::%d.%B %Y::50>1$}}
+\rofoot{{\tiny{}$1<today::%d.%B %Y::50>1$}}
+
+
+%------------------------------------------------------------------
+% start letter by generating receiver data
+
+% %% $m[HasBillingAdr==$1<adr_street::billing::>1$]m$
+$2<ph_cfg::argumentsdivider//|--|//%% <%(name)s> set to [%(value)s]::>2$
+% %%    $m[RxerName==$2<if_not_empty::$m[HasBillingAdr]m$|--|$3<free_text::Please enter the name of the invoice recipient!::>3$|--|$3<receiver_name::::>3$::>2$]m$
+% %%  $m[RxerStreet==$2<if_not_empty::$m[HasBillingAdr]m$|--|$3<adr_street::billing::>3$|--|$3<receiver_street::::>3$::>2$]m$
+% %%      $m[RxerNr==$2<if_not_empty::$m[HasBillingAdr]m$|--|$3<adr_number::billing::>3$|--|$3<receiver_number::::>3$::>2$]m$
+% %%   $m[RxerSubNr==$2<if_not_empty::$m[HasBillingAdr]m$|--|$3<adr_subunit::billing::>3$|--|$3<receiver_subunit::::>3$::>2$]m$
+% %%     $m[RxerZip==$2<if_not_empty::$m[HasBillingAdr]m$|--|$3<adr_postcode::billing::>3$|--|$3<receiver_postcode::::>3$::>2$]m$
+% %%     $m[RxerLoc==$2<if_not_empty::$m[HasBillingAdr]m$|--|$3<adr_location::billing::>3$|--|$3<receiver_location::::>3$::>2$]m$
+% %% $m[RxerCountry==$2<if_not_empty::$m[HasBillingAdr]m$|--|$3<adr_country::billing::>3$|--|$3<receiver_country::::>3$::>2$]m$
+$2<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>2$
+
+
+$2<ph_cfg::argumentsdivider//|--|//%% <%(name)s> set to [%(value)s]::>2$
+\begin{letter}{%
+	$m[RxerName]m$\\
+	$m[RxerStreet]m$\ $m[RxerNr]m$\ $m[RxerSubNr]m$\\
+	$m[RxerZip]m$\ $m[RxerLoc]m$\\
+	$m[RxerCountry]m$
+}
+$2<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>2$
+
+% debugging
+$m[%_if_dbg]m$\papergraduate											% show coordinate system on first page
+$m[%_if_dbg]m$\afterpage{\AddToShipoutPicture*{\ShowFramePicture}}		% show "normal" page layout starting with second page
+
+
+% define opening (Anrede)
+$2<ph_cfg::argumentsdivider//|--|//%% <%(name)s> set to [%(value)s]::>2$
+\opening{%
+	$4<free_text::Salutation, eg "Dear $m[RxerName]m$,"//Dear $m[RxerName]m$,::140>4$%
+}
+$2<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>2$
+
+% the actual content
+I hereby take the liberty of invoicing the services provided for \emph{$m[PtFirstLAST]m$}, detailed here below:
+
+\begin{flushleft}
+	\begin{xltabular}{\textwidth}{llXcr}
+		\toprule
+		Date & Item & Description & Qty./Factor & Amount ($<bill::%(currency)s::>$) \tabularnewline
+		\toprule
+		$<bill_item:: %(date_to_bill)s & %(billable_code)s & {\footnotesize %(billable_description)s, %(item_detail)s } & %(unit_count)s / %(amount_multiplier)s & %(total_amount)s \tabularnewline::>$
+		\midrule
+		& & Total (net) & & $<bill::%(total_amount)s::>$ \tabularnewline
+		\bottomrule
+	\end{xltabular}
+\end{flushleft}
+
+\noindent I ask you to transfer the full amount within 10 working days to the account below.
+
+% define closing of letter (Grußformel)
+% multiple lines with \\, no empty lines
+\closing{%
+	$2<free_text::Closing, eg. "Best regards,"//Best regards,::140>2$%
+}
+
+% no Post Scriptum
+%\ps
+
+% Anlagen
+%\setkomavar*{enclseparator}[Anlage(n)]		% title for "enclosures" area
+%$3<if_not_empty::$2<free_text::Liste von Anlagen::300>2$//\encl{%s}//%\encl{}::>3$
+
+% no Carbon Copies
+%\setkomavar*{ccseparator}[Verteiler]
+% multiple lines with \\, no empty lines
+%\cc{%
+%}
+
+\end{letter}
+%------------------------------------------------------------------
+% embed data into PDF for easier processing:
+\ifpdftex
+	% VCF of creator
+	\IfFileExists{$<praxis_vcf::::>$}{%
+		\embedfile[
+			desc=01) Praxis - digital business card (originator),
+			mimetype=text/vcf,
+			ucfilespec=praxis.vcf
+		]{$<praxis_vcf::::>$}
+	}{\typeout{[$<praxis_vcf::::>$] not found}}
+
+	% VCF of patient
+	\IfFileExists{$<patient_vcf::::>$}{%
+		\embedfile[
+			desc=02) Patient - digital business card,
+			mimetype=text/vcf,
+			ucfilespec=patient.vcf
+		]{$<patient_vcf::::>$}
+	}{\typeout{[$<patient_vcf::::>$] (patient VCF) not found}}
+\else
+	{}
+%	% VCF of creator
+%	\IfFileExists{$<praxis_vcf::::>$}{%
+%		\embeddedfile%
+%			[01) Praxis - digital business card (originator)]%
+%			{praxisVCF}%
+%			[praxis.vcf]%
+%			{$<praxis_vcf::::>$}
+%	}{\typeout{[$<praxis_vcf::::>$] not found}}
+
+%	% VCF of patient
+%	\IfFileExists{$<patient_vcf::::>$}{%
+%		\embeddedfile%
+%			[02) Patient - digital business card]%
+%			{patientVCF}%
+%			[patient.vcf]%
+%			{$<patient_vcf::::>$}
+%	}{\typeout{[$<patient_vcf::::>$] (patient VCF) not found}}
+\fi
+%------------------------------------------------------------------
+
+% debugging
+$m[%_if_dbg]m$\layout				% show page layout page
+
+\end{document}

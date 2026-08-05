@@ -497,7 +497,7 @@ __known_variant_placeholders = {
 		args: <template>//<date format>
 		template:		something %(field)s something else (do not include '//' or '::' itself in the template)
 		date format:	strftime date format""",
-	'bill_scan2pay': u"""return scan2pay data or QR code for a bill
+	'bill_scan2pay': """return scan2pay data or QR code for a bill
 		args: <format>,
 			format: fmt=qr|txt
 				qr: QR code png file path,
