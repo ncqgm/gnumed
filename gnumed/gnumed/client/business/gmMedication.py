@@ -2051,9 +2051,6 @@ class cIntakeWithRegimen(gmBusinessDBObject.cBusinessDBObject):
 		"""	-- cIntakeWithRegimen: clin.intake
 			UPDATE clin.intake SET
 				clin_when = %(last_checked_when)s,
-				narrative = gm.nullify_empty_string(%(notes4provider)s),
-				notes4patient = gm.nullify_empty_string(%(notes4patient)s),
-				notes4us = gm.nullify_empty_string(%(notes4us)s),
 				use_type = %(use_type)s,
 				-- only update episode when there's no regimen
 				fk_episode = CASE
@@ -2068,6 +2065,9 @@ class cIntakeWithRegimen(gmBusinessDBObject.cBusinessDBObject):
 		""" -- cIntakeWithRegimen: clin.intake_regimen
 			UPDATE clin.intake_regimen SET
 				narrative = gm.nullify_empty_string(%(schedule)s),
+				notes4providers = gm.nullify_empty_string(%(notes4providers)s),
+				notes4patient = gm.nullify_empty_string(%(notes4patient)s),
+				notes4us = gm.nullify_empty_string(%(notes4us)s),
 				clin_when = %(started)s,
 				start_is_unknown = %(start_is_unknown)s,
 				comment_on_start = gm.nullify_empty_string(%(comment_on_start)s),
@@ -2087,9 +2087,6 @@ class cIntakeWithRegimen(gmBusinessDBObject.cBusinessDBObject):
 	_updatable_fields = [
 		# intake fields:
 		'last_checked_when',
-		'notes4provider',
-		'notes4patient',
-		'notes4us',
 		'use_type',
 		# regimen fields:
 		'schedule',
@@ -2099,6 +2096,9 @@ class cIntakeWithRegimen(gmBusinessDBObject.cBusinessDBObject):
 		'discontinued',
 		'discontinue_reason',
 		'planned_duration',
+		'notes4providers',
+		'notes4patient',
+		'notes4us',
 		'pk_encounter',
 		'pk_episode'
 	]
@@ -2200,9 +2200,9 @@ class cIntakeWithRegimen(gmBusinessDBObject.cBusinessDBObject):
 				initial_indent = '  ',
 				subsequent_indent = '    '
 			))
-		if self['notes4provider']:
+		if self['notes4providers']:
 			lines.append(gmTools.wrap (
-				_('Provider notes: %s') % self['notes4provider'],
+				_('Provider notes: %s') % self['notes4providers'],
 				width = max_width,
 				initial_indent = '  ',
 				subsequent_indent = '    '
@@ -2413,6 +2413,9 @@ class cIntakeRegimen(gmBusinessDBObject.cBusinessDBObject):
 				discontinued = %(discontinued)s,
 				discontinue_reason = gm.nullify_empty_string(%(discontinue_reason)s),
 				narrative = gm.nullify_empty_string(%(schedule)s),
+				notes4providers = gm.nullify_empty_string(%(notes4providers)s),
+				notes4patient = gm.nullify_empty_string(%(notes4patient)s),
+				notes4us = gm.nullify_empty_string(%(notes4us)s),
 				fk_encounter = %(pk_encounter)s,
 				fk_episode = %(pk_episode)s,
 				fk_intake = %(pk_intake)s
@@ -2439,7 +2442,10 @@ class cIntakeRegimen(gmBusinessDBObject.cBusinessDBObject):
 		'pk_encounter',
 		'pk_episode',
 		'pk_intake',
-		'schedule'
+		'schedule',
+		'notes4providers',
+		'notes4patient',
+		'notes4us'
 	]
 	#--------------------------------------------------------
 	def format(self, left_margin=0, date_format:str='%Y %b %d', single_line:bool=True, terse:bool=True, eol:str=None, allergy=None):
@@ -2643,9 +2649,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	_cmds_store_payload = [
 		"""UPDATE clin.intake SET
 				clin_when = %(last_checked_when)s,
-				notes4patient = gm.nullify_empty_string(%(notes4patient)s),
-				narrative = gm.nullify_empty_string(%(notes4provider)s),
-				notes4us = gm.nullify_empty_string(%(notes4us)s),
+				--narrative = gm.nullify_empty_string(%(notes4providers)s),
 				use_type = %(use_type)s,
 				fk_episode = %(pk_episode)s,
 				fk_encounter = %(pk_encounter)s
@@ -2659,9 +2663,6 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	]
 	_updatable_fields = [
 		'last_checked_when',
-		'notes4patient',
-		'notes4provider',
-		'notes4us',
 		'use_type',
 		'pk_episode',
 		'pk_encounter'
@@ -2731,8 +2732,6 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		lines.append(' ' + _('Last checked: %s') % self._payload['last_checked_when'].strftime('%Y %b %d'))
 		if self._payload['discontinued']:
 			lines.append(_(' Discontinued %s') % self._payload['discontinued'].strftime(date_format))
-		if self._payload['notes4provider']:
-			lines.append(_(' Notes: %s') % self._payload['notes4provider'])
 		if include_metadata:
 			lines.append('')
 			lines.append(_('Version: #%(row_ver)s, %(mod_when)s by %(mod_by)s.') % {
@@ -2786,10 +2785,6 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		lines.append(_(' Episode: %s')% self._payload['episode'])
 		if self._payload['health_issue']:
 			lines.append(_(' Health issue: %s') % self._payload['health_issue'])
-		if self._payload['notes4provider']:
-			lines.append(_(' Provider notes: %s') % self._payload['notes4provider'])
-		if self._payload['notes4patient']:
-			lines.append(_(' Patient advice: %s') % self._payload['notes4patient'])
 		if self._payload['intake_instructions']:
 			lines.append(' ' + _('Intake: %s') % self._payload['intake_instructions'])
 		lines.append('')
@@ -3499,8 +3494,8 @@ def format_substance_intake_notes(emr=None, output_format='latex') -> str:
 			gmTex.tex_escape_string(strength),
 			gmTex.tex_escape_string(epi_issue)
 		))
-		if med['notes4provider']:
-			table_rows.append(line2_template % gmTex.tex_escape_string(med['notes4provider'].strip('\n')))
+		if med['notes4providers']:
+			table_rows.append(line2_template % gmTex.tex_escape_string(med['notes4providers'].strip('\n')))
 	latex = _LATEX__current_meds_notes % (
 		gmTex.require_package(package = 'booktabs'),
 		gmTex.require_package(package = 'xltabular'),
@@ -3763,8 +3758,8 @@ def format_regimen_like_as_multiple_lines_abuse(regimen_like:cIntakeRegimen | cI
 	lines.append(' ' + _('Last checked: %s') % regimen_like['last_checked_when'].strftime('%Y %b %d'))
 	if regimen_like['discontinued']:
 		lines.append(_(' Discontinued %s') % regimen_like['discontinued'].strftime(date_format))
-	if regimen_like['notes4provider']:
-		lines.append(_(' Notes: %s') % regimen_like['notes4provider'])
+	if regimen_like['notes4providers']:
+		lines.append(_(' Notes: %s') % regimen_like['notes4providers'])
 		lines.append('')
 	if include_metadata:
 		lines.append(_('Intake revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s.') % {
@@ -3863,8 +3858,8 @@ def format_regimen_like_as_multiple_lines (
 		lines.append(_(' Patient advice: %s') % regimen_like['notes4patient'])
 	if regimen_like['intake_instructions']:
 		lines.append(' ' + _('Intake: %s') % regimen_like['intake_instructions'])
-	if regimen_like['notes4provider']:
-		lines.append(_(' Provider notes: %s') % regimen_like['notes4provider'])
+	if regimen_like['notes4providers']:
+		lines.append(_(' Provider notes: %s') % regimen_like['notes4providers'])
 	if regimen_like['notes4us']:
 		lines.append(_(' Own notes: %s') % regimen_like['notes4us'])
 	if include_metadata:

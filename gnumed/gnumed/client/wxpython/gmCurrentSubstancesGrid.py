@@ -166,8 +166,8 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			notes_lines = []
 			if med['notes4patient']:
 				notes_lines.append(_('Patient: %s') % med['notes4patient'].strip())
-			if med['notes4provider']:
-				notes_lines.append(_('Provider: %s') % med['notes4provider'].strip())
+			if med['notes4providers']:
+				notes_lines.append(_('Provider: %s') % med['notes4providers'].strip())
 			if med['notes4us']:
 				notes_lines.append(_('Internal: %s') % med['notes4us'].strip())
 			if notes_lines:

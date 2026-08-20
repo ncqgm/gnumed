@@ -574,15 +574,6 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 				link_obj = conn4tx
 			)
 		pk_subst, pk_dose = self._PRW_substance.GetData(as_instance = False, can_create = True, link_obj = conn4tx)
-		pat_notes = []
-		if self._TCTRL_patient_notes.Value.strip():
-			pat_notes.append(self._TCTRL_patient_notes.Value.strip())
-		provider_notes = []
-		if self._TCTRL_provider_notes.Value.strip():
-			provider_notes.append(self._TCTRL_provider_notes.Value.strip())
-		our_notes = []
-		if self._TCTRL_our_notes.Value.strip():
-			our_notes.append(self._TCTRL_our_notes.Value.strip())
 		intakes = gmMedication.get_substance_intakes (
 			pk_patient = gmPerson.gmCurrentPatient().ID,
 			return_pks = False,
@@ -590,12 +581,6 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		)
 		if intakes:
 			intake = intakes[0]
-			if intake['notes4patient']:
-				pat_notes.append(intake['notes4patient'])
-			if intake['notes4provider']:
-				provider_notes.append(intake['notes4provider'])
-			if intake['notes4us']:
-				our_notes.append(intake['notes4us'])
 		else:
 			intake = gmMedication.create_substance_intake (
 				pk_encounter = gmPerson.gmCurrentPatient().emr.current_encounter['pk_encounter'],
@@ -603,9 +588,6 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 				pk_substance = pk_subst,
 				link_obj = conn4tx
 			)
-		intake['notes4patient'] = '\n'.join(pat_notes)
-		intake['notes4provider'] = '\n'.join(provider_notes)
-		intake['notes4us'] = '\n'.join(our_notes)
 		if self._TCTRL_schedule.Value.strip() == '':
 			# no schedule means there cannot be regimen data because of prior validation
 			intake['pk_episode'] = pk_epi
@@ -636,6 +618,9 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 			discontinued = self._DPRW_discontinued.date,
 			link_obj = conn4tx
 		)
+		regimen['notes4patient'] = self._TCTRL_patient_notes.Value.strip()
+		regimen['notes4providers'] = self._TCTRL_provider_notes.Value.strip()
+		regimen['notes4us'] = self._TCTRL_our_notes.Value.strip()
 		regimen['start_is_unknown'] = self._CHBOX_start_unknown.IsChecked()
 		regimen['comment_on_start'] = self._TCTRL_comment_on_start.Value.strip()
 		if regimen['discontinued']:
@@ -664,7 +649,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		pk_epi = self._PRW_episode.GetData(as_instance = False, link_obj = conn4tx)
 		self.data['pk_episode'] = pk_epi
 		self.data['notes4patient'] = self._TCTRL_patient_notes.Value.strip()
-		self.data['notes4provider'] = self._TCTRL_provider_notes.Value.strip()
+		self.data['notes4providers'] = self._TCTRL_provider_notes.Value.strip()
 		self.data['notes4us'] = self._TCTRL_our_notes.Value.strip()
 
 		# no regimen fields
@@ -773,7 +758,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		self._PRW_substance.Disable()
 		self._PRW_episode.SetData(self.data['pk_episode'])
 		self._TCTRL_patient_notes.Value = gmTools.coalesce(self.data['notes4patient'], '')
-		self._TCTRL_provider_notes.Value = gmTools.coalesce(self.data['notes4provider'], '')
+		self._TCTRL_provider_notes.Value = gmTools.coalesce(self.data['notes4providers'], '')
 		self._TCTRL_our_notes.Value = gmTools.coalesce(self.data['notes4us'], '')
 		if self.data['pk_intake_regimen']:
 			self._TCTRL_amount.Value = str(self.data['amount'])
