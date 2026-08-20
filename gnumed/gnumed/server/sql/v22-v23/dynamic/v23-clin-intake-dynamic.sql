@@ -38,7 +38,8 @@ comment on column clin.intake.fk_episode is
 -- --------------------------------------------------------------
 -- .narrative
 comment on column clin.intake.narrative is
-	'Technical/professional notes on this intake, relevant for, say, other providers as opposed to for the patient.';
+	'reason / aim / what for ? / why ?  for intake of this substance';
+--	'Technical/professional notes on this intake, relevant for, say, other providers as opposed to for the patient.';
 
 -- --------------------------------------------------------------
 -- .soap_cat
@@ -71,16 +72,6 @@ alter table clin.intake
 
 drop index if exists clin.idx_uniq_substance_per_patient cascade;
 create unique index idx_uniq_substance_per_patient on clin.intake(fk_substance, clin.map_enc_or_epi_to_patient(fk_encounter, fk_episode));
-
--- --------------------------------------------------------------
--- .notes4patient
-comment on column clin.intake.notes4patient is
-	'Comments on this intake (instructions, caveats, treatment goal, target etc) intended for the patient, say, via a medication plan.';
-
--- --------------------------------------------------------------
--- .notes4us
-comment on column clin.intake.notes4us is
-	'Comments on this intake intended for ourselves.';
 
 -- --------------------------------------------------------------
 -- ._fk_s_i

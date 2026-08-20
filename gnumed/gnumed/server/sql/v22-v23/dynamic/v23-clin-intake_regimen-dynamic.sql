@@ -25,17 +25,17 @@ Say, a patient takes paracetamol (PCM):
 	500mg PCM at noon
 	500mg PCM combined with codeine at night (say, as drug "ParaComp")
 .
-There will be one clin.intake row for PCM and two (or
-three) active regimen rows:
+There will be one clin.intake row for PCM (and one for codeine)
+and two (or three) active regimen rows:
 .
-- regimen "500mg PCM, 0-0-1 pk_drug=ParaComp"
+- regimen "500mg PCM, 0-0-1"
 .
 	plus either
 .
-- regimen "PCM, schedule 1000-500-0, pk_dose=NULL"
+- regimen "PCM, schedule 1000-500-0"
 	or
-- regimen "1000mg PCM, schedule 1-0-0, pk_dose=pcm_1000"
-- regimen "500mg PCM, schedule 0-1-0, pk_dose=pcm_500"
+- regimen "1000mg PCM, schedule 1-0-0"
+- regimen "500mg PCM, schedule 0-1-0"
 .
 Each way is medically correct. Which one is used
 is up to the clinician.';
@@ -57,9 +57,9 @@ The episode this intake regimen was registered under.
 .
 The episodes of regimens need not point to the the same
 episode as the intake itself because a) historical
-(discontinued) regimen are not unlikely to relate episodes
-other than the current one and b) active regimen may well be
-*intended* for different episodes, say:
+(discontinued) regimen are not unlikely to relate to
+episodes other than the current one and b) active regimen
+may well be *intended* for different episodes, say:
 .
 Amitriptylin 50-0-0 for depression plus
 .
@@ -196,6 +196,21 @@ comment on column clin.intake_regimen.discontinue_reason is 'Why was this intake
 -- --------------------------------------------------------------
 -- .planned_duration
 comment on column clin.intake_regimen.planned_duration is 'How long is this substance intended to be taken ?';
+
+-- --------------------------------------------------------------
+-- .notes4patient
+comment on column clin.intake_regimen.notes4patient is
+	'Comments on this intake (instructions, caveats, treatment goal, target etc) intended for the patient, say, via a medication plan.';
+
+-- --------------------------------------------------------------
+-- .notes4us
+comment on column clin.intake_regimen.notes4us is
+	'Comments on this intake intended for ourselves.';
+
+-- --------------------------------------------------------------
+-- .notes4providers
+comment on column clin.intake_regimen.notes4patient is
+	'Comments on this intake relevant to other providers (say, reasoning for unusual dosage/timing)';
 
 -- --------------------------------------------------------------
 -- table level

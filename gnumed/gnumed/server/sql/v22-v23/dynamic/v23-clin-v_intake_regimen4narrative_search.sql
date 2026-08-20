@@ -19,6 +19,9 @@ select
 	c_ir.soap_cat
 		as soap_cat,
 	coalesce(c_ir.narrative, '')
+		|| coalesce(' / ' || c_ir.notes4patient, '')
+		|| coalesce(' / ' || c_ir.notes4providers, '')
+		|| coalesce(' / ' || c_ir.notes4us, '')
 		|| coalesce(' / ' || c_ir.comment_on_start, '')
 		|| coalesce(' / ' || c_ir.discontinue_reason, '')
 		as narrative,

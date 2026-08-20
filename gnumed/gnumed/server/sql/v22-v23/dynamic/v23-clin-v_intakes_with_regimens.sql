@@ -23,13 +23,17 @@ select
 	c_i.clin_when
 		as last_checked_when,
 	c_i.narrative
-		as notes4provider,
+		as aim,
 	c_i.soap_cat,
 	c_i.use_type,
 	c_i.fk_substance
 		as pk_substance,
-	c_i.notes4patient,
-	c_i.notes4us,
+	NULL::TEXT
+		as notes4patient,
+	NULL::TEXT
+		as notes4providers,
+	NULL::TEXT
+		as notes4us,
 	-- regimen
 	NULL::TEXT
 		as schedule,
@@ -133,13 +137,14 @@ select
 	c_i.clin_when
 		as last_checked_when,
 	c_i.narrative
-		as notes4provider,
+		as aim,
 	c_i.soap_cat,
 	c_i.use_type,
 	c_i.fk_substance
 		as pk_substance,
-	c_i.notes4patient,
-	c_i.notes4us,
+	c_ir.notes4patient,
+	c_ir.notes4providers,
+	c_ir.notes4us,
 	-- regimen
 	c_ir.narrative
 		as schedule,

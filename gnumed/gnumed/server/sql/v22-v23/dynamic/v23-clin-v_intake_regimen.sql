@@ -38,10 +38,11 @@ select
 		as schedule,
 	c_i.use_type,
 	r_s.intake_instructions,
-	c_i.notes4patient,
-	c_i.notes4us,
+	c_ir.notes4patient,
+	c_ir.notes4us,
+	c_ir.notes4providers,
 	c_i.narrative
-		as notes4provider,
+		as aim,
 	c_epi.description
 		as episode,
 	c_ir.modified_when,

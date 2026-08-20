@@ -33,9 +33,7 @@ select
 		end)::text
 	-- lines 2+
 	|| coalesce(E'\n' || _('intake instructions') || ': ' || r_s.intake_instructions, '')
-	|| coalesce(E'\n' || _('patient notes') || ': ' || c_i.notes4patient, '')
-	|| coalesce(E'\n' || _('provider notes') || ': ' || c_i.narrative, '')
-	|| coalesce(E'\n' || _('internal notes') || ': ' || c_i.notes4us, '')
+	|| coalesce(E'\n' || _('aim') || ': ' || c_i.narrative, '')
 	|| coalesce(E'\nATC: ' || r_s.atc, '')
 	|| E'\n' || _('started: unknown')
 	|| E'\n' || _('discontinued: unknown')
@@ -141,11 +139,12 @@ select
 	-- line: "take with water"
 	|| coalesce(E'\n ' || _('intake instructions') || ': ' || r_s.intake_instructions, '')
 	-- line: "watch heart rate"
-	|| coalesce(E'\n ' || _('patient notes') || ': ' || c_i.notes4patient, '')
+	|| coalesce(E'\n ' || _('patient notes') || ': ' || c_ir.notes4patient, '')
 	-- line: "does not tolerate higher dose"
-	|| coalesce(E'\n ' || _('provider notes') || ': ' || c_i.narrative, '')
+	|| coalesce(E'\n ' || _('provider notes') || ': ' || c_ir.notes4providers, '')
 	-- line: "is sceptical"
-	|| coalesce(E'\n ' || _('internal notes') || ': ' || c_i.notes4us, '')
+	|| coalesce(E'\n ' || _('internal notes') || ': ' || c_ir.notes4us, '')
+	|| coalesce(E'\n ' || _('aim') || ': ' || c_i.narrative, '')
 		as narrative,
 	-- --- narrative ---
 	c_ir.fk_encounter
@@ -245,11 +244,12 @@ select
 	-- line: "take with water"
 	|| coalesce(E'\n ' || _('intake instructions') || ': ' || r_s.intake_instructions, '')
 	-- line: "watch heart rate"
-	|| coalesce(E'\n ' || _('patient notes') || ': ' || c_i.notes4patient, '')
+	|| coalesce(E'\n ' || _('patient notes') || ': ' || c_ir.notes4patient, '')
 	-- line: "does not tolerate higher dose"
-	|| coalesce(E'\n ' || _('provider notes') || ': ' || c_i.narrative, '')
+	|| coalesce(E'\n ' || _('provider notes') || ': ' || c_ir.notes4providers, '')
 	-- line: "is sceptical"
-	|| coalesce(E'\n ' || _('internal notes') || ': ' || c_i.notes4us, '')
+	|| coalesce(E'\n ' || _('internal notes') || ': ' || c_ir.notes4us, '')
+	|| coalesce(E'\n ' || _('aim') || ': ' || c_i.narrative, '')
 		as narrative,
 	-- --- narrative ---
 	c_ir.fk_encounter
@@ -346,11 +346,13 @@ select
 	-- line: "take with water"
 	|| coalesce(E'\n ' || _('intake instructions') || ': ' || r_s.intake_instructions, '')
 	-- line: "watch heart rate"
-	|| coalesce(E'\n ' || _('patient notes') || ': ' || c_i.notes4patient, '')
+	|| coalesce(E'\n ' || _('patient notes') || ': ' || c_ir.notes4patient, '')
 	-- line: "does not tolerate higher dose"
-	|| coalesce(E'\n ' || _('provider notes') || ': ' || c_i.narrative, '')
+	|| coalesce(E'\n ' || _('provider notes') || ': ' || c_ir.notes4providers, '')
 	-- line: "is sceptical"
-	|| coalesce(E'\n ' || _('internal notes') || ': ' || c_i.notes4us, '')
+	|| coalesce(E'\n ' || _('internal notes') || ': ' || c_ir.notes4us, '')
+	-- line: "aim"
+	|| coalesce(E'\n ' || _('aim') || ': ' || c_i.narrative, '')
 		as narrative,
 	-- --- narrative ---
 	c_ir.fk_encounter

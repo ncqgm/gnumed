@@ -20,9 +20,7 @@ select
 		as pk_patient,
 	c_i.soap_cat
 		as soap_cat,
-	coalesce(c_i.narrative, '')		-- aka notes4provider
-		|| coalesce(' / ' || c_i.notes4patient, '')
-		|| coalesce(' / ' || c_i.notes4us, '')
+	coalesce(c_i.narrative, '')		-- aka aim
 		as narrative,
 	c_i.fk_encounter
 		as pk_encounter,

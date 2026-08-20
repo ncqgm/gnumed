@@ -10,7 +10,8 @@
 
 -- --------------------------------------------------------------
 create table clin.intake_regimen (
-	pk integer generated always as identity primary key,
+	pk
+		integer generated always as identity primary key,
 	fk_intake
 		integer,
 	amount
@@ -32,7 +33,14 @@ create table clin.intake_regimen (
 	discontinue_reason
 		gm.nonempty_text,
 	planned_duration
-		interval
+		interval,
+	notes4patient
+		gm.nonempty_text,
+	notes4providers
+		gm.nonempty_text,
+	notes4us
+		gm.nonempty_text
+
 ) inherits (clin.clin_root_item);
 
 -- --------------------------------------------------------------

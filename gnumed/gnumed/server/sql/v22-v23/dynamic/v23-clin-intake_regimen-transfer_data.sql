@@ -44,12 +44,6 @@ BEGIN
 				_rec.pk_substance_intake
 			) RETURNING pk INTO _pk_clin_intake;
 		END IF;
-		-- update aggregate fields
-		UPDATE clin.intake SET
-			narrative = nullif(coalesce(narrative, '''') || coalesce(E''\n'' || _rec.notes, ''''), ''''),
-			notes4patient = nullif(coalesce(notes4patient, '''') || coalesce(E''\n'' || _rec.aim, ''''), '''')
-		WHERE
-			pk = _pk_clin_intake;
 	END LOOP;
 	-- set use type on better-safe-than-sorry policy:
 	-- medication ?
@@ -134,7 +128,9 @@ insert into clin.intake_regimen (
 	planned_duration,
 	narrative,
 	fk_encounter,
-	fk_episode
+	fk_episode,
+	notes4providers,
+	notes4patient
 )
 	select
 		c_i.pk,
@@ -147,7 +143,9 @@ insert into clin.intake_regimen (
 		c_si.duration,
 		coalesce(c_si.schedule, 'per plan'),
 		c_i.fk_encounter,
-		c_i.fk_episode
+		c_i.fk_episode,
+		c_i.narrative,
+		c_si.aim
 	from
 		clin.intake c_i
 			inner join clin.substance_intake c_si on (c_si.pk = c_i._fk_s_i)
