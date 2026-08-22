@@ -70,13 +70,14 @@ URL_drug_ADR_german_default = 'https://nebenwirkungen.pei.de'
 
 
 (
+	USE_TYPE_INVALID,			# clin.intake with existing clin.intake_regimen rows
 	USE_TYPE_MEDICATION,
 	USE_TYPE_NON_HARMFUL,
 	USE_TYPE_PRESENTLY_HARMFUL,
 	USE_TYPE_PRESENTLY_ADDICTED,
 	USE_TYPE_PREVIOUSLY_ADDICTED
 ) = (
-	None, 0, 1, 2, 3
+	-1, None, 0, 1, 2, 3
 )
 
 USE_TYPES_ACTIVE_MISUSE:list[int] = [
@@ -86,6 +87,7 @@ USE_TYPES_ACTIVE_MISUSE:list[int] = [
 
 
 USE_TYPE_NAMES = {
+	USE_TYPE_INVALID: _('check corresponding regimen(s)'),
 	USE_TYPE_MEDICATION: _('medication, not abuse'),
 	USE_TYPE_NON_HARMFUL: _('non-use or non-harmful use'),
 	USE_TYPE_PRESENTLY_HARMFUL: _('presently harmful use'),
@@ -2067,6 +2069,7 @@ class cIntakeWithRegimen(gmBusinessDBObject.cBusinessDBObject):
 				narrative = gm.nullify_empty_string(%(schedule)s),
 				notes4providers = gm.nullify_empty_string(%(notes4providers)s),
 				notes4patient = gm.nullify_empty_string(%(notes4patient)s),
+,				use_type = %(use_type)s,
 				notes4us = gm.nullify_empty_string(%(notes4us)s),
 				clin_when = %(started)s,
 				start_is_unknown = %(start_is_unknown)s,
@@ -2407,6 +2410,7 @@ class cIntakeRegimen(gmBusinessDBObject.cBusinessDBObject):
 	_cmds_store_payload = [
 		""" UPDATE clin.intake_regimen SET
 				clin_when = %(started)s,
+,				use_type = %(use_type)s,
 				start_is_unknown = %(start_is_unknown)s,
 				comment_on_start = gm.nullify_empty_string(%(comment_on_start)s),
 				planned_duration = %(planned_duration)s,
@@ -2445,7 +2449,8 @@ class cIntakeRegimen(gmBusinessDBObject.cBusinessDBObject):
 		'schedule',
 		'notes4providers',
 		'notes4patient',
-		'notes4us'
+		'notes4us',
+		'use_type'
 	]
 	#--------------------------------------------------------
 	def format(self, left_margin=0, date_format:str='%Y %b %d', single_line:bool=True, terse:bool=True, eol:str=None, allergy=None):
@@ -4571,21 +4576,21 @@ if __name__ == "__main__":
 
 	gmPG2.request_login_params(setup_pool = True)
 	#test_format_medication_list()
-	#test_format_regimen_like_as_multiple_lines()
+	##test_format_regimen_like_as_multiple_lines()
 	#test_format_regimen_like_as_single_line()
 	#test_get_substances()
 	#test_get_doses()
-	#test_get_components()
-	#test_get_drugs()
+	##test_get_components()
+	##test_get_drugs()
 	#test_get_intakes()
 	#test_get_intakes_with_regimens()
 	#test_get_intake_regimens()
-	#test_intake_formatting()
-	#test_intake_regimen()
-	#test_create_substance_intake()
-	#test_delete_intake()
-	#test_get_habit_drugs()
-	#test_can_format()
+	##test_intake_formatting()
+	##test_intake_regimen()
+	##test_create_substance_intake()
+	##test_delete_intake()
+	##test_get_habit_drugs()
+	test_can_format()
 	test_format_substance_intake()
 
 	# AMTS
