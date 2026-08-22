@@ -110,6 +110,54 @@ alter table clin.intake_regimen
 		set not NULL;
 
 -- --------------------------------------------------------------
+-- .use_type
+comment on column clin.intake_regimen.use_type is
+'"normal" substances:
+ <NULL>: medication, intended use
+addictives:
+ 0: not used or non-harmful use,
+ 1: presently harmful use,
+ 2: presently addicted,
+ 3: previously addicted
+.
+Per-regimen because possible co-existence of eg:
+ "CBD drops 15-0-0" -- controlled use in, say, multiple sclerosis or chronic pain
+ 	-> .use_type = <NULL>
+.
+ 	_and_
+.
+ "marihuana smoke" -- lifestyle/uncontrolled/non-medical use
+ 	-> .use_type = 0-3
+';
+
+alter table clin.intake_regimen
+	drop constraint if exists chk__sane_use_type cascade;
+
+alter table clin.intake_regimen
+	add constraint chk__sane_use_type check (
+		use_type = ANY(ARRAY[NULL::INTEGER, 0, 1, 2, 3])
+	);
+
+drop function if exists clin.trf__clin__intake_regimen__unset_intake_use_type() cascade;
+
+create function clin.trf__clin__intake_regimen__unset_intake_use_type()
+	returns trigger
+	language plpgsql
+	as '
+BEGIN
+	UPDATE clin.intake SET use_type = -1 where pk = NEW.fk_intake;
+	RETURN NEW;
+END;';
+
+comment on function clin.trf__clin__intake_regimen__unset_intake_use_type() is
+	'When INSERTing a clin.intake_regimen unset .use_type on the linked clin.intake.';
+
+create trigger tr__unset_intake_use_type
+	after insert on clin.intake_regimen
+	for each row
+	execute procedure clin.trf__clin__intake_regimen__unset_intake_use_type();
+
+-- --------------------------------------------------------------
 -- .narrative = schedule
 comment on column clin.intake_regimen.narrative is 
 'The schedule, if any, the substance is to be taken by.
@@ -200,17 +248,29 @@ comment on column clin.intake_regimen.planned_duration is 'How long is this subs
 -- --------------------------------------------------------------
 -- .notes4patient
 comment on column clin.intake_regimen.notes4patient is
-	'Comments on this intake (instructions, caveats, treatment goal, target etc) intended for the patient, say, via a medication plan.';
+'Comments on this intake, eg:
+.
+- instructions for use ("right after getting up")
+- caveats ("report mucosal rashes immediately")
+- conditions ("only if systolic RR > 120")
+- treatment goal/aim ("heart failure", "lower CVI risk via blood pressure")
+- treatment target ("hyperthyroid suppression")
+.
+intended for the patient, say, on a medication plan.';
 
 -- --------------------------------------------------------------
 -- .notes4us
 comment on column clin.intake_regimen.notes4us is
-	'Comments on this intake intended for ourselves.';
+'Comments on this intake intended for ourselves, eg:
+.
+- why patient chose this option over a medically preferrable one';
 
 -- --------------------------------------------------------------
 -- .notes4providers
-comment on column clin.intake_regimen.notes4patient is
-	'Comments on this intake relevant to other providers (say, reasoning for unusual dosage/timing)';
+comment on column clin.intake_regimen.notes4providers is
+'Comments on this intake relevant to other providers, eg:
+.
+- reasoning for unusual dosage/timing';
 
 -- --------------------------------------------------------------
 -- table level

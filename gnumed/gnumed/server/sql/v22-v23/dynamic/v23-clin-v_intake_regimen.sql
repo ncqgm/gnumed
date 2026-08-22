@@ -36,7 +36,7 @@ select
 	c_ir.unit,
 	c_ir.narrative
 		as schedule,
-	c_i.use_type,
+	c_ir.use_type,
 	r_s.intake_instructions,
 	c_ir.notes4patient,
 	c_ir.notes4us,

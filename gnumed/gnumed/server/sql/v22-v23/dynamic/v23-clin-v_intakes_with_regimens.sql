@@ -139,7 +139,7 @@ select
 	c_i.narrative
 		as aim,
 	c_i.soap_cat,
-	c_i.use_type,
+	c_ir.use_type,
 	c_i.fk_substance
 		as pk_substance,
 	c_ir.notes4patient,

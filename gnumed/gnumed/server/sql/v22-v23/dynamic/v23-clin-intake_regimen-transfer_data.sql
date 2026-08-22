@@ -154,5 +154,71 @@ insert into clin.intake_regimen (
 	)
 ;
 
+-- set use type on better-safe-than-sorry policy (worse values overriding "better" ones)
+-- medication ?
+UPDATE clin.intake_regimen SET
+	use_type = NULL::integer
+WHERE EXISTS (
+	SELECT 1 FROM clin.v_substance_intakes c_vsi
+	WHERE
+		c_vsi.pk_patient = clin.map_enc_or_epi_to_patient(fk_encounter, fk_episode)
+			AND
+		c_vsi.pk_substance = (select fk_substance from clin.intake c_i where c_i.pk = fk_intake)
+			AND
+		c_vsi.harmful_use_type IS NULL
+);
+
+-- or non-harmful use ?
+UPDATE clin.intake_regimen SET
+	use_type = 0
+WHERE EXISTS (
+	SELECT 1 FROM clin.v_substance_intakes c_vsi
+	WHERE
+		c_vsi.pk_patient = clin.map_enc_or_epi_to_patient(fk_encounter, fk_episode)
+			AND
+		c_vsi.pk_substance = (select fk_substance from clin.intake c_i where c_i.pk = fk_intake)
+			AND
+		c_vsi.harmful_use_type = 0
+);
+
+-- or previous addiction ?
+UPDATE clin.intake_regimen SET
+	use_type = 3
+WHERE EXISTS (
+	SELECT 1 FROM clin.v_substance_intakes c_vsi
+	WHERE
+		c_vsi.pk_patient = clin.map_enc_or_epi_to_patient(fk_encounter, fk_episode)
+			AND
+		c_vsi.pk_substance = (select fk_substance from clin.intake c_i where c_i.pk = fk_intake)
+			AND
+		c_vsi.harmful_use_type = 3
+);
+
+-- or currently harmful use ?
+UPDATE clin.intake_regimen SET
+	use_type = 1
+WHERE EXISTS (
+	SELECT 1 FROM clin.v_substance_intakes c_vsi
+	WHERE
+		c_vsi.pk_patient = clin.map_enc_or_epi_to_patient(fk_encounter, fk_episode)
+			AND
+		c_vsi.pk_substance = (select fk_substance from clin.intake c_i where c_i.pk = fk_intake)
+			AND
+		c_vsi.harmful_use_type = 1
+);
+
+-- or currently addicted ?
+UPDATE clin.intake_regimen SET
+	use_type = 2
+WHERE EXISTS (
+	SELECT 1 FROM clin.v_substance_intakes c_vsi
+	WHERE
+		c_vsi.pk_patient = clin.map_enc_or_epi_to_patient(fk_encounter, fk_episode)
+			AND
+		c_vsi.pk_substance = (select fk_substance from clin.intake c_i where c_i.pk = fk_intake)
+			AND
+		c_vsi.harmful_use_type = 2
+);
+
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v23-clin-intake_regimen-transfer_data.sql', '23.0');

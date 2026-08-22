@@ -21,20 +21,20 @@ select
 	c_i.clin_when,
 	c_i.modified_by,
 	c_i.soap_cat,
+	-- --- narrative ---
 	-- line 1
-	_('intake') || ': '
-		|| r_s.description
-		|| (case
-			when c_i.use_type = 0 then ' - ' || _('medication')
-			when c_i.use_type = 1 then ' - ' || _('presently harmful use')
-			when c_i.use_type = 2 then ' - ' || _('presently addicted')
-			when c_i.use_type = 3 then ' - ' || _('previously addicted')
-			else ''
-		end)::text
+	_('intake') || ': ' || r_s.description
 	-- lines 2+
 	|| coalesce(E'\n' || _('intake instructions') || ': ' || r_s.intake_instructions, '')
 	|| coalesce(E'\n' || _('aim') || ': ' || c_i.narrative, '')
 	|| coalesce(E'\nATC: ' || r_s.atc, '')
+	|| (case
+		when c_i.use_type = 0 then E'\n' ||  _('not (harmfully) used')
+		when c_i.use_type = 1 then E'\n' ||  _('presently harmful use')
+		when c_i.use_type = 2 then E'\n' ||  _('presently addicted')
+		when c_i.use_type = 3 then E'\n' ||  _('previously addicted')
+		else ''
+	end)::text
 	|| E'\n' || _('started: unknown')
 	|| E'\n' || _('discontinued: unknown')
 		as narrative,
@@ -127,10 +127,10 @@ select
 --	|| c_ir.amount || c_ir.unit
 	|| coalesce('ATC: ' || r_s.atc, '')
 	|| (case
-		when c_i.use_type = 0 then ' - ' || _('not (harmfully) used')
-		when c_i.use_type = 1 then ' - ' || _('presently harmful use')
-		when c_i.use_type = 2 then ' - ' || _('presently addicted')
-		when c_i.use_type = 3 then ' - ' || _('previously addicted')
+		when c_ir.use_type = 0 then ' - ' || _('not (harmfully) used')
+		when c_ir.use_type = 1 then ' - ' || _('presently harmful use')
+		when c_ir.use_type = 2 then ' - ' || _('presently addicted')
+		when c_ir.use_type = 3 then ' - ' || _('previously addicted')
 		else ''
 	end)::text
 	|| E'\n'
@@ -232,10 +232,10 @@ select
 --	|| c_ir.amount || c_ir.unit
 	|| coalesce('ATC: ' || r_s.atc, '')
 	|| (case
-		when c_i.use_type = 0 then ' - ' || _('not (harmfully) used')
-		when c_i.use_type = 1 then ' - ' || _('presently harmful use')
-		when c_i.use_type = 2 then ' - ' || _('presently addicted')
-		when c_i.use_type = 3 then ' - ' || _('previously addicted')
+		when c_ir.use_type = 0 then ' - ' || _('not (harmfully) used')
+		when c_ir.use_type = 1 then ' - ' || _('presently harmful use')
+		when c_ir.use_type = 2 then ' - ' || _('presently addicted')
+		when c_ir.use_type = 3 then ' - ' || _('previously addicted')
 		else ''
 	end)::text
 	|| E'\n'
@@ -334,10 +334,10 @@ select
 	|| c_ir.amount || c_ir.unit
 	|| coalesce(' [' || r_s.atc || ']', '')
 	|| (case
-		when c_i.use_type = 0 then ' - ' || _('not (harmfully) used')
-		when c_i.use_type = 1 then ' - ' || _('presently harmful use')
-		when c_i.use_type = 2 then ' - ' || _('presently addicted')
-		when c_i.use_type = 3 then ' - ' || _('previously addicted')
+		when c_ir.use_type = 0 then ' - ' || _('not (harmfully) used')
+		when c_ir.use_type = 1 then ' - ' || _('presently harmful use')
+		when c_ir.use_type = 2 then ' - ' || _('presently addicted')
+		when c_ir.use_type = 3 then ' - ' || _('previously addicted')
 		else ''
 	end)::text
 	|| E'\n'

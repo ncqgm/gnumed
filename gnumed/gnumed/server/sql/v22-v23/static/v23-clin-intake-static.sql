@@ -12,9 +12,9 @@
 create table clin.intake (
 	pk
 		integer generated always as identity primary key,
-	use_type
-		integer,
 	fk_substance
+		integer,
+	use_type
 		integer,
 	_fk_s_i
 		integer
