@@ -2403,6 +2403,10 @@ FIX: revoke CREATE from PUBLIC on schema PUBLIC (thanks PG)
 # gnumed_v22
 ------------------------------------------------
 
+	22.35
+
+IMPROVED: speed of i18n._() [thanks Marc]
+
 	22.34
 
 FIX: bootstrapping: chicken-egg-problem with gm-dbo vs groups creation
