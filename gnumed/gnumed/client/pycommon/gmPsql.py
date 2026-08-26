@@ -27,7 +27,7 @@ class Psql:
 		self.filename = None
 
 	#---------------------------------------------------------------
-	def fmt_msg(self, aMsg, lineno:int=None):
+	def fmt_msg(self, aMsg, lineno:int=0):
 		try:
 			tmp = "%s:%d: %s" % (self.filename, lineno-1, aMsg)
 			tmp = tmp.replace('\r', '')
@@ -115,7 +115,7 @@ class Psql:
 				if regex.match(r'^\\.+', line_in_sql_file):
 					# most other \ commands are for controlling output formats, don't make
 					# much sense in an installation script, so we gently ignore them
-					_log.warning(self.fmt_msg('skipping line with psql command: %s' % line_in_sql_file), lineno = lineno)
+					_log.warning(self.fmt_msg('skipping line with psql command: %s' % line_in_sql_file, lineno = lineno))
 					continue
 
 			# non-'\' commands
