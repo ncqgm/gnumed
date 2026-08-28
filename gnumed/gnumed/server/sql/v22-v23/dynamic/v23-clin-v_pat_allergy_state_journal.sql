@@ -28,14 +28,14 @@ create view clin.v_pat_allergy_state_journal as
 			as modified_by,
 		'o'::text
 			as soap_cat,
-		_('Allergy state') || ': '
+		(select _('Allergy state')) || ': '
 			|| case
-				when c_ast.has_allergy is null then _('asked, but unknown')
-				when c_ast.has_allergy = 0 then _('no known allergies')
-				when c_ast.has_allergy = 1 then _('does have allergies')
+				when c_ast.has_allergy is null then (select _('asked, but unknown'))
+				when c_ast.has_allergy = 0 then (select _('no known allergies'))
+				when c_ast.has_allergy = 1 then (select _('does have allergies'))
 			   end
 			|| coalesce (
-				' (' || _('last confirmed') || to_char(c_ast.last_confirmed, ' YYYY-MM-DD HH24:MI') || ')',
+				' (' || (select _('last confirmed')) || to_char(c_ast.last_confirmed, ' YYYY-MM-DD HH24:MI') || ')',
 				''
 			) || coalesce (
 				E'\n ' || c_ast.comment,
@@ -109,30 +109,30 @@ UNION ALL
 			as modified_by,
 		'o'::text
 			as soap_cat,
-		_('Allergy state') || ' (' || _('copy') || '): '
+		(select _('Allergy state')) || ' (' || (select _('copy')) || '): '
 			|| case
-				when c_ast.has_allergy is null then _('asked, but unknown')
-				when c_ast.has_allergy = 0 then _('no known allergies')
-				when c_ast.has_allergy = 1 then _('does have allergies')
+				when c_ast.has_allergy is null then (select _('asked, but unknown'))
+				when c_ast.has_allergy = 0 then (select _('no known allergies'))
+				when c_ast.has_allergy = 1 then (select _('does have allergies'))
 			   end
 			|| coalesce (
 				E'\n ' || c_ast.comment,
 				''
 			) || coalesce (
 				-- .clin_when
-				E'\n ' || _('last confirmed') || to_char(c_ast.last_confirmed, ' YYYY-MM-DD HH24:MI'),
+				E'\n ' || (select _('last confirmed')) || to_char(c_ast.last_confirmed, ' YYYY-MM-DD HH24:MI'),
 				''
 			) || coalesce (
 				-- .modified_when
-				E'\n ' || _('entry last modified') || to_char(c_ast.modified_when, ' YYYY-MM-DD HH24:MI'),
+				E'\n ' || (select _('entry last modified')) || to_char(c_ast.modified_when, ' YYYY-MM-DD HH24:MI'),
 				''
 			) || coalesce (
 				-- .encounter_started
-				E'\n ' || _('encounter started') || to_char(c_enc.started, ' YYYY-MM-DD HH24:MI'),
+				E'\n ' || (select _('encounter started')) || to_char(c_enc.started, ' YYYY-MM-DD HH24:MI'),
 				''
 			) || coalesce (
 				-- .encounter_last_affirmed
-				E'\n ' || _('encounter last affirmed') || to_char(c_enc.last_affirmed, ' YYYY-MM-DD HH24:MI'),
+				E'\n ' || (select _('encounter last affirmed')) || to_char(c_enc.last_affirmed, ' YYYY-MM-DD HH24:MI'),
 				''
 			) as narrative,
 		c_ast.fk_encounter

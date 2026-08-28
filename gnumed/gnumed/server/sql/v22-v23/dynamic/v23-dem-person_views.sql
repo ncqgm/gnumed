@@ -41,7 +41,7 @@ select
 	end
 		as marital_status,
 	case when i.fk_marital_status is null
-		then _('unknown')
+		then (select _('unknown'))
 		else (select _(ms1.name) from dem.marital_status ms1, dem.identity i1 where ms1.pk = i.fk_marital_status and i1.pk = i.pk)
 	end
 		as l10n_marital_status,
@@ -111,7 +111,7 @@ select
 		as deceased,
 	coalesce(d_ms.name, 'unknown')
 		as marital_status,
-	_(coalesce(d_ms.name, 'unknown'))
+	(select _(coalesce(d_ms.name, 'unknown')))
 		as l10n_marital_status,
 	d_i.emergency_contact
 		as emergency_contact,

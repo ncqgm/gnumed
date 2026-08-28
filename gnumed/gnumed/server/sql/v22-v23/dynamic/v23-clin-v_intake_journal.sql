@@ -22,23 +22,23 @@ select
 	c_i.modified_by,
 	c_i.soap_cat,
 	-- line 1
-	_('intake') || ': '
+	(select _('intake')) || ': '
 		|| r_s.description
 		|| (case
-			when c_i.use_type = 0 then ' - ' || _('medication')
-			when c_i.use_type = 1 then ' - ' || _('presently harmful use')
-			when c_i.use_type = 2 then ' - ' || _('presently addicted')
-			when c_i.use_type = 3 then ' - ' || _('previously addicted')
+			when c_i.use_type = 0 then ' - ' || (select _('medication'))
+			when c_i.use_type = 1 then ' - ' || (select _('presently harmful use'))
+			when c_i.use_type = 2 then ' - ' || (select _('presently addicted'))
+			when c_i.use_type = 3 then ' - ' || (select _('previously addicted'))
 			else ''
 		end)::text
 	-- lines 2+
-	|| coalesce(E'\n' || _('intake instructions') || ': ' || r_s.intake_instructions, '')
-	|| coalesce(E'\n' || _('patient notes') || ': ' || c_i.notes4patient, '')
-	|| coalesce(E'\n' || _('provider notes') || ': ' || c_i.narrative, '')
-	|| coalesce(E'\n' || _('internal notes') || ': ' || c_i.notes4us, '')
+	|| coalesce(E'\n' || (select _('intake instructions')) || ': ' || r_s.intake_instructions, '')
+	|| coalesce(E'\n' || (select _('patient notes')) || ': ' || c_i.notes4patient, '')
+	|| coalesce(E'\n' || (select _('provider notes')) || ': ' || c_i.narrative, '')
+	|| coalesce(E'\n' || (select _('internal notes')) || ': ' || c_i.notes4us, '')
 	|| coalesce(E'\nATC: ' || r_s.atc, '')
-	|| E'\n' || _('started: unknown')
-	|| E'\n' || _('discontinued: unknown')
+	|| E'\n' || (select _('started: unknown'))
+	|| E'\n' || (select _('discontinued: unknown'))
 		as narrative,
 	c_i.fk_encounter
 		as pk_encounter,
@@ -106,7 +106,7 @@ select
 	c_ir.soap_cat,
 	-- --- narrative ---
 	-- line 1
-	_('intake') || ': '
+	(select _('intake')) || ': '
 		|| r_s.description || ' ' || c_ir.amount || c_ir.unit
 		|| coalesce(' "' || c_ir.comment_on_start || '"', '?')
 		|| ' - [' || c_ir.narrative || '] - '		-- schedule
@@ -114,12 +114,12 @@ select
 	|| E'\n'
 	-- lines 2+
 --	-- line: "start of intake (patient memory)"
---	_('intake with uncertain start') || coalesce(' (' || c_ir.comment_on_start || ')', '') || E'\n'
+--	(select _('intake with uncertain start')) || coalesce(' (' || c_ir.comment_on_start || ')', '') || E'\n'
 	-- line: " planned for 6 months"
-	|| coalesce(' ' || _('planned for') || ' ' || c_ir.planned_duration || E'\n', '')
+	|| coalesce(' ' || (select _('planned for')) || ' ' || c_ir.planned_duration || E'\n', '')
 	-- line: " discontinued 1999-03-03 (developed a rash)"
 	|| coalesce (
-		' ' || _('discontinued') || ' ' || c_ir.discontinued
+		' ' || (select _('discontinued')) || ' ' || c_ir.discontinued
 		|| coalesce(' (' || c_ir.discontinue_reason || ')', '')
 		|| E'\n',
 		''
@@ -129,23 +129,23 @@ select
 --	|| c_ir.amount || c_ir.unit
 	|| coalesce('ATC: ' || r_s.atc, '')
 	|| (case
-		when c_i.use_type = 0 then ' - ' || _('not (harmfully) used')
-		when c_i.use_type = 1 then ' - ' || _('presently harmful use')
-		when c_i.use_type = 2 then ' - ' || _('presently addicted')
-		when c_i.use_type = 3 then ' - ' || _('previously addicted')
+		when c_i.use_type = 0 then ' - ' || (select _('not (harmfully) used'))
+		when c_i.use_type = 1 then ' - ' || (select _('presently harmful use'))
+		when c_i.use_type = 2 then ' - ' || (select _('presently addicted'))
+		when c_i.use_type = 3 then ' - ' || (select _('previously addicted'))
 		else ''
 	end)::text
 	|| E'\n'
 	-- line: "0-1-1 every other day"
-	|| ' ' || _('schedule') || ': ' || c_ir.narrative
+	|| ' ' || (select _('schedule')) || ': ' || c_ir.narrative
 	-- line: "take with water"
-	|| coalesce(E'\n ' || _('intake instructions') || ': ' || r_s.intake_instructions, '')
+	|| coalesce(E'\n ' || (select _('intake instructions')) || ': ' || r_s.intake_instructions, '')
 	-- line: "watch heart rate"
-	|| coalesce(E'\n ' || _('patient notes') || ': ' || c_i.notes4patient, '')
+	|| coalesce(E'\n ' || (select _('patient notes')) || ': ' || c_i.notes4patient, '')
 	-- line: "does not tolerate higher dose"
-	|| coalesce(E'\n ' || _('provider notes') || ': ' || c_i.narrative, '')
+	|| coalesce(E'\n ' || (select _('provider notes')) || ': ' || c_i.narrative, '')
 	-- line: "is sceptical"
-	|| coalesce(E'\n ' || _('internal notes') || ': ' || c_i.notes4us, '')
+	|| coalesce(E'\n ' || (select _('internal notes')) || ': ' || c_i.notes4us, '')
 		as narrative,
 	-- --- narrative ---
 	c_ir.fk_encounter
@@ -212,7 +212,7 @@ select
 	c_ir.soap_cat,
 	-- --- narrative ---
 	-- line 1
-	_('started') || ': '
+	(select _('started')) || ': '
 		|| r_s.description || ' ' || c_ir.amount || c_ir.unit
 		|| ' [' || c_ir.narrative || ']'		-- schedule
 	|| E'\n'
@@ -220,10 +220,10 @@ select
 	-- line: "start of intake (patient memory)"
 	|| coalesce(' ' || c_ir.comment_on_start, '') || E'\n'
 	-- line: " planned for 6 months"
-	|| coalesce(' ' || _('planned for') || ' ' || c_ir.planned_duration || E'\n', '')
+	|| coalesce(' ' || (select _('planned for')) || ' ' || c_ir.planned_duration || E'\n', '')
 	-- line: " discontinued 1999-03-03 (developed a rash)"
 	|| coalesce (
-		' ' || _('discontinued') || ' ' || c_ir.discontinued
+		' ' || (select _('discontinued')) || ' ' || c_ir.discontinued
 		|| coalesce(' (' || c_ir.discontinue_reason || ')', '')
 		|| E'\n',
 		''
@@ -233,23 +233,23 @@ select
 --	|| c_ir.amount || c_ir.unit
 	|| coalesce('ATC: ' || r_s.atc, '')
 	|| (case
-		when c_i.use_type = 0 then ' - ' || _('not (harmfully) used')
-		when c_i.use_type = 1 then ' - ' || _('presently harmful use')
-		when c_i.use_type = 2 then ' - ' || _('presently addicted')
-		when c_i.use_type = 3 then ' - ' || _('previously addicted')
+		when c_i.use_type = 0 then ' - ' || (select _('not (harmfully) used'))
+		when c_i.use_type = 1 then ' - ' || (select _('presently harmful use'))
+		when c_i.use_type = 2 then ' - ' || (select _('presently addicted'))
+		when c_i.use_type = 3 then ' - ' || (select _('previously addicted'))
 		else ''
 	end)::text
 	|| E'\n'
 	-- line: "0-1-1 every other day"
-	|| ' ' || _('schedule') || ': ' || c_ir.narrative
+	|| ' ' || (select _('schedule')) || ': ' || c_ir.narrative
 	-- line: "take with water"
-	|| coalesce(E'\n ' || _('intake instructions') || ': ' || r_s.intake_instructions, '')
+	|| coalesce(E'\n ' || (select _('intake instructions')) || ': ' || r_s.intake_instructions, '')
 	-- line: "watch heart rate"
-	|| coalesce(E'\n ' || _('patient notes') || ': ' || c_i.notes4patient, '')
+	|| coalesce(E'\n ' || (select _('patient notes')) || ': ' || c_i.notes4patient, '')
 	-- line: "does not tolerate higher dose"
-	|| coalesce(E'\n ' || _('provider notes') || ': ' || c_i.narrative, '')
+	|| coalesce(E'\n ' || (select _('provider notes')) || ': ' || c_i.narrative, '')
 	-- line: "is sceptical"
-	|| coalesce(E'\n ' || _('internal notes') || ': ' || c_i.notes4us, '')
+	|| coalesce(E'\n ' || (select _('internal notes')) || ': ' || c_i.notes4us, '')
 		as narrative,
 	-- --- narrative ---
 	c_ir.fk_encounter
@@ -317,40 +317,40 @@ select
 	c_ir.soap_cat,
 	-- --- narrative ---
 	-- line 1
-	_('stopped') || ': '
+	(select _('stopped')) || ': '
 		|| r_s.description || ' ' 
 		|| coalesce(' - ' || c_ir.discontinue_reason, '')
 	|| E'\n'
 	-- lines 2+
 	-- line: " planned for 6 months"
-	|| coalesce(' ' || _('planned for') || ' ' || c_ir.planned_duration || E'\n', '')
+	|| coalesce(' ' || (select _('planned for')) || ' ' || c_ir.planned_duration || E'\n', '')
 	-- line: " started 1999-03-03 (patient memory)"
 	|| (case
 			when c_ir.comment_on_start = '?' then ''
-			else _('started') || ' ' || c_ir.clin_when || coalesce(' (' || c_ir.comment_on_start || ')', '') || E'\n'
+			else (select _('started')) || ' ' || c_ir.clin_when || coalesce(' (' || c_ir.comment_on_start || ')', '') || E'\n'
 	end)::text
 	-- line: "Metoprolol 100mg/tablet [ATC code]"
 	|| r_s.description || ' '
 	|| c_ir.amount || c_ir.unit
 	|| coalesce(' [' || r_s.atc || ']', '')
 	|| (case
-		when c_i.use_type = 0 then ' - ' || _('not (harmfully) used')
-		when c_i.use_type = 1 then ' - ' || _('presently harmful use')
-		when c_i.use_type = 2 then ' - ' || _('presently addicted')
-		when c_i.use_type = 3 then ' - ' || _('previously addicted')
+		when c_i.use_type = 0 then ' - ' || (select _('not (harmfully) used'))
+		when c_i.use_type = 1 then ' - ' || (select _('presently harmful use'))
+		when c_i.use_type = 2 then ' - ' || (select _('presently addicted'))
+		when c_i.use_type = 3 then ' - ' || (select _('previously addicted'))
 		else ''
 	end)::text
 	|| E'\n'
 	-- line: "0-1-1 every other day"
-	|| ' ' || _('schedule') || ': ' || c_ir.narrative
+	|| ' ' || (select _('schedule')) || ': ' || c_ir.narrative
 	-- line: "take with water"
-	|| coalesce(E'\n ' || _('intake instructions') || ': ' || r_s.intake_instructions, '')
+	|| coalesce(E'\n ' || (select _('intake instructions')) || ': ' || r_s.intake_instructions, '')
 	-- line: "watch heart rate"
-	|| coalesce(E'\n ' || _('patient notes') || ': ' || c_i.notes4patient, '')
+	|| coalesce(E'\n ' || (select _('patient notes')) || ': ' || c_i.notes4patient, '')
 	-- line: "does not tolerate higher dose"
-	|| coalesce(E'\n ' || _('provider notes') || ': ' || c_i.narrative, '')
+	|| coalesce(E'\n ' || (select _('provider notes')) || ': ' || c_i.narrative, '')
 	-- line: "is sceptical"
-	|| coalesce(E'\n ' || _('internal notes') || ': ' || c_i.notes4us, '')
+	|| coalesce(E'\n ' || (select _('internal notes')) || ': ' || c_i.notes4us, '')
 		as narrative,
 	-- --- narrative ---
 	c_ir.fk_encounter

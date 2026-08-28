@@ -34,27 +34,27 @@ select
 		|| ' (' || c_vtr.unified_name || E')\n'
 		-- line 2+
 		|| coalesce('LOINC:' || c_vtr.unified_loinc || E'\n', E'\n')
-		|| _('Range: ')
+		|| (select _('Range: '))
 			|| coalesce(c_vtr.unified_target_min::text, '') || ' - '
 			|| coalesce(c_vtr.unified_target_max::text, '') || ' / '
 			|| coalesce(c_vtr.unified_target_range, '')
 			|| coalesce(' (' || c_vtr.norm_ref_group || ')', '') || E'\n'
-		|| coalesce(_('Assessment: ') || c_vtr.comment || E'\n', '')
-		|| coalesce(_('Context: ') || c_vtr.note_test_org || E'\n', '')
-		|| coalesce(_('Status: ') || c_vtr.status || E'\n', '')
-		|| coalesce(_('Grouping: ') || c_vtr.val_grouping || E'\n', '')
+		|| coalesce((select _('Assessment: ')) || c_vtr.comment || E'\n', '')
+		|| coalesce((select _('Context: ')) || c_vtr.note_test_org || E'\n', '')
+		|| coalesce((select _('Status: ')) || c_vtr.status || E'\n', '')
+		|| coalesce((select _('Grouping: ')) || c_vtr.val_grouping || E'\n', '')
 		|| coalesce (
-			_('Review by ')
+			(select _('Review by '))
 				|| c_vtr.last_reviewer || ' @ '
 				|| to_char(c_vtr.last_reviewed, 'YYYY-MM-DD HH24:MI') || ': '
-				|| case when c_vtr.is_technically_abnormal then _('abnormal') || ', ' else '' end
-				|| case when c_vtr.is_clinically_relevant then _('relevant') || ' ' else '' end
+				|| case when c_vtr.is_technically_abnormal then (select _('abnormal')) || ', ' else '' end
+				|| case when c_vtr.is_clinically_relevant then (select _('relevant')) || ' ' else '' end
 				|| coalesce('(' || c_vtr.review_comment || E')\n', E'\n')
 			, ''
 		)
-		|| _('Responsible clinician: ')
+		|| (select _('Responsible clinician: '))
 			|| c_vtr.responsible_reviewer
-		|| coalesce(_('Source data:') || E'\n' || c_vtr.source_data || E'\n', '')
+		|| coalesce((select _('Source data:')) || E'\n' || c_vtr.source_data || E'\n', '')
 		), 'faulty clin.v_test_results_journal definition'
 	)	as narrative,
 	c_vtr.pk_encounter
