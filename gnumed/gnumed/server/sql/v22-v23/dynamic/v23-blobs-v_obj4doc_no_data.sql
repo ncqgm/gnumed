@@ -25,7 +25,7 @@ select
 		as date_generated,
 	b_dt.name
 		as type,
-	_(b_dt.name)
+	coalesce(tx_exact_doc_type.trans, tx_reduced_doc_type.trans, b_dt.name)
 		as l10n_type,
 	b_dm.ext_ref
 		as ext_ref,
@@ -76,6 +76,14 @@ from
 		inner join blobs.doc_obj b_do on (b_do.fk_doc = b_dm.pk)
 		-- from blobs.v_doc_med:
 		inner join blobs.doc_type b_dt on (b_dm.fk_type = b_dt.pk)
+			LEFT JOIN i18n.translations tx_exact_doc_type ON
+				tx_exact_doc_type.orig = b_dt.name
+					AND
+				tx_exact_doc_type.lang = (SELECT lang FROM i18n.curr_lang WHERE db_user = current_user)
+			LEFT JOIN i18n.translations tx_reduced_doc_type ON
+				tx_reduced_doc_type.orig = b_dt.name
+					AND
+				tx_reduced_doc_type.lang = (SELECT regexp_replace(lang, '_.*$', '') FROM i18n.curr_lang WHERE db_user = current_user)
 		inner join clin.encounter c_enc on (b_dm.fk_encounter = c_enc.pk)
 		inner join clin.episode c_epi on (b_dm.fk_episode = c_epi.pk)
 		left join dem.org_unit d_ou on (b_dm.fk_org_unit = d_ou.pk)

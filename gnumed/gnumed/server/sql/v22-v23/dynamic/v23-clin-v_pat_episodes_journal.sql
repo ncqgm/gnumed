@@ -88,16 +88,23 @@ select
 		as encounter_started,
 	c_enc.last_affirmed
 		as encounter_last_affirmed,
-	c_ety.description
+	c_et.description
 		as encounter_type,
-	_(c_ety.description)
-		as encounter_l10n_type
-
+    COALESCE(tx_exact_lang.trans, tx_reduced_lang.trans, c_et.description)
+		AS l10n_type
 from
 	clin.episode c_epi
 		inner join clin.encounter c_enc on (c_epi.fk_encounter = c_enc.pk)
-			inner join clin.encounter_type c_ety on (c_enc.fk_type = c_ety.pk)
-				left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
+			inner join clin.encounter_type c_et on (c_enc.fk_type = c_et.pk)
+				LEFT JOIN i18n.translations tx_exact_lang ON
+					tx_exact_lang.orig = c_et.description
+						AND
+					tx_exact_lang.lang = (SELECT lang FROM i18n.curr_lang WHERE db_user = current_user)
+				LEFT JOIN i18n.translations tx_reduced_lang ON
+					tx_reduced_lang.orig = c_et.description
+						AND
+					tx_reduced_lang.lang = (SELECT regexp_replace(lang, '_.*$', '') FROM i18n.curr_lang WHERE db_user = current_user)
+		left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
 ;
 
 

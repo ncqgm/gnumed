@@ -6,6 +6,7 @@
 -- 
 -- ==============================================================
 \set ON_ERROR_STOP 1
+--set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
 -- remember to handle dependent objects possibly dropped by CASCADE
