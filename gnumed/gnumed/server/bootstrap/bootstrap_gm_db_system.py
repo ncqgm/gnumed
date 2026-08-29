@@ -663,6 +663,8 @@ class cDatabase:
 		curs.execute("alter database %s set ignore_checksum_failure to off" % self.target_db_name)
 		# tighten permissions on schema public
 		curs.execute("revoke create on schema public from public")
+		# disable JIT, it has been shown to be slow on our workload
+		curs.execute("alter database %s set jit to off" % self.target_db_name)
 		curs.close()
 		self.conn.commit()
 

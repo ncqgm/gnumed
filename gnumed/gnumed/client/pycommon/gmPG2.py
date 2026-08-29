@@ -2974,20 +2974,26 @@ def sanity_check_database_settings(hipaa:bool=True) -> tuple:
 	# - postgresql settings
 	options2check:dict[str, list] = {
 		# setting: [expected value, risk, fatal?]
-		'allow_system_table_mods': [['off'], 'system breakage', False],
-		'check_function_bodies': [['on'], 'suboptimal error detection', False],
-		'datestyle': [['ISO'], 'faulty timestamp parsing', True],
-		'default_transaction_isolation': [['read committed'], 'faulty database reads', True],
-		'default_transaction_read_only': [['on'], 'accidental database writes', False],
-		'fsync': [['on'], 'data loss/corruption', True],
-		'full_page_writes': [['on'], 'data loss/corruption', False],
-		'lc_messages': [['C'], 'suboptimal error detection', False],
-		'password_encryption': [['scram-sha-256'], 'breach of confidentiality', False],
-		#u'regex_flavor': [[u'advanced'], u'query breakage', False],				# hardwired in PG9+
-		'synchronous_commit': [['on'], 'data loss/corruption', False],
-		#'sql_inheritance': [['on'], 'query breakage, data loss/corruption', True],	# hardwired in PG10+
-		'ignore_checksum_failure': [['off'], 'data loss/corruption', False],		# starting with PG 9.3
-		'track_commit_timestamp': [['on'], 'suboptimal auditing', False],			# starting with PG 9.3
+		'allow_system_table_mods': [['off'], _('system breakage'), False],
+		'check_function_bodies': [['on'], _('suboptimal error detection'), False],
+		'datestyle': [['ISO'], _('faulty timestamp parsing'), True],
+		'default_transaction_isolation': [['read committed'], _('faulty database reads'), True],
+		'default_transaction_read_only': [['on'], _('accidental database writes'), False],
+		'fsync': [['on'], _('data loss/corruption'), True],
+		'full_page_writes': [['on'], _('data loss/corruption'), False],
+		'lc_messages': [['C'], _('suboptimal error detection'), False],
+		'password_encryption': [['scram-sha-256'], _('breach of confidentiality'), False],
+		# hardwired in PG9+:
+		#'regex_flavor': [['advanced'], _('query breakage'), False],
+		'synchronous_commit': [['on'], _('data loss/corruption'), False],
+		# hardwired in PG10+:
+		#'sql_inheritance': [['on'], _('query breakage, data loss/corruption'), True],
+		# starting with PG 9.3:
+		'ignore_checksum_failure': [['off'], _('data loss/corruption'), False],
+		# starting with PG 9.3:
+		'track_commit_timestamp': [['on'], _('suboptimal auditing'), False],
+		# JIT may slow donw queries
+		'jit': [['off'], _('slow data retrieval'), False],
 	}
 	if hipaa:
 		options2check['log_connections'] = [['on'], 'non-compliance with HIPAA', True]
@@ -3020,7 +3026,7 @@ def sanity_check_database_settings(hipaa:bool=True) -> tuple:
 				_log.error(options2check[option])
 				raise ValueError('invalid database configuration sanity check')
 
-			msg.append(_(' option [%s]: %s') % (option, value_found))
+			msg.append(_(' option [%s]: %s (expected: %s)') % (option, value_found, values_expected))
 			msg.append(_('  risk: %s') % risk)
 			_log.warning('PG option [%s] set to [%s], expected %s, risk: <%s>' % (option, value_found, values_expected, risk))
 	# - collations
