@@ -20,7 +20,15 @@ select
 		as pk_patient,
 	c_i.soap_cat
 		as soap_cat,
-	coalesce(c_i.narrative, '')		-- aka aim
+	coalesce(c_i.narrative, '')		-- auto-set by trigger
+	|| coalesce(' // '|| c_i.comment_on_start, '')
+	|| coalesce(' // '|| c_i.discontinue_reason, '')
+	|| coalesce(' // '|| c_i.planned_duration, '')
+	|| coalesce(' // '|| c_i.schedule, '')
+	|| coalesce(' // '|| c_i.notes4patient, '')
+	|| coalesce(' // '|| c_i.notes4providers, '')
+	|| coalesce(' // '|| c_i.notes4us, '')
+	|| coalesce(' // '|| c_i.notes4pharmacies, '')
 		as narrative,
 	c_i.fk_encounter
 		as pk_encounter,

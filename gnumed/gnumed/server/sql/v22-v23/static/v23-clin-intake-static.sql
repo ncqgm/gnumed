@@ -14,10 +14,32 @@ create table clin.intake (
 		integer generated always as identity primary key,
 	fk_substance
 		integer,
+	amount
+		numeric,
+	unit
+		gm.nonempty_text,
+	schedule
+		gm.nonempty_text,
 	use_type
 		integer,
-	_fk_s_i
-		integer
+	start_is_unknown
+		boolean,
+	comment_on_start
+		gm.nonempty_text,
+	discontinued
+		timestamp with time zone,
+	discontinue_reason
+		gm.nonempty_text,
+	planned_duration
+		interval,
+	notes4patient
+		gm.nonempty_text,
+	notes4providers
+		gm.nonempty_text,
+	notes4us
+		gm.nonempty_text,
+	notes4pharmacies
+		gm.nonempty_text
 ) inherits (clin.clin_root_item);
 
 -- --------------------------------------------------------------

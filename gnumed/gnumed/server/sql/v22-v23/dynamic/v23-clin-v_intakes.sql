@@ -16,16 +16,28 @@ select
 	-- intake
 	c_i.pk
 		as pk_intake,
+	c_i.soap_cat,
+	c_i.narrative
+		as description,
 	c_i.clin_when
-		as last_checked_when,
+		as started,
+	c_i.start_is_unknown,
+	c_i.comment_on_start,
+	c_i.discontinued,
+	c_i.discontinue_reason,
+	c_i.planned_duration,
+	c_i.amount,
+	c_i.unit,
+	c_i.schedule,
+	c_i.use_type,
+	c_i.notes4patient,
+	c_i.notes4providers,
+	c_i.notes4us,
+	c_i.notes4pharmacies,
 	c_i.fk_encounter
 		as pk_encounter,
 	c_i.fk_episode
 		as pk_episode,
-	c_i.narrative
-		as aim,
-	c_i.soap_cat,
-	c_i.use_type,
 	c_i.fk_substance
 		as pk_substance,
 	-- encounter
@@ -72,7 +84,7 @@ from
 ;
 
 comment on view clin.v_intakes is
-	'Substance intakes, without regimens.';
+	'Substance intakes.';
 
 grant select on clin.v_intakes to group "gm-doctors";
 

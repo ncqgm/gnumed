@@ -35,16 +35,36 @@ BEGIN
 				fk_episode,
 				clin_when,
 				fk_substance,
-				_fk_s_i
+				amount,
+				unit,
+				schedule,
+				comment_on_start,
+				discontinued,
+				discontinue_reason,
+				planned_duration,
+				notes4providers,
+				notes4patient
 			) VALUES (
 				_rec.pk_encounter,
 				_rec.pk_episode,
 				coalesce(_rec.started, now()),
 				_rec.pk_substance,
-				_rec.pk_substance_intake
+				_rec.amount,
+				_rec.unit,
+				(case
+					when _rec.amount IS NULL then _rec.schedule
+					else coalesce(_rec.schedule, ''?'')
+				end),
+				_rec.comment_on_start,
+				_rec.discontinued,
+				_rec.discontinue_reason,
+				_rec.duration,
+				_rec.notes,
+				_rec.aim
 			) RETURNING pk INTO _pk_clin_intake;
 		END IF;
 	END LOOP;
+
 	-- set use type on better-safe-than-sorry policy:
 	-- medication ?
 	UPDATE clin.intake SET
@@ -116,109 +136,4 @@ select staging.v22_v23_transfer_intakes();
 drop function if exists staging.v22_v23_transfer_intakes() cascade;
 
 -- --------------------------------------------------------------
--- transfer regimen data
-insert into clin.intake_regimen (
-	fk_intake,
-	amount,
-	unit,
-	clin_when,
-	comment_on_start,
-	discontinued,
-	discontinue_reason,
-	planned_duration,
-	narrative,
-	fk_encounter,
-	fk_episode,
-	notes4providers,
-	notes4patient
-)
-	select
-		c_i.pk,
-		(select amount from clin.v_substance_intakes where pk_substance_intake = c_i._fk_s_i),
-		(select unit from clin.v_substance_intakes where pk_substance_intake = c_i._fk_s_i),
-		c_i.clin_when,
-		c_si.comment_on_start,
-		c_si.discontinued,
-		c_si.discontinue_reason,
-		c_si.duration,
-		coalesce(c_si.schedule, 'per plan'),
-		c_i.fk_encounter,
-		c_i.fk_episode,
-		c_i.narrative,
-		c_si.aim
-	from
-		clin.intake c_i
-			inner join clin.substance_intake c_si on (c_si.pk = c_i._fk_s_i)
-	where not exists (
-		select 1 from clin.intake_regimen where fk_intake = c_i.pk
-	)
-;
-
--- set use type on better-safe-than-sorry policy (worse values overriding "better" ones)
--- medication ?
-UPDATE clin.intake_regimen SET
-	use_type = NULL::integer
-WHERE EXISTS (
-	SELECT 1 FROM clin.v_substance_intakes c_vsi
-	WHERE
-		c_vsi.pk_patient = clin.map_enc_or_epi_to_patient(fk_encounter, fk_episode)
-			AND
-		c_vsi.pk_substance = (select fk_substance from clin.intake c_i where c_i.pk = fk_intake)
-			AND
-		c_vsi.harmful_use_type IS NULL
-);
-
--- or non-harmful use ?
-UPDATE clin.intake_regimen SET
-	use_type = 0
-WHERE EXISTS (
-	SELECT 1 FROM clin.v_substance_intakes c_vsi
-	WHERE
-		c_vsi.pk_patient = clin.map_enc_or_epi_to_patient(fk_encounter, fk_episode)
-			AND
-		c_vsi.pk_substance = (select fk_substance from clin.intake c_i where c_i.pk = fk_intake)
-			AND
-		c_vsi.harmful_use_type = 0
-);
-
--- or previous addiction ?
-UPDATE clin.intake_regimen SET
-	use_type = 3
-WHERE EXISTS (
-	SELECT 1 FROM clin.v_substance_intakes c_vsi
-	WHERE
-		c_vsi.pk_patient = clin.map_enc_or_epi_to_patient(fk_encounter, fk_episode)
-			AND
-		c_vsi.pk_substance = (select fk_substance from clin.intake c_i where c_i.pk = fk_intake)
-			AND
-		c_vsi.harmful_use_type = 3
-);
-
--- or currently harmful use ?
-UPDATE clin.intake_regimen SET
-	use_type = 1
-WHERE EXISTS (
-	SELECT 1 FROM clin.v_substance_intakes c_vsi
-	WHERE
-		c_vsi.pk_patient = clin.map_enc_or_epi_to_patient(fk_encounter, fk_episode)
-			AND
-		c_vsi.pk_substance = (select fk_substance from clin.intake c_i where c_i.pk = fk_intake)
-			AND
-		c_vsi.harmful_use_type = 1
-);
-
--- or currently addicted ?
-UPDATE clin.intake_regimen SET
-	use_type = 2
-WHERE EXISTS (
-	SELECT 1 FROM clin.v_substance_intakes c_vsi
-	WHERE
-		c_vsi.pk_patient = clin.map_enc_or_epi_to_patient(fk_encounter, fk_episode)
-			AND
-		c_vsi.pk_substance = (select fk_substance from clin.intake c_i where c_i.pk = fk_intake)
-			AND
-		c_vsi.harmful_use_type = 2
-);
-
--- --------------------------------------------------------------
-select gm.log_script_insertion('v23-clin-intake_regimen-transfer_data.sql', '23.0');
+select gm.log_script_insertion('v23-clin-intake-transfer_data.sql', '23.0');
