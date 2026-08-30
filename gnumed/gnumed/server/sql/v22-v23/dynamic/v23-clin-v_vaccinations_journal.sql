@@ -28,13 +28,13 @@ select
 	c_vacc.soap_cat
 		as soap_cat,
 
-	(_('Vaccination') || ': '
-		|| coalesce(r_dp.description, _('generic vaccine')) || ' '
+	((select _('Vaccination')) || ': '
+		|| coalesce(r_dp.description, (select _('generic vaccine'))) || ' '
 		|| '[' || c_vacc.batch_no || ']'
 		|| coalesce(' (' || c_vacc.site || ')', '')
-		|| coalesce(E'\n' || _('Reaction') || ': ' || c_vacc.reaction, '')
-		|| coalesce(E'\n' || _('Comment') || ': ' || c_vacc.narrative, '')
-		|| 	E'\n' || _('Indications') || ': '
+		|| coalesce(E'\n' || (select _('Reaction')) || ': ' || c_vacc.reaction, '')
+		|| coalesce(E'\n' || (select _('Comment')) || ': ' || c_vacc.narrative, '')
+		|| 	E'\n' || (select _('Indications')) || ': '
 		|| (select
 				string_agg(_(r_vi.target) || ' [ATC:' || r_vi.atc || ']', ' / ')
 			from

@@ -110,7 +110,7 @@ create view clin.v_hospital_stays_journal_one_day as
 			as soap_cat,
 		-- line 1
 		'@ "' || d_ou.description || ' of ' || d_o.description || '"'
-			|| ': ' || _('on') || ' ' || to_char(clin_when, 'YYYY-MM-DD')
+			|| ': ' || (select _('on')) || ' ' || to_char(clin_when, 'YYYY-MM-DD')
 			-- lines 2+
 			|| coalesce(E'\n ' || c_hs.narrative, '')
 			as narrative,
@@ -192,9 +192,9 @@ create view clin.v_hospital_stays_journal_multi_day_adm as
 		c_hs.soap_cat
 			as soap_cat,
 		-- line 1
-		_('admitted to') || ' "' || d_ou.description || ' of ' || d_o.description || E'"\n'
+		(select _('admitted to')) || ' "' || d_ou.description || ' of ' || d_o.description || E'"\n'
 			-- lines 2+
-			|| _('discharged') || ': ' || to_char(c_hs.discharge, 'YYYY-MM-DD')
+			|| (select _('discharged')) || ': ' || to_char(c_hs.discharge, 'YYYY-MM-DD')
 			|| coalesce(E'\n ' || c_hs.narrative, '')
 			as narrative,
 		c_hs.fk_encounter
@@ -274,9 +274,9 @@ create view clin.v_hospital_stays_journal_multi_day_dis as
 			as modified_by,
 		c_hs.soap_cat
 			as soap_cat,
-		_('discharged from') || ' "' || d_ou.description || ' of ' || d_o.description || E'"\n'
+		(select _('discharged from')) || ' "' || d_ou.description || ' of ' || d_o.description || E'"\n'
 			-- lines 2+
-			|| _('admitted') || ': ' || to_char(clin_when, 'YYYY-MM-DD')
+			|| (select _('admitted')) || ': ' || to_char(clin_when, 'YYYY-MM-DD')
 			|| coalesce(E'\n ' || c_hs.narrative, '')
 			as narrative,
 		c_hs.fk_encounter

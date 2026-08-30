@@ -6,12 +6,11 @@
 --
 -- ==============================================================
 \set ON_ERROR_STOP 1
-set default_transaction_read_only to off;
+--set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
 drop view if exists clin.v_external_care_journal cascade;
 
---create or replace view clin.v_external_care_journal as
 create view clin.v_external_care_journal as
 select
 	c_enc.fk_patient
@@ -30,14 +29,14 @@ select
 	-- line 1
 	coalesce(c_hi.description, c_ec.issue) || ' ('
 		|| coalesce(c_ec.provider || ' @ ', '')
-		|| d_ou.description || ' ' || _('of') || ' ' || d_o.description
+		|| d_ou.description || ' ' || (select _('of')) || ' ' || d_o.description
 	-- lines 2+
 	|| (case
-			when inactive then E'\n' || _('inactive')
+			when inactive then E'\n' || (select _('inactive'))
 			else ''
 		end
 	)
-	|| coalesce(E'\n' || _('Comment:') || ' ' || c_ec.comment, '')
+	|| coalesce(E'\n' || (select _('Comment:')) || ' ' || c_ec.comment, '')
 		as narrative,
 	c_ec.fk_encounter
 		as pk_encounter,
@@ -79,7 +78,6 @@ select
 		as encounter_type,
 	_(c_ety.description)
 		as encounter_l10n_type
-
 from
 	clin.external_care c_ec
 		inner join clin.encounter c_enc on (c_ec.fk_encounter = c_enc.pk)

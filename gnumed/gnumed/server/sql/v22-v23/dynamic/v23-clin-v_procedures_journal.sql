@@ -31,37 +31,20 @@ select
 	 end
 	)
 		as soap_cat,
-	_('Procedure') || ' "' || c_pr.narrative	|| '"'
+	(select _('Procedure')) || ' "' || c_pr.narrative	|| '"'
 		|| ' ('
 			|| d_ou.description || ' @ ' || d_o.description
 			|| coalesce (
-				(', ' || _('until') || ' ' || to_char(c_pr.clin_end, 'YYYY Mon DD')),
+				(', ' || (select _('until')) || ' ' || to_char(c_pr.clin_end, 'YYYY Mon DD')),
 				case
 					when (c_pr.is_ongoing is True)
-						then ', ' || _('ongoing')
+						then ', ' || (select _('ongoing'))
 						else ''
 				end
 			)
 		|| E')'
 		|| coalesce (E'\n ' || c_pr.comment, '')
-		|| coalesce (E'\n ' || _('document #') || c_pr.fk_doc, '')
---		|| coalesce ((
---				E'\n' || array_to_string (
---					(select array_agg(r_csr.code || ' (' || r_ds.name_short || ' - ' || r_ds.version || ' - ' || r_ds.lang || '): ' || r_csr.term)
---					 from
---					 	clin.lnk_code2procedure c_lc2p
---					 		inner join
---						ref.coding_system_root r_csr on c_lc2p.fk_generic_code = r_csr.pk_coding_system
---							inner join
---						ref.data_source r_ds on r_ds.pk = r_csr.fk_data_source
---					where
---						c_lc2p.fk_item = c_pr.pk
---					),
---					'; '
---				) || ';'
---			),
---			''
---		)
+		|| coalesce (E'\n ' || (select _('document #')) || c_pr.fk_doc, '')
 		as narrative,
 	c_pr.fk_encounter
 		as pk_encounter,
@@ -141,40 +124,21 @@ select
 			else 'o'
 	 end
 	)
---	c_pr.soap_cat
 		as soap_cat,
-	_('Procedure') || ' "' || c_pr.narrative	|| '"'
+	(select _('Procedure')) || ' "' || c_pr.narrative	|| '"'
 		|| ' ('
 			|| d_ou.description || ' @ ' || d_o.description
 			|| coalesce (
-				(', ' || _('until') || ' ' || to_char(c_pr.clin_end, 'YYYY Mon DD')),
+				(', ' || (select _('until')) || ' ' || to_char(c_pr.clin_end, 'YYYY Mon DD')),
 				case
 					when (c_pr.is_ongoing is True)
-						then ', ' || _('ongoing')
+						then ', ' || (select _('ongoing'))
 						else ''
 				end
 			)
 		|| E')'
 		|| coalesce (E'\n ' || c_pr.comment, '')
-		|| coalesce (E'\n ' || _('document #') || c_pr.fk_doc, '')
-		-- codes
---		|| coalesce ((
---				E'\n' || array_to_string (
---					(select array_agg(r_csr.code || ' (' || r_ds.name_short || ' - ' || r_ds.version || ' - ' || r_ds.lang || '): ' || r_csr.term)
---					 from
---					 	clin.lnk_code2procedure c_lc2p
---					 		inner join
---						ref.coding_system_root r_csr on c_lc2p.fk_generic_code = r_csr.pk_coding_system
---							inner join
---						ref.data_source r_ds on r_ds.pk = r_csr.fk_data_source
---					where
---						c_lc2p.fk_item = c_pr.pk
---					),
---					'; '
---				) || ';'
---			),
---			''
---		)
+		|| coalesce (E'\n ' || (select _('document #')) || c_pr.fk_doc, '')
 		as narrative,
 	c_pr.fk_encounter
 		as pk_encounter,
