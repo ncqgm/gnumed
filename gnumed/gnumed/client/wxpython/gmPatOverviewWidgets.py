@@ -753,7 +753,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				with_vaccinations = False
 			).strip('\n')
 
-		if isinstance(data, gmMedication.cSubstanceIntakeEntry):
+		if isinstance(data, gmMedication.cSubstanceIntake):
 			return data.format(single_line = False)
 
 		if isinstance(data, gmFamilyHistory.cFamilyHistory):

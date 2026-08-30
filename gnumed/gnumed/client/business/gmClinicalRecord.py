@@ -78,7 +78,7 @@ _map_table2class = {
 	'clin.vaccination': gmVaccination.cVaccination,
 	'clin.clin_narrative': gmClinNarrative.cNarrative,
 	'clin.test_result': gmPathLab.cTestResult,
-	'clin.substance_intake': gmMedication.cSubstanceIntakeEntry,
+	'clin.substance_intake': gmMedication.cSubstanceIntake,
 	'clin.intake_regimen': gmMedication.cIntakeRegimen,
 	'clin.hospital_stay': gmHospitalStay.cHospitalStay,
 	'clin.procedure': gmPerformedProcedure.cPerformedProcedure,

@@ -19,7 +19,7 @@ from Gnumed.business.gmEncounter import cEncounter
 from Gnumed.business.gmHospitalStay import cHospitalStay
 from Gnumed.business.gmPerformedProcedure import cPerformedProcedure
 from Gnumed.business.gmPathLab import cTestResult
-from Gnumed.business.gmMedication import cSubstanceIntakeEntry
+from Gnumed.business.gmMedication import cSubstanceIntake
 from Gnumed.business.gmMedication import cIntakeRegimen
 from Gnumed.business.gmMedication import cIntakeWithRegimen
 from Gnumed.business.gmFamilyHistory import cFamilyHistory
@@ -55,7 +55,7 @@ __map_class2edit_call = {
 	cHospitalStay: {'edit_in_dlg': edit_hospital_stay},
 	cTestResult: {'edit_in_dlg': edit_measurement},
 	cEncounter: {'edit_in_dlg': edit_encounter},
-	cSubstanceIntakeEntry: {'edit_in_dlg': edit_intake_with_regimen},
+	cSubstanceIntake: {'edit_in_dlg': edit_intake_with_regimen},
 	cIntakeWithRegimen: {'edit_in_dlg': edit_intake_with_regimen},
 	cIntakeRegimen: {'edit_in_dlg': edit_intake_regimen},
 	cFamilyHistory: {'edit_in_dlg': edit_family_history},

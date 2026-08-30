@@ -123,7 +123,7 @@ def generate_pulmonary_information_urls(search_term:str=None) -> list:
 		names.append(search_term['substance'])
 		if search_term['atc_substance']:
 			atcs.append(search_term['atc_substance'])
-	elif isinstance(search_term, cSubstanceIntakeEntry):
+	elif isinstance(search_term, cSubstanceIntake):
 		names.append(search_term['substance'])
 		if search_term['atc_substance']:
 			atcs.append(search_term['atc_substance'])
@@ -170,7 +170,7 @@ def generate_pregnancy_information_urls(search_term:str=None) -> list:
 		names.append(search_term['substance'])
 		if search_term['atc_substance']:
 			atcs.append(search_term['atc_substance'])
-	elif isinstance(search_term, cSubstanceIntakeEntry):
+	elif isinstance(search_term, cSubstanceIntake):
 		names.append(search_term['substance'])
 		if search_term['atc_substance']:
 			atcs.append(search_term['atc_substance'])
@@ -219,7 +219,7 @@ def generate_renal_insufficiency_urls(search_term:str=None) -> list:
 		names.append(search_term['substance'])
 		if search_term['atc_substance']:
 			atcs.append(search_term['atc_substance'])
-	elif isinstance(search_term, cSubstanceIntakeEntry):
+	elif isinstance(search_term, cSubstanceIntake):
 		names.append(search_term['substance'])
 		if search_term['atc_substance']:
 			atcs.append(search_term['atc_substance'])
@@ -262,7 +262,7 @@ def generate_liver_information_urls(search_term:str=None) -> list[str]:
 		names.append(search_term['substance'])
 	elif isinstance(search_term, cSubstanceDose):
 		names.append(search_term['substance'])
-	elif isinstance(search_term, cSubstanceIntakeEntry):
+	elif isinstance(search_term, cSubstanceIntake):
 		names.append(search_term['substance'])
 	elif isinstance(search_term, cIntakeWithRegimen):
 		names.append(search_term['substance'])
@@ -2234,7 +2234,7 @@ class cIntakeWithRegimen(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_intake(self):
-		return cSubstanceIntakeEntry(aPK_obj = self._payload['pk_intake'])
+		return cSubstanceIntake(aPK_obj = self._payload['pk_intake'])
 
 	intake = property(_get_intake)
 
@@ -2645,7 +2645,7 @@ def delete_intake_regimen(pk_intake_regimen:int=None, link_obj=None) -> bool:
 #------------------------------------------------------------
 _SQL_get_substance_intake = "SELECT * FROM clin.v_intakes WHERE %s"
 
-class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
+class cSubstanceIntake(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents a substance having been/being taken by a patient."""
 
 	_cmd_fetch_payload = _SQL_get_substance_intake % 'pk_intake = %s'
@@ -2900,20 +2900,20 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 
 #------------------------------------------------------------
 @overload
-def get_substance_intakes(pk_patient:int=None, return_pks:Literal[False]=False, pk_substances:list[int]=None, link_obj=None) -> list[cSubstanceIntakeEntry]:
+def get_substance_intakes(pk_patient:int=None, return_pks:Literal[False]=False, pk_substances:list[int]=None, link_obj=None) -> list[cSubstanceIntake]:
 	pass
 
 @overload
 def get_substance_intakes(pk_patient:int=None, return_pks:Literal[True]=True, pk_substances:list[int]=None, link_obj=None) -> list[int]:
 	pass
 
-def get_substance_intakes(pk_patient:int=None, return_pks:bool=False, pk_substances:list[int]=None, link_obj=None) -> list[cSubstanceIntakeEntry] | list[int]:
+def get_substance_intakes(pk_patient:int=None, return_pks:bool=False, pk_substances:list[int]=None, link_obj=None) -> list[cSubstanceIntake] | list[int]:
 	"""Retrieve substance intakes.
 
 	Args:
 		pk_patient: constrain results by patient
 		pk_substances: constrain by list of substances
-		return_pks: return PKs rather than cSubstanceIntakeEntry's
+		return_pks: return PKs rather than cSubstanceIntake's
 	"""
 	args:dict[str,int|list[int]] = {}
 	where_parts = ['true']
@@ -2928,7 +2928,7 @@ def get_substance_intakes(pk_patient:int=None, return_pks:bool=False, pk_substan
 	if return_pks:
 		return [ r['pk_intake'] for r in rows ]
 
-	return [ cSubstanceIntakeEntry(row = {'data': r, 'pk_field': 'pk_intake'}) for r in rows ]
+	return [ cSubstanceIntake(row = {'data': r, 'pk_field': 'pk_intake'}) for r in rows ]
 
 #------------------------------------------------------------
 def substance_intake_exists(pk_identity:int=None, pk_substance:int=None, substance:str=None) -> bool:
@@ -3007,7 +3007,7 @@ def create_substance_intake(pk_encounter=None, pk_episode=None, pk_substance=Non
 		RETURNING pk
 	"""
 	rows = gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}], return_data = True, link_obj = link_obj)
-	return cSubstanceIntakeEntry(aPK_obj = rows[0][0], link_obj = link_obj)
+	return cSubstanceIntake(aPK_obj = rows[0][0], link_obj = link_obj)
 
 #------------------------------------------------------------
 def delete_substance_intake(pk_intake:int=None, delete_regimen:bool=False, link_obj=None) -> bool:
@@ -4253,8 +4253,8 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------
 	def test_format_substance_intake_as_amts_data():
-		#print format_substance_intake_as_amts_data(cSubstanceIntakeEntry(1))
-		#print(cSubstanceIntakeEntry(1).as_amts_data)
+		#print format_substance_intake_as_amts_data(cSubstanceIntake(1))
+		#print(cSubstanceIntake(1).as_amts_data)
 		print(get_intakes_with_regimens()[0].as_amts_data)
 
 	#--------------------------------------------------------

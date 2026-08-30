@@ -1007,7 +1007,7 @@ if __name__ == '__main__':
 
 	#frame = gmGuiTest.setup_widget_test_env(patient = 12)
 	#manage_substance_intakes()
-	#cSubstanceIntakeEAPnl(frame, intake = gmMedication.cSubstanceIntakeEntry(1))
+	#cSubstanceIntakeEAPnl(frame, intake = gmMedication.cSubstanceIntake(1))
 	#cSubstanceIntakeEAPnl(frame)
-	#wx.CallLater(4000, edit_intake_with_regimen, parent = frame, intake = gmMedication.cSubstanceIntakeEntry(1), single_entry = True)
+	#wx.CallLater(4000, edit_intake_with_regimen, parent = frame, intake = gmMedication.cSubstanceIntake(1), single_entry = True)
 	#wx.GetApp().MainLoop()

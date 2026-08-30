@@ -35,7 +35,7 @@ from Gnumed.business.gmExternalCare import cExternalCareItem
 from Gnumed.business.gmVaccination import cVaccination
 from Gnumed.business.gmClinNarrative import cNarrative
 from Gnumed.business.gmMedication import cIntakeRegimen
-from Gnumed.business.gmMedication import cSubstanceIntakeEntry
+from Gnumed.business.gmMedication import cSubstanceIntake
 from Gnumed.business.gmAllergy import cAllergy
 from Gnumed.business.gmAllergy import cAllergyState
 from Gnumed.business.gmFamilyHistory import cFamilyHistory
@@ -76,7 +76,7 @@ _MAP_generic_emr_item_table2class = {
 	'clin.vaccination': cVaccination,
 	'clin.clin_narrative': cNarrative,
 	'clin.test_result': cTestResult,
-	'clin.intake': cSubstanceIntakeEntry,
+	'clin.intake': cSubstanceIntake,
 	'clin.intake_regimen': cIntakeRegimen,
 	'clin.hospital_stay': cHospitalStay,
 	'clin.procedure': cPerformedProcedure,
