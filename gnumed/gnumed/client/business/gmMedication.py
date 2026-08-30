@@ -70,14 +70,13 @@ URL_drug_ADR_german_default = 'https://nebenwirkungen.pei.de'
 
 
 (
-	USE_TYPE_INVALID,			# clin.intake with existing clin.intake_regimen rows
 	USE_TYPE_MEDICATION,
 	USE_TYPE_NON_HARMFUL,
 	USE_TYPE_PRESENTLY_HARMFUL,
 	USE_TYPE_PRESENTLY_ADDICTED,
 	USE_TYPE_PREVIOUSLY_ADDICTED
 ) = (
-	-1, None, 0, 1, 2, 3
+	None, 0, 1, 2, 3
 )
 
 USE_TYPES_ACTIVE_MISUSE:list[int] = [
@@ -87,7 +86,6 @@ USE_TYPES_ACTIVE_MISUSE:list[int] = [
 
 
 USE_TYPE_NAMES = {
-	USE_TYPE_INVALID: _('check corresponding regimen(s)'),
 	USE_TYPE_MEDICATION: _('medication, not abuse'),
 	USE_TYPE_NON_HARMFUL: _('non-use or non-harmful use'),
 	USE_TYPE_PRESENTLY_HARMFUL: _('presently harmful use'),
