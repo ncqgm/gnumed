@@ -18,96 +18,100 @@ class wxgFancySoapEditorPnl(wx.Panel):
 		# begin wxGlade: wxgFancySoapEditorPnl.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.TAB_TRAVERSAL
 		wx.Panel.__init__(self, *args, **kwds)
+
+		__szr_right = wx.StaticBoxSizer(wx.StaticBox(self, wx.ID_ANY, _("New notelets in current encounter")), wx.VERTICAL)
+
+		__gszr_encounter_details = wx.FlexGridSizer(2, 2, 2, 5)
+		__szr_right.Add(__gszr_encounter_details, 0, wx.BOTTOM | wx.EXPAND | wx.RIGHT | wx.TOP, 3)
+
+		__lbl_rfe = wx.StaticText(__szr_right.GetStaticBox(), wx.ID_ANY, _("Purpose"))
+		__gszr_encounter_details.Add(__lbl_rfe, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		__szr_rfe_details = wx.BoxSizer(wx.HORIZONTAL)
+		__gszr_encounter_details.Add(__szr_rfe_details, 1, wx.EXPAND, 0)
+
 		from Gnumed.wxpython.gmTextCtrl import cTextCtrl
-		self._TCTRL_rfe = cTextCtrl(self, wx.ID_ANY, "")
-		from Gnumed.wxpython.gmCodingWidgets import cGenericCodesPhraseWheel
-		self._PRW_rfe_codes = cGenericCodesPhraseWheel(self, wx.ID_ANY, "")
-		self._TCTRL_aoe = cTextCtrl(self, wx.ID_ANY, "")
-		self._PRW_aoe_codes = cGenericCodesPhraseWheel(self, wx.ID_ANY, "")
+		self._TCTRL_rfe = cTextCtrl(__szr_right.GetStaticBox(), wx.ID_ANY, "")
+		self._TCTRL_rfe.SetToolTip(_("Also known as the Reason For Encounter/Visit (RFE).\n\nOptionally captures why the consultation takes place.\n\nIt may be due to a patient request or it may be prompted by other reasons. Often initially collected at the front desk and put into a waiting list comment. May turn out to just be a proxy request for why the patient really is here."))
+		__szr_rfe_details.Add(self._TCTRL_rfe, 2, wx.EXPAND | wx.RIGHT, 5)
+
+		__lbl_aoe = wx.StaticText(__szr_right.GetStaticBox(), wx.ID_ANY, _("Summary"))
+		__gszr_encounter_details.Add(__lbl_aoe, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
+
+		__szr_aoe = wx.BoxSizer(wx.HORIZONTAL)
+		__gszr_encounter_details.Add(__szr_aoe, 0, wx.EXPAND, 3)
+
+		self._TCTRL_aoe = cTextCtrl(__szr_right.GetStaticBox(), wx.ID_ANY, "")
+		self._TCTRL_aoe.SetToolTip(_("Also known as the Assessment of Encounter/Visit (AOE)\n\nOptionally summarizes the outcome/assessment of the consultation from the doctors point of view.\n\nNote that this summary spans all the problems discussed during this encounter."))
+		__szr_aoe.Add(self._TCTRL_aoe, 2, wx.EXPAND | wx.RIGHT, 5)
+
 		from Gnumed.wxpython.gmNarrativeWidgets import cSoapNoteInputNotebook
 		self._NB_soap_editors = cSoapNoteInputNotebook(self, wx.ID_ANY, style=0)
-		self.notebook_1_pane_1 = wx.Panel(self._NB_soap_editors, wx.ID_ANY)
-		self._BTN_new_editor = wx.Button(self, wx.ID_ANY, _("&New"), style=wx.BU_EXACTFIT)
-		self._BTN_clear_editor = wx.Button(self, wx.ID_ANY, _("&Clear"), style=wx.BU_EXACTFIT)
-		self._BTN_discard_editor = wx.Button(self, wx.ID_ANY, _("&Discard"), style=wx.BU_EXACTFIT)
-		self._BTN_save_note = wx.Button(self, wx.ID_ANY, _("&Save"), style=wx.BU_EXACTFIT)
-		self._BTN_save_note_under = wx.Button(self, wx.ID_ANY, _("Save &under"), style=wx.BU_EXACTFIT)
-		self._BTN_image = wx.Button(self, wx.ID_ANY, _("&Image"), style=wx.BU_EXACTFIT)
-		self._BTN_save_encounter = wx.Button(self, wx.ID_ANY, _("Save"), style=wx.BU_EXACTFIT)
-		self._BTN_save_all = wx.Button(self, wx.ID_ANY, _("Save &all"), style=wx.BU_EXACTFIT)
-
-		self.__set_properties()
-		self.__do_layout()
-
-		self.Bind(wx.EVT_BUTTON, self._on_new_editor_button_pressed, self._BTN_new_editor)
-		self.Bind(wx.EVT_BUTTON, self._on_clear_editor_button_pressed, self._BTN_clear_editor)
-		self.Bind(wx.EVT_BUTTON, self._on_discard_editor_button_pressed, self._BTN_discard_editor)
-		self.Bind(wx.EVT_BUTTON, self._on_save_note_button_pressed, self._BTN_save_note)
-		self.Bind(wx.EVT_BUTTON, self._on_save_note_under_button_pressed, self._BTN_save_note_under)
-		self.Bind(wx.EVT_BUTTON, self._on_image_button_pressed, self._BTN_image)
-		self.Bind(wx.EVT_BUTTON, self._on_save_encounter_button_pressed, self._BTN_save_encounter)
-		self.Bind(wx.EVT_BUTTON, self._on_save_all_button_pressed, self._BTN_save_all)
-		# end wxGlade
-
-	def __set_properties(self):
-		# begin wxGlade: wxgFancySoapEditorPnl.__set_properties
-		self._TCTRL_rfe.SetToolTip(_("Also known as the Reason For Encounter/Visit (RFE).\n\nOptionally captures why the consultation takes place.\n\nIt may be due to a patient request or it may be prompted by other reasons. Often initially collected at the front desk and put into a waiting list comment. May turn out to just be a proxy request for why the patient really is here."))
-		self._PRW_rfe_codes.SetToolTip(_("Codes relevant to the Reason for Encounter\nseparated by \";\"."))
-		self._TCTRL_aoe.SetToolTip(_("Also known as the Assessment of Encounter/Visit (AOE)\n\nOptionally summarizes the outcome/assessment of the consultation from the doctors point of view.\n\nNote that this summary spans all the problems discussed during this encounter."))
-		self._PRW_aoe_codes.SetToolTip(_("Codes relevant to the Assessment of Encounter\nseparated by \";\"."))
-		self._BTN_new_editor.SetToolTip(_("Open a new progress note editor.\n\nThere is a configuration item on whether to allow several new-episode editors at once."))
-		self._BTN_clear_editor.SetToolTip(_("Clear the editor for the displayed progress note."))
-		self._BTN_discard_editor.SetToolTip(_("Discard the editor for the displayed progress note."))
-		self._BTN_save_note.SetToolTip(_("Save the currently displayed progress note under the current encounter."))
-		self._BTN_save_note_under.SetToolTip(_("Save the currently displayed note into an encounter selected from a list of encounters."))
-		self._BTN_image.SetToolTip(_("Add a visual progress note for this episode."))
-		self._BTN_save_encounter.SetToolTip(_("Save the encounter details."))
-		self._BTN_save_all.SetToolTip(_("Save encounter details and all progress notes."))
-		# end wxGlade
-
-	def __do_layout(self):
-		# begin wxGlade: wxgFancySoapEditorPnl.__do_layout
-		__szr_right = wx.StaticBoxSizer(wx.StaticBox(self, wx.ID_ANY, _("New notelets in current encounter")), wx.VERTICAL)
-		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
-		__gszr_encounter_details = wx.FlexGridSizer(2, 2, 2, 5)
-		__szr_aoe = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_rfe_details = wx.BoxSizer(wx.HORIZONTAL)
-		__lbl_rfe = wx.StaticText(self, wx.ID_ANY, _("Purpose"))
-		__gszr_encounter_details.Add(__lbl_rfe, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_rfe_details.Add(self._TCTRL_rfe, 2, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.RIGHT, 5)
-		__lbl_rfe_codes = wx.StaticText(self, wx.ID_ANY, _("Codes:"))
-		__szr_rfe_details.Add(__lbl_rfe_codes, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
-		__szr_rfe_details.Add(self._PRW_rfe_codes, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__gszr_encounter_details.Add(__szr_rfe_details, 1, wx.EXPAND, 0)
-		__lbl_aoe = wx.StaticText(self, wx.ID_ANY, _("Summary"))
-		__gszr_encounter_details.Add(__lbl_aoe, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
-		__szr_aoe.Add(self._TCTRL_aoe, 2, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.RIGHT, 5)
-		__lbl_aoe_codes = wx.StaticText(self, wx.ID_ANY, _("Codes:"))
-		__szr_aoe.Add(__lbl_aoe_codes, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
-		__szr_aoe.Add(self._PRW_aoe_codes, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__gszr_encounter_details.Add(__szr_aoe, 0, wx.EXPAND, 3)
-		__gszr_encounter_details.AddGrowableCol(1)
-		__szr_right.Add(__gszr_encounter_details, 0, wx.BOTTOM | wx.EXPAND | wx.RIGHT | wx.TOP, 3)
-		self._NB_soap_editors.AddPage(self.notebook_1_pane_1, _("tab1"))
 		__szr_right.Add(self._NB_soap_editors, 4, wx.EXPAND, 3)
-		__lbl_editor = wx.StaticText(self, wx.ID_ANY, _("Notelet:"))
-		__szr_buttons.Add(__lbl_editor, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
-		__szr_buttons.Add(self._BTN_new_editor, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.RIGHT, 3)
-		__szr_buttons.Add(self._BTN_clear_editor, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.RIGHT, 3)
-		__szr_buttons.Add(self._BTN_discard_editor, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.RIGHT, 3)
-		__szr_buttons.Add(self._BTN_save_note, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.RIGHT, 3)
-		__szr_buttons.Add(self._BTN_save_note_under, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.RIGHT, 3)
-		__szr_buttons.Add(self._BTN_image, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__szr_buttons.Add((1, 1), 1, wx.EXPAND, 0)
-		__lbl_encounter = wx.StaticText(self, wx.ID_ANY, _("Encounter:"))
-		__szr_buttons.Add(__lbl_encounter, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
-		__szr_buttons.Add(self._BTN_save_encounter, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 3)
-		__szr_buttons.Add((1, 1), 1, wx.EXPAND, 0)
-		__szr_buttons.Add(self._BTN_save_all, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 5)
+
+		self.notebook_1_pane_1 = wx.Panel(self._NB_soap_editors, wx.ID_ANY)
+		self._NB_soap_editors.AddPage(self.notebook_1_pane_1, _("tab1"))
+
+		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_right.Add(__szr_buttons, 0, wx.EXPAND | wx.RIGHT | wx.TOP, 3)
+
+		__lbl_editor = wx.StaticText(__szr_right.GetStaticBox(), wx.ID_ANY, _("Notelet:"))
+		__szr_buttons.Add(__lbl_editor, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
+
+		self._BTN_new_editor = wx.Button(__szr_right.GetStaticBox(), wx.ID_ANY, _("&New"), style=wx.BU_EXACTFIT)
+		self._BTN_new_editor.SetToolTip(_("Open a new progress note editor.\n\nThere is a configuration item on whether to allow several new-episode editors at once."))
+		__szr_buttons.Add(self._BTN_new_editor, 0, wx.EXPAND | wx.RIGHT, 3)
+
+		self._BTN_clear_editor = wx.Button(__szr_right.GetStaticBox(), wx.ID_ANY, _("&Clear"), style=wx.BU_EXACTFIT)
+		self._BTN_clear_editor.SetToolTip(_("Clear the editor for the displayed progress note."))
+		__szr_buttons.Add(self._BTN_clear_editor, 0, wx.EXPAND | wx.RIGHT, 3)
+
+		self._BTN_discard_editor = wx.Button(__szr_right.GetStaticBox(), wx.ID_ANY, _("&Discard"), style=wx.BU_EXACTFIT)
+		self._BTN_discard_editor.SetToolTip(_("Discard the editor for the displayed progress note."))
+		__szr_buttons.Add(self._BTN_discard_editor, 0, wx.EXPAND | wx.RIGHT, 3)
+
+		self._BTN_save_note = wx.Button(__szr_right.GetStaticBox(), wx.ID_ANY, _("&Save"), style=wx.BU_EXACTFIT)
+		self._BTN_save_note.SetToolTip(_("Save the currently displayed progress note under the current encounter."))
+		__szr_buttons.Add(self._BTN_save_note, 0, wx.EXPAND | wx.RIGHT, 3)
+
+		self._BTN_save_note_under = wx.Button(__szr_right.GetStaticBox(), wx.ID_ANY, _("Save &under"), style=wx.BU_EXACTFIT)
+		self._BTN_save_note_under.SetToolTip(_("Save the currently displayed note into an encounter selected from a list of encounters."))
+		__szr_buttons.Add(self._BTN_save_note_under, 0, wx.EXPAND | wx.RIGHT, 3)
+
+		self._BTN_image = wx.Button(__szr_right.GetStaticBox(), wx.ID_ANY, _("&Image"), style=wx.BU_EXACTFIT)
+		self._BTN_image.SetToolTip(_("Add a visual progress note for this episode."))
+		__szr_buttons.Add(self._BTN_image, 0, wx.EXPAND, 0)
+
+		__szr_buttons.Add((1, 1), 1, wx.EXPAND, 0)
+
+		__lbl_encounter = wx.StaticText(__szr_right.GetStaticBox(), wx.ID_ANY, _("Encounter:"))
+		__szr_buttons.Add(__lbl_encounter, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
+
+		self._BTN_save_encounter = wx.Button(__szr_right.GetStaticBox(), wx.ID_ANY, _("Save"), style=wx.BU_EXACTFIT)
+		self._BTN_save_encounter.SetToolTip(_("Save the encounter details."))
+		__szr_buttons.Add(self._BTN_save_encounter, 0, wx.EXPAND, 3)
+
+		__szr_buttons.Add((1, 1), 1, wx.EXPAND, 0)
+
+		self._BTN_save_all = wx.Button(__szr_right.GetStaticBox(), wx.ID_ANY, _("Save &all"), style=wx.BU_EXACTFIT)
+		self._BTN_save_all.SetToolTip(_("Save encounter details and all progress notes."))
+		__szr_buttons.Add(self._BTN_save_all, 0, wx.EXPAND, 5)
+
+		__gszr_encounter_details.AddGrowableCol(1)
+
 		self.SetSizer(__szr_right)
 		__szr_right.Fit(self)
+
 		self.Layout()
+
+		self._BTN_new_editor.Bind(wx.EVT_BUTTON, self._on_new_editor_button_pressed)
+		self._BTN_clear_editor.Bind(wx.EVT_BUTTON, self._on_clear_editor_button_pressed)
+		self._BTN_discard_editor.Bind(wx.EVT_BUTTON, self._on_discard_editor_button_pressed)
+		self._BTN_save_note.Bind(wx.EVT_BUTTON, self._on_save_note_button_pressed)
+		self._BTN_save_note_under.Bind(wx.EVT_BUTTON, self._on_save_note_under_button_pressed)
+		self._BTN_image.Bind(wx.EVT_BUTTON, self._on_image_button_pressed)
+		self._BTN_save_encounter.Bind(wx.EVT_BUTTON, self._on_save_encounter_button_pressed)
+		self._BTN_save_all.Bind(wx.EVT_BUTTON, self._on_save_all_button_pressed)
 		# end wxGlade
 
 	def _on_new_editor_button_pressed(self, event):  # wxGlade: wxgFancySoapEditorPnl.<event_handler>

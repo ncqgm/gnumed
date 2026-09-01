@@ -38,13 +38,13 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 	"""An Edit Area like panel for entering progress notes.
 
 	(
-		Subjective:					Codes:
+		Subjective:
 			expando text ctrl
-		Objective:					Codes:
+		Objective:
 			expando text ctrl
-		Assessment:					Codes:
+		Assessment:
 			expando text ctrl
-		Plan:						Codes:
+		Plan:
 			expando text ctrl
 	)
 		OR
@@ -52,7 +52,7 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 		AND
 	visual progress notes (panel with images)
 		AND
-	Episode synopsis:			Codes:
+	Episode synopsis:
 		expando text ctrl
 
 	- knows the problem this edit area is about
@@ -92,13 +92,9 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 			for field in self.__soap_fields:
 				field.Hide()
 			self._LBL_Soap.Hide()
-			self._PRW_Soap_codes.Hide()
 			self._LBL_sOap.Hide()
-			self._PRW_sOap_codes.Hide()
 			self._LBL_soAp.Hide()
-			self._PRW_soAp_codes.Hide()
 			self._LBL_soaP.Hide()
-			self._PRW_soaP_codes.Hide()
 			self._STC_soap.Show()
 
 		self.refresh_summary()
@@ -115,7 +111,6 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 	#--------------------------------------------------------
 	def refresh_summary(self):
 		self._TCTRL_episode_summary.SetValue('')
-		self._PRW_episode_codes.SetText('', self._PRW_episode_codes.list2data_dict([]))
 		self._LBL_summary.SetLabel(_('Episode synopsis'))
 
 		# new problem ?
@@ -132,9 +127,6 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 
 		if self.problem['summary'] is not None:
 			self._TCTRL_episode_summary.SetValue(self.problem['summary'].strip())
-
-		val, data = self._PRW_episode_codes.generic_linked_codes2item_dict(self.problem.generic_codes)
-		self._PRW_episode_codes.SetText(val, data)
 
 	#--------------------------------------------------------
 	def refresh_visual_soap(self):
@@ -161,7 +153,6 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 	def clear(self):
 		self._TCTRL_episode_summary.SetValue('')
 		self._LBL_summary.SetLabel(_('Episode synopsis'))
-		self._PRW_episode_codes.SetText('', self._PRW_episode_codes.list2data_dict([]))
 		self._PNL_visual_soap.clear()
 
 		if self.__use_soap_fields:
@@ -220,9 +211,6 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 			if self.problem['type'] == 'episode':
 				episode['summary'] = self._TCTRL_episode_summary.GetValue().strip()
 				episode.save()
-
-		# codes for episode
-		episode.generic_codes = [ d['data'] for d in self._PRW_episode_codes.GetData() ]
 
 		gmClinNarrative.create_progress_note (
 			soap = self.soap,
@@ -362,22 +350,6 @@ class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgPro
 					return False
 			else:
 				if summary != self.problem['summary'].strip():
-					return False
-
-		# codes
-		new_codes = self._PRW_episode_codes.GetData()
-		if self.problem is None:
-			if len(new_codes) > 0:
-				return False
-		elif self.problem['type'] == 'issue':
-			if len(new_codes) > 0:
-				return False
-		else:
-			old_code_pks = self.problem.generic_codes
-			if len(old_code_pks) != len(new_codes):
-				return False
-			for code in new_codes:
-				if code['data'] not in old_code_pks:
 					return False
 
 		return True

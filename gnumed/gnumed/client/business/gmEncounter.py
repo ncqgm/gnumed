@@ -154,36 +154,6 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 				_log.debug('mismatch on [%s]: here="%s", other="%s"', field, self._payload[field], another_object[field])
 				return False
 
-		# compare codes
-		# 1) RFE
-		if another_object['pk_generic_codes_rfe'] is None:
-			if self._payload['pk_generic_codes_rfe'] is not None:
-				return False
-		if another_object['pk_generic_codes_rfe'] is not None:
-			if self._payload['pk_generic_codes_rfe'] is None:
-				return False
-		if (
-			(another_object['pk_generic_codes_rfe'] is None)
-				and
-			(self._payload['pk_generic_codes_rfe'] is None)
-		) is False:
-			if set(another_object['pk_generic_codes_rfe']) != set(self._payload['pk_generic_codes_rfe']):
-				return False
-		# 2) AOE
-		if another_object['pk_generic_codes_aoe'] is None:
-			if self._payload['pk_generic_codes_aoe'] is not None:
-				return False
-		if another_object['pk_generic_codes_aoe'] is not None:
-			if self._payload['pk_generic_codes_aoe'] is None:
-				return False
-		if (
-			(another_object['pk_generic_codes_aoe'] is None)
-				and
-			(self._payload['pk_generic_codes_aoe'] is None)
-		) is False:
-			if set(another_object['pk_generic_codes_aoe']) != set(self._payload['pk_generic_codes_aoe']):
-				return False
-
 		return True
 
 	#--------------------------------------------------------
@@ -488,30 +458,9 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 
 		if self._payload['reason_for_encounter'] is not None:
 			lines.append('%s: %s' % (_('RFE'), self._payload['reason_for_encounter']))
-			codes = self.generic_codes_rfe
-			for c in codes:
-				lines.append(' %s: %s (%s - %s)' % (
-					c['code'],
-					c['term'],
-					c['name_short'],
-					c['version']
-				))
-			if len(codes) > 0:
-				lines.append('')
 
 		if self._payload['assessment_of_encounter'] is not None:
 			lines.append('%s: %s' % (_('AOE'), self._payload['assessment_of_encounter']))
-			codes = self.generic_codes_aoe
-			for c in codes:
-				lines.append(' %s: %s (%s - %s)' % (
-					c['code'],
-					c['term'],
-					c['name_short'],
-					c['version']
-				))
-			if len(codes) > 0:
-				lines.append('')
-			del codes
 		return lines
 
 	#--------------------------------------------------------
@@ -540,31 +489,8 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 		if with_rfe_aoe:
 			if self._payload['reason_for_encounter'] is not None:
 				lines.append('%s: %s' % (_('RFE'), self._payload['reason_for_encounter']))
-			codes = self.generic_codes_rfe
-			for c in codes:
-				lines.append(' %s: %s (%s - %s)' % (
-					c['code'],
-					c['term'],
-					c['name_short'],
-					c['version']
-				))
-			if len(codes) > 0:
-				lines.append('')
 			if self._payload['assessment_of_encounter'] is not None:
 				lines.append('%s: %s' % (_('AOE'), self._payload['assessment_of_encounter']))
-			codes = self.generic_codes_aoe
-			if len(codes) > 0:
-				lines.append('')
-			for c in codes:
-				lines.append(' %s: %s (%s - %s)' % (
-					c['code'],
-					c['term'],
-					c['name_short'],
-					c['version']
-				))
-			if len(codes) > 0:
-				lines.append('')
-			del codes
 
 		return lines
 
@@ -831,82 +757,6 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	# properties
-	#--------------------------------------------------------
-	def _get_generic_codes_rfe(self):
-		if len(self._payload['pk_generic_codes_rfe']) == 0:
-			return []
-
-		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code = ANY(%(pks)s)'
-		args = {'pks': self._payload['pk_generic_codes_rfe']}
-		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
-		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
-
-	def _set_generic_codes_rfe(self, pk_codes):
-		queries = []
-		# remove all codes
-		if len(self._payload['pk_generic_codes_rfe']) > 0:
-			queries.append ({
-				'sql': 'DELETE FROM clin.lnk_code2rfe WHERE fk_item = %(enc)s AND fk_generic_code = ANY(%(codes)s)',
-				'args': {
-					'enc': self._payload['pk_encounter'],
-					'codes': self._payload['pk_generic_codes_rfe']
-				}
-			})
-		# add new codes
-		for pk_code in pk_codes:
-			queries.append ({
-				'sql': 'INSERT INTO clin.lnk_code2rfe (fk_item, fk_generic_code) VALUES (%(enc)s, %(pk_code)s)',
-				'args': {
-					'enc': self._payload['pk_encounter'],
-					'pk_code': pk_code
-				}
-			})
-		if len(queries) == 0:
-			return
-		# run it all in one transaction
-		gmPG2.run_rw_queries(queries = queries)
-		self.refetch_payload()
-		return
-
-	generic_codes_rfe = property(_get_generic_codes_rfe, _set_generic_codes_rfe)
-	#--------------------------------------------------------
-	def _get_generic_codes_aoe(self):
-		if len(self._payload['pk_generic_codes_aoe']) == 0:
-			return []
-
-		cmd = gmCoding._SQL_get_generic_linked_codes % 'pk_generic_code = ANY(%(pks)s)'
-		args = {'pks': self._payload['pk_generic_codes_aoe']}
-		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
-		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
-
-	def _set_generic_codes_aoe(self, pk_codes):
-		queries = []
-		# remove all codes
-		if len(self._payload['pk_generic_codes_aoe']) > 0:
-			queries.append ({
-				'sql': 'DELETE FROM clin.lnk_code2aoe WHERE fk_item = %(enc)s AND fk_generic_code = ANY(%(codes)s)',
-				'args': {
-					'enc': self._payload['pk_encounter'],
-					'codes': self._payload['pk_generic_codes_aoe']
-				}
-			})
-		# add new codes
-		for pk_code in pk_codes:
-			queries.append ({
-				'sql': 'INSERT INTO clin.lnk_code2aoe (fk_item, fk_generic_code) VALUES (%(enc)s, %(pk_code)s)',
-				'args': {
-					'enc': self._payload['pk_encounter'],
-					'pk_code': pk_code
-				}
-			})
-		if len(queries) == 0:
-			return
-		# run it all in one transaction
-		gmPG2.run_rw_queries(queries = queries)
-		self.refetch_payload()
-		return
-
-	generic_codes_aoe = property(_get_generic_codes_aoe, _set_generic_codes_aoe)
 	#--------------------------------------------------------
 	def _get_praxis_branch(self):
 		if self._payload['pk_org_unit'] is None:

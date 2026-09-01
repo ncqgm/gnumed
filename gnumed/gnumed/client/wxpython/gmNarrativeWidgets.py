@@ -360,7 +360,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		gmDispatcher.connect(signal = 'post_patient_selection', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = 'clin.episode_mod_db', receiver = self._on_episode_issue_mod_db)
 		gmDispatcher.connect(signal = 'clin.health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
-		gmDispatcher.connect(signal = 'clin.episode_code_mod_db', receiver = self._on_episode_issue_mod_db)
+
 	#--------------------------------------------------------
 	def _on_pre_patient_unselection(self):
 		self.__reset_ui_content()
@@ -508,18 +508,14 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 			enc['assessment_of_encounter'] = None
 		else:
 			enc['assessment_of_encounter'] = aoe
-
 		enc.save_payload()
-
-		enc.generic_codes_rfe = [ c['data'] for c in self._PRW_rfe_codes.GetData() ]
-		enc.generic_codes_aoe = [ c['data'] for c in self._PRW_aoe_codes.GetData() ]
 
 		return True
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
 	def __init_ui(self):
-		self._NB_soap_editors.MoveAfterInTabOrder(self._PRW_aoe_codes)
+		pass
 	#--------------------------------------------------------
 	def __reset_soap_notebook(self):
 		self._NB_soap_editors.DeleteAllPages()
@@ -551,33 +547,20 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 	#--------------------------------------------------------
 	def __reset_encounter_fields(self):
 		self._TCTRL_rfe.SetValue('')
-		self._PRW_rfe_codes.SetText(suppress_smarts = True)
 		self._TCTRL_aoe.SetValue('')
-		self._PRW_aoe_codes.SetText(suppress_smarts = True)
 
 	#--------------------------------------------------------
 	def __refresh_encounter(self):
 		"""Update encounter fields."""
-
 		self.__reset_encounter_fields()
-
 		if self.__pat is None:
 			return
 
 		enc = self.__pat.emr.active_encounter
-
 		self._TCTRL_rfe.SetValue(gmTools.coalesce(enc['reason_for_encounter'], ''))
-		val, data = self._PRW_rfe_codes.generic_linked_codes2item_dict(enc.generic_codes_rfe)
-		self._PRW_rfe_codes.SetText(val, data)
-
 		self._TCTRL_aoe.SetValue(gmTools.coalesce(enc['assessment_of_encounter'], ''))
-		val, data = self._PRW_aoe_codes.generic_linked_codes2item_dict(enc.generic_codes_aoe)
-		self._PRW_aoe_codes.SetText(val, data)
-
 		self._TCTRL_rfe.Refresh()
-		self._PRW_rfe_codes.Refresh()
 		self._TCTRL_aoe.Refresh()
-		self._PRW_aoe_codes.Refresh()
 
 	#--------------------------------------------------------
 	def __refresh_current_editor(self):
@@ -596,8 +579,6 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 #			'assessment_of_encounter': gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u''),
 #			'pk_location': enc['pk_org_unit'],
 #			'pk_patient': enc['pk_patient'],
-#			'pk_generic_codes_rfe': self._PRW_rfe_codes.GetData(),
-#			'pk_generic_codes_aoe': self._PRW_aoe_codes.GetData(),
 #			'started': enc['started'],
 #			'last_affirmed': enc['last_affirmed']
 #		}
@@ -618,8 +599,7 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 		gmDispatcher.connect(signal = 'blobs.doc_med_mod_db', receiver = self._on_doc_mod_db)			# visual progress notes
 		gmDispatcher.connect(signal = 'current_encounter_modified', receiver = self._on_current_encounter_modified)
 		gmDispatcher.connect(signal = 'current_encounter_switched', receiver = self._on_current_encounter_switched)
-		gmDispatcher.connect(signal = 'clin.rfe_code_mod_db', receiver = self._on_encounter_code_modified)
-		gmDispatcher.connect(signal = 'clin.aoe_code_mod_db', receiver = self._on_encounter_code_modified)
+
 	#--------------------------------------------------------
 	def _before_switching_from_patient_callback(self):
 		"""Another patient is about to be activated.
@@ -667,16 +647,15 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 	#--------------------------------------------------------
 	def _on_doc_mod_db(self):
 		self.__refresh_current_editor()
-	#--------------------------------------------------------
-	def _on_encounter_code_modified(self):
-		self.__pat.emr.active_encounter.refetch_payload()
-		self.__refresh_encounter()
+
 	#--------------------------------------------------------
 	def _on_current_encounter_modified(self):
 		self.__refresh_encounter()
+
 	#--------------------------------------------------------
 	def _on_current_encounter_switched(self):
 		self.__refresh_encounter()
+
 	#--------------------------------------------------------
 	# SOAP editor specific buttons
 	#--------------------------------------------------------
@@ -1126,7 +1105,6 @@ class cSimpleSoapPluginPnl(wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl, gmRege
 		return episode.format (
 			patient = self.__curr_pat,
 			with_summary = False,
-			with_codes = True,
 			with_encounters = False,
 			with_documents = False,
 			with_hospital_stays = False,
