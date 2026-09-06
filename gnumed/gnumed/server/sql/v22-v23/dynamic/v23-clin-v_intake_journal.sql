@@ -9,6 +9,13 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
+-- old views
+drop view if exists clin.v_intakes_w_o_regimen__journal cascade;
+drop view if exists clin.v_regimens_w_start__journal cascade;
+drop view if exists clin.v_regimens_w_o_start__journal cascade;
+drop view if exists clin.v_regimens_end__journal cascade;
+
+-- --------------------------------------------------------------
 -- journal entries for intakes, at start of intake
 -- --------------------------------------------------------------
 drop view if exists clin.v_intakes_at_start__journal cascade;
@@ -86,23 +93,12 @@ select
 	c_enc.started
 		as encounter_started,
 	c_enc.last_affirmed,
-	c_et.description
-		as encounter_type,
-    COALESCE(tx_exact_lang.trans, tx_reduced_lang.trans, c_et.description)
-		as encounter_l10n_type
+	c_enc.fk_type
+		AS pk_encounter_type
 from
 	clin.intake c_i
 		inner join ref.substance r_s on (c_i.fk_substance = r_s.pk)
 	inner join clin.encounter c_enc on (c_i.fk_encounter = c_enc.pk)
-		LEFT JOIN clin.encounter_type c_et ON c_enc.fk_type = c_et.pk
-			LEFT JOIN i18n.translations tx_exact_lang ON
-				tx_exact_lang.orig = c_et.description
-					AND
-				tx_exact_lang.lang = (SELECT lang FROM i18n.curr_lang WHERE db_user = current_user)
-			LEFT JOIN i18n.translations tx_reduced_lang ON
-				tx_reduced_lang.orig = c_et.description
-					AND
-				tx_reduced_lang.lang = (SELECT regexp_replace(lang, '_.*$', '') FROM i18n.curr_lang WHERE db_user = current_user)
 	inner join clin.episode c_epi on c_i.fk_episode = c_epi.pk
 		left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
 where
@@ -196,23 +192,12 @@ select
 	c_enc.started
 		as encounter_started,
 	c_enc.last_affirmed,
-	c_et.description
-		as encounter_type,
-    COALESCE(tx_exact_lang.trans, tx_reduced_lang.trans, c_et.description)
-		as encounter_l10n_type
+	c_enc.fk_type
+		AS pk_encounter_type
 from
 	clin.intake c_i
 		inner join ref.substance r_s on (c_i.fk_substance = r_s.pk)
 	inner join clin.encounter c_enc on (c_i.fk_encounter = c_enc.pk)
-		LEFT JOIN clin.encounter_type c_et ON c_enc.fk_type = c_et.pk
-			LEFT JOIN i18n.translations tx_exact_lang ON
-				tx_exact_lang.orig = c_et.description
-					AND
-				tx_exact_lang.lang = (SELECT lang FROM i18n.curr_lang WHERE db_user = current_user)
-			LEFT JOIN i18n.translations tx_reduced_lang ON
-				tx_reduced_lang.orig = c_et.description
-					AND
-				tx_reduced_lang.lang = (SELECT regexp_replace(lang, '_.*$', '') FROM i18n.curr_lang WHERE db_user = current_user)
 	inner join clin.episode c_epi on c_i.fk_episode = c_epi.pk
 		left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
 where
@@ -295,23 +280,12 @@ select
 	c_enc.started
 		as encounter_started,
 	c_enc.last_affirmed,
-	c_et.description
-		as encounter_type,
-    COALESCE(tx_exact_lang.trans, tx_reduced_lang.trans, c_et.description)
-		as encounter_l10n_type
+	c_enc.fk_type
+		AS pk_encounter_type
 from
 	clin.intake c_i
 		inner join ref.substance r_s on (c_i.fk_substance = r_s.pk)
 	inner join clin.encounter c_enc on (c_i.fk_encounter = c_enc.pk)
-		LEFT JOIN clin.encounter_type c_et ON c_enc.fk_type = c_et.pk
-			LEFT JOIN i18n.translations tx_exact_lang ON
-				tx_exact_lang.orig = c_et.description
-					AND
-				tx_exact_lang.lang = (SELECT lang FROM i18n.curr_lang WHERE db_user = current_user)
-			LEFT JOIN i18n.translations tx_reduced_lang ON
-				tx_reduced_lang.orig = c_et.description
-					AND
-				tx_reduced_lang.lang = (SELECT regexp_replace(lang, '_.*$', '') FROM i18n.curr_lang WHERE db_user = current_user)
 	inner join clin.episode c_epi on c_i.fk_episode = c_epi.pk
 		left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
 where
