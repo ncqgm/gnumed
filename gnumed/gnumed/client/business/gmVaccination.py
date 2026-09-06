@@ -447,7 +447,7 @@ def get_vaccinations(pk_identity=None, pk_episodes=None, pk_health_issues=None, 
 		args['pk_epis'] = pk_episodes
 
 	if (pk_health_issues is not None) and (len(pk_health_issues) > 0):
-		where_parts.append('pk_episode = ANY(SELECT pk FROM clin.episode WHERE fk_health_issue = ANY(%(pk_issues)s))')
+		where_parts.append('pk_episode = ANY(ARRAY(SELECT pk FROM clin.episode WHERE fk_health_issue = ANY(%(pk_issues)s)))')
 		args['pk_issues'] = pk_health_issues
 
 	if (pk_encounters is not None) and (len(pk_encounters) > 0):

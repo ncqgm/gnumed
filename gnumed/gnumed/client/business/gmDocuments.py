@@ -1109,14 +1109,14 @@ class cDocumentFolder:
 	def get_unsigned_documents(self):
 		args = {'pat': self.pk_patient}
 		cmd = _SQL_get_document_fields % """
-			pk_doc = ANY (
+			pk_doc = ANY(ARRAY(
 				SELECT DISTINCT ON (b_vo.pk_doc) b_vo.pk_doc
 				FROM blobs.v_obj4doc_no_data b_vo
 				WHERE
 					pk_patient = %(pat)s
 						AND
 					reviewed IS FALSE
-			)
+			))
 			ORDER BY clin_when DESC"""
 		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		return [ cDocument(row = {'pk_field': 'pk_doc', 'data': r}) for r in rows ]
@@ -1145,7 +1145,7 @@ class cDocumentFolder:
 		if encounter is not None:
 			where_parts.append('pk_encounter = %(enc)s')
 		if exclude_unsigned:
-			where_parts.append('pk_doc = ANY(SELECT b_vo.pk_doc FROM blobs.v_obj4doc_no_data b_vo WHERE b_vo.pk_patient = %(pat)s AND b_vo.reviewed IS TRUE)')
+			where_parts.append('pk_doc = ANY(ARRAY(SELECT b_vo.pk_doc FROM blobs.v_obj4doc_no_data b_vo WHERE b_vo.pk_patient = %(pat)s AND b_vo.reviewed IS TRUE))')
 		if not order_by:
 			order_by = 'clin_when'
 		order_by_clause = 'ORDER BY %s' % order_by
