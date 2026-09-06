@@ -13,86 +13,60 @@ drop view if exists clin.v_emr_journal cascade;
 
 
 create view clin.v_emr_journal as
-
+select *
+from (
 	select * from clin.v_pat_narrative_journal
-
-union all
-
-	select * from clin.v_health_issues_journal
-
-union all
-
-	select * from clin.v_pat_encounters_journal
-
-union all
-
-	select * from clin.v_pat_episodes_journal
-
-union all
-
-	select * from clin.v_family_history_journal
-
-union all
-
-	select * from clin.v_pat_allergies_journal
-
-union all
-
-	select * from clin.v_pat_allergy_state_journal
-
-union all
-
-	select * from clin.v_test_results_journal
-
-union all
-
-	select * from clin.v_hospital_stays_journal
-
-union all
-
-	select * from blobs.v_doc_med_journal
-
-union all
-
-	select * from clin.v_intakes_w_o_regimen__journal
-
-union all
-
-	select * from clin.v_regimens_w_o_start__journal
-
-union all
-
-	select * from clin.v_regimens_w_start__journal
-
-union all
-
-	select * from clin.v_regimens_end__journal
-
-union all
-
-	select * from clin.v_procedures_journal
-
-union all
-
-	select * from clin.v_vaccinations_journal
-
-union all
-
-	select * from clin.v_suppressed_hints_journal
-
-union all
-
-	select * from clin.v_external_care_journal
-
-union all
-
-	select * from clin.v_edc_journal
-
-union all
-
-	select * from clin.v_reminders_journal
-
+	union all
+		select * from clin.v_health_issues_journal
+	union all
+		select * from clin.v_pat_encounters_journal
+	union all
+		select * from clin.v_pat_episodes_journal
+	union all
+		select * from clin.v_family_history_journal
+	union all
+		select * from clin.v_pat_allergies_journal
+	union all
+		select * from clin.v_pat_allergy_state_journal
+	union all
+		select * from clin.v_test_results_journal
+	union all
+		select * from clin.v_hospital_stays_journal
+	union all
+		select * from blobs.v_doc_med_journal
+	--union all
+	--	select * from clin.v_intakes_w_o_regimen__journal
+	--union all
+	--	select * from clin.v_regimens_w_o_start__journal
+	--union all
+	--	select * from clin.v_regimens_w_start__journal
+	--union all
+	--	select * from clin.v_regimens_end__journal
+	union all
+		select * from clin.v_procedures_journal
+	union all
+		select * from clin.v_vaccinations_journal
+	union all
+		select * from clin.v_suppressed_hints_journal
+	union all
+		select * from clin.v_external_care_journal
+	union all
+		select * from clin.v_edc_journal
+	union all
+		select * from clin.v_reminders_journal
+) joined_journals
+	left join (
+		select
+			pk
+				as _pk_et,
+			description
+				as encounter_type,
+			_(description)
+				as l10n_encounter_type
+		from clin.encounter_type
+	) c_et on c_et._pk_et = joined_journals.pk_encounter_type
 ;
+
 
 comment on view clin.v_emr_journal is
 	'Clinical patient data formatted into one string per

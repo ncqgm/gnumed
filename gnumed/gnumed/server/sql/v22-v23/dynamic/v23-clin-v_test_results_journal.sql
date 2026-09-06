@@ -93,17 +93,13 @@ select
 		as encounter_started,
 	c_enc.last_affirmed
 		as encounter_last_affirmed,
-	c_ety.description
-		as encounter_type,
-	_(c_ety.description)
-		as encounter_l10n_type
+	c_enc.fk_type AS pk_encounter_type
 
 from
 	clin.v_test_results c_vtr
 		inner join clin.encounter c_enc on (c_vtr.pk_encounter = c_enc.pk)
-			inner join clin.encounter_type c_ety on (c_enc.fk_type = c_ety.pk)
-				inner join clin.episode c_epi on (c_vtr.pk_episode = c_epi.pk)
-					left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
+		inner join clin.episode c_epi on (c_vtr.pk_episode = c_epi.pk)
+			left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
 ;
 
 

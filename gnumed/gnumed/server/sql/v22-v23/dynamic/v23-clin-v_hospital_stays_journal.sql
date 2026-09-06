@@ -69,19 +69,14 @@ create view clin.v_hospital_stays_journal_no_discharge as
 			as encounter_started,
 		c_enc.last_affirmed
 			as encounter_last_affirmed,
-		c_ety.description
-			as encounter_type,
-		_(c_ety.description)
-			as encounter_l10n_type
-
+		c_enc.fk_type AS pk_encounter_type
 	from
 		clin.hospital_stay c_hs
 			inner join clin.encounter c_enc on (c_hs.fk_encounter = c_enc.pk)
-				inner join clin.encounter_type c_ety on (c_enc.fk_type = c_ety.pk)
-					inner join clin.episode c_epi on (c_hs.fk_episode = c_epi.pk)
-						left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
-							left join dem.org_unit d_ou on (d_ou.pk = c_hs.fk_org_unit)
-								left join dem.org d_o on (d_o.pk = d_ou.fk_org)
+			inner join clin.episode c_epi on (c_hs.fk_episode = c_epi.pk)
+				left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
+			left join dem.org_unit d_ou on (d_ou.pk = c_hs.fk_org_unit)
+				left join dem.org d_o on (d_o.pk = d_ou.fk_org)
 	where
 		c_hs.discharge is NULL
 ;
@@ -150,19 +145,15 @@ create view clin.v_hospital_stays_journal_one_day as
 			as encounter_started,
 		c_enc.last_affirmed
 			as encounter_last_affirmed,
-		c_ety.description
-			as encounter_type,
-		_(c_ety.description)
-			as encounter_l10n_type
+		c_enc.fk_type AS pk_encounter_type
 
 	from
 		clin.hospital_stay c_hs
 			inner join clin.encounter c_enc on (c_hs.fk_encounter = c_enc.pk)
-				inner join clin.encounter_type c_ety on (c_enc.fk_type = c_ety.pk)
-					inner join clin.episode c_epi on (c_hs.fk_episode = c_epi.pk)
-						left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
-							left join dem.org_unit d_ou on (d_ou.pk = c_hs.fk_org_unit)
-								left join dem.org d_o on (d_o.pk = d_ou.fk_org)
+			inner join clin.episode c_epi on (c_hs.fk_episode = c_epi.pk)
+				left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
+			left join dem.org_unit d_ou on (d_ou.pk = c_hs.fk_org_unit)
+				left join dem.org d_o on (d_o.pk = d_ou.fk_org)
 	where
 		(c_hs.discharge is not NULL)
 			and
@@ -233,19 +224,14 @@ create view clin.v_hospital_stays_journal_multi_day_adm as
 			as encounter_started,
 		c_enc.last_affirmed
 			as encounter_last_affirmed,
-		c_ety.description
-			as encounter_type,
-		_(c_ety.description)
-			as encounter_l10n_type
-
+		c_enc.fk_type AS pk_encounter_type
 	from
 		clin.hospital_stay c_hs
 			inner join clin.encounter c_enc on (c_hs.fk_encounter = c_enc.pk)
-				inner join clin.encounter_type c_ety on (c_enc.fk_type = c_ety.pk)
-					inner join clin.episode c_epi on (c_hs.fk_episode = c_epi.pk)
-						left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
-							left join dem.org_unit d_ou on (d_ou.pk = c_hs.fk_org_unit)
-								left join dem.org d_o on (d_o.pk = d_ou.fk_org)
+			inner join clin.episode c_epi on (c_hs.fk_episode = c_epi.pk)
+				left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
+			left join dem.org_unit d_ou on (d_ou.pk = c_hs.fk_org_unit)
+				left join dem.org d_o on (d_o.pk = d_ou.fk_org)
 	where
 		(c_hs.discharge is not NULL)
 			and
@@ -315,19 +301,15 @@ create view clin.v_hospital_stays_journal_multi_day_dis as
 			as encounter_started,
 		c_enc.last_affirmed
 			as encounter_last_affirmed,
-		c_ety.description
-			as encounter_type,
-		_(c_ety.description)
-			as encounter_l10n_type
-
+		c_enc.fk_type
+			AS pk_encounter_type
 	from
 		clin.hospital_stay c_hs
 			inner join clin.encounter c_enc on (c_hs.fk_encounter = c_enc.pk)
-				inner join clin.encounter_type c_ety on (c_enc.fk_type = c_ety.pk)
-					inner join clin.episode c_epi on (c_hs.fk_episode = c_epi.pk)
-						left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
-							left join dem.org_unit d_ou on (d_ou.pk = c_hs.fk_org_unit)
-								left join dem.org d_o on (d_o.pk = d_ou.fk_org)
+			inner join clin.episode c_epi on (c_hs.fk_episode = c_epi.pk)
+				left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
+			left join dem.org_unit d_ou on (d_ou.pk = c_hs.fk_org_unit)
+				left join dem.org d_o on (d_o.pk = d_ou.fk_org)
 	where
 		(c_hs.discharge is not NULL)
 			and
