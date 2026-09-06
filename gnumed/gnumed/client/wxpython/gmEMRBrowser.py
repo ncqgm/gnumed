@@ -743,29 +743,9 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		if encounter['reason_for_encounter'] is not None:
 			tt += '\n'
 			tt += _('RFE: %s') % encounter['reason_for_encounter']
-			if len(encounter['pk_generic_codes_rfe']) > 0:
-				for code in encounter.generic_codes_rfe:
-					tt += '\n %s: %s%s%s\n  (%s %s)' % (
-						code['code'],
-						gmTools.u_left_double_angle_quote,
-						code['term'],
-						gmTools.u_right_double_angle_quote,
-						code['name_short'],
-						code['version']
-					)
 		if encounter['assessment_of_encounter'] is not None:
 			tt += '\n'
 			tt += _('AOE: %s') % encounter['assessment_of_encounter']
-			if len(encounter['pk_generic_codes_aoe']) > 0:
-				for code in encounter.generic_codes_aoe:
-					tt += '\n %s: %s%s%s\n  (%s %s)' % (
-						code['code'],
-						gmTools.u_left_double_angle_quote,
-						code['term'],
-						gmTools.u_right_double_angle_quote,
-						code['name_short'],
-						code['version']
-					)
 		return tt
 
 	#--------------------------------------------------------

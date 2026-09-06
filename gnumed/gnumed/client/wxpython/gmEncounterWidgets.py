@@ -497,17 +497,10 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 			accuracy = gmDateTime.ACC_MINUTES
 		)
 		self._PRW_end.SetText(fts.format_accurately(), data=fts)
-
 		# RFE
 		self._TCTRL_rfe.SetValue(gmTools.coalesce(self.__encounter['reason_for_encounter'], ''))
-		val, data = self._PRW_rfe_codes.generic_linked_codes2item_dict(self.__encounter.generic_codes_rfe)
-		self._PRW_rfe_codes.SetText(val, data)
-
 		# AOE
 		self._TCTRL_aoe.SetValue(gmTools.coalesce(self.__encounter['assessment_of_encounter'], ''))
-		val, data = self._PRW_aoe_codes.generic_linked_codes2item_dict(self.__encounter.generic_codes_aoe)
-		self._PRW_aoe_codes.SetText(val, data)
-
 		# last affirmed
 		if self.__encounter['last_affirmed'] == self.__encounter['started']:
 			self._PRW_end.SetFocus()
@@ -566,10 +559,6 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 		self.__encounter['reason_for_encounter'] = gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), '')
 		self.__encounter['assessment_of_encounter'] = gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), '')
 		self.__encounter.save_payload()			# FIXME: error checking
-
-		self.__encounter.generic_codes_rfe = [ c['data'] for c in self._PRW_rfe_codes.GetData() ]
-		self.__encounter.generic_codes_aoe = [ c['data'] for c in self._PRW_aoe_codes.GetData() ]
-
 		return True
 
 #----------------------------------------------------------------

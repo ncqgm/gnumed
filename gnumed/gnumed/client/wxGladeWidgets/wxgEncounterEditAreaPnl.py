@@ -18,75 +18,74 @@ class wxgEncounterEditAreaPnl(wx.ScrolledWindow):
 		# begin wxGlade: wxgEncounterEditAreaPnl.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.BORDER_NONE | wx.TAB_TRAVERSAL
 		wx.ScrolledWindow.__init__(self, *args, **kwds)
-		self._LBL_instructions = wx.StaticText(self, wx.ID_ANY, _("Edit the details for the encounter below:"))
-		self._LBL_patient = wx.StaticText(self, wx.ID_ANY, "")
-		from Gnumed.wxpython.gmEncounterWidgets import cEncounterTypePhraseWheel
-		self._PRW_encounter_type = cEncounterTypePhraseWheel(self, wx.ID_ANY, "")
-		from Gnumed.wxpython.gmPraxisWidgets import cPraxisBranchPhraseWheel
-		self._PRW_location = cPraxisBranchPhraseWheel(self, wx.ID_ANY, "")
-		from Gnumed.wxpython.gmDateTimeInput import cFuzzyTimestampInput
-		self._PRW_start = cFuzzyTimestampInput(self, wx.ID_ANY, "")
-		self._PRW_end = cFuzzyTimestampInput(self, wx.ID_ANY, "")
-		self._TCTRL_rfe = wx.TextCtrl(self, wx.ID_ANY, "")
-		from Gnumed.wxpython.gmCodingWidgets import cGenericCodesPhraseWheel
-		self._PRW_rfe_codes = cGenericCodesPhraseWheel(self, wx.ID_ANY, "")
-		self._TCTRL_aoe = wx.TextCtrl(self, wx.ID_ANY, "")
-		self._PRW_aoe_codes = cGenericCodesPhraseWheel(self, wx.ID_ANY, "")
-
-		self.__set_properties()
-		self.__do_layout()
-		# end wxGlade
-
-	def __set_properties(self):
-		# begin wxGlade: wxgEncounterEditAreaPnl.__set_properties
 		self.SetScrollRate(10, 10)
-		self._LBL_patient.SetFont(wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
-		self._PRW_encounter_type.SetToolTip(_("Select the type of encounter."))
-		self._PRW_location.SetToolTip(_("Select the praxis branch where this encounter took place."))
-		self._TCTRL_rfe.SetToolTip(_("Enter the Reason For Encounter here. This is the patient's initial request or purpose of visit which led to the encounter."))
-		self._PRW_rfe_codes.SetToolTip(_("Codes relevant to the Reason for Encounter\nseparated by \";\"."))
-		self._TCTRL_aoe.SetToolTip(_("Enter the Encounter Summary here. This is your final assessment of the total encounter across all relevant episodes."))
-		self._PRW_aoe_codes.SetToolTip(_("Codes relevant to the Assessment of Encounter\nseparated by \";\"."))
-		# end wxGlade
 
-	def __do_layout(self):
-		# begin wxGlade: wxgEncounterEditAreaPnl.__do_layout
 		__szr_main = wx.BoxSizer(wx.VERTICAL)
-		__gszr_encounter_details = wx.FlexGridSizer(9, 2, 2, 5)
+
 		__szr_patient = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_main.Add(__szr_patient, 0, wx.EXPAND, 0)
+
+		self._LBL_instructions = wx.StaticText(self, wx.ID_ANY, _("Edit the details for the encounter below:"))
 		__szr_main.Add(self._LBL_instructions, 0, wx.EXPAND | wx.TOP, 3)
+
+		__gszr_encounter_details = wx.FlexGridSizer(7, 2, 2, 5)
+		__szr_main.Add(__gszr_encounter_details, 0, wx.EXPAND | wx.TOP, 3)
+
 		__lbl_patient = wx.StaticText(self, wx.ID_ANY, _("Patient"))
 		__gszr_encounter_details.Add(__lbl_patient, 0, wx.ALIGN_CENTER_VERTICAL, 10)
+
+		self._LBL_patient = wx.StaticText(self, wx.ID_ANY, "")
+		self._LBL_patient.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, 0, ""))
 		__gszr_encounter_details.Add(self._LBL_patient, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
 		__lbl_type = wx.StaticText(self, wx.ID_ANY, _("Type"))
 		__gszr_encounter_details.Add(__lbl_type, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		from Gnumed.wxpython.gmEncounterWidgets import cEncounterTypePhraseWheel
+		self._PRW_encounter_type = cEncounterTypePhraseWheel(self, wx.ID_ANY, "")
+		self._PRW_encounter_type.SetToolTip(_("Select the type of encounter."))
 		__gszr_encounter_details.Add(self._PRW_encounter_type, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
 		__lbl_location = wx.StaticText(self, wx.ID_ANY, _("Location"))
 		__gszr_encounter_details.Add(__lbl_location, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		from Gnumed.wxpython.gmPraxisWidgets import cPraxisBranchPhraseWheel
+		self._PRW_location = cPraxisBranchPhraseWheel(self, wx.ID_ANY, "")
+		self._PRW_location.SetToolTip(_("Select the praxis branch where this encounter took place."))
 		__gszr_encounter_details.Add(self._PRW_location, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
 		__lbl_start = wx.StaticText(self, wx.ID_ANY, _("Started"))
 		__gszr_encounter_details.Add(__lbl_start, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		from Gnumed.wxpython.gmDateTimeInput import cFuzzyTimestampInput
+		self._PRW_start = cFuzzyTimestampInput(self, wx.ID_ANY, "")
 		__gszr_encounter_details.Add(self._PRW_start, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
 		__lbl_end = wx.StaticText(self, wx.ID_ANY, _("Ended"))
 		__gszr_encounter_details.Add(__lbl_end, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		self._PRW_end = cFuzzyTimestampInput(self, wx.ID_ANY, "")
 		__gszr_encounter_details.Add(self._PRW_end, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
 		__lbl_rfe = wx.StaticText(self, wx.ID_ANY, _("Purpose"))
 		__gszr_encounter_details.Add(__lbl_rfe, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		self._TCTRL_rfe = wx.TextCtrl(self, wx.ID_ANY, "")
+		self._TCTRL_rfe.SetToolTip(_("Enter the Reason For Encounter here. This is the patient's initial request or purpose of visit which led to the encounter."))
 		__gszr_encounter_details.Add(self._TCTRL_rfe, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__lbl_codes_rfe = wx.StaticText(self, wx.ID_ANY, _("Codes"))
-		__gszr_encounter_details.Add(__lbl_codes_rfe, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__gszr_encounter_details.Add(self._PRW_rfe_codes, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
 		__lbl_aoe = wx.StaticText(self, wx.ID_ANY, _("Summary"))
 		__gszr_encounter_details.Add(__lbl_aoe, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		self._TCTRL_aoe = wx.TextCtrl(self, wx.ID_ANY, "")
+		self._TCTRL_aoe.SetToolTip(_("Enter the Encounter Summary here. This is your final assessment of the total encounter across all relevant episodes."))
 		__gszr_encounter_details.Add(self._TCTRL_aoe, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
-		__lbl_codes_aoe = wx.StaticText(self, wx.ID_ANY, _("Codes"))
-		__gszr_encounter_details.Add(__lbl_codes_aoe, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__gszr_encounter_details.Add(self._PRW_aoe_codes, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
 		__gszr_encounter_details.AddGrowableCol(1)
-		__szr_main.Add(__gszr_encounter_details, 0, wx.EXPAND | wx.TOP, 3)
+
 		self.SetSizer(__szr_main)
 		__szr_main.Fit(self)
+
 		self.Layout()
 		# end wxGlade
 

@@ -103,21 +103,10 @@ select
 		as encounter_started,
 	c_enc.last_affirmed
 		as encounter_last_affirmed,
-	c_et.description
-		as encounter_type,
-    COALESCE(tx_exact_lang.trans, tx_reduced_lang.trans, c_et.description)
-		AS l10n_type
+	c_enc.fk_type
+		as pk_encounter_type
 from
 	clin.encounter c_enc
-		inner join clin.encounter_type c_et on (c_enc.fk_type = c_et.pk)
-			LEFT JOIN i18n.translations tx_exact_lang ON
-				tx_exact_lang.orig = c_et.description
-					AND
-				tx_exact_lang.lang = (SELECT lang FROM i18n.curr_lang WHERE db_user = current_user)
-			LEFT JOIN i18n.translations tx_reduced_lang ON
-				tx_reduced_lang.orig = c_et.description
-					AND
-				tx_reduced_lang.lang = (SELECT regexp_replace(lang, '_.*$', '') FROM i18n.curr_lang WHERE db_user = current_user)
 		left join dem.org_unit d_ou on (c_enc.fk_location = d_ou.pk)
 			left join dem.org d_o on (d_ou.fk_org = d_o.pk)
 ;

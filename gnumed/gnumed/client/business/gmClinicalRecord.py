@@ -1418,7 +1418,7 @@ WHERE
 			where_parts.append('c_v_shots.pk_episode = ANY(%(epis)s)')
 			args['epis'] = episodes
 		if issues:
-			where_parts.append('c_v_shots.pk_episode = ANY(SELECT pk FROM clin.episode WHERE fk_health_issue = ANY(%(issues)s))')
+			where_parts.append('c_v_shots.pk_episode = ANY(ARRAY(SELECT pk FROM clin.episode WHERE fk_health_issue = ANY(%(issues)s)))')
 			args['issues'] = issues
 		if atc_indications:
 			where_parts.append('c_v_lv4i.atc_indication = ANY(%(atc_inds)s)')
@@ -1650,7 +1650,7 @@ WHERE
 			# the encounters found with them - hence we don't need a WHERE on the patient ...
 			# but, better safe than sorry ...
 			args = {'epi_pks': episodes, 'pat': self.pk_patient}
-			cmd = "SELECT DISTINCT fk_encounter FROM clin.clin_root_item WHERE fk_episode = ANY(%(epi_pks)s) AND fk_encounter = ANY(SELECT pk FROM clin.encounter WHERE fk_patient = %(pat)s)"
+			cmd = "SELECT DISTINCT fk_encounter FROM clin.clin_root_item WHERE fk_episode = ANY(%(epi_pks)s) AND fk_encounter = ANY(ARRAY(SELECT pk FROM clin.encounter WHERE fk_patient = %(pat)s))"
 			rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 			encs4epis_pks = [ r['fk_encounter'] for r in rows ]
 			if id_list is None:
@@ -1706,7 +1706,7 @@ WHERE
 			# the encounters found with them - hence we don't need a WHERE on the patient ...
 			# but, better safe than sorry ...
 			args = {'epi_pks': episodes, 'pat': self.pk_patient}
-			cmd = "SELECT distinct fk_encounter FROM clin.clin_root_item WHERE fk_episode = ANY(%(epi_pks)s) AND fk_encounter IN (SELECT pk FROM clin.encounter WHERE fk_patient = %(pat)s)"
+			cmd = "SELECT distinct fk_encounter FROM clin.clin_root_item WHERE fk_episode = ANY(%(epi_pks)s) AND fk_encounter = ANY(ARRAY(SELECT pk FROM clin.encounter WHERE fk_patient = %(pat)s))"
 			rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 			encs4epis_pks = [ r['fk_encounter'] for r in rows ]
 			filtered_encounters = [ enc for enc in filtered_encounters if enc['pk_encounter'] in encs4epis_pks ]

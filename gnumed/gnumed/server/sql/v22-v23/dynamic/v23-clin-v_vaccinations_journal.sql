@@ -82,15 +82,11 @@ select
 		as encounter_started,
 	c_enc.last_affirmed
 		as encounter_last_affirmed,
-	c_ety.description
-		as encounter_type,
-	_(c_ety.description)
-		as encounter_l10n_type
+    c_enc.fk_type AS pk_encounter_type
 
 from
 	clin.vaccination c_vacc
 		join clin.encounter c_enc on (c_enc.pk = c_vacc.fk_encounter)
-			inner join clin.encounter_type c_ety on (c_enc.fk_type = c_ety.pk)
 		inner join clin.episode c_epi on (c_vacc.fk_episode = c_epi.pk)
 			left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
 		inner join ref.vaccine r_vcine on (r_vcine.pk = c_vacc.fk_vaccine)

@@ -91,10 +91,8 @@ create view clin.v_reminders_journal as
 			limit 1
 		)
 			as encounter_last_affirmed,
-		null::text
-			as encounter_type,
-		null::text
-			as encounter_l10n_type
+		null::integer
+			as pk_encounter_type
 	from
 		dem.message_inbox d_mi
 			inner join dem.v_inbox_item_type d_vit on (d_mi.fk_inbox_item_type = d_vit.pk_type)
@@ -185,10 +183,8 @@ UNION
 			limit 1
 		)
 			as encounter_last_affirmed,
-		null::text
-			as encounter_type,
-		null::text
-			as encounter_l10n_type
+		null::integer
+			as pk_encounter_type
 	from
 		dem.message_inbox d_mi
 			inner join dem.v_inbox_item_type d_vit on (d_mi.fk_inbox_item_type = d_vit.pk_type)
@@ -280,10 +276,8 @@ UNION
 			limit 1
 		)
 			as encounter_last_affirmed,
-		null::text
-			as encounter_type,
-		null::text
-			as encounter_l10n_type
+		null::integer
+			as pk_encounter_type
 	from
 		dem.message_inbox d_mi
 			inner join dem.v_inbox_item_type d_vit on (d_mi.fk_inbox_item_type = d_vit.pk_type)

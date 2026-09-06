@@ -75,22 +75,10 @@ select
 		as encounter_started,
 	c_enc.last_affirmed
 		as encounter_last_affirmed,
-	c_et.description
-		as encounter_type,
-	COALESCE(tx_exact_enc_type.trans, tx_reduced_enc_type.trans, c_et.description)
-		as encounter_l10n_type
+	c_enc.fk_type AS pk_encounter_type
 from
 	blobs.doc_med b_dm
 		inner join clin.encounter c_enc on (b_dm.fk_encounter = c_enc.pk)
-			inner join clin.encounter_type c_et on (c_enc.fk_type = c_et.pk)
-				LEFT JOIN i18n.translations tx_exact_enc_type ON
-					tx_exact_enc_type.orig = c_et.description
-						AND
-					tx_exact_enc_type.lang = (SELECT lang FROM i18n.curr_lang WHERE db_user = current_user)
-				LEFT JOIN i18n.translations tx_reduced_enc_type ON
-					tx_reduced_enc_type.orig = c_et.description
-						AND
-					tx_reduced_enc_type.lang = (SELECT regexp_replace(lang, '_.*$', '') FROM i18n.curr_lang WHERE db_user = current_user)
 
 		inner join blobs.doc_type b_dt on (b_dm.fk_type = b_dt.pk)
 			LEFT JOIN i18n.translations tx_exact_doc_type ON

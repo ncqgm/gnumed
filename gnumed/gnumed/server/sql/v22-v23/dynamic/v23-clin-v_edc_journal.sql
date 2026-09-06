@@ -70,10 +70,8 @@ select
 		as encounter_started,
 	null::timestamp with time zone
 		as encounter_last_affirmed,
-	null::text
-		as encounter_type,
-	null::text
-		as encounter_l10n_type
+	null::integer
+		as pk_encounter_type
 from
 	clin.patient c_p
 where

@@ -78,15 +78,11 @@ select
 		as encounter_started,
 	c_enc.last_affirmed
 		as encounter_last_affirmed,
-	c_ety.description
-		as encounter_type,
-	_(c_ety.description)
-		as encounter_l10n_type
+	c_enc.fk_type AS pk_encounter_type
 
 from
 	clin.suppressed_hint c_sh
 		inner join clin.encounter c_enc on (c_sh.fk_encounter = c_enc.pk)
-			inner join clin.encounter_type c_ety on (c_enc.fk_type = c_ety.pk)
 		inner join ref.v_auto_hints r_vah on (c_sh.fk_hint = r_vah.pk_auto_hint)
 ;
 
