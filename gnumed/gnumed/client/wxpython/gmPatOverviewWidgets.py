@@ -721,7 +721,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		del vaccs
 
 		for abuse in [ a for a in emr.abused_substances if a['use_type'] == gmMedication.USE_TYPE_PREVIOUSLY_ADDICTED ]:
-			sort_key = '%s::%s' % (abuse['last_checked_when'].strftime(date_format4sorting), abuse['substance'])
+			sort_key = '%s::%s' % (abuse['started'].strftime(date_format4sorting), abuse['substance'])
 			label = _('Hx of addiction: %s') % abuse['substance']
 			sort_key_list.append(sort_key)
 			data[sort_key] = [label, abuse]

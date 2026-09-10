@@ -4,7 +4,7 @@
 license: GPL v2 or later
 
 
-intake regimen:
+Sample intake schedules:
 
 	beim Aufstehen / Frühstück / Mittag / abends / zum Schlafengehen
 
@@ -127,14 +127,6 @@ def generate_pulmonary_information_urls(search_term:str=None) -> list:
 		names.append(search_term['substance'])
 		if search_term['atc_substance']:
 			atcs.append(search_term['atc_substance'])
-	elif isinstance(search_term, cIntakeWithRegimen):
-		names.append(search_term['substance'])
-		if search_term['atc_substance']:
-			atcs.append(search_term['atc_substance'])
-	elif isinstance(search_term, cIntakeRegimen):
-		names.append(search_term['substance'])
-		if search_term['atc_substance']:
-			atcs.append(search_term['atc_substance'])
 	else:
 		names.append('%s' % search_term)
 		atcs.extend(gmATC.text2atc(text = '%s' % search_term, fuzzy = True))
@@ -171,14 +163,6 @@ def generate_pregnancy_information_urls(search_term:str=None) -> list:
 		if search_term['atc_substance']:
 			atcs.append(search_term['atc_substance'])
 	elif isinstance(search_term, cSubstanceIntake):
-		names.append(search_term['substance'])
-		if search_term['atc_substance']:
-			atcs.append(search_term['atc_substance'])
-	elif isinstance(search_term, cIntakeWithRegimen):
-		names.append(search_term['substance'])
-		if search_term['atc_substance']:
-			atcs.append(search_term['atc_substance'])
-	elif isinstance(search_term, cIntakeRegimen):
 		names.append(search_term['substance'])
 		if search_term['atc_substance']:
 			atcs.append(search_term['atc_substance'])
@@ -223,14 +207,6 @@ def generate_renal_insufficiency_urls(search_term:str=None) -> list:
 		names.append(search_term['substance'])
 		if search_term['atc_substance']:
 			atcs.append(search_term['atc_substance'])
-	elif isinstance(search_term, cIntakeWithRegimen):
-		names.append(search_term['substance'])
-		if search_term['atc_substance']:
-			atcs.append(search_term['atc_substance'])
-	elif isinstance(search_term, cIntakeRegimen):
-		names.append(search_term['substance'])
-		if search_term['atc_substance']:
-			atcs.append(search_term['atc_substance'])
 	else:
 		names.append('%s' % search_term)
 		atcs.extend(gmATC.text2atc(text = '%s' % search_term, fuzzy = True))
@@ -263,10 +239,6 @@ def generate_liver_information_urls(search_term:str=None) -> list[str]:
 	elif isinstance(search_term, cSubstanceDose):
 		names.append(search_term['substance'])
 	elif isinstance(search_term, cSubstanceIntake):
-		names.append(search_term['substance'])
-	elif isinstance(search_term, cIntakeWithRegimen):
-		names.append(search_term['substance'])
-	elif isinstance(search_term, cIntakeRegimen):
 		names.append(search_term['substance'])
 	else:
 		names.append('%s' % search_term)
@@ -356,9 +328,9 @@ class cSubstance(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 	#--------------------------------------------------------
-	def get_regimens(self, pk_patient:int=None, ongoing_only:bool=False, order_by:str=None) -> list:
+	def get_intakes(self, pk_patient:int=None, ongoing_only:bool=False, order_by:str=None) -> list:
 		assert pk_patient is not None, '<pk_patient> must be given'
-		return get_intake_regimens (
+		return get_substance_intakes (
 			order_by = order_by,
 			pk_patient = pk_patient,
 			ongoing_only = ongoing_only
@@ -2027,52 +1999,6 @@ def delete_drug_product(pk_drug_product:int=None) -> bool:
 #------------------------------------------------------------
 #------------------------------------------------------------
 #------------------------------------------------------------
-def get_intakes_with_regimens (
-	pk_patient:int=None,
-	include_inactive:bool=False,
-	order_by:str=None,
-	episodes:list[int]=None,
-	issues:list[int]=None,
-	exclude_potential_abuses:bool=False,
-	exclude_medications:bool=False,
-	pk_substance:int=None
-) -> list[cIntakeWithRegimen]:
-	"""Retrieve intake entries for each regimen."""
-	where_parts = ['TRUE']
-	args:dict[str,int|list[int]] = {}
-	if pk_patient:
-		where_parts.append('pk_patient = %(pat)s')
-		args['pat'] = pk_patient
-	if not include_inactive:
-		where_parts.append('((discontinued IS NULL) OR (discontinued > clock_timestamp()))')
-	if exclude_potential_abuses:
-		where_parts.append('use_type IS NULL	-- explicit medications only')
-	if exclude_medications:
-		where_parts.append('use_type IS NOT NULL	-- no medications')
-	if episodes:
-		where_parts.append('pk_episode = ANY(%(pk_epis)s)')
-		args['pk_epis'] = episodes
-	if issues:
-		where_parts.append('pk_health_issue = ANY(%(pk_issues)s)')
-		args['pk_issues'] = issues
-	if pk_substance:
-		where_parts.append('pk_substance = %(pk_subst)s')
-		args['pk_subst'] = pk_substance
-	if order_by:
-		order_by = '\nORDER BY %s' % order_by
-	else:
-		order_by = ''
-	sql = _SQL_get_intake_with_regimen % ('%s %s' % (
-		'\nAND '.join(where_parts),
-		order_by
-	))
-	rows = gmPG2.run_ro_queries(queries = [{'sql': sql, 'args': args}])
-	return [ cIntakeWithRegimen(row = {
-		'data': r,
-		'pk_obj': {'pk_intake_regimen': r['pk_intake_regimen'], 'pk_intake': r['pk_intake']}
-	}) for r in rows ]
-
-
 #============================================================
 #------------------------------------------------------------
 #------------------------------------------------------------
@@ -2132,10 +2058,11 @@ class cSubstanceIntake(gmBusinessDBObject.cBusinessDBObject):
 		'pk_encounter'
 	]
 	#--------------------------------------------------------
-	def format_maximum_information(self, patient=None):
+	def format_maximum_information(self, patient=None, allergy:gmAllergy.cAllergy=None):
 		# FIXME: enhance with other same-substance intakes of this patient
 		return self.format (
 			single_line = False,
+			allergy = None,
 			include_metadata = True,
 			date_format = '%Y %b %d',
 			include_instructions = True,
@@ -2145,7 +2072,7 @@ class cSubstanceIntake(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 	#--------------------------------------------------------
-	def format(self, left_margin:int=0, date_format:str='%Y %b %d', single_line:bool=True, allergy=None, include_metadata:bool=True, include_instructions:bool=False, include_loincs:bool=False, terse:bool=False, eol='\n'):
+	def format(self, left_margin:int=0, date_format:str='%Y %b %d', single_line:bool=True, allergy:gmAllergy.cAllergy=None, include_metadata:bool=True, include_instructions:bool=False, include_loincs:bool=False, terse:bool=False, eol='\n'):
 		# medication ?
 		if self._payload['use_type'] is None:
 			if single_line:
@@ -2296,7 +2223,7 @@ class cSubstanceIntake(gmBusinessDBObject.cBusinessDBObject):
 		self,
 		left_margin:int=0,
 		date_format:str='%Y %b %d',
-		allergy=None,
+		allergy:gmAllergy.cAllergy=None,
 		include_loincs:bool=False,
 		include_metadata:bool=False,
 		eol:str=None
@@ -2374,7 +2301,7 @@ class cSubstanceIntake(gmBusinessDBObject.cBusinessDBObject):
 	def format_technical_details(self):
 		lines = []
 		lines.append(_('Intake: #%s (%s)') % (self['pk_intake'], self['description']))
-		lines.append(' ' + _('Version: #%(row_ver)s, %(mod_when)s by %(mod_by)s.') % {
+		lines.append(_('Version: #%(row_ver)s, %(mod_when)s by %(mod_by)s.') % {
 			'row_ver': self._payload['row_version'],
 			'mod_when': self._payload['modified_when'].strftime('%Y %b %d  %H:%M.%S'),
 			'mod_by': self._payload['modified_by']
@@ -2394,7 +2321,7 @@ class cSubstanceIntake(gmBusinessDBObject.cBusinessDBObject):
 			self.formatted_units
 		)]
 		if self['schedule']:
-			lines.append('  ' + _('Regimen: %s') % self['schedule'])
+			lines.append('  ' + _('Schedule: %s') % self['schedule'])
 		lines.append('  ' + _('Timerange: %s') % self.medically_formatted_timerange)
 		if self['notes4patient']:
 			lines.append(gmTools.wrap (
@@ -2413,6 +2340,13 @@ class cSubstanceIntake(gmBusinessDBObject.cBusinessDBObject):
 		if self['notes4providers']:
 			lines.append(gmTools.wrap (
 				_('Provider notes: %s') % self['notes4providers'],
+				width = max_width,
+				initial_indent = '  ',
+				subsequent_indent = '    '
+			))
+		if self['notes4pharmacies']:
+			lines.append(gmTools.wrap (
+				_('Pharmacy notes: %s') % self['notes4pharmacies'],
 				width = max_width,
 				initial_indent = '  ',
 				subsequent_indent = '    '
@@ -2464,7 +2398,12 @@ class cSubstanceIntake(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _get_use_type_string(self):
-		return use_type2str(self._payload['use_type'])
+		try:
+			return USE_TYPE_NAMES[self._payload['use_type']]
+
+		except KeyError:
+			_log.error('unknown medication use type')
+			return _('unknown use type [%s]' % self._payload['use_type'])
 
 	use_type_string = property(_get_use_type_string)
 
@@ -2544,7 +2483,11 @@ def get_substance_intakes (
 	pk_substances:list[int]=None,
 	link_obj=None,
 	order_by:str=None,
-	ongoing_only:bool=False
+	ongoing_only:bool=False,
+	episodes:list[int]=None,
+	issues:list[int]=None,
+	exclude_potential_abuses:bool=False,
+	exclude_medications:bool=False
 ) -> list[cSubstanceIntake]:
 	pass
 
@@ -2555,7 +2498,11 @@ def get_substance_intakes (
 	pk_substances:list[int]=None,
 	link_obj=None,
 	order_by:str=None,
-	ongoing_only:bool=False
+	ongoing_only:bool=False,
+	episodes:list[int]=None,
+	issues:list[int]=None,
+	exclude_potential_abuses:bool=False,
+	exclude_medications:bool=False
 ) -> list[int]:
 	pass
 
@@ -2565,7 +2512,11 @@ def get_substance_intakes (
 	pk_substances:list[int]=None,
 	link_obj=None,
 	order_by:str=None,
-	ongoing_only:bool=False
+	ongoing_only:bool=False,
+	episodes:list[int]=None,
+	issues:list[int]=None,
+	exclude_potential_abuses:bool=False,
+	exclude_medications:bool=False
 ) -> list[cSubstanceIntake] | list[int]:
 	"""Retrieve substance intakes.
 
@@ -2578,15 +2529,25 @@ def get_substance_intakes (
 	"""
 	args:dict[str,int|list[int]] = {}
 	# FIXME: support most_recent
-	where_parts = ['true']
+	where_parts = ['TRUE']
 	if pk_patient:
-		args['pat'] = pk_patient
 		where_parts.append('pk_patient = %(pat)s')
+		args['pat'] = pk_patient
 	if pk_substances:
-		args['pk_substances'] = pk_substances
 		where_parts.append('pk_substance = ANY(%(pk_substances)s)')
+		args['pk_substances'] = pk_substances
 	if ongoing_only:
-		where_parts.append('discontinued IS NULL')
+		where_parts.append('((discontinued IS NULL) OR (discontinued > clock_timestamp()))')
+	if exclude_potential_abuses:
+		where_parts.append('use_type IS NULL	-- explicit medications only')
+	if exclude_medications:
+		where_parts.append('use_type IS NOT NULL	-- no medications')
+	if episodes:
+		where_parts.append('pk_episode = ANY(%(pk_epis)s)')
+		args['pk_epis'] = episodes
+	if issues:
+		where_parts.append('pk_health_issue = ANY(%(pk_issues)s)')
+		args['pk_issues'] = issues
 	SQL = _SQL_get_substance_intake % '\nAND '.join(where_parts)
 	if order_by:
 		SQL += ' ORDER BY %s' % order_by
@@ -2660,7 +2621,7 @@ def create_substance_intake(pk_encounter=None, pk_episode=None, pk_substance=Non
 		'pk_epi': pk_episode,
 		'pk_subst': pk_substance
 	}
-	cmd = """
+	SQL = """
 		INSERT INTO clin.intake (
 			fk_encounter,
 			fk_episode,
@@ -2672,18 +2633,13 @@ def create_substance_intake(pk_encounter=None, pk_episode=None, pk_substance=Non
 		)
 		RETURNING pk
 	"""
-	rows = gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}], return_data = True, link_obj = link_obj)
+	rows = gmPG2.run_rw_query(sql = SQL, args =  args, return_data = True, link_obj = link_obj)
 	return cSubstanceIntake(aPK_obj = rows[0][0], link_obj = link_obj)
 
 #------------------------------------------------------------
 def delete_substance_intake(pk_intake:int=None, link_obj=None) -> bool:
 	args = {'pk_intake': pk_intake}
 	queries = []
-	if delete_regimen:
-		queries.append ({
-			'sql': 'DELETE FROM clin.intake_regimen c_ir WHERE fk_intake = %(pk_intake)s',
-			'args': args
-		})
 	queries.append ({
 		'sql': 'DELETE FROM clin.intake WHERE pk = %(pk_intake)s',
 		'args': args
@@ -3108,15 +3064,15 @@ def __generate_enhanced_amts_data_template_definition_file_v2_0(work_dir=None):
 #------------------------------------------------------------
 def generate_failsafe_medication_list_entries(pk_patient:int=None, max_width:int=80, eol:str=None) -> str|list:
 	lines = []
-	iwrs = get_intakes_with_regimens (
+	intakes = get_substance_intakes (
 		pk_patient = pk_patient,
-		include_inactive = False,
+		ongoing_only = True,
 		order_by = 'discontinued NULLS FIRST, substance',
 		exclude_potential_abuses = True,
 		exclude_medications = False
 	)
 	delim = '#' + '-' * (max_width - 1)
-	for i in iwrs:
+	for i in intakes:
 		lines.append(delim)
 		lines.extend(i.format_for_failsafe_output(max_width = max_width))
 	lines.append(delim)
@@ -3143,7 +3099,7 @@ _LATEX__current_meds_notes = """{ %% --- current medication list notes ---------
 %%  ^^^ current medication list notes ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }"""
 
-def format_substance_intake_notes(emr=None, output_format='latex') -> str:
+def tabulate_substance_intake_notes(emr=None, output_format='latex') -> str:
 	current_meds = emr.get_current_medications (
 		include_inactive = False,
 		order_by = 'substance'
@@ -3194,7 +3150,7 @@ _LATEX__current_meds_table = """{ %% --- current medication list table ---------
 %% ^^^ current medication list table ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 }"""
 
-def format_substance_intake(emr=None, output_format='latex') -> str:
+def tabulate_substance_intakes(emr=None, output_format='latex') -> str:
 	current_meds = emr.get_current_medications (
 		include_inactive = False,
 		order_by = 'substance'
@@ -3310,14 +3266,6 @@ def get_other_drug(name=None, pk_dose=None):
 	return drug
 
 #------------------------------------------------------------
-def use_type2str(use_type:int) -> str:
-	try:
-		return USE_TYPE_NAMES[use_type]
-
-	except KeyError:
-		_log.error('unknown medication use type')
-		return _('unknown use type [%s]' % use_type)
-
 #--------------------------------------------------------
 #--------------------------------------------------------
 #------------------------------------------------------------
@@ -3360,7 +3308,7 @@ def format_units(unit:str=None, dose_unit:str=None, preparation:str=None, short:
 
 #------------------------------------------------------------
 def format_intake_start_medically(intake:cSubstanceIntake, terse:bool=False) -> str:
-	"""Format start of intake regimen suitable for display.
+	"""Format start of intake suitable for display.
 
 	Args:
 		intake: intake to format
@@ -3469,29 +3417,29 @@ def format_intake_start_medically(intake:cSubstanceIntake, terse:bool=False) -> 
 	)
 
 #------------------------------------------------------------
-def format_intake_end_medically(regimen_like:cSubstanceIntake, terse:bool=False) -> str:
+def format_intake_end_medically(intake:cSubstanceIntake, terse:bool=False) -> str:
 	"""Format end of intake regimen suitable for display.
 
 	Args:
-		regimen_like: cIntakeWithRegimen or cIntakeRegimen
+		intake: cSubstanceIntake
 	"""
-	assert regimen_like, '<regimen_like> must be given'
+	assert intake, '<intake> must be given'
 
-	if gmDateTime.pydt_is_today(regimen_like['discontinued']):
+	if gmDateTime.pydt_is_today(intake['discontinued']):
 		return _('today')
 
-	if gmDateTime.pydt_is_yesterday(regimen_like['discontinued']):
+	if gmDateTime.pydt_is_yesterday(intake['discontinued']):
 		return '-1/365' if terse else _('yesterday')
 
-	if not regimen_like['discontinued'] and not regimen_like['planned_duration']:
+	if not intake['discontinued'] and not intake['planned_duration']:
 		return gmTools.u_ellipsis
 
-	if not regimen_like['discontinued'] and not regimen_like['started']:
+	if not intake['discontinued'] and not intake['started']:
 		return gmTools.u_ellipsis
 
 	now = gmDateTime.pydt_now_here()
-	if not regimen_like['discontinued']:
-		planned_end = regimen_like['started'] + regimen_like['planned_duration'] - pydt.timedelta(days = 1)
+	if not intake['discontinued']:
+		planned_end = intake['started'] + intake['planned_duration'] - pydt.timedelta(days = 1)
 		intv = max(now, planned_end) - min(now, planned_end)
 		if planned_end.year == now.year:
 			end_template = '%b %d'
@@ -3512,68 +3460,68 @@ def format_intake_end_medically(regimen_like:cSubstanceIntake, terse:bool=False)
 			)
 		return '%s (%s)' % (planned_end.strftime(end_template), planned_end_from_now_str)
 
-	intv = max(now, regimen_like['discontinued']) - min(now, regimen_like['discontinued'])
-	if regimen_like['discontinued'].year == now.year:
+	intv = max(now, intake['discontinued']) - min(now, intake['discontinued'])
+	if intake['discontinued'].year == now.year:
 		end_date_template = '%b %d'
-		if regimen_like['discontinued'] < now:
-			planned_end_from_now_template = ('-%s,%s' % regimen_like['discontinued'].year) if terse else _('%s ago, this year')
+		if intake['discontinued'] < now:
+			planned_end_from_now_template = ('-%s,%s' % intake['discontinued'].year) if terse else _('%s ago, this year')
 		else:
-			planned_end_from_now_template = ('+%s,%s' % regimen_like['discontinued'].year) if terse else _('in %s, this year')
+			planned_end_from_now_template = ('+%s,%s' % intake['discontinued'].year) if terse else _('in %s, this year')
 		planned_end_from_now_str = planned_end_from_now_template % gmDateTime.format_interval_medically(intv, terse = terse)
 	else:
 		end_date_template = '%Y'
-		if regimen_like['discontinued'] < now:
+		if intake['discontinued'] < now:
 			planned_end_from_now_template = '-%s,%s' if terse else _('%s ago: %s')
 		else:
 			planned_end_from_now_template = '+%s,%s' if terse else _('in %s: %s')
 		planned_end_from_now_str = planned_end_from_now_template % (
 			gmDateTime.format_interval_medically(intv, terse = terse),
-			regimen_like['discontinued'].strftime('%b %d')
+			intake['discontinued'].strftime('%b %d')
 		)
-	return '%s (%s)' % (regimen_like['discontinued'].strftime(end_date_template), planned_end_from_now_str)
+	return '%s (%s)' % (intake['discontinued'].strftime(end_date_template), planned_end_from_now_str)
 
 #------------------------------------------------------------
-def format_intake_timerange_of_stopped_medically(regimen_like:cSubstanceIntake, terse:bool=False) -> str:
+def format_intake_timerange_of_stopped_medically(intake:cSubstanceIntake, terse:bool=False) -> str:
 	"""Format start/end of discontinued regiment suitable for display.
 
 	Args:
-		regimen_like: cIntakeWithRegimen or cIntakeRegimen
+		intake: cSubstanceIntake
 	"""
-	assert regimen_like['discontinued'], '<regimen_like> does not contain discontinued regimen'
+	assert intake['discontinued'], '<intake> does not contain discontinued regimen'
 
 	now = gmDateTime.pydt_now_here()
 	# format intro
-	if gmDateTime.pydt_is_today(regimen_like['discontinued']):
+	if gmDateTime.pydt_is_today(intake['discontinued']):
 		intro = _('until today')
 	else:
-		ended_ago = now - regimen_like['discontinued']
+		ended_ago = now - intake['discontinued']
 		intro = _('until %s%s ago') % (
 			gmTools.u_almost_equal_to,
 			gmDateTime.format_interval_medically(ended_ago, terse = terse)
 		)
 	# format start
-	if regimen_like['started']:
-		comment = '¹' if terse else gmTools.coalesce(regimen_like['comment_on_start'], '', ' [%s]')
+	if intake['started']:
+		comment = '¹' if terse else gmTools.coalesce(intake['comment_on_start'], '', ' [%s]')
 		start = '%s%s%s' % (
-			gmTools.bool2subst((regimen_like['comment_on_start'] is None), '', gmTools.u_almost_equal_to),
-			regimen_like['started'].strftime('%Y %b %d'),
+			gmTools.bool2subst((intake['comment_on_start'] is None), '', gmTools.u_almost_equal_to),
+			intake['started'].strftime('%Y %b %d'),
 			comment
 		)
 	else:
-		start = gmTools.coalesce(regimen_like['comment_on_start'], '?')
+		start = gmTools.coalesce(intake['comment_on_start'], '?')
 	# format duration taken
-	if regimen_like['started']:
-		duration_taken = regimen_like['discontinued'] - regimen_like['started'] + pydt.timedelta(days = 1)
+	if intake['started']:
+		duration_taken = intake['discontinued'] - intake['started'] + pydt.timedelta(days = 1)
 		duration_taken_str = gmDateTime.format_interval(duration_taken, gmDateTime.ACC_DAYS)
 	else:
 		duration_taken_str = '?'
 	# format duration planned
-	if regimen_like['planned_duration']:
-		duration_planned_str = _(' [planned: %s]') % gmDateTime.format_interval(regimen_like['planned_duration'], gmDateTime.ACC_DAYS)
+	if intake['planned_duration']:
+		duration_planned_str = _(' [planned: %s]') % gmDateTime.format_interval(intake['planned_duration'], gmDateTime.ACC_DAYS)
 	else:
 		duration_planned_str = ''
 	# format end
-	end = regimen_like['discontinued'].strftime('%Y %b %d')
+	end = intake['discontinued'].strftime('%Y %b %d')
 	# assemble
 	return '%s: %s %s %s%s %s %s' % (
 		intro,
@@ -3586,29 +3534,29 @@ def format_intake_timerange_of_stopped_medically(regimen_like:cSubstanceIntake, 
 	)
 
 #------------------------------------------------------------
-def format_intake_timerange_medically(regimen_like:cSubstanceIntake, terse:bool=False) -> str:
+def format_intake_timerange_medically(intake:cSubstanceIntake, terse:bool=False) -> str:
 	"""Format start/end of intake regimen suitable for display.
 
 	Args:
-		regimen_like: cIntakeWithRegimen or cIntakeRegimen
+		intake: cSubstanceIntake
 	"""
 	now = gmDateTime.pydt_now_here()
 	# medications stopped today or before today
-	if regimen_like['discontinued']:
-		if (regimen_like['discontinued'] < now) or (gmDateTime.pydt_is_today(regimen_like['discontinued'])):
-			return format_intake_timerange_of_stopped_medically(regimen_like, terse = terse)
+	if intake['discontinued']:
+		if (intake['discontinued'] < now) or (gmDateTime.pydt_is_today(intake['discontinued'])):
+			return format_intake_timerange_of_stopped_medically(intake, terse = terse)
 
 	arrow_parts = []
 	# format start
-	arrow_parts.append(format_intake_start_medically(regimen_like, terse = terse))
+	arrow_parts.append(format_intake_start_medically(intake, terse = terse))
 	# format durations
 	durations = []
-	if regimen_like['discontinued']:
-		if regimen_like['started']:
-			duration_documented = regimen_like['discontinued'] - regimen_like['started']
+	if intake['discontinued']:
+		if intake['started']:
+			duration_documented = intake['discontinued'] - intake['started']
 			durations.append(_('%s (documented)') % gmDateTime.format_interval(duration_documented, gmDateTime.ACC_DAYS))
-	if regimen_like['planned_duration'] is not None:
-		durations.append(_('%s (plan)') % gmDateTime.format_interval(regimen_like['planned_duration'], gmDateTime.ACC_DAYS))
+	if intake['planned_duration'] is not None:
+		durations.append(_('%s (plan)') % gmDateTime.format_interval(intake['planned_duration'], gmDateTime.ACC_DAYS))
 	spacer = '' if terse else ' '
 	if len(durations) == 0:
 		duration_str = '' if terse else '?'
@@ -3616,7 +3564,7 @@ def format_intake_timerange_medically(regimen_like:cSubstanceIntake, terse:bool=
 		duration_str = (',%s' % spacer).join(durations)
 	arrow_parts.append(duration_str)
 	# format end
-	arrow_parts.append(format_intake_end_medically(regimen_like, terse = terse))
+	arrow_parts.append(format_intake_end_medically(intake, terse = terse))
 	# assemble
 	return ('%s%s%s' % (spacer, gmTools.u_arrow2right_thick, spacer)).join(arrow_parts)
 
@@ -3860,8 +3808,8 @@ if __name__ == "__main__":
 		gmPraxis.gmCurrentPraxisBranch.from_first_branch()
 		import gmClinicalRecord
 		emr = gmClinicalRecord.cClinicalRecord(12)
-		print(format_substance_intake(emr = emr, output_format = 'latex'))
-		print(format_substance_intake_notes(emr = emr, output_format = 'latex'))
+		print(tabulate_substance_intakes(emr = emr, output_format = 'latex'))
+		print(tabulate_substance_intake_notes(emr = emr, output_format = 'latex'))
 
 	#--------------------------------------------------------
 	# generic
@@ -3874,7 +3822,6 @@ if __name__ == "__main__":
 
 	gmPG2.request_login_params(setup_pool = True)
 	#test_format_medication_list()
-	##test_format_regimen_like_as_multiple_lines()
 	#test_format_intake_as_single_line()
 	#test_get_substances()
 	#test_get_doses()
@@ -3883,13 +3830,13 @@ if __name__ == "__main__":
 	#test_get_intakes()
 	#test_get_intakes_with_regimens()
 	#test_get_intake_regimens()
-	test_intake_formatting()
+	#test_intake_formatting()
 	##test_intake_regimen()
 	##test_create_substance_intake()
 	##test_delete_intake()
 	##test_get_habit_drugs()
 	#test_can_format()
-	#test_format_substance_intake()
+	test_format_substance_intake()
 
 	# AMTS
 	#test_generate_amts_data_template_definition_file()

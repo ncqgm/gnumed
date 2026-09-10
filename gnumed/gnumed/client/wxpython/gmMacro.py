@@ -2282,14 +2282,14 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return '\n'.join(lines)
 	#--------------------------------------------------------
 	def _get_variant_current_meds_table(self, data=None):
-		return gmMedication.format_substance_intake (
+		return gmMedication.tabulate_substance_intakes (
 			emr = self.pat.emr,
 			output_format = self.__esc_style
 		)
 
 	#--------------------------------------------------------
 	def _get_variant_current_meds_notes(self, data=None):
-		return gmMedication.format_substance_intake_notes (
+		return gmMedication.tabulate_substance_intake_notes (
 			emr = self.pat.emr,
 			output_format = self.__esc_style
 		)

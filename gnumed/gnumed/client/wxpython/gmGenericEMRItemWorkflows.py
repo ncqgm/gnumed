@@ -20,8 +20,6 @@ from Gnumed.business.gmHospitalStay import cHospitalStay
 from Gnumed.business.gmPerformedProcedure import cPerformedProcedure
 from Gnumed.business.gmPathLab import cTestResult
 from Gnumed.business.gmMedication import cSubstanceIntake
-from Gnumed.business.gmMedication import cIntakeRegimen
-from Gnumed.business.gmMedication import cIntakeWithRegimen
 from Gnumed.business.gmFamilyHistory import cFamilyHistory
 from Gnumed.business.gmVaccination import cVaccination
 from Gnumed.business.gmExternalCare import cExternalCareItem
@@ -56,8 +54,6 @@ __map_class2edit_call = {
 	cTestResult: {'edit_in_dlg': edit_measurement},
 	cEncounter: {'edit_in_dlg': edit_encounter},
 	cSubstanceIntake: {'edit_in_dlg': edit_intake_with_regimen},
-	cIntakeWithRegimen: {'edit_in_dlg': edit_intake_with_regimen},
-	cIntakeRegimen: {'edit_in_dlg': edit_intake_regimen},
 	cFamilyHistory: {'edit_in_dlg': edit_family_history},
 	cVaccination: {'edit_in_dlg': edit_vaccination},
 	cPerformedProcedure: {'edit_in_dlg': edit_procedure},

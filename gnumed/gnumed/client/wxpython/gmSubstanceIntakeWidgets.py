@@ -125,7 +125,7 @@ def manage_substance_intakes(parent=None, emr=None, include_inactive:bool=True):
 
 
 #------------------------------------------------------------
-def edit_intake_with_regimen(parent=None, intake_with_regimen:gmMedication.cIntakeWithRegimen=None, single_entry:bool=False):
+def edit_intake_with_regimen(parent=None, intake_with_regimen:gmMedication.cSubstanceIntake=None, single_entry:bool=False):
 	ea = cSubstanceIntakeEAPnl(parent, -1, intake = intake_with_regimen)
 	ea.mode = gmTools.coalesce(intake_with_regimen, 'new', 'edit')
 	dlg = gmEditArea.cGenericEditAreaDlg(parent, -1, edit_area = ea, single_entry = True)
@@ -144,7 +144,7 @@ def edit_intake_with_regimen(parent=None, intake_with_regimen:gmMedication.cInta
 	return True
 
 #------------------------------------------------------------
-def edit_intake_regimen(parent=None, intake_regimen:gmMedication.cIntakeRegimen=None, single_entry:bool=False):
+def edit_intake_regimen(parent=None, intake_regimen:gmMedication.cSubstanceIntake=None, single_entry:bool=False):
 	return edit_intake_with_regimen (
 		parent = parent,
 		intake_with_regimen = intake_regimen.as_intake_with_regimen,
@@ -202,7 +202,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		try:
 			data = kwargs['intake']
 			del kwargs['intake']
-			assert ((data is None) or isinstance(data, gmMedication.cIntakeWithRegimen)), '<intake> must be of type "gmMedication.cIntakeWithRegimen" if given'
+			assert ((data is None) or isinstance(data, gmMedication.cSubstanceIntake)), '<intake> must be of type "gmMedication.cSubstanceIntake" if given'
 
 		except KeyError:
 			data = None
@@ -594,10 +594,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 			intake.save(conn = conn4tx)
 			conn4tx.commit()
 			conn4tx.close()
-			data = gmMedication.cIntakeWithRegimen(aPK_obj = {
-				'pk_intake': intake['pk_intake'],
-				'pk_intake_regimen': None
-			})
+			data = gmMedication.cSubstanceIntake(aPK_obj = intake['pk_intake'])
 			self.data = data
 			return True
 
@@ -635,10 +632,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		regimen.save(conn = conn4tx)
 		conn4tx.commit()
 		conn4tx.close()
-		data = gmMedication.cIntakeWithRegimen(aPK_obj = {
-			'pk_intake': regimen['pk_intake'],
-			'pk_intake_regimen': regimen['pk_intake_regimen']
-		})
+		data = gmMedication.cSubstanceIntake(aPK_obj = regimen['pk_intake'])
 		self.data = data
 		return True
 
@@ -696,10 +690,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 			regimen.save(conn = conn4tx)
 			conn4tx.commit()
 			conn4tx.close()
-			data = gmMedication.cIntakeWithRegimen(aPK_obj = {
-				'pk_intake': regimen['pk_intake'],
-				'pk_intake_regimen': regimen['pk_intake_regimen']
-			})
+			data = gmMedication.cSubstanceIntake(aPK_obj = regimen['pk_intake'])
 			self.data = data
 			return True
 
@@ -748,7 +739,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
-		assert isinstance(self.data, gmMedication.cIntakeWithRegimen), '<intake> must be of type "gmMedication.cIntakeWithRegimen" if given'
+		assert isinstance(self.data, gmMedication.cSubstanceIntake), '<intake> must be of type "gmMedication.cSubstanceIntake" if given'
 
 		self._refresh_as_new()
 		self._PRW_substance.SetText (

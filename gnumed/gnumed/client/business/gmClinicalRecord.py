@@ -78,8 +78,7 @@ _map_table2class = {
 	'clin.vaccination': gmVaccination.cVaccination,
 	'clin.clin_narrative': gmClinNarrative.cNarrative,
 	'clin.test_result': gmPathLab.cTestResult,
-	'clin.substance_intake': gmMedication.cSubstanceIntake,
-	'clin.intake_regimen': gmMedication.cIntakeRegimen,
+	'clin.intake': gmMedication.cSubstanceIntake,
 	'clin.hospital_stay': gmHospitalStay.cHospitalStay,
 	'clin.procedure': gmPerformedProcedure.cPerformedProcedure,
 	'clin.allergy': gmAllergy.cAllergy,
@@ -1357,9 +1356,10 @@ WHERE
 
 	#--------------------------------------------------------
 	def get_intakes(self, include_inactive=False, order_by=None, episodes=None, issues=None, exclude_potential_abuses=False, exclude_medications=False):
-		return gmMedication.get_intakes_with_regimens (
+		return gmMedication.get_substance_intakes (
 			pk_patient = self.pk_patient,
-			include_inactive = include_inactive,
+			ongoing_only = not include_inactive,
+#			include_inactive = 
 			order_by = order_by,
 			episodes = episodes,
 			issues = issues,

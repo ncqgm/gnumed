@@ -34,7 +34,6 @@ from Gnumed.business.gmPerformedProcedure import cPerformedProcedure
 from Gnumed.business.gmExternalCare import cExternalCareItem
 from Gnumed.business.gmVaccination import cVaccination
 from Gnumed.business.gmClinNarrative import cNarrative
-from Gnumed.business.gmMedication import cIntakeRegimen
 from Gnumed.business.gmMedication import cSubstanceIntake
 from Gnumed.business.gmAllergy import cAllergy
 from Gnumed.business.gmAllergy import cAllergyState
@@ -57,7 +56,6 @@ _MAP_generic_emr_item_table2type_str = {
 	'clin.clin_narrative': _('Progress note'),
 	'clin.test_result': _('Test result'),
 	'clin.intake': _('Substance intake'),
-	'clin.intake_regimen': _('Substance intake regimen'),
 	'clin.hospital_stay': _('Hospital stay'),
 	'clin.procedure': _('Performed procedure'),
 	'clin.allergy': _('Allergy'),
@@ -77,7 +75,6 @@ _MAP_generic_emr_item_table2class = {
 	'clin.clin_narrative': cNarrative,
 	'clin.test_result': cTestResult,
 	'clin.intake': cSubstanceIntake,
-	'clin.intake_regimen': cIntakeRegimen,
 	'clin.hospital_stay': cHospitalStay,
 	'clin.procedure': cPerformedProcedure,
 	'clin.allergy': cAllergy,
@@ -115,7 +112,7 @@ _SQL_get_generic_emr_items = """SELECT
 	c_vej.episode_open,
 	c_vej.encounter_started,
 	c_vej.encounter_last_affirmed,
-	c_vej.encounter_l10n_type,
+	c_vej.l10n_encounter_type,
 	c_vej.pk_patient,
 	-1 AS xmin_dummy
 FROM
@@ -150,7 +147,7 @@ _SQL_get_hints_as_generic_emr_items = """SELECT
 	False as episode_open,
 	%(enc_start)s as encounter_started,
 	%(enc_last_affirmed)s  as encounter_last_affirmed,
-	%(enc_type)s as encounter_l10n_type,
+	%(enc_type)s as l10n_encounter_type,
 	%(enc_pat)s as pk_patient,
 	-1 AS xmin_dummy
 FROM
@@ -246,7 +243,7 @@ class cGenericEMRItem(gmBusinessDBObject.cBusinessDBObject):
 			enc_info = '%s - %s (%s)' % (
 				self._payload['encounter_started'].strftime('%Y %b %d  %H:%M'),
 				self._payload['encounter_last_affirmed'].strftime('%H:%M'),
-				self._payload['encounter_l10n_type']
+				self._payload['l10n_encounter_type']
 			)
 		lines.append(_('Encounter: %s') % enc_info)
 		lines.append(_('Event: %s') % self._payload['clin_when'].strftime('%Y %b %d  %H:%M'))
