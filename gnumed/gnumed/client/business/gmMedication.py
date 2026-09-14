@@ -2022,8 +2022,8 @@ class cSubstanceIntake(gmBusinessDBObject.cBusinessDBObject):
 				discontinue_reason = gm.nullify_empty_string(%(discontinue_reason)s),
 				planned_duration = %(planned_duration)s,
 				amount = %(amount)s,
-				unit = %(unit)s,
-				schedule = %(schedule)s,
+				unit = gm.nullify_empty_string(%(unit)s),
+				schedule = gm.nullify_empty_string(%(schedule)s),
 				notes4patient = gm.nullify_empty_string(%(notes4patient)s),
 				notes4providers = gm.nullify_empty_string(%(notes4providers)s),
 				notes4us = gm.nullify_empty_string(%(notes4us)s),
@@ -2286,7 +2286,6 @@ class cSubstanceIntake(gmBusinessDBObject.cBusinessDBObject):
 		lines.append(_(' Provider notes: %s') % self['notes4providers']) if self['notes4providers'] else None
 		lines.append(_(' Pharmacy notes: %s') % self['notes4pharmacies']) if self['notes4pharmacies'] else None
 		lines.append(_(' Internal notes: %s') % self['notes4us']) if self['notes4us'] else None
-
 		if include_metadata:
 			lines.append('')
 			lines.append('')
@@ -2301,7 +2300,7 @@ class cSubstanceIntake(gmBusinessDBObject.cBusinessDBObject):
 	def format_technical_details(self):
 		lines = []
 		lines.append(_('Intake: #%s (%s)') % (self['pk_intake'], self['description']))
-		lines.append(_('Version: #%(row_ver)s, %(mod_when)s by %(mod_by)s.') % {
+		lines.append(_('Version: #%(row_ver)s (%(mod_when)s by %(mod_by)s)') % {
 			'row_ver': self._payload['row_version'],
 			'mod_when': self._payload['modified_when'].strftime('%Y %b %d  %H:%M.%S'),
 			'mod_by': self._payload['modified_by']
@@ -2558,8 +2557,8 @@ def get_substance_intakes (
 	return [ cSubstanceIntake(row = {'data': r, 'pk_field': 'pk_intake'}) for r in rows ]
 
 #------------------------------------------------------------
-def substance_intake_exists(pk_identity:int=None, pk_substance:int=None, substance:str=None) -> bool:
-	"""Check for existence of substance intakes.
+def substance_intake_without_regimen_exists(pk_identity:int=None, pk_substance:int=None, substance:str=None) -> bool:
+	"""Check for existence of substance intake.
 
 	Args:
 		pk_identity: constrain by person
@@ -2567,6 +2566,45 @@ def substance_intake_exists(pk_identity:int=None, pk_substance:int=None, substan
 	"""
 	assert not ((pk_substance is None) and (substance is None)), 'either <pk_substance> or <substance> must be given'
 	assert not ((pk_substance is not None) and (substance is not None)), 'only one of <pk_substance> or <substance> may be given'
+
+	where_parts = [
+		'amount IS NULL',
+		'unit IS NULL',
+		'schedule IS NULL'
+	]
+	args:dict[str, int|str] = {}
+	if pk_identity:
+		args['pk_pat'] = pk_identity
+		where_parts.append('fk_encounter IN (SELECT pk FROM clin.encounter WHERE fk_patient = %(pk_pat)s)')
+	if pk_substance:
+		args['pk_subst'] = pk_substance
+		where_parts.append('fk_substance = %(pk_subst)s')
+	if substance:
+		args['subst'] = substance.strip()
+		where_parts.append('fk_substance = (select pk from ref.substance r_s where r_s.description = %(subst)s)')
+	SQL = """SELECT EXISTS (
+		SELECT 1 FROM clin.intake WHERE
+			%s
+		LIMIT 1
+	)""" % '\nAND\n'.join(where_parts)
+	rows = gmPG2.run_ro_query(sql = SQL, args = args)
+	return rows[0][0]
+
+#------------------------------------------------------------
+def substance_intake_exists(pk_identity:int=None, pk_substance:int=None, substance:str=None, amount:str=None, unit:str=None, schedule:str=None) -> bool:
+	"""Check for existence of substance intake.
+
+	Args:
+		pk_identity: constrain by person
+		pk_substance: constrain by substance
+	"""
+	assert not ((pk_substance is None) and (substance is None)), 'either <pk_substance> or <substance> must be given'
+	assert not ((pk_substance is not None) and (substance is not None)), 'only one of <pk_substance> or <substance> may be given'
+	assert (
+		((amount is None) and (unit is None) and (schedule is None))
+			or
+		((amount is not None) and (unit is not None) and (schedule is not None))
+	), 'either a full regimen (amount, unit, schedule) must be given or none at all'
 
 	where_parts = []
 	args:dict[str, int|str] = {}
@@ -2579,13 +2617,21 @@ def substance_intake_exists(pk_identity:int=None, pk_substance:int=None, substan
 	if substance:
 		args['subst'] = substance.strip()
 		where_parts.append('fk_substance = (select pk from ref.substance r_s where r_s.description = %(subst)s)')
-
-	cmd = """SELECT EXISTS (
+	if amount:
+		args['amount'] = amount
+		where_parts.append('amount = %(amount)s')
+	if unit:
+		args['unit'] = unit
+		where_parts.append('unit = %(unit)s')
+	if amount:
+		args['schedule'] = schedule
+		where_parts.append('schedule = %(schedule)s')
+	SQL = """SELECT EXISTS (
 		SELECT 1 FROM clin.intake WHERE
 			%s
 		LIMIT 1
 	)""" % '\nAND\n'.join(where_parts)
-	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
+	rows = gmPG2.run_ro_query(sql = SQL, args = args)
 	return rows[0][0]
 
 #------------------------------------------------------------
@@ -3601,6 +3647,48 @@ if __name__ == "__main__":
 		print(intake)
 
 	#--------------------------------------------------------
+	def test_intake_lifecycle():
+		conn = gmPG2.get_connection(readonly = False)
+		start = gmDateTime.pydt_replace(gmDateTime.pydt_now_here(), year = 1965)
+		end = gmDateTime.pydt_replace(start, second = min(start.second + 1, 59))
+		#xxxxxxxxxxxx
+		intake = create_substance_intake (
+			pk_encounter = 1,
+			pk_episode = 1,
+			pk_substance = 1,
+			link_obj = conn
+		)
+		print('\n'.join(intake.format_maximum_information()))
+		input()
+		print('')
+		print('adding SCHEDULE')
+		intake['schedule'] = 'every now and then'
+#		try:
+#			intake.save(conn = conn)
+#		except gmPG2.dbapi.errors.CheckViolation as exc:
+#			print(exc)
+		print('adding AMOUNT')
+		intake['amount'] = 1
+#		try:
+#			intake.save(conn = conn)
+#		except gmPG2.dbapi.errors.CheckViolation as exc:
+#			print(exc)
+		print('adding UNIT')
+		intake['unit'] = 'mg'
+		try:
+			intake.save(conn = conn)
+		except gmPG2.dbapi.errors.CheckViolation as exc:
+			print(exc)
+
+		print('\n'.join(intake.format_maximum_information()))
+		input()
+		print(delete_substance_intake(pk_intake = intake['pk_intake'], link_obj = conn))
+		print('\n'.join(intake.format_maximum_information()))
+
+		conn.rollback()
+		conn.close()
+
+	#--------------------------------------------------------
 	def test_get_intakes():
 		for i in get_substance_intakes():
 			#print i
@@ -3642,7 +3730,7 @@ if __name__ == "__main__":
 	def test_format_substance_intake_as_amts_data():
 		#print format_substance_intake_as_amts_data(cSubstanceIntake(1))
 		#print(cSubstanceIntake(1).as_amts_data)
-		print(get_intakes_with_regimens()[0].as_amts_data)
+		pass
 
 	#--------------------------------------------------------
 	def test_delete_intake():
@@ -3698,42 +3786,6 @@ if __name__ == "__main__":
 				print(c.substance_dose.format())
 				print(c.substance.format())
 			input()
-
-	#--------------------------------------------------------
-	def test_intake_regimen():
-		conn = gmPG2.get_connection(readonly = False)
-#		for reg in get_intake_regimens():
-#			#print reg
-#			print('------------------------------------------------')
-#			#print('\n'.join(reg.format_maximum_information()))
-#			print('\n'.join(reg.format()))
-#			input()
-		start = gmDateTime.pydt_replace(gmDateTime.pydt_now_here(), year = 1965)
-		end = gmDateTime.pydt_replace(start, second = start.second + 1)
-		reg = create_intake_regimen (
-			pk_intake = 1,
-			started = start,
-			pk_encounter = 1,
-			pk_episode = 1,
-			schedule = 'test schedule',
-			discontinued = end,
-			link_obj = conn
-		)
-		print('\n'.join(reg.format()))
-		input()
-		reg['schedule'] = 'every now and then'
-		reg.save(conn=conn)
-		print('\n'.join(reg.format()))
-		input()
-		reg['pk_drug_product'] = 139
-		reg['pk_dose'] = 474
-		reg.save(conn=conn)
-		print('\n'.join(reg.format()))
-		input()
-		print(delete_intake_regimen(pk_intake_regimen = reg['pk_intake_regimen'], link_obj = conn))
-
-		conn.rollback()
-		conn.close()
 
 	#--------------------------------------------------------
 	#--------------------------------------------------------
@@ -3828,15 +3880,11 @@ if __name__ == "__main__":
 	##test_get_components()
 	##test_get_drugs()
 	#test_get_intakes()
-	#test_get_intakes_with_regimens()
-	#test_get_intake_regimens()
 	#test_intake_formatting()
-	##test_intake_regimen()
-	##test_create_substance_intake()
-	##test_delete_intake()
 	##test_get_habit_drugs()
 	#test_can_format()
-	test_format_substance_intake()
+	#test_format_substance_intake()
+	test_intake_lifecycle()
 
 	# AMTS
 	#test_generate_amts_data_template_definition_file()

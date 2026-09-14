@@ -311,7 +311,6 @@ def delete_vaccine(pk_vaccine:int=None, also_delete_product:bool=False) -> bool:
 
 #------------------------------------------------------------
 def get_vaccines(order_by=None, return_pks=False):
-
 	if order_by is None:
 		cmd = _SQL_get_vaccine_fields % 'TRUE'
 	else:
@@ -760,9 +759,9 @@ if __name__ == '__main__':
 	#test_due_vacc()
 	#test_due_booster()
 
-	#test_get_vaccines()
+	test_get_vaccines()
 	#test_get_vaccinations()
 	#test_format_latest_vaccinations()
 	#test_format_vaccs_failsafe()
 	#test_create_vaccine_dummy_dose()
-	test_create_vaccination()
+	#test_create_vaccination()

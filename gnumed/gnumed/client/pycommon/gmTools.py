@@ -1262,7 +1262,7 @@ def none_if(value=None, none_equivalent=None, strip_string=False):
 	if stripped == none_equivalent:
 		return None
 
-	#return value
+	# return value
 	return stripped
 
 #---------------------------------------------------------------------------
@@ -1400,15 +1400,12 @@ def input2decimal(initial=None):
 		return False, val
 
 #---------------------------------------------------------------------------
-def input2int(initial=None, minval=None, maxval=None):
-
+def input2int(initial=None, minval=None, maxval=None) -> tuple[bool, int|str]:
 	val = initial
-
 	# string ? -> "," to "."
 	if isinstance(val, str):
 		val = val.replace(',', '.', 1)
 		val = val.strip()
-
 	try:
 		int_val = int(val)
 	except (TypeError, ValueError):
