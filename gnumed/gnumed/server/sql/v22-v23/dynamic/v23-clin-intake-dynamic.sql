@@ -6,7 +6,7 @@
 --
 -- ==============================================================
 \set ON_ERROR_STOP 1
---set default_transaction_read_only to off;
+set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
 comment on table clin.intake is 'Ongoing and historical regimens of consumed substances.
@@ -285,6 +285,7 @@ drop function if exists clin.trf__clin_intake__ensure_cross_regimen_integrity() 
 create function clin.trf__clin_intake__ensure_cross_regimen_integrity()
 	returns trigger
 	language plpgsql
+	volatile	-- such that INSERT/UPDATE changes will be seen from inside the trigger function
 	as '
 DECLARE
 	__pk_patient integer;
@@ -298,47 +299,44 @@ BEGIN
 	LIMIT 2;
 	GET DIAGNOSTICS __row_count := ROW_COUNT;
 	-- a singular row cannot be wrong (can be either with or without regimen fields)
+	-- (is it also our very own NEW row btw)
 	IF __row_count = 1 THEN
 		RETURN NEW;
+
 	END IF;
-	-- did we INSERT as / UPDATE towards a non-regimen row ?
-	-- (the check constraint for sane regimens is run before
-	--  this trigger so checking just .amount should suffice)
-	IF NEW.amount IS NULL THEN
-		-- at this point we have got more then one row and
-		-- at least one of them is without a regimen, however:
-		-- non-regimen rows must be singular per patient+substance
-		RAISE EXCEPTION
-			''[clin.trf__clin_intake__ensure_cross_regimen_integrity] % on %.%: Intake rows must either all be with-regimen or a singular non-regimen one, per patient and substance (patient:% / substance:%).'',
-				TG_OP,
-				TG_TABLE_SCHEMA,
-				TG_TABLE_NAME,
-				__pk_patient,
-				NEW.fk_substance
-			USING ERRCODE = ''integrity_violation''
-		;
-		RETURN NULL;
-	END IF;
-	-- we INSERTed/UPDATEd as a with-regimen row
-	-- any non-regimen rows ?
+	-- at this point we have got more than one row,
+	-- one of them is our NEW row,
+	-- check whether any of them is a non-regimen row
+	-- (it does not matter which, existing or NEW)
 	PERFORM 1 FROM clin.intake WHERE
 		fk_substance = NEW.fk_substance
 			AND
+		-- checking just .amount is fine because the sane-regimen
+		-- check constraint ran before this trigger
 		amount IS NULL
 			AND
 		clin.map_enc_or_epi_to_patient(fk_encounter, fk_episode) = __pk_patient
 	LIMIT 1;
-	IF NOT FOUND THEN
+	GET DIAGNOSTICS __row_count := ROW_COUNT;
+	-- did not find any non-regimen intake,
+	-- so having more than one intake is fine
+	IF __row_count = 0 THEN
 		RETURN NEW;
+
 	END IF;
+	-- we now have:
+	-- - more than one intake
+	-- - at least one of them is non-regimen
+	-- which must not happen, non-regimen rows must be
+	-- singular per patient+substance
 	RAISE EXCEPTION
-		''[clin.trf__clin_intake__ensure_cross_regimen_integrity] % on %.%: Intake rows must either all be with-regimen or a singular non-regimen one, per patient and substance (patient:% / substance:%).'',
+		''[clin.trf__clin_intake__ensure_cross_regimen_integrity] % on %.% (patient:% / substance:%): Intake rows must either all be with-regimen or a singular non-regimen one, per patient and substance.'',
 			TG_OP,
 			TG_TABLE_SCHEMA,
 			TG_TABLE_NAME,
 			__pk_patient,
 			NEW.fk_substance
-		USING ERRCODE = ''integrity_violation''
+		USING ERRCODE = ''integrity_constraint_violation''
 	;
 	RETURN NULL;
 END;';
