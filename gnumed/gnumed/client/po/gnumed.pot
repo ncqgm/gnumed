@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-11 23:14+0200\n"
+"POT-Creation-Date: 2026-09-15 19:22+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -530,8 +530,35 @@ msgstr ""
 msgid "Can't connect to database without login information!"
 msgstr ""
 
+msgid "system breakage"
+msgstr ""
+
+msgid "suboptimal error detection"
+msgstr ""
+
+msgid "faulty timestamp parsing"
+msgstr ""
+
+msgid "faulty database reads"
+msgstr ""
+
+msgid "accidental database writes"
+msgstr ""
+
+msgid "data loss/corruption"
+msgstr ""
+
+msgid "breach of confidentiality"
+msgstr ""
+
+msgid "suboptimal auditing"
+msgstr ""
+
+msgid "slow data retrieval"
+msgstr ""
+
 #, python-format
-msgid " option [%s]: %s"
+msgid " option [%s]: %s (expected: %s)"
 msgstr ""
 
 #, python-format
@@ -2001,26 +2028,6 @@ msgstr ""
 msgid "Select the praxis branch where this encounter took place."
 msgstr ""
 
-msgid ""
-"Enter the Reason For Encounter here. This is the patient's initial request "
-"or purpose of visit which led to the encounter."
-msgstr ""
-
-msgid ""
-"Codes relevant to the Reason for Encounter\n"
-"separated by \";\"."
-msgstr ""
-
-msgid ""
-"Enter the Encounter Summary here. This is your final assessment of the total "
-"encounter across all relevant episodes."
-msgstr ""
-
-msgid ""
-"Codes relevant to the Assessment of Encounter\n"
-"separated by \";\"."
-msgstr ""
-
 msgid "Started"
 msgstr ""
 
@@ -2028,6 +2035,16 @@ msgid "Ended"
 msgstr ""
 
 msgid "Purpose"
+msgstr ""
+
+msgid ""
+"Enter the Reason For Encounter here. This is the patient's initial request "
+"or purpose of visit which led to the encounter."
+msgstr ""
+
+msgid ""
+"Enter the Encounter Summary here. This is your final assessment of the total "
+"encounter across all relevant episodes."
 msgstr ""
 
 msgid "<supply email address for getting feedback on bug report>"
@@ -3212,36 +3229,8 @@ msgid "Episode synopsis"
 msgstr ""
 
 msgid ""
-"Codes relevant to this Subjective\n"
-"separated by \";\"."
-msgstr ""
-
-msgid ""
-"Codes relevant to this Objective\n"
-"separated by \";\"."
-msgstr ""
-
-msgid ""
-"Codes relevant to this Assessment\n"
-"separated by \";\"."
-msgstr ""
-
-msgid ""
-"Codes relevant to this Plan\n"
-"separated by \";\"."
-msgstr ""
-
-msgid ""
-"Codes relevant to this episode\n"
-"separated by \";\"."
-msgstr ""
-
-msgid ""
 "Here you can modify the cumulative summary (status) of the episode this SOAP "
 "narrative belongs to."
-msgstr ""
-
-msgid "Codes:"
 msgstr ""
 
 msgid "label_1"
@@ -4769,6 +4758,11 @@ msgstr ""
 msgid "A summary of the state of this episode."
 msgstr ""
 
+msgid ""
+"Codes relevant to this episode\n"
+"separated by \";\"."
+msgstr ""
+
 msgid "Nest under"
 msgstr ""
 
@@ -5208,6 +5202,11 @@ msgstr ""
 msgid "The end of substance intake."
 msgstr ""
 
+msgid ""
+"Select, or enter for creation, the episode to which this substance intake "
+"relates."
+msgstr ""
+
 msgid "Notes for:"
 msgstr ""
 
@@ -5228,6 +5227,17 @@ msgid ""
 "- unusual dosage/indication\n"
 "- contraindications/interactions assessment\n"
 "- monitoring considerations"
+msgstr ""
+
+msgid "Pharmacies"
+msgstr ""
+
+msgid ""
+"Notes for pharmacies regarding dispensal, such as\n"
+"\n"
+"- needs to be divisible\n"
+"- suitable for gastric tube passage\n"
+"- this brand only"
 msgstr ""
 
 msgid "Ourselves"
@@ -5462,16 +5472,7 @@ msgstr ""
 msgid "under "
 msgstr ""
 
-msgid "GPL v2 or later licensing"
-msgstr ""
-
-msgid "https://www.gnu.org/licenses/old-licenses/gpl-2.0.html"
-msgstr ""
-
 msgid "Please visit the Project's Webpage"
-msgstr ""
-
-msgid "https://www.gnumed.de"
 msgstr ""
 
 msgid "Part ?/?"
@@ -5498,13 +5499,7 @@ msgstr ""
 msgid "Show in external viewer."
 msgstr ""
 
-msgid "Save &under"
-msgstr ""
-
-msgid "&Image"
-msgstr ""
-
-msgid "Save &all"
+msgid "New notelets in current encounter"
 msgstr ""
 
 msgid ""
@@ -5528,7 +5523,16 @@ msgid ""
 "encounter."
 msgstr ""
 
+msgid "tab1"
+msgstr ""
+
+msgid "Notelet:"
+msgstr ""
+
 msgid "Save the currently displayed progress note under the current encounter."
+msgstr ""
+
+msgid "Save &under"
 msgstr ""
 
 msgid ""
@@ -5536,19 +5540,16 @@ msgid ""
 "encounters."
 msgstr ""
 
+msgid "&Image"
+msgstr ""
+
 msgid "Add a visual progress note for this episode."
 msgstr ""
 
-msgid "New notelets in current encounter"
-msgstr ""
-
-msgid "tab1"
-msgstr ""
-
-msgid "Notelet:"
-msgstr ""
-
 msgid "Encounter:"
+msgstr ""
+
+msgid "Save &all"
 msgstr ""
 
 msgid "&Panel:"
@@ -5930,7 +5931,7 @@ msgstr ""
 msgid "Medication history"
 msgstr ""
 
-msgid "medication, not abuse"
+msgid "medication, not misuse"
 msgstr ""
 
 msgid "non-use or non-harmful use"
@@ -6001,12 +6002,160 @@ msgstr ""
 msgid "units"
 msgstr ""
 
+msgid "today"
+msgstr ""
+
+msgid "started today"
+msgstr ""
+
+msgid "yesterday"
+msgstr ""
+
+msgid "started yesterday"
+msgstr ""
+
+#, python-format
+msgid "started %s"
+msgstr ""
+
+#, python-format
+msgid "started \"%s\""
+msgstr ""
+
+#, python-format
+msgid "planned for %s"
+msgstr ""
+
+msgid "discontinued today"
+msgstr ""
+
+msgid "discontinued yesterday"
+msgstr ""
+
+#, python-format
+msgid "discontinued %s %s"
+msgstr ""
+
+#, python-format
+msgid "after %s"
+msgstr ""
+
+#, python-format
+msgid "Misuse of: %s%s"
+msgstr ""
+
+#, python-format
+msgid "Use type: %s"
+msgstr ""
+
+#, python-format
+msgid "Last checked: %s"
+msgstr ""
+
+#, python-format
+msgid "Discontinued: %s"
+msgstr ""
+
+#, python-format
+msgid " Notes: %s"
+msgstr ""
+
+msgid "Ongoing intake"
+msgstr ""
+
+msgid "Historic intake"
+msgstr ""
+
+#, python-format
+msgid "%s of \"%s\""
+msgstr ""
+
+msgid "suspected"
+msgstr ""
+
+#, python-format
+msgid "Amount: %s %s"
+msgstr ""
+
+#, python-format
+msgid ""
+"Schedule: %s##tx: as in: schedule of substance intake, say \"twice daily\""
+msgstr ""
+
+#, python-format
+msgid " ATC (substance): %s"
+msgstr ""
+
+#, python-format
+msgid "Started: %s%s"
+msgstr ""
+
+#, python-format
+msgid "Discontinued %s"
+msgstr ""
+
+#, python-format
+msgid " Reason: %s"
+msgstr ""
+
+#, python-format
+msgid " Episode: %s"
+msgstr ""
+
+#, python-format
+msgid " Health issue: %s"
+msgstr ""
+
+#, python-format
+msgid " Patient advice: %s"
+msgstr ""
+
+#, python-format
+msgid " Provider notes: %s"
+msgstr ""
+
+#, python-format
+msgid " Pharmacy notes: %s"
+msgstr ""
+
+#, python-format
+msgid " Internal notes: %s"
+msgstr ""
+
+#, python-format
+msgid "Intake: #%s (%s)"
+msgstr ""
+
+#, python-format
+msgid "Version: #%(row_ver)s (%(mod_when)s by %(mod_by)s)"
+msgstr ""
+
+#, python-format
+msgid "Patient: #%s"
+msgstr ""
+
+#, python-format
+msgid "Substance: #%s"
+msgstr ""
+
+#, python-format
+msgid "Encounter: #%s"
+msgstr ""
+
+#, python-format
+msgid "Episode: #%s"
+msgstr ""
+
+#, python-format
+msgid "Health issue: #%s"
+msgstr ""
+
 #, python-format
 msgid "Substance: %s %s %s"
 msgstr ""
 
 #, python-format
-msgid "Regimen: %s"
+msgid "Schedule: %s"
 msgstr ""
 
 #, python-format
@@ -6022,6 +6171,10 @@ msgid "Provider notes: %s"
 msgstr ""
 
 #, python-format
+msgid "Pharmacy notes: %s"
+msgstr ""
+
+#, python-format
 msgid "Episode: %s%s"
 msgstr ""
 
@@ -6029,75 +6182,7 @@ msgid "Issue"
 msgstr ""
 
 #, python-format
-msgid ""
-"Substance abuse entry                                              [#%s]"
-msgstr ""
-
-#, python-format
-msgid "Substance: %s [#%s]%s"
-msgstr ""
-
-#, python-format
-msgid "Use type: %s"
-msgstr ""
-
-#, python-format
-msgid "Last checked: %s"
-msgstr ""
-
-#, python-format
-msgid " Discontinued %s"
-msgstr ""
-
-#, python-format
-msgid " Notes: %s"
-msgstr ""
-
-#, python-format
-msgid "Version: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
-msgstr ""
-
-#, python-format
-msgid "Substance intake [#%s]                     "
-msgstr ""
-
-msgid "suspected"
-msgstr ""
-
-#, python-format
-msgid "Substance: %s   [#%s]"
-msgstr ""
-
-#, python-format
-msgid " ATC (substance): %s"
-msgstr ""
-
-#, python-format
-msgid " Last checked %s"
-msgstr ""
-
-#, python-format
-msgid " Episode: %s"
-msgstr ""
-
-#, python-format
-msgid " Health issue: %s"
-msgstr ""
-
-#, python-format
-msgid " Provider notes: %s"
-msgstr ""
-
-#, python-format
-msgid " Patient advice: %s"
-msgstr ""
-
-#, python-format
-msgid "Intake: %s"
-msgstr ""
-
-#, python-format
-msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
+msgid "unknown use type [%s]"
 msgstr ""
 
 msgid ""
@@ -6139,98 +6224,6 @@ msgid "liquid"
 msgstr ""
 
 msgid "unit"
-msgstr ""
-
-#, python-format
-msgid "unknown use type [%s]"
-msgstr ""
-
-msgid "today"
-msgstr ""
-
-msgid "started today"
-msgstr ""
-
-msgid "yesterday"
-msgstr ""
-
-msgid "started yesterday"
-msgstr ""
-
-#, python-format
-msgid "started %s"
-msgstr ""
-
-#, python-format
-msgid "started \"%s\""
-msgstr ""
-
-#, python-format
-msgid "planned for %s"
-msgstr ""
-
-msgid "discontinued today"
-msgstr ""
-
-msgid "discontinued yesterday"
-msgstr ""
-
-#, python-format
-msgid "discontinued %s %s"
-msgstr ""
-
-#, python-format
-msgid "after %s"
-msgstr ""
-
-#, python-format
-msgid "Intake revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
-msgstr ""
-
-#, python-format
-msgid "Regimen revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
-msgstr ""
-
-msgid "Ongoing intake"
-msgstr ""
-
-msgid "Inactive intake"
-msgstr ""
-
-#, python-format
-msgid "%s of \"%s\""
-msgstr ""
-
-#, python-format
-msgid "Amount: %s %s"
-msgstr ""
-
-#, python-format
-msgid " Regimen: %s"
-msgstr ""
-
-#, python-format
-msgid "Started: %s%s"
-msgstr ""
-
-#, python-format
-msgid "Discontinued %s"
-msgstr ""
-
-#, python-format
-msgid " Reason: %s"
-msgstr ""
-
-#, python-format
-msgid " Own notes: %s"
-msgstr ""
-
-#, python-format
-msgid "Intake: #%(pk)s, rev %(row_ver)s, %(mod_when)s by %(mod_by)s."
-msgstr ""
-
-#, python-format
-msgid "Regimen: #%(pk)s, rev %(row_ver)s, %(mod_when)s by %(mod_by)s."
 msgstr ""
 
 #, python-format
@@ -7085,9 +7078,6 @@ msgid "Test result"
 msgstr ""
 
 msgid "Substance intake"
-msgstr ""
-
-msgid "Substance intake regimen"
 msgstr ""
 
 msgid "Hospital stay"
@@ -10379,6 +10369,10 @@ msgstr ""
 
 #, python-format
 msgid "Patient: %s"
+msgstr ""
+
+#, python-format
+msgid "Pharmacies: %s"
 msgstr ""
 
 #, python-format
@@ -15865,7 +15859,18 @@ msgid "Required: substance"
 msgstr ""
 
 #, python-format
-msgid "Patient already takes/took \"%s\". You may add a new regimen though."
+msgid "[%s]: Intake without regimen exists. You need to edit that intake."
+msgstr ""
+
+msgid ""
+"Cannot add intake without regimen when there already exists an intake with a "
+"regimen."
+msgstr ""
+
+msgid "There already is an intake with the exact same regimen."
+msgstr ""
+
+msgid "Required: Regimen details (amount, unit, schedule)."
 msgstr ""
 
 msgid "Substance required."

@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-11 23:13+0200\n"
-"PO-Revision-Date: 2026-07-12 12:02+0200\n"
+"POT-Creation-Date: 2026-09-15 19:22+0200\n"
+"PO-Revision-Date: 2026-09-15 19:29+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -593,9 +593,36 @@ msgstr ""
 "Ohne Login-Informationen kann keine Verbindung zur Datenbank aufgebaut "
 "werden!"
 
+msgid "system breakage"
+msgstr "systemische Fehler"
+
+msgid "suboptimal error detection"
+msgstr "eingeschränkte Fehlererkennung"
+
+msgid "faulty timestamp parsing"
+msgstr "fehlerhaftes Verarbeiten von Zeitstempeln"
+
+msgid "faulty database reads"
+msgstr "fehlerhafte Datenbankabfragen"
+
+msgid "accidental database writes"
+msgstr "unbeabsichtigtes Schreiben in die Datenbank"
+
+msgid "data loss/corruption"
+msgstr "Datenverlust"
+
+msgid "breach of confidentiality"
+msgstr "Verletzung der Vertraulichkeit"
+
+msgid "suboptimal auditing"
+msgstr "eingeschränkte Prozessüberwachung"
+
+msgid "slow data retrieval"
+msgstr "langsames Laden aus der Datenbank"
+
 #, python-format
-msgid " option [%s]: %s"
-msgstr " Option [%s]: %s"
+msgid " option [%s]: %s (expected: %s)"
+msgstr " Option [%s]: %s (erwartet: %s)"
 
 #, python-format
 msgid "  risk: %s"
@@ -2237,34 +2264,6 @@ msgstr "Ändern Sie die Details der Konsultation:"
 msgid "Select the praxis branch where this encounter took place."
 msgstr "Wählen Sie den Standort des Arzt-Patienten-Kontakts."
 
-msgid ""
-"Enter the Reason For Encounter here. This is the patient's initial request "
-"or purpose of visit which led to the encounter."
-msgstr ""
-"Geben Sie die Beratungsursache ein. Hier handelt es sich um das der "
-"Konsultation zugrundeliegende Problem des Patienten."
-
-msgid ""
-"Codes relevant to the Reason for Encounter\n"
-"separated by \";\"."
-msgstr ""
-"Codes für diese Beratungsursache,\n"
-"abgetrennt mittels \";\"."
-
-msgid ""
-"Enter the Encounter Summary here. This is your final assessment of the total "
-"encounter across all relevant episodes."
-msgstr ""
-"Geben Sie die Zusammenfassung zur Konsultation ein. Es handelt sich um Ihre "
-"krankeitsübergreifende Gesamtzusammenfassung."
-
-msgid ""
-"Codes relevant to the Assessment of Encounter\n"
-"separated by \";\"."
-msgstr ""
-"Codes für dieses Beratungsergebnis,\n"
-"abgetrennt mittels \";\"."
-
 msgid "Started"
 msgstr "Beginn"
 
@@ -2273,6 +2272,20 @@ msgstr "Ende"
 
 msgid "Purpose"
 msgstr "Beratungsursache"
+
+msgid ""
+"Enter the Reason For Encounter here. This is the patient's initial request "
+"or purpose of visit which led to the encounter."
+msgstr ""
+"Geben Sie die Beratungsursache ein. Hier handelt es sich um das der "
+"Konsultation zugrundeliegende Problem des Patienten."
+
+msgid ""
+"Enter the Encounter Summary here. This is your final assessment of the total "
+"encounter across all relevant episodes."
+msgstr ""
+"Geben Sie die Zusammenfassung zur Konsultation ein. Es handelt sich um Ihre "
+"krankeitsübergreifende Gesamtzusammenfassung."
 
 msgid "<supply email address for getting feedback on bug report>"
 msgstr "<E-Mail eintragen für Rückmeldungen zum Fehler>"
@@ -3648,49 +3661,11 @@ msgid "Episode synopsis"
 msgstr "Episodensynopse"
 
 msgid ""
-"Codes relevant to this Subjective\n"
-"separated by \";\"."
-msgstr ""
-"Codes für diese Anamnese,\n"
-"abgetrennt mittels \";\"."
-
-msgid ""
-"Codes relevant to this Objective\n"
-"separated by \";\"."
-msgstr ""
-"Codes für diese Befunde,\n"
-"abgetrennt mittels \";\"."
-
-msgid ""
-"Codes relevant to this Assessment\n"
-"separated by \";\"."
-msgstr ""
-"Codes für diese Bewertung,\n"
-"abgetrennt mittels \";\"."
-
-msgid ""
-"Codes relevant to this Plan\n"
-"separated by \";\"."
-msgstr ""
-"Codes für diesen Plan,\n"
-"abgetrennt mittels \";\"."
-
-msgid ""
-"Codes relevant to this episode\n"
-"separated by \";\"."
-msgstr ""
-"Codes für diese Episode,\n"
-"abgetrennt mittels \";\"."
-
-msgid ""
 "Here you can modify the cumulative summary (status) of the episode this SOAP "
 "narrative belongs to."
 msgstr ""
 "Hier können Sie die Zusammenfassung (den Status) der Episode bearbeiten, zu "
 "welcher diese Verlaufsnotiz gehört."
-
-msgid "Codes:"
-msgstr "Codes:"
 
 msgid "label_1"
 msgstr ""
@@ -5498,6 +5473,13 @@ msgstr ""
 msgid "A summary of the state of this episode."
 msgstr "Eine Zusammenfassung des aktuellen Stands dieser Episode."
 
+msgid ""
+"Codes relevant to this episode\n"
+"separated by \";\"."
+msgstr ""
+"Codes für diese Episode,\n"
+"abgetrennt mittels \";\"."
+
 msgid "Nest under"
 msgstr "Einordnen unter"
 
@@ -6037,6 +6019,13 @@ msgstr "&Heute →"
 msgid "The end of substance intake."
 msgstr "Ende der Einnahme."
 
+msgid ""
+"Select, or enter for creation, the episode to which this substance intake "
+"relates."
+msgstr ""
+"Wählen Sie die Episode (oder tippen Sie eine neue), welcher die Einnahme "
+"zugeordnet werden soll."
+
 msgid "Notes for:"
 msgstr "Notizen für:"
 
@@ -6068,6 +6057,22 @@ msgstr ""
 "- unübliche Dosis/Indikation\n"
 "- Einschätzung von Kontraindikationen/Interaktionen\n"
 "- Überlegungen zum Monitoring"
+
+msgid "Pharmacies"
+msgstr "Apotheken"
+
+msgid ""
+"Notes for pharmacies regarding dispensal, such as\n"
+"\n"
+"- needs to be divisible\n"
+"- suitable for gastric tube passage\n"
+"- this brand only"
+msgstr ""
+"Hinweise für Apotheken, etwa\n"
+"\n"
+"- muß teilbar sein\n"
+"- muß sondengängig sein\n"
+"- nur dieser Hersteller"
 
 msgid "Ourselves"
 msgstr "Intern"
@@ -6339,17 +6344,8 @@ msgstr "Geschaffen von"
 msgid "under "
 msgstr "unter"
 
-msgid "GPL v2 or later licensing"
-msgstr ""
-
-msgid "https://www.gnu.org/licenses/old-licenses/gpl-2.0.html"
-msgstr ""
-
 msgid "Please visit the Project's Webpage"
 msgstr "Zur Projekthomepage..."
-
-msgid "https://www.gnumed.de"
-msgstr ""
 
 msgid "Part ?/?"
 msgstr "Teil ?/?"
@@ -6375,14 +6371,8 @@ msgstr " E&xtern zeigen "
 msgid "Show in external viewer."
 msgstr "In externem Betrachter anzeigen."
 
-msgid "Save &under"
-msgstr "Speichern &unter"
-
-msgid "&Image"
-msgstr "&Skizze"
-
-msgid "Save &all"
-msgstr "&Alle speichern"
+msgid "New notelets in current encounter"
+msgstr "Neue Notizen für diese Konsultation"
 
 msgid ""
 "Also known as the Reason For Encounter/Visit (RFE).\n"
@@ -6419,28 +6409,34 @@ msgstr ""
 "Diese Zusammenfassung bezieht sich auf alle Probleme, die in diesem APK "
 "angesprochen wurden."
 
-msgid "Save the currently displayed progress note under the current encounter."
-msgstr "Die angezeigte Verlaufsnotiz unter dem aktuellen Kontakt speichern."
-
-msgid ""
-"Save the currently displayed note into an encounter selected from a list of "
-"encounters."
-msgstr "Die angezeigte Verlaufsnotiz unter einem wählbaren Kontakt speichern."
-
-msgid "Add a visual progress note for this episode."
-msgstr "Eine Bildnotiz zu dieser Episode erzeugen."
-
-msgid "New notelets in current encounter"
-msgstr "Neue Notizen für diese Konsultation"
-
 msgid "tab1"
 msgstr ""
 
 msgid "Notelet:"
 msgstr "Eintrag:"
 
+msgid "Save the currently displayed progress note under the current encounter."
+msgstr "Die angezeigte Verlaufsnotiz unter dem aktuellen Kontakt speichern."
+
+msgid "Save &under"
+msgstr "Speichern &unter"
+
+msgid ""
+"Save the currently displayed note into an encounter selected from a list of "
+"encounters."
+msgstr "Die angezeigte Verlaufsnotiz unter einem wählbaren Kontakt speichern."
+
+msgid "&Image"
+msgstr "&Skizze"
+
+msgid "Add a visual progress note for this episode."
+msgstr "Eine Bildnotiz zu dieser Episode erzeugen."
+
 msgid "Encounter:"
 msgstr "Kontakt:"
+
+msgid "Save &all"
+msgstr "&Alle speichern"
 
 msgid "&Panel:"
 msgstr "&Profil:"
@@ -6843,8 +6839,8 @@ msgstr "Generika:"
 msgid "Medication history"
 msgstr "Medikamentenhistorie"
 
-msgid "medication, not abuse"
-msgstr "Medikation, kein Mißbrauch"
+msgid "medication, not misuse"
+msgstr "Medikation, kein Fehlgebrauch"
 
 msgid "non-use or non-harmful use"
 msgstr "kein oder kein schädlicher Gebrauch"
@@ -6916,12 +6912,160 @@ msgstr "dies ist ein Impfstoff"
 msgid "units"
 msgstr "Einheiten"
 
+msgid "today"
+msgstr "heute"
+
+msgid "started today"
+msgstr "heute begonnen"
+
+msgid "yesterday"
+msgstr "gestern"
+
+msgid "started yesterday"
+msgstr "Beginn gestern"
+
+#, python-format
+msgid "started %s"
+msgstr "Begonnen %s"
+
+#, python-format
+msgid "started \"%s\""
+msgstr "Begonnen \"%s\""
+
+#, python-format
+msgid "planned for %s"
+msgstr "geplant für %s"
+
+msgid "discontinued today"
+msgstr "heute beendet"
+
+msgid "discontinued yesterday"
+msgstr "gestern beendet"
+
+#, python-format
+msgid "discontinued %s %s"
+msgstr "beendet %s %s"
+
+#, python-format
+msgid "after %s"
+msgstr "nach %s"
+
+#, python-format
+msgid "Misuse of: %s%s"
+msgstr "Fehlgebrauch: %s%s"
+
+#, python-format
+msgid "Use type: %s"
+msgstr "Gebrauchsweise: %s"
+
+#, python-format
+msgid "Last checked: %s"
+msgstr "Zuletzt überprüft: %s"
+
+#, python-format
+msgid "Discontinued: %s"
+msgstr "Beendet: %s"
+
+#, python-format
+msgid " Notes: %s"
+msgstr " Notizen: %s"
+
+msgid "Ongoing intake"
+msgstr "Derzeitige Einnahme"
+
+msgid "Historic intake"
+msgstr "Frühere Einnahme"
+
+#, python-format
+msgid "%s of \"%s\""
+msgstr "%s von \"%s\""
+
+msgid "suspected"
+msgstr "vermutet"
+
+#, python-format
+msgid "Amount: %s %s"
+msgstr "Menge: %s %s"
+
+#, python-format
+msgid ""
+"Schedule: %s##tx: as in: schedule of substance intake, say \"twice daily\""
+msgstr "Einnahmeplan: %s"
+
+#, python-format
+msgid " ATC (substance): %s"
+msgstr " ATC (Wirkstoff): %s"
+
+#, python-format
+msgid "Started: %s%s"
+msgstr "Begonnen %s%s"
+
+#, python-format
+msgid "Discontinued %s"
+msgstr "Beendet %s"
+
+#, python-format
+msgid " Reason: %s"
+msgstr " Grund: %s"
+
+#, python-format
+msgid " Episode: %s"
+msgstr " Episode: %s"
+
+#, python-format
+msgid " Health issue: %s"
+msgstr " Grunderkrankung: %s"
+
+#, python-format
+msgid " Patient advice: %s"
+msgstr " Patientenhinweis: %s"
+
+#, python-format
+msgid " Provider notes: %s"
+msgstr " Betreuernotiz: %s"
+
+#, python-format
+msgid " Pharmacy notes: %s"
+msgstr " Hinweise für Apotheken: %s"
+
+#, python-format
+msgid " Internal notes: %s"
+msgstr " Interne Hinweise: %s"
+
+#, python-format
+msgid "Intake: #%s (%s)"
+msgstr "Einnahme: #%s (%s)"
+
+#, python-format
+msgid "Version: #%(row_ver)s (%(mod_when)s by %(mod_by)s)"
+msgstr "Version: #%(row_ver)s (%(mod_when)s durch %(mod_by)s)"
+
+#, python-format
+msgid "Patient: #%s"
+msgstr "Patient: #%s"
+
+#, python-format
+msgid "Substance: #%s"
+msgstr "Stoff: #%s"
+
+#, python-format
+msgid "Encounter: #%s"
+msgstr "Kontakt: #%s"
+
+#, python-format
+msgid "Episode: #%s"
+msgstr "Episode: #%s"
+
+#, python-format
+msgid "Health issue: #%s"
+msgstr "Grunderkrankung: #%s"
+
 #, python-format
 msgid "Substance: %s %s %s"
 msgstr "Substanz: %s %s %s"
 
 #, python-format
-msgid "Regimen: %s"
+msgid "Schedule: %s"
 msgstr "Einnahmeplan: %s"
 
 #, python-format
@@ -6937,6 +7081,10 @@ msgid "Provider notes: %s"
 msgstr "Betreuernotiz: %s"
 
 #, python-format
+msgid "Pharmacy notes: %s"
+msgstr "Hinweise für Apotheken: %s"
+
+#, python-format
 msgid "Episode: %s%s"
 msgstr "Episode: %s%s"
 
@@ -6944,76 +7092,8 @@ msgid "Issue"
 msgstr "Grunderkrankung"
 
 #, python-format
-msgid ""
-"Substance abuse entry                                              [#%s]"
-msgstr "Substanzmißbrauch                                              [#%s]"
-
-#, python-format
-msgid "Substance: %s [#%s]%s"
-msgstr "Substanz: %s [#%s]%s"
-
-#, python-format
-msgid "Use type: %s"
-msgstr "Gebrauchsweise: %s"
-
-#, python-format
-msgid "Last checked: %s"
-msgstr "Zuletzt überprüft: %s"
-
-#, python-format
-msgid " Discontinued %s"
-msgstr " Beendet %s"
-
-#, python-format
-msgid " Notes: %s"
-msgstr " Notizen: %s"
-
-#, python-format
-msgid "Version: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
-msgstr "Version: #%(row_ver)s, %(mod_when)s von %(mod_by)s."
-
-#, python-format
-msgid "Substance intake [#%s]                     "
-msgstr "Substanzeinnahme [#%s]                     "
-
-msgid "suspected"
-msgstr "vermutet"
-
-#, python-format
-msgid "Substance: %s   [#%s]"
-msgstr "Substanz: %s   [#%s]"
-
-#, python-format
-msgid " ATC (substance): %s"
-msgstr " ATC (Wirkstoff): %s"
-
-#, python-format
-msgid " Last checked %s"
-msgstr " Zuletzt überprüft: %s"
-
-#, python-format
-msgid " Episode: %s"
-msgstr " Episode: %s"
-
-#, python-format
-msgid " Health issue: %s"
-msgstr " Grunderkrankung: %s"
-
-#, python-format
-msgid " Provider notes: %s"
-msgstr " Betreuernotiz: %s"
-
-#, python-format
-msgid " Patient advice: %s"
-msgstr " Patientenhinweis: %s"
-
-#, python-format
-msgid "Intake: %s"
-msgstr "Einnahme: %s"
-
-#, python-format
-msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
-msgstr "Revision: #%(row_ver)s, %(mod_when)s durch %(mod_by)s."
+msgid "unknown use type [%s]"
+msgstr "unbekannte Nutzweise [%s]"
 
 msgid ""
 "Additional information for healthcare professionals##tx: about current "
@@ -7055,101 +7135,6 @@ msgstr "Flüssigkeit"
 
 msgid "unit"
 msgstr "Einheit"
-
-#, python-format
-msgid "unknown use type [%s]"
-msgstr "unbekannte Nutzweise [%s]"
-
-msgid "today"
-msgstr "heute"
-
-msgid "started today"
-msgstr "heute begonnen"
-
-msgid "yesterday"
-msgstr "gestern"
-
-msgid "started yesterday"
-msgstr "Beginn gestern"
-
-#, python-format
-msgid "started %s"
-msgstr "Begonnen %s"
-
-#, python-format
-msgid "started \"%s\""
-msgstr "Begonnen \"%s\""
-
-#, python-format
-msgid "planned for %s"
-msgstr "geplant für %s"
-
-msgid "discontinued today"
-msgstr "heute beendet"
-
-msgid "discontinued yesterday"
-msgstr "gestern beendet"
-
-#, python-format
-msgid "discontinued %s %s"
-msgstr "beendet %s %s"
-
-#, python-format
-msgid "after %s"
-msgstr "nach %s"
-
-#, python-format
-msgid "Intake revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
-msgstr "Revision Einnahme: #%(row_ver)s, %(mod_when)s durch %(mod_by)s."
-
-#, python-format
-msgid "Regimen revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
-msgstr "Revision Einnahmeschema: #%(row_ver)s, %(mod_when)s durch %(mod_by)s."
-
-msgid "Ongoing intake"
-msgstr "Derzeitige Einnahme"
-
-msgid "Inactive intake"
-msgstr "Frühere Einnahme"
-
-#, python-format
-msgid "%s of \"%s\""
-msgstr "%s von \"%s\""
-
-#, python-format
-msgid "Amount: %s %s"
-msgstr "Menge: %s %s"
-
-#, python-format
-msgid " Regimen: %s"
-msgstr " Einnahmeplan: %s"
-
-#, python-format
-msgid "Started: %s%s"
-msgstr "Begonnen %s%s"
-
-#, python-format
-msgid "Discontinued %s"
-msgstr "Beendet %s"
-
-#, python-format
-msgid " Reason: %s"
-msgstr " Grund: %s"
-
-#, python-format
-msgid " Own notes: %s"
-msgstr " Eigene Notizen: %s"
-
-#, python-format
-msgid "Intake: #%(pk)s, rev %(row_ver)s, %(mod_when)s by %(mod_by)s."
-msgstr ""
-"Revision: Einnahme #%(pk)s, ver %(row_ver)s, %(mod_when)s durch %(mod_by)s."
-
-#, python-format
-msgid "Regimen: #%(pk)s, rev %(row_ver)s, %(mod_when)s by %(mod_by)s."
-msgstr ""
-"Revision: Einnahmeplan #%(pk)s, ver %(row_ver)s, %(mod_when)s durch "
-"%(mod_by)s."
 
 #, python-format
 msgid "delivery unit%s"
@@ -8056,9 +8041,6 @@ msgstr "Meßwert"
 
 msgid "Substance intake"
 msgstr "Medikamenteneinnahme"
-
-msgid "Substance intake regimen"
-msgstr "Einnahmeplan"
 
 msgid "Hospital stay"
 msgstr "Krankenhausaufenthalt"
@@ -11770,6 +11752,10 @@ msgstr "Zeitraum"
 #, python-format
 msgid "Patient: %s"
 msgstr "Patient: %s"
+
+#, python-format
+msgid "Pharmacies: %s"
+msgstr "Apotheken: %s"
 
 #, python-format
 msgid "Internal: %s"
@@ -18262,10 +18248,21 @@ msgid "Required: substance"
 msgstr "Pflichtfeld: Wirkstoff"
 
 #, python-format
-msgid "Patient already takes/took \"%s\". You may add a new regimen though."
+msgid "[%s]: Intake without regimen exists. You need to edit that intake."
+msgstr "[%s]: Substanzgebrauch ohne Einnahmeplan schon dokumentiert."
+
+msgid ""
+"Cannot add intake without regimen when there already exists an intake with a "
+"regimen."
 msgstr ""
-"Patient nimmt/nahm schon \"%s\". Sie können aber einen Einnahmeplan "
-"hinzufügen."
+"Kann Substanzgebrauch nicht ohne Einnahmeplan dokumentieren, es gibt bereits "
+"Einnahmepläne für diese Substanz."
+
+msgid "There already is an intake with the exact same regimen."
+msgstr "Der Wirkstoff ist mit demselben Einnahmeplan bereits dokumentiert."
+
+msgid "Required: Regimen details (amount, unit, schedule)."
+msgstr "Erforderlich: Einnahmedetails (Menge, Einheit, Plan)."
 
 msgid "Substance required."
 msgstr "Wirkstoff nötig."
@@ -20862,6 +20859,133 @@ msgstr "Abbrechen"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
+
+#~ msgid "Substance abuse entry"
+#~ msgstr "Substanzmißbrauch"
+
+#, python-format
+#~ msgid "Substance: %s%s"
+#~ msgstr "Substanz: %s%s"
+
+#, python-format
+#~ msgid "Patient already takes/took \"%s\". You may add a new regimen though."
+#~ msgstr ""
+#~ "Patient nimmt/nahm schon \"%s\". Sie können aber einen Einnahmeplan "
+#~ "hinzufügen."
+
+#~ msgid ""
+#~ "Codes relevant to the Reason for Encounter\n"
+#~ "separated by \";\"."
+#~ msgstr ""
+#~ "Codes für diese Beratungsursache,\n"
+#~ "abgetrennt mittels \";\"."
+
+#~ msgid ""
+#~ "Codes relevant to the Assessment of Encounter\n"
+#~ "separated by \";\"."
+#~ msgstr ""
+#~ "Codes für dieses Beratungsergebnis,\n"
+#~ "abgetrennt mittels \";\"."
+
+#~ msgid ""
+#~ "Codes relevant to this Subjective\n"
+#~ "separated by \";\"."
+#~ msgstr ""
+#~ "Codes für diese Anamnese,\n"
+#~ "abgetrennt mittels \";\"."
+
+#~ msgid ""
+#~ "Codes relevant to this Objective\n"
+#~ "separated by \";\"."
+#~ msgstr ""
+#~ "Codes für diese Befunde,\n"
+#~ "abgetrennt mittels \";\"."
+
+#~ msgid ""
+#~ "Codes relevant to this Assessment\n"
+#~ "separated by \";\"."
+#~ msgstr ""
+#~ "Codes für diese Bewertung,\n"
+#~ "abgetrennt mittels \";\"."
+
+#~ msgid ""
+#~ "Codes relevant to this Plan\n"
+#~ "separated by \";\"."
+#~ msgstr ""
+#~ "Codes für diesen Plan,\n"
+#~ "abgetrennt mittels \";\"."
+
+#~ msgid "Codes:"
+#~ msgstr "Codes:"
+
+#, python-format
+#~ msgid "Regimen: %s"
+#~ msgstr "Einnahmeplan: %s"
+
+#, python-format
+#~ msgid ""
+#~ "Substance abuse entry                                              [#%s]"
+#~ msgstr ""
+#~ "Substanzmißbrauch                                              [#%s]"
+
+#, python-format
+#~ msgid "Substance: %s [#%s]%s"
+#~ msgstr "Substanz: %s [#%s]%s"
+
+#, python-format
+#~ msgid " Discontinued %s"
+#~ msgstr " Beendet %s"
+
+#, python-format
+#~ msgid "Substance intake [#%s]                     "
+#~ msgstr "Substanzeinnahme [#%s]                     "
+
+#, python-format
+#~ msgid "Substance: %s   [#%s]"
+#~ msgstr "Substanz: %s   [#%s]"
+
+#, python-format
+#~ msgid " Last checked %s"
+#~ msgstr " Zuletzt überprüft: %s"
+
+#, python-format
+#~ msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
+#~ msgstr "Revision: #%(row_ver)s, %(mod_when)s durch %(mod_by)s."
+
+#, python-format
+#~ msgid "Intake revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
+#~ msgstr "Revision Einnahme: #%(row_ver)s, %(mod_when)s durch %(mod_by)s."
+
+#, python-format
+#~ msgid "Regimen revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
+#~ msgstr ""
+#~ "Revision Einnahmeschema: #%(row_ver)s, %(mod_when)s durch %(mod_by)s."
+
+#~ msgid "Inactive intake"
+#~ msgstr "Frühere Einnahme"
+
+#, python-format
+#~ msgid " Regimen: %s"
+#~ msgstr " Einnahmeplan: %s"
+
+#, python-format
+#~ msgid " Own notes: %s"
+#~ msgstr " Eigene Notizen: %s"
+
+#, python-format
+#~ msgid "Intake: #%(pk)s, rev %(row_ver)s, %(mod_when)s by %(mod_by)s."
+#~ msgstr ""
+#~ "Revision: Einnahme #%(pk)s, ver %(row_ver)s, %(mod_when)s durch "
+#~ "%(mod_by)s."
+
+#, python-format
+#~ msgid "Regimen: #%(pk)s, rev %(row_ver)s, %(mod_when)s by %(mod_by)s."
+#~ msgstr ""
+#~ "Revision: Einnahmeplan #%(pk)s, ver %(row_ver)s, %(mod_when)s durch "
+#~ "%(mod_by)s."
+
+#~ msgid "Substance intake regimen"
+#~ msgstr "Einnahmeplan"
 
 #~ msgid "Existing"
 #~ msgstr "Existierend"
