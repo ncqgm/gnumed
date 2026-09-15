@@ -86,6 +86,12 @@ DEP: removed LibreOffice forms engine
 # rel-1-8-maint
 ------------------------------------------------
 
+	1.8.26
+
+FIX: use okular instead of gtklp for printing
+
+	1.8.25
+
 	1.8.24
 
 FIX: more robust UI update when quickly scrolling document tree

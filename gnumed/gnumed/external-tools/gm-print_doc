@@ -72,16 +72,18 @@ fi
 
 # generic badness ?
 if [ "${CALL_PRINTER_MANAGER}" = "" ]; then
-	A=`which acroread`
+#	A=`which acroread`
+	A=`which okular`
 	if [ $? = 0 ]; then
-		CALL_PRINTER_MANAGER="acroread ${FILES}"
+#		CALL_PRINTER_MANAGER="acroread ${FILES}"
+		CALL_PRINTER_MANAGER="okular --print-and-exit ${FILES}"
 	fi
 fi
 
 # nothing found ?
 if [ "${CALL_PRINTER_MANAGER}" = "" ]; then
 	echo ""
-	echo "Cannot find any of kprinter, gtklp, MacOSX/Darwin, or acroread."
+	echo "Cannot find any of kprinter, gtklp, MacOSX/Darwin, or okular."
 	echo "Cannot print document(s)."
 	echo ""
 	exit 127
