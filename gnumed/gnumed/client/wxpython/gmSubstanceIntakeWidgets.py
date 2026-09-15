@@ -60,7 +60,7 @@ def manage_substance_intakes(parent=None, emr=None, include_inactive:bool=True):
 
 	#------------------------------------------------------------
 	def edit(intake=None):
-		return edit_intake_with_regimen(parent = parent, intake_with_regimen = intake, single_entry = True)
+		return edit_intake(parent = parent, intake = intake, single_entry = True)
 
 	#------------------------------------------------------------
 	def delete(intake):
@@ -72,13 +72,13 @@ def manage_substance_intakes(parent=None, emr=None, include_inactive:bool=True):
 			return False
 
 		conn = gmPG2.get_connection(readonly = False)
-		result = gmMedication.delete_intake_with_regimen(pk_intake_regimen = intake['pk_intake_regimen'], pk_intake = intake['pk_intake'], link_obj = conn)
+		result = gmMedication.delete_substance_intake(pk_intake = intake['pk_intake'], link_obj = conn)
 		conn.commit()
 		return result
 
 	#------------------------------------------------------------
-	def get_tooltip(intake_with_regimen=None):
-		return intake_with_regimen.format(single_line = False, include_metadata = True)
+	def get_tooltip(intake=None):
+		return intake.format(single_line = False, include_tech_details = False)
 
 	#------------------------------------------------------------
 	def refresh(lctrl):
@@ -125,11 +125,11 @@ def manage_substance_intakes(parent=None, emr=None, include_inactive:bool=True):
 
 
 #------------------------------------------------------------
-def edit_intake_with_regimen(parent=None, intake_with_regimen:gmMedication.cSubstanceIntake=None, single_entry:bool=False):
-	ea = cSubstanceIntakeEAPnl(parent, -1, intake = intake_with_regimen)
-	ea.mode = gmTools.coalesce(intake_with_regimen, 'new', 'edit')
+def edit_intake(parent=None, intake:gmMedication.cSubstanceIntake=None, single_entry:bool=False):
+	ea = cSubstanceIntakeEAPnl(parent, -1, intake = intake)
+	ea.mode = gmTools.coalesce(intake, 'new', 'edit')
 	dlg = gmEditArea.cGenericEditAreaDlg(parent, -1, edit_area = ea, single_entry = True)
-	dlg.SetTitle(gmTools.coalesce(intake_with_regimen, _('Adding substance intake'), _('Editing substance intake')))
+	dlg.SetTitle(gmTools.coalesce(intake, _('Adding substance intake'), _('Editing substance intake')))
 	dlg.left_extra_button = (
 		_('Allergy'),
 		_('Document an allergy against this substance.'),
@@ -144,15 +144,7 @@ def edit_intake_with_regimen(parent=None, intake_with_regimen:gmMedication.cSubs
 	return True
 
 #------------------------------------------------------------
-def edit_intake_regimen(parent=None, intake_regimen:gmMedication.cSubstanceIntake=None, single_entry:bool=False):
-	return edit_intake_with_regimen (
-		parent = parent,
-		intake_with_regimen = intake_regimen.as_intake_with_regimen,
-		single_entry = single_entry
-	)
-
-#------------------------------------------------------------
-def delete_intake_with_regimen(parent=None, intake=None):
+def delete_substance_intake(parent=None, intake=None):
 	msg = _(
 		'\n'
 		'[%s]\n'
@@ -178,7 +170,7 @@ def delete_intake_with_regimen(parent=None, intake=None):
 		return False
 
 	if edit_first == wx.ID_YES:
-		edit_intake_with_regimen(parent = parent, intake_with_regimen = intake)
+		edit_intake(parent = parent, intake = intake)
 		delete_it = gmGuiHelpers.gm_show_question (
 			question = _('Now delete substance intake entry ?'),
 			title = _('Deleting medication / substance intake')
@@ -189,7 +181,7 @@ def delete_intake_with_regimen(parent=None, intake=None):
 		return False
 
 	conn = gmPG2.get_connection(readonly = False)
-	gmMedication.delete_intake_with_regimen(pk_intake = intake['pk_intake'], pk_intake_regimen = intake['pk_intake_regimen'], link_obj = conn)
+	gmMedication.delete_substance_intake(pk_intake = intake['pk_intake'], link_obj = conn)
 	conn.commit()
 	return True
 
@@ -336,26 +328,27 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		pk_subst, pk_dose = self._PRW_substance.GetData()
 		items = []
 		data = []
-		intakes = gmMedication.get_intakes_with_regimens (
+		intakes = gmMedication.get_substance_intakes (
 			pk_patient = gmPerson.gmCurrentPatient().ID,
-			pk_substance = pk_subst,
-			include_inactive = True,
+			return_pks = False,
+			pk_substances = [pk_subst],
+			ongoing_only = False,
 			order_by = 'discontinued IS DISTINCT FROM NULL, started DESC'
 		)
-		for regimen in intakes:
-			if regimen['discontinued']:
+		for intake in intakes:
+			if intake['discontinued']:
 				tag = _('old')
 			else:
 				tag = _('active')
-			items.append('%s: %s' % (tag, regimen.format(single_line = True)))
-			data.append(regimen)
+			items.append('%s: %s' % (tag, intake.format(single_line = True)))
+			data.append(intake)
 		self._LCTRL_regimen.set_columns([_('Existing treatment regimens for %s') % self._PRW_substance.Value])
 		self._LCTRL_regimen.set_string_items(items)
 		self._LCTRL_regimen.set_data(data)
 		self._LCTRL_regimen.set_column_widths()
 
 	#----------------------------------------------------------------
-	# internal halpers
+	# internal helpers
 	#----------------------------------------------------------------
 	def __validate_amount_and_unit(self, dose=None) -> bool:
 		amount = self._TCTRL_amount.Value.strip()
@@ -414,7 +407,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		return False
 
 	#----------------------------------------------------------------
-	def __validate_discontinued(self, started) -> bool:
+	def __validate_discontinued(self) -> bool:
 		"""discontinued: must be "< now()" AND "> started" if at all"""
 		discontinued = self._DPRW_discontinued.GetData()
 		if not discontinued:
@@ -428,6 +421,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 			self._DPRW_discontinued.SetFocus()
 			return False
 
+		started = self._DPRW_started.date
 		if not started:
 			self._DPRW_discontinued.display_as_valid()
 			return True
@@ -476,31 +470,6 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		return True
 
 	#----------------------------------------------------------------
-	def __validate_substance_for_new_intake(self) -> bool:
-		entered_subst = self._PRW_substance.Value.strip()
-		if not entered_subst:
-			self.StatusText = _('Required: substance')
-			self._PRW_substance.display_as_valid(False)
-			self._PRW_substance.SetFocus()
-			return False
-
-		if not gmPerson.gmCurrentPatient().emr.substance_intake_exists(substance = entered_subst):
-			self._PRW_substance.display_as_valid()
-			return True
-
-		if not self._a_regimen_field_is_filled_in():
-			self.StatusText = _('Patient already takes/took "%s". You may add a new regimen though.') % entered_subst
-			self._PRW_substance.display_as_valid(False)
-			self._PRW_substance.SetFocus()
-			return False
-
-		if not self.__validate_regimen_fields():
-			self._PRW_substance.display_as_valid(False)
-			return False
-
-		return True
-
-	#----------------------------------------------------------------
 	def _a_regimen_field_is_filled_in(self) -> bool:
 		if self._TCTRL_amount.Value.strip() != '':
 			return True
@@ -511,117 +480,171 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		if self._TCTRL_schedule.Value.strip() != '':
 			return True
 
-		if self._TCTRL_comment_on_start.Value.strip() != '':
-			return True
-
-		if self._DPRW_started.Value.strip() != '':
-			return True
-
-		if self._DPRW_discontinued.Value.strip() != '':
-			return True
-
-		if self._TCTRL_discontinue_reason.Value.strip() != '':
-			return True
-
 		return False
 
 	#----------------------------------------------------------------
 	def __validate_regimen_fields(self) -> bool:
 		is_valid = self.__validate_amount_and_unit()
 		is_valid = is_valid and self.__validate_schedule()
-		is_valid = is_valid and self.__validate_start()
-		is_valid = is_valid and self.__validate_discontinued(self._DPRW_started.date)
 		return is_valid
+
+	#----------------------------------------------------------------
+	def __valid_as_new_intake(self) -> bool:
+		entered_subst = self._PRW_substance.Value.strip()
+		if not entered_subst:
+			self.StatusText = _('Required: substance')
+			self._PRW_substance.display_as_valid(False)
+			self._PRW_substance.SetFocus()
+			return False
+
+		self._PRW_substance.display_as_valid(True)
+		pat_id = gmPerson.gmCurrentPatient().ID
+		if gmMedication.substance_intake_without_regimen_exists(pk_identity = pat_id, substance = entered_subst):
+			# there may only ever be one substance intake
+			# without regimen per substance per patient
+			self.StatusText = _('[%s]: Intake without regimen exists. You need to edit that intake.') % entered_subst
+			return False
+
+		has_regimen = self._a_regimen_field_is_filled_in()
+		if has_regimen and not self.__validate_regimen_fields():
+			return False
+
+		if not self.__validate_start():
+			return False
+
+		# we now have either no regimen values or a valid regimen
+		# check substance existence
+		pks_entered_subst = gmMedication.get_substances(return_pks = True, substance = entered_subst)
+		if not pks_entered_subst:
+			# entirely new substance, will be created upon saving
+			# patient cannot have intakes yet,
+			# so any regimen is fine
+			return True
+
+		intakes = gmMedication.get_substance_intakes(pk_patient = pat_id, pk_substances = pks_entered_subst)
+		if not intakes:
+			# existing substance,
+			# but no intakes for patient yet
+			# so any regimen is fine
+			return True
+
+		# we now do have intakes
+		# since we checked for a non-regimen intake earlier all
+		# intakes found must include regimen data, therefore we
+		# cannot add an intake without a regimen
+		if not has_regimen:
+			self.StatusText = _('Cannot add intake without regimen when there already exists an intake with a regimen.')
+			return False
+
+		# same-regimen intake exists ?
+		duplicate_intake = gmMedication.substance_intake_exists (
+			pat_id,
+			pks_entered_subst[0],
+			amount = self._TCTRL_amount.Value.strip(),
+			unit = self._PRW_unit.Value.strip(),
+			schedule = self._TCTRL_schedule.Value.strip()
+		)
+		if duplicate_intake:
+			self.StatusText = _('There already is an intake with the exact same regimen.')
+			return False
+
+		return self.__validate_discontinued()
+
+	#----------------------------------------------------------------
+	def __valid_as_update_of_intake(self) -> bool:
+		regimen_info_entered = self._a_regimen_field_is_filled_in()
+		regimen_valid = self.__validate_regimen_fields()
+		if regimen_info_entered and not regimen_valid:
+			return False
+
+		is_valid = self.__validate_episode_for_update()
+		is_valid = is_valid and self.__validate_start()
+		is_valid = is_valid and self.__validate_discontinued()
+		if not is_valid:
+			return False
+
+		pat_id = gmPerson.gmCurrentPatient().ID
+		pk_subst = self._PRW_substance.GetData()
+		existing_intakes = gmMedication.get_substance_intakes(pk_patient = pat_id, pk_substances = [pk_subst])
+		# if there's just one intake it's the one we are editing
+		# and we can do as we like regarding regimen fields
+		if len(existing_intakes) == 1:
+			return True
+
+		# database holds more than one intake, in which case each
+		# is guarantueed (by the database) to have regimen info
+		# (we did check earlier whether our regimen info is valid)
+		if regimen_info_entered:
+			return True
+
+		self.StatusText = _('Required: Regimen details (amount, unit, schedule).')
+		self._TCTRL_amount.display_as_valid(False)
+		self._TCTRL_unit.display_as_valid(False)
+		self._TCTRL_schedule.display_as_valid(False)
+		self._TCTRL_amount.SetFocus()
+		return False
 
 	#----------------------------------------------------------------
 	def _valid_for_save(self) -> bool:
 		self.StatusText = ''
 		if self.mode == 'new':
-			is_valid = self.__validate_substance_for_new_intake()
-			if self._a_regimen_field_is_filled_in():
-				is_valid = is_valid and self.__validate_regimen_fields()
-			return is_valid
+			return self.__valid_as_new_intake()
 
-		# edit of existing intake, mode = 'edit'
-		is_valid = self.__validate_episode_for_update()
-		# intake with existing regimen
-		if self.data['pk_intake_regimen']:
-			# must have regimen data; removal of existing regimen not allowed
-			is_valid = is_valid and self.__validate_regimen_fields()
-			return is_valid
+		return self.__valid_as_update_of_intake()
 
-		# intake without a regimen so far: need not have regimen data
-		if self._a_regimen_field_is_filled_in():
-			is_valid = is_valid and self.__validate_regimen_fields()
-		return is_valid
+	#----------------------------------------------------------------
+	def __ensure_episode4saving(self, link_obj=None) -> int:
+		pk_epi = self._PRW_episode.GetData(as_instance = False, link_obj = link_obj)
+		if pk_epi:
+			return pk_epi
+
+		if self._PRW_episode.Value.strip() == '':
+			self._PRW_episode.SetValue(gmMedication.DEFAULT_MEDICATION_HISTORY_EPISODE)
+			is_open = False
+		else:
+			is_open = True		# Jim wants new episode to auto-open
+		pk_epi = self._PRW_episode.GetData (
+			can_create = True,
+			is_open = is_open,
+			as_instance = False,
+			link_obj = link_obj
+		)
+		return pk_epi
 
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
 	def _save_as_new(self) -> bool:
 		conn4tx = gmPG2.get_connection(readonly = False)
-		pk_epi = self._PRW_episode.GetData(as_instance = False, link_obj = conn4tx)
-		if pk_epi is None:
-			if self._PRW_episode.Value.strip() == '':
-				self._PRW_episode.SetValue(gmMedication.DEFAULT_MEDICATION_HISTORY_EPISODE)
-				is_open = False
-			else:
-				is_open = True		# Jim wants new episode to auto-open
-			pk_epi = self._PRW_episode.GetData (
-				can_create = True,
-				is_open = is_open,
-				as_instance = False,
-				link_obj = conn4tx
-			)
+		pk_epi = self.__ensure_episode4saving(link_obj = conn4tx)
 		pk_subst, pk_dose = self._PRW_substance.GetData(as_instance = False, can_create = True, link_obj = conn4tx)
-		intakes = gmMedication.get_substance_intakes (
-			pk_patient = gmPerson.gmCurrentPatient().ID,
-			return_pks = False,
-			pk_substances = [pk_subst]
-		)
-		if intakes:
-			intake = intakes[0]
-		else:
-			intake = gmMedication.create_substance_intake (
-				pk_encounter = gmPerson.gmCurrentPatient().emr.current_encounter['pk_encounter'],
-				pk_episode = pk_epi,
-				pk_substance = pk_subst,
-				link_obj = conn4tx
-			)
-		if self._TCTRL_schedule.Value.strip() == '':
-			# no schedule means there cannot be regimen data because of prior validation
-			intake['pk_episode'] = pk_epi
-			intake.save(conn = conn4tx)
-			conn4tx.commit()
-			conn4tx.close()
-			data = gmMedication.cSubstanceIntake(aPK_obj = intake['pk_intake'])
-			self.data = data
-			return True
-
-		intake.save(conn = conn4tx)
-		if self._CHBOX_start_unknown.IsChecked():
-			started = gmDateTime.pydt_now_here()
-		else:
-			started = self._DPRW_started.date
-		amount_is_num, amount = gmTools.input2decimal(self._TCTRL_amount.Value.strip())
-		regimen = gmMedication.create_intake_regimen (
-			pk_intake = intake['pk_intake'],
-			started = started,
-			pk_encounter = intake['pk_encounter'],
-			pk_episode = intake['pk_episode'],
-			schedule = self._TCTRL_schedule.Value.strip(),
-			amount = amount,
-			unit = self._PRW_unit.Value.strip(),
-			discontinued = self._DPRW_discontinued.date,
+		intake = gmMedication.create_substance_intake (
+			pk_encounter = gmPerson.gmCurrentPatient().emr.current_encounter['pk_encounter'],
+			pk_episode = pk_epi,
+			pk_substance = pk_subst,
 			link_obj = conn4tx
 		)
-		regimen['notes4patient'] = self._TCTRL_patient_notes.Value.strip()
-		regimen['notes4providers'] = self._TCTRL_provider_notes.Value.strip()
-		regimen['notes4us'] = self._TCTRL_our_notes.Value.strip()
-		regimen['start_is_unknown'] = self._CHBOX_start_unknown.IsChecked()
-		regimen['comment_on_start'] = self._TCTRL_comment_on_start.Value.strip()
-		if regimen['discontinued']:
-			regimen['discontinue_reason'] = self._TCTRL_discontinue_reason.Value.strip()
+		intake['pk_episode'] = pk_epi
+		if self._CHBOX_start_unknown.IsChecked():
+			intake['started'] = gmDateTime.pydt_now_here()
+		else:
+			intake['started'] = self._DPRW_started.date
+		intake['start_is_unknown'] = self._CHBOX_start_unknown.IsChecked()
+		intake['comment_on_start'] = self._TCTRL_comment_on_start.Value.strip()
+		intake['discontinued'] = self._DPRW_discontinued.date
+		if intake['discontinued']:
+			intake['discontinue_reason'] = self._TCTRL_discontinue_reason.Value.strip()
+		amount_is_num, amount = gmTools.input2decimal(self._TCTRL_amount.Value.strip())
+		if amount_is_num:
+			intake['amount'] = amount
+		else:
+			intake['amount'] = None
+		intake['unit'] = self._PRW_unit.Value.strip()
+		intake['schedule'] = self._TCTRL_schedule.Value.strip()
+		intake['notes4patient'] = self._TCTRL_patient_notes.Value.strip()
+		intake['notes4providers'] = self._TCTRL_provider_notes.Value.strip()
+		intake['notes4pharmacies'] = self._TCTRL_pharmacy_notes.Value.strip()
+		intake['notes4us'] = self._TCTRL_our_notes.Value.strip()
 #		if self._PRW_duration.Value.strip() in ['', gmTools.u_infinity]:
 #			regimen['planned_duration'] = None
 #		else:
@@ -629,77 +652,36 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 #				regimen['planned_duration'] = self._PRW_duration.GetData()
 #			else:
 #				regimen['planned_duration'] = gmDateTime.str2interval(self._PRW_duration.Value.strip())
-		regimen.save(conn = conn4tx)
+		intake.save(conn = conn4tx)
 		conn4tx.commit()
 		conn4tx.close()
-		data = gmMedication.cSubstanceIntake(aPK_obj = regimen['pk_intake'])
+		data = intake
 		self.data = data
 		return True
 
 	#----------------------------------------------------------------
 	def _save_as_update(self):
-		conn4tx = gmPG2.get_connection(readonly = False)
-		# intake fields
-		pk_epi = self._PRW_episode.GetData(as_instance = False, link_obj = conn4tx)
-		self.data['pk_episode'] = pk_epi
+		self.data['pk_episode'] = self._PRW_episode.GetData(as_instance = False)
+		if self._CHBOX_start_unknown.IsChecked():
+			self.data['started'] = gmDateTime.pydt_now_here()
+		else:
+			self.data['started'] = self._DPRW_started.date
+		self.data['start_is_unknown'] = self._CHBOX_start_unknown.IsChecked()
+		self.data['comment_on_start'] = self._TCTRL_comment_on_start.Value.strip()
+		self.data['discontinued'] = self._DPRW_discontinued.date
+		if self.data['discontinued']:
+			self.data['discontinue_reason'] = self._TCTRL_discontinue_reason.Value.strip()
+		amount_is_num, amount = gmTools.input2decimal(self._TCTRL_amount.Value.strip())
+		if amount_is_num:
+			self.data['amount'] = amount
+		else:
+			self.data['amount'] = None
+		self.data['unit'] = self._PRW_unit.Value.strip()
+		self.data['schedule'] = self._TCTRL_schedule.Value.strip()
 		self.data['notes4patient'] = self._TCTRL_patient_notes.Value.strip()
 		self.data['notes4providers'] = self._TCTRL_provider_notes.Value.strip()
+		self.data['notes4pharmacies'] = self._TCTRL_pharmacy_notes.Value.strip()
 		self.data['notes4us'] = self._TCTRL_our_notes.Value.strip()
-
-		# no regimen fields
-		if not self._a_regimen_field_is_filled_in():
-			# should not happen due to prior validation
-			if self.data['pk_intake_regimen']:
-				conn4tx.rollback()
-				conn4tx.close()
-				return False
-
-			# intake w/o regimen
-			if not self.data['pk_intake_regimen']:
-				self.data.save(conn = conn4tx)
-				conn4tx.commit()
-				conn4tx.close()
-				return True
-
-		# regimen fields
-		comment = self._TCTRL_comment_on_start.Value.strip()
-		if self._CHBOX_start_unknown.IsChecked():
-			started = gmDateTime.pydt_now_here()
-		else:
-			started = self._DPRW_started.date
-		if not self.data['pk_intake_regimen']:
-			self.data.save(conn = conn4tx)
-			# no regimen as yet
-			amount_is_num, amount = gmTools.input2decimal(self._TCTRL_amount.Value.strip())
-			regimen = gmMedication.create_intake_regimen (
-				pk_intake = self.data['pk_intake'],
-				started = started,
-				pk_encounter = self.data['pk_encounter'],
-				pk_episode = pk_epi,
-				schedule = self._TCTRL_schedule.Value.strip(),
-				amount = amount,
-				unit = self._PRW_unit.Value.strip(),
-				discontinued = self._DPRW_discontinued.date,
-				link_obj = conn4tx
-			)
-			regimen['start_is_unknown'] = self._CHBOX_start_unknown.IsChecked()
-			regimen['comment_on_start'] = comment
-			regimen['discontinued'] = self._DPRW_discontinued.date
-			regimen['discontinue_reason'] = self._TCTRL_discontinue_reason.Value.strip()
-			#regimen['planned_duration'] = self._PRW_duration.GetData()
-			regimen.save(conn = conn4tx)
-			conn4tx.commit()
-			conn4tx.close()
-			data = gmMedication.cSubstanceIntake(aPK_obj = regimen['pk_intake'])
-			self.data = data
-			return True
-
-		# existing regimen
-		self.data['started'] = started
-		self.data['start_is_unknown'] = self._CHBOX_start_unknown.IsChecked()
-		self.data['comment_on_start'] = comment
-		self.data['discontinued'] = self._DPRW_discontinued.date
-		self.data['discontinue_reason'] = self._TCTRL_discontinue_reason.Value.strip()
 #		if self._PRW_duration.Value.strip() in ['', gmTools.u_infinity]:
 #			regimen['planned_duration'] = None
 #		else:
@@ -707,9 +689,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 #				regimen['planned_duration'] = self._PRW_duration.GetData()
 #			else:
 #				regimen['planned_duration'] = gmDateTime.str2interval(self._PRW_duration.Value.strip())
-		self.data.save(conn = conn4tx)
-		conn4tx.commit()
-		conn4tx.close()
+		self.data.save()
 		return True
 
 	#----------------------------------------------------------------
@@ -719,6 +699,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		self._PRW_episode.SetText('', None)
 		self._TCTRL_patient_notes.Value = ''
 		self._TCTRL_provider_notes.Value = ''
+		self._TCTRL_pharmacy_notes.Value = ''
 		self._TCTRL_our_notes.Value = ''
 		# regimen fields
 		self._TCTRL_amount.SetValue('')
@@ -750,34 +731,34 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		self._PRW_episode.SetData(self.data['pk_episode'])
 		self._TCTRL_patient_notes.Value = gmTools.coalesce(self.data['notes4patient'], '')
 		self._TCTRL_provider_notes.Value = gmTools.coalesce(self.data['notes4providers'], '')
+		self._TCTRL_pharmacy_notes.Value = gmTools.coalesce(self.data['notes4pharmacies'], '')
 		self._TCTRL_our_notes.Value = gmTools.coalesce(self.data['notes4us'], '')
-		if self.data['pk_intake_regimen']:
+		if self.data['amount']:
 			self._TCTRL_amount.Value = str(self.data['amount'])
 			self._TCTRL_amount.Disable()
+		if self.data['unit']:
 			self._PRW_unit.SetText(value = self.data['unit'], data = self.data['unit'])
 			self._PRW_unit.Disable()
+		if self.data['schedule']:
 			self._TCTRL_schedule.Value = self.data['schedule']
 			self._TCTRL_schedule.Disable()
-			self._DPRW_started.SetText(data = self.data['started'])
-			self._TCTRL_comment_on_start.Value = gmTools.coalesce(self.data['comment_on_start'], '')
-			if self.data['start_is_unknown']:
-				self._CHBOX_start_unknown.Value = True
-				self._DPRW_started.Disable()
-			else:
-				self._CHBOX_start_unknown.Value = False
-				self._DPRW_started.Enable()
-			if self.data['discontinued']:
-				self._DPRW_discontinued.SetData(data = self.data['discontinued'])
-				self._TCTRL_discontinue_reason.Value = gmTools.coalesce(self.data['discontinue_reason'], '')
-				self._TCTRL_discontinue_reason.Enable()
-		else:
-			self._TCTRL_amount.Enable()
-			self._PRW_unit.Enable()
-			self._TCTRL_schedule.Enable()
+		self._DPRW_started.SetText(data = self.data['started'])
+		self._TCTRL_comment_on_start.Value = gmTools.coalesce(self.data['comment_on_start'], '')
+		if self.data['start_is_unknown']:
 			self._CHBOX_start_unknown.Value = True
 			self._DPRW_started.Disable()
-			self._DPRW_discontinued.SetData(None)
-			self._TCTRL_discontinue_reason.Value = ''
+		else:
+			self._CHBOX_start_unknown.Value = False
+			self._DPRW_started.Enable()
+		if self.data['discontinued']:
+			self._DPRW_discontinued.SetData(data = self.data['discontinued'])
+			self._TCTRL_discontinue_reason.Value = gmTools.coalesce(self.data['discontinue_reason'], '')
+			self._TCTRL_discontinue_reason.Enable()
+#		else:
+#			self._CHBOX_start_unknown.Value = True
+#			self._DPRW_started.Disable()
+#			self._DPRW_discontinued.SetData(None)
+#			self._TCTRL_discontinue_reason.Value = ''
 		self.__refresh_regimens()
 		self.__refresh_precautions()
 		self._TCTRL_patient_notes.SetFocus()
@@ -807,7 +788,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		self.StatusText = ''
 		pks_subst = gmMedication.get_substances(return_pks = True, substance = entered_substance)
 		if not pks_subst:
-			# new substance, patient *can not* have intake yet
+			# new substance, patient *cannot* have any intake yet
 			return
 
 		intakes = gmMedication.get_substance_intakes (
@@ -973,16 +954,16 @@ if __name__ == '__main__':
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain('gnumed')
-
+	from Gnumed.pycommon import gmLog
 	from Gnumed.wxpython import gmGuiTest
 	#----------------------------------------
 	def test_substance_intake_ea_pnl():
 		gmGuiTest.test_widget(cSubstanceIntakeEAPnl, patient = -1)
 
 	#----------------------------------------
-	def test_edit_intake_with_regimen():
+	def test_edit_intake():
 		frame = gmGuiTest.setup_widget_test_env(patient = 12)
-		wx.CallLater(2000, edit_intake_with_regimen, parent = frame, single_entry = True)
+		wx.CallLater(2000, edit_intake, parent = frame, single_entry = True)
 		wx.GetApp().MainLoop()
 
 	#----------------------------------------
@@ -993,12 +974,12 @@ if __name__ == '__main__':
 
 	#----------------------------------------
 	#test_substance_intake_ea_pnl()
-	#test_edit_intake_with_regimen()
+	#test_edit_intake()
 	test_manage_substance_intakes()
 
 	#frame = gmGuiTest.setup_widget_test_env(patient = 12)
 	#manage_substance_intakes()
 	#cSubstanceIntakeEAPnl(frame, intake = gmMedication.cSubstanceIntake(1))
 	#cSubstanceIntakeEAPnl(frame)
-	#wx.CallLater(4000, edit_intake_with_regimen, parent = frame, intake = gmMedication.cSubstanceIntake(1), single_entry = True)
+	#wx.CallLater(4000, edit_intake, parent = frame, intake = gmMedication.cSubstanceIntake(1), single_entry = True)
 	#wx.GetApp().MainLoop()

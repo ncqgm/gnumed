@@ -168,6 +168,8 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				notes_lines.append(_('Patient: %s') % med['notes4patient'].strip())
 			if med['notes4providers']:
 				notes_lines.append(_('Provider: %s') % med['notes4providers'].strip())
+			if med['notes4pharmacies']:
+				notes_lines.append(_('Pharmacies: %s') % med['notes4pharmacies'].strip())
 			if med['notes4us']:
 				notes_lines.append(_('Internal: %s') % med['notes4us'].strip())
 			if notes_lines:
@@ -303,7 +305,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 #			drug_db.check_interactions(substance_intakes = self.__row_data.values())
 	#------------------------------------------------------------
 	def add_substance(self):
-		gmSubstanceIntakeWidgets.edit_intake_with_regimen(parent = self, intake_with_regimen = None)
+		gmSubstanceIntakeWidgets.edit_intake(parent = self, intake = None)
 
 	#------------------------------------------------------------
 	def edit_substance(self):
@@ -316,7 +318,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			return
 
 		subst = self.get_selected_data()[0]
-		gmSubstanceIntakeWidgets.edit_intake_with_regimen(parent = self, intake_with_regimen = subst)
+		gmSubstanceIntakeWidgets.edit_intake(parent = self, intake = subst)
 
 	#------------------------------------------------------------
 	def delete_intake(self):
@@ -329,7 +331,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			return
 
 		intake = self.get_selected_data()[0]
-		gmSubstanceIntakeWidgets.delete_intake_with_regimen(parent = self, intake = intake)
+		gmSubstanceIntakeWidgets.delete_substance_intake(parent = self, intake = intake)
 
 	#------------------------------------------------------------
 	def create_allergy_from_substance(self):
@@ -448,7 +450,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 	def __on_cell_left_dclicked(self, evt):
 		row = evt.GetRow()
 		data = self.__row_data[row]
-		gmSubstanceIntakeWidgets.edit_intake_with_regimen(parent = self, intake_with_regimen = data)
+		gmSubstanceIntakeWidgets.edit_intake(parent = self, intake = data)
 
 	#------------------------------------------------------------
 	def __on_header_clicked(self, evt):

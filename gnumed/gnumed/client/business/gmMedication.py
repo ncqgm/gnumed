@@ -86,7 +86,7 @@ USE_TYPES_ACTIVE_MISUSE:list[int] = [
 
 
 USE_TYPE_NAMES = {
-	USE_TYPE_MEDICATION: _('medication, not abuse'),
+	USE_TYPE_MEDICATION: _('medication, not misuse'),
 	USE_TYPE_NON_HARMFUL: _('non-use or non-harmful use'),
 	USE_TYPE_PRESENTLY_HARMFUL: _('presently harmful use'),
 	USE_TYPE_PRESENTLY_ADDICTED: _('presently addicted'),
@@ -2063,7 +2063,7 @@ class cSubstanceIntake(gmBusinessDBObject.cBusinessDBObject):
 		return self.format (
 			single_line = False,
 			allergy = None,
-			include_metadata = True,
+			include_tech_details = True,
 			date_format = '%Y %b %d',
 			include_instructions = True,
 			include_loincs = True,
@@ -2072,7 +2072,7 @@ class cSubstanceIntake(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 	#--------------------------------------------------------
-	def format(self, left_margin:int=0, date_format:str='%Y %b %d', single_line:bool=True, allergy:gmAllergy.cAllergy=None, include_metadata:bool=True, include_instructions:bool=False, include_loincs:bool=False, terse:bool=False, eol='\n'):
+	def format(self, left_margin:int=0, date_format:str='%Y %b %d', single_line:bool=True, allergy:gmAllergy.cAllergy=None, include_tech_details:bool=True, include_instructions:bool=False, include_loincs:bool=False, terse:bool=False, eol='\n'):
 		# medication ?
 		if self._payload['use_type'] is None:
 			if single_line:
@@ -2083,14 +2083,14 @@ class cSubstanceIntake(gmBusinessDBObject.cBusinessDBObject):
 				date_format = date_format,
 				allergy = allergy,
 				include_loincs = include_loincs,
-				include_metadata = include_metadata,
+				include_tech_details = include_tech_details,
 				eol = eol
 			)
-		# abuse
+		# misuse
 		if single_line:
 			return self.format_as_single_line_abuse(left_margin = left_margin, date_format = date_format)
 
-		return self.format_as_multiple_lines_abuse(left_margin = left_margin, date_format = date_format, include_metadata = include_metadata, eol = eol)
+		return self.format_as_multiple_lines_abuse(left_margin = left_margin, date_format = date_format, include_tech_details = include_tech_details, eol = eol)
 
 	#--------------------------------------------------------
 	def format_as_single_line_abuse(self, left_margin=0, date_format='%Y %b %d'):
@@ -2182,6 +2182,9 @@ class cSubstanceIntake(gmBusinessDBObject.cBusinessDBObject):
 				parts_verbose.append('"%s"' % self['discontinue_reason'])
 		else:
 			parts_terse.append('?')
+		if self['schedule']:
+			parts_verbose.append(self['schedule'])
+			parts_terse.append(gmTools.shorten_text(self['schedule'], 15))
 		use_type_hint = '' if self['use_type'] is None else '!'
 		subst_prefix = '' if not include_substance_name else '%s%s%s%s%s: ' % (
 			' ' * left_margin,
@@ -2196,11 +2199,9 @@ class cSubstanceIntake(gmBusinessDBObject.cBusinessDBObject):
 		return subst_prefix + ', '.join(parts_verbose)
 
 	#--------------------------------------------------------
-	def format_as_multiple_lines_abuse(self, left_margin=0, date_format='%Y %b %d', include_metadata=True, eol='\n'):
+	def format_as_multiple_lines_abuse(self, left_margin=0, date_format='%Y %b %d', include_tech_details=True, eol='\n'):
 		lines = []
-		if include_metadata:
-			lines.append(_('Substance abuse entry'))
-		lines.append(' ' + _('Substance: %s%s') % (
+		lines.append(_('Misuse of: %s%s') % (
 			self._payload['substance'],
 			gmTools.coalesce(self._payload['atc_substance'], '', ' (ATC %s)')
 		))
@@ -2208,9 +2209,8 @@ class cSubstanceIntake(gmBusinessDBObject.cBusinessDBObject):
 		lines.append(' ' + _('Last checked: %s') % self._payload['started'].strftime('%Y %b %d'))
 		lines.append(' ' + _('Discontinued: %s') % self._payload['discontinued'].strftime(date_format)) if self._payload['discontinued'] else None
 		lines.append(_(' Notes: %s') % self['notes4providers']) if self['notes4providers'] else None
-		if include_metadata:
-			lines.append('')
-			lines.append('')
+		if include_tech_details:
+			lines.append(gmTools.u_box_horiz_single * 20)
 			lines.extend(self.format_technical_details())
 		if not eol:
 			return lines
@@ -2225,7 +2225,7 @@ class cSubstanceIntake(gmBusinessDBObject.cBusinessDBObject):
 		date_format:str='%Y %b %d',
 		allergy:gmAllergy.cAllergy=None,
 		include_loincs:bool=False,
-		include_metadata:bool=False,
+		include_tech_details:bool=False,
 		eol:str=None
 	) -> list | str:
 		"""Format into multiple lines.
@@ -2286,9 +2286,8 @@ class cSubstanceIntake(gmBusinessDBObject.cBusinessDBObject):
 		lines.append(_(' Provider notes: %s') % self['notes4providers']) if self['notes4providers'] else None
 		lines.append(_(' Pharmacy notes: %s') % self['notes4pharmacies']) if self['notes4pharmacies'] else None
 		lines.append(_(' Internal notes: %s') % self['notes4us']) if self['notes4us'] else None
-		if include_metadata:
-			lines.append('')
-			lines.append('')
+		if include_tech_details:
+			lines.append(gmTools.u_box_horiz_single * 20)
 			lines.extend(self.format_technical_details())
 		if not eol:
 			return lines
@@ -3710,7 +3709,7 @@ if __name__ == "__main__":
 			print(i.format_for_failsafe_output())
 			print('')
 #			print('format(single_line = False):')
-#			print(i.format(single_line = False, left_margin = 1, include_metadata = False))
+#			print(i.format(single_line = False, left_margin = 1, include_tech_details = False))
 #			print('')
 #			print('format(single_line = True):')
 #			print(i.format(single_line = True, left_margin = 1))
@@ -3734,7 +3733,7 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------
 	def test_delete_intake():
-		delete_substance_intake(pk_intake = 9, delete_regimen = False)
+		delete_substance_intake(pk_intake = 9)
 
 	#--------------------------------------------------------
 	#--------------------------------------------------------

@@ -900,7 +900,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		# <ctrl> down ? -> edit
 		if wx.GetKeyState(wx.WXK_CONTROL):
-			wx.CallAfter(gmSubstanceIntakeWidgets.edit_intake_with_regimen, parent = self, intake_with_regimen = data)
+			wx.CallAfter(gmSubstanceIntakeWidgets.edit_intake, parent = self, intake = data)
 			return
 
 		gmDispatcher.send(signal = 'display_widget', name = 'gmCurrentSubstancesPlugin')

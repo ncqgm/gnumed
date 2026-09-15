@@ -38,7 +38,7 @@ class wxgSubstanceIntakeEAPnl(wx.ScrolledWindow):
 		__sline_top = wx.StaticLine(self, wx.ID_ANY)
 		__szr_main.Add(__sline_top, 0, wx.BOTTOM | wx.EXPAND, 3)
 
-		__gszr_main = wx.FlexGridSizer(11, 2, 2, 3)
+		__gszr_main = wx.FlexGridSizer(12, 2, 2, 3)
 		__szr_main.Add(__gszr_main, 0, wx.EXPAND, 0)
 
 		_LBL_substance = wx.StaticText(self, wx.ID_ANY, _("Substance"))
@@ -124,44 +124,51 @@ class wxgSubstanceIntakeEAPnl(wx.ScrolledWindow):
 
 		__lbl_episode = wx.StaticText(self, wx.ID_ANY, _("Episode"))
 		__lbl_episode.SetForegroundColour(wx.Colour(255, 127, 0))
+		__lbl_episode.SetToolTip(_("Select, or enter for creation, the episode to which this substance intake relates."))
 		__gszr_main.Add(__lbl_episode, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
 		self._PRW_episode = cEpisodeSelectionPhraseWheel(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
-		self._PRW_episode.SetToolTip(_("Select, or enter for creation, the episode to which this substance will relate."))
 		__gszr_main.Add(self._PRW_episode, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 
 		__lbl_notes_spacer = wx.StaticText(self, wx.ID_ANY, "")
 		__gszr_main.Add(__lbl_notes_spacer, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
-		sizer_1 = wx.BoxSizer(wx.HORIZONTAL)
-		__gszr_main.Add(sizer_1, 1, wx.EXPAND, 0)
+		__szr_notes_heading = wx.BoxSizer(wx.HORIZONTAL)
+		__gszr_main.Add(__szr_notes_heading, 1, wx.EXPAND, 0)
 
-		sizer_1.Add((20, 20), 1, 0, 0)
+		__szr_notes_heading.Add((20, 20), 1, 0, 0)
 
 		__lbl_notes = wx.StaticText(self, wx.ID_ANY, _("Notes for:"))
-		sizer_1.Add(__lbl_notes, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		__szr_notes_heading.Add(__lbl_notes, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
-		sizer_1.Add((20, 20), 2, 0, 0)
+		__szr_notes_heading.Add((20, 20), 2, 0, 0)
 
 		__lbl_patient_notes = wx.StaticText(self, wx.ID_ANY, _("Patient"))
+		__lbl_patient_notes.SetToolTip(_("Notes intended for the patient, such as:\n\n- aim of intake\n- intake instructions\n- conditions to observe/report"))
 		__gszr_main.Add(__lbl_patient_notes, 0, 0, 0)
 
 		self._TCTRL_patient_notes = cTextCtrl(self, wx.ID_ANY, "", style=wx.BORDER_NONE | wx.TE_MULTILINE | wx.TE_WORDWRAP)
-		self._TCTRL_patient_notes.SetToolTip(_("Notes intended for the patient, such as:\n\n- aim of intake\n- intake instructions\n- conditions to observe/report"))
 		__gszr_main.Add(self._TCTRL_patient_notes, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 
 		__lbl_provider_notes = wx.StaticText(self, wx.ID_ANY, _("Providers"))
+		__lbl_provider_notes.SetToolTip(_("Notes intended for other providers relevant to this intake, such as:\n\n- unusual dosage/indication\n- contraindications/interactions assessment\n- monitoring considerations"))
 		__gszr_main.Add(__lbl_provider_notes, 0, 0, 0)
 
 		self._TCTRL_provider_notes = cTextCtrl(self, wx.ID_ANY, "", style=wx.BORDER_NONE | wx.TE_MULTILINE | wx.TE_WORDWRAP)
-		self._TCTRL_provider_notes.SetToolTip(_("Notes intended for other providers relevant to this intake, such as:\n\n- unusual dosage/indication\n- contraindications/interactions assessment\n- monitoring considerations"))
 		__gszr_main.Add(self._TCTRL_provider_notes, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 
+		__lbl_pharmacy_notes = wx.StaticText(self, wx.ID_ANY, _("Pharmacies"))
+		__lbl_pharmacy_notes.SetToolTip(_("Notes for pharmacies regarding dispensal, such as\n\n- needs to be divisible\n- suitable for gastric tube passage\n- this brand only"))
+		__gszr_main.Add(__lbl_pharmacy_notes, 0, 0, 0)
+
+		self._TCTRL_pharmacy_notes = cTextCtrl(self, wx.ID_ANY, "", style=wx.BORDER_NONE | wx.TE_MULTILINE | wx.TE_WORDWRAP)
+		__gszr_main.Add(self._TCTRL_pharmacy_notes, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
 		__lbl_our_notes = wx.StaticText(self, wx.ID_ANY, _("Ourselves"))
+		__lbl_our_notes.SetToolTip(_("Notes for ourselves such as patient-particular observations, notabenes, etc.\n\nNot intended for outside documents."))
 		__gszr_main.Add(__lbl_our_notes, 0, 0, 0)
 
 		self._TCTRL_our_notes = cTextCtrl(self, wx.ID_ANY, "", style=wx.BORDER_NONE | wx.TE_MULTILINE | wx.TE_WORDWRAP)
-		self._TCTRL_our_notes.SetToolTip(_("Notes for ourselves such as patient-particular observations, notabenes, etc.\n\nNot intended for outside documents."))
 		__gszr_main.Add(self._TCTRL_our_notes, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 
 		__lbl_research = wx.StaticText(self, wx.ID_ANY, _("Research"))
@@ -221,7 +228,7 @@ class wxgSubstanceIntakeEAPnl(wx.ScrolledWindow):
 		__gszr_main.AddGrowableRow(2)
 		__gszr_main.AddGrowableRow(7)
 		__gszr_main.AddGrowableRow(8)
-		__gszr_main.AddGrowableRow(9)
+		__gszr_main.AddGrowableRow(10)
 		__gszr_main.AddGrowableCol(1)
 
 		self.SetSizer(__szr_main)

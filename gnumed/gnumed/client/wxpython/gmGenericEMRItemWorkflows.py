@@ -34,7 +34,7 @@ from Gnumed.wxpython.gmEMRStructWidgets import edit_episode
 from Gnumed.wxpython.gmEncounterWidgets import edit_encounter
 from Gnumed.wxpython.gmHospitalStayWidgets import edit_hospital_stay
 from Gnumed.wxpython.gmMeasurementWidgets import edit_measurement
-from Gnumed.wxpython.gmSubstanceIntakeWidgets import edit_intake_with_regimen
+from Gnumed.wxpython.gmSubstanceIntakeWidgets import edit_intake
 from Gnumed.wxpython.gmFamilyHistoryWidgets import edit_family_history
 from Gnumed.wxpython.gmVaccWidgets import edit_vaccination
 from Gnumed.wxpython.gmProcedureWidgets import edit_procedure
@@ -52,7 +52,7 @@ __map_class2edit_call = {
 	cHospitalStay: {'edit_in_dlg': edit_hospital_stay},
 	cTestResult: {'edit_in_dlg': edit_measurement},
 	cEncounter: {'edit_in_dlg': edit_encounter},
-	cSubstanceIntake: {'edit_in_dlg': edit_intake_with_regimen},
+	cSubstanceIntake: {'edit_in_dlg': edit_intake},
 	cFamilyHistory: {'edit_in_dlg': edit_family_history},
 	cVaccination: {'edit_in_dlg': edit_vaccination},
 	cPerformedProcedure: {'edit_in_dlg': edit_procedure},
