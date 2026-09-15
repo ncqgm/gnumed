@@ -462,12 +462,27 @@ if __name__ == '__main__':
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain('gnumed')
+	from Gnumed.pycommon import gmExceptions
 
 	from Gnumed.wxpython import gmGuiTest
 
 	#----------------------------------------
-	main_frame = gmGuiTest.setup_widget_test_env(patient = 12)
-	#print(generate_failsafe_medication_list(patient = gmPerson.gmCurrentPatient(), max_width = 80, eol = '\n'))
-	gmStaff.set_current_provider_to_logged_on_user()
-	meds_list = save_failsafe_medication_list(max_width = 80)
-	gmMimeLib.call_editor_on_file(filename = meds_list, block = True)
+	def test_all_meds_lists():
+		main_frame = gmGuiTest.setup_widget_test_env(patient = None)
+		gmStaff.set_current_provider_to_logged_on_user()
+		for pat in range(1, 200):
+			try:
+				print(pat, '--', save_failsafe_medication_list(pk_patient = pat, max_width = 80))
+			except gmExceptions.ConstructorError:
+				pass
+
+	#----------------------------------------
+	def test():
+		main_frame = gmGuiTest.setup_widget_test_env(patient = 12)
+		#print(generate_failsafe_medication_list(patient = gmPerson.gmCurrentPatient(), max_width = 80, eol = '\n'))
+		gmStaff.set_current_provider_to_logged_on_user()
+		meds_list = save_failsafe_medication_list(max_width = 80)
+		gmMimeLib.call_editor_on_file(filename = meds_list, block = True)
+
+	#----------------------------------------
+	test_all_meds_lists()
