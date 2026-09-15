@@ -34,6 +34,7 @@ from Gnumed.business import gmStaff
 
 
 _log = logging.getLogger('gm.guitest')
+gmLog.print_logfile_name()
 
 #==============================================================================
 # external helpers, so users don't need to import modules just for testing
