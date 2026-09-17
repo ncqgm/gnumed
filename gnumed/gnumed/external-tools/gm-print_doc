@@ -82,7 +82,7 @@ fi
 
 # nothing found ?
 if [ "${CALL_PRINTER_MANAGER}" = "" ]; then
-	echo ""
+	echo "gm-print_doc:"
 	echo "Cannot find any of kprinter, gtklp, MacOSX/Darwin, or okular."
 	echo "Cannot print document(s)."
 	echo ""

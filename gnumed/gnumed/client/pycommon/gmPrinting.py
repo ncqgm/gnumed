@@ -30,6 +30,7 @@ external_print_APIs = [
 	'gsprint',				# win
 	'acrobat_reader',		# win
 	'gtklp',				# Linux
+	'okular',				# Linux
 	'Internet_Explorer',	# win
 	'Mac_Preview'			# MacOSX
 ]
@@ -48,8 +49,7 @@ def print_files(filenames:list=None, jobtype:str=None, print_api:str=None, verbo
 	Returns:
 		status
 	"""
-	_log.debug('printing "%s": %s', jobtype, filenames)
-
+	_log.debug('printing "%s": %s, API: %s', jobtype, filenames, print_api)
 	for fname in filenames:
 		try:
 			open(fname, 'r').close()
@@ -60,7 +60,6 @@ def print_files(filenames:list=None, jobtype:str=None, print_api:str=None, verbo
 	if jobtype not in KNOWN_PRINTJOB_TYPES:
 		print("unregistered print job type <%s>" % jobtype)
 		_log.warning('print job type "%s" not registered', jobtype)
-
 	if print_api not in external_print_APIs:
 		_log.warning('print API "%s" unknown, trying all', print_api)
 
@@ -79,6 +78,9 @@ def print_files(filenames:list=None, jobtype:str=None, print_api:str=None, verbo
 	if print_api == 'gtklp':
 		return _print_files_by_gtklp(filenames = filenames, verbose = verbose)
 
+	if print_api == 'okular':
+		return _print_files_by_okular(filenames = filenames, verbose = verbose)
+
 	if print_api == 'Internet_Explorer':
 		return _print_files_by_IE(filenames = filenames)
 
@@ -91,6 +93,8 @@ def print_files(filenames:list=None, jobtype:str=None, print_api:str=None, verbo
 			return True
 
 	elif os.name == 'posix':
+		if _print_files_by_okular(filenames = filenames, verbose = verbose):
+			return True
 		if _print_files_by_gtklp(filenames = filenames, verbose = verbose):
 			return True
 
@@ -107,18 +111,27 @@ def print_files(filenames:list=None, jobtype:str=None, print_api:str=None, verbo
 			return True
 		return False
 
-	# unknown platform, or platform default list failed, so try generic script
-	return _print_files_by_shellscript(filenames = filenames, jobtype = jobtype, verbose = verbose)
+	# unknown platform, or platform default list failed, try generic shell script
+	if _print_files_by_shellscript(filenames = filenames, jobtype = jobtype, verbose = verbose):
+		return True
+
+	# last last-ditch resort: call file viewer in
+	# the hope that that implements printing
+	from Gnumed.pycommon import gmMimeLib
+	for f in filenames:
+		result, msg = gmMimeLib.call_viewer_on_file(filename = f, block = False)
+	return result
 
 #=======================================================================
 # external print APIs
 #-----------------------------------------------------------------------
 def _print_files_by_mac_preview(filenames=None, verbose=False):
-
 #	if os.name != 'mac':				# does not work
 	if sys.platform != 'darwin':
 		_log.debug('MacOSX <open> only available under MacOSX/Darwin')
 		return False
+
+	_log.debug('attempting MAC-preview printing')
 	for filename in filenames:
 		cmd_line = [
 			'open',				# "open" must be in the PATH
@@ -132,15 +145,17 @@ def _print_files_by_mac_preview(filenames=None, verbose=False):
 
 #-----------------------------------------------------------------------
 def _print_files_by_IE(filenames=None):
-
 	if os.name != 'nt':
 		_log.debug('Internet Explorer only available under Windows')
 		return False
+
 	try:
 		from win32com import client as dde_client
 	except ImportError:
 		_log.exception('<win32com> Python module not available for use in printing')
 		return False
+
+	_log.debug('attempting IE printing')
 	try:
 		i_explorer = dde_client.Dispatch("InternetExplorer.Application")
 		for filename in filenames:
@@ -159,17 +174,27 @@ def _print_files_by_IE(filenames=None):
 
 #-----------------------------------------------------------------------
 def _print_files_by_gtklp(filenames=None, verbose=False):
-
-#	if os.name != 'posix':
 	if sys.platform != 'linux':
 		_log.debug('<gtklp> only available under Linux')
 		return False
+
+	_log.debug('attempting gtklp printing')
 	cmd_line = ['gtklp', '-i', '-# 1']
 	cmd_line.extend(filenames)
-	success, returncode, stdout = gmShellAPI.run_process(cmd_line = cmd_line, verbose = verbose)
-	if not success:
+	success_state, returncode, stdout = gmShellAPI.run_process(cmd_line = cmd_line, verbose = verbose)
+	return success_state
+
+#-----------------------------------------------------------------------
+def _print_files_by_okular(filenames=None, verbose=False):
+	if sys.platform != 'linux':
+		_log.debug('<okular> only available under Linux')
 		return False
-	return True
+
+	_log.debug('attempting okular printing')
+	cmd_line = ['okular', '--print-and-exit']
+	cmd_line.extend(filenames)
+	success_state, returncode, stdout = gmShellAPI.run_process(cmd_line = cmd_line, verbose = verbose)
+	return success_state
 
 #-----------------------------------------------------------------------
 def _print_files_by_gsprint_exe(filenames=None, verbose=False):
@@ -181,6 +206,8 @@ def _print_files_by_gsprint_exe(filenames=None, verbose=False):
 	if os.name != 'nt':
 		_log.debug('<gsprint.exe> only available under Windows')
 		return False
+
+	_log.debug('attempting gsprint.exe printing')
 	conf_filename = gmTools.get_unique_filename (
 		prefix = 'gm2gsprint-',
 		suffix = '.cfg'
@@ -208,6 +235,8 @@ def _print_files_by_acroread_exe(filenames, verbose=False):
 	if os.name != 'nt':
 		_log.debug('Acrobat Reader only used under Windows')
 		return False
+
+	_log.debug('attempting acroread printing')
 	for filename in filenames:
 		cmd_line = [
 			'AcroRd32.exe',					# "AcroRd32.exe" must be in the PATH
@@ -233,6 +262,8 @@ def _print_files_by_os_startfile(filenames=None):
 	except AttributeError:
 		_log.error('platform does not support "os.startfile()"')
 		return False
+
+	_log.debug('attempting os.startfile() printing')
 	for filename in filenames:
 		fname = os.path.normcase(os.path.normpath(filename))
 		_log.debug('%s -> %s', filename, fname)
@@ -248,11 +279,13 @@ def _print_files_by_os_startfile(filenames=None):
 			_log.exception('os.startfile() failed')
 			gmLog.log_stack_trace()
 			return False
+
 	return True
 
 #-----------------------------------------------------------------------
 def _print_files_by_shellscript(filenames=None, jobtype=None, verbose=False):
 
+	_log.debug('attempting gm-print_doc(.bat) printing')
 	paths = gmTools.gmPaths()
 	local_script = os.path.join(paths.local_base_dir, '..', 'external-tools', 'gm-print_doc')
 	candidates = ['gm-print_doc', local_script, 'gm-print_doc.bat']
