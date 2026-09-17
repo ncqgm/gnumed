@@ -954,8 +954,8 @@ if __name__ == '__main__':
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
 	gmI18N.install_domain('gnumed')
-	from Gnumed.pycommon import gmLog
 	from Gnumed.wxpython import gmGuiTest
+
 	#----------------------------------------
 	def test_substance_intake_ea_pnl():
 		gmGuiTest.test_widget(cSubstanceIntakeEAPnl, patient = -1)

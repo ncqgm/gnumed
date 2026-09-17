@@ -3649,8 +3649,7 @@ if __name__ == "__main__":
 	def test_intake_lifecycle():
 		conn = gmPG2.get_connection(readonly = False)
 		start = gmDateTime.pydt_replace(gmDateTime.pydt_now_here(), year = 1965)
-		end = gmDateTime.pydt_replace(start, second = min(start.second + 1, 59))
-		#xxxxxxxxxxxx
+		#end = gmDateTime.pydt_replace(start, second = min(start.second + 1, 59))
 		intake = create_substance_intake (
 			pk_encounter = 1,
 			pk_episode = 1,

@@ -468,7 +468,8 @@ if __name__ == '__main__':
 
 	#----------------------------------------
 	def test_all_meds_lists():
-		main_frame = gmGuiTest.setup_widget_test_env(patient = None)
+		#main_frame = 
+		gmGuiTest.setup_widget_test_env(patient = None)
 		gmStaff.set_current_provider_to_logged_on_user()
 		for pat in range(1, 200):
 			try:
@@ -478,7 +479,8 @@ if __name__ == '__main__':
 
 	#----------------------------------------
 	def test():
-		main_frame = gmGuiTest.setup_widget_test_env(patient = 12)
+		#main_frame = 
+		gmGuiTest.setup_widget_test_env(patient = 12)
 		#print(generate_failsafe_medication_list(patient = gmPerson.gmCurrentPatient(), max_width = 80, eol = '\n'))
 		gmStaff.set_current_provider_to_logged_on_user()
 		meds_list = save_failsafe_medication_list(max_width = 80)

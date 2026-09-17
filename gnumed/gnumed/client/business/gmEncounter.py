@@ -22,7 +22,6 @@ from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmTex
 
 from Gnumed.business import gmSoapDefs
-from Gnumed.business import gmCoding
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmOrganization
 
