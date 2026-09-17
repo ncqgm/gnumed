@@ -71,6 +71,7 @@ IMPROVED: EMR: list journal functionality
 IMPROVED: forms: lab results printout
 IMPROVED: forms: current medications list
 IMPROVED: forms: invoice templates [thanks María]
+IMPROVED: patient search: speedup [thanks Marc]
 
 FIX: CLI: --wxp= not needed anymore
 FIX: CLI: --ui= not needed anymore

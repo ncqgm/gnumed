@@ -302,8 +302,10 @@ class cPatientSearcher_SQL:
 			SELECT DISTINCT ON (pk_identity) * FROM (
 				SELECT *, %(match)s AS match_type FROM (
 					SELECT d_vap.*
-					FROM dem.names, dem.v_active_persons d_vap
-					WHERE dem.names.firstnames ~* %(first)s and d_vap.pk_identity = dem.names.id_identity
+					FROM dem.v_active_persons d_vap
+					WHERE d_vap.pk_identity = ANY(ARRAY(
+						SELECT dem.names.id_identity FROM dem.names WHERE dem.names.firstnames ~* %(first)s
+					))
 				) AS super_list ORDER BY lastnames, firstnames, dob
 			) AS sorted_list"""
 		args = {
@@ -328,8 +330,10 @@ class cPatientSearcher_SQL:
 			SELECT DISTINCT ON (pk_identity) * FROM (
 				SELECT *, %(match)s AS match_type FROM ((
 					SELECT d_vap.*
-					FROM dem.names, dem.v_active_persons d_vap
-					WHERE dem.names.lastnames ~* %(last)s and d_vap.pk_identity = dem.names.id_identity
+					FROM dem.v_active_persons d_vap
+					WHERE d_vap.pk_identity = ANY(ARRAY(
+						SELECT dem.names.id_identity FROM dem.names WHERE dem.names.lastnames ~* %(last)s
+					))
 				)) AS super_list ORDER BY lastnames, firstnames, dob
 			) AS sorted_list"""
 		args = {
@@ -353,8 +357,10 @@ class cPatientSearcher_SQL:
 			SELECT DISTINCT ON (pk_identity) * FROM (
 				SELECT *, %(match)s AS match_type FROM (
 					SELECT d_vap.*
-					FROM dem.names, dem.v_active_persons d_vap
-					WHERE dem.names.lastnames ~* %(last)s and d_vap.pk_identity = dem.names.id_identity
+					FROM dem.v_active_persons d_vap
+					WHERE d_vap.pk_identity = ANY(ARRAY(
+						SELECT dem.names.id_identity FROM dem.names WHERE dem.names.lastnames ~* %(last)s
+					))
 				) AS super_list ORDER BY lastnames, firstnames, dob
 			) AS sorted_list"""
 		args = {
@@ -378,11 +384,14 @@ class cPatientSearcher_SQL:
 			SELECT DISTINCT ON (pk_identity) * FROM (
 				SELECT *, %(match)s AS match_type FROM (
 					SELECT d_vap.*
-					FROM dem.names JOIN dem.v_active_persons d_vap ON (d_vap.pk_identity = dem.names.id_identity)
-					WHERE
-						dem.names.lastnames ~* %(fragment)s
-						OR dem.names.firstnames ~* %(fragment)s
-						OR dem.names.preferred ~* %(fragment)s
+					FROM dem.v_active_persons d_vap
+					WHERE d_vap.pk_identity = ANY(ARRAY(
+						SELECT dem.names.id_identity FROM dem.names
+						WHERE
+							dem.names.lastnames ~* %(fragment)s
+							OR dem.names.firstnames ~* %(fragment)s
+							OR dem.names.preferred ~* %(fragment)s
+					))
 				) AS super_list
 				ORDER BY lastnames, firstnames, dob
 			) AS sorted_list"""
@@ -404,8 +413,10 @@ class cPatientSearcher_SQL:
 			SELECT DISTINCT ON (pk_identity) * FROM (
 				SELECT *, %(match)s AS match_type FROM (
 					SELECT d_vap.*
-					FROM dem.names JOIN dem.v_active_persons d_vap ON (d_vap.pk_identity = dem.names.id_identity)
-					WHERE dem.names.preferred ~* %(nick)s
+					FROM dem.v_active_persons d_vap
+					WHERE d_vap.pk_identity = ANY(ARRAY(
+						SELECT dem.names.id_identity FROM dem.names WHERE dem.names.preferred ~* %(nick)s
+					))
 				) AS super_list
 				ORDER BY lastnames, firstnames, dob
 			) AS sorted_list"""
@@ -429,8 +440,11 @@ class cPatientSearcher_SQL:
 			SELECT DISTINCT ON (pk_identity) * FROM (
 				SELECT *, %(match)s AS match_type FROM (
 					SELECT d_vap.*
-					FROM dem.names JOIN dem.v_active_persons d_vap ON (d_vap.pk_identity = dem.names.id_identity)
-					WHERE dem.names.lastnames ~* %(name)s OR dem.names.firstnames ~* %(name)s OR dem.names.preferred ~* %(name)s
+					FROM dem.v_active_persons d_vap
+					WHERE d_vap.pk_identity = ANY(ARRAY(
+						SELECT dem.names.id_identity FROM dem.names
+						WHERE dem.names.lastnames ~* %(name)s OR dem.names.firstnames ~* %(name)s OR dem.names.preferred ~* %(name)s
+					))
 				) AS super_list
 				ORDER BY lastnames, firstnames, dob
 			) AS sorted_list"""
@@ -458,9 +472,12 @@ class cPatientSearcher_SQL:
 			SELECT DISTINCT ON (pk_identity) * FROM (
 				SELECT *, %(match)s AS match_type FROM (
 					SELECT d_vap.*
-					FROM dem.names JOIN dem.v_active_persons d_vap ON (d_vap.pk_identity = dem.names.id_identity)
-					WHERE dem.names.lastnames ~* ANY(%(parts)s) AND dem.names.firstnames ~* ANY(%(parts)s)
-					-- AND dem.names.preferred ~* ANY(%(parts)s)
+					FROM dem.v_active_persons d_vap
+					WHERE d_vap.pk_identity = ANY(ARRAY(
+						SELECT dem.names.id_identity FROM dem.names
+						WHERE dem.names.lastnames ~* ANY(%(parts)s) AND dem.names.firstnames ~* ANY(%(parts)s)
+						-- AND dem.names.preferred ~* ANY(%(parts)s)
+					))
 				) AS super_list
 				ORDER BY lastnames, firstnames, dob
 			) AS sorted_list"""
@@ -525,13 +542,14 @@ class cPatientSearcher_SQL:
 				SELECT *, %(match)s AS match_type
 				FROM (
 					SELECT d_vap.*
-					FROM dem.names, dem.v_active_persons d_vap
-					WHERE
-						dem.names.lastnames ~* %(last)s
-							AND
-						dem.names.firstnames ~* %(first)s
-							AND
-						d_vap.pk_identity = dem.names.id_identity
+					FROM dem.v_active_persons d_vap
+					WHERE d_vap.pk_identity = ANY(ARRAY(
+						SELECT dem.names.id_identity FROM dem.names
+						WHERE
+							dem.names.lastnames ~* %(last)s
+								AND
+							dem.names.firstnames ~* %(first)s
+					))
 				) AS super_list
 				ORDER BY lastnames, firstnames, dob
 			) AS sorted_list"""
@@ -551,8 +569,10 @@ class cPatientSearcher_SQL:
 		_log.debug("[%s]: an external ID", raw)
 		SQL = """-- find patients by external ID:
 			SELECT d_vap.*, %(match_type)s::text AS match_type
-			FROM dem.lnk_identity2ext_id d_li2ei, dem.v_active_persons d_vap
-			WHERE d_vap.pk_identity = d_li2ei.id_identity AND d_li2ei.external_id ~* %(ext_id)s
+			FROM dem.v_active_persons d_vap
+			WHERE d_vap.pk_identity = ANY(ARRAY(
+				SELECT d_li2ei.id_identity FROM dem.lnk_identity2ext_id d_li2ei WHERE d_li2ei.external_id ~* %(ext_id)s
+			))
 			ORDER BY lastnames, firstnames, dob;"""
 		args = {
 			'match_type': _('external patient ID'),
@@ -745,9 +765,9 @@ class cPatientSearcher_SQL:
 
 		cmd = """
 			SELECT *, %%s AS match_type FROM dem.v_active_persons
-			WHERE pk_identity in (
+			WHERE pk_identity = ANY(ARRAY(
 				SELECT id_identity FROM dem.names WHERE %s
-			) ORDER BY lastnames, firstnames, dob""" % ' and '.join(where_snippets)
+			)) ORDER BY lastnames, firstnames, dob""" % ' and '.join(where_snippets)
 
 		queries = [
 			{'sql': cmd, 'args': vals}
@@ -793,29 +813,29 @@ class cPatientSearcher_SQL:
 			queries = []
 			# assumption: first last
 			queries.append ({
-				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s",
+				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap WHERE d_vap.pk_identity = ANY(ARRAY(SELECT n.id_identity FROM dem.names n WHERE n.firstnames ~ %s AND n.lastnames ~ %s))",
 				'args': [_('name: first-last'), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES)]
 			})
 			queries.append ({
-				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
+				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap WHERE d_vap.pk_identity = ANY(ARRAY(SELECT n.id_identity FROM dem.names n WHERE lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)))",
 				'args': [_('name: first-last'), '^' + name_parts[0], '^' + name_parts[1]]
 			})
 			# assumption: last first
 			queries.append ({
-				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s",
+				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap WHERE d_vap.pk_identity = ANY(ARRAY(SELECT n.id_identity FROM dem.names n WHERE n.firstnames ~ %s AND n.lastnames ~ %s))",
 				'args': [_('name: last-first'), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES)]
 			})
 			queries.append ({
-				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
+				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap WHERE d_vap.pk_identity = ANY(ARRAY(SELECT n.id_identity FROM dem.names n WHERE lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)))",
 				'args': [_('name: last-first'), '^' + name_parts[1], '^' + name_parts[0]]
 			})
 			# assumption: last nick
 			queries.append ({
-				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.preferred ~ %s AND n.lastnames ~ %s",
+				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap WHERE d_vap.pk_identity = ANY(ARRAY(SELECT n.id_identity FROM dem.names n WHERE n.preferred ~ %s AND n.lastnames ~ %s))",
 				'args': [_('name: last-nick'), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES)]
 			})
 			queries.append ({
-				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.preferred) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
+				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap WHERE d_vap.pk_identity = ANY(ARRAY(SELECT n.id_identity FROM dem.names n WHERE lower(n.preferred) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)))",
 				'args': [_('name: last-nick'), '^' + name_parts[1], '^' + name_parts[0]]
 			})
 			# name parts anywhere inside name - third order query ...
@@ -825,13 +845,16 @@ class cPatientSearcher_SQL:
 							%s::text AS match_type
 						FROM
 							dem.v_active_persons d_vap
-								left join dem.names n on (n.id_identity = d_vap.pk_identity)
 						WHERE
-							-- name_parts[0]
-							(n.firstnames || ' ' || n.lastnames) ~* %s
-								AND
-							-- name_parts[1]
-							(n.firstnames || ' ' || n.lastnames) ~* lower(%s)""",
+							d_vap.pk_identity = ANY(ARRAY(
+								SELECT n.id_identity FROM dem.names n
+								WHERE
+									-- name_parts[0]
+									(n.firstnames || ' ' || n.lastnames) ~* %s
+										AND
+									-- name_parts[1]
+									(n.firstnames || ' ' || n.lastnames) ~* lower(%s)
+							))""",
 				'args': [_('name'), name_parts[0], name_parts[1]]
 			})
 			return queries
@@ -845,20 +868,20 @@ class cPatientSearcher_SQL:
 			# special case: 3 words, exactly 1 of them a date, no ",;"
 			# assumption: first, last, dob - first order
 			queries.append ({
-				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
+				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap WHERE d_vap.pk_identity = ANY(ARRAY(SELECT n.id_identity FROM dem.names n WHERE n.firstnames ~ %s AND n.lastnames ~ %s)) AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
 				'args': [_('names: first-last, date of birth'), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES), date_part.replace(',', '.')]
 			})
 			queries.append ({
-				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s) AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
+				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap WHERE d_vap.pk_identity = ANY(ARRAY(SELECT n.id_identity FROM dem.names n WHERE lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s))) AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
 				'args': [_('names: first-last, date of birth'), '^' + name_parts[0], '^' + name_parts[1], date_part.replace(',', '.')]
 			})
 			# assumption: last, first, dob - second order query
 			queries.append ({
-				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
+				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap WHERE d_vap.pk_identity = ANY(ARRAY(SELECT n.id_identity FROM dem.names n WHERE n.firstnames ~ %s AND n.lastnames ~ %s)) AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
 				'args': [_('names: last-first, date of birth'), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES), date_part.replace(',', '.')]
 			})
 			queries.append ({
-				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s) AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
+				'sql': "SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap WHERE d_vap.pk_identity = ANY(ARRAY(SELECT n.id_identity FROM dem.names n WHERE lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s))) AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
 				'args': [_('names: last-first, dob'), '^' + name_parts[1], '^' + name_parts[0], date_part.replace(',', '.')]
 			})
 			# name parts anywhere in name - third order query ...
@@ -867,14 +890,15 @@ class cPatientSearcher_SQL:
 							d_vap.*,
 							%s::text AS match_type
 						FROM
-							dem.v_active_persons d_vap,
-							dem.names n
+							dem.v_active_persons d_vap
 						WHERE
-							d_vap.pk_identity = n.id_identity
-								AND
-							lower(n.firstnames || ' ' || n.lastnames) ~* lower(%s)
-								AND
-							lower(n.firstnames || ' ' || n.lastnames) ~* lower(%s)
+							d_vap.pk_identity = ANY(ARRAY(
+								SELECT n.id_identity FROM dem.names n
+								WHERE
+									lower(n.firstnames || ' ' || n.lastnames) ~* lower(%s)
+										AND
+									lower(n.firstnames || ' ' || n.lastnames) ~* lower(%s)
+							))
 								AND
 							dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)
 				""",
@@ -913,28 +937,28 @@ class cPatientSearcher_SQL:
 				SELECT DISTINCT ON (pk_identity) * FROM (
 					SELECT * FROM ((
 						-- lastname
-						SELECT d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n
-						WHERE d_vap.pk_identity = n.id_identity and lower(n.lastnames) ~* lower(%s)
+						SELECT d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap
+						WHERE d_vap.pk_identity = ANY(ARRAY(SELECT n.id_identity FROM dem.names n WHERE lower(n.lastnames) ~* lower(%s)))
 					) union all (
 						-- firstname
-						SELECT d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n
-						WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s)
+						SELECT d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap
+						WHERE d_vap.pk_identity = ANY(ARRAY(SELECT n.id_identity FROM dem.names n WHERE lower(n.firstnames) ~* lower(%s)))
 					) union all (
 						-- nickname
-						SELECT d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n
-						WHERE d_vap.pk_identity = n.id_identity and lower(n.preferred) ~* lower(%s)
+						SELECT d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap
+						WHERE d_vap.pk_identity = ANY(ARRAY(SELECT n.id_identity FROM dem.names n WHERE lower(n.preferred) ~* lower(%s)))
 					) union all (
 						-- anywhere in name
 						SELECT
 							d_vap.*,
 							%s::text AS match_type
 						FROM
-							dem.v_active_persons d_vap,
-							dem.names n
+							dem.v_active_persons d_vap
 						WHERE
-							d_vap.pk_identity = n.id_identity
-								AND
-							lower(n.firstnames || ' ' || n.lastnames || ' ' || coalesce(n.preferred, '')) ~* lower(%s)
+							d_vap.pk_identity = ANY(ARRAY(
+								SELECT n.id_identity FROM dem.names n
+								WHERE lower(n.firstnames || ' ' || n.lastnames || ' ' || coalesce(n.preferred, '')) ~* lower(%s)
+							))
 					)) AS super_list ORDER BY lastnames, firstnames, dob
 				) AS sorted_list
 			"""
@@ -1133,10 +1157,9 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 		d_vap.*,
 		'%s'::text AS match_type
 	FROM
-		dem.v_active_persons d_vap,
-		dem.names n
+		dem.v_active_persons d_vap
 	WHERE
-		d_vap.pk_identity = n.id_identity
+		true
 		%s
 	ORDER BY
 		lastnames,
