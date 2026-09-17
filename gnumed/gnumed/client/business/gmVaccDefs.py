@@ -73,7 +73,8 @@ __VACCINATION__SINGLE_TARGET_ATCS = {
 	'HPV (6,11,16,18)': {'atc': 'J07BM01'},
 	'HPV (16,18)': {'atc': 'J07BM02'},
 	'HPV (6,11,16,18,31,33,45,52,58)': {'atc': 'J07BM03'},
-	'CoViD-2019 (SARS-CoV-2)': {'atc': 'J07BX03'}
+	'CoViD-2019 (SARS-CoV-2)': {'atc': 'J07BX03'},
+	'Chikungunya': {'atc': 'J07BP02'}
 }
 
 #============================================================
@@ -150,5 +151,5 @@ if __name__ == '__main__':
 		print(v23_generate_generic_vaccines_SQL())
 
 	#-----------------------------------------------------
-	#test_v23_generate_vaccination_targets_SQL()
-	test_v23_generate_generic_vaccines_SQL()
+	test_v23_generate_vaccination_targets_SQL()
+	#test_v23_generate_generic_vaccines_SQL()

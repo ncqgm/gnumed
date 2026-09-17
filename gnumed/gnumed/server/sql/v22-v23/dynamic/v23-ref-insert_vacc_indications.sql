@@ -6,7 +6,7 @@
 --
 -- ==============================================================
 \set ON_ERROR_STOP 1
---set default_transaction_read_only to off;
+set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
 -- insert known indications (generated from gmVaccDefs.py)
@@ -289,6 +289,13 @@ INSERT INTO ref.vacc_indication (target, atc)
 SELECT 'CoViD-2019 (SARS-CoV-2)', 'J07BX03' WHERE NOT EXISTS (
 	SELECT 1 FROM ref.vacc_indication
 	WHERE target = 'CoViD-2019 (SARS-CoV-2)' OR atc = 'J07BX03'
+);
+
+-- v23: single-target vaccination indication "Chikungunya"
+INSERT INTO ref.vacc_indication (target, atc)
+SELECT 'Chikungunya', 'J07BP02' WHERE NOT EXISTS (
+	SELECT 1 FROM ref.vacc_indication
+	WHERE target = 'Chikungunya' OR atc = 'J07BP02'
 );
 
 -- --------------------------------------------------------------
