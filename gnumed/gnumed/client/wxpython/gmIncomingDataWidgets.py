@@ -43,7 +43,7 @@ from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython.gmPatSearchWidgets import set_active_patient
-
+from Gnumed.wxpython.gmMeasurementWidgets import edit_measurement
 
 _log = logging.getLogger('gm.auto-in-ui')
 
@@ -602,6 +602,10 @@ class cIncomingPluginPnl(wxgIncomingPluginPnl.wxgIncomingPluginPnl, gmRegetMixin
 	def _on_clear_button_pressed(self, event):
 		event.Skip()
 		self.__reset_property_fields()
+
+	#--------------------------------------------------------
+	def _on_add_measurement_button_pressed(self, event):
+		edit_measurement(parent = self, measurement = None)
 
 	#--------------------------------------------------------
 	def _on_add_from_scanner(self, evt):
