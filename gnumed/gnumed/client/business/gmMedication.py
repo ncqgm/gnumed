@@ -2203,8 +2203,7 @@ class cSubstanceIntake(gmBusinessDBObject.cBusinessDBObject):
 		lines.append(' ' + _('Discontinued: %s') % self._payload['discontinued'].strftime(date_format)) if self._payload['discontinued'] else None
 		lines.append(_(' Notes: %s') % self['notes4providers']) if self['notes4providers'] else None
 		if include_tech_details:
-			lines.append(gmTools.u_box_horiz_single * 20)
-			lines.extend(self.format_technical_details())
+			lines.extend(self.format_technical_details(separator = True))
 		if not eol:
 			return lines
 
@@ -2280,8 +2279,7 @@ class cSubstanceIntake(gmBusinessDBObject.cBusinessDBObject):
 		lines.append(_(' Pharmacy notes: %s') % self['notes4pharmacies']) if self['notes4pharmacies'] else None
 		lines.append(_(' Internal notes: %s') % self['notes4us']) if self['notes4us'] else None
 		if include_tech_details:
-			lines.append(gmTools.u_box_horiz_single * 20)
-			lines.extend(self.format_technical_details())
+			lines.extend(self.format_technical_details(separator = True))
 		if not eol:
 			return lines
 
@@ -2289,10 +2287,10 @@ class cSubstanceIntake(gmBusinessDBObject.cBusinessDBObject):
 		return (' ' * left_margin) + eol.join(lines)
 
 	#--------------------------------------------------------
-	def format_technical_details(self):
+	def format_technical_details(self, separator:bool=False):
 		lines = []
 		lines.append(_('Intake: #%s (%s)') % (self['pk_intake'], self['description']))
-		lines.append(_('Version: #%(row_ver)s (%(mod_when)s by %(mod_by)s)') % {
+		lines.append(_('Version: %(row_ver)s (%(mod_when)s by %(mod_by)s)') % {
 			'row_ver': self._payload['row_version'],
 			'mod_when': self._payload['modified_when'].strftime('%Y %b %d  %H:%M.%S'),
 			'mod_by': self._payload['modified_by']
@@ -2302,6 +2300,9 @@ class cSubstanceIntake(gmBusinessDBObject.cBusinessDBObject):
 		lines.append(_('Encounter: #%s') % self['pk_encounter'])
 		lines.append(_('Episode: #%s') % self['pk_episode'])
 		lines.append(_('Health issue: #%s') % self['pk_health_issue']) if self['pk_health_issue'] else None
+		if separator:
+			max_len = len(max(lines, key = len))
+			lines.insert(0, gmTools.u_box_horiz_single * max_len)
 		return lines
 
 	#--------------------------------------------------------
@@ -2549,7 +2550,7 @@ def get_substance_intakes (
 	return [ cSubstanceIntake(row = {'data': r, 'pk_field': 'pk_intake'}) for r in rows ]
 
 #------------------------------------------------------------
-def substance_intake_without_regimen_exists(pk_identity:int=None, pk_substance:int=None, substance:str=None) -> bool:
+def substance_intake_without_regimen_exists(pk_identity:int=None, pk_substance:int=None, substance:str=None, ongoing_only:bool=False) -> bool:
 	"""Check for existence of substance intake.
 
 	Args:
@@ -2574,6 +2575,8 @@ def substance_intake_without_regimen_exists(pk_identity:int=None, pk_substance:i
 	if substance:
 		args['subst'] = substance.strip()
 		where_parts.append('fk_substance = (select pk from ref.substance r_s where r_s.description = %(subst)s)')
+	if ongoing_only:
+		where_parts.append('((discontinued IS NULL) OR (discontinued > current_timestamp))	-- at start_of_transaction')
 	SQL = """SELECT EXISTS (
 		SELECT 1 FROM clin.intake WHERE
 			%s
@@ -2583,7 +2586,7 @@ def substance_intake_without_regimen_exists(pk_identity:int=None, pk_substance:i
 	return rows[0][0]
 
 #------------------------------------------------------------
-def substance_intake_exists(pk_identity:int=None, pk_substance:int=None, substance:str=None, amount:str=None, unit:str=None, schedule:str=None) -> bool:
+def substance_intake_exists(pk_identity:int=None, pk_substance:int=None, substance:str=None, amount:str=None, unit:str=None, schedule:str=None, ongoing_only:bool=False) -> bool:
 	"""Check for existence of substance intake.
 
 	Args:
@@ -2618,6 +2621,8 @@ def substance_intake_exists(pk_identity:int=None, pk_substance:int=None, substan
 	if amount:
 		args['schedule'] = schedule
 		where_parts.append('schedule = %(schedule)s')
+	if ongoing_only:
+		where_parts.append('((discontinued IS NULL) OR (discontinued > current_timestamp))	-- at start_of_transaction')
 	SQL = """SELECT EXISTS (
 		SELECT 1 FROM clin.intake WHERE
 			%s
@@ -3806,6 +3811,92 @@ if __name__ == "__main__":
 		print(tabulate_substance_intake_notes(emr = emr, output_format = 'latex'))
 
 	#--------------------------------------------------------
+	def test__cross_regimen_1():
+		conn = gmPG2.get_connection(readonly = False)
+		print('creating non-regimen intake:')
+		intake1 = create_substance_intake (
+			pk_encounter = 1,
+			pk_episode = 1,
+			pk_substance = 1,
+			link_obj = conn
+		)
+		print('\n'.join(intake1.format_maximum_information()))
+		input()
+		print('creating second non-regimen intake:')
+		intake2 = create_substance_intake (
+			pk_encounter = 1,
+			pk_episode = 1,
+			pk_substance = 1,
+			link_obj = conn
+		)
+		print('\n'.join(intake2.format_maximum_information()))
+		print('this should fail:')
+		input()
+#		print('')
+#		print('adding SCHEDULE')
+#		intake['schedule'] = 'every now and then'
+#		try:
+#			intake.save(conn = conn)
+#		except gmPG2.dbapi.errors.CheckViolation as exc:
+#			print(exc)
+#		print('adding AMOUNT')
+#		intake['amount'] = 1
+#		try:
+#			intake.save(conn = conn)
+#		except gmPG2.dbapi.errors.CheckViolation as exc:
+#			print(exc)
+#		print('adding UNIT')
+#		intake['unit'] = 'mg'
+#		try:
+#			intake.save(conn = conn)
+#		except gmPG2.dbapi.errors.CheckViolation as exc:
+#			print(exc)
+#
+#		print('\n'.join(intake.format_maximum_information()))
+#		input()
+#		print(delete_substance_intake(pk_intake = intake1['pk_intake'], link_obj = conn))
+#		print(delete_substance_intake(pk_intake = intake2['pk_intake'], link_obj = conn))
+#		print('\n'.join(intake.format_maximum_information()))
+#
+#		conn.rollback()
+		conn.commit()
+		conn.close()
+
+	#--------------------------------------------------------
+	def test__cross_regimen_2():
+		conn = gmPG2.get_connection(readonly = False)
+		print('creating non-regimen intake:')
+		intake1 = create_substance_intake (
+			pk_encounter = 1,
+			pk_episode = 1,
+			pk_substance = 1,
+			link_obj = conn
+		)
+		print('\n'.join(intake1.format_maximum_information()))
+		input()
+		print('creating with-regimen intake:')
+		intake2 = create_substance_intake (
+			pk_encounter = 1,
+			pk_episode = 1,
+			pk_substance = 1,
+			link_obj = conn
+		)
+		intake2['schedule'] = 'every now and then'
+		intake2['amount'] = 2
+		intake2['unit'] = 'mg'
+		print('\n'.join(intake2.format_maximum_information()))
+		intake2.save(conn = conn, verbose = True)
+		print('this should fail:')
+		input()
+#		conn.rollback()
+		conn.commit()
+		conn.close()
+
+	#----------------------------------------
+	def test_intake_exists():
+		print(substance_intake_without_regimen_exists(pk_identity = 12, substance = 'Diazepam', ongoing_only = True))
+
+	#--------------------------------------------------------
 	# generic
 	#test_URLs()
 	#test_generate_renal_insufficiency_urls()
@@ -3826,7 +3917,11 @@ if __name__ == "__main__":
 	#test_get_habit_drugs()
 	#test_can_format()
 	#test_format_substance_intake()
-	test_intake_lifecycle()
+	#test_intake_lifecycle()
+	#test__cross_regimen_1()
+	#test__cross_regimen_2()
+	#----------------------------------------
+	test_intake_exists()
 
 	# AMTS
 	#test_generate_amts_data_template_definition_file()
