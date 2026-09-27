@@ -290,45 +290,45 @@ DECLARE
 	__row_count integer;
 BEGIN
 	SELECT clin.map_enc_or_epi_to_patient(NEW.fk_encounter, NEW.fk_episode) INTO __pk_patient;
+	-- is there an ongoing non-regimen intake ?
 	PERFORM 1 FROM clin.intake WHERE
 		fk_substance = NEW.fk_substance
 			AND
-		clin.map_enc_or_epi_to_patient(fk_encounter, fk_episode) = __pk_patient
-	LIMIT 2;
-	GET DIAGNOSTICS __row_count := ROW_COUNT;
-	-- a singular row cannot be wrong (can be either with or without regimen fields)
-	-- (is it also our very own NEW row btw)
-	IF __row_count = 1 THEN
-		RETURN NEW;
-
-	END IF;
-	-- at this point we have got more than one row,
-	-- one of them is our NEW row,
-	-- check whether any of them is a non-regimen row
-	-- (it does not matter which, existing or NEW)
-	PERFORM 1 FROM clin.intake WHERE
-		fk_substance = NEW.fk_substance
-			AND
-		-- checking just .amount is fine because the sane-regimen
-		-- check constraint ran before this trigger
 		amount IS NULL
+			AND
+		((discontinued IS NULL) OR (discontinued > current_timestamp))		-- at start_of_transaction
 			AND
 		clin.map_enc_or_epi_to_patient(fk_encounter, fk_episode) = __pk_patient
 	LIMIT 1;
 	GET DIAGNOSTICS __row_count := ROW_COUNT;
-	-- did not find any non-regimen intake,
-	-- so having more than one intake is fine
+	-- no ongoing non-regimen intake ?
 	IF __row_count = 0 THEN
+		-- then any combination is fine
 		RETURN NEW;
 
 	END IF;
-	-- we now have:
-	-- - more than one intake
-	-- - at least one of them is non-regimen
-	-- which must not happen, non-regimen rows must be
-	-- singular per patient+substance
+	-- at this point we do have an ongoing non-regimen intake,
+	-- is there any other ongoing intake, regimen or not ?
+	PERFORM 1 FROM clin.intake WHERE
+		fk_substance = NEW.fk_substance
+			AND
+		((discontinued IS NULL) OR (discontinued > current_timestamp))		-- at start_of_transaction
+			AND
+		clin.map_enc_or_epi_to_patient(fk_encounter, fk_episode) = __pk_patient
+	LIMIT 2;
+	GET DIAGNOSTICS __row_count := ROW_COUNT;
+	-- just one intake ?
+	IF __row_count = 1 THEN
+		-- that is fine (must be the ongoing non-regimen one btw)
+		RETURN NEW;
+
+	END IF;
+	-- at this point there is more than one ongoing intake
+	-- and one of them is non-regimen
+	-- which is not allowed: ongoing non-regimen rows
+	-- must be singular per patient+substance
 	RAISE EXCEPTION
-		''[clin.trf__clin_intake__ensure_cross_regimen_integrity] % on %.% (patient:% / substance:%): Intake rows must either all be with-regimen or a singular non-regimen one, per patient and substance.'',
+		''[clin.trf__clin_intake__ensure_cross_regimen_integrity] % on %.% (patient:% / substance:%): An _ongoing_ non-regimen intake cannot coexist with any other ongoing intake for this patient and substance.'',
 			TG_OP,
 			TG_TABLE_SCHEMA,
 			TG_TABLE_NAME,
@@ -340,7 +340,22 @@ BEGIN
 END;';
 
 comment on function clin.trf__clin_intake__ensure_cross_regimen_integrity() is
-	'Ensure, per substance+patient, that there is either a single non-regimen row OR with-regimen row(s) ONLY';
+	'Ensure, per substance+patient, that any ongoing non-regimen row is singular.
+.
+Considerata:
+.
+Kirk took ibuprofen for a treatment regimen, back in september 2018. This is registered in GNUmed
+as an old, discontinued intake, with a set treatment regimen (amount, unit, schedule).
+.
+Today, Kirk tells Dr. McCoy that he is taking ibuprofen fairly regularly due to tooth aches (?),
+but he does not remember dosages or really how often he takes it
+.
+.
+If I add a morphine intake to a patient, say Kirk, with or without a treatment regimen,
+and then hypothetically Kirk becomes dependent/addicted to it and so I try to add that
+as a substance abuse via EMR -> Manage -> Substance abuse, I am not able to do so. That
+happens even if I discontinue that morphine intake saved via the medication plugin.
+';
 
 create constraint trigger tr__clin_intake__ensure_cross_regimen_integrity
 	after insert or update on clin.intake
@@ -351,7 +366,17 @@ create constraint trigger tr__clin_intake__ensure_cross_regimen_integrity
 -- --------------------------------------------------------------
 -- the combination of (substance, patient, regimen) must be unique
 drop index if exists clin.idx__clin_intake__uniq_regimen cascade;
-create index idx__clin_intake__uniq_regimen on clin.intake(fk_substance, amount, unit, schedule, clin.map_enc_or_epi_to_patient(fk_encounter, fk_episode));
+create unique index idx__clin_intake__uniq_regimen
+	on clin.intake (
+		fk_substance,
+		amount,
+		unit,
+		schedule,
+		discontinued,
+		clin.map_enc_or_epi_to_patient(fk_encounter, fk_episode)
+	)
+	NULLS not distinct
+;
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v23-clin-intake-dynamic.sql', '23.0');
