@@ -1333,7 +1333,7 @@ def sanity_check_collation_versions(conn=None) -> bool:
 			pg_catalog.current_database()
 		FROM pg_collation
 		WHERE
-			collversion IS DISTINCT FROM NULL
+			collversion IS NOT NULL
 				AND
 			collprovider <> 'd'
 				AND

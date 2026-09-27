@@ -2080,7 +2080,7 @@ def get_most_recent_results_for_panel(pk_patient=None, pk_panel=None, order_by=N
 				WHERE
 					pk_patient = %(pat)s
 						AND
-					pk_meta_test_type IS DISTINCT FROM NULL
+					pk_meta_test_type IS NOT NULL
 						AND
 					pk_test_type IN (
 						(SELECT c_vtt4tp.pk_test_type FROM clin.v_test_types4test_panel c_vtt4tp WHERE c_vtt4tp.pk_test_panel = %(pk_pnl)s)
