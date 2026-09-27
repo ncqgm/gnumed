@@ -71,9 +71,7 @@ def manage_substance_intakes(parent=None, emr=None, include_inactive:bool=True):
 		if not do_delete:
 			return False
 
-		conn = gmPG2.get_connection(readonly = False)
-		result = gmMedication.delete_substance_intake(pk_intake = intake['pk_intake'], link_obj = conn)
-		conn.commit()
+		result = gmMedication.delete_substance_intake(pk_intake = intake['pk_intake'])
 		return result
 
 	#------------------------------------------------------------
@@ -85,7 +83,7 @@ def manage_substance_intakes(parent=None, emr=None, include_inactive:bool=True):
 		intakes = emr.get_intakes (
 			include_inactive = include_inactive,
 			exclude_potential_abuses = True,
-			order_by = 'substance, discontinued IS DISTINCT FROM NULL, started DESC'
+			order_by = 'substance, discontinued IS NOT NULL, started DESC'
 		)
 		items = []
 		for i in intakes:
@@ -333,7 +331,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 			return_pks = False,
 			pk_substances = [pk_subst],
 			ongoing_only = False,
-			order_by = 'discontinued IS DISTINCT FROM NULL, started DESC'
+			order_by = 'discontinued IS NOT NULL, started DESC'
 		)
 		for intake in intakes:
 			if intake['discontinued']:
@@ -342,7 +340,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 				tag = _('active')
 			items.append('%s: %s' % (tag, intake.format(single_line = True)))
 			data.append(intake)
-		self._LCTRL_regimen.set_columns([_('Existing treatment regimens for %s') % self._PRW_substance.Value])
+		self._LCTRL_regimen.set_columns([_('[%s]: documented uses/misuses') % self._PRW_substance.Value])
 		self._LCTRL_regimen.set_string_items(items)
 		self._LCTRL_regimen.set_data(data)
 		self._LCTRL_regimen.set_column_widths()
@@ -470,7 +468,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		return True
 
 	#----------------------------------------------------------------
-	def _a_regimen_field_is_filled_in(self) -> bool:
+	def _any_regimen_field_is_filled_in(self) -> bool:
 		if self._TCTRL_amount.Value.strip() != '':
 			return True
 
@@ -499,14 +497,14 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 
 		self._PRW_substance.display_as_valid(True)
 		pat_id = gmPerson.gmCurrentPatient().ID
-		if gmMedication.substance_intake_without_regimen_exists(pk_identity = pat_id, substance = entered_subst):
-			# there may only ever be one substance intake
+		if gmMedication.substance_intake_without_regimen_exists(pk_identity = pat_id, substance = entered_subst, ongoing_only = True):
+			# there may only ever be one ongoing substance intake
 			# without regimen per substance per patient
-			self.StatusText = _('[%s]: Intake without regimen exists. You need to edit that intake.') % entered_subst
+			self.StatusText = _('[%s]: Ongoing intake without regimen exists. You need to edit that intake.') % entered_subst
 			return False
 
-		has_regimen = self._a_regimen_field_is_filled_in()
-		if has_regimen and not self.__validate_regimen_fields():
+		regimen_data_entered = self._any_regimen_field_is_filled_in()
+		if regimen_data_entered and not self.__validate_regimen_fields():
 			return False
 
 		if not self.__validate_start():
@@ -521,19 +519,18 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 			# so any regimen is fine
 			return True
 
-		intakes = gmMedication.get_substance_intakes(pk_patient = pat_id, pk_substances = pks_entered_subst)
+		intakes = gmMedication.get_substance_intakes(pk_patient = pat_id, pk_substances = pks_entered_subst, ongoing_only = True)
 		if not intakes:
-			# existing substance,
-			# but no intakes for patient yet
-			# so any regimen is fine
+			# existing substance but no intakes for patient yet:
+			# any regimen is fine
 			return True
 
-		# we now do have intakes
-		# since we checked for a non-regimen intake earlier all
-		# intakes found must include regimen data, therefore we
-		# cannot add an intake without a regimen
-		if not has_regimen:
-			self.StatusText = _('Cannot add intake without regimen when there already exists an intake with a regimen.')
+		# at this point we do have intakes for the substance
+		if not regimen_data_entered:
+			# since we checked for a non-regimen intakes earlier
+			# all existing intakes must include regimen data to
+			# which we cannot add an intake without a regimen
+			self.StatusText = _('Cannot add intake without regimen when there already are intakes with regimens.')
 			return False
 
 		# same-regimen intake exists ?
@@ -542,7 +539,8 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 			pks_entered_subst[0],
 			amount = self._TCTRL_amount.Value.strip(),
 			unit = self._PRW_unit.Value.strip(),
-			schedule = self._TCTRL_schedule.Value.strip()
+			schedule = self._TCTRL_schedule.Value.strip(),
+			ongoing_only = True
 		)
 		if duplicate_intake:
 			self.StatusText = _('There already is an intake with the exact same regimen.')
@@ -552,7 +550,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 
 	#----------------------------------------------------------------
 	def __valid_as_update_of_intake(self) -> bool:
-		regimen_info_entered = self._a_regimen_field_is_filled_in()
+		regimen_info_entered = self._any_regimen_field_is_filled_in()
 		regimen_valid = self.__validate_regimen_fields()
 		if regimen_info_entered and not regimen_valid:
 			return False
@@ -565,7 +563,11 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 
 		pat_id = gmPerson.gmCurrentPatient().ID
 		pk_subst = self._PRW_substance.GetData()
-		existing_intakes = gmMedication.get_substance_intakes(pk_patient = pat_id, pk_substances = [pk_subst])
+		existing_intakes = gmMedication.get_substance_intakes (
+			pk_patient = pat_id,
+			pk_substances = [pk_subst],
+			ongoing_only = True
+		)
 		# if there's just one intake it's the one we are editing
 		# and we can do as we like regarding regimen fields
 		if len(existing_intakes) == 1:
@@ -579,7 +581,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 
 		self.StatusText = _('Required: Regimen details (amount, unit, schedule).')
 		self._TCTRL_amount.display_as_valid(False)
-		self._TCTRL_unit.display_as_valid(False)
+		self._PRW_unit.display_as_valid(False)
 		self._TCTRL_schedule.display_as_valid(False)
 		self._TCTRL_amount.SetFocus()
 		return False
@@ -799,8 +801,8 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 			# no intakes documented
 			return
 
-		self._PRW_substance.display_as_valid(False)
-		self.StatusText = _('Intake of %s already documented. You may add a new regimen though') % entered_substance
+		self._PRW_substance.display_as_valid(True)
+		self.StatusText = _('[%s]: Some intake(s) already documented.') % entered_substance
 		return
 
 	#----------------------------------------------------------------

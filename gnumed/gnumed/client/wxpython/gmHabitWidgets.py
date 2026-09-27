@@ -25,6 +25,7 @@ from Gnumed.business import gmATC
 from Gnumed.business import gmMedication
 from Gnumed.wxpython import gmEditArea
 from Gnumed.wxpython import gmListWidgets
+from Gnumed.wxpython import gmGuiHelpers
 
 _log = logging.getLogger('gm.ui')
 
@@ -62,6 +63,13 @@ def manage_substance_abuse(parent=None, patient=None):
 
 	#------------------------------------------------------------
 	def delete(intake):
+		do_delete = gmGuiHelpers.gm_show_question (
+			title = _('Deleting substances misuse entry'),
+			question = _('Really delete substance misuse ?\n\n%s') % intake.format(single_line = True, terse = False)
+		)
+		if not do_delete:
+			return False
+
 		return intake.delete()
 
 	#------------------------------------------------------------
@@ -147,13 +155,14 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 
 		exists = gmMedication.substance_intake_exists (
 			pk_identity = self.__patient.ID,
-			substance = subst
+			substance = subst,
+			ongoing_only = True
 		)
 		if not exists:
 			self._PRW_substance.display_as_valid(valid = True)
 			return True
 
-		self.StatusText = _('Misuse of [%s] already documented.') % subst
+		self.StatusText = _('[%s]: use or misuse already documented.') % subst
 		self._PRW_substance.display_as_valid(valid = False)
 		self._PRW_substance.SetFocus()
 		return False
