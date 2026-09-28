@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-15 19:22+0200\n"
+"POT-Creation-Date: 2026-09-28 02:57+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3480,85 +3480,6 @@ msgstr ""
 msgid "Any comment you may wish to relate to this vaccine."
 msgstr ""
 
-msgid "&Nicotine"
-msgstr ""
-
-msgid "&Alcohol"
-msgstr ""
-
-msgid "&Other:"
-msgstr ""
-
-msgid "&Non-harmful use"
-msgstr ""
-
-msgid "&Harmful use"
-msgstr ""
-
-msgid "Presently &addicted"
-msgstr ""
-
-msgid "Previously &addicted"
-msgstr ""
-
-msgid "?"
-msgstr ""
-
-msgid "&Reconfirm as of today"
-msgstr ""
-
-msgid "Select for documenting smoking status."
-msgstr ""
-
-msgid "Select for documenting alcohol use status."
-msgstr ""
-
-msgid ""
-"Select for documenting use of substances other than nicotine or alcohol."
-msgstr ""
-
-msgid "Select the abused substance."
-msgstr ""
-
-msgid ""
-"Select if the substance use is not considered harmful (say, no use or non-"
-"harmful use)."
-msgstr ""
-
-msgid "Select if substance is use considered harmful."
-msgstr ""
-
-msgid "Select if the patient is presently addicted to this substance."
-msgstr ""
-
-msgid "Select if the patient was previously addicted to this substance."
-msgstr ""
-
-msgid ""
-"A comment on this substance use:\n"
-"- type of product used\n"
-"- frequency\n"
-"- amount\n"
-"- when started\n"
-"- attempts to quit\n"
-"..."
-msgstr ""
-
-msgid ""
-"When did the patient quit?\n"
-"\n"
-"You can also set a target quit date here."
-msgstr ""
-
-msgid "Check here to confirm for today."
-msgstr ""
-
-msgid "Quit date"
-msgstr ""
-
-msgid "Last confirmed"
-msgstr ""
-
 msgid "Closed episodes"
 msgstr ""
 
@@ -5049,6 +4970,85 @@ msgstr ""
 msgid "Role:"
 msgstr ""
 
+msgid "&Nicotine"
+msgstr ""
+
+msgid "Select for documenting smoking status."
+msgstr ""
+
+msgid "&Alcohol"
+msgstr ""
+
+msgid "Select for documenting alcohol use status."
+msgstr ""
+
+msgid "&Other:"
+msgstr ""
+
+msgid ""
+"Select for documenting use of substances other than nicotine or alcohol."
+msgstr ""
+
+msgid "Select the misused substance."
+msgstr ""
+
+msgid "&Non-harmful use"
+msgstr ""
+
+msgid ""
+"Select if the substance use is not considered harmful (say, no use or non-"
+"harmful use)."
+msgstr ""
+
+msgid "&Harmful use"
+msgstr ""
+
+msgid "Select if substance is use considered harmful."
+msgstr ""
+
+msgid "Presently &addicted"
+msgstr ""
+
+msgid "Select if the patient is presently addicted to this substance."
+msgstr ""
+
+msgid "Previously &addicted"
+msgstr ""
+
+msgid "Select if the patient was previously addicted to this substance."
+msgstr ""
+
+msgid ""
+"A comment on this substance use:\n"
+"- type of product used\n"
+"- frequency\n"
+"- amount\n"
+"- when started\n"
+"- attempts to quit\n"
+"..."
+msgstr ""
+
+msgid "Quit date"
+msgstr ""
+
+msgid ""
+"When did the patient quit?\n"
+"\n"
+"You can also set a target quit date here."
+msgstr ""
+
+msgid "Last confirmed"
+msgstr ""
+
+msgid "?"
+msgstr ""
+
+msgid "&Reconfirm as of today"
+msgstr ""
+
+msgid "Check here to confirm for today."
+msgstr ""
+
 msgid "Identity:"
 msgstr ""
 
@@ -6127,7 +6127,7 @@ msgid "Intake: #%s (%s)"
 msgstr ""
 
 #, python-format
-msgid "Version: #%(row_ver)s (%(mod_when)s by %(mod_by)s)"
+msgid "Version: %(row_ver)s (%(mod_when)s by %(mod_by)s)"
 msgstr ""
 
 #, python-format
@@ -6211,19 +6211,7 @@ msgstr ""
 msgid "nicotine"
 msgstr ""
 
-msgid "tobacco"
-msgstr ""
-
 msgid "ethanol"
-msgstr ""
-
-msgid "alcohol"
-msgstr ""
-
-msgid "liquid"
-msgstr ""
-
-msgid "unit"
 msgstr ""
 
 #, python-format
@@ -9299,19 +9287,33 @@ msgstr ""
 msgid "clipboard"
 msgstr ""
 
-msgid "Adding substance abuse"
+msgid "Adding substance misuse"
 msgstr ""
 
-msgid "Editing substance abuse"
+msgid "Editing substance misuse"
 msgstr ""
 
-msgid "Substances abused by the patient:"
+msgid "Deleting substances misuse entry"
 msgstr ""
 
-msgid "Showing abused substances."
+#, python-format
+msgid ""
+"Really delete substance misuse ?\n"
+"\n"
+"%s"
+msgstr ""
+
+msgid "Substances misused by the patient:"
+msgstr ""
+
+msgid "Showing misused substances."
 msgstr ""
 
 msgid "Intake"
+msgstr ""
+
+#, python-format
+msgid "[%s]: use or misuse already documented."
 msgstr ""
 
 #, python-format
@@ -9390,7 +9392,7 @@ msgstr ""
 msgid "Hx of addiction: %s"
 msgstr ""
 
-msgid "active substance abuse"
+msgid "active substance misuse"
 msgstr ""
 
 #, python-format
@@ -14422,10 +14424,10 @@ msgstr ""
 msgid "Manage dynamic hints suppressed in this patient."
 msgstr ""
 
-msgid "Substance abuse"
+msgid "Substance misuse"
 msgstr ""
 
-msgid "Manage substance abuse documentation of this patient."
+msgid "Manage substance misuse documentation of this patient."
 msgstr ""
 
 msgid "&Manage ..."
@@ -15823,7 +15825,7 @@ msgid "GFR: unknown"
 msgstr ""
 
 #, python-format
-msgid "Existing treatment regimens for %s"
+msgid "[%s]: documented uses/misuses"
 msgstr ""
 
 msgid "Required: unit."
@@ -15859,12 +15861,13 @@ msgid "Required: substance"
 msgstr ""
 
 #, python-format
-msgid "[%s]: Intake without regimen exists. You need to edit that intake."
+msgid ""
+"[%s]: Ongoing intake without regimen exists. You need to edit that intake."
 msgstr ""
 
 msgid ""
-"Cannot add intake without regimen when there already exists an intake with a "
-"regimen."
+"Cannot add intake without regimen when there already are intakes with "
+"regimens."
 msgstr ""
 
 msgid "There already is an intake with the exact same regimen."
@@ -15877,7 +15880,7 @@ msgid "Substance required."
 msgstr ""
 
 #, python-format
-msgid "Intake of %s already documented. You may add a new regimen though"
+msgid "[%s]: Some intake(s) already documented."
 msgstr ""
 
 msgid "generic activity"

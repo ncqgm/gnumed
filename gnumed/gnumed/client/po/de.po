@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-15 19:22+0200\n"
-"PO-Revision-Date: 2026-09-15 19:29+0200\n"
+"POT-Creation-Date: 2026-09-28 02:57+0200\n"
+"PO-Revision-Date: 2026-09-28 02:57+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -3952,100 +3952,6 @@ msgstr "Das Höchstalter für die Gabe diese Impfstoffs."
 msgid "Any comment you may wish to relate to this vaccine."
 msgstr "Ein Kommentar zu diesem Impfstoff."
 
-msgid "&Nicotine"
-msgstr "&Nikotin"
-
-msgid "&Alcohol"
-msgstr "&Alkohol"
-
-msgid "&Other:"
-msgstr "&Andere:"
-
-msgid "&Non-harmful use"
-msgstr "&Unschädlicher Gebrauch"
-
-msgid "&Harmful use"
-msgstr "&Schädlicher Gebrauch"
-
-msgid "Presently &addicted"
-msgstr "Derzeit &abhängig"
-
-msgid "Previously &addicted"
-msgstr "&Frühere Abhängigkeit"
-
-msgid "?"
-msgstr "?"
-
-msgid "&Reconfirm as of today"
-msgstr "&Heute nachgehakt"
-
-msgid "Select for documenting smoking status."
-msgstr "Auswählen, um Raucherstatus zu dokumentieren."
-
-msgid "Select for documenting alcohol use status."
-msgstr "Auswählen, um Alkoholgebrauch zu dokumentieren."
-
-msgid ""
-"Select for documenting use of substances other than nicotine or alcohol."
-msgstr ""
-"Auswählen, um Substanzmißbrauch (außer Alkohol oder Nikotin) zu "
-"dokumentieren."
-
-msgid "Select the abused substance."
-msgstr "Wählen Sie die mißbrauchte Substanz."
-
-msgid ""
-"Select if the substance use is not considered harmful (say, no use or non-"
-"harmful use)."
-msgstr ""
-"Auswählen, wenn der Substanzgebrauch nicht schädlich erscheint (kein oder "
-"nicht mißbräuchlicher Gebrauch)."
-
-msgid "Select if substance is use considered harmful."
-msgstr "Auswählen, wenn Substanzgebrauch als schädlich eingeschätzt wird."
-
-msgid "Select if the patient is presently addicted to this substance."
-msgstr ""
-"Hier wählen, wenn der Patient derzeit von dieser Substand abhängig ist."
-
-msgid "Select if the patient was previously addicted to this substance."
-msgstr "Hier wählen, wenn der Patient früher von dieser Substanz abhängig war."
-
-msgid ""
-"A comment on this substance use:\n"
-"- type of product used\n"
-"- frequency\n"
-"- amount\n"
-"- when started\n"
-"- attempts to quit\n"
-"..."
-msgstr ""
-"Ein Kommentar zum Substanzgebrauch:\n"
-"- Art der Substanz\n"
-"- Häufigkeit\n"
-"- Menge\n"
-"- wann angefangen\n"
-"- Versuche aufzuhören\n"
-"..."
-
-msgid ""
-"When did the patient quit?\n"
-"\n"
-"You can also set a target quit date here."
-msgstr ""
-"Wann hat der Patient den Gebrauch beendet ?\n"
-"\n"
-"Sie können hier auch ein Zieldatum eingeben."
-
-msgid "Check here to confirm for today."
-msgstr "Hier markieren, wenn der Status heute überprüft wurde."
-
-msgid "Quit date"
-msgstr "Stopdatum"
-
-msgid "Last confirmed"
-msgstr "Zuletzt überprüft"
-
 msgid "Closed episodes"
 msgstr "Beendete Episoden"
 
@@ -4867,7 +4773,7 @@ msgid "Administrative"
 msgstr "Verwaltung"
 
 msgid "<chart entry type>"
-msgstr ""
+msgstr "<Art des Karteieintrags>"
 
 msgid "Show as one-liner.##tx: emr list journal entry type display option"
 msgstr "Als Einzeiler zeigen."
@@ -5844,6 +5750,100 @@ msgstr ""
 
 msgid "Role:"
 msgstr "Rolle:"
+
+msgid "&Nicotine"
+msgstr "&Nikotin"
+
+msgid "Select for documenting smoking status."
+msgstr "Auswählen, um Raucherstatus zu dokumentieren."
+
+msgid "&Alcohol"
+msgstr "&Alkohol"
+
+msgid "Select for documenting alcohol use status."
+msgstr "Auswählen, um Alkoholgebrauch zu dokumentieren."
+
+msgid "&Other:"
+msgstr "&Andere:"
+
+msgid ""
+"Select for documenting use of substances other than nicotine or alcohol."
+msgstr ""
+"Auswählen, um Substanzmißbrauch (außer Alkohol oder Nikotin) zu "
+"dokumentieren."
+
+msgid "Select the misused substance."
+msgstr "Wählen Sie die fehlgebrauchte Substanz."
+
+msgid "&Non-harmful use"
+msgstr "&Unschädlicher Gebrauch"
+
+msgid ""
+"Select if the substance use is not considered harmful (say, no use or non-"
+"harmful use)."
+msgstr ""
+"Auswählen, wenn der Substanzgebrauch nicht schädlich erscheint (kein oder "
+"nicht mißbräuchlicher Gebrauch)."
+
+msgid "&Harmful use"
+msgstr "&Schädlicher Gebrauch"
+
+msgid "Select if substance is use considered harmful."
+msgstr "Auswählen, wenn Substanzgebrauch als schädlich eingeschätzt wird."
+
+msgid "Presently &addicted"
+msgstr "Derzeit &abhängig"
+
+msgid "Select if the patient is presently addicted to this substance."
+msgstr ""
+"Hier wählen, wenn der Patient derzeit von dieser Substand abhängig ist."
+
+msgid "Previously &addicted"
+msgstr "&Frühere Abhängigkeit"
+
+msgid "Select if the patient was previously addicted to this substance."
+msgstr "Hier wählen, wenn der Patient früher von dieser Substanz abhängig war."
+
+msgid ""
+"A comment on this substance use:\n"
+"- type of product used\n"
+"- frequency\n"
+"- amount\n"
+"- when started\n"
+"- attempts to quit\n"
+"..."
+msgstr ""
+"Ein Kommentar zum Substanzgebrauch:\n"
+"- Art der Substanz\n"
+"- Häufigkeit\n"
+"- Menge\n"
+"- wann angefangen\n"
+"- Versuche aufzuhören\n"
+"..."
+
+msgid "Quit date"
+msgstr "Stopdatum"
+
+msgid ""
+"When did the patient quit?\n"
+"\n"
+"You can also set a target quit date here."
+msgstr ""
+"Wann hat der Patient den Gebrauch beendet ?\n"
+"\n"
+"Sie können hier auch ein Zieldatum eingeben."
+
+msgid "Last confirmed"
+msgstr "Zuletzt überprüft"
+
+msgid "?"
+msgstr "?"
+
+msgid "&Reconfirm as of today"
+msgstr "&Heute nachgehakt"
+
+msgid "Check here to confirm for today."
+msgstr "Hier markieren, wenn der Status heute überprüft wurde."
 
 msgid "Identity:"
 msgstr "Identität:"
@@ -7037,8 +7037,8 @@ msgid "Intake: #%s (%s)"
 msgstr "Einnahme: #%s (%s)"
 
 #, python-format
-msgid "Version: #%(row_ver)s (%(mod_when)s by %(mod_by)s)"
-msgstr "Version: #%(row_ver)s (%(mod_when)s durch %(mod_by)s)"
+msgid "Version: %(row_ver)s (%(mod_when)s by %(mod_by)s)"
+msgstr "Version: %(row_ver)s (%(mod_when)s durch %(mod_by)s)"
 
 #, python-format
 msgid "Patient: #%s"
@@ -7121,20 +7121,8 @@ msgstr "Einnahmeplan"
 msgid "nicotine"
 msgstr "Nikotin"
 
-msgid "tobacco"
-msgstr "Tabak"
-
 msgid "ethanol"
 msgstr "Ethanol"
-
-msgid "alcohol"
-msgstr "Alkohol"
-
-msgid "liquid"
-msgstr "Flüssigkeit"
-
-msgid "unit"
-msgstr "Einheit"
 
 #, python-format
 msgid "delivery unit%s"
@@ -10538,20 +10526,37 @@ msgstr "Importierte Dateien."
 msgid "clipboard"
 msgstr "Zwischenablage"
 
-msgid "Adding substance abuse"
+msgid "Adding substance misuse"
 msgstr "Substanzgebrauch hinzufügen"
 
-msgid "Editing substance abuse"
+msgid "Editing substance misuse"
 msgstr "Substanzgebrauch bearbeiten"
 
-msgid "Substances abused by the patient:"
-msgstr "Substanzgebrauch dieses Patienten:"
+msgid "Deleting substances misuse entry"
+msgstr "Löschen eines Fehlgebrauchs"
 
-msgid "Showing abused substances."
-msgstr "Zeige Substanzmißbrauch."
+#, python-format
+msgid ""
+"Really delete substance misuse ?\n"
+"\n"
+"%s"
+msgstr ""
+"Diesen Fehlgebrauch wirklich löschen ?\n"
+"\n"
+"%s"
+
+msgid "Substances misused by the patient:"
+msgstr "Fehlgebrauche dieses Patienten:"
+
+msgid "Showing misused substances."
+msgstr "Zeige Substanzgebrauch."
 
 msgid "Intake"
 msgstr "Einnahme"
+
+#, python-format
+msgid "[%s]: use or misuse already documented."
+msgstr "[%s]: (Fehl)gebrauch bereits dokumentiert."
 
 #, python-format
 msgid "Most recent lab work: %s ago (%s)"
@@ -10634,8 +10639,8 @@ msgstr "%s Impfg: %s (jüngste von %s: vor %s)"
 msgid "Hx of addiction: %s"
 msgstr "Abhängigkeit (früher): %s"
 
-msgid "active substance abuse"
-msgstr "aktiver Substanzmißbrauch"
+msgid "active substance misuse"
+msgstr "aktiver Substanzgebrauch"
 
 #, python-format
 msgid "%s %s%s"
@@ -16500,10 +16505,10 @@ msgstr "Unterdrückte Hinweise"
 msgid "Manage dynamic hints suppressed in this patient."
 msgstr "Verwalten der bei diesem Patienten unterdrückten dynamischen Hinweise."
 
-msgid "Substance abuse"
-msgstr "Substanzmißbrauch"
+msgid "Substance misuse"
+msgstr "Substanzgebrauch"
 
-msgid "Manage substance abuse documentation of this patient."
+msgid "Manage substance misuse documentation of this patient."
 msgstr "Dokumentation zum Substanzgebrauch dieses Patienten bearbeiten."
 
 msgid "&Manage ..."
@@ -18212,8 +18217,8 @@ msgid "GFR: unknown"
 msgstr "GFR: unbekannt"
 
 #, python-format
-msgid "Existing treatment regimens for %s"
-msgstr "Existierende Einnahmepläne für %s"
+msgid "[%s]: documented uses/misuses"
+msgstr "[%s]: dokumentierte (Fehl)gebrauche"
 
 msgid "Required: unit."
 msgstr "Pflichtfeld: Einheit."
@@ -18248,15 +18253,17 @@ msgid "Required: substance"
 msgstr "Pflichtfeld: Wirkstoff"
 
 #, python-format
-msgid "[%s]: Intake without regimen exists. You need to edit that intake."
-msgstr "[%s]: Substanzgebrauch ohne Einnahmeplan schon dokumentiert."
+msgid ""
+"[%s]: Ongoing intake without regimen exists. You need to edit that intake."
+msgstr ""
+"[%s]: Einnahme ohne Regime schon dokumentiert -> diese Einnahme bearbeiten."
 
 msgid ""
-"Cannot add intake without regimen when there already exists an intake with a "
-"regimen."
+"Cannot add intake without regimen when there already are intakes with "
+"regimens."
 msgstr ""
-"Kann Substanzgebrauch nicht ohne Einnahmeplan dokumentieren, es gibt bereits "
-"Einnahmepläne für diese Substanz."
+"Kann keine Einnahme ohne Regime dokumentieren, es gibt bereits Einnahmepläne "
+"für diese Substanz."
 
 msgid "There already is an intake with the exact same regimen."
 msgstr "Der Wirkstoff ist mit demselben Einnahmeplan bereits dokumentiert."
@@ -18268,10 +18275,8 @@ msgid "Substance required."
 msgstr "Wirkstoff nötig."
 
 #, python-format
-msgid "Intake of %s already documented. You may add a new regimen though"
-msgstr ""
-"Einnahme von %s schon dokumentiert. Sie können aber einen Einnahmeplan "
-"hinzufügen"
+msgid "[%s]: Some intake(s) already documented."
+msgstr "[%s]: Bereits Gebrauch dokumentiert."
 
 msgid "generic activity"
 msgstr "allgemeine Aktivität"
@@ -20859,6 +20864,28 @@ msgstr "Abbrechen"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
+
+#~ msgid "tobacco"
+#~ msgstr "Tabak"
+
+#~ msgid "alcohol"
+#~ msgstr "Alkohol"
+
+#~ msgid "liquid"
+#~ msgstr "Flüssigkeit"
+
+#~ msgid "unit"
+#~ msgstr "Einheit"
+
+#, python-format
+#~ msgid "Existing treatment regimens for %s"
+#~ msgstr "Existierende Einnahmepläne für %s"
+
+#, python-format
+#~ msgid "Intake of %s already documented. You may add a new regimen though"
+#~ msgstr ""
+#~ "Einnahme von %s schon dokumentiert. Sie können aber einen Einnahmeplan "
+#~ "hinzufügen"
 
 #~ msgid "Substance abuse entry"
 #~ msgstr "Substanzmißbrauch"
