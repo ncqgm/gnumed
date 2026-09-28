@@ -80,7 +80,7 @@
                 <flag>wxEXPAND</flag>
                 <object class="cSubstancePhraseWheel" name="_PRW_substance" base="EditTextCtrl">
                     <extracode_pre>from Gnumed.wxpython.gmSubstanceMgmtWidgets import cSubstancePhraseWheel</extracode_pre>
-                    <tooltip>Select the abused substance.</tooltip>
+                    <tooltip>Select the misused substance.</tooltip>
                     <disabled>1</disabled>
                 </object>
             </object>

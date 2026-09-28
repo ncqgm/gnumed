@@ -2081,12 +2081,12 @@ class cSubstanceIntake(gmBusinessDBObject.cBusinessDBObject):
 			)
 		# misuse
 		if single_line:
-			return self.format_as_single_line_abuse(left_margin = left_margin, date_format = date_format)
+			return self.format_as_single_line_misuse(left_margin = left_margin, date_format = date_format)
 
-		return self.format_as_multiple_lines_abuse(left_margin = left_margin, date_format = date_format, include_tech_details = include_tech_details, eol = eol)
+		return self.format_as_multiple_lines_misuse(left_margin = left_margin, date_format = date_format, include_tech_details = include_tech_details, eol = eol)
 
 	#--------------------------------------------------------
-	def format_as_single_line_abuse(self, left_margin=0, date_format='%Y %b %d'):
+	def format_as_single_line_misuse(self, left_margin=0, date_format='%Y %b %d'):
 		started = ''
 		if not self._payload['start_is_unknown']:
 			started = ' (%s)' % self._payload['started'].strftime(date_format)
@@ -2192,7 +2192,7 @@ class cSubstanceIntake(gmBusinessDBObject.cBusinessDBObject):
 		return subst_prefix + ', '.join(parts_verbose)
 
 	#--------------------------------------------------------
-	def format_as_multiple_lines_abuse(self, left_margin=0, date_format='%Y %b %d', include_tech_details:bool=False, eol='\n'):
+	def format_as_multiple_lines_misuse(self, left_margin=0, date_format='%Y %b %d', include_tech_details:bool=False, eol='\n'):
 		lines = []
 		lines.append(_('Misuse of: %s%s') % (
 			self._payload['substance'],
@@ -2478,7 +2478,7 @@ def get_substance_intakes (
 	ongoing_only:bool=False,
 	episodes:list[int]=None,
 	issues:list[int]=None,
-	exclude_potential_abuses:bool=False,
+	exclude_potential_misuses:bool=False,
 	exclude_medications:bool=False
 ) -> list[cSubstanceIntake]:
 	pass
@@ -2493,7 +2493,7 @@ def get_substance_intakes (
 	ongoing_only:bool=False,
 	episodes:list[int]=None,
 	issues:list[int]=None,
-	exclude_potential_abuses:bool=False,
+	exclude_potential_misuses:bool=False,
 	exclude_medications:bool=False
 ) -> list[int]:
 	pass
@@ -2507,7 +2507,7 @@ def get_substance_intakes (
 	ongoing_only:bool=False,
 	episodes:list[int]=None,
 	issues:list[int]=None,
-	exclude_potential_abuses:bool=False,
+	exclude_potential_misuses:bool=False,
 	exclude_medications:bool=False
 ) -> list[cSubstanceIntake] | list[int]:
 	"""Retrieve substance intakes.
@@ -2530,7 +2530,7 @@ def get_substance_intakes (
 		args['pk_substances'] = pk_substances
 	if ongoing_only:
 		where_parts.append('((discontinued IS NULL) OR (discontinued > clock_timestamp()))')
-	if exclude_potential_abuses:
+	if exclude_potential_misuses:
 		where_parts.append('use_type IS NULL	-- explicit medications only')
 	if exclude_medications:
 		where_parts.append('use_type IS NOT NULL	-- no medications')
@@ -3110,7 +3110,7 @@ def generate_failsafe_medication_list_entries(pk_patient:int=None, max_width:int
 		pk_patient = pk_patient,
 		ongoing_only = True,
 		order_by = 'discontinued NULLS FIRST, substance',
-		exclude_potential_abuses = True,
+		exclude_potential_misuses = True,
 		exclude_medications = False
 	)
 	delim = '#' + '-' * (max_width - 1)
@@ -3667,11 +3667,11 @@ if __name__ == "__main__":
 #			print('')
 #			print('format_as_single_line():')
 #			print(i.format_as_single_line(left_margin = 1))
-#			print('format_as_single_line_abuse():')
-#			print(i.format_as_single_line_abuse(left_margin = 1))
+#			print('format_as_single_line_misuse():')
+#			print(i.format_as_single_line_misuse(left_margin = 1))
 #			print('')
-#			print('format_as_multiple_lines_abuse():')
-#			print(i.format_as_multiple_lines_abuse(left_margin = 1))
+#			print('format_as_multiple_lines_misuse():')
+#			print(i.format_as_multiple_lines_misuse(left_margin = 1))
 			input()
 
 	#--------------------------------------------------------
@@ -3792,8 +3792,8 @@ if __name__ == "__main__":
 			si.format()
 			print('.format_as_single_line()')
 			si.format_as_single_line()
-			print('.format_as_single_line_abuse()')
-			si.format_as_single_line_abuse()
+			print('.format_as_single_line_misuse()')
+			si.format_as_single_line_misuse()
 			print('.format_as_multiple_lines()')
 			si.format_as_multiple_lines()
 

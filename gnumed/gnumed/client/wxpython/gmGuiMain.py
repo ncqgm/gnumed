@@ -583,8 +583,8 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.__on_calc_edc, item)
 		item = menu_emr_manage.Append(-1, _('Suppressed hints'), _('Manage dynamic hints suppressed in this patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_suppressed_hints, item)
-		item = menu_emr_manage.Append(-1, _('Substance abuse'), _('Manage substance abuse documentation of this patient.'))
-		self.Bind(wx.EVT_MENU, self.__on_manage_substance_abuse, item)
+		item = menu_emr_manage.Append(-1, _('Substance misuse'), _('Manage substance misuse documentation of this patient.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_substance_misuse, item)
 		menu_emr.Append(wx.NewId(), _('&Manage ...'), menu_emr_manage)
 
 		# - EMR /
@@ -2724,12 +2724,12 @@ class gmTopLevelFrame(wx.Frame):
 		gmAutoHintWidgets.manage_suppressed_hints(parent = self, pk_identity = pat.ID)
 
 	#----------------------------------------------
-	def __on_manage_substance_abuse(self, evt):
+	def __on_manage_substance_misuse(self, evt):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot manage smoking status. No active patient.'))
 			return False
-		gmHabitWidgets.manage_substance_abuse(parent = self, patient = pat)
+		gmHabitWidgets.manage_substance_misuse(parent = self, patient = pat)
 
 	#----------------------------------------------
 	def __on_show_emr_summary(self, event):

@@ -82,7 +82,7 @@ def manage_substance_intakes(parent=None, emr=None, include_inactive:bool=True):
 	def refresh(lctrl):
 		intakes = emr.get_intakes (
 			include_inactive = include_inactive,
-			exclude_potential_abuses = True,
+			exclude_potential_misuses = True,
 			order_by = 'substance, discontinued IS NOT NULL, started DESC'
 		)
 		items = []
@@ -254,18 +254,18 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 			tt_lines.append('')
 		del allgs
 
-		# history of substance abuse
-		abuses = emr.abused_substances
-		for abuse in abuses:
-			tt_lines.extend(abuse.format(single_line = False, eol = None))
+		# history of substance misuse
+		misuses = emr.misused_substances
+		for misuse in misuses:
+			tt_lines.extend(misuse.format(single_line = False, eol = None))
 			tt_lines.append('')
-			if abuse['use_type'] in [gmMedication.USE_TYPE_MEDICATION, gmMedication.USE_TYPE_NON_HARMFUL]:
+			if misuse['use_type'] in [gmMedication.USE_TYPE_MEDICATION, gmMedication.USE_TYPE_NON_HARMFUL]:
 				continue
-			msg_lines.append(abuse.format(single_line = True))
-		if abuses:
+			msg_lines.append(misuse.format(single_line = True))
+		if misuses:
 			msg_lines.append('')
 			tt_lines.append('')
-		del abuses
+		del misuses
 
 		# kidney function
 		gfrs = emr.get_most_recent_results_in_loinc_group(loincs = gmLOINC.LOINC_gfr_quantity, max_no_of_results = 1)

@@ -720,11 +720,11 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			data[sort_key] = [label, vacc]
 		del vaccs
 
-		for abuse in [ a for a in emr.abused_substances if a['use_type'] == gmMedication.USE_TYPE_PREVIOUSLY_ADDICTED ]:
-			sort_key = '%s::%s' % (abuse['started'].strftime(date_format4sorting), abuse['substance'])
-			label = _('Hx of addiction: %s') % abuse['substance']
+		for misuse in [ a for a in emr.misused_substances if a['use_type'] == gmMedication.USE_TYPE_PREVIOUSLY_ADDICTED ]:
+			sort_key = '%s::%s' % (misuse['started'].strftime(date_format4sorting), misuse['substance'])
+			label = _('Hx of addiction: %s') % misuse['substance']
 			sort_key_list.append(sort_key)
-			data[sort_key] = [label, abuse]
+			data[sort_key] = [label, misuse]
 
 		sort_key_list.sort()
 		sort_key_list.reverse()
@@ -838,10 +838,10 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		first_red = False
 
 		# harmful substance use ?
-		abuses = emr.abused_substances
-		if len([ a for a in abuses if a['use_type'] in gmMedication.USE_TYPES_ACTIVE_MISUSE ]) > 0:
-			list_items.append(_('active substance abuse'))
-			data_items.append('\n'.join([ a.format(left_margin=0, date_format='%Y %b %d', single_line=True) for a in abuses ]))
+		misuses = emr.misused_substances
+		if len([ a for a in misuses if a['use_type'] in gmMedication.USE_TYPES_ACTIVE_MISUSE ]) > 0:
+			list_items.append(_('active substance misuse'))
+			data_items.append('\n'.join([ a.format(left_margin=0, date_format='%Y %b %d', single_line=True) for a in misuses ]))
 
 		# list by product or substance:
 		intakes = emr.get_current_medications(include_inactive = False, order_by = 'substance')
@@ -895,7 +895,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			return
 
 #		if isinstance(data, str):
-#			gmHabitWidgets.manage_substance_abuse(parent = self, patient = gmPerson.gmCurrentPatient())
+#			gmHabitWidgets.manage_substance_misuse(parent = self, patient = gmPerson.gmCurrentPatient())
 #			return
 
 		# <ctrl> down ? -> edit

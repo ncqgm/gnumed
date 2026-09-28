@@ -207,7 +207,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			order_by = self.__sort_col_idx2order_by_clauses[self.__sort_col_idx],
 			include_inactive = self.__filter_show_discontinued,
 			exclude_medications = False,
-			exclude_potential_abuses = True
+			exclude_potential_misuses = True
 		)
 		if not meds:
 			return

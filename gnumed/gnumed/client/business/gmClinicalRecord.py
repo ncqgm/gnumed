@@ -1338,24 +1338,24 @@ WHERE
 			episodes = episodes,
 			issues = issues,
 			exclude_medications = False,
-			exclude_potential_abuses = True
+			exclude_potential_misuses = True
 		)
 
 	#--------------------------------------------------------
-	def _get_abused_substances(self, order_by=None):
+	def _get_misused_substances(self, order_by=None):
 		return self.get_intakes (
 			include_inactive = True,
 			order_by = order_by,
 			episodes = None,
 			issues = None,
 			exclude_medications = True,
-			exclude_potential_abuses = False
+			exclude_potential_misuses = False
 		)
 
-	abused_substances = property(_get_abused_substances)
+	misused_substances = property(_get_misused_substances)
 
 	#--------------------------------------------------------
-	def get_intakes(self, include_inactive=False, order_by=None, episodes=None, issues=None, exclude_potential_abuses=False, exclude_medications=False):
+	def get_intakes(self, include_inactive=False, order_by=None, episodes=None, issues=None, exclude_potential_misuses=False, exclude_medications=False):
 		return gmMedication.get_substance_intakes (
 			pk_patient = self.pk_patient,
 			ongoing_only = not include_inactive,
@@ -1363,7 +1363,7 @@ WHERE
 			order_by = order_by,
 			episodes = episodes,
 			issues = issues,
-			exclude_potential_abuses = exclude_potential_abuses,
+			exclude_potential_misuses = exclude_potential_misuses,
 			exclude_medications = exclude_medications
 		)
 
@@ -2388,9 +2388,9 @@ if __name__ == "__main__":
 			input()
 
 	#-----------------------------------------
-	def test_get_abuses():
+	def test_get_misuses():
 		emr = cClinicalRecord(aPKey=12)
-		for med in emr.abused_substances:
+		for med in emr.misused_substances:
 			print(med.format(single_line = True))
 
 	#-----------------------------------------
@@ -2467,7 +2467,7 @@ if __name__ == "__main__":
 	#test_get_most_recent()
 	#test_episodes()
 	#test_format_as_journal()
-	#test_get_abuses()
+	#test_get_misuses()
 	#test_get_intakes()
 	#test_get_encounters()
 	#test_get_issues()

@@ -30,14 +30,14 @@ from Gnumed.wxpython import gmGuiHelpers
 _log = logging.getLogger('gm.ui')
 
 #================================================================
-def edit_substance_abuse(parent=None, intake=None, patient=None):
+def edit_substance_misuse(parent=None, intake=None, patient=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
 	ea = cSubstanceAbuseEAPnl(parent, -1, intake = intake, patient = patient)
 	dlg = gmEditArea.cGenericEditAreaDlg(parent, -1, edit_area = ea, single_entry = (intake is not None))
-	dlg.SetTitle(gmTools.coalesce(intake, _('Adding substance abuse'), _('Editing substance abuse')))
+	dlg.SetTitle(gmTools.coalesce(intake, _('Adding substance misuse'), _('Editing substance misuse')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.DestroyLater()
 		return True
@@ -45,7 +45,7 @@ def edit_substance_abuse(parent=None, intake=None, patient=None):
 	return False
 
 #----------------------------------------------------------------
-def manage_substance_abuse(parent=None, patient=None):
+def manage_substance_misuse(parent=None, patient=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -59,7 +59,7 @@ def manage_substance_abuse(parent=None, patient=None):
 #		return True
 #	#------------------------------------------------------------
 	def edit(intake=None):
-		return edit_substance_abuse(parent = parent, intake = intake, patient = patient)
+		return edit_substance_misuse(parent = parent, intake = intake, patient = patient)
 
 	#------------------------------------------------------------
 	def delete(intake):
@@ -78,7 +78,7 @@ def manage_substance_abuse(parent=None, patient=None):
 
 	#------------------------------------------------------------
 	def refresh(lctrl):
-		intakes = patient.emr.abused_substances
+		intakes = patient.emr.misused_substances
 		items = []
 		for i in intakes:
 			items.append ([
@@ -90,13 +90,13 @@ def manage_substance_abuse(parent=None, patient=None):
 		lctrl.set_data(intakes)
 
 	#------------------------------------------------------------
-	if len(patient.emr.abused_substances) == 0:
+	if len(patient.emr.misused_substances) == 0:
 		edit()
 
 	return gmListWidgets.get_choices_from_list (
 		parent = parent,
 		msg = _('Substances misused by the patient:'),
-		caption = _('Showing abused substances.'),
+		caption = _('Showing misused substances.'),
 		columns = [ _('Intake'), _('Status'), _('Last confirmed') ],
 		single_selection = False,
 		new_callback = edit,
@@ -346,10 +346,10 @@ if __name__ == '__main__':
 	from Gnumed.wxpython import gmGuiTest
 
 	#----------------------------------------
-	def test_manage_substance_abuse():
+	def test_manage_substance_misuse():
 		frame = gmGuiTest.setup_widget_test_env(patient = 12)
-		wx.CallLater(2000, manage_substance_abuse, parent = frame, patient = gmPerson.gmCurrentPatient())
+		wx.CallLater(2000, manage_substance_misuse, parent = frame, patient = gmPerson.gmCurrentPatient())
 		wx.GetApp().MainLoop()
 
 	#----------------------------------------
-	test_manage_substance_abuse()
+	test_manage_substance_misuse()

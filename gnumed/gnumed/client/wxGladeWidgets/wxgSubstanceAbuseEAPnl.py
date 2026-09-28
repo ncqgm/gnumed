@@ -49,7 +49,7 @@ class wxgSubstanceAbuseEAPnl(wx.ScrolledWindow):
 		self._RBTN_tobacco.SetValue(1)
 		self._RBTN_c2.SetToolTip(_("Select for documenting alcohol use status."))
 		self._RBTN_other_substance.SetToolTip(_("Select for documenting use of substances other than nicotine or alcohol."))
-		self._PRW_substance.SetToolTip(_("Select the abused substance."))
+		self._PRW_substance.SetToolTip(_("Select the misused substance."))
 		self._PRW_substance.Enable(False)
 		self._RBTN_nonharmful_use.SetToolTip(_("Select if the substance use is not considered harmful (say, no use or non-harmful use)."))
 		self._RBTN_nonharmful_use.SetValue(1)
