@@ -35,7 +35,7 @@ def edit_substance_misuse(parent=None, intake=None, patient=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	ea = cSubstanceAbuseEAPnl(parent, -1, intake = intake, patient = patient)
+	ea = cSubstanceMisuseEAPnl(parent, -1, intake = intake, patient = patient)
 	dlg = gmEditArea.cGenericEditAreaDlg(parent, -1, edit_area = ea, single_entry = (intake is not None))
 	dlg.SetTitle(gmTools.coalesce(intake, _('Adding substance misuse'), _('Editing substance misuse')))
 	if dlg.ShowModal() == wx.ID_OK:
@@ -107,9 +107,9 @@ def manage_substance_misuse(parent=None, patient=None):
 	)
 
 #----------------------------------------------------------------
-from Gnumed.wxGladeWidgets import wxgSubstanceAbuseEAPnl
+from Gnumed.wxGladeWidgets import wxgSubstanceMisuseEAPnl
 
-class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEditArea.cGenericEditAreaMixin):
+class cSubstanceMisuseEAPnl(wxgSubstanceMisuseEAPnl.wxgSubstanceMisuseEAPnl, gmEditArea.cGenericEditAreaMixin):
 
 	def __init__(self, *args, **kwargs):
 		try:
@@ -125,7 +125,7 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 				_log.error('patient: %s', self.__patient)
 				raise ValueError('<intake> does not belong to <patient>')
 
-		wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl.__init__(self, *args, **kwargs)
+		wxgSubstanceMisuseEAPnl.wxgSubstanceMisuseEAPnl.__init__(self, *args, **kwargs)
 		gmEditArea.cGenericEditAreaMixin.__init__(self)
 		self.mode = 'new'
 		self.data = data
