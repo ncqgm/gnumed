@@ -58,7 +58,7 @@ class wxgSubstanceMisuseEAPnl(wx.ScrolledWindow):
 		__szr_status.Add(self._RBTN_nonharmful_use, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
 
 		self._RBTN_harmful_use = wx.RadioButton(self, wx.ID_ANY, _("&Harmful use"))
-		self._RBTN_harmful_use.SetToolTip(_("Select if substance is use considered harmful."))
+		self._RBTN_harmful_use.SetToolTip(_("Select if substance use is considered harmful."))
 		__szr_status.Add(self._RBTN_harmful_use, 0, wx.ALIGN_CENTER_VERTICAL, 3)
 
 		_gszr_main.Add((20, 20), 1, wx.EXPAND, 0)
