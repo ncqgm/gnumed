@@ -32,12 +32,14 @@ from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmScanBackend
+from Gnumed.pycommon import gmWorkerThread
 
 from Gnumed.business import gmStaff
 from Gnumed.business import gmPerson
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmIncomingData
 from Gnumed.business import gmDocuments
+from Gnumed.business import gmAutoFileImport
 
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmGuiHelpers
@@ -422,6 +424,15 @@ class cIncomingPluginPnl(wxgIncomingPluginPnl.wxgIncomingPluginPnl, gmRegetMixin
 	#--------------------------------------------------------
 	def _on_add_parts_button_pressed(self, event):
 		self.PopupMenu(self.__add_from_button_popup_menu, wx.DefaultPosition)
+
+	#--------------------------------------------------------
+	def _on_refresh_parts_button_pressed(self, event):
+		gmWorkerThread.execute_in_worker_thread (
+			payload_function = gmAutoFileImport._worker__auto_import_files,
+			worker_name = 'auto-file-importer, manually triggered'
+		)
+
+		gmDispatcher.send(signal = 'statustext', msg = _('Manually loaded files from auto-import directories.'), beep = False)
 
 	#--------------------------------------------------------
 	def _on_remove_part_button_pressed(self, event):
