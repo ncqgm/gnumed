@@ -299,6 +299,12 @@ def get_prescription_template(parent=None):
 #------------------------------------------------------------
 # prescription workflows
 #------------------------------------------------------------
+__PHRASE_FOR_PHARMACIST = _("""Dear pharmacist,
+
+to deliver best available care to our joint patient please dispense
+carefully and responsibly according to the following medication list:"""
+)
+
 @overload
 def generate_failsafe_prescription(pk_patient:int, max_width:int, eol:Literal[None]) -> list[str]: ...
 @overload
@@ -307,16 +313,22 @@ def generate_failsafe_prescription(pk_patient:int, max_width:int, eol:str) -> st
 def generate_failsafe_prescription(pk_patient:int=None, max_width:int=80, eol:None|str=None) -> str|list[str]:
 	if not pk_patient:
 		pk_patient = gmPerson.gmCurrentPatient().ID
+	title = _('\u211E Prescription \u211E -- %s') % gmDateTime.pydt_now_here().strftime('%Y %b %d')
+
 	lines, footer = gmFormWidgets.generate_failsafe_form_wrapper (
 		pk_patient = pk_patient,
-		title = _('Prescription -- %s') % gmDateTime.pydt_now_here().strftime('%Y %b %d'),
+		title = title,
 		max_width = max_width
 	)
+	lines.extend(__PHRASE_FOR_PHARMACIST.split('\n'))
+	lines.append('')
 	lines.extend(gmMedication.generate_failsafe_medication_list_entries (
 		pk_patient = pk_patient,
 		max_width = max_width,
 		eol = None
 	))
+	lines.append('')
+	lines.append(_('Feel free to consult back in case of uncertainty !'))
 	lines.append('')
 	lines.extend(footer)
 	if eol:
@@ -487,4 +499,14 @@ if __name__ == '__main__':
 		gmMimeLib.call_editor_on_file(filename = meds_list, block = True)
 
 	#----------------------------------------
-	test_all_meds_lists()
+	def test_failsave_rx():
+		#main_frame = 
+		gmGuiTest.setup_widget_test_env(patient = 12)
+		gmStaff.set_current_provider_to_logged_on_user()
+		rx = save_failsafe_prescription()
+		gmMimeLib.call_editor_on_file(filename = rx, block = True)
+
+	#----------------------------------------
+	#test_all_meds_lists()
+	#test()
+	test_failsave_rx()

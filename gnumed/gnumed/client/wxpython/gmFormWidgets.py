@@ -182,7 +182,7 @@ def print_doc_from_template(parent=None, jobtype=None, episode=None, edit_form=N
 	)
 
 #------------------------------------------------------------
-def generate_failsafe_form_wrapper(pk_patient:int=None, title:str=None, max_width:int=80) -> list[list[str]]:
+def generate_failsafe_form_wrapper(pk_patient:int=None, title:str=None, max_width:int=80, signature_line:bool=True) -> list[list[str]]:
 	header = []
 	header = ['#' + '=' * (max_width - 2) + '#']
 	header.append(_('Healthcare provider:'))
@@ -215,6 +215,15 @@ def generate_failsafe_form_wrapper(pk_patient:int=None, title:str=None, max_widt
 		header.append('')
 	footer = []
 	footer.append('')
+	if signature_line:
+		footer.append('')
+		footer.append('')
+		footer.append('')
+		footer.append('')
+		footer.append('')
+		footer.append('     ---------------------------------------')
+		footer.append('       provider signature / practice stamp')
+		footer.append('')
 	footer.append('#' + '-' * (max_width - 2) + '#')
 	footer.append(_('(GNUmed v%s failsafe form -- https://www.gnumed.de)') % _cfg.get(option = 'client_version'))
 	footer.append('#' + '=' * (max_width - 2) + '#')
