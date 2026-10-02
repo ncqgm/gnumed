@@ -74,6 +74,7 @@ IMPROVED: forms: current medications list
 IMPROVED: forms: invoice templates [thanks María]
 IMPROVED: patient search: speedup [thanks Marc]
 IMPROVED: printing: support evince next to okular
+IMPROVED: GDK backend compatibility [thanks Marc]
 
 FIX: CLI: --wxp= not needed anymore
 FIX: CLI: --ui= not needed anymore

@@ -1068,6 +1068,18 @@ def run_tui():
 #==========================================================
 def run_gui():
 	"""Startup wxPython GUI."""
+	if _cfg.get(option = 'debug'):
+		gdk_backend = None		# debugging default: system config
+	else:
+		gdk_backend = 'x11' 	# production default: X11
+	if 'gdk_use_wayland' in _cfg.get(option = 'special'):
+		gdk_backend = 'wayland'
+	elif 'gdk_use_x11' in _cfg.get(option = 'special'):
+		gdk_backend = 'x11'
+	if gdk_backend:
+		_log.info('setting $GDK_BACKEND to [%s]', gdk_backend)
+		os.environ['GDK_BACKEND'] = gdk_backend
+
 	from Gnumed.wxpython import gmGuiMain
 	profile_file = _cfg.get(option = '--profile', source_order = [('cli', 'return')])
 	if profile_file is None:
