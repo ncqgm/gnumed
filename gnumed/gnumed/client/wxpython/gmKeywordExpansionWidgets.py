@@ -124,7 +124,7 @@ class cKeywordExpansion_TextCtrlMixin():
 				msg = _(
 					'The fragment <%s> expands to multiple lines !\n'
 					'\n'
-					'This text field can hold one line only, hwoever.\n'
+					'This text field can hold one line only, however.\n'
 					'\n'
 					'Please select the line you want to insert:'
 				) % keyword
