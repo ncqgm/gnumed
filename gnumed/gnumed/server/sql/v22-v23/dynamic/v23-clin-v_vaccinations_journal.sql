@@ -29,7 +29,7 @@ select
 		as soap_cat,
 
 	((select _('Vaccination')) || ': '
-		|| coalesce(r_dp.description, (select _('generic vaccine'))) || ' '
+		|| coalesce(r_vcine.brandname, (select _('generic vaccine'))) || ' '
 		|| '[' || c_vacc.batch_no || ']'
 		|| coalesce(' (' || c_vacc.site || ')', '')
 		|| coalesce(E'\n' || (select _('Reaction')) || ': ' || c_vacc.reaction, '')
@@ -82,7 +82,8 @@ select
 		as encounter_started,
 	c_enc.last_affirmed
 		as encounter_last_affirmed,
-    c_enc.fk_type AS pk_encounter_type
+    c_enc.fk_type
+    	AS pk_encounter_type
 
 from
 	clin.vaccination c_vacc
@@ -90,7 +91,6 @@ from
 		inner join clin.episode c_epi on (c_vacc.fk_episode = c_epi.pk)
 			left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
 		inner join ref.vaccine r_vcine on (r_vcine.pk = c_vacc.fk_vaccine)
-			inner join ref.drug_product r_dp on (r_vcine.fk_drug_product = r_dp.pk)
 ;
 
 

@@ -9,18 +9,23 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
--- .fk_drug_product
-comment on column ref.vaccine.fk_drug_product is 'Link to a vaccine brand. If NULL this is a generic vaccine entry.';
+-- .brandname
+comment on column ref.vaccine.brandname is 'Vaccine brand. If NULL this is a generic vaccine entry.';
 
 alter table ref.vaccine
-	alter column fk_drug_product
+	alter column brandname
 		drop not null;
 
-alter table ref.vaccine
-	drop constraint if exists clin_vaccine_uniq_brand cascade;
+drop index if exists ref.idx_uniq__ref__vaccine__brandname cascade;
+create unique index idx_uniq__ref__vaccine__brandname on ref.vaccine(brandname);
 
-drop index if exists ref.idx_uniq__ref__vaccine__fk_drug_product cascade;
-create unique index idx_uniq__ref__vaccine__fk_drug_product on ref.vaccine(fk_drug_product);
+-- we also need a unique constraint ((brandname=NULL), list-of-indications) meaning: single generic vaccines only
+
+
+update ref.vaccine set
+	brandname = (
+		select description from ref.drug_product where pk = ref.vaccine.fk_drug_product
+);
 
 -- --------------------------------------------------------------
 -- .atc

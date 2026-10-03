@@ -21,7 +21,7 @@ select
 		as date_given,
 	now() - c_shot.clin_when
 		as interval_since_given,
-	r_dp.description
+	r_v.brandname
 		as vaccine,
 
 	ARRAY (
@@ -73,7 +73,6 @@ from
 	clin.vaccination c_shot
 		join clin.encounter c_enc on (c_enc.pk = c_shot.fk_encounter)
 		join ref.vaccine r_v on (r_v.pk = c_shot.fk_vaccine)
-			left join ref.drug_product r_dp on (r_v.fk_drug_product = r_dp.pk)
 
 ;
 

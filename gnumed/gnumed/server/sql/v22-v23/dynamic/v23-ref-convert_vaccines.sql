@@ -24,8 +24,6 @@ DECLARE
 	_ind_json json;
 	_product_rec record;
 	_pk_indication integer;
-	_pk_dummy_subst integer;
-	_pk_dummy_dose integer;
 	_ind_rec record;
 	_pk_generic_vaccine integer;
 BEGIN
@@ -47,28 +45,6 @@ BEGIN
 	RAISE NOTICE ''updating unspecific Hep [J07BC0] to HepA [J07BC02]'';
 	UPDATE ref.substance SET atc = ''J07BC02'' WHERE atc = ''J07BC0'';
 
-	-- brands require a component, so:
-	-- INSERT dummy substance
-	INSERT INTO ref.substance (description, atc, intake_instructions)
-		SELECT ''vaccine'', ''J07'', ''vaccination''
-		WHERE NOT EXISTS (
-			SELECT 1 FROM ref.substance WHERE description = ''vaccine'' AND atc = ''J07''
-		);
-	SELECT pk INTO _pk_dummy_subst FROM ref.substance WHERE description = ''vaccine'' AND atc = ''J07'';
-	RAISE NOTICE ''dummy vaccine substance: [%]'', _pk_dummy_subst;
-	-- insert dummy dose
-	INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
-		SELECT
-			(SELECT pk FROM ref.substance WHERE description = ''vaccine'' AND atc = ''J07''),
-			1, ''dose'', ''shot''
-		WHERE NOT EXISTS (
-			SELECT 1 FROM ref.dose WHERE fk_substance = (
-				SELECT pk FROM ref.substance WHERE description = ''vaccine'' AND atc = ''J07''
-			)
-		);
-	SELECT pk INTO _pk_dummy_dose FROM ref.dose WHERE fk_substance = _pk_dummy_subst;
-	RAISE NOTICE ''dummy vaccine substance dose: [%]'', _pk_dummy_dose;
-
 	-- convert vaccines from substance to indication links
 	RAISE NOTICE ''converting in-use vaccines:'';
 	FOR _vaccine_rec IN (SELECT * FROM ref.vaccine) LOOP
@@ -87,39 +63,56 @@ BEGIN
 				RAISE NOTICE ''-- ATC of indication found in ref.vacc_indication under pk [%], linking'', _pk_indication;
 				INSERT INTO ref.lnk_indic2vaccine (fk_indication, fk_vaccine) VALUES (_pk_indication, _vaccine_rec.pk);
 			END LOOP;
-			-- link product to dummy component
-			RAISE NOTICE ''-- linking product [%] to dummy dose [%]'', _product_rec.pk_drug_product, _pk_dummy_dose;
-			INSERT INTO ref.lnk_dose2drug (fk_dose, fk_drug_product)
-				SELECT _pk_dummy_dose, _product_rec.pk_drug_product
-				WHERE NOT EXISTS (
-					SELECT 1 FROM ref.lnk_dose2drug
-					WHERE fk_dose = _pk_dummy_dose AND fk_drug_product = _product_rec.pk_drug_product
-				);
 		END LOOP;
 	END LOOP;
 
-	-- remove from ref.substance any rows the ATC code of which
-	-- now exists in ref.vacc_indication -- those had been used
-	-- as indication entries but have been transferred by now
+	-- remove vaccine drug products, now stored in ref.vaccine.brandname
+	-- remove substances/doses/components previously abused as indications
 	RAISE NOTICE ''removing old substance-indications from ref.lnk_dose2drug'';
+	-- remove from dose2drug link table links to ...
 	DELETE FROM ref.lnk_dose2drug WHERE
+		-- ... any doses ...
 		fk_dose = ANY (
+			-- ... which represent substances ...
 			SELECT pk FROM ref.dose WHERE fk_substance = ANY (
+				-- ... having an ATC that is listed as a vaccination indication ...
 				SELECT pk FROM ref.substance WHERE atc = ANY(SELECT atc FROM ref.vacc_indication)
 			)
 		) AND
+		-- ... and which are linked to a drug product ...
 		fk_drug_product = ANY (
+			-- being referenced as a vaccine
 			SELECT fk_drug_product FROM ref.vaccine
 		)
 	;
 	RAISE NOTICE ''removing old substance-indications from ref.dose'';
+	-- remove any doses ...
 	DELETE FROM ref.dose WHERE fk_substance = ANY (
+		-- ... having an ATC that is listed as a vaccination indication ...
 		SELECT pk FROM ref.substance WHERE atc = ANY(SELECT atc FROM ref.vacc_indication)
 	);
 	RAISE NOTICE ''removing old substance-indications from ref.substance'';
+	-- remove any substances ...
 	DELETE FROM ref.substance WHERE atc = ANY (
+		-- ... having an ATC that is listed as a vaccination indication ...
 		SELECT atc FROM ref.vacc_indication
 	);
+	RAISE NOTICE ''removing "vaccine" drug products from ref.drug_product'';
+	-- need to break FK from vaccine to product first
+	-- (the column gets dropped later on)
+	UPDATE ref.vaccine set fk_drug_product = NULL;
+	-- remove drug products listed as brands of vaccines
+	-- (need to use brand name because fk_drug_product now NULL)
+	DELETE FROM ref.drug_product WHERE description = ANY(SELECT brandname FROM ref.vaccine);
+	-- remove dummy dose, not needed anymore
+	RAISE NOTICE ''removing vaccine dummy dose from ref.dose'';
+	DELETE FROM ref.dose WHERE fk_substance = (
+		SELECT pk FROM ref.substance WHERE description = ''vaccine'' AND atc = ''J07''
+	);
+	-- remove dummy substance, not needed anymore
+	RAISE NOTICE ''removing vaccine dummy substance from ref.substance'';
+	DELETE FROM ref.substance WHERE description = ''vaccine'' AND atc = ''J07'';
+
 	-- re-add generic vaccines
 	RAISE NOTICE ''adding generic vaccine for each indication'';
 	FOR _ind_rec IN (SELECT * FROM ref.vacc_indication) LOOP
@@ -143,6 +136,10 @@ END;';
 
 comment on function staging.v22_v23_convert_vaccines() is 'Temporary function to convert vaccines to have indications in ref.vacc_indication rather than as substances.';
 
+alter table ref.vaccine
+	alter column fk_drug_product
+	drop not null;
+
 select staging.v22_v23_convert_vaccines();
 
 drop function if exists staging.v22_v23_convert_vaccines() cascade;
@@ -156,6 +153,14 @@ drop index if exists ref.idx_c_vaccine_id_route cascade;
 
 alter table audit.log_vaccine
 	drop column if exists id_route cascade;
+
+-- --------------------------------------------------------------
+-- .fk_drug_product
+alter table ref.vaccine
+	drop column if exists fk_drug_product cascade;
+
+alter table audit.log_vaccine
+	drop column if exists fk_drug_product cascade;
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v23-ref-convert_vaccines.sql', '23.0');

@@ -16,23 +16,14 @@ create view ref.v_vaccines as
 	select
 		r_v.pk
 			as pk_vaccine,
-		r_dp.description
+		r_v.brandname
 			as vaccine,
-		r_dp.preparation
-			as preparation,
-		_(r_dp.preparation)
-			as l10n_preparation,
 		r_v.is_live,
 		r_v.min_age,
 		r_v.max_age,
 		r_v.comment,
 		r_v.atc
 			as atc_vaccine,
-		r_dp.atc_code
-			as atc_product,
-		r_dp.external_code,
-		r_dp.external_code_type,
-
 		ARRAY (
 			select row_to_json(indication_row) from (
 				select
@@ -51,16 +42,10 @@ create view ref.v_vaccines as
 					r_li2v.fk_vaccine = r_v.pk
 			) as indication_row
 		) as indications,
-
-		r_dp.pk
-			as pk_drug_product,
-		r_dp.fk_data_source
-			as pk_data_source,
 		r_v.xmin
 			as xmin_vaccine
 	from
 		ref.vaccine r_v
-			left join ref.drug_product r_dp on (r_v.fk_drug_product = r_dp.pk)
 ;
 
 comment on view ref.v_vaccines is

@@ -12,9 +12,15 @@
 alter table ref.vaccine
 	add column atc gm.nonempty_text;
 
-
 alter table audit.log_vaccine
 	add column atc text;
+
+
+alter table ref.vaccine
+	add column brandname gm.nonempty_text;
+
+alter table audit.log_vaccine
+	add column brandname text;
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v23-ref-vaccine-static.sql', '23.0');
