@@ -66,13 +66,6 @@ class Psql:
 		return auth
 
 	#---------------------------------------------------------------
-	def __log_notices(self):
-		for n in self.conn.notices:
-			for l in n.split('\n'):
-				_log.debug(' >PG: %s', l) if l.strip() else None
-		del self.conn.notices[:]
-
-	#---------------------------------------------------------------
 	def run_script(self, filename) -> bool:
 		"""
 		filename: a file, containing semicolon-separated SQL commands
@@ -159,7 +152,6 @@ class Psql:
 								curs.close()
 								return False
 
-						self.__log_notices()
 					self.conn.commit()
 					curs.close()
 					curs = self.conn.cursor()

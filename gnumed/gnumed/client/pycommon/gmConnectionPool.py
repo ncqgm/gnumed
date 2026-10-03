@@ -669,6 +669,15 @@ UNION ALL (
 order by name_1, name_2, name_3
 ;"""
 
+#============================================================
+class cNoticesLogger:
+	def append(self, notice):
+		cNoticesLogger.log_notice(notice)
+
+	@classmethod
+	def log_notice(cls, notice):
+		for l in notice.split('\n'):
+			_log.debug(' >PG: %s', l) if l.strip() else None
 
 #============================================================
 class cPGCredentials:
@@ -920,6 +929,12 @@ class gmConnectionPool(gmBorg.cBorg):
 				raise
 
 			raise cAuthenticationError(creds2use.formatted_credentials, msg).with_traceback(tb)
+
+		_log.debug('monkey-patching notices processor')
+		# dumping any notices gotten so far
+		for notice in conn.notices:
+			cNoticesLogger.log_notice(notice)
+		conn.notices = cNoticesLogger()
 
 		_log.debug('established connection "%s", backend PID: %s', gmTools.coalesce(connection_name, 'anonymous'), conn.get_backend_pid())
 		# safe-guard

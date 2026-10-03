@@ -2569,14 +2569,6 @@ def run_ro_queries (
 	return data
 
 #------------------------------------------------------------------------
-def log_notices(notices_accessor=None):
-	gmLog.log_multiline (
-		line_prefix = ' >PG:',
-		text = [ n.strip('\n') for n in notices_accessor.notices ]
-	)
-	del notices_accessor.notices[:]
-
-#------------------------------------------------------------------------
 def __perhaps_reraise_as_permissions_error(pg_exc, curs):
 	if pg_exc.pgcode != PG_error_codes.INSUFFICIENT_PRIVILEGE:
 		return
@@ -2679,16 +2671,13 @@ def run_rw_queries (
 		rollback_tx = conn.rollback
 		curs = conn.cursor()
 		close_cursor = curs.close
-		notices_accessor = conn
 	else:
 		close_conn = lambda *x: None
 		commit_tx = lambda *x: None
 		rollback_tx = lambda *x: None
 		close_cursor = lambda *x: None
-		notices_accessor = link_obj
 		if isinstance(link_obj, dbapi._psycopg.cursor):
 			curs = link_obj
-			notices_accessor = curs.connection
 		elif isinstance(link_obj, dbapi._psycopg.connection):
 			curs = link_obj.cursor()
 			close_cursor = curs.close
@@ -2732,7 +2721,6 @@ def run_rw_queries (
 
 		if verbose:
 			gmConnectionPool.log_cursor_state(curs)
-		log_notices(notices_accessor)
 
 	if not return_data:
 		close_cursor()
