@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-28 02:57+0200\n"
-"PO-Revision-Date: 2026-09-28 02:57+0200\n"
+"POT-Creation-Date: 2026-10-04 18:16+0200\n"
+"PO-Revision-Date: 2026-10-04 18:21+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -3921,6 +3921,15 @@ msgstr "Gewählte LOINC zur Meßwertgruppe hinzufügen."
 msgid "Remove selected LOINC from test panel."
 msgstr "Gewählte LOINC aus Meßwertgruppe entfernen."
 
+msgid ""
+"The brand name of the vaccine product.\n"
+"\n"
+"Empty for generic pseudo-vaccines."
+msgstr ""
+"Der Handelsname des Impfstoffs.\n"
+"\n"
+"Leer bei generischen Pseudo-Impfstoffen."
+
 msgid "Live"
 msgstr "Lebendimpfstoff"
 
@@ -5788,7 +5797,7 @@ msgstr ""
 msgid "&Harmful use"
 msgstr "&Schädlicher Gebrauch"
 
-msgid "Select if substance is use considered harmful."
+msgid "Select if substance use is considered harmful."
 msgstr "Auswählen, wenn Substanzgebrauch als schädlich eingeschätzt wird."
 
 msgid "Presently &addicted"
@@ -8804,12 +8813,11 @@ msgid " (live)"
 msgstr " (lebend)"
 
 #, python-format
-msgid "\"%s\" [#%s]%s -- #%s"
-msgstr "\"%s\" [#%s]%s -- #%s"
+msgid "\"%s\" [#%s]%s"
+msgstr "\"%s\" [#%s]%s"
 
-#, python-format
-msgid "Generic vaccine%s [#%s]%s"
-msgstr "Generischer Impfstoff%s [#%s]%s"
+msgid "Generic vaccine"
+msgstr "Generischer Impfstoff"
 
 msgid " Targets:"
 msgstr " Indikationen:"
@@ -10126,45 +10134,22 @@ msgstr "Generischer Impfstoff"
 
 #, python-format
 msgid ""
-"Also delete the drug product\n"
-"\n"
-" \"%s\"\n"
-"\n"
-"associated with this vaccine ?"
-msgstr ""
-"Auch das Medikament\n"
-"\n"
-" \"%s\"\n"
-"\n"
-"löschen, als welches der Impfstoff geliefert wird ?"
-
-#, python-format
-msgid ""
-"Cannot remove vaccine and/or drug product\n"
+"Error removing vaccine\n"
 "\n"
 " %s [#%s]"
 msgstr ""
-"Kann Impfstoff/Medikament nicht löschen\n"
+"Fehler beim Löschen des Impfstoffs\n"
 "\n"
 " %s [#%s]"
 
 msgid "Showing vaccine details"
 msgstr "Zeige Impfstoffdetails"
 
-msgid "Products"
-msgstr "Medikamente"
-
-msgid "Manage drug products"
-msgstr "Medikamente verwalten"
-
-msgid "Enter or select the batch/lot number of the vaccine used."
-msgstr "Die Chargennummer des verwendeten Impfstoffes eingeben oder auswählen."
+msgid "Regenerate generic vaccines"
+msgstr "Generische Impfstoffe erneut anlegen"
 
 msgid "ERROR: No indications for new vaccine."
 msgstr "Fehler: Keine Indikationen für den neuen Impfstoff."
-
-msgid "Product not a vaccine (ATC does not start with J07) !"
-msgstr "Medikament kein Impfstoff (ATC beginnt nicht mit J07) !"
 
 msgid "generic/unknown"
 msgstr "generisch/unbekannt"
@@ -10203,6 +10188,9 @@ msgstr "Impfindikationen geändert."
 
 msgid "ERROR: Cannot update vaccine in database."
 msgstr "ERROR: Änderungen am Impfstoff können nicht gespeichert werden."
+
+msgid "Enter or select the batch/lot number of the vaccine used."
+msgstr "Die Chargennummer des verwendeten Impfstoffes eingeben oder auswählen."
 
 msgid ""
 "GNUmed will use this URL to access a website which lets\n"
@@ -10264,6 +10252,23 @@ msgstr ""
 "Bestehende Impfung:\n"
 "\n"
 "%s"
+
+msgid "Removing vaccination"
+msgstr "Impfung löschen"
+
+#, python-format
+msgid ""
+"Really remove vaccination ?\n"
+"\n"
+" %s [#%s]\n"
+"\n"
+"(this cannot be reverted)"
+msgstr ""
+"Impfung wirklich löschen ?\n"
+"\n"
+" %s [#%s]\n"
+"\n"
+"(kann nicht rückgängig gemacht werden)"
 
 #, python-format
 msgid "%s (latest of %s: %s ago)"
@@ -13080,7 +13085,7 @@ msgstr "Wählen Sie eine Praxis-Zweigstelle."
 msgid ""
 "The fragment <%s> expands to multiple lines !\n"
 "\n"
-"This text field can hold one line only, hwoever.\n"
+"This text field can hold one line only, however.\n"
 "\n"
 "Please select the line you want to insert:"
 msgstr ""
@@ -14030,9 +14035,24 @@ msgstr "Problem beim Laden der Druckvorlage für Verordnungen."
 msgid "Cannot load prescription template [%s - %s]"
 msgstr "Kann Vorlage [%s - %s] für Verordnungen nicht laden"
 
+msgid ""
+"Dear pharmacist,\n"
+"\n"
+"to deliver best available care to our joint patient please dispense\n"
+"carefully and responsibly according to the following medication list:"
+msgstr ""
+"Geehrte Apothekenmitarbeiter,\n"
+"\n"
+"um eine bestmögliche Versorgung unseres gemeinsamen Patienten zu "
+"gewährleisten,\n"
+"geben Sie bitte verantwortungsvoll und sorgfältig folgende Medikation ab:"
+
 #, python-format
-msgid "Prescription -- %s"
-msgstr "Rezept -- %s"
+msgid "\\u211E Prescription \\u211E -- %s"
+msgstr "\\u211E Rezept \\u211E -- %s"
+
+msgid "Feel free to consult back in case of uncertainty !"
+msgstr "Kontaktieren Sie uns gern bei Unklarheiten !"
 
 msgid "Pretty prescription form failed. Generating failsafe version."
 msgstr "Fehlerhafte Vorlage \"Rezept\". Erzeuge Notfallversion."
@@ -20865,6 +20885,43 @@ msgstr "Abbrechen"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
+#, python-format
+#~ msgid "Generic vaccine%s [#%s]%s"
+#~ msgstr "Generischer Impfstoff%s [#%s]%s"
+
+#, python-format
+#~ msgid ""
+#~ "Also delete the drug product\n"
+#~ "\n"
+#~ " \"%s\"\n"
+#~ "\n"
+#~ "associated with this vaccine ?"
+#~ msgstr ""
+#~ "Auch das Medikament\n"
+#~ "\n"
+#~ " \"%s\"\n"
+#~ "\n"
+#~ "löschen, als welches der Impfstoff geliefert wird ?"
+
+#, python-format
+#~ msgid ""
+#~ "Cannot remove vaccine and/or drug product\n"
+#~ "\n"
+#~ " %s [#%s]"
+#~ msgstr ""
+#~ "Kann Impfstoff/Medikament nicht löschen\n"
+#~ "\n"
+#~ " %s [#%s]"
+
+#~ msgid "Products"
+#~ msgstr "Medikamente"
+
+#~ msgid "Manage drug products"
+#~ msgstr "Medikamente verwalten"
+
+#~ msgid "Product not a vaccine (ATC does not start with J07) !"
+#~ msgstr "Medikament kein Impfstoff (ATC beginnt nicht mit J07) !"
+
 #~ msgid "tobacco"
 #~ msgstr "Tabak"
 
@@ -25905,9 +25962,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Pick the diseases this vaccine protects against."
 #~ msgstr "Wählen Sie die Krankheiten, vor denen dieser Impfstoff schützt."
-
-#~ msgid "Saving vaccination"
-#~ msgstr "Speichere Impfung"
 
 #~ msgid "Pick the diseases this vaccination was given against."
 #~ msgstr ""

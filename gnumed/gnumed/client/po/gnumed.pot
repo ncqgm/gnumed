@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-28 02:57+0200\n"
+"POT-Creation-Date: 2026-10-04 18:16+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3451,6 +3451,12 @@ msgstr ""
 msgid "Remove selected LOINC from test panel."
 msgstr ""
 
+msgid ""
+"The brand name of the vaccine product.\n"
+"\n"
+"Empty for generic pseudo-vaccines."
+msgstr ""
+
 msgid "Live"
 msgstr ""
 
@@ -5003,7 +5009,7 @@ msgstr ""
 msgid "&Harmful use"
 msgstr ""
 
-msgid "Select if substance is use considered harmful."
+msgid "Select if substance use is considered harmful."
 msgstr ""
 
 msgid "Presently &addicted"
@@ -7819,11 +7825,10 @@ msgid " (live)"
 msgstr ""
 
 #, python-format
-msgid "\"%s\" [#%s]%s -- #%s"
+msgid "\"%s\" [#%s]%s"
 msgstr ""
 
-#, python-format
-msgid "Generic vaccine%s [#%s]%s"
+msgid "Generic vaccine"
 msgstr ""
 
 msgid " Targets:"
@@ -8940,16 +8945,7 @@ msgstr ""
 
 #, python-format
 msgid ""
-"Also delete the drug product\n"
-"\n"
-" \"%s\"\n"
-"\n"
-"associated with this vaccine ?"
-msgstr ""
-
-#, python-format
-msgid ""
-"Cannot remove vaccine and/or drug product\n"
+"Error removing vaccine\n"
 "\n"
 " %s [#%s]"
 msgstr ""
@@ -8957,19 +8953,10 @@ msgstr ""
 msgid "Showing vaccine details"
 msgstr ""
 
-msgid "Products"
-msgstr ""
-
-msgid "Manage drug products"
-msgstr ""
-
-msgid "Enter or select the batch/lot number of the vaccine used."
+msgid "Regenerate generic vaccines"
 msgstr ""
 
 msgid "ERROR: No indications for new vaccine."
-msgstr ""
-
-msgid "Product not a vaccine (ATC does not start with J07) !"
 msgstr ""
 
 msgid "generic/unknown"
@@ -9003,6 +8990,9 @@ msgid "Vaccine indications updated."
 msgstr ""
 
 msgid "ERROR: Cannot update vaccine in database."
+msgstr ""
+
+msgid "Enter or select the batch/lot number of the vaccine used."
 msgstr ""
 
 msgid ""
@@ -9050,6 +9040,18 @@ msgid ""
 "Existing vaccination:\n"
 "\n"
 "%s"
+msgstr ""
+
+msgid "Removing vaccination"
+msgstr ""
+
+#, python-format
+msgid ""
+"Really remove vaccination ?\n"
+"\n"
+" %s [#%s]\n"
+"\n"
+"(this cannot be reverted)"
 msgstr ""
 
 #, python-format
@@ -11481,7 +11483,7 @@ msgstr ""
 msgid ""
 "The fragment <%s> expands to multiple lines !\n"
 "\n"
-"This text field can hold one line only, hwoever.\n"
+"This text field can hold one line only, however.\n"
 "\n"
 "Please select the line you want to insert:"
 msgstr ""
@@ -12279,8 +12281,18 @@ msgstr ""
 msgid "Cannot load prescription template [%s - %s]"
 msgstr ""
 
+msgid ""
+"Dear pharmacist,\n"
+"\n"
+"to deliver best available care to our joint patient please dispense\n"
+"carefully and responsibly according to the following medication list:"
+msgstr ""
+
 #, python-format
-msgid "Prescription -- %s"
+msgid "\\u211E Prescription \\u211E -- %s"
+msgstr ""
+
+msgid "Feel free to consult back in case of uncertainty !"
 msgstr ""
 
 msgid "Pretty prescription form failed. Generating failsafe version."
