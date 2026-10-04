@@ -19,6 +19,7 @@ from Gnumed.pycommon import gmTex
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 from Gnumed.business import gmMedication
+from Gnumed.business import gmATC
 
 
 _log = logging.getLogger('gm.vacc')
@@ -40,11 +41,11 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = _SQL_get_vaccine_fields % "pk_vaccine = %s"
 	_cmds_store_payload = [
 		"""UPDATE ref.vaccine SET
+				brandname = %(vaccine)s,
 				is_live = %(is_live)s,
 				min_age = %(min_age)s,
 				max_age = %(max_age)s,
 				comment = gm.nullify_empty_string(%(comment)s),
-				fk_drug_product = %(pk_drug_product)s,
 				atc = %(atc_vaccine)s
 			WHERE
 				pk = %(pk_vaccine)s
@@ -55,11 +56,11 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 		"""
 	]
 	_updatable_fields = [
+		'brandname',
 		'is_live',
 		'min_age',
 		'max_age',
 		'comment',
-		'pk_drug_product',
 		'atc_vaccine'
 	]
 
@@ -67,27 +68,28 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 	def format(self, *args, **kwargs):
 		lines = []
 		live = gmTools.bool2subst(self._payload['is_live'], _(' (live)'), '', ' <liveness error in DB>')
-		if self._payload['pk_drug_product']:
-			lines.append(_('"%s" [#%s]%s -- #%s') % (
+		if self._payload['vaccine']:
+			lines.append(_('"%s" [#%s]%s') % (
 				self._payload['vaccine'],
 				self._payload['pk_vaccine'],
-				live,
-				gmTools.coalesce(self._payload['pk_drug_product'], '', '#%s')
+				live
 			))
 		else:
-			lines.append(_('Generic vaccine%s [#%s]%s') % (
-				gmTools.coalesce(self._payload['atc_vaccine'], '', ' "ATC:%s"'),
-				self._payload['pk_vaccine'],
+			name = ''
+			if self._payload['atc_vaccine']:
+				terms = gmATC.atc2text(self._payload['atc_vaccine'])
+				if terms:
+					name = terms[0][0]
+				else:
+					name = self._payload['atc_vaccine']
+				name = ' "%s"' % name
+			lines.append('%s%s%s' % (
+				_('Generic vaccine'),
+				name,
 				live
 			))
 		lines.append(_(' Targets:'))
 		lines.extend([ '  %s [ATC:%s]' % (i['l10n_indication'], i['atc_indication']) for i in self._payload['indications'] ])
-		if self._payload['pk_drug_product']:
-			lines.append(' %s%s%s' % (
-				self._payload['l10n_preparation'],
-				gmTools.coalesce(self._payload['atc_product'], '', ' [ATC:%s]'),
-				gmTools.coalesce(self._payload['external_code'], '', ' [%s:%%s]' % self._payload['external_code_type'])
-			))
 		lines.append(_(' Age range: %s - %s') % (
 			gmDateTime.format_interval(interval = self._payload['min_age'], accuracy_wanted = gmDateTime.ACC_MONTHS, none_string = ''),
 			gmDateTime.format_interval(interval = self._payload['max_age'], accuracy_wanted = gmDateTime.ACC_MONTHS, none_string = '')
@@ -100,9 +102,6 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 	# properties
 	#--------------------------------------------------------
 	def _get_product(self):
-		if self._payload['pk_drug_product']:
-			return gmMedication.cDrugProduct(aPK_obj = self._payload['pk_drug_product'])
-
 		return None
 
 	product = property(_get_product)
@@ -220,87 +219,25 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 		return True
 
 #------------------------------------------------------------
-def create_vaccine_dummy_dose(link_obj=None) -> int:
-	# brands require a component, so:
-	SQL = """-- INSERT dummy vaccine substance
-	INSERT INTO ref.substance (description, atc)
-		SELECT %(subst)s, %(atc)s
-		WHERE NOT EXISTS (
-			SELECT 1 FROM ref.substance WHERE description = %(subst)s AND atc = %(atc)s
-		);
-	-- INSERT dummy vaccine dose
-	INSERT INTO ref.dose (fk_substance, amount, unit, dose_unit)
-		SELECT
-			(SELECT pk FROM ref.substance WHERE description = %(subst)s AND atc = %(atc)s),
-			1, %(unit)s, %(dose_unit)s
-		WHERE NOT EXISTS (
-			SELECT 1 FROM ref.dose WHERE fk_substance = (
-				SELECT pk FROM ref.substance WHERE description = %(subst)s AND atc = %(atc)s
-			)
-		);
-	SELECT pk FROM ref.dose WHERE fk_substance = (
-		SELECT pk FROM ref.substance WHERE description = %(subst)s AND atc = %(atc)s
-	);
-	"""
-	args = {
-		'subst': 'vaccine',
-		'atc': 'J07',
-		'unit': 'dose',
-		'dose_unit': 'shot'
-	}
-	rows = gmPG2.run_rw_queries(queries = [{'sql': SQL, 'args': args}], link_obj = link_obj, return_data = True)
-	return rows[0]['pk']
-
-#------------------------------------------------------------
-def create_vaccine(pk_drug_product=None, product_name=None, is_live=None):
+def create_vaccine(brandname:str=None, is_live:bool=None) -> cVaccine:
 	# force caller to make a decision, which is hoped
 	# to bubble up towards the end user ;-)
 	assert (is_live is not None), '<is_live> must not be <None>'
 
 	conn = gmPG2.get_connection(readonly = False)
-	dose = create_vaccine_dummy_dose(link_obj = conn)
-	if not pk_drug_product:
-		if product_name:
-			_log.debug('creating vaccine drug product [%s]', product_name)
-			vacc_prod = gmMedication.create_drug_product (
-				product_name = product_name,
-				preparation = 'vaccine',
-				return_existing = True,
-				pk_doses = [dose],
-				link_obj = conn
-			)
-			pk_drug_product = vacc_prod['pk_drug_product']
-	if pk_drug_product:
-		SQL = 'INSERT INTO ref.vaccine (fk_drug_product, is_live) values (%(pk_drug_product)s, %(live)s) RETURNING pk'
-	else:
-		SQL = 'INSERT INTO ref.vaccine (is_live) values (%(live)s) RETURNING pk'
-	args = {
-		'pk_drug_product': pk_drug_product,
-		'live': is_live
-	}
-	queries = [{'sql': SQL, 'args': args}]
-	rows = gmPG2.run_rw_queries(link_obj = conn, queries = queries, return_data = True, end_tx = True)
+	SQL = 'INSERT INTO ref.vaccine (brandname, is_live) values (%(brandname)s, %(live)s) RETURNING pk'
+	args = {'live': is_live, 'brandname': brandname}
+	rows = gmPG2.run_rw_query(link_obj = conn, sql = SQL, args = args, return_data = True, end_tx = True)
 	return cVaccine(aPK_obj = rows[0]['pk'], link_obj = conn)
 
 #------------------------------------------------------------
-def delete_vaccine(pk_vaccine:int=None, also_delete_product:bool=False) -> bool:
+def delete_vaccine(pk_vaccine:int=None) -> bool:
 	args = {'pk_vacc': pk_vaccine, 'pk_drug': None}
-	if also_delete_product:
-		SQL = 'SELECT fk_drug_product FROM ref.vaccine WHERE pk = %(pk_vacc)s'
-		q = {'sql': SQL, 'args': args}
-		rows = gmPG2.run_ro_queries(queries = [q])
-		if rows:
-			args['pk_drug'] = rows[0]['fk_drug_product']
 	queries = []
 	SQL = 'DELETE FROM ref.lnk_indic2vaccine WHERE fk_vaccine = %(pk_vacc)s'
 	queries.append({'sql': SQL, 'args': args})
 	SQL = 'DELETE FROM ref.vaccine WHERE pk = %(pk_vacc)s'
 	queries.append({'sql': SQL, 'args': args})
-	if args['pk_drug']:
-		SQL = 'DELETE FROM ref.lnk_dose2drug WHERE fk_drug_product = %(pk_drug)s'
-		queries.append({'sql': SQL, 'args': args})
-		SQL = 'DELETE FROM ref.drug_product WHERE pk = %(pk_drug)s'
-		queries.append({'sql': SQL, 'args': args})
 	try:
 		gmPG2.run_rw_queries(queries = queries)
 	except gmPG2.dbapi.IntegrityError:
@@ -728,10 +665,6 @@ if __name__ == '__main__':
 		print('\n'.join(format_vaccinations_by_indication_for_failsafe_output(pk_patient = 12)))
 
 	#--------------------------------------------------------
-	def test_create_vaccine_dummy_dose():
-		print(create_vaccine_dummy_dose())
-
-	#--------------------------------------------------------
 	def test_format_latest_vaccinations():
 		from Gnumed.business import gmPraxis
 		gmPraxis.gmCurrentPraxisBranch.from_first_branch()
@@ -763,5 +696,4 @@ if __name__ == '__main__':
 	#test_get_vaccinations()
 	#test_format_latest_vaccinations()
 	#test_format_vaccs_failsafe()
-	#test_create_vaccine_dummy_dose()
 	#test_create_vaccination()
