@@ -3805,7 +3805,7 @@ if __name__ == "__main__":
 	#--------------------------------------------------------
 	def test_format_substance_intake():
 		gmPraxis.gmCurrentPraxisBranch.from_first_branch()
-		import gmClinicalRecord
+		from Gnumed.business import gmClinicalRecord
 		emr = gmClinicalRecord.cClinicalRecord(12)
 		print(tabulate_substance_intakes(emr = emr, output_format = 'latex'))
 		print(tabulate_substance_intake_notes(emr = emr, output_format = 'latex'))
