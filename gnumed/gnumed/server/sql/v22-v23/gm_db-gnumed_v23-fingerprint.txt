@@ -1,16 +1,16 @@
 Fingerprinting GNUmed database ...
 
            Name (DB): gnumed_v23
-           Size (DB): 73 MB
-         Schema hash: 73b15f63b0946e6837f306d770991f97 (v23)
-        Version (PG): 15.16 (Debian 15.16-0+deb12u1)
+           Size (DB): 48 MB
+         Schema hash: 686286534784921e0de5a04649fd95d8
+        Version (PG): 15.19 (Debian 15.19-0+deb12u1)
        Encoding (PG): UTF8
      LC_COLLATE (PG): de_DE.UTF-8
 pg_database.datcollate (PG): de_DE.UTF-8
        LC_CTYPE (PG): de_DE.UTF-8
 pg_database.datctype (PG): de_DE.UTF-8
-            Patients: 14
-            Contacts: 6
+            Patients: 15
+            Contacts: 7
             Episodes: 6
               Issues: 2
              Results: 5
@@ -19,10 +19,10 @@ pg_database.datctype (PG): de_DE.UTF-8
              Objects: 4
        Organizations: 9
 Organizational units: 10
-   Earliest .modified_when: 2026-03-03 20:02:28.397356+01:00
-Most recent .modified_when: 2026-03-05 18:51:13.619403+01:00
-      Earliest .audit_when: 2026-03-03 20:03:56.010092+01:00
-   Most recent .audit_when: 2026-03-05 18:51:13.619403+01:00
+   Earliest .modified_when: 2026-09-06 13:29:05.251904+02:00
+Most recent .modified_when: 2026-10-04 15:59:14.693634+02:00
+   Earliest .version_logged_when: 2026-09-06 13:30:40.059723+02:00
+Most recent .version_logged_when: 2026-10-04 15:58:30.982470+02:00
 
 TABLE:ref.tag_image
 PK:ref.tag_image.pk::integer
@@ -194,7 +194,6 @@ CONSTRAINT:type=f:FOREIGN_KEY_(fk_schedule)_REFERENCES_clin.vaccination_schedule
 TABLE:ref.vaccine
 PK:ref.vaccine.pk::integer
 COL:ref.vaccine.comment::text
-COL:ref.vaccine.fk_drug_product::int4
 COL:ref.vaccine.atc::text
 COL:ref.vaccine.is_live::bool
 COL:ref.vaccine.max_age::interval
@@ -203,8 +202,8 @@ COL:ref.vaccine.modified_when::timestamptz
 COL:ref.vaccine.pk::int4
 COL:ref.vaccine.min_age::interval
 COL:ref.vaccine.pk_audit::int4
+COL:ref.vaccine.brandname::text
 COL:ref.vaccine.modified_by::name
-CONSTRAINT:type=f:FOREIGN_KEY_(fk_drug_product)_REFERENCES_ref.drug_product(pk)_ON_UPDATE_CASCADE_ON_DELETE_RESTRICT::active=true
 TABLE:blobs.reviewed_doc_objs
 PK:blobs.reviewed_doc_objs.pk::integer
 COL:blobs.reviewed_doc_objs.comment::text
@@ -1349,20 +1348,30 @@ COL:ref.data_source.modified_by::name
 TABLE:clin.intake
 PK:clin.intake.pk::integer
 COL:clin.intake.fk_encounter::int4
+COL:clin.intake.discontinue_reason::text
+COL:clin.intake.amount::numeric
 COL:clin.intake.fk_substance::int4
+COL:clin.intake.planned_duration::interval
+COL:clin.intake.discontinued::timestamptz
 COL:clin.intake.narrative::text
 COL:clin.intake.use_type::int4
+COL:clin.intake.start_is_unknown::bool
 COL:clin.intake.notes4us::text
 COL:clin.intake.row_version::int4
 COL:clin.intake.clin_when::timestamptz
 COL:clin.intake.modified_when::timestamptz
 COL:clin.intake.pk_item::int4
 COL:clin.intake.soap_cat::text
+COL:clin.intake.notes4providers::text
 COL:clin.intake.fk_episode::int4
 COL:clin.intake.pk::int4
+COL:clin.intake.comment_on_start::text
+COL:clin.intake.unit::text
 COL:clin.intake.pk_audit::int4
 COL:clin.intake.modified_by::name
+COL:clin.intake.notes4pharmacies::text
 COL:clin.intake.notes4patient::text
+COL:clin.intake.schedule::text
 CONSTRAINT:type=f:FOREIGN_KEY_(fk_substance)_REFERENCES_ref.substance(pk)_ON_UPDATE_CASCADE_ON_DELETE_RESTRICT::active=true
 CONSTRAINT:type=f:FOREIGN_KEY_(fk_encounter)_REFERENCES_clin.encounter(pk)_ON_UPDATE_CASCADE_ON_DELETE_RESTRICT::active=true
 CONSTRAINT:type=f:FOREIGN_KEY_(fk_episode)_REFERENCES_clin.episode(pk)_ON_UPDATE_CASCADE_ON_DELETE_RESTRICT::active=true
@@ -1533,30 +1542,6 @@ COL:blobs.lnk_doc_med2episode.pk::int4
 COL:blobs.lnk_doc_med2episode.pk_audit::int4
 COL:blobs.lnk_doc_med2episode.modified_by::name
 CONSTRAINT:type=f:FOREIGN_KEY_(fk_doc_med)_REFERENCES_blobs.doc_med(pk)_ON_UPDATE_CASCADE_ON_DELETE_RESTRICT::active=true
-CONSTRAINT:type=f:FOREIGN_KEY_(fk_episode)_REFERENCES_clin.episode(pk)_ON_UPDATE_CASCADE_ON_DELETE_RESTRICT::active=true
-TABLE:clin.intake_regimen
-PK:clin.intake_regimen.pk::integer
-COL:clin.intake_regimen.fk_intake::int4
-COL:clin.intake_regimen.fk_encounter::int4
-COL:clin.intake_regimen.discontinue_reason::text
-COL:clin.intake_regimen.amount::numeric
-COL:clin.intake_regimen.planned_duration::interval
-COL:clin.intake_regimen.discontinued::timestamptz
-COL:clin.intake_regimen.narrative::text
-COL:clin.intake_regimen.start_is_unknown::bool
-COL:clin.intake_regimen.row_version::int4
-COL:clin.intake_regimen.clin_when::timestamptz
-COL:clin.intake_regimen.modified_when::timestamptz
-COL:clin.intake_regimen.pk_item::int4
-COL:clin.intake_regimen.soap_cat::text
-COL:clin.intake_regimen.fk_episode::int4
-COL:clin.intake_regimen.pk::int4
-COL:clin.intake_regimen.comment_on_start::text
-COL:clin.intake_regimen.unit::text
-COL:clin.intake_regimen.pk_audit::int4
-COL:clin.intake_regimen.modified_by::name
-CONSTRAINT:type=f:FOREIGN_KEY_(fk_encounter)_REFERENCES_clin.encounter(pk)_ON_UPDATE_CASCADE_ON_DELETE_RESTRICT::active=true
-CONSTRAINT:type=f:FOREIGN_KEY_(fk_intake)_REFERENCES_clin.intake(pk)_ON_UPDATE_CASCADE_ON_DELETE_RESTRICT::active=true
 CONSTRAINT:type=f:FOREIGN_KEY_(fk_episode)_REFERENCES_clin.episode(pk)_ON_UPDATE_CASCADE_ON_DELETE_RESTRICT::active=true
 TABLE:ref.coding_system_root
 PK:ref.coding_system_root.pk_coding_system::integer
