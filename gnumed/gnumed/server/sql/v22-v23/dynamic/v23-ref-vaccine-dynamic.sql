@@ -6,7 +6,7 @@
 --
 -- ==============================================================
 \set ON_ERROR_STOP 1
---set default_transaction_read_only to off;
+set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
 -- .brandname
@@ -20,12 +20,6 @@ drop index if exists ref.idx_uniq__ref__vaccine__brandname cascade;
 create unique index idx_uniq__ref__vaccine__brandname on ref.vaccine(brandname);
 
 -- we also need a unique constraint ((brandname=NULL), list-of-indications) meaning: single generic vaccines only
-
-
-update ref.vaccine set
-	brandname = (
-		select description from ref.drug_product where pk = ref.vaccine.fk_drug_product
-);
 
 -- --------------------------------------------------------------
 -- .atc

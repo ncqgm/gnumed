@@ -48,7 +48,7 @@ BEGIN
 	-- convert vaccines from substance to indication links
 	RAISE NOTICE ''converting in-use vaccines:'';
 	FOR _vaccine_rec IN (SELECT * FROM ref.vaccine) LOOP
-		RAISE NOTICE ''- vaccine [%] (brand [%])'', _vaccine_rec.pk, _vaccine_rec.fk_drug_product;
+		RAISE NOTICE ''- vaccine [%] (product [%])'', _vaccine_rec.pk, _vaccine_rec.fk_drug_product;
 		FOR _product_rec IN (SELECT * from ref.v_drug_products WHERE pk_drug_product = _vaccine_rec.fk_drug_product) LOOP
 			RAISE NOTICE ''- vaccine brand [%] [%]'', _product_rec.pk_drug_product, _product_rec.product;
 			FOREACH _ind_json IN ARRAY _product_rec.components LOOP
@@ -64,6 +64,10 @@ BEGIN
 				INSERT INTO ref.lnk_indic2vaccine (fk_indication, fk_vaccine) VALUES (_pk_indication, _vaccine_rec.pk);
 			END LOOP;
 		END LOOP;
+		IF _vaccine_rec.brandname IS NOT NULL THEN
+			CONTINUE;
+		END IF;
+		UPDATE ref.vaccine SET brandname = (SELECT description FROM ref.drug_product WHERE pk = _vaccine_rec.fk_drug_product AND is_fake IS FALSE);
 	END LOOP;
 
 	-- remove vaccine drug products, now stored in ref.vaccine.brandname
