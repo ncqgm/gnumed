@@ -10,9 +10,9 @@ import gettext
 # end wxGlade
 
 # begin wxGlade: extracode
-from Gnumed.wxpython.gmSubstanceMgmtWidgets import cDrugProductPhraseWheel
 from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
 from Gnumed.wxpython.gmATCWidgets import cATCPhraseWheel
+from Gnumed.wxpython.gmTextCtrl import cTextCtrl
 # end wxGlade
 
 
@@ -23,42 +23,43 @@ class wxgVaccineEAPnl(wx.ScrolledWindow):
 		wx.ScrolledWindow.__init__(self, *args, **kwds)
 		self.SetScrollRate(10, 10)
 
-		_gszr_main = wx.FlexGridSizer(5, 2, 1, 3)
+		__gszr_main = wx.FlexGridSizer(5, 2, 1, 3)
 
 		self._LBL_name = wx.StaticText(self, wx.ID_ANY, _("Name"))
-		self._LBL_name.SetForegroundColour(wx.Colour(255, 0, 0))
-		_gszr_main.Add(self._LBL_name, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		self._LBL_name.SetForegroundColour(wx.Colour(255, 127, 0))
+		self._LBL_name.SetToolTip(_("The brand name of the vaccine product.\n\nEmpty for generic pseudo-vaccines."))
+		__gszr_main.Add(self._LBL_name, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
-		__szr_product_details = wx.BoxSizer(wx.HORIZONTAL)
-		_gszr_main.Add(__szr_product_details, 1, wx.EXPAND, 0)
+		__szr_vaccine_details = wx.BoxSizer(wx.HORIZONTAL)
+		__gszr_main.Add(__szr_vaccine_details, 1, wx.EXPAND, 0)
 
-		self._PRW_drug_product = cDrugProductPhraseWheel(self, wx.ID_ANY, "")
-		__szr_product_details.Add(self._PRW_drug_product, 1, wx.EXPAND | wx.RIGHT, 5)
+		self._TCTRL_vaccine_name = cTextCtrl(self, wx.ID_ANY, "")
+		__szr_vaccine_details.Add(self._TCTRL_vaccine_name, 1, wx.EXPAND, 3)
 
 		self._CHBOX_live = wx.CheckBox(self, wx.ID_ANY, _("Live"), style=wx.CHK_2STATE)
 		self._CHBOX_live.SetToolTip(_("Check if this is a live attenuated vaccine."))
-		__szr_product_details.Add(self._CHBOX_live, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
+		__szr_vaccine_details.Add(self._CHBOX_live, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 5)
 
 		self._BTN_pick_targets = wx.Button(self, wx.ID_ANY, _("Pick\n&targets"), style=wx.BU_LEFT)
 		self._BTN_pick_targets.SetForegroundColour(wx.Colour(255, 0, 0))
-		_gszr_main.Add(self._BTN_pick_targets, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		__gszr_main.Add(self._BTN_pick_targets, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
 		self._TCTRL_indications = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_MULTILINE | wx.TE_READONLY)
 		self._TCTRL_indications.Enable(False)
-		_gszr_main.Add(self._TCTRL_indications, 1, wx.EXPAND, 0)
+		__gszr_main.Add(self._TCTRL_indications, 1, wx.EXPAND, 0)
 
 		__lbl_atc = wx.StaticText(self, wx.ID_ANY, _("ATC"))
-		_gszr_main.Add(__lbl_atc, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		__gszr_main.Add(__lbl_atc, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
 		self._PRW_atc = cATCPhraseWheel(self, wx.ID_ANY, "")
 		self._PRW_atc.SetToolTip(_("The ATC for this vaccine."))
-		_gszr_main.Add(self._PRW_atc, 1, wx.EXPAND, 0)
+		__gszr_main.Add(self._PRW_atc, 1, wx.EXPAND, 0)
 
 		__lbl_age_range = wx.StaticText(self, wx.ID_ANY, _("Age range"))
-		_gszr_main.Add(__lbl_age_range, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		__gszr_main.Add(__lbl_age_range, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
 		__szr_age_range = wx.BoxSizer(wx.HORIZONTAL)
-		_gszr_main.Add(__szr_age_range, 1, wx.EXPAND, 0)
+		__gszr_main.Add(__szr_age_range, 1, wx.EXPAND, 0)
 
 		self._PRW_age_min = cPhraseWheel(self, wx.ID_ANY, "")
 		self._PRW_age_min.SetToolTip(_("The minimum age at which this vaccine should be given."))
@@ -72,16 +73,16 @@ class wxgVaccineEAPnl(wx.ScrolledWindow):
 		__szr_age_range.Add(self._PRW_age_max, 1, wx.EXPAND, 0)
 
 		__lbl_comment = wx.StaticText(self, wx.ID_ANY, _("Comment"))
-		_gszr_main.Add(__lbl_comment, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		__gszr_main.Add(__lbl_comment, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
-		self._TCTRL_comment = wx.TextCtrl(self, wx.ID_ANY, "")
+		self._TCTRL_comment = cTextCtrl(self, wx.ID_ANY, "")
 		self._TCTRL_comment.SetToolTip(_("Any comment you may wish to relate to this vaccine."))
-		_gszr_main.Add(self._TCTRL_comment, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+		__gszr_main.Add(self._TCTRL_comment, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 
-		_gszr_main.AddGrowableRow(1)
-		_gszr_main.AddGrowableCol(1)
-		self.SetSizer(_gszr_main)
-		_gszr_main.Fit(self)
+		__gszr_main.AddGrowableRow(1)
+		__gszr_main.AddGrowableCol(1)
+		self.SetSizer(__gszr_main)
+		__gszr_main.Fit(self)
 
 		self.Layout()
 

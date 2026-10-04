@@ -106,12 +106,12 @@ INSERT INTO ref.vaccine (atc, comment, is_live)
 
 INSERT INTO ref.lnk_indic2vaccine (fk_vaccine, fk_indication)
 	SELECT
-		(SELECT pk FROM ref.vaccine WHERE atc = '%(atc)s' AND fk_drug_product IS NULL),
+		(SELECT pk FROM ref.vaccine WHERE atc = '%(atc)s' AND brandname IS NULL),
 		(SELECT pk FROM ref.vacc_indication WHERE atc = '%(atc)s')
 	WHERE NOT EXISTS (
 		SELECT 1 FROM ref.lnk_indic2vaccine
 		WHERE
-			(fk_vaccine = (SELECT pk FROM ref.vaccine WHERE atc = '%(atc)s' AND fk_drug_product IS NULL))
+			(fk_vaccine = (SELECT pk FROM ref.vaccine WHERE atc = '%(atc)s' AND brandname IS NULL))
 				AND
 			(fk_indication = (SELECT pk FROM ref.vacc_indication WHERE atc = '%(atc)s'))
 	);

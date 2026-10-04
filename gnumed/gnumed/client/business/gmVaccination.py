@@ -41,7 +41,7 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = _SQL_get_vaccine_fields % "pk_vaccine = %s"
 	_cmds_store_payload = [
 		"""UPDATE ref.vaccine SET
-				brandname = %(vaccine)s,
+				brandname = gm.nullify_empty_string(%(vaccine)s),
 				is_live = %(is_live)s,
 				min_age = %(min_age)s,
 				max_age = %(max_age)s,
