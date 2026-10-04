@@ -26,6 +26,7 @@ DECLARE
 	_pk_indication integer;
 	_ind_rec record;
 	_pk_generic_vaccine integer;
+	_brandname text;
 BEGIN
 	-- remove unused vaccines, including generic ones
 	RAISE NOTICE ''removing unused vaccines/vaccine brands'';
@@ -65,9 +66,16 @@ BEGIN
 			END LOOP;
 		END LOOP;
 		IF _vaccine_rec.brandname IS NOT NULL THEN
+			RAISE NOTICE ''-- vaccine [%] already has brand name [%]'', _vaccine_rec.pk, _vaccine_rec.brandname;
 			CONTINUE;
 		END IF;
-		UPDATE ref.vaccine SET brandname = (SELECT description FROM ref.drug_product WHERE pk = _vaccine_rec.fk_drug_product AND is_fake IS FALSE);
+		SELECT description INTO _brandname FROM ref.drug_product WHERE pk = _vaccine_rec.fk_drug_product and is_fake IS FALSE;
+		IF NOT FOUND THEN
+			RAISE NOTICE ''-- vaccine [%] seems to be a generic vaccine, not transferring brand name [%]'', _vaccine_rec.pk, _brandname;
+			CONTINUE;
+		END IF;
+		RAISE NOTICE ''-- vaccine [%], transferring brand name [%]'', _vaccine_rec.pk, _brandname;
+		UPDATE ref.vaccine SET brandname = _brandname WHERE pk = _vaccine_rec.pk;
 	END LOOP;
 
 	-- remove vaccine drug products, now stored in ref.vaccine.brandname
@@ -108,6 +116,7 @@ BEGIN
 	-- remove drug products listed as brands of vaccines
 	-- (need to use brand name because fk_drug_product now NULL)
 	DELETE FROM ref.drug_product WHERE description = ANY(SELECT brandname FROM ref.vaccine);
+	DELETE FROM ref.drug_product WHERE atc_code LIKE ''J07%'' AND is_fake IS TRUE;
 	-- remove dummy dose, not needed anymore
 	RAISE NOTICE ''removing vaccine dummy dose from ref.dose'';
 	DELETE FROM ref.dose WHERE fk_substance = (
