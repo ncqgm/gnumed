@@ -61,6 +61,12 @@ def propagate_atc(substance=None, atc=None, link_obj=None):
 	return atc
 
 #============================================================
+def atc2text(atc:str=None, link_obj=None) -> str|None:
+	SQL = 'SELECT term FROM ref.atc WHERE code = %(atc)s'
+	args = {'atc': atc.strip()}
+	return gmPG2.run_ro_query(link_obj = link_obj, sql = SQL, args = args)
+
+#============================================================
 def text2atc(text=None, fuzzy=False, link_obj=None):
 
 	text = text.strip()
