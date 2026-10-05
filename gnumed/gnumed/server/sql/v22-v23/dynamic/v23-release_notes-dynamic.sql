@@ -46,6 +46,8 @@ NEW: demographics: editable gender definitions
 NEW: demographics: add auxiliary information on identity
 NEW: remove explicit gm-fingerprint_db.py
 NEW: run --tool=fingerprint_db if started as gm-fingerprint_db(.py)
+NEW: placeholder: $praxis_address_map_url$
+NEW: vaccinations: Chikungunya
 
 IMPROVED: GUI: show current patient/provider in window titles
 IMPROVED: placeholder: $current_provider_name$
@@ -78,6 +80,15 @@ IMPROVED: forms: vaccination history LaTeX template
 IMPROVED: lists: make minimum column width policy configurable [thanks María]
 IMPROVED: buttons: make shrinking to label size configurable [thanks María]
 IMPROVED: datetime picker: support "Today/toMorrow/Yesterday = day X" syntax
+IMPROVED: medication intakes: support several regimen per substance
+IMPROVED: billing: no longer allow removing items from a bill
+IMPROVED: EMR: list journal functionality
+IMPROVED: forms: lab results printout
+IMPROVED: forms: current medications list
+IMPROVED: forms: invoice templates [thanks María]
+IMPROVED: patient search: speedup [thanks Marc]
+IMPROVED: printing: support evince next to okular
+IMPROVED: GDK backend compatibility [thanks Marc]
 
 FIX: CLI: --wxp= not needed anymore
 FIX: CLI: --ui= not needed anymore
@@ -101,6 +112,8 @@ NEW: bootstrapper: support for connection environment variables
 IMPROVED: bootstrap script permissions warning
 IMRPOVED: clin.v_narrative4search: add some demographics (port from 1.8.6)
 IMPROVED: bootstrapper: code cleanup
+IMPROVED: speed of blobs.v_obj4doc_no_data [thanks Marc]
+IMPROVED: speed of EMR journal views [thanks Marc]
 
 FIX: PG14 does not support IS OF anymore, use pg_typeof()
 FIX: revoke CREATE from PUBLIC on schema PUBLIC (thanks PG)
