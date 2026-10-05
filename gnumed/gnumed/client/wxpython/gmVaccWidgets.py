@@ -43,7 +43,6 @@ from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmFormWidgets
 from Gnumed.wxpython import gmAuthWidgets
 from Gnumed.wxpython import gmCfgWidgets
-from Gnumed.wxpython import gmSubstanceMgmtWidgets
 
 
 _log = logging.getLogger('gm.vacc')

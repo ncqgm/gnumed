@@ -18,7 +18,6 @@ from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTex
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
-from Gnumed.business import gmMedication
 from Gnumed.business import gmATC
 
 
