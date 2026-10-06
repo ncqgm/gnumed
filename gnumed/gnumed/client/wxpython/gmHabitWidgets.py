@@ -182,7 +182,7 @@ class cSubstanceMisuseEAPnl(wxgSubstanceMisuseEAPnl.wxgSubstanceMisuseEAPnl, gmE
 		if self._RBTN_tobacco.GetValue() is True:
 			pk_substance = gmMedication.ensure_nicotine_as_substance(return_pk = True)
 		elif self._RBTN_c2.GetValue() is True:
-			pk_substance = gmMedication.ensure_alcholol_as_substance(return_pk = True)
+			pk_substance = gmMedication.ensure_alcohol_as_substance(return_pk = True)
 		elif self._RBTN_other_substance.GetValue() is True:
 			pk_substance = self._PRW_substance.GetData()
 			if not pk_substance:

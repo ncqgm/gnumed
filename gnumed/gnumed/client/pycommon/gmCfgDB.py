@@ -265,7 +265,8 @@ class cCfgSQL:
 
 		# 3) search site-wide default value, or default, if given
 		_log.warning('no %s-biased value for option [%s] in database, or no bias given', bias, option)
-		return self.__get4site(option = option, default = default)
+		value = self.__get4site(option = option, default = default)
+		return value
 
 	#----------------------------
 	def set(self, owner:str=None, workplace:str=None, cookie:str=None, option:str=None, value=None, description:str=None) -> bool:

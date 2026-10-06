@@ -61,10 +61,18 @@ def propagate_atc(substance=None, atc=None, link_obj=None):
 	return atc
 
 #============================================================
-def atc2text(atc:str=None, link_obj=None) -> str|None:
-	SQL = 'SELECT term FROM ref.atc WHERE code = %(atc)s'
+def atc2text(atc:str=None, link_obj=None, fuzzy:bool=False) -> list[str]|None:
+	if fuzzy:
+		atc = atc + r'%'
+		SQL = 'SELECT term FROM ref.atc WHERE code ILIKE %(atc)s'
+	else:
+		SQL = 'SELECT term FROM ref.atc WHERE code = %(atc)s'
 	args = {'atc': atc.strip()}
-	return gmPG2.run_ro_query(link_obj = link_obj, sql = SQL, args = args)
+	rows = gmPG2.run_ro_query(link_obj = link_obj, sql = SQL, args = args)
+	if not rows:
+		return None
+
+	return [ r['term'] for r in rows ]
 
 #============================================================
 def text2atc(text=None, fuzzy=False, link_obj=None):
@@ -134,26 +142,19 @@ def atc_import(cfg_fname=None, conn=None):
 
 	# read meta data
 	_cfg.add_file_source(source = 'atc', filename = cfg_fname, encoding = 'utf8')
-
-	data_fname = os.path.join (
-		os.path.dirname(cfg_fname),
-		_cfg.get(group = 'atc', option = 'data file', source_order = [('atc', 'return')])
-	)			# must be in same dir as conf file
+	atc_datafile_name = _cfg.get(group = 'atc', option = 'data file', source_order = [('atc', 'return')])
+	data_fname = os.path.join(os.path.dirname(cfg_fname), atc_datafile_name)			# must be in same dir as conf file
 	version = _cfg.get(group = 'atc', option = 'version', source_order = [('atc', 'return')])
 	lang = _cfg.get(group = 'atc', option = 'language', source_order = [('atc', 'return')])
 	desc = _cfg.get(group = 'atc', option = 'description', source_order = [('atc', 'return')])
 	url = _cfg.get(group = 'atc', option = 'url', source_order = [('atc', 'return')])
 	name_long = _cfg.get(group = 'atc', option = 'long name', source_order = [('atc', 'return')])
 	name_short = _cfg.get(group = 'atc', option = 'short name', source_order = [('atc', 'return')])
-
 	_cfg.remove_source(source = 'atc')
-
 	_log.debug('importing ATC version [%s] (%s) from [%s]', version, lang, data_fname)
-
 	args = {'ver': version, 'desc': desc, 'url': url, 'name_long': name_long, 'name_short': name_short, 'lang': lang}
-
 	# find or create data source record
-	cmd = u"select pk from ref.data_source where name_short = %(name_short)s and version = %(ver)s"
+	cmd = "select pk from ref.data_source where name_short = %(name_short)s and version = %(ver)s"
 	rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 	if len(rows) > 0:
 		data_src_pk = rows[0][0]
@@ -318,6 +319,7 @@ if __name__ == "__main__":
 	#--------------------------------------------------------
 	def test_atc_import():
 		atc_import(cfg_fname = sys.argv[2], conn = gmPG2.get_connection(readonly = False))
+
 	#--------------------------------------------------------
 	def test_text2atc():
 		print('searching ATC code for:', sys.argv[2])
@@ -328,9 +330,21 @@ if __name__ == "__main__":
 		print("reference_of_atc_codes:")
 		for atc in get_reference_atcs():
 			print(atc)
+
+	#--------------------------------------------------------
+	def test_atc2text():
+		gmPG2.request_login_params(setup_pool = True, force_tui = True)
+		conn = gmPG2.get_connection(verbose = True)
+		while True:
+			atc = input('enter ATC:')
+			if not atc:
+				break
+			print(atc2text(atc = atc, fuzzy = True, link_obj = conn))
+
 	#--------------------------------------------------------
 	#test_atc_import()
 	#test_text2atc()
-	test_get_reference_atcs()
+	#test_get_reference_atcs()
+	test_atc2text()
 
 #============================================================
