@@ -377,7 +377,9 @@ _known_tools = {
 	'fingerprint_db': 'Create a fingerprint of a GNUmed database.',
 	'generate_man_page': 'Generate man page.',
 	'get_object_passphrases': 'Retrieve encrypted passphrases for a file previously encrypted by and exported from GNUmed.',
-	'update_collations': 'Update collations version information in the database.'
+	'update_collations': 'Update collations version information in the database.',
+	'export_patient_transplant': 'Export all data of a patient as SQL script for transplanting the patient into another GNUmed database (log in as gm-dbo to include the audit trail).',
+	'import_patient_transplant': 'Import a patient from a GNUmed transplant script (log in as gm-dbo).'
 }
 
 
@@ -1164,6 +1166,12 @@ def run_tool():
 	if tool == 'export_pat_emr_structure':
 		return __run_emr_export_tool()
 
+	if tool == 'export_patient_transplant':
+		return __run_patient_transplant_export_tool()
+
+	if tool == 'import_patient_transplant':
+		return __run_patient_transplant_import_tool()
+
 	# tool export_patient_as (vcf, gdt, ...)
 	#if tool == 'export_pat_demographics':
 
@@ -1240,6 +1248,104 @@ def __run_emr_export_tool():
 		# another patient ?
 		pat = gmPersonSearch.ask_for_patient()
 	return 0
+
+#==========================================================
+def __run_patient_transplant_export_tool():
+	from Gnumed.business import gmPraxis
+	from Gnumed.business import gmPersonSearch
+	from Gnumed.business import gmPatientTransplant
+	gmPraxis.gmCurrentPraxisBranch(branch = gmPraxis.get_praxis_branches()[0])
+	print('Note: the change history (audit trail) of the patient can only')
+	print('      be exported when logged in as the database owner (gm-dbo).')
+	exit_code = 0
+	pat = gmPersonSearch.ask_for_patient()
+	while pat:
+		print('patient: #%s' % pat.ID)
+		fname = gmTools.prompted_input(prompt = 'Script file name', default = os.path.expanduser('~/gnumed/gm-transplant-%s.sql' % pat.ID))
+		if fname is None:
+			break
+		try:
+			fname = gmPatientTransplant.export_patient (
+				pk_identity = pat.ID,
+				filename = fname,
+				progress_callback = lambda msg: print('  %s' % msg)
+			)
+			print('Transplant script:', fname)
+			print('The script contains patient data, treat it as confidential.')
+		except gmPatientTransplant.cTransplantError as exc:
+			print('ERROR: %s' % exc)
+			exit_code = -2
+		pat = gmPersonSearch.ask_for_patient()
+	return exit_code
+
+#==========================================================
+def __run_patient_transplant_import_tool():
+	from Gnumed.business import gmPatientTransplant
+	fname = gmTools.prompted_input(prompt = 'Transplant script file name')
+	if not fname:
+		return 0
+	fname = os.path.abspath(os.path.expanduser(fname))
+	try:
+		meta = gmPatientTransplant.read_script_metadata(fname)
+	except (gmPatientTransplant.cTransplantError, OSError, ValueError) as exc:
+		print('ERROR: %s' % exc)
+		return -2
+	print('source        : %s' % meta.get('source'))
+	print('source patient: #%s' % meta.get('source_pk'))
+	print('exported      : %s' % meta.get('exported_when'))
+	print('rows          : %s' % sum(meta.get('counts', {}).values()))
+	settings = {}
+	fallback = gmTools.prompted_input(prompt = 'Alias of the staff member to use for unmappable staff (empty: as configured in the script)')
+	if fallback:
+		settings['fallback_staff'] = fallback.strip()
+	conn = gmPG2.get_connection(readonly = False, pooled = False)
+	try:
+		while True:
+			print('dry run ...')
+			result = gmPatientTransplant.import_patient(fname, conn, dry_run = True, **settings)
+			if result.status == 'already_imported':
+				print('This export has already been imported into: %s' % ', '.join([ '#%s' % pk for pk in result.identities ]))
+				if gmTools.prompted_input(prompt = 'Import again (no rows will be duplicated) ? [y/N]', default = 'n').strip().lower() != 'y':
+					return 0
+				settings['force'] = True
+				continue
+			if result.status == 'candidates':
+				print('The patient may already exist in this database:')
+				for cand in result.candidates:
+					print('  #%s (%s)%s' % (cand['pk'], ', '.join(cand.get('reasons', [])), ' [deactivated]' if cand.get('deleted') else ''))
+				answer = gmTools.prompted_input(prompt = '[n]ew patient / [a]dd <pk> / [c]ancel', default = 'c')
+				answer = (answer or 'c').strip().lower()
+				if answer == 'n':
+					settings['mode'] = 'new'
+					continue
+				if answer.startswith('a'):
+					pk = answer[1:].strip()
+					if not pk.isdigit():
+						print('ERROR: add requires the pk of the patient, say: a 4711')
+						continue
+					settings['same_patient_as'] = int(pk)
+					continue
+				return 0
+			if result.status != 'dry_run_ok':
+				print('ERROR (SQLSTATE %s, statement %s):' % (result.sqlstate, result.statement))
+				print(result.message)
+				print('Nothing has been changed in the database.')
+				return -2
+			print('')
+			print(result.format())
+			print('')
+			if gmTools.prompted_input(prompt = 'Import now ? [y/N]', default = 'n').strip().lower() != 'y':
+				return 0
+			result = gmPatientTransplant.import_patient(fname, conn, dry_run = False, **settings)
+			if result.status != 'imported':
+				print('ERROR (SQLSTATE %s, statement %s):' % (result.sqlstate, result.statement))
+				print(result.message)
+				print('Nothing has been changed in the database.')
+				return -2
+			print('Patient imported as #%s.' % result.pk_identity)
+			return 0
+	finally:
+		conn.close()
 
 #==========================================================
 # shutdown helpers
