@@ -2447,6 +2447,58 @@ def __safely_close_cursor_and_rollback_close_conn(close_cursor=None, rollback_tx
 			gmConnectionPool.log_pg_exception_details(pg_exc)
 
 #------------------------------------------------------------------------
+def get_normalized_link_object_attributes(link_obj:_TLnkObj=None, readonly:bool=True, end_tx:bool=False, verbose:bool=False):
+	if link_obj is None:
+		conn = get_connection(readonly = readonly, verbose = verbose)
+		conn_close = conn.close
+		tx_commit = conn.commit
+		tx_rollback = conn.rollback
+		curs = conn.cursor()
+		curs_close = curs.close
+		readonly_rollback_just_in_case = conn.rollback
+		return conn, conn_close, tx_commit, tx_rollback, curs, curs_close, readonly_rollback_just_in_case
+
+	if isinstance(link_obj, dbapi._psycopg.cursor):
+		conn = link_obj.connection
+		conn_close = lambda *x: None
+		tx_commit = lambda *x: None
+		tx_rollback = lambda *x: None
+		curs = link_obj
+		# do not close passed-in cursors:
+		curs_close = lambda *x: None
+		if conn.autocommit is True:		# readonly connection ?
+			readonly_rollback_just_in_case = conn.rollback
+		else:
+			# on passed-in readwrite connections do NOT
+			# rollback-just-in-case readonly queries because
+			# such connections may have already seen fully
+			# legitimate write action which would get lost
+			readonly_rollback_just_in_case = lambda *x: None
+		return conn, conn_close, tx_commit, tx_rollback, curs, curs_close, readonly_rollback_just_in_case
+
+	if isinstance(link_obj, dbapi._psycopg.connection):
+		conn = link_obj
+		conn_close = conn.close
+		commit_tx = link_obj.commit
+		rollback_tx = link_obj.rollback
+		if not conn.autocommit and not end_tx:		# readwrite connection with explicit commit allowed ?
+			commit_tx = lambda *x: None
+			rollback_tx = lambda *x: None
+		tx_commit = conn.commit
+		tx_rollback = conn.rollback
+		curs = conn.cursor()
+		curs_close = curs.close
+		if conn.autocommit is True:		# readonly connection ?
+			readonly_rollback_just_in_case = conn.rollback
+		else:
+			# on passed-in readwrite connections do NOT
+			# rollback-just-in-case readonly queries because
+			# such connections may have already seen fully
+			# legitimate write action which would get lost
+			readonly_rollback_just_in_case = lambda *x: None
+		return conn, conn_close, tx_commit, tx_rollback, curs, curs_close, readonly_rollback_just_in_case
+
+#------------------------------------------------------------------------
 def run_ro_query(link_obj:_TLnkObj=None, sql:_TSQL=None, args:dict=None, verbose:bool=False, return_data:bool=True) -> list[_TRow] | None:
 	"""Run one ready-only query via run_ro_queries()."""
 	return run_ro_queries (
@@ -2482,27 +2534,33 @@ def run_ro_queries (
 	assert queries is not None, '<queries> must not be None'
 	assert isinstance(link_obj, (dbapi._psycopg.connection, dbapi._psycopg.cursor, type(None))), '<link_obj> must be None, a cursor, or a connection, but [%s] is of type (%s)' % (link_obj, type(link_obj))
 
-	if link_obj is None:
-		conn = get_connection(readonly = True, verbose = verbose)
-		curs = conn.cursor()
-		curs_close = curs.close
-		tx_rollback = conn.rollback
-		readonly_rollback_just_in_case = conn.rollback
-	else:
-		curs_close = lambda *x: None
-		tx_rollback = lambda *x: None
-		readonly_rollback_just_in_case = lambda *x: None
-		if isinstance(link_obj, dbapi._psycopg.cursor):
-			curs = link_obj
-		elif isinstance(link_obj, dbapi._psycopg.connection):
-			curs = link_obj.cursor()
-			curs_close = curs.close
-			tx_rollback = link_obj.rollback
-			if link_obj.autocommit is True:		# readonly connection ?
-				readonly_rollback_just_in_case = link_obj.rollback
-				# do NOT rollback readonly queries on passed-in readwrite
-				# connections just in case because they may have already
-				# seen fully legitimate write action which would get lost
+	conn, conn_close, tx_commit, tx_rollback, curs, curs_close, readonly_rollback_just_in_case = get_normalized_link_object_attributes (
+		link_obj = link_obj,
+		readonly = True,
+		end_tx = False,
+		verbose = verbose
+	)
+#	if link_obj is None:
+#		conn = get_connection(readonly = True, verbose = verbose)
+#		curs = conn.cursor()
+#		curs_close = curs.close
+#		tx_rollback = conn.rollback
+#		readonly_rollback_just_in_case = conn.rollback
+#	else:
+#		curs_close = lambda *x: None
+#		tx_rollback = lambda *x: None
+#		readonly_rollback_just_in_case = lambda *x: None
+#		if isinstance(link_obj, dbapi._psycopg.cursor):
+#			curs = link_obj
+#		elif isinstance(link_obj, dbapi._psycopg.connection):
+#			curs = link_obj.cursor()
+#			curs_close = curs.close
+#			tx_rollback = link_obj.rollback
+#			if link_obj.autocommit is True:		# readonly connection ?
+#				readonly_rollback_just_in_case = link_obj.rollback
+#				# do NOT rollback readonly queries on passed-in readwrite
+#				# connections just in case because they may have already
+#				# seen fully legitimate write action which would get lost
 
 	if verbose:
 		_log.debug('cursor: %s', curs)
@@ -2666,26 +2724,32 @@ def run_rw_queries (
 	assert queries is not None, '<queries> must not be None'
 	assert isinstance(link_obj, (dbapi._psycopg.connection, dbapi._psycopg.cursor, type(None))), '<link_obj> must be None, a cursor, or a connection, but [%s] is of type (%s)' % (link_obj, type(link_obj))
 
-	if link_obj is None:
-		conn = get_connection(readonly = False)
-		close_conn = conn.close
-		commit_tx = conn.commit
-		rollback_tx = conn.rollback
-		curs = conn.cursor()
-		close_cursor = curs.close
-	else:
-		close_conn = lambda *x: None
-		commit_tx = lambda *x: None
-		rollback_tx = lambda *x: None
-		close_cursor = lambda *x: None
-		if isinstance(link_obj, dbapi._psycopg.cursor):
-			curs = link_obj
-		elif isinstance(link_obj, dbapi._psycopg.connection):
-			curs = link_obj.cursor()
-			close_cursor = curs.close
-			if end_tx:
-				commit_tx = link_obj.commit
-				rollback_tx = link_obj.rollback
+	conn, conn_close, tx_commit, tx_rollback, curs, curs_close, readonly_rollback_just_in_case = get_normalized_link_object_attributes (
+		link_obj = link_obj,
+		readonly = False,
+		end_tx = end_tx,
+		verbose = verbose
+	)
+#	if link_obj is None:
+#		conn = get_connection(readonly = False)
+#		close_conn = conn.close
+#		commit_tx = conn.commit
+#		rollback_tx = conn.rollback
+#		curs = conn.cursor()
+#		close_cursor = curs.close
+#	else:
+#		close_conn = lambda *x: None
+#		commit_tx = lambda *x: None
+#		rollback_tx = lambda *x: None
+#		close_cursor = lambda *x: None
+#		if isinstance(link_obj, dbapi._psycopg.cursor):
+#			curs = link_obj
+#		elif isinstance(link_obj, dbapi._psycopg.connection):
+#			curs = link_obj.cursor()
+#			close_cursor = curs.close
+#			if end_tx:
+#				commit_tx = link_obj.commit
+#				rollback_tx = link_obj.rollback
 	for query in queries:
 		if verbose:
 			_log.debug('running: %s', query)
@@ -2702,9 +2766,9 @@ def run_rw_queries (
 			_log.error('query failed in RW connection')
 			gmConnectionPool.log_pg_exception_details(pg_exc)
 			__safely_close_cursor_and_rollback_close_conn (
-				close_cursor,
-				rollback_tx,
-				close_conn
+				close_cursor = curs_close,
+				rollback_tx = tx_rollback,
+				close_conn = conn_close
 			)
 			__perhaps_reraise_as_permissions_error(pg_exc, curs)
 			gmLog.log_stack_trace()
@@ -2715,9 +2779,9 @@ def run_rw_queries (
 			gmConnectionPool.log_cursor_state(curs)
 			gmLog.log_stack_trace()
 			__safely_close_cursor_and_rollback_close_conn (
-				close_cursor,
-				rollback_tx,
-				close_conn
+				close_cursor = curs_close,
+				rollback_tx = tx_rollback,
+				close_conn = conn_close
 			)
 			raise
 
@@ -2725,9 +2789,9 @@ def run_rw_queries (
 			gmConnectionPool.log_cursor_state(curs)
 
 	if not return_data:
-		close_cursor()
-		commit_tx()
-		close_conn()
+		cursor_close()
+		tx_commit()
+		conn_close()
 		return None
 
 	data = None
@@ -2737,15 +2801,15 @@ def run_rw_queries (
 		_log.exception('error fetching data from RW query')
 		gmLog.log_stack_trace()
 		__safely_close_cursor_and_rollback_close_conn (
-			close_cursor,
-			rollback_tx,
-			close_conn
+			close_cursor = curs_close,
+			rollback_tx = tx_rollback,
+			close_conn = conn_close
 		)
 		raise
 
-	close_cursor()
-	commit_tx()
-	close_conn()
+	cursor_close()
+	tx_commit()
+	conn_close()
 	return data
 
 # =======================================================================
