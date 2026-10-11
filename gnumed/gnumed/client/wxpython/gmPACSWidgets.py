@@ -66,8 +66,10 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	def __init_ui(self):
 		pool = gmConnectionPool.gmConnectionPool()
 		try:
+			# assume Orthanc to live on the same host as GNUmed
 			host = pool.get_raw_connection().info.dsn_parameters['host'].split(',')[0]
 		except KeyError:
+			# else assume localhost
 			host = ''
 		self._TCTRL_host.Value = host
 		self._TCTRL_port.Value = '8042'
@@ -346,7 +348,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 					if study['radiographer_code'] is not None:
 						if study['radiographer_code'] not in docs:
 							docs.append(study['radiographer_code'])
-					org_name = u'@'.join ([
+					org_name = '@'.join ([
 						o for o in [study['radiology_dept'], study['radiology_org']]
 						if o is not None
 					])

@@ -93,7 +93,7 @@ class cOrthancServer:
 			self.__server_url = None
 			return False
 
-		_log.info('trying connection as [%s] to Orthanc server at [%s]', self.__user, self.__server_url)
+		_log.info('trying HTTpS connection as [%s] to Orthanc server at [%s]', self.__user, self.__server_url)
 		ident = self.server_identification
 		if not ident:
 			_log.error('HTTPS failure ?')
@@ -112,7 +112,7 @@ class cOrthancServer:
 			self.__server_url = None
 			return False
 
-		_log.info('trying connection as [%s] to Orthanc server at [%s]', self.__user, self.__server_url)
+		_log.info('trying HTTp connection as [%s] to Orthanc server at [%s]', self.__user, self.__server_url)
 		ident = self.server_identification
 		if not ident:
 			_log.error('HTTP connect failure ?')
@@ -137,8 +137,18 @@ class cOrthancServer:
 		self.__password = password
 		self.__conn = httplib2.Http(cache = cache_dir)
 		self.__conn.add_credentials(self.__user, self.__password)
+		if self.__server_url is not None:
+			_log.debug('previously connected to: %s', self.__server_url)
+			if (host not in self.__server_url) or (port not in self.__server_url):
+				_log.debug('switching server to: %s @ %s', host, port)
+				# different server, retry SSL once
+				self.using_ssl = None
 		self.__server_url = None
-		self.using_ssl = self.__try_httpS(host, port)
+		# first time around ?
+		if self.using_ssl is None:
+			# if so, try httpS for good measure
+			self.using_ssl = self.__try_httpS(host, port)
+		# at this point .using_ssl is True or False, not None anymore
 		if not self.using_ssl:
 			if not self.__try_http(host, port):
 				_log.error('unable to connect')
