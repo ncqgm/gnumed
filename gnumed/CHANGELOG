@@ -34,6 +34,7 @@ NEW: remove explicit gm-fingerprint_db.py
 NEW: run --tool=fingerprint_db if started as gm-fingerprint_db(.py)
 NEW: placeholder: $praxis_address_map_url$
 NEW: vaccinations: Chikungunya
+NEW: patient record transplantation [thanks Marc]
 
 IMPROVED: GUI: show current patient/provider in window titles
 IMPROVED: placeholder: $current_provider_name$

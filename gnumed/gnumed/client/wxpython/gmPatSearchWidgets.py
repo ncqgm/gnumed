@@ -183,6 +183,457 @@ class cMergePatientsDlg(wxgMergePatientsDlg.wxgMergePatientsDlg):
 			self.Close()
 
 #============================================================
+# patient transplant (export/import via SQL script)
+#------------------------------------------------------------
+def export_patient_as_transplant_script(parent=None, patient=None) -> str:
+	"""Export all data of a patient as transplant script.
+
+	Returns:
+		Name of the script file or None.
+	"""
+	from Gnumed.business import gmPatientTransplant
+	from Gnumed.pycommon import gmLog
+
+	if patient is None:
+		patient = gmPerson.gmCurrentPatient()
+		if not patient.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export patient as transplant script. No active patient.'), beep = True)
+			return None
+
+	title = _('Patient transplant: export')
+	go_ahead = gmGuiHelpers.gm_show_question (
+		title = title,
+		question = _(
+			'Export ALL data of\n'
+			'\n'
+			' #%s: %s (%s)\n'
+			'\n'
+			'as a GNUmed transplant script ?\n'
+			'\n'
+			'The script allows for transplanting this patient\n'
+			'into another GNUmed database.\n'
+			'\n'
+			'Note: The script contains the complete record\n'
+			'of the patient. Treat it as confidential.'
+		) % (
+			patient.ID,
+			patient.description_gender,
+			patient.get_formatted_dob(format = '%Y %b %d')
+		)
+	)
+	if not go_ahead:
+		return None
+
+	# the audit trail can only be read by the database owner
+	conn = gmAuthWidgets.get_dbowner_connection (
+		procedure = _('Patient transplant: export including change history'),
+		verbose = False
+	)
+	include_history = True
+	if conn is None:
+		include_history = False
+		go_ahead = gmGuiHelpers.gm_show_question (
+			title = title,
+			question = _(
+				'Without the password of the GNUmed database owner\n'
+				'the change history (audit trail) of the patient\n'
+				'cannot be exported.\n'
+				'\n'
+				'Export without change history ?'
+			)
+		)
+		if not go_ahead:
+			return None
+
+	dlg = wx.FileDialog (
+		parent = parent,
+		message = _('Save transplant script as ...'),
+		defaultDir = gmTools.gmPaths().user_work_dir,
+		defaultFile = 'gm-transplant-%s-%s.sql' % (patient.ID, gmDateTime.pydt_now_here().strftime('%Y%m%d-%H%M%S')),
+		wildcard = '%s (*.sql)|*.sql|%s (*)|*' % (_('SQL scripts'), _('all files')),
+		style = wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT
+	)
+	choice = dlg.ShowModal()
+	fname = dlg.GetPath()
+	dlg.DestroyLater()
+	if choice != wx.ID_OK:
+		if conn is not None:
+			conn.close()
+		return None
+
+	passphrase = None
+	encrypt = gmGuiHelpers.gm_show_question (
+		title = title,
+		question = _(
+			'Encrypt the transplant script (recommended) ?\n'
+			'\n'
+			'The recipient will need the passphrase.'
+		)
+	)
+	if encrypt:
+		while True:
+			passphrase = wx.GetPasswordFromUser (
+				message = _('Enter passphrase for encrypting the transplant script (at least 5 characters):'),
+				caption = title
+			)
+			if passphrase == '':
+				if conn is not None:
+					conn.close()
+				return None
+			gmLog.add_word2hide(passphrase)
+			if len(passphrase) < 5:
+				gmGuiHelpers.gm_show_warning(warning = _('The passphrase must be at least 5 characters long.'), title = title)
+				continue
+			passphrase2 = wx.GetPasswordFromUser (
+				message = _('Enter the passphrase again:'),
+				caption = title
+			)
+			if passphrase2 == passphrase:
+				break
+			gmGuiHelpers.gm_show_warning(warning = _('The passphrases do not match.'), title = title)
+
+	wx.BeginBusyCursor()
+	try:
+		fname = gmPatientTransplant.export_patient (
+			pk_identity = patient.ID,
+			filename = fname,
+			link_obj = conn,
+			include_history = include_history,
+			passphrase = passphrase
+		)
+	except gmPatientTransplant.cTransplantError as exc:
+		wx.EndBusyCursor()
+		gmGuiHelpers.gm_show_error(error = str(exc), title = title)
+		return None
+	finally:
+		if wx.IsBusy():
+			wx.EndBusyCursor()
+		if conn is not None:
+			conn.close()
+
+	gmGuiHelpers.gm_show_info (
+		title = title,
+		info = _(
+			'The patient has been exported as transplant script:\n'
+			'\n'
+			' %s\n'
+			'\n'
+			'Change history included: %s\n'
+			'Encrypted: %s'
+		) % (
+			fname,
+			gmTools.bool2subst(include_history, _('yes'), _('no')),
+			gmTools.bool2subst(passphrase is not None, _('yes'), _('no'))
+		)
+	)
+	return fname
+
+#------------------------------------------------------------
+def import_patient_from_transplant_script(parent=None) -> bool:
+	"""Import a patient from a transplant script.
+
+	First runs the script as a dry run. If the patient seems to
+	exist already, asks whether to create a new patient or to
+	add the data to the existing patient.
+	"""
+	from Gnumed.business import gmPatientTransplant
+	from Gnumed.pycommon import gmCrypto
+
+	title = _('Patient transplant: import')
+	dlg = wx.FileDialog (
+		parent = parent,
+		message = _('Choose a GNUmed transplant script:'),
+		defaultDir = gmTools.gmPaths().user_work_dir,
+		wildcard = '%s (*.sql;*.asc)|*.sql;*.asc|%s (*)|*' % (_('transplant scripts'), _('all files')),
+		style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
+	)
+	choice = dlg.ShowModal()
+	fname = dlg.GetPath()
+	dlg.DestroyLater()
+	if choice != wx.ID_OK:
+		return False
+
+	decrypted_fname = None
+	if fname.lower().endswith(('.asc', '.gpg', '.pgp')):
+		decrypted_fname = gmCrypto.gpg_decrypt_file(filename = fname, target_ext = '.sql')
+		if decrypted_fname is None:
+			gmGuiHelpers.gm_show_error(error = _('Cannot decrypt the transplant script.'), title = title)
+			return False
+		os.chmod(decrypted_fname, 0o600)
+		fname = decrypted_fname
+	try:
+		return __import_transplant_script(parent = parent, fname = fname, title = title)
+	finally:
+		if decrypted_fname is not None:
+			gmTools.remove_file(decrypted_fname)
+
+#------------------------------------------------------------
+def __import_transplant_script(parent=None, fname:str=None, title:str=None) -> bool:
+	from Gnumed.business import gmPatientTransplant
+
+	try:
+		meta = gmPatientTransplant.read_script_metadata(fname)
+		config = gmPatientTransplant.read_script_config(fname)
+	except (gmPatientTransplant.cTransplantError, ValueError, OSError):
+		_log.exception('cannot read transplant script [%s]', fname)
+		gmGuiHelpers.gm_show_error(error = _('[%s] is not a GNUmed transplant script.') % fname, title = title)
+		return False
+
+	if not gmPatientTransplant.verify_script_checksum(fname):
+		gmGuiHelpers.gm_show_error (
+			title = title,
+			error = _(
+				'The transplant script is damaged or has been modified\n'
+				'below the configuration block (checksum mismatch).\n'
+				'\n'
+				'It will not be imported.'
+			)
+		)
+		return False
+
+	settings_in_script = []
+	for key in ['same_patient_as', 'patient_mode', 'staff_match', 'force', 'dry_run', 'fallback_staff']:
+		if config.get(key) not in [None, 'detect', 'strict', 'false']:
+			settings_in_script.append(' %s = %s' % (key, config[key]))
+	mapped_staff = [ ' %s -> %s' % (row[0], row[3]) for row in config['staff_map'] if row[3] ]
+	settings_text = ''
+	if settings_in_script or mapped_staff:
+		settings_text = '\n%s\n%s\n' % (_('Settings in the script:'), '\n'.join(settings_in_script + mapped_staff))
+	go_ahead = gmGuiHelpers.gm_show_question (
+		title = title,
+		question = _(
+			'Import patient from transplant script ?\n'
+			'\n'
+			' source: %s\n'
+			' source patient: #%s\n'
+			' exported: %s\n'
+			' rows: %s\n'
+			' change history included: %s\n'
+			'%s'
+			'\n'
+			'The script will first be run as a dry run.\n'
+			'You will be asked before anything is imported.'
+		) % (
+			meta.get('source'),
+			meta.get('source_pk'),
+			meta.get('exported_when'),
+			sum(meta.get('counts', {}).values()),
+			gmTools.bool2subst(meta.get('history_included'), _('yes'), _('no')),
+			settings_text
+		)
+	)
+	if not go_ahead:
+		return False
+
+	conn = gmAuthWidgets.get_dbowner_connection (
+		procedure = _('Patient transplant: import'),
+		verbose = False
+	)
+	if conn is None:
+		gmDispatcher.send(signal = 'statustext', msg = _('Cannot import transplant script without admin access.'), beep = True)
+		return False
+
+	settings = {}
+	# unmappable staff falls back to the current user, unless the script says otherwise
+	if not config.get('fallback_staff'):
+		settings['fallback_staff'] = gmStaff.gmCurrentProvider()['short_alias']
+	try:
+		while True:
+			wx.BeginBusyCursor()
+			try:
+				result = gmPatientTransplant.import_patient(fname, conn, dry_run = True, **settings)
+			finally:
+				wx.EndBusyCursor()
+			_log.debug('transplant dry run: %s', result)
+
+			if result.status == 'already_imported':
+				go_ahead = gmGuiHelpers.gm_show_question (
+					title = title,
+					question = _(
+						'This very export has already been imported\n'
+						'into the patient(s): %s\n'
+						'\n'
+						'Import it again anyway ?\n'
+						'\n'
+						'No data will be duplicated: data imported\n'
+						'before will be skipped.'
+					) % ', '.join([ '#%s' % pk for pk in result.identities ])
+				)
+				if not go_ahead:
+					return False
+				settings['force'] = True
+				continue
+
+			if result.status == 'candidates':
+				decision = __decide_on_transplant_candidates(parent = parent, candidates = result.candidates, title = title)
+				if decision is None:
+					return False
+				if decision == 'new':
+					settings['patient_mode'] = 'new'
+				else:
+					settings['same_patient_as'] = decision
+				continue
+
+			if result.status == 'error':
+				gmGuiHelpers.gm_show_error (
+					title = title,
+					error = _(
+						'The transplant script cannot be imported.\n'
+						'\n'
+						'%s\n'
+						'\n'
+						'(SQLSTATE %s, statement %s)\n'
+						'\n'
+						'Nothing has been changed in the database.'
+					) % (result.message, result.sqlstate, result.statement)
+				)
+				return False
+
+			if result.status != 'dry_run_ok':
+				_log.error('unexpected transplant result: %s', result)
+				return False
+
+			go_ahead = gmGuiHelpers.gm_show_question (
+				title = title,
+				question = _(
+					'The dry run succeeded:\n'
+					'\n'
+					'%s\n'
+					'\n'
+					'Import the patient now ?'
+				) % __format_transplant_summary(result)
+			)
+			if not go_ahead:
+				return False
+
+			wx.BeginBusyCursor()
+			try:
+				result = gmPatientTransplant.import_patient(fname, conn, dry_run = False, **settings)
+			finally:
+				wx.EndBusyCursor()
+			if result.status != 'imported':
+				gmGuiHelpers.gm_show_error (
+					title = title,
+					error = _(
+						'The patient could not be imported.\n'
+						'\n'
+						'%s\n'
+						'\n'
+						'(SQLSTATE %s, statement %s)\n'
+						'\n'
+						'Nothing has been changed in the database.'
+					) % (result.message, result.sqlstate, result.statement)
+				)
+				return False
+			break
+	finally:
+		conn.close()
+
+	if result.summary.get('patient_mode') == 'add':
+		done_msg = _('The data has been added to patient #%s.') % result.pk_identity
+	else:
+		done_msg = _('The patient has been imported as #%s.') % result.pk_identity
+	activate = gmGuiHelpers.gm_show_question (
+		title = title,
+		question = _(
+			'%s\n'
+			'\n'
+			'The transplant protocol (and the change history\n'
+			'of the source database, if included) can be found\n'
+			'in the document archive of the patient.\n'
+			'\n'
+			'Activate the patient now ?'
+		) % done_msg
+	)
+	if activate:
+		wx.CallAfter(set_active_patient, patient = gmPerson.cPerson(aPK_obj = result.pk_identity))
+	return True
+
+#------------------------------------------------------------
+def __decide_on_transplant_candidates(parent=None, candidates:list=None, title:str=None):
+	"""Ask whether to add the data to an existing patient or create a new one.
+
+	Returns:
+		'new', the pk of the patient to add to, or None (cancel)
+	"""
+	persons = []
+	lines = []
+	for cand in candidates:
+		try:
+			person = gmPerson.cPerson(aPK_obj = cand['pk'])
+		except Exception:
+			_log.exception('cannot load candidate #%s', cand['pk'])
+			continue
+		persons.append(person)
+		lines.append(' #%s: %s (%s) [%s]%s' % (
+			person.ID,
+			person.description_gender,
+			person.get_formatted_dob(format = '%Y %b %d'),
+			', '.join(cand.get('reasons', [])),
+			gmTools.bool2subst(person['is_deleted'], ' %s' % _('(deactivated)'), '')
+		))
+	decision = gmGuiHelpers.ask (
+		title = title,
+		question = _(
+			'The patient may already exist in this database:\n'
+			'\n'
+			'%s\n'
+			'\n'
+			'Add the data to an existing patient, or\n'
+			'create a new patient ?'
+		) % '\n'.join(lines),
+		buttons = [
+			{'label': _('Add to existing'), 'tooltip': _('Add the data of the transplant script to an existing patient.'), 'default': True},
+			{'label': _('Create new patient'), 'tooltip': _('Create a new patient from the transplant script.')}
+		]
+	)
+	if decision is None:
+		return None
+	if decision is False:
+		return 'new'
+	active = [ p for p in persons if not p['is_deleted'] ]
+	if not active:
+		gmGuiHelpers.gm_show_warning(warning = _('Data cannot be added to a deactivated patient.'), title = title)
+		return None
+	if len(active) == 1:
+		return active[0].ID
+	dlg = cSelectPersonFromListDlg(parent, -1)
+	dlg.set_persons(persons = active)
+	choice = dlg.ShowModal()
+	person = dlg.get_selected_person()
+	dlg.DestroyLater()
+	if choice == wx.ID_CANCEL or person is None:
+		return None
+	return person.ID
+
+#------------------------------------------------------------
+def __format_transplant_summary(result) -> str:
+	lines = []
+	summary = result.summary
+	if summary.get('patient_mode') == 'add':
+		lines.append(_('Data will be added to patient #%s.') % summary.get('target_identity'))
+	else:
+		lines.append(_('A new patient will be created.'))
+	n_new = 0
+	n_existing = 0
+	for tbl, by_status in summary.get('counts', {}).items():
+		if tbl == 'staff' or tbl.startswith('ref:'):
+			continue
+		n_new += by_status.get('new', 0)
+		n_existing += by_status.get('merged', 0) + by_status.get('existing', 0)
+	lines.append(_('Rows to be imported: %s') % n_new)
+	if n_existing:
+		lines.append(_('Rows already present (skipped): %s') % n_existing)
+	if summary.get('skipped'):
+		lines.append(_('Rows which cannot be imported: %s (see protocol)') % len(summary['skipped']))
+	if summary.get('staff'):
+		lines.append('')
+		lines.append(_('Staff mapping (source -> here):'))
+		for staff in summary['staff']:
+			lines.append(' %s -> %s [%s]' % (staff.get('src_alias'), staff.get('target_alias'), staff.get('how')))
+	return '\n'.join(lines)
+
+#============================================================
 from Gnumed.wxGladeWidgets import wxgSelectPersonFromListDlg
 
 class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromListDlg):

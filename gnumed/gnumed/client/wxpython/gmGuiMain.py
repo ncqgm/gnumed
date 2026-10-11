@@ -511,6 +511,8 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.__on_import_xml_linuxmednews, item)
 		item = menu_person_import.Append(-1, _('Clipboard (&vCard) \u2192 patient'), _('Import demographics from clipboard (vCard) as patient'))
 		self.Bind(wx.EVT_MENU, self.__on_import_vcard_from_clipboard, item)
+		item = menu_person_import.Append(-1, _('GNUmed &transplant script \u2192 patient'), _('Import a patient (all data) from a GNUmed transplant script created from another GNUmed database.'))
+		self.Bind(wx.EVT_MENU, self.__on_import_transplant_script, item)
 		menu_person.Append(wx.NewId(), _('&Import\u2026'), menu_person_import)
 
 		menu_person_export = wx.Menu()
@@ -528,6 +530,8 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.__on_export_as_gdt, item)
 		item = menu_person_export_file.Append(-1, '&vCard', _('Export demographics of currently active person into vCard file.'))
 		self.Bind(wx.EVT_MENU, self.__on_export_as_vcard, item)
+		item = menu_person_export_file.Append(-1, _('GNUmed &transplant script'), _('Export all data of the currently active patient as SQL script for transplanting the patient into another GNUmed database.'))
+		self.Bind(wx.EVT_MENU, self.__on_export_as_transplant_script, item)
 		menu_person_export.Append(wx.NewId(), _('\u2192 &File as\u2026'), menu_person_export_file)
 
 		menu_person.Append(wx.NewId(), _('E&xport\u2026'), menu_person_export)
@@ -3055,6 +3059,18 @@ class gmTopLevelFrame(wx.Frame):
 		fname = os.path.join(gmTools.gmPaths().user_work_dir, 'current-patient.vcf')
 		curr_pat.export_as_vcard(filename = fname)
 		gmDispatcher.send(signal = 'statustext', msg = _('Exported demographics to VCARD file [%s].') % fname)
+
+	#----------------------------------------------
+	def __on_export_as_transplant_script(self, event):
+		curr_pat = gmPerson.gmCurrentPatient()
+		if not curr_pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export patient as transplant script. No active patient.'))
+			return False
+		gmPatSearchWidgets.export_patient_as_transplant_script(parent = self, patient = curr_pat)
+
+	#----------------------------------------------
+	def __on_import_transplant_script(self, evt):
+		gmPatSearchWidgets.import_patient_from_transplant_script(parent = self)
 
 	#----------------------------------------------
 	def __on_import_xml_linuxmednews(self, evt):

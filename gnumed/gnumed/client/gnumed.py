@@ -377,7 +377,9 @@ _known_tools = {
 	'fingerprint_db': 'Create a fingerprint of a GNUmed database.',
 	'generate_man_page': 'Generate man page.',
 	'get_object_passphrases': 'Retrieve encrypted passphrases for a file previously encrypted by and exported from GNUmed.',
-	'update_collations': 'Update collations version information in the database.'
+	'update_collations': 'Update collations version information in the database.',
+	'explant_patient': 'Export all data of a patient into an SQL script for transplanting the patient into another GNUmed database (log in as gm-dbo to include the audit trail).',
+	'implant_patient': 'Import a patient from a GNUmed transplant script (log in as gm-dbo).'
 }
 
 
@@ -1166,6 +1168,14 @@ def run_tool():
 
 	if tool == 'export_pat_emr_structure':
 		return __run_emr_export_tool()
+
+	if tool == 'explant_patient':
+		from Gnumed.business import gmPatientTransplant
+		return gmPatientTransplant.run_patient_explant_tool()
+
+	if tool == 'implant_patient':
+		from Gnumed.business import gmPatientTransplant
+		return gmPatientTransplant.run_patient_implant_tool(sys.argv[-1])
 
 	# tool export_patient_as (vcf, gdt, ...)
 	#if tool == 'export_pat_demographics':
