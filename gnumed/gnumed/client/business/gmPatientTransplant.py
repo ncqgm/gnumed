@@ -72,17 +72,17 @@ MARKER_STMT = '-- @@gm_tp@@'
 MARKER_META = '-- @@gm_tp:meta@@'
 MARKER_DATA_BEGIN = '-- @@gm_tp:data-begin@@'
 MARKER_SHA256 = '-- @@gm_tp:sha256@@'
-MARKER_CFG_BEGIN = '-- ================= KONFIGURATION / CONFIGURATION'
-MARKER_CFG_END = '-- ================= ENDE KONFIGURATION / END OF CONFIGURATION'
+MARKER_CFG_BEGIN = '-- ================= CONFIGURATION'
+MARKER_CFG_END = '-- ================= END OF CONFIGURATION'
 
-SQLSTATE_DRY_RUN_OK = 'GMTP0'
-SQLSTATE_CANDIDATES = 'GMTP1'
-SQLSTATE_ALREADY_IMPORTED = 'GMTP2'
-SQLSTATE_SCHEMA_MISMATCH = 'GMTP3'
-SQLSTATE_INVALID_CONFIG = 'GMTP4'
-SQLSTATE_STAFF = 'GMTP5'
-SQLSTATE_MISSING_REFERENCE = 'GMTP6'
-SQLSTATE_VERIFICATION = 'GMTP9'
+SQLSTATE_DRY_RUN_OK = 'GMTP0_DRY_RUN_OK'
+SQLSTATE_CANDIDATES = 'GMTP1_PATIENT_CANDIDATES_EXIST'
+SQLSTATE_ALREADY_IMPORTED = 'GMTP2_ALREADY_IMPORTED'
+SQLSTATE_SCHEMA_MISMATCH = 'GMTP3_SCHEMA_MISMATCH'
+SQLSTATE_INVALID_CONFIG = 'GMTP4_INVALID_CONFIG'
+SQLSTATE_STAFF = 'GMTP5_STAFF_ISSUE'
+SQLSTATE_MISSING_REFERENCE = 'GMTP6_MISSING_REFERENCE_DATA'
+SQLSTATE_VERIFICATION = 'GMTP9_VERIFICATION_ISSUE'
 
 PROVENANCE_EXT_ID_TYPE = 'GNUmed transplant source'
 PROVENANCE_EXT_ID_ISSUER = 'GNUmed'
@@ -922,14 +922,15 @@ WHERE i.inhparent = %(tbl)s::regclass
 """
 
 #------------------------------------------------------------
-def _run(curs, sql:str, args:dict=None) -> list:
+def _run_sql_query(curs, sql:str, args:dict=None) -> list:
 	curs.execute(sql, args)
 	if curs.description is None:
 		return []
+
 	return curs.fetchall()
 
 #------------------------------------------------------------
-def verify_export_completeness(link_obj=None) -> list:
+def verify_export_completeness(conn=None) -> list:
 	"""Check that all tables referencing patient data are handled.
 
 	Returns a list of problems (strings, no patient data). An
@@ -937,21 +938,21 @@ def verify_export_completeness(link_obj=None) -> list:
 	transplant specifications. This guards against silently
 	losing data after future schema changes.
 	"""
-	conn, close_conn = _get_link(link_obj)
+	conn, close_conn = _get_conn(conn)
 	curs = conn.cursor()
 	try:
 		return _verify_export_completeness(curs)
+
 	finally:
 		curs.close()
-		if close_conn:
-			conn.close()
+		close_conn()
 
 #------------------------------------------------------------
 def _verify_export_completeness(curs) -> list:
 	problems = []
 	handled = set(_TABLE_SPECS_BY_NAME)
 	known = handled | set(_EXCLUDED_TABLES) | set(_LEGACY_TABLES) | set(_REF_SPECS_BY_NAME)
-	fks = _run(curs, _SQL_get_all_fks)
+	fks = _run_sql_query(curs, _SQL_get_all_fks)
 	patient_tables = { tbl for tbl, col in _PATIENT_ROOTS } | handled
 	for src_table, src_col, tgt_table, tgt_col in fks:
 		# anyone referencing patient data must be known
@@ -969,11 +970,11 @@ def _verify_export_completeness(curs) -> list:
 				problems.append('FK column [%s.%s] -> [%s] of reference table is not classified in the transplant specification' % (src_table, src_col, tgt_table))
 	# EMR items might be added by inheritance only
 	for parent in _INHERITANCE_PARENTS:
-		for row in _run(curs, _SQL_get_child_tables, {'tbl': parent}):
+		for row in _run_sql_query(curs, _SQL_get_child_tables, {'tbl': parent}):
 			child = row[0]
 			if child not in known:
 				problems.append('table [%s] inherits from [%s] but is not handled by the transplant' % (child, parent))
-	for row in _run(curs, _SQL_get_child_tables, {'tbl': 'ref.coding_system_root'}):
+	for row in _run_sql_query(curs, _SQL_get_child_tables, {'tbl': 'ref.coding_system_root'}):
 		if row[0] not in _CODE_TABLES:
 			problems.append('coding system table [%s] is not handled by the transplant' % row[0])
 	for problem in problems:
@@ -981,15 +982,19 @@ def _verify_export_completeness(curs) -> list:
 	return problems
 
 #------------------------------------------------------------
-def _get_link(link_obj):
-	if link_obj is not None:
-		return link_obj, False
-	return gmPG2.get_connection(readonly = True, pooled = False), True
+def _get_conn(conn=None):
+	if conn is not None:
+		#return conn, False
+		return conn, lambda *x: None
+
+	conn = gmPG2.get_connection(readonly = True, pooled = False)
+	#return gmPG2.get_connection(readonly = True, pooled = False), True
+	return conn, conn.close
 
 #------------------------------------------------------------
 def _load_table_layout(curs, spec):
 	"""Fill in column details of a table spec from the database."""
-	rows = _run(curs, _SQL_get_columns, {'tbl': spec.table})
+	rows = _run_sql_query(curs, _SQL_get_columns, {'tbl': spec.table})
 	if not rows:
 		raise cTransplantError('table [%s] not found' % spec.table)
 	spec.cols = [ r[0] for r in rows ]
@@ -1012,14 +1017,16 @@ def _load_table_layout(curs, spec):
 
 #------------------------------------------------------------
 def _get_sequence(curs, table:str, col:str) -> str:
-	rows = _run(curs, 'SELECT pg_get_serial_sequence(%(tbl)s, %(col)s)', {'tbl': table, 'col': col})
+	rows = _run_sql_query(curs, 'SELECT pg_get_serial_sequence(%(tbl)s, %(col)s)', {'tbl': table, 'col': col})
 	if rows and rows[0][0]:
 		return rows[0][0]
-	rows = _run(curs, _SQL_get_column_default, {'tbl': table, 'col': col})
+
+	rows = _run_sql_query(curs, _SQL_get_column_default, {'tbl': table, 'col': col})
 	if rows and rows[0][0]:
 		match = re.search(r"nextval\('([^']+)'", rows[0][0])
 		if match:
 			return match.group(1)
+
 	return None
 
 #------------------------------------------------------------
@@ -1095,16 +1102,16 @@ class _cExporter:
 		curs.execute("SET LOCAL IntervalStyle TO 'iso_8601'")
 		curs.execute('SET LOCAL extra_float_digits TO 3')
 		curs.execute("SET LOCAL bytea_output TO 'hex'")
-		self.src_timezone = _run(curs, 'SHOW TimeZone')[0][0]
-		rows = _run(curs, 'SELECT 1 FROM dem.identity WHERE pk = %(pat)s', {'pat': self.pk_identity})
+		self.src_timezone = _run_sql_query(curs, 'SHOW TimeZone')[0][0]
+		rows = _run_sql_query(curs, 'SELECT 1 FROM dem.identity WHERE pk = %(pat)s', {'pat': self.pk_identity})
 		if not rows:
 			raise cTransplantError('patient #%s not found' % self.pk_identity)
-		rows = _run(curs, "SELECT md5(min(imported)::text) FROM gm.schema_revision")
+		rows = _run_sql_query(curs, "SELECT md5(min(imported)::text) FROM gm.schema_revision")
 		if rows and rows[0][0]:
 			self.source_id = rows[0][0]
 		else:
-			self.source_id = _run(curs, 'SELECT md5(current_database())')[0][0]
-		db_name = _run(curs, 'SELECT current_database()')[0][0]
+			self.source_id = _run_sql_query(curs, 'SELECT md5(current_database())')[0][0]
+		db_name = _run_sql_query(curs, 'SELECT current_database()')[0][0]
 		if not self.source_description:
 			self.source_description = db_name
 		for spec in _TABLE_SPECS + _REF_SPECS:
@@ -1147,7 +1154,7 @@ class _cExporter:
 		for spec in _TABLE_SPECS:
 			self._progress('exporting [%s]' % spec.table)
 			writer = w1 if spec.section == 1 else w2
-			rows = _run(curs, self._select_sql(spec), self._query_args())
+			rows = _run_sql_query(curs, self._select_sql(spec), self._query_args())
 			staged_cols = spec.staged_cols
 			stage_cols = staged_cols + list(spec.extra) + (['_x_modified_by', '_x_modified_when'] if spec.has_audit else [])
 			batcher = _cRowBatcher(writer, 'stage %s' % spec.table, spec.staging, stage_cols)
@@ -1211,7 +1218,7 @@ class _cExporter:
 		offset = 0
 		seq = 0
 		while True:
-			rows = _run (
+			rows = _run_sql_query (
 				curs,
 				'SELECT substring(%s FROM %%(off)s FOR %%(len)s) FROM %s WHERE %s = %%(pk)s' % (_quote_identifier(col), _quote_qual_table(table), _quote_identifier(pk_col)),
 				{'off': offset + 1, 'len': _BLOB_CHUNK_SIZE, 'pk': src_pk}
@@ -1233,17 +1240,17 @@ class _cExporter:
 	def _check_legacy_tables(self, curs):
 		args = self._query_args()
 		for tbl, sql in _LEGACY_TABLES.items():
-			exists, readable = _run(curs, "SELECT to_regclass(%(tbl)s) IS NOT NULL, coalesce(has_table_privilege(to_regclass(%(tbl)s), 'SELECT'), false)", {'tbl': tbl})[0]
+			exists, readable = _run_sql_query(curs, "SELECT to_regclass(%(tbl)s) IS NOT NULL, coalesce(has_table_privilege(to_regclass(%(tbl)s), 'SELECT'), false)", {'tbl': tbl})[0]
 			if not exists:
 				continue
 			if not readable:
 				# fail closed: cannot rule out patient data in there
 				raise cTransplantError(_('Cannot check the table [%s] for data of the patient (no permission). Export as the database owner (gm-dbo).') % tbl)
-			if _run(curs, sql, args)[0][0] > 0:
+			if _run_sql_query(curs, sql, args)[0][0] > 0:
 				raise cTransplantError(_('The patient has data in the legacy table [%s] which cannot be transplanted.') % tbl)
 		# bills must not contain items of other patients
 		sql = 'SELECT count(1) FROM bill.bill_item bi WHERE bi.fk_bill = ANY(%(bill__bill)s::int[]) AND NOT bi.fk_encounter = ANY(%(clin__encounter)s::int[])'
-		if _run(curs, sql, args)[0][0] > 0:
+		if _run_sql_query(curs, sql, args)[0][0] > 0:
 			raise cTransplantError(_('A bill of the patient contains items of other patients. Cannot transplant.'))
 
 	#--------------------------------------------------------
@@ -1251,7 +1258,7 @@ class _cExporter:
 		if not self.staff_pks:
 			self.staff_rows = []
 			return
-		self.staff_rows = _run(curs, """
+		self.staff_rows = _run_sql_query(curs, """
 			SELECT
 				st.pk, st.short_alias, st.db_user::text,
 				(SELECT n.lastnames FROM dem.names n WHERE n.id_identity = st.fk_identity ORDER BY n.active DESC, n.id LIMIT 1),
@@ -1273,7 +1280,7 @@ class _cExporter:
 			# map wanted codes to their coding system tables
 			codes = self.ref_wanted.get('code', set()) - code_resolved
 			if codes:
-				rows = _run(curs, 'SELECT tableoid::regclass::text, pk_coding_system FROM ref.coding_system_root WHERE pk_coding_system = ANY(%(pks)s::int[])', {'pks': sorted(codes)})
+				rows = _run_sql_query(curs, 'SELECT tableoid::regclass::text, pk_coding_system FROM ref.coding_system_root WHERE pk_coding_system = ANY(%(pks)s::int[])', {'pks': sorted(codes)})
 				found = set()
 				for tbl, pk in rows:
 					tbl = tbl if '.' in tbl else 'ref.%s' % tbl
@@ -1323,7 +1330,7 @@ class _cExporter:
 			cond = 't.%s = ANY(%%(keys)s::int[])' % _quote_identifier(key_col)
 			keys = sorted(keys)
 		sql = 'SELECT %s, %s FROM %s t WHERE %s ORDER BY 1' % (key_expr, ', '.join(parts), _quote_qual_table(spec.table), cond)
-		rows = _run(curs, sql, {'keys': keys})
+		rows = _run_sql_query(curs, sql, {'keys': keys})
 		if not spec.child_of and len(rows) != len(keys):
 			raise cTransplantError('reference rows missing in [%s]' % spec.table)
 		return rows
@@ -1358,7 +1365,7 @@ class _cExporter:
 
 	#--------------------------------------------------------
 	def _extract_relatives(self, curs):
-		rows = _run(curs, """
+		rows = _run_sql_query(curs, """
 			SELECT
 				coalesce(rt.description, '?'),
 				(SELECT n.lastnames || ', ' || n.firstnames FROM dem.names n WHERE n.id_identity = CASE WHEN r.id_identity = %(pat)s THEN r.id_relative ELSE r.id_identity END AND n.active LIMIT 1),
@@ -1396,7 +1403,7 @@ class _cExporter:
 		unreadable = []
 		for spec in _TABLE_SPECS:
 			log_table = 'audit.log_%s' % spec.name
-			rows = _run(curs, "SELECT to_regclass(%(tbl)s) IS NOT NULL, coalesce(has_table_privilege(to_regclass(%(tbl)s), 'SELECT'), false)", {'tbl': log_table})
+			rows = _run_sql_query(curs, "SELECT to_regclass(%(tbl)s) IS NOT NULL, coalesce(has_table_privilege(to_regclass(%(tbl)s), 'SELECT'), false)", {'tbl': log_table})
 			exists, readable = rows[0]
 			if not exists:
 				continue
@@ -1430,7 +1437,7 @@ class _cExporter:
 
 	#--------------------------------------------------------
 	def _format_table_history(self, curs, spec, log_table:str) -> list:
-		cols = _run(curs, _SQL_get_columns, {'tbl': log_table})
+		cols = _run_sql_query(curs, _SQL_get_columns, {'tbl': log_table})
 		data_cols = [ (c[0], c[3]) for c in cols if c[0] not in _AUDIT_LOG_META_COLS and c[0] in spec.cols ]
 		if spec.pk not in [ c[0] for c in data_cols ]:
 			return []
@@ -1455,7 +1462,7 @@ class _cExporter:
 		args = self._query_args()
 		args['tbl'] = spec.table
 		args['audits'] = self.pk_audits.get(spec.table, [])
-		log_rows = _run(curs, sql, args)
+		log_rows = _run_sql_query(curs, sql, args)
 		if not log_rows:
 			return []
 		names = [ c[0] for c in data_cols ]
@@ -1469,7 +1476,7 @@ class _cExporter:
 			else:
 				cur_select.append('t.%s::text' % _quote_identifier(name))
 		current = {}
-		for row in _run(curs, 'SELECT %s FROM %s t WHERE t.%s::text = ANY(%%(pks)s::text[])' % (', '.join(cur_select), _quote_qual_table(spec.table), _quote_identifier(spec.pk)), {'pks': row_pks}):
+		for row in _run_sql_query(curs, 'SELECT %s FROM %s t WHERE t.%s::text = ANY(%%(pks)s::text[])' % (', '.join(cur_select), _quote_qual_table(spec.table), _quote_identifier(spec.pk)), {'pks': row_pks}):
 			current[row[pk_idx]] = list(row)
 		lines = ['', '=== %s ===' % spec.table]
 		by_row = {}
@@ -1732,9 +1739,11 @@ class _cExporter:
 def _repr_hist(value) -> str:
 	if value is None:
 		return 'NULL'
+
 	value = str(value)
 	if '\n' in value or len(value) > 200:
 		return repr(value)
+
 	return value
 
 
@@ -1864,6 +1873,7 @@ SELECT %s FROM %s s WHERE NOT EXISTS (SELECT 1 FROM %s t WHERE %s);""" % (
 			nk
 		))
 		return stmts
+
 	map_name = spec.map_name
 	not_mapped = "NOT EXISTS (SELECT 1 FROM pg_temp._gm_tp_map m WHERE m.tbl = '%s' AND m.src_pk = s._src_pk)" % map_name
 	if spec.nks:
@@ -1880,10 +1890,10 @@ WHERE x._found IS NOT NULL;""" % (map_name, lookup, stg, not_mapped))
 		stmts.append("""DO $tp$
 BEGIN
 	IF EXISTS (SELECT 1 FROM %s s WHERE %s AND s.%s IS NOT NULL AND NOT EXISTS (SELECT 1 FROM %s r WHERE r.%s = s.%s)) THEN
-		RAISE EXCEPTION USING ERRCODE = 'GMTP6', MESSAGE = pg_temp._tp_meta('txt_err_reference'), DETAIL = '%s.%s';
+		RAISE EXCEPTION USING ERRCODE = '%s', MESSAGE = pg_temp._tp_meta('txt_err_reference'), DETAIL = '%s.%s';
 	END IF;
 END;
-$tp$;""" % (stg, not_mapped, _quote_identifier(col), _quote_qual_table(req_table), _quote_identifier(req_col), _quote_identifier(col), req_table, req_col))
+$tp$;""" % (stg, not_mapped, _quote_identifier(col), _quote_qual_table(req_table), _quote_identifier(req_col), _quote_identifier(col), SQLSTATE_MISSING_REFERENCE, req_table, req_col))
 	create_if = '(%s)' % spec.create_if if spec.create_if else 'true'
 	stmts.append("""INSERT INTO pg_temp._gm_tp_map (tbl, src_pk, new_pk, status, note)
 SELECT '%s', s._src_pk, nextval('%s'::regclass), 'ref_created', '%s'
@@ -1948,7 +1958,7 @@ usage:
 
 The script runs as ONE transaction: everything is imported or
 nothing. If the patient seems to exist already the script aborts
-with SQLSTATE GMTP1 listing candidates. Then edit the
+with SQLSTATE GMTP1_PATIENT_CANDIDATES_EXIST listing candidates. Then edit the
 CONFIGURATION block below: either same_patient_as = <pk> (add
 data to that patient) or patient_mode = 'new' (create new patient).
 
@@ -2063,13 +2073,13 @@ BEGIN
 	_v_new := pg_temp._tp_mo(_p_tbl, _p_src);
 	IF _v_new IS NULL THEN
 		RAISE EXCEPTION USING
-			ERRCODE = 'GMTP9',
+			ERRCODE = '%(GMTP9)s',
 			MESSAGE = pg_temp._tp_meta('txt_err_verify'),
-			DETAIL = format('no target row for %s #%s', _p_tbl, _p_src);
+			DETAIL = format('no target row for %%s #%%s', _p_tbl, _p_src);
 	END IF;
 	RETURN _v_new;
 END;
-$tp$;""",
+$tp$;""" % {'GMTP9': SQLSTATE_VERIFICATION},
 
 """CREATE FUNCTION pg_temp._tp_r(_p_tbl text, _p_src integer) RETURNS integer LANGUAGE sql STABLE AS $tp$
 	SELECT pg_temp._tp_m('ref:' || _p_tbl, _p_src)
@@ -2342,34 +2352,34 @@ BEGIN
 	_v_hash := md5(pg_temp.concat_table_structure_v19_and_up());
 	IF _v_hash IS DISTINCT FROM pg_temp._tp_meta('schema_hash') THEN
 		RAISE EXCEPTION USING
-			ERRCODE = 'GMTP3',
+			ERRCODE = '%(GMTP3)s',
 			MESSAGE = pg_temp._tp_meta('txt_err_schema'),
 			DETAIL = jsonb_build_object('expected', pg_temp._tp_meta('schema_hash'), 'found', _v_hash)::text;
 	END IF;
 	-- configuration
 	_v_value := lower(trim(coalesce(pg_temp._tp_cfg('staff_match'), 'strict')));
 	IF _v_value NOT IN ('strict', 'lenient') THEN
-		RAISE EXCEPTION USING ERRCODE = 'GMTP4', MESSAGE = pg_temp._tp_meta('txt_err_config'), DETAIL = 'staff_match: strict | lenient';
+		RAISE EXCEPTION USING ERRCODE = '%(GMTP4)s', MESSAGE = pg_temp._tp_meta('txt_err_config'), DETAIL = 'staff_match: strict | lenient';
 	END IF;
 	_v_value := lower(trim(coalesce(pg_temp._tp_cfg('patient_mode'), 'detect')));
 	IF _v_value NOT IN ('detect', 'new', 'add') THEN
-		RAISE EXCEPTION USING ERRCODE = 'GMTP4', MESSAGE = pg_temp._tp_meta('txt_err_config'), DETAIL = 'patient_mode: detect | new | add';
+		RAISE EXCEPTION USING ERRCODE = '%(GMTP4)s', MESSAGE = pg_temp._tp_meta('txt_err_config'), DETAIL = 'patient_mode: detect | new | add';
 	END IF;
 	FOREACH _v_value IN ARRAY ARRAY['force', 'dry_run'] LOOP
 		IF lower(trim(coalesce(pg_temp._tp_cfg(_v_value), 'false'))) NOT IN ('true', 't', 'yes', 'y', 'on', '1', 'false', 'f', 'no', 'n', 'off', '0') THEN
-			RAISE EXCEPTION USING ERRCODE = 'GMTP4', MESSAGE = pg_temp._tp_meta('txt_err_config'), DETAIL = _v_value || ': true | false';
+			RAISE EXCEPTION USING ERRCODE = '%(GMTP4)s', MESSAGE = pg_temp._tp_meta('txt_err_config'), DETAIL = _v_value || ': true | false';
 		END IF;
 	END LOOP;
 	_v_value := nullif(trim(coalesce(pg_temp._tp_cfg('same_patient_as'), '')), '');
 	IF _v_value IS NOT NULL THEN
 		IF _v_value !~ '^[0-9]+$' THEN
-			RAISE EXCEPTION USING ERRCODE = 'GMTP4', MESSAGE = pg_temp._tp_meta('txt_err_config'), DETAIL = 'same_patient_as: primary key of a patient';
+			RAISE EXCEPTION USING ERRCODE = '%(GMTP4)s', MESSAGE = pg_temp._tp_meta('txt_err_config'), DETAIL = 'same_patient_as: primary key of a patient';
 		END IF;
 		IF NOT EXISTS (SELECT 1 FROM dem.identity i WHERE i.pk = _v_value::integer AND i.deleted IS FALSE) THEN
-			RAISE EXCEPTION USING ERRCODE = 'GMTP4', MESSAGE = pg_temp._tp_meta('txt_err_config'), DETAIL = 'same_patient_as: no (active) patient #' || _v_value;
+			RAISE EXCEPTION USING ERRCODE = '%(GMTP4)s', MESSAGE = pg_temp._tp_meta('txt_err_config'), DETAIL = 'same_patient_as: no (active) patient #' || _v_value;
 		END IF;
 	ELSIF lower(trim(coalesce(pg_temp._tp_cfg('patient_mode'), 'detect'))) = 'add' THEN
-		RAISE EXCEPTION USING ERRCODE = 'GMTP4', MESSAGE = pg_temp._tp_meta('txt_err_config'), DETAIL = 'patient_mode add requires same_patient_as';
+		RAISE EXCEPTION USING ERRCODE = '%(GMTP4)s', MESSAGE = pg_temp._tp_meta('txt_err_config'), DETAIL = 'patient_mode add requires same_patient_as';
 	END IF;
 	-- staff
 	SELECT string_agg(DISTINCT trim(sm.target_alias), ', ') INTO _v_value
@@ -2379,13 +2389,13 @@ BEGIN
 			AND
 		NOT EXISTS (SELECT 1 FROM dem.staff st WHERE st.short_alias = trim(sm.target_alias));
 	IF _v_value IS NOT NULL THEN
-		RAISE EXCEPTION USING ERRCODE = 'GMTP5', MESSAGE = pg_temp._tp_meta('txt_err_staff'), DETAIL = 'unknown target staff alias(es): ' || _v_value;
+		RAISE EXCEPTION USING ERRCODE = '%(GMTP5)s', MESSAGE = pg_temp._tp_meta('txt_err_staff'), DETAIL = 'unknown target staff alias(es): ' || _v_value;
 	END IF;
 	_v_value := nullif(trim(coalesce(pg_temp._tp_cfg('fallback_staff'), '')), '');
 	IF _v_value IS NOT NULL THEN
 		SELECT st.pk INTO _v_fallback FROM dem.staff st WHERE st.short_alias = _v_value;
 		IF _v_fallback IS NULL THEN
-			RAISE EXCEPTION USING ERRCODE = 'GMTP5', MESSAGE = pg_temp._tp_meta('txt_err_staff'), DETAIL = 'unknown fallback staff alias: ' || _v_value;
+			RAISE EXCEPTION USING ERRCODE = '%(GMTP5)s', MESSAGE = pg_temp._tp_meta('txt_err_staff'), DETAIL = 'unknown fallback staff alias: ' || _v_value;
 		END IF;
 	ELSE
 		SELECT st.pk INTO _v_fallback FROM dem.staff st WHERE st.db_user = SESSION_USER;
@@ -2395,7 +2405,11 @@ BEGIN
 	END IF;
 	PERFORM pg_temp._tp_set_state('fallback_staff', _v_fallback::text);
 END;
-$tp$;"""
+$tp$;""" % {
+	'GMTP3': SQLSTATE_SCHEMA_MISMATCH,
+	'GMTP4': SQLSTATE_INVALID_CONFIG,
+	'GMTP5': SQLSTATE_STAFF
+}
 
 #------------------------------------------------------------
 _SQL_DETECT = """DO $tp$
@@ -2414,7 +2428,7 @@ BEGIN
 	WHERE (i.aux_info -> 'gm_transplant' -> 'imports') @> jsonb_build_array(jsonb_build_object('export_uuid', pg_temp._tp_meta('export_uuid')));
 	IF _v_applied IS NOT NULL AND NOT pg_temp._tp_cfg_bool('force') THEN
 		RAISE EXCEPTION USING
-			ERRCODE = 'GMTP2',
+			ERRCODE = '%(GMTP2)s',
 			MESSAGE = pg_temp._tp_meta('txt_err_applied'),
 			DETAIL = jsonb_build_object('identities', _v_applied)::text;
 	END IF;
@@ -2467,7 +2481,7 @@ BEGIN
 		) g;
 		IF _v_candidates IS NOT NULL THEN
 			RAISE EXCEPTION USING
-				ERRCODE = 'GMTP1',
+				ERRCODE = '%(GMTP1)s',
 				MESSAGE = pg_temp._tp_meta('txt_err_candidates'),
 				DETAIL = jsonb_build_object('candidates', _v_candidates)::text;
 		END IF;
@@ -2487,7 +2501,10 @@ BEGIN
 		END IF;
 	END IF;
 END;
-$tp$;"""
+$tp$;""" % {
+	'GMTP1': SQLSTATE_CANDIDATES,
+	'GMTP2': SQLSTATE_ALREADY_IMPORTED
+}
 
 #------------------------------------------------------------
 _SQL_RESOLVE_STAFF = """DO $tp$
@@ -2558,7 +2575,7 @@ BEGIN
 		IF _v_target IS NULL THEN
 			IF _v_fallback IS NULL THEN
 				RAISE EXCEPTION USING
-					ERRCODE = 'GMTP5',
+					ERRCODE = '%(GMTP5)s',
 					MESSAGE = pg_temp._tp_meta('txt_err_no_fallback'),
 					DETAIL = 'source staff: ' || coalesce(_v_staff.short_alias, _v_staff.db_user, '#' || _v_staff._src_pk);
 			END IF;
@@ -2569,7 +2586,7 @@ BEGIN
 		VALUES ('staff', _v_staff._src_pk, _v_target, 'existing', _v_how);
 	END LOOP;
 END;
-$tp$;"""
+$tp$;""" % {'GMTP5': SQLSTATE_STAFF}
 
 #------------------------------------------------------------
 _SQL_LOAD_PERSISTENT_MAP = """DO $tp$
@@ -2634,14 +2651,14 @@ BEGIN
 			WHEN unique_violation THEN
 				IF pg_temp._tp_state('patient_mode') IS DISTINCT FROM 'add' THEN
 					-- do not re-raise the original error, it contains patient data
-					RAISE EXCEPTION USING ERRCODE = 'GMTP9', MESSAGE = pg_temp._tp_meta('txt_err_verify'), DETAIL = 'name of new patient clashes with existing person';
+					RAISE EXCEPTION USING ERRCODE = '%s', MESSAGE = pg_temp._tp_meta('txt_err_verify'), DETAIL = 'name of new patient clashes with existing person';
 				END IF;
 				UPDATE pg_temp._gm_tp_map m SET status = 'skipped', note = 'name clashes with another person in the target'
 				WHERE m.tbl = 'dem.names' AND m.src_pk = _v_name._src_pk;
 		END;
 	END LOOP;
 END;
-$tp$;"""
+$tp$;""" % SQLSTATE_VERIFICATION
 
 #------------------------------------------------------------
 _SQL_FIXUPS = [
@@ -2865,25 +2882,28 @@ BEGIN
 		@MISSING@
 	) x WHERE x.n > 0;
 	IF _v_bad IS NOT NULL THEN
-		RAISE EXCEPTION USING ERRCODE = 'GMTP9', MESSAGE = pg_temp._tp_meta('txt_err_verify'), DETAIL = jsonb_build_object('unaccounted', _v_bad)::text;
+		RAISE EXCEPTION USING ERRCODE = '%(GMTP9)s', MESSAGE = pg_temp._tp_meta('txt_err_verify'), DETAIL = jsonb_build_object('unaccounted', _v_bad)::text;
 	END IF;
 	-- every new row must exist
 	SELECT jsonb_object_agg(x.tbl, x.n) INTO _v_bad FROM (
 		@LOST@
 	) x WHERE x.n > 0;
 	IF _v_bad IS NOT NULL THEN
-		RAISE EXCEPTION USING ERRCODE = 'GMTP9', MESSAGE = pg_temp._tp_meta('txt_err_verify'), DETAIL = jsonb_build_object('lost', _v_bad)::text;
+		RAISE EXCEPTION USING ERRCODE = '%(GMTP9)s', MESSAGE = pg_temp._tp_meta('txt_err_verify'), DETAIL = jsonb_build_object('lost', _v_bad)::text;
 	END IF;
 	IF pg_temp._tp_cfg_bool('dry_run') THEN
-		RAISE EXCEPTION USING ERRCODE = 'GMTP0', MESSAGE = pg_temp._tp_meta('txt_dry_run_ok'), DETAIL = pg_temp._tp_summary()::text;
+		RAISE EXCEPTION USING ERRCODE = '%(GMTP0)s', MESSAGE = pg_temp._tp_meta('txt_dry_run_ok'), DETAIL = pg_temp._tp_summary()::text;
 	END IF;
 END;
-$tp$;"""
+$tp$;""" % {
+	'GMTP9': SQLSTATE_VERIFICATION,
+	'GMTP0': SQLSTATE_DRY_RUN_OK
+}
 
 #============================================================
 # public API: export
 #------------------------------------------------------------
-def explant_patient(pk_identity:int, filename:str=None, link_obj=None, include_history:bool=True, passphrase:str=None, source_description:str=None, progress_callback=None) -> str:
+def explant_patient(pk_identity:int, filename:str=None, conn=None, include_history:bool=True, passphrase:str=None, source_description:str=None, progress_callback=None) -> str:
 	"""Export a patient as a transplant script.
 
 	Contrary to what EXplant might suggest, source data is
@@ -2892,7 +2912,7 @@ def explant_patient(pk_identity:int, filename:str=None, link_obj=None, include_h
 	Args:
 		pk_identity: the patient (dem.identity.pk)
 		filename: where to put the script, default: work directory
-		link_obj: a connection to read from, should be gm-dbo
+		conn: a connection to read from, should be gm-dbo
 			such that the audit trail can be read; if None a
 			connection of the current user is used
 		include_history: whether to include the audit trail
@@ -2912,7 +2932,7 @@ def explant_patient(pk_identity:int, filename:str=None, link_obj=None, include_h
 			tmp_dir = gmTools.gmPaths().user_work_dir
 		)
 	filename = os.path.abspath(os.path.expanduser(filename))
-	conn, close_conn = _get_link(link_obj)
+	conn, close_conn = _get_conn(conn)
 	_log.info('exporting patient #%s for transplant into [%s]', pk_identity, filename)
 	curs = conn.cursor()
 	try:
@@ -2920,15 +2940,15 @@ def explant_patient(pk_identity:int, filename:str=None, link_obj=None, include_h
 	finally:
 		curs.close()
 	if problems:
-		if close_conn:
-			conn.close()
+		close_conn()
 		raise cTransplantError(_('This GNUmed version cannot fully transplant patients from this database:\n\n%s') % '\n'.join(problems))
+
 	schema_hash = gmPG2.get_schema_hash(link_obj = conn)
 	expected_hash = gmPG2.known_schema_hashes.get(SCHEMA_VERSION)
 	if schema_hash != expected_hash:
-		if close_conn:
-			conn.close()
+		close_conn()
 		raise cTransplantError(_('Database schema hash [%s] does not match the expected v%s schema hash [%s].') % (schema_hash, SCHEMA_VERSION, expected_hash))
+
 	if source_description is None:
 		source_description = _get_source_description()
 	prev_autocommit = conn.autocommit
@@ -2947,6 +2967,7 @@ def explant_patient(pk_identity:int, filename:str=None, link_obj=None, include_h
 	except cTransplantError:
 		_log.exception('patient #%s cannot be exported for transplant', pk_identity)
 		raise
+
 	except Exception as exc:
 		_log.exception('error exporting patient #%s for transplant', pk_identity)
 		raise cTransplantError(_('Error exporting the patient (%s). Check the log.') % exc.__class__.__name__) from exc
@@ -2955,8 +2976,7 @@ def explant_patient(pk_identity:int, filename:str=None, link_obj=None, include_h
 			conn.autocommit = prev_autocommit
 		except Exception:
 			pass
-		if close_conn:
-			conn.close()
+		close_conn()
 	_log.info('patient #%s exported: %s rows', pk_identity, sum(exporter.counts.values()))
 	if passphrase:
 		from Gnumed.pycommon import gmCrypto
@@ -2969,8 +2989,10 @@ def explant_patient(pk_identity:int, filename:str=None, link_obj=None, include_h
 		)
 		if not encrypted:
 			raise cTransplantError(_('Cannot encrypt transplant script (is GnuPG installed ?).'))
+
 		os.chmod(encrypted, 0o600)
 		return encrypted
+
 	return filename
 
 #------------------------------------------------------------
@@ -3130,13 +3152,13 @@ def _iter_script_statements(filename:str):
 #============================================================
 # public API: import
 #------------------------------------------------------------
-def implant_patient(filename:str, link_obj, patient_mode:str=None, same_patient_as:int=None, staff_match:str=None, fallback_staff:str=None, dry_run:bool=False, force:bool=False, progress_callback=None) -> cTransplantResult:
-	"""Run a transplant script against the database of <link_obj>.
+def implant_patient(filename:str, conn, patient_mode:str=None, same_patient_as:int=None, staff_match:str=None, fallback_staff:str=None, dry_run:bool=False, force:bool=False, progress_callback=None) -> cTransplantResult:
+	"""Run a transplant script against the database of <conn>.
 
 	Settings passed in override the configuration block of the script.
 
 	Args:
-		link_obj: connection to the target database, should be gm-dbo
+		conn: connection to the target database, should be gm-dbo
 		patient_mode: 'detect' / 'new' / 'add'
 		same_patient_as: target patient pk to add the data to (implies patient_mode 'add')
 		staff_match: 'strict' / 'lenient'
@@ -3146,6 +3168,7 @@ def implant_patient(filename:str, link_obj, patient_mode:str=None, same_patient_
 	"""
 	if not verify_script_checksum(filename):
 		return cTransplantResult('error', message = _('The transplant script is damaged or has been modified below the configuration block (checksum mismatch).'))
+
 	settings = {}
 	if patient_mode is not None:
 		settings['patient_mode'] = patient_mode
@@ -3161,7 +3184,6 @@ def implant_patient(filename:str, link_obj, patient_mode:str=None, same_patient_
 	if force:
 		settings['force'] = 'true'
 	_log.info('running transplant script [%s], settings: %s', filename, settings)
-	conn = link_obj
 	prev_autocommit = conn.autocommit
 	conn.rollback()
 	conn.autocommit = True
