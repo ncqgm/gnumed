@@ -17,7 +17,7 @@ Called by GNUmed like this:
 
 	editor-binary form-instance-filename.txt
 
-Filename contains the full path.
+The filename will contain the full path.
 
 Optional.
 
@@ -31,9 +31,10 @@ Called by GNUmed like this:
 
 	post-processor-binary form-instance-filename.txt form-instance-filename.txt.output
 
-The latter file is to receive whatever the post-processor produces.
+The latter file is to receive whatever the post-processor
+produces such that GNUmed can consume the result.
 
-Filenames contain the full path.
+The filenames will contain the full path.
 
 === Group [form] key "template"
 

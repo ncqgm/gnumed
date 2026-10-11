@@ -23,8 +23,8 @@ cd -
 
 cd ${WORKDIR}
 export PYTHONPATH="${PYTHONPATH:+$PYTHONPATH:}./Gnumed/"
+echo "ppath: $PYTHONPATH"
 pdoc3 --force --html --skip-errors --output-dir api/ Gnumed
-#pdoc3 --force --html --output-dir api/ Gnumed
 date > api/Gnumed/generated.txt
 cd -
 

@@ -32,6 +32,8 @@ The directories contain a more detailed description of the mechanism.
 
 === Saving documents into the patient chart
 
+Follow these steps:
+
 	* associate incoming documents with their corresponding patients
 	* filter the incoming documents list
 	* you now see only those of the currently active patient
