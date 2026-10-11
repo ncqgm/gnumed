@@ -1118,7 +1118,10 @@ def run_tool():
 	if tool not in _known_tools:
 		_log.error('unknown tool requested: %s', tool)
 		print('GNUmed startup: Unknown tool [%s] requested.' % tool)
+		print('GNUmed startup: See man-page for tool details.')
+		print('')
 		print('GNUmed startup: Known tools: %s' % list(_known_tools.keys()))
+
 		return -1
 
 	print('')
