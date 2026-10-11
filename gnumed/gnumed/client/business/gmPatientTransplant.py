@@ -12,7 +12,7 @@ create a new patient or to add the data to an existing one.
 
 Properties of the generated script:
 
-- plain SQL, runnable by psql as well as by import_patient()
+- plain SQL, runnable by psql as well as by implant_patient()
 
 - one single transaction, nothing is changed unless everything succeeds
 
@@ -2907,7 +2907,7 @@ def explant_patient(pk_identity:int, filename:str=None, link_obj=None, include_h
 	"""
 	if filename is None:
 		filename = gmTools.get_unique_filename (
-			prefix = 'gm-transplant-%s-%s-' % (pk_identity, pydt.datetime.now().strftime('%Y%m%d-%H%M%S')),
+			prefix = 'gm-transplant-pk%s-%s-' % (pk_identity, pydt.datetime.now().strftime('%Y%m%d-%H%M%S')),
 			suffix = '.sql',
 			tmp_dir = gmTools.gmPaths().user_work_dir
 		)
@@ -2995,7 +2995,7 @@ def run_patient_explant_tool():
 		def_fname = os.path.join (
 			gmTools.gmPaths().user_work_dir,
 			'patients',
-			'gm-transplant-#%s.sql'
+			'gm-transplant-pk%s.sql'
 		) % pat.ID
 		fname = gmTools.prompted_input(prompt = 'Script file name', default = def_fname)
 		if fname is None:
@@ -3130,7 +3130,7 @@ def _iter_script_statements(filename:str):
 #============================================================
 # public API: import
 #------------------------------------------------------------
-def import_patient(filename:str, link_obj, patient_mode:str=None, same_patient_as:int=None, staff_match:str=None, fallback_staff:str=None, dry_run:bool=False, force:bool=False, progress_callback=None) -> cTransplantResult:
+def implant_patient(filename:str, link_obj, patient_mode:str=None, same_patient_as:int=None, staff_match:str=None, fallback_staff:str=None, dry_run:bool=False, force:bool=False, progress_callback=None) -> cTransplantResult:
 	"""Run a transplant script against the database of <link_obj>.
 
 	Settings passed in override the configuration block of the script.
@@ -3238,6 +3238,84 @@ def _result_from_exception(exc, stmt_id:str, section:str) -> cTransplantResult:
 		message = '%s\n%s' % (primary, detail or '')
 	)
 
+#------------------------------------------------------------
+def run_patient_implant_tool(transplant_filename:str=None):
+	if transplant_filename:
+		if os.access(transplant_filename, os.F_OK):
+			print('transplant file: %s' % transplant_filename)
+		else:
+			print('ERROR: [%s] does not seem to be an accessible file' % transplant_filename)
+			transplant_filename = None
+
+	if not transplant_filename:
+		transplant_filename = gmTools.prompted_input(prompt = 'Transplant script file name')
+		if not transplant_filename:
+			return 0
+
+	transplant_filename = os.path.abspath(os.path.expanduser(transplant_filename))
+	try:
+		meta = read_script_metadata(transplant_filename)
+	except (cTransplantError, OSError, ValueError) as exc:
+		print('ERROR: %s' % exc)
+		return -2
+
+	print('source        : %s' % meta.get('source'))
+	print('source patient: #%s' % meta.get('source_pk'))
+	print('exported      : %s' % meta.get('exported_when'))
+	print('rows          : %s' % sum(meta.get('counts', {}).values()))
+	settings = {}
+	fallback = gmTools.prompted_input(prompt = 'Alias of the staff member to use for unmappable staff (empty: as configured in the script)')
+	if fallback:
+		settings['fallback_staff'] = fallback.strip()
+	conn = gmPG2.get_connection(readonly = False, pooled = False)
+	try:
+		while True:
+			print('dry run ...')
+			result = implant_patient(transplant_filename, conn, dry_run = True, **settings)
+			if result.status == 'already_imported':
+				print('This export has already been imported into: %s' % ', '.join([ '#%s' % pk for pk in result.identities ]))
+				if gmTools.prompted_input(prompt = 'Import again (no rows will be duplicated) ? [y/N]', default = 'n').strip().lower() != 'y':
+					return 0
+				settings['force'] = True
+				continue
+			if result.status == 'candidates':
+				print('The patient may already exist in this database:')
+				for cand in result.candidates:
+					print('  #%s (%s)%s' % (cand['pk'], ', '.join(cand.get('reasons', [])), ' [deactivated]' if cand.get('deleted') else ''))
+				answer = gmTools.prompted_input(prompt = '[n]ew patient / [a]dd <pk> / [c]ancel', default = 'c')
+				answer = (answer or 'c').strip().lower()
+				if answer == 'n':
+					settings['patient_mode'] = 'new'
+					continue
+				if answer.startswith('a'):
+					pk = answer[1:].strip()
+					if not pk.isdigit():
+						print('ERROR: add requires the pk of the patient, say: a 4711')
+						continue
+					settings['same_patient_as'] = int(pk)
+					continue
+				return 0
+			if result.status != 'dry_run_ok':
+				print('ERROR (SQLSTATE %s, statement %s):' % (result.sqlstate, result.statement))
+				print(result.message)
+				print('Nothing has been changed in the database.')
+				return -2
+			print('')
+			print(result.format())
+			print('')
+			if gmTools.prompted_input(prompt = 'Import now ? [y/N]', default = 'n').strip().lower() != 'y':
+				return 0
+			result = implant_patient(transplant_filename, conn, dry_run = False, **settings)
+			if result.status != 'imported':
+				print('ERROR (SQLSTATE %s, statement %s):' % (result.sqlstate, result.statement))
+				print(result.message)
+				print('Nothing has been changed in the database.')
+				return -2
+			print('Patient imported as #%s.' % result.pk_identity)
+			return 0
+	finally:
+		conn.close()
+
 #============================================================
 # main
 #------------------------------------------------------------
@@ -3275,10 +3353,10 @@ if __name__ == '__main__':
 		print(explant_patient(int(sys.argv[2]), filename = sys.argv[3] if len(sys.argv) > 3 else None))
 
 	#--------------------------------------------------------
-	def test_import():
+	def test_implant():
 		gmPG2.request_login_params(setup_pool = True)
 		conn = gmPG2.get_connection(readonly = False, pooled = False)
-		result = import_patient(sys.argv[2], conn, dry_run = True)
+		result = implant_patient(sys.argv[2], conn, dry_run = True)
 		print(result)
 		print(result.message)
 		print(result.format())
@@ -3288,4 +3366,4 @@ if __name__ == '__main__':
 	test_specs()
 	#test_completeness()
 	#test_explant()
-	#test_import()
+	#test_implant()
