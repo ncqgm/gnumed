@@ -16,8 +16,8 @@ Properties of the generated script:
 
 - one single transaction, nothing is changed unless everything succeeds
 
-- a block near the top can be edited manually: staff matching
-  mode, staff mapping, "same patient as #...", mode, force, dry run
+- a block near the top can be edited manually: staff matching mode,
+  staff mapping, "same patient as #...", patient mode, force, dry run
 
 - all patient data is first loaded into constraint-free
   temporary staging tables, all subsequent statements do not
@@ -166,8 +166,8 @@ class cTransplantResult:
 		"""Human readable summary (no patient data beyond primary keys)."""
 		lines = []
 		summary = self.summary
-		if summary.get('mode'):
-			lines.append(_('Mode: %s') % summary['mode'])
+		if summary.get('patient_mode'):
+			lines.append(_('Patient mode: %s') % summary['patient_mode'])
 		if summary.get('target_identity'):
 			lines.append(_('Target patient: #%s') % summary['target_identity'])
 		if summary.get('staff'):
@@ -275,7 +275,6 @@ class _cTableSpec:
 	insert_cols = property(_get_insert_cols)
 
 #------------------------------------------------------------
-_T = _cTableSpec
 _ENC = '{clin.encounter}'
 _EPI_FKS = {'fk_encounter': ('int', 'clin.encounter'), 'fk_episode': ('int', 'clin.episode')}
 
@@ -289,7 +288,7 @@ def _staff_review_spec(table:str, reviewed_table:str, one_per_row:bool) -> _cTab
 	else:
 		match = "(SELECT r.pk FROM %s r WHERE r.fk_reviewed_row = %s AND r.fk_reviewer = pg_temp._tp_s(s.fk_reviewer) ORDER BY r.pk LIMIT 1)" % (table, _mapped(reviewed_table, 'fk_reviewed_row'))
 		dedupe = ['s.fk_reviewed_row', 'pg_temp._tp_s(s.fk_reviewer)']
-	return _T(table,
+	return _cTableSpec(table,
 		where = 'fk_reviewed_row = ANY({%s})' % reviewed_table,
 		fks = {'fk_reviewed_row': ('int', reviewed_table), 'fk_reviewer': ('staff',)},
 		overrides = {'comment': 'pg_temp._tp_staff_note(s.comment, s.fk_reviewer)'},
@@ -298,7 +297,7 @@ def _staff_review_spec(table:str, reviewed_table:str, one_per_row:bool) -> _cTab
 	)
 
 def _code_link_spec(table:str, item_table:str) -> _cTableSpec:
-	return _T(table,
+	return _cTableSpec(table,
 		where = 'fk_item = ANY({%s})' % item_table,
 		fks = {'fk_item': ('int', item_table), 'fk_generic_code': ('code',)},
 		match = "(SELECT l.pk FROM %s l WHERE l.fk_item = %s AND l.fk_generic_code = pg_temp._tp_r('code', s.fk_generic_code) ORDER BY l.pk LIMIT 1)" % (table, _mapped(item_table, 'fk_item')),
@@ -320,7 +319,7 @@ def _type2item_spec() -> _cTableSpec:
 		"WHEN '%s' THEN (SELECT y.pk_item FROM %s y WHERE y.pk = pg_temp._tp_mo('%s', s._x_item_pk))" % (tbl, tbl, tbl)
 		for tbl in _ROOT_ITEM_TABLES
 	])
-	return _T('clin.lnk_type2item',
+	return _cTableSpec('clin.lnk_type2item',
 		# soft FK to clin.clin_root_item.pk_item
 		where = 'fk_item IN (SELECT r.pk_item FROM clin.clin_root_item r WHERE r.fk_encounter = ANY({clin.encounter}))',
 		fks = {'fk_type': ('ref', 'clin.clin_item_type'), 'fk_item': ('null',)},
@@ -345,7 +344,7 @@ _SQL_emergency_note = """(
 )"""
 
 _TABLE_SPECS = [
-	_T('dem.identity',
+	_cTableSpec('dem.identity',
 		where = 'pk = %(pat)s',
 		section = 1,
 		fks = {
@@ -364,7 +363,7 @@ _TABLE_SPECS = [
 		pre_insert = ['SELECT pg_temp._tp_set_dob_tz((SELECT s.dob FROM pg_temp._s_dem__identity s ORDER BY s._src_pk LIMIT 1));'],
 		post_insert = ['SELECT pg_temp._tp_reset_tz();']
 	),
-	_T('dem.names',
+	_cTableSpec('dem.names',
 		pk = 'id',
 		where = 'id_identity = %(pat)s',
 		section = 1,
@@ -372,7 +371,7 @@ _TABLE_SPECS = [
 		match = "(SELECT n.id FROM dem.names n WHERE n.id_identity = pg_temp._tp_mo('dem.identity', s.id_identity) AND lower(n.lastnames) = lower(s.lastnames) AND lower(n.firstnames) = lower(s.firstnames) ORDER BY n.id LIMIT 1)",
 		custom_insert = True
 	),
-	_T('dem.lnk_identity2ext_id',
+	_cTableSpec('dem.lnk_identity2ext_id',
 		pk = 'id',
 		where = 'id_identity = %(pat)s',
 		section = 1,
@@ -383,47 +382,47 @@ _TABLE_SPECS = [
 		},
 		match = "(SELECT x.id FROM dem.lnk_identity2ext_id x WHERE x.id_identity = pg_temp._tp_mo('dem.identity', s.id_identity) AND x.fk_origin = pg_temp._tp_r('dem.enum_ext_id_types', s.fk_origin) AND x.external_id = s.external_id ORDER BY x.id LIMIT 1)"
 	),
-	_T('dem.lnk_identity2comm',
+	_cTableSpec('dem.lnk_identity2comm',
 		where = 'fk_identity = %(pat)s',
 		fks = {'fk_identity': ('int', 'dem.identity'), 'fk_type': ('ref', 'dem.enum_comm_types'), 'fk_address': ('ref', 'dem.address')},
 		match = "(SELECT c.pk FROM dem.lnk_identity2comm c WHERE c.fk_identity = pg_temp._tp_mo('dem.identity', s.fk_identity) AND c.url = s.url ORDER BY c.pk LIMIT 1)",
 		dedupe = ['s.url']
 	),
-	_T('dem.lnk_person_org_address',
+	_cTableSpec('dem.lnk_person_org_address',
 		pk = 'id',
 		where = 'id_identity = %(pat)s',
 		fks = {'id_identity': ('int', 'dem.identity'), 'id_address': ('ref', 'dem.address'), 'id_type': ('ref', 'dem.address_type'), 'id_org': ('null',)},
 		match = "(SELECT a.id FROM dem.lnk_person_org_address a WHERE a.id_identity = pg_temp._tp_mo('dem.identity', s.id_identity) AND a.id_address = pg_temp._tp_r('dem.address', s.id_address) ORDER BY a.id LIMIT 1)",
 		dedupe = ["pg_temp._tp_r('dem.address', s.id_address)"]
 	),
-	_T('dem.identity_tag',
+	_cTableSpec('dem.identity_tag',
 		where = 'fk_identity = %(pat)s',
 		fks = {'fk_identity': ('int', 'dem.identity'), 'fk_tag': ('ref', 'ref.tag_image')},
 		match = "(SELECT x.pk FROM dem.identity_tag x WHERE x.fk_identity = pg_temp._tp_mo('dem.identity', s.fk_identity) AND x.fk_tag = pg_temp._tp_r('ref.tag_image', s.fk_tag) ORDER BY x.pk LIMIT 1)",
 		dedupe = ["pg_temp._tp_r('ref.tag_image', s.fk_tag)"]
 	),
-	_T('dem.lnk_job2person',
+	_cTableSpec('dem.lnk_job2person',
 		where = 'fk_identity = %(pat)s',
 		fks = {'fk_identity': ('int', 'dem.identity'), 'fk_occupation': ('ref', 'dem.occupation')},
 		match = "(SELECT x.pk FROM dem.lnk_job2person x WHERE x.fk_identity = pg_temp._tp_mo('dem.identity', s.fk_identity) AND x.fk_occupation = pg_temp._tp_r('dem.occupation', s.fk_occupation) ORDER BY x.pk LIMIT 1)",
 		dedupe = ["pg_temp._tp_r('dem.occupation', s.fk_occupation)"]
 	),
-	_T('clin.patient',
+	_cTableSpec('clin.patient',
 		where = 'fk_identity = %(pat)s',
 		fks = {'fk_identity': ('int', 'dem.identity')},
 		match = "(SELECT p.pk FROM clin.patient p WHERE p.fk_identity = pg_temp._tp_mo('dem.identity', s.fk_identity))"
 	),
-	_T('clin.encounter',
+	_cTableSpec('clin.encounter',
 		where = 'fk_patient = %(pat)s',
 		fks = {'fk_patient': ('int', 'dem.identity'), 'fk_type': ('ref', 'clin.encounter_type'), 'fk_location': ('ref', 'dem.org_unit')},
 		# set by trigger from the session time zone
 		skip_cols = {'source_time_zone'}
 	),
-	_T('clin.health_issue',
+	_cTableSpec('clin.health_issue',
 		where = 'fk_encounter = ANY(%s)' % _ENC,
 		fks = {'fk_encounter': ('int', 'clin.encounter')}
 	),
-	_T('clin.episode',
+	_cTableSpec('clin.episode',
 		where = 'fk_encounter = ANY(%s)' % _ENC,
 		fks = {'fk_encounter': ('int', 'clin.encounter'), 'fk_health_issue': ('int', 'clin.health_issue')},
 		# only one open episode per health issue
@@ -434,14 +433,14 @@ WHERE m.tbl = 'clin.episode' AND m.src_pk = s._src_pk AND m.status = 'new'
 	AND s.is_open AND s.fk_health_issue IS NOT NULL
 	AND EXISTS (SELECT 1 FROM clin.episode e WHERE e.fk_health_issue = pg_temp._tp_mo('clin.health_issue', s.fk_health_issue) AND e.is_open)"""]
 	),
-	_T('clin.allergy_state',
+	_cTableSpec('clin.allergy_state',
 		where = 'fk_encounter = ANY(%s)' % _ENC,
 		fks = {'fk_encounter': ('int', 'clin.encounter')},
 		# one allergy state per patient
 		match = '(SELECT a.pk FROM clin.allergy_state a JOIN clin.encounter e ON (e.pk = a.fk_encounter) WHERE e.fk_patient = pg_temp._tp_target() ORDER BY a.pk LIMIT 1)',
 		dedupe = ['true']
 	),
-	_T('clin.clin_narrative',
+	_cTableSpec('clin.clin_narrative',
 		where = 'fk_encounter = ANY(%s)' % _ENC,
 		fks = _EPI_FKS,
 		# unique index on (fk_encounter, fk_episode, soap_cat, modified_by, md5(narrative)),
@@ -449,15 +448,15 @@ WHERE m.tbl = 'clin.episode' AND m.src_pk = s._src_pk AND m.status = 'new'
 		match = "(SELECT n.pk FROM clin.clin_narrative n WHERE n.fk_encounter = pg_temp._tp_mo('clin.encounter', s.fk_encounter) AND n.fk_episode = pg_temp._tp_mo('clin.episode', s.fk_episode) AND n.soap_cat IS NOT DISTINCT FROM s.soap_cat AND n.modified_by = SESSION_USER AND md5(n.narrative) = md5(s.narrative) ORDER BY n.pk LIMIT 1)",
 		dedupe = ['s.fk_encounter', 's.fk_episode', 's.soap_cat', 'md5(s.narrative)']
 	),
-	_T('clin.clin_aux_note',
+	_cTableSpec('clin.clin_aux_note',
 		where = 'fk_encounter = ANY(%s)' % _ENC,
 		fks = _EPI_FKS
 	),
-	_T('clin.family_history',
+	_cTableSpec('clin.family_history',
 		where = 'fk_encounter = ANY(%s)' % _ENC,
 		fks = dict(_EPI_FKS, fk_relation_type = ('ref', 'clin.fhx_relation_type'))
 	),
-	_T('clin.intake',
+	_cTableSpec('clin.intake',
 		where = 'fk_encounter = ANY(%s)' % _ENC,
 		fks = dict(_EPI_FKS, fk_substance = ('ref', 'ref.substance')),
 		# unique index on (fk_substance, amount, unit, schedule, discontinued, patient)
@@ -466,11 +465,11 @@ WHERE m.tbl = 'clin.episode' AND m.src_pk = s._src_pk AND m.status = 'new'
 		skip_if = "(s.discontinued IS NULL OR s.discontinued > now()) AND EXISTS (SELECT 1 FROM clin.intake i WHERE clin.map_enc_or_epi_to_patient(i.fk_encounter, i.fk_episode) = pg_temp._tp_target() AND i.fk_substance = pg_temp._tp_r('ref.substance', s.fk_substance) AND (i.discontinued IS NULL OR i.discontinued > now()) AND (i.amount IS NULL OR s.amount IS NULL))",
 		skip_reason = 'conflicts with an ongoing intake of the same substance in the target'
 	),
-	_T('clin.vaccination',
+	_cTableSpec('clin.vaccination',
 		where = 'fk_encounter = ANY(%s)' % _ENC,
 		fks = dict(_EPI_FKS, fk_provider = ('staff',), fk_vaccine = ('ref', 'ref.vaccine'))
 	),
-	_T('clin.external_care',
+	_cTableSpec('clin.external_care',
 		where = 'fk_encounter = ANY(%s)' % _ENC,
 		fks = {'fk_encounter': ('int', 'clin.encounter'), 'fk_health_issue': ('int', 'clin.health_issue'), 'fk_org_unit': ('ref', 'dem.org_unit')},
 		# an issue (or health issue) is cared for only once per org unit and patient
@@ -484,11 +483,11 @@ WHERE m.tbl = 'clin.episode' AND m.src_pk = s._src_pk AND m.status = 'new'
 				)
 			ORDER BY x.pk LIMIT 1)"""
 	),
-	_T('clin.hospital_stay',
+	_cTableSpec('clin.hospital_stay',
 		where = 'fk_encounter = ANY(%s)' % _ENC,
 		fks = dict(_EPI_FKS, fk_org_unit = ('ref', 'dem.org_unit'))
 	),
-	_T('clin.lab_request',
+	_cTableSpec('clin.lab_request',
 		where = 'fk_encounter = ANY(%s)' % _ENC,
 		fks = dict(_EPI_FKS, fk_test_org = ('ref', 'clin.test_org'), fk_requestor = ('null',)),
 		extra = {'_x_requestor_staff': ('integer', '(SELECT st.pk FROM dem.staff st WHERE st.fk_identity = t.fk_requestor ORDER BY st.pk LIMIT 1)', 'staff')},
@@ -497,35 +496,35 @@ WHERE m.tbl = 'clin.episode' AND m.src_pk = s._src_pk AND m.status = 'new'
 			'request_id': "CASE WHEN s.request_id IS NOT NULL AND EXISTS (SELECT 1 FROM clin.lab_request r WHERE r.fk_test_org = pg_temp._tp_r('clin.test_org', s.fk_test_org) AND r.request_id = s.request_id) THEN s.request_id || ' ' || pg_temp._tp_suffix(m.new_pk) ELSE s.request_id END"
 		}
 	),
-	_T('clin.test_result',
+	_cTableSpec('clin.test_result',
 		where = 'fk_encounter = ANY(%s)' % _ENC,
 		fks = dict(_EPI_FKS, fk_type = ('ref', 'clin.test_type'), fk_request = ('int', 'clin.lab_request'), fk_intended_reviewer = ('staff',))
 	),
-	_T('clin.form_instances',
+	_cTableSpec('clin.form_instances',
 		where = 'fk_encounter = ANY(%s)' % _ENC,
 		fks = dict(_EPI_FKS, fk_form_def = ('ref', 'ref.paperwork_templates'))
 	),
-	_T('clin.allergy',
+	_cTableSpec('clin.allergy',
 		where = 'fk_encounter = ANY(%s)' % _ENC,
 		fks = dict(_EPI_FKS, fk_type = ('ref', 'clin._enum_allergy_type'))
 	),
-	_T('blobs.doc_med',
+	_cTableSpec('blobs.doc_med',
 		where = 'fk_encounter = ANY(%s)' % _ENC,
 		fks = dict(_EPI_FKS, fk_type = ('ref', 'blobs.doc_type'), fk_org_unit = ('ref', 'dem.org_unit'), fk_hospital_stay = ('soft', 'clin.hospital_stay'))
 	),
-	_T('clin.procedure',
+	_cTableSpec('clin.procedure',
 		where = 'fk_encounter = ANY(%s)' % _ENC,
 		fks = dict(_EPI_FKS, fk_doc = ('int', 'blobs.doc_med'), fk_hospital_stay = ('int', 'clin.hospital_stay'), fk_org_unit = ('ref', 'dem.org_unit'))
 	),
-	_T('blobs.doc_obj',
+	_cTableSpec('blobs.doc_obj',
 		where = 'fk_doc = ANY({blobs.doc_med})',
 		fks = {'fk_doc': ('int', 'blobs.doc_med'), 'fk_intended_reviewer': ('staff',)}
 	),
-	_T('blobs.doc_desc',
+	_cTableSpec('blobs.doc_desc',
 		where = 'fk_doc = ANY({blobs.doc_med})',
 		fks = {'fk_doc': ('int', 'blobs.doc_med')}
 	),
-	_T('blobs.lnk_doc_med2episode',
+	_cTableSpec('blobs.lnk_doc_med2episode',
 		where = 'fk_doc_med = ANY({blobs.doc_med})',
 		fks = {'fk_doc_med': ('int', 'blobs.doc_med'), 'fk_episode': ('int', 'clin.episode')},
 		# a trigger silently suppresses links duplicating the primary episode of the document
@@ -533,7 +532,7 @@ WHERE m.tbl = 'clin.episode' AND m.src_pk = s._src_pk AND m.status = 'new'
 	),
 	_staff_review_spec('blobs.reviewed_doc_objs', 'blobs.doc_obj', one_per_row = False),
 	_staff_review_spec('clin.reviewed_test_results', 'clin.test_result', one_per_row = True),
-	_T('clin.clin_diag',
+	_cTableSpec('clin.clin_diag',
 		where = 'fk_narrative = ANY({clin.clin_narrative})',
 		fks = {'fk_narrative': ('int', 'clin.clin_narrative')},
 		match = "(SELECT d.pk FROM clin.clin_diag d WHERE d.fk_narrative = pg_temp._tp_mo('clin.clin_narrative', s.fk_narrative) ORDER BY d.pk LIMIT 1)",
@@ -547,7 +546,7 @@ WHERE m.tbl = 'clin.episode' AND m.src_pk = s._src_pk AND m.status = 'new'
 	_code_link_spec('clin.lnk_code2narrative', 'clin.clin_narrative'),
 	_code_link_spec('clin.lnk_code2procedure', 'clin.procedure'),
 	_code_link_spec('clin.lnk_code2fhx', 'clin.family_history'),
-	_T('clin.export_item',
+	_cTableSpec('clin.export_item',
 		where = 'fk_identity = %(pat)s',
 		fks = {'fk_identity': ('int', 'dem.identity'), 'fk_doc_obj': ('int', 'blobs.doc_obj')},
 		overrides = {
@@ -557,7 +556,7 @@ WHERE m.tbl = 'clin.episode' AND m.src_pk = s._src_pk AND m.status = 'new'
 			'list_position': 'coalesce((SELECT max(e.list_position) FROM clin.export_item e WHERE e.fk_identity = pg_temp._tp_target()), 0) + row_number() OVER (ORDER BY s.list_position, s._src_pk)'
 		}
 	),
-	_T('bill.bill',
+	_cTableSpec('bill.bill',
 		where = 'pk IN (SELECT bi.fk_bill FROM bill.bill_item bi WHERE bi.fk_encounter = ANY(%s)) OR fk_receiver_identity = %%(pat)s' % _ENC,
 		fks = {
 			# the database refuses invoices linked to bills without items
@@ -569,7 +568,7 @@ WHERE m.tbl = 'clin.episode' AND m.src_pk = s._src_pk AND m.status = 'new'
 			'invoice_id': "CASE WHEN EXISTS (SELECT 1 FROM bill.bill b WHERE b.invoice_id = s.invoice_id) THEN s.invoice_id || ' ' || pg_temp._tp_suffix(m.new_pk) ELSE s.invoice_id END"
 		}
 	),
-	_T('bill.bill_item',
+	_cTableSpec('bill.bill_item',
 		where = 'fk_encounter = ANY(%s)' % _ENC,
 		fks = {'fk_bill': ('int', 'bill.bill'), 'fk_encounter': ('int', 'clin.encounter'), 'fk_provider': ('staff',), 'fk_billable': ('null',)},
 		extra = {'_x_billable_code': ('integer', '(SELECT b.pk_coding_system FROM ref.billable b WHERE b.pk = t.fk_billable)', 'code')},
@@ -656,7 +655,6 @@ class _cRefSpec:
 	staged_cols = property(_get_staged_cols)
 
 #------------------------------------------------------------
-_R = _cRefSpec
 _CODE_NKS = [
 	"t.fk_data_source = pg_temp._tp_r('ref.data_source', s.fk_data_source) AND lower(t.code) = lower(s.code) AND t.term IS NOT DISTINCT FROM s.term",
 	"t.fk_data_source = pg_temp._tp_r('ref.data_source', s.fk_data_source) AND lower(t.code) = lower(s.code)"
@@ -667,7 +665,7 @@ def _code_spec(table:str) -> _cRefSpec:
 	require = {}
 	if table == 'ref.icpc':
 		require = {'fk_chapter': ('ref.icpc_chapter', 'chapter'), 'fk_component': ('ref.icpc_component', 'component')}
-	return _R(table,
+	return _cRefSpec(table,
 		nks = _CODE_NKS,
 		fks = {'fk_data_source': ('ref', 'ref.data_source')},
 		map_name = 'ref:code',
@@ -676,74 +674,74 @@ def _code_spec(table:str) -> _cRefSpec:
 	)
 
 _REF_SPECS = [
-	_R('ref.data_source', nks = ['t.name_short = s.name_short AND t.version IS NOT DISTINCT FROM s.version']),
-	_R('dem.country', pk = 'id', keep = 'code', nks = ['t.code = s.code']),
-	_R('dem.region',
+	_cRefSpec('ref.data_source', nks = ['t.name_short = s.name_short AND t.version IS NOT DISTINCT FROM s.version']),
+	_cRefSpec('dem.country', pk = 'id', keep = 'code', nks = ['t.code = s.code']),
+	_cRefSpec('dem.region',
 		nks = ['t.country = s.country AND lower(t.code) = lower(s.code)'],
 		fks = {'country': ('keep', 'dem.country')}
 	),
-	_R('dem.urb', pk = 'id',
+	_cRefSpec('dem.urb', pk = 'id',
 		nks = ["t.fk_region = pg_temp._tp_r('dem.region', s.fk_region) AND lower(t.postcode) IS NOT DISTINCT FROM lower(s.postcode) AND lower(t.name) = lower(s.name)"],
 		fks = {'fk_region': ('ref', 'dem.region')}
 	),
-	_R('dem.street', pk = 'id',
+	_cRefSpec('dem.street', pk = 'id',
 		nks = ["t.id_urb = pg_temp._tp_r('dem.urb', s.id_urb) AND lower(t.name) = lower(s.name) AND lower(t.postcode) IS NOT DISTINCT FROM lower(s.postcode)"],
 		fks = {'id_urb': ('ref', 'dem.urb')}
 	),
-	_R('dem.address', pk = 'id',
+	_cRefSpec('dem.address', pk = 'id',
 		nks = ["t.id_street = pg_temp._tp_r('dem.street', s.id_street) AND t.number IS NOT DISTINCT FROM s.number AND t.subunit IS NOT DISTINCT FROM s.subunit AND t.aux_street IS NOT DISTINCT FROM s.aux_street AND t.addendum IS NOT DISTINCT FROM s.addendum"],
 		fks = {'id_street': ('ref', 'dem.street')}
 	),
-	_R('dem.org_category', nks = ['lower(t.description) = lower(s.description)']),
-	_R('dem.org',
+	_cRefSpec('dem.org_category', nks = ['lower(t.description) = lower(s.description)']),
+	_cRefSpec('dem.org',
 		nks = ['t.description = s.description'],
 		fks = {'fk_category': ('ref', 'dem.org_category'), 'fk_data_source': ('ref', 'ref.data_source')}
 	),
-	_R('dem.org_unit',
+	_cRefSpec('dem.org_unit',
 		nks = ["t.fk_org = pg_temp._tp_r('dem.org', s.fk_org) AND t.description = s.description"],
 		fks = {'fk_org': ('ref', 'dem.org'), 'fk_category': ('ref', 'dem.org_category'), 'fk_address': ('ref', 'dem.address')}
 	),
-	_R('dem.gender_label', keep = 'tag', nks = ['t.tag = s.tag']),
-	_R('dem.marital_status', nks = ['t.name = s.name']),
-	_R('dem.enum_ext_id_types', nks = ['t.name = s.name AND t.issuer IS NOT DISTINCT FROM s.issuer']),
-	_R('dem.enum_comm_types', nks = ['t.description = s.description']),
-	_R('dem.address_type', pk = 'id', nks = ['t.name = s.name']),
-	_R('dem.occupation', pk = 'id', nks = ['t.name = s.name']),
-	_R('ref.tag_image', nks = ['t.description = s.description']),
-	_R('clin.encounter_type', nks = ['t.description = s.description']),
-	_R('clin.clin_item_type', nks = ['t.code = s.code', 't.type = s.type']),
-	_R('clin._enum_allergy_type', nks = ['t.value = s.value']),
-	_R('clin.fhx_relation_type', nks = ['t.description = s.description AND t.is_genetic IS NOT DISTINCT FROM s.is_genetic']),
-	_R('blobs.doc_type', nks = ['t.name = s.name']),
-	_R('ref.form_types', nks = ['t.name = s.name']),
-	_R('ref.paperwork_templates',
+	_cRefSpec('dem.gender_label', keep = 'tag', nks = ['t.tag = s.tag']),
+	_cRefSpec('dem.marital_status', nks = ['t.name = s.name']),
+	_cRefSpec('dem.enum_ext_id_types', nks = ['t.name = s.name AND t.issuer IS NOT DISTINCT FROM s.issuer']),
+	_cRefSpec('dem.enum_comm_types', nks = ['t.description = s.description']),
+	_cRefSpec('dem.address_type', pk = 'id', nks = ['t.name = s.name']),
+	_cRefSpec('dem.occupation', pk = 'id', nks = ['t.name = s.name']),
+	_cRefSpec('ref.tag_image', nks = ['t.description = s.description']),
+	_cRefSpec('clin.encounter_type', nks = ['t.description = s.description']),
+	_cRefSpec('clin.clin_item_type', nks = ['t.code = s.code', 't.type = s.type']),
+	_cRefSpec('clin._enum_allergy_type', nks = ['t.value = s.value']),
+	_cRefSpec('clin.fhx_relation_type', nks = ['t.description = s.description AND t.is_genetic IS NOT DISTINCT FROM s.is_genetic']),
+	_cRefSpec('blobs.doc_type', nks = ['t.name = s.name']),
+	_cRefSpec('ref.form_types', nks = ['t.name = s.name']),
+	_cRefSpec('ref.paperwork_templates',
 		nks = [
 			't.name_short = s.name_short AND t.name_long = s.name_long AND t.external_version IS NOT DISTINCT FROM s.external_version',
 			't.name_short = s.name_short AND t.name_long = s.name_long'
 		],
 		fks = {'fk_template_type': ('ref', 'ref.form_types')}
 	),
-	_R('ref.substance', nks = ['lower(t.description) = lower(s.description)']),
-	_R('ref.vacc_indication', nks = ['t.target = s.target', 't.atc = s.atc']),
-	_R('ref.vaccine',
+	_cRefSpec('ref.substance', nks = ['lower(t.description) = lower(s.description)']),
+	_cRefSpec('ref.vacc_indication', nks = ['t.target = s.target', 't.atc = s.atc']),
+	_cRefSpec('ref.vaccine',
 		nks = [
 			't.brandname = s.brandname',
 			't.brandname IS NULL AND s.brandname IS NULL AND (SELECT array_agg(i.target::text ORDER BY i.target::text) FROM ref.lnk_indic2vaccine l JOIN ref.vacc_indication i ON (i.pk = l.fk_indication) WHERE l.fk_vaccine = t.pk) = s._x_targets'
 		],
 		extra = {'_x_targets': ('text[]', '(SELECT array_agg(i.target::text ORDER BY i.target::text) FROM ref.lnk_indic2vaccine l JOIN ref.vacc_indication i ON (i.pk = l.fk_indication) WHERE l.fk_vaccine = t.pk)')}
 	),
-	_R('ref.lnk_indic2vaccine',
+	_cRefSpec('ref.lnk_indic2vaccine',
 		fks = {'fk_vaccine': ('ref', 'ref.vaccine'), 'fk_indication': ('ref', 'ref.vacc_indication')},
 		# only needed when the vaccine itself is created
 		create_if = "(SELECT m.status FROM pg_temp._gm_tp_map m WHERE m.tbl = 'ref:ref.vaccine' AND m.src_pk = s.fk_vaccine) = 'ref_created'",
 		child_of = ('fk_vaccine', 'ref.vaccine')
 	),
-	_R('clin.meta_test_type', nks = ['t.abbrev = s.abbrev']),
-	_R('clin.test_org',
+	_cRefSpec('clin.meta_test_type', nks = ['t.abbrev = s.abbrev']),
+	_cRefSpec('clin.test_org',
 		nks = ["t.fk_org_unit = pg_temp._tp_r('dem.org_unit', s.fk_org_unit)"],
 		fks = {'fk_org_unit': ('ref', 'dem.org_unit'), 'fk_adm_contact': ('null',), 'fk_med_contact': ('null',)}
 	),
-	_R('clin.test_type',
+	_cRefSpec('clin.test_type',
 		nks = [
 			"t.fk_test_org = pg_temp._tp_r('clin.test_org', s.fk_test_org) AND t.abbrev = s.abbrev",
 			"t.fk_test_org = pg_temp._tp_r('clin.test_org', s.fk_test_org) AND t.name = s.name"
@@ -782,15 +780,15 @@ def sql_literal(value) -> str:
 	return "E'%s'" % str(value).translate(_E_STRING_ESCAPES)
 
 #------------------------------------------------------------
-def _qi(identifier:str) -> str:
+def _quote_identifier(identifier:str) -> str:
 	"""Quote an identifier."""
 	return '"%s"' % identifier.replace('"', '""')
 
 #------------------------------------------------------------
-def _qt(table:str) -> str:
+def _quote_qual_table(table:str) -> str:
 	"""Quote a schema qualified table name."""
 	schema, name = table.split('.')
-	return '%s.%s' % (_qi(schema), _qi(name))
+	return '%s.%s' % (_quote_identifier(schema), _quote_identifier(name))
 
 #------------------------------------------------------------
 def _array_arg_name(table:str) -> str:
@@ -850,7 +848,7 @@ class _cRowBatcher:
 	def __init__(self, writer:_cStatementWriter, section:str, staging:str, cols:list, key_col:str='_src_pk'):
 		self.__writer = writer
 		self.__section = section
-		self.__head = 'INSERT INTO %s (%s, %s) VALUES' % (staging, key_col, ', '.join([ _qi(c) for c in cols ]))
+		self.__head = 'INSERT INTO %s (%s, %s) VALUES' % (staging, key_col, ', '.join([ _quote_identifier(c) for c in cols ]))
 		self.__rows = []
 		self.__size = 0
 
@@ -1116,9 +1114,9 @@ class _cExporter:
 		parts = []
 		for col in spec.staged_cols:
 			if col in spec.bytea_cols:
-				parts.append('octet_length(t.%s)' % _qi(col))
+				parts.append('octet_length(t.%s)' % _quote_identifier(col))
 			else:
-				parts.append('t.%s::text' % _qi(col))
+				parts.append('t.%s::text' % _quote_identifier(col))
 		for name, (sqltype, expr, kind) in spec.extra.items():
 			parts.append('(%s)::text' % expr)
 		if spec.has_audit:
@@ -1129,11 +1127,11 @@ class _cExporter:
 		if spec.export_filter:
 			where = '(%s) AND (%s)' % (where, spec.export_filter)
 		return 'SELECT t.%s, %s FROM %s t WHERE %s ORDER BY t.%s' % (
-			_qi(spec.pk),
+			_quote_identifier(spec.pk),
 			', '.join(parts),
-			_qt(spec.table),
+			_quote_qual_table(spec.table),
 			where,
-			_qi(spec.pk)
+			_quote_identifier(spec.pk)
 		)
 
 	#--------------------------------------------------------
@@ -1214,7 +1212,7 @@ class _cExporter:
 		while True:
 			rows = _run (
 				curs,
-				'SELECT substring(%s FROM %%(off)s FOR %%(len)s) FROM %s WHERE %s = %%(pk)s' % (_qi(col), _qt(table), _qi(pk_col)),
+				'SELECT substring(%s FROM %%(off)s FOR %%(len)s) FROM %s WHERE %s = %%(pk)s' % (_quote_identifier(col), _quote_qual_table(table), _quote_identifier(pk_col)),
 				{'off': offset + 1, 'len': _BLOB_CHUNK_SIZE, 'pk': src_pk}
 			)
 			data = bytes(rows[0][0]) if rows and rows[0][0] is not None else b''
@@ -1310,20 +1308,20 @@ class _cExporter:
 		parts = []
 		for col in spec.staged_cols:
 			if col in spec.bytea_cols:
-				parts.append('octet_length(t.%s)' % _qi(col))
+				parts.append('octet_length(t.%s)' % _quote_identifier(col))
 			else:
-				parts.append('t.%s::text' % _qi(col))
+				parts.append('t.%s::text' % _quote_identifier(col))
 		for name, (sqltype, expr) in spec.extra.items():
 			parts.append('(%s)::text' % expr)
 		if spec.keep:
-			key_expr = 't.%s::text' % _qi(spec.keep)
-			cond = 't.%s::text = ANY(%%(keys)s::text[])' % _qi(key_col)
+			key_expr = 't.%s::text' % _quote_identifier(spec.keep)
+			cond = 't.%s::text = ANY(%%(keys)s::text[])' % _quote_identifier(key_col)
 			keys = sorted([ str(k) for k in keys ])
 		else:
-			key_expr = 't.%s' % _qi(spec.map_col)
-			cond = 't.%s = ANY(%%(keys)s::int[])' % _qi(key_col)
+			key_expr = 't.%s' % _quote_identifier(spec.map_col)
+			cond = 't.%s = ANY(%%(keys)s::int[])' % _quote_identifier(key_col)
 			keys = sorted(keys)
-		sql = 'SELECT %s, %s FROM %s t WHERE %s ORDER BY 1' % (key_expr, ', '.join(parts), _qt(spec.table), cond)
+		sql = 'SELECT %s, %s FROM %s t WHERE %s ORDER BY 1' % (key_expr, ', '.join(parts), _quote_qual_table(spec.table), cond)
 		rows = _run(curs, sql, {'keys': keys})
 		if not spec.child_of and len(rows) != len(keys):
 			raise cTransplantError('reference rows missing in [%s]' % spec.table)
@@ -1438,9 +1436,9 @@ class _cExporter:
 		select = []
 		for name, is_bytea in data_cols:
 			if is_bytea:
-				select.append("CASE WHEN l.%(c)s IS NULL THEN NULL ELSE '<' || octet_length(l.%(c)s) || ' bytes, md5 ' || md5(l.%(c)s) || '>' END" % {'c': _qi(name)})
+				select.append("CASE WHEN l.%(c)s IS NULL THEN NULL ELSE '<' || octet_length(l.%(c)s) || ' bytes, md5 ' || md5(l.%(c)s) || '>' END" % {'c': _quote_identifier(name)})
 			else:
-				select.append('l.%s::text' % _qi(name))
+				select.append('l.%s::text' % _quote_identifier(name))
 		# log tables carry the columns of the audited table, so the
 		# patient filter also finds versions of since deleted rows
 		sql = """SELECT l.row_version, l.version_created_when::text, l.version_created_by::text, l.version_logged_when::text, l.version_logged_by::text, l.version_logged_why, %s
@@ -1451,7 +1449,7 @@ class _cExporter:
 				', '.join(select),
 				log_table,
 				_expand_where(spec.where),
-				_qi(spec.pk)
+				_quote_identifier(spec.pk)
 			)
 		args = self._query_args()
 		args['tbl'] = spec.table
@@ -1466,11 +1464,11 @@ class _cExporter:
 		cur_select = []
 		for name, is_bytea in data_cols:
 			if is_bytea:
-				cur_select.append("CASE WHEN t.%(c)s IS NULL THEN NULL ELSE '<' || octet_length(t.%(c)s) || ' bytes, md5 ' || md5(t.%(c)s) || '>' END" % {'c': _qi(name)})
+				cur_select.append("CASE WHEN t.%(c)s IS NULL THEN NULL ELSE '<' || octet_length(t.%(c)s) || ' bytes, md5 ' || md5(t.%(c)s) || '>' END" % {'c': _quote_identifier(name)})
 			else:
-				cur_select.append('t.%s::text' % _qi(name))
+				cur_select.append('t.%s::text' % _quote_identifier(name))
 		current = {}
-		for row in _run(curs, 'SELECT %s FROM %s t WHERE t.%s::text = ANY(%%(pks)s::text[])' % (', '.join(cur_select), _qt(spec.table), _qi(spec.pk)), {'pks': row_pks}):
+		for row in _run(curs, 'SELECT %s FROM %s t WHERE t.%s::text = ANY(%%(pks)s::text[])' % (', '.join(cur_select), _quote_qual_table(spec.table), _quote_identifier(spec.pk)), {'pks': row_pks}):
 			current[row[pk_idx]] = list(row)
 		lines = ['', '=== %s ===' % spec.table]
 		by_row = {}
@@ -1565,8 +1563,8 @@ class _cExporter:
 		cfg.write("INSERT INTO pg_temp._gm_tp_cfg VALUES ('staff_match', 'strict');\n")
 		cfg.write('%s\n' % _CFG_HELP_SAME_PATIENT)
 		cfg.write("INSERT INTO pg_temp._gm_tp_cfg VALUES ('same_patient_as', NULL);\n")
-		cfg.write('%s\n' % _CFG_HELP_MODE)
-		cfg.write("INSERT INTO pg_temp._gm_tp_cfg VALUES ('mode', 'detect');\n")
+		cfg.write('%s\n' % _CFG_HELP_PATIENT_MODE)
+		cfg.write("INSERT INTO pg_temp._gm_tp_cfg VALUES ('patient_mode', 'detect');\n")
 		cfg.write('%s\n' % _CFG_HELP_FORCE)
 		cfg.write("INSERT INTO pg_temp._gm_tp_cfg VALUES ('force', 'false');\n")
 		cfg.write('%s\n' % _CFG_HELP_DRY_RUN)
@@ -1603,7 +1601,7 @@ class _cExporter:
 			'history_sha256': self.history_sha256,
 			'history_note': self.history_note,
 			'txt_err_applied': _('[gm_transplant] This export has already been imported (see DETAIL for the identities). Set force to import again, no rows will be duplicated.'),
-			'txt_err_candidates': _('[gm_transplant] The patient may already exist in this database (see DETAIL for candidates). Set mode to "new" or set same_patient_as to one of the candidates.'),
+			'txt_err_candidates': _('[gm_transplant] The patient may already exist in this database (see DETAIL for candidates). Set patient mode to "new" or set same_patient_as to one of the candidates.'),
 			'txt_err_schema': _('[gm_transplant] Database schema does not match the schema of the source database.'),
 			'txt_err_config': _('[gm_transplant] Invalid configuration'),
 			'txt_err_staff': _('[gm_transplant] Staff problem'),
@@ -1616,7 +1614,7 @@ class _cExporter:
 			'txt_protocol_title': _('GNUmed transplant protocol'),
 			'txt_history_title': _('GNUmed audit history (source database)'),
 			'txt_orig_staff': _('orig.'),
-			'txt_admin_note': _('Patient data transplanted from "{source}" (source patient #{source_pk}, export {export_uuid} of {exported_when}), mode: {mode}. Details: documents "GNUmed transplant protocol" and "GNUmed audit history".'),
+			'txt_admin_note': _('Patient data transplanted from "{source}" (source patient #{source_pk}, export {export_uuid} of {exported_when}), patient mode: {patient_mode}. Details: documents "GNUmed transplant protocol" and "GNUmed audit history".'),
 			'txt_relatives': _('Relatives in the source database'),
 			'txt_source': _('Source'),
 			'txt_source_patient': _('Source patient'),
@@ -1666,9 +1664,9 @@ class _cExporter:
 	def _staging_ddl(self, spec) -> str:
 		cols = ['_src_pk integer PRIMARY KEY']
 		for col in spec.staged_cols:
-			cols.append('%s %s' % (_qi(col), spec.col_types[col]))
+			cols.append('%s %s' % (_quote_identifier(col), spec.col_types[col]))
 		for name, (sqltype, expr, kind) in spec.extra.items():
-			cols.append('%s %s' % (_qi(name), sqltype))
+			cols.append('%s %s' % (_quote_identifier(name), sqltype))
 		if spec.has_audit:
 			cols.append('_x_modified_by text')
 			cols.append('_x_modified_when timestamp with time zone')
@@ -1681,9 +1679,9 @@ class _cExporter:
 		else:
 			cols = ['_src_pk integer PRIMARY KEY']
 		for col in spec.staged_cols:
-			cols.append('%s %s' % (_qi(col), spec.col_types[col]))
+			cols.append('%s %s' % (_quote_identifier(col), spec.col_types[col]))
 		for name, (sqltype, expr) in spec.extra.items():
-			cols.append('%s %s' % (_qi(name), sqltype))
+			cols.append('%s %s' % (_quote_identifier(name), sqltype))
 		return 'CREATE TEMP TABLE _s_ref__%s__%s (\n\t%s\n) ON COMMIT DROP;' % (spec.schema, spec.name, ',\n\t'.join(cols))
 
 	#--------------------------------------------------------
@@ -1747,20 +1745,20 @@ def _insert_expr(spec, col:str) -> str:
 		return spec.overrides[col]
 	fk = spec.fks.get(col)
 	if fk is None:
-		return 's.%s' % _qi(col)
+		return 's.%s' % _quote_identifier(col)
 	kind = fk[0]
 	if kind == 'int':
-		return "pg_temp._tp_m('%s', s.%s)" % (fk[1], _qi(col))
+		return "pg_temp._tp_m('%s', s.%s)" % (fk[1], _quote_identifier(col))
 	if kind == 'soft':
-		return "pg_temp._tp_mo('%s', s.%s)" % (fk[1], _qi(col))
+		return "pg_temp._tp_mo('%s', s.%s)" % (fk[1], _quote_identifier(col))
 	if kind == 'staff':
-		return 'pg_temp._tp_s(s.%s)' % _qi(col)
+		return 'pg_temp._tp_s(s.%s)' % _quote_identifier(col)
 	if kind == 'ref':
-		return "pg_temp._tp_r('%s', s.%s)" % (fk[1], _qi(col))
+		return "pg_temp._tp_r('%s', s.%s)" % (fk[1], _quote_identifier(col))
 	if kind == 'code':
-		return "pg_temp._tp_r('code', s.%s)" % _qi(col)
+		return "pg_temp._tp_r('code', s.%s)" % _quote_identifier(col)
 	if kind == 'keep':
-		return 's.%s' % _qi(col)
+		return 's.%s' % _quote_identifier(col)
 	raise ValueError('cannot insert column [%s.%s] of kind [%s]' % (spec.table, col, kind))
 
 #------------------------------------------------------------
@@ -1779,7 +1777,7 @@ def _table_loader_sql(spec) -> list:
 	stg = spec.staging
 	not_mapped = "NOT EXISTS (SELECT 1 FROM pg_temp._gm_tp_map m WHERE m.tbl = '%s' AND m.src_pk = s._src_pk)" % tbl
 	orphan_parts = [
-		"(s.%s IS NOT NULL AND pg_temp._tp_mo('%s', s.%s) IS NULL)" % (_qi(col), fk[1], _qi(col))
+		"(s.%s IS NOT NULL AND pg_temp._tp_mo('%s', s.%s) IS NULL)" % (_quote_identifier(col), fk[1], _quote_identifier(col))
 		for col, fk in spec.fks.items() if fk[0] == 'int'
 	]
 	stmts = []
@@ -1831,8 +1829,8 @@ SELECT %s
 FROM %s s
 	JOIN pg_temp._gm_tp_map m ON (m.tbl = '%s' AND m.src_pk = s._src_pk AND m.status = 'new')
 ORDER BY s._src_pk;""" % (
-			_qt(tbl),
-			', '.join([ _qi(c) for c in cols ]),
+			_quote_qual_table(tbl),
+			', '.join([ _quote_identifier(c) for c in cols ]),
 			'OVERRIDING SYSTEM VALUE' if spec.pk_is_identity else '',
 			',\n\t'.join(exprs),
 			stg,
@@ -1841,7 +1839,7 @@ ORDER BY s._src_pk;""" % (
 	stmts.extend(spec.post_insert)
 	if spec.lenient:
 		stmts.append("""UPDATE pg_temp._gm_tp_map m SET status = 'dropped', note = 'suppressed by a trigger of the target database'
-WHERE m.tbl = '%s' AND m.status = 'new' AND NOT EXISTS (SELECT 1 FROM %s t WHERE t.%s = m.new_pk);""" % (tbl, _qt(tbl), _qi(spec.pk)))
+WHERE m.tbl = '%s' AND m.status = 'new' AND NOT EXISTS (SELECT 1 FROM %s t WHERE t.%s = m.new_pk);""" % (tbl, _quote_qual_table(tbl), _quote_identifier(spec.pk)))
 	return stmts
 
 #------------------------------------------------------------
@@ -1854,14 +1852,14 @@ def _ref_loader_sql(spec) -> list:
 		# the natural key value itself is referenced: just make sure it exists
 		nk = ' OR '.join([ '(%s)' % c for c in spec.nks ])
 		stmts.append("""INSERT INTO pg_temp._gm_tp_keep_log (tbl, key)
-SELECT '%s', s._src_key FROM %s s WHERE NOT EXISTS (SELECT 1 FROM %s t WHERE %s);""" % (spec.table, stg, _qt(spec.table), nk))
+SELECT '%s', s._src_key FROM %s s WHERE NOT EXISTS (SELECT 1 FROM %s t WHERE %s);""" % (spec.table, stg, _quote_qual_table(spec.table), nk))
 		stmts.append("""INSERT INTO %s (%s)
 SELECT %s FROM %s s WHERE NOT EXISTS (SELECT 1 FROM %s t WHERE %s);""" % (
-			_qt(spec.table),
-			', '.join([ _qi(c) for c in cols ]),
+			_quote_qual_table(spec.table),
+			', '.join([ _quote_identifier(c) for c in cols ]),
 			', '.join([ _ref_insert_expr(spec, c) for c in cols ]),
 			stg,
-			_qt(spec.table),
+			_quote_qual_table(spec.table),
 			nk
 		))
 		return stmts
@@ -1869,7 +1867,7 @@ SELECT %s FROM %s s WHERE NOT EXISTS (SELECT 1 FROM %s t WHERE %s);""" % (
 	not_mapped = "NOT EXISTS (SELECT 1 FROM pg_temp._gm_tp_map m WHERE m.tbl = '%s' AND m.src_pk = s._src_pk)" % map_name
 	if spec.nks:
 		lookups = [
-			'(SELECT t.%s FROM %s t WHERE %s ORDER BY t.%s LIMIT 1)' % (_qi(spec.map_col), _qt(spec.table), nk, _qi(spec.map_col))
+			'(SELECT t.%s FROM %s t WHERE %s ORDER BY t.%s LIMIT 1)' % (_quote_identifier(spec.map_col), _quote_qual_table(spec.table), nk, _quote_identifier(spec.map_col))
 			for nk in spec.nks
 		]
 		lookup = lookups[0] if len(lookups) == 1 else 'coalesce(%s)' % ', '.join(lookups)
@@ -1884,7 +1882,7 @@ BEGIN
 		RAISE EXCEPTION USING ERRCODE = 'GMTP6', MESSAGE = pg_temp._tp_meta('txt_err_reference'), DETAIL = '%s.%s';
 	END IF;
 END;
-$tp$;""" % (stg, not_mapped, _qi(col), _qt(req_table), _qi(req_col), _qi(col), req_table, req_col))
+$tp$;""" % (stg, not_mapped, _quote_identifier(col), _quote_qual_table(req_table), _quote_identifier(req_col), _quote_identifier(col), req_table, req_col))
 	create_if = '(%s)' % spec.create_if if spec.create_if else 'true'
 	stmts.append("""INSERT INTO pg_temp._gm_tp_map (tbl, src_pk, new_pk, status, note)
 SELECT '%s', s._src_pk, nextval('%s'::regclass), 'ref_created', '%s'
@@ -1898,8 +1896,8 @@ SELECT m.new_pk, %s
 FROM %s s
 	JOIN pg_temp._gm_tp_map m ON (m.tbl = '%s' AND m.src_pk = s._src_pk AND m.status = 'ref_created' AND m.note = '%s')
 ORDER BY s._src_pk;""" % (
-		_qt(spec.table),
-		', '.join([ _qi(c) for c in insert_cols ]),
+		_quote_qual_table(spec.table),
+		', '.join([ _quote_identifier(c) for c in insert_cols ]),
 		overriding,
 		', '.join([ _ref_insert_expr(spec, c) for c in cols ]),
 		stg,
@@ -1912,9 +1910,9 @@ ORDER BY s._src_pk;""" % (
 def _ref_insert_expr(spec, col:str) -> str:
 	fk = spec.fks.get(col)
 	if fk is None or fk[0] == 'keep':
-		return 's.%s' % _qi(col)
+		return 's.%s' % _quote_identifier(col)
 	if fk[0] == 'ref':
-		return "pg_temp._tp_r('%s', s.%s)" % (fk[1], _qi(col))
+		return "pg_temp._tp_r('%s', s.%s)" % (fk[1], _quote_identifier(col))
 	raise ValueError('cannot insert reference column [%s.%s] of kind [%s]' % (spec.table, col, fk[0]))
 
 #------------------------------------------------------------
@@ -1923,76 +1921,61 @@ def _verification_sql() -> str:
 	lost = []
 	for spec in _TABLE_SPECS:
 		missing.append("SELECT '%s'::text AS tbl, count(1) AS n FROM %s s WHERE NOT EXISTS (SELECT 1 FROM pg_temp._gm_tp_map m WHERE m.tbl = '%s' AND m.src_pk = s._src_pk)" % (spec.table, spec.staging, spec.table))
-		lost.append("SELECT '%s'::text AS tbl, count(1) AS n FROM pg_temp._gm_tp_map m WHERE m.tbl = '%s' AND m.status = 'new' AND NOT EXISTS (SELECT 1 FROM %s t WHERE t.%s = m.new_pk)" % (spec.table, spec.table, _qt(spec.table), _qi(spec.pk)))
+		lost.append("SELECT '%s'::text AS tbl, count(1) AS n FROM pg_temp._gm_tp_map m WHERE m.tbl = '%s' AND m.status = 'new' AND NOT EXISTS (SELECT 1 FROM %s t WHERE t.%s = m.new_pk)" % (spec.table, spec.table, _quote_qual_table(spec.table), _quote_identifier
+		(spec.pk)))
 	return _SQL_VERIFY.replace('@MISSING@', '\n\t\tUNION ALL '.join(missing)).replace('@LOST@', '\n\t\tUNION ALL '.join(lost))
 
 #============================================================
 # static SQL of the script
 #------------------------------------------------------------
-_SCRIPT_HEADER = """==========================================================================
-GNUmed Patienten-Transplantation / patient transplant script
-==========================================================================
+_SCRIPT_HEADER = """======================================================================
+GNUmed patient transplant script
+======================================================================
 
-Quelle / source        : %(source)s
-Quell-Patient / source : #%(source_pk)s
-Export                 : %(uuid)s (%(when)s)
-Zeilen / rows          : %(n_rows)s
+source        : %(source)s
+patient       : #%(source_pk)s
+export        : %(uuid)s (%(when)s)
+rows          : %(n_rows)s
 
-!!! ENTHAELT PATIENTENDATEN / CONTAINS PATIENT DATA - vertraulich behandeln !!!
+CONTAINS PATIENT DATA - handle confidentially !!!
 
-Anwendung / usage:
+usage:
 
   psql -v ON_ERROR_STOP=1 -U gm-dbo -d <gnumed_v23> -f <this file>
 
   or GNUmed: Person -> Import -> GNUmed transplant script
 
-Das Skript laeuft in EINER Transaktion: entweder wird alles
-importiert oder nichts. Existiert der Patient im Ziel bereits
-(vermutlich), bricht das Skript mit SQLSTATE GMTP1 ab und nennt
-die Kandidaten. Dann im KONFIGURATIONS-Block unten entweder
-same_patient_as = <pk> (Daten hinzufuegen) oder mode = 'new'
-(neuen Patienten anlegen) setzen.
-
 The script runs as ONE transaction: everything is imported or
 nothing. If the patient seems to exist already the script aborts
 with SQLSTATE GMTP1 listing candidates. Then edit the
 CONFIGURATION block below: either same_patient_as = <pk> (add
-data to that patient) or mode = 'new' (create new patient).
+data to that patient) or patient_mode = 'new' (create new patient).
 
 Settings may also be passed in from outside, overriding the block:
 
-  PGOPTIONS='-c gm_transplant.mode=new' psql ...
+  PGOPTIONS='-c gm_transplant.patient_mode=new' psql ...
 
 Do not edit anything below the line "%(data_begin)s":
 that part is protected by a SHA-256 checksum.
 ==========================================================================""".replace('%(data_begin)s', MARKER_DATA_BEGIN)
 
 _CONFIG_BLOCK_HELP = """--
--- Personal-Abgleich: 'strict' = Kuerzel bzw. DB-Konto UND Name (und Geburtsdatum,
--- falls bekannt) muessen passen; 'lenient' = Kuerzel bzw. DB-Konto genuegt.
 -- Staff matching: 'strict' = alias or database account AND name (and DOB, if known)
 -- must match; 'lenient' = alias or database account suffices.
 """
 _CFG_HELP_SAME_PATIENT = """--
--- Derselbe Patient wie Ziel-Patient #...: NULL = automatisch erkennen, sonst pk
--- eintragen, z.B. '4711'. Die Daten werden dann diesem Patienten hinzugefuegt.
 -- Same patient as target patient #...: NULL = detect, else the pk, say, '4711'.
 -- The data will then be added to that patient."""
-_CFG_HELP_MODE = """--
--- Modus / mode: 'detect' | 'new' | 'add'  (same_patient_as gesetzt => 'add')"""
+_CFG_HELP_PATIENT_MODE = """--
+-- patient_mode: 'detect' | 'new' | 'add'  (same_patient_as set => 'add')"""
 _CFG_HELP_FORCE = """--
--- Erneutes Anwenden dieses Exports erlauben (es entstehen KEINE Duplikate).
 -- Allow re-applying this export (NO rows will be duplicated)."""
 _CFG_HELP_DRY_RUN = """--
--- Testlauf: alles pruefen, dann zurueckrollen. / Dry run: check all, then roll back."""
+-- Dry run: check all, then roll back."""
 _CFG_HELP_FALLBACK = """--
--- Ersatz-Mitarbeiter (Kuerzel) fuer nicht zuordenbares Personal; NULL = der
--- importierende Mitarbeiter (DB-Konto der Sitzung). Bei Import als gm-dbo setzen!
 -- Fallback staff member (alias) for unmappable staff; NULL = staff member of the
 -- session account. Set this when importing as gm-dbo!"""
 _CFG_HELP_STAFF_MAP = """--
--- Personal-Zuordnung alt -> neu: Ziel-Kuerzel in die letzte Spalte eintragen,
--- NULL = automatisch (siehe staff_match).
 -- Staff mapping old -> new: put the target alias into the last column,
 -- NULL = automatic (see staff_match).
 --   (src_alias, src_db_user, src_name, target_alias)"""
@@ -2116,7 +2099,7 @@ $tp$;""",
 $tp$;""",
 
 """CREATE FUNCTION pg_temp._tp_add_target() RETURNS integer LANGUAGE sql STABLE AS $tp$
-	SELECT CASE WHEN pg_temp._tp_state('mode') = 'add' THEN pg_temp._tp_state('target')::integer ELSE NULL END
+	SELECT CASE WHEN pg_temp._tp_state('patient_mode') = 'add' THEN pg_temp._tp_state('target')::integer ELSE NULL END
 $tp$;""",
 
 """CREATE FUNCTION pg_temp._tp_identity_comment(_p_comment text) RETURNS text LANGUAGE sql STABLE AS $tp$
@@ -2207,7 +2190,7 @@ $tp$;""",
 			'{source_pk}', coalesce(pg_temp._tp_meta('source_pk'), '?')),
 			'{export_uuid}', coalesce(pg_temp._tp_meta('export_uuid'), '?')),
 			'{exported_when}', coalesce(pg_temp._tp_meta('exported_when'), '?')),
-			'{mode}', coalesce(pg_temp._tp_state('mode'), '?'))
+			'{patient_mode}', coalesce(pg_temp._tp_state('patient_mode'), '?'))
 		|| coalesce(E'\\n' || pg_temp._tp_meta('txt_relatives') || ': ' || pg_temp._tp_meta('relatives'), '')
 $tp$;""",
 
@@ -2217,7 +2200,7 @@ $tp$;""",
 		'export_uuid', pg_temp._tp_meta('export_uuid'),
 		'source_id', pg_temp._tp_meta('source_id'),
 		'source_pk', pg_temp._tp_meta('source_pk'),
-		'mode', pg_temp._tp_state('mode'),
+		'patient_mode', pg_temp._tp_state('patient_mode'),
 		'target_identity', pg_temp._tp_target(),
 		'dry_run', pg_temp._tp_cfg_bool('dry_run'),
 		'forced', pg_temp._tp_cfg_bool('force'),
@@ -2267,7 +2250,7 @@ BEGIN
 		format('%s: #%s', pg_temp._tp_meta('txt_source_patient'), pg_temp._tp_meta('source_pk')),
 		format('%s: %s (%s)', pg_temp._tp_meta('txt_export'), pg_temp._tp_meta('export_uuid'), pg_temp._tp_meta('exported_when')),
 		format('%s: %s (%s)', pg_temp._tp_meta('txt_import'), now(), SESSION_USER),
-		format('%s: %s / #%s', pg_temp._tp_meta('txt_mode'), pg_temp._tp_state('mode'), pg_temp._tp_target()),
+		format('%s: %s / #%s', pg_temp._tp_meta('txt_mode'), pg_temp._tp_state('patient_mode'), pg_temp._tp_target()),
 		format('%s: staff_match=%s, same_patient_as=%s, force=%s, fallback_staff=%s',
 			pg_temp._tp_meta('txt_config'),
 			lower(coalesce(pg_temp._tp_cfg('staff_match'), 'strict')),
@@ -2367,9 +2350,9 @@ BEGIN
 	IF _v_value NOT IN ('strict', 'lenient') THEN
 		RAISE EXCEPTION USING ERRCODE = 'GMTP4', MESSAGE = pg_temp._tp_meta('txt_err_config'), DETAIL = 'staff_match: strict | lenient';
 	END IF;
-	_v_value := lower(trim(coalesce(pg_temp._tp_cfg('mode'), 'detect')));
+	_v_value := lower(trim(coalesce(pg_temp._tp_cfg('patient_mode'), 'detect')));
 	IF _v_value NOT IN ('detect', 'new', 'add') THEN
-		RAISE EXCEPTION USING ERRCODE = 'GMTP4', MESSAGE = pg_temp._tp_meta('txt_err_config'), DETAIL = 'mode: detect | new | add';
+		RAISE EXCEPTION USING ERRCODE = 'GMTP4', MESSAGE = pg_temp._tp_meta('txt_err_config'), DETAIL = 'patient_mode: detect | new | add';
 	END IF;
 	FOREACH _v_value IN ARRAY ARRAY['force', 'dry_run'] LOOP
 		IF lower(trim(coalesce(pg_temp._tp_cfg(_v_value), 'false'))) NOT IN ('true', 't', 'yes', 'y', 'on', '1', 'false', 'f', 'no', 'n', 'off', '0') THEN
@@ -2384,8 +2367,8 @@ BEGIN
 		IF NOT EXISTS (SELECT 1 FROM dem.identity i WHERE i.pk = _v_value::integer AND i.deleted IS FALSE) THEN
 			RAISE EXCEPTION USING ERRCODE = 'GMTP4', MESSAGE = pg_temp._tp_meta('txt_err_config'), DETAIL = 'same_patient_as: no (active) patient #' || _v_value;
 		END IF;
-	ELSIF lower(trim(coalesce(pg_temp._tp_cfg('mode'), 'detect'))) = 'add' THEN
-		RAISE EXCEPTION USING ERRCODE = 'GMTP4', MESSAGE = pg_temp._tp_meta('txt_err_config'), DETAIL = 'mode add requires same_patient_as';
+	ELSIF lower(trim(coalesce(pg_temp._tp_cfg('patient_mode'), 'detect'))) = 'add' THEN
+		RAISE EXCEPTION USING ERRCODE = 'GMTP4', MESSAGE = pg_temp._tp_meta('txt_err_config'), DETAIL = 'patient_mode add requires same_patient_as';
 	END IF;
 	-- staff
 	SELECT string_agg(DISTINCT trim(sm.target_alias), ', ') INTO _v_value
@@ -2422,7 +2405,7 @@ DECLARE
 	_v_applied jsonb;
 	_v_candidates jsonb;
 BEGIN
-	_v_mode := lower(trim(coalesce(pg_temp._tp_cfg('mode'), 'detect')));
+	_v_mode := lower(trim(coalesce(pg_temp._tp_cfg('patient_mode'), 'detect')));
 	_v_same := nullif(trim(coalesce(pg_temp._tp_cfg('same_patient_as'), '')), '');
 	-- this very export imported before ?
 	SELECT jsonb_agg(i.pk ORDER BY i.pk) INTO _v_applied
@@ -2489,7 +2472,7 @@ BEGIN
 		END IF;
 		_v_mode := 'new';
 	END IF;
-	PERFORM pg_temp._tp_set_state('mode', _v_mode);
+	PERFORM pg_temp._tp_set_state('patient_mode', _v_mode);
 	PERFORM pg_temp._tp_set_state('target', _v_target::text);
 	-- a new identity must not clash with existing (name, dob, gender, comment)
 	IF _v_mode = 'new' THEN
@@ -2593,7 +2576,7 @@ DECLARE
 	_v_rows jsonb;
 	_v_tbl record;
 BEGIN
-	IF pg_temp._tp_state('mode') IS DISTINCT FROM 'add' THEN
+	IF pg_temp._tp_state('patient_mode') IS DISTINCT FROM 'add' THEN
 		RETURN;
 	END IF;
 	SELECT i.aux_info -> 'gm_transplant' -> 'sources' -> pg_temp._tp_meta('source_id') -> 'rows' INTO _v_rows
@@ -2640,7 +2623,7 @@ BEGIN
 				_v_name._new_pk,
 				pg_temp._tp_m('dem.identity', _v_name.id_identity),
 				-- names added to an existing patient do not replace the active name
-				CASE WHEN pg_temp._tp_state('mode') = 'add' THEN false ELSE _v_name.active END,
+				CASE WHEN pg_temp._tp_state('patient_mode') = 'add' THEN false ELSE _v_name.active END,
 				_v_name.lastnames,
 				_v_name.firstnames,
 				_v_name.preferred,
@@ -2648,7 +2631,7 @@ BEGIN
 			);
 		EXCEPTION
 			WHEN unique_violation THEN
-				IF pg_temp._tp_state('mode') IS DISTINCT FROM 'add' THEN
+				IF pg_temp._tp_state('patient_mode') IS DISTINCT FROM 'add' THEN
 					-- do not re-raise the original error, it contains patient data
 					RAISE EXCEPTION USING ERRCODE = 'GMTP9', MESSAGE = pg_temp._tp_meta('txt_err_verify'), DETAIL = 'name of new patient clashes with existing person';
 				END IF;
@@ -2849,7 +2832,7 @@ BEGIN
 			'source_pk', pg_temp._tp_meta('source_pk'),
 			'imported_when', now(),
 			'imported_by', SESSION_USER,
-			'mode', pg_temp._tp_state('mode'),
+			'patient_mode', pg_temp._tp_state('patient_mode'),
 			'forced', pg_temp._tp_cfg_bool('force')
 		)),
 		'sources', coalesce(_v_tp -> 'sources', '{}'::jsonb) || jsonb_build_object(_v_sid, _v_src)
@@ -3074,9 +3057,11 @@ def verify_script_checksum(filename:str) -> bool:
 	if expected is None:
 		_log.error('no checksum in [%s]', filename)
 		return False
+
 	if sha.hexdigest() != expected:
 		_log.error('checksum mismatch in [%s]', filename)
 		return False
+
 	return True
 
 #------------------------------------------------------------
@@ -3110,15 +3095,15 @@ def _iter_script_statements(filename:str):
 #============================================================
 # public API: import
 #------------------------------------------------------------
-def import_patient(filename:str, link_obj, mode:str=None, same_patient_as:int=None, staff_match:str=None, fallback_staff:str=None, dry_run:bool=False, force:bool=False, progress_callback=None) -> cTransplantResult:
+def import_patient(filename:str, link_obj, patient_mode:str=None, same_patient_as:int=None, staff_match:str=None, fallback_staff:str=None, dry_run:bool=False, force:bool=False, progress_callback=None) -> cTransplantResult:
 	"""Run a transplant script against the database of <link_obj>.
 
 	Settings passed in override the configuration block of the script.
 
 	Args:
 		link_obj: connection to the target database, should be gm-dbo
-		mode: 'detect' / 'new' / 'add'
-		same_patient_as: target patient pk to add the data to (implies mode 'add')
+		patient_mode: 'detect' / 'new' / 'add'
+		same_patient_as: target patient pk to add the data to (implies patient_mode 'add')
 		staff_match: 'strict' / 'lenient'
 		fallback_staff: alias of the staff member to use for unmappable staff
 		dry_run: run everything, then roll back
@@ -3127,11 +3112,11 @@ def import_patient(filename:str, link_obj, mode:str=None, same_patient_as:int=No
 	if not verify_script_checksum(filename):
 		return cTransplantResult('error', message = _('The transplant script is damaged or has been modified below the configuration block (checksum mismatch).'))
 	settings = {}
-	if mode is not None:
-		settings['mode'] = mode
+	if patient_mode is not None:
+		settings['patient_mode'] = patient_mode
 	if same_patient_as is not None:
 		settings['same_patient_as'] = str(same_patient_as)
-		settings['mode'] = 'add'
+		settings['patient_mode'] = 'add'
 	if staff_match is not None:
 		settings['staff_match'] = staff_match
 	if fallback_staff is not None:
@@ -3180,7 +3165,7 @@ def import_patient(filename:str, link_obj, mode:str=None, same_patient_as:int=No
 		_log.error('transplant script did not report a result')
 		return cTransplantResult('error', message = _('The transplant script did not report a result.'))
 	summary = json.loads(result_row[0])
-	_log.info('transplant done: target #%s, mode [%s]', summary.get('target_identity'), summary.get('mode'))
+	_log.info('transplant done: target #%s, patient_mode [%s]', summary.get('target_identity'), summary.get('patient_mode'))
 	return cTransplantResult('imported', summary = summary)
 
 #------------------------------------------------------------

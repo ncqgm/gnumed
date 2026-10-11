@@ -1254,14 +1254,19 @@ def __run_patient_transplant_export_tool():
 	from Gnumed.business import gmPraxis
 	from Gnumed.business import gmPersonSearch
 	from Gnumed.business import gmPatientTransplant
-	gmPraxis.gmCurrentPraxisBranch(branch = gmPraxis.get_praxis_branches()[0])
+	print('praxis branch:', gmPraxis.gmCurrentPraxisBranch.from_first_branch())
 	print('Note: the change history (audit trail) of the patient can only')
 	print('      be exported when logged in as the database owner (gm-dbo).')
 	exit_code = 0
 	pat = gmPersonSearch.ask_for_patient()
 	while pat:
 		print('patient: #%s' % pat.ID)
-		fname = gmTools.prompted_input(prompt = 'Script file name', default = os.path.expanduser('~/gnumed/gm-transplant-%s.sql' % pat.ID))
+		def_fname = os.path.join (
+			gmTools.gmPaths().user_work_dir,
+			'patients',
+			'gm-transplant-#%s.sql'
+		) % pat.ID
+		fname = gmTools.prompted_input(prompt = 'Script file name', default = def_fname)
 		if fname is None:
 			break
 		try:
@@ -1316,7 +1321,7 @@ def __run_patient_transplant_import_tool():
 				answer = gmTools.prompted_input(prompt = '[n]ew patient / [a]dd <pk> / [c]ancel', default = 'c')
 				answer = (answer or 'c').strip().lower()
 				if answer == 'n':
-					settings['mode'] = 'new'
+					settings['patient_mode'] = 'new'
 					continue
 				if answer.startswith('a'):
 					pk = answer[1:].strip()

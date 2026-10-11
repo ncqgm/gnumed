@@ -392,7 +392,7 @@ def __import_transplant_script(parent=None, fname:str=None, title:str=None) -> b
 		return False
 
 	settings_in_script = []
-	for key in ['same_patient_as', 'mode', 'staff_match', 'force', 'dry_run', 'fallback_staff']:
+	for key in ['same_patient_as', 'patient_mode', 'staff_match', 'force', 'dry_run', 'fallback_staff']:
 		if config.get(key) not in [None, 'detect', 'strict', 'false']:
 			settings_in_script.append(' %s = %s' % (key, config[key]))
 	mapped_staff = [ ' %s -> %s' % (row[0], row[3]) for row in config['staff_map'] if row[3] ]
@@ -469,7 +469,7 @@ def __import_transplant_script(parent=None, fname:str=None, title:str=None) -> b
 				if decision is None:
 					return False
 				if decision == 'new':
-					settings['mode'] = 'new'
+					settings['patient_mode'] = 'new'
 				else:
 					settings['same_patient_as'] = decision
 				continue
@@ -529,7 +529,7 @@ def __import_transplant_script(parent=None, fname:str=None, title:str=None) -> b
 	finally:
 		conn.close()
 
-	if result.summary.get('mode') == 'add':
+	if result.summary.get('patient_mode') == 'add':
 		done_msg = _('The data has been added to patient #%s.') % result.pk_identity
 	else:
 		done_msg = _('The patient has been imported as #%s.') % result.pk_identity
@@ -610,7 +610,7 @@ def __decide_on_transplant_candidates(parent=None, candidates:list=None, title:s
 def __format_transplant_summary(result) -> str:
 	lines = []
 	summary = result.summary
-	if summary.get('mode') == 'add':
+	if summary.get('patient_mode') == 'add':
 		lines.append(_('Data will be added to patient #%s.') % summary.get('target_identity'))
 	else:
 		lines.append(_('A new patient will be created.'))
