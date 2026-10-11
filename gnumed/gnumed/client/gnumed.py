@@ -378,8 +378,8 @@ _known_tools = {
 	'generate_man_page': 'Generate man page.',
 	'get_object_passphrases': 'Retrieve encrypted passphrases for a file previously encrypted by and exported from GNUmed.',
 	'update_collations': 'Update collations version information in the database.',
-	'export_patient_transplant': 'Export all data of a patient as SQL script for transplanting the patient into another GNUmed database (log in as gm-dbo to include the audit trail).',
-	'import_patient_transplant': 'Import a patient from a GNUmed transplant script (log in as gm-dbo).'
+	'explant_patient': 'Export all data of a patient into an SQL script for transplanting the patient into another GNUmed database (log in as gm-dbo to include the audit trail).',
+	'implant_patient': 'Import a patient from a GNUmed transplant script (log in as gm-dbo).'
 }
 
 
@@ -1169,11 +1169,12 @@ def run_tool():
 	if tool == 'export_pat_emr_structure':
 		return __run_emr_export_tool()
 
-	if tool == 'export_patient_transplant':
-		return __run_patient_transplant_export_tool()
+	if tool == 'explant_patient':
+		from Gnumed.business import gmPatientTransplant
+		return gmPatientTransplant.run_patient_explant_tool()
 
-	if tool == 'import_patient_transplant':
-		return __run_patient_transplant_import_tool()
+	if tool == 'implant_patient':
+		return __run_patient_implant_tool()
 
 	# tool export_patient_as (vcf, gdt, ...)
 	#if tool == 'export_pat_demographics':
@@ -1253,41 +1254,7 @@ def __run_emr_export_tool():
 	return 0
 
 #==========================================================
-def __run_patient_transplant_export_tool():
-	from Gnumed.business import gmPraxis
-	from Gnumed.business import gmPersonSearch
-	from Gnumed.business import gmPatientTransplant
-	print('praxis branch:', gmPraxis.gmCurrentPraxisBranch.from_first_branch())
-	print('Note: the change history (audit trail) of the patient can only')
-	print('      be exported when logged in as the database owner (gm-dbo).')
-	exit_code = 0
-	pat = gmPersonSearch.ask_for_patient()
-	while pat:
-		print('patient: #%s' % pat.ID)
-		def_fname = os.path.join (
-			gmTools.gmPaths().user_work_dir,
-			'patients',
-			'gm-transplant-#%s.sql'
-		) % pat.ID
-		fname = gmTools.prompted_input(prompt = 'Script file name', default = def_fname)
-		if fname is None:
-			break
-		try:
-			fname = gmPatientTransplant.export_patient (
-				pk_identity = pat.ID,
-				filename = fname,
-				progress_callback = lambda msg: print('  %s' % msg)
-			)
-			print('Transplant script:', fname)
-			print('The script contains patient data, treat it as confidential.')
-		except gmPatientTransplant.cTransplantError as exc:
-			print('ERROR: %s' % exc)
-			exit_code = -2
-		pat = gmPersonSearch.ask_for_patient()
-	return exit_code
-
-#==========================================================
-def __run_patient_transplant_import_tool():
+def __run_patient_implant_tool():
 	from Gnumed.business import gmPatientTransplant
 	fname = gmTools.prompted_input(prompt = 'Transplant script file name')
 	if not fname:

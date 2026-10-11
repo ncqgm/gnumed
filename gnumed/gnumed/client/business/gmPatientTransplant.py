@@ -58,6 +58,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
 
+from Gnumed.business import gmPraxis
 
 _log = logging.getLogger('gm.transplant')
 
@@ -2882,8 +2883,11 @@ $tp$;"""
 #============================================================
 # public API: export
 #------------------------------------------------------------
-def export_patient(pk_identity:int, filename:str=None, link_obj=None, include_history:bool=True, passphrase:str=None, source_description:str=None, progress_callback=None) -> str:
+def explant_patient(pk_identity:int, filename:str=None, link_obj=None, include_history:bool=True, passphrase:str=None, source_description:str=None, progress_callback=None) -> str:
 	"""Export a patient as a transplant script.
+
+	Contrary to what EXplant might suggest, source data is
+	NOT removed from the source.
 
 	Args:
 		pk_identity: the patient (dem.identity.pk)
@@ -2972,12 +2976,43 @@ def export_patient(pk_identity:int, filename:str=None, link_obj=None, include_hi
 #------------------------------------------------------------
 def _get_source_description() -> str:
 	try:
-		from Gnumed.business import gmPraxis
 		branch = gmPraxis.gmCurrentPraxisBranch()
 		return '%s / %s' % (branch['praxis'], branch['branch'])
 	except Exception:
 		_log.debug('cannot determine praxis branch')
 	return None
+
+#------------------------------------------------------------
+def run_patient_explant_tool():
+	from Gnumed.business import gmPersonSearch
+	print('praxis branch:', gmPraxis.gmCurrentPraxisBranch.from_first_branch())
+	print('Note: the change history (audit trail) of the patient can only')
+	print('      be exported when logged in as the database owner (gm-dbo).')
+	exit_code = 0
+	pat = gmPersonSearch.ask_for_patient()
+	while pat:
+		print('patient: #%s' % pat.ID)
+		def_fname = os.path.join (
+			gmTools.gmPaths().user_work_dir,
+			'patients',
+			'gm-transplant-#%s.sql'
+		) % pat.ID
+		fname = gmTools.prompted_input(prompt = 'Script file name', default = def_fname)
+		if fname is None:
+			break
+		try:
+			fname = explant_patient (
+				pk_identity = pat.ID,
+				filename = fname,
+				progress_callback = lambda msg: print('  %s' % msg)
+			)
+			print('Transplant script:', fname)
+			print('The script contains patient data, treat it as confidential.')
+		except cTransplantError as exc:
+			print('ERROR: %s' % exc)
+			exit_code = -2
+		pat = gmPersonSearch.ask_for_patient()
+	return exit_code
 
 #============================================================
 # public API: reading scripts
@@ -3235,9 +3270,9 @@ if __name__ == '__main__':
 			print(problem)
 
 	#--------------------------------------------------------
-	def test_export():
+	def test_explant():
 		gmPG2.request_login_params(setup_pool = True)
-		print(export_patient(int(sys.argv[2]), filename = sys.argv[3] if len(sys.argv) > 3 else None))
+		print(explant_patient(int(sys.argv[2]), filename = sys.argv[3] if len(sys.argv) > 3 else None))
 
 	#--------------------------------------------------------
 	def test_import():
@@ -3252,5 +3287,5 @@ if __name__ == '__main__':
 	test_literals()
 	test_specs()
 	#test_completeness()
-	#test_export()
+	#test_explant()
 	#test_import()
