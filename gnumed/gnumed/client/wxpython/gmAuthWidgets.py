@@ -313,7 +313,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 	return connected
 
 #================================================================
-def get_dbowner_connection(procedure=None, dbo_password=None, dbo_account='gm-dbo'):
+def get_dbowner_connection(procedure=None, dbo_password=None, dbo_account='gm-dbo', verbose:bool=True):
 	if procedure is None:
 		procedure = _('<restricted procedure>')
 
@@ -343,7 +343,7 @@ Please enter the current password for <%s>:""") % (
 	try:
 		conn = pool.get_dbowner_connection (
 			readonly = False,
-			verbose = True,
+			verbose = verbose,
 			dbo_password = dbo_password,
 			dbo_account = dbo_account
 		)
