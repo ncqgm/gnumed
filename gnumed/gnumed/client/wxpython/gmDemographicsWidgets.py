@@ -1490,7 +1490,7 @@ class cPersonNameEAPnl(wxgPersonNameEAPnl.wxgPersonNameEAPnl, gmEditArea.cGeneri
 			)
 			return False
 
-		old_nick = self.__identity['active_name']['preferred']
+		old_nick = self.__identity.active_name['preferred']
 		new_nick = gmTools.none_if(self._PRW_nick.GetValue().strip(), '')
 		if active:
 			data['preferred'] = gmTools.coalesce(new_nick, old_nick)

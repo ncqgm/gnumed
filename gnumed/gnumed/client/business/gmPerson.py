@@ -475,7 +475,7 @@ class cPersonName(gmBusinessDBObject.cBusinessDBObject):
 		"""UPDATE dem.names SET
 			active = FALSE
 		WHERE
-			%(active_name)s IS TRUE				-- act only when needed and only
+			%(active_name)s IS TRUE				-- inactivate only when needed and only
 				AND
 			id_identity = %(pk_identity)s		-- on names of this identity
 				AND
