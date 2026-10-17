@@ -41,6 +41,18 @@ alter table clin.substance_intake
 alter table clin.substance_intake
 	alter column fk_episode
 		drop not null;
+-- PostgreSQL 18+ stores NOT NULL as inherited constraints which a child
+-- table cannot drop while clin.clin_root_item.fk_episode is NOT NULL.
+-- A freshly bootstrapped database holds no intakes without episode anyway,
+-- and v20 sets this column NOT NULL again.
+DO 'BEGIN
+		IF current_setting(''server_version_num'')::integer < 180000 THEN
+			alter table clin.substance_intake
+				alter column fk_episode
+					drop not null;
+		END IF;
+	END
+';
 
 
 alter table clin.substance_intake drop constraint if exists sane_fk_episode cascade;
