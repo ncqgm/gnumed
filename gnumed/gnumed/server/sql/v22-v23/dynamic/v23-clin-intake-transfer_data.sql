@@ -67,7 +67,7 @@ BEGIN
 						END,
 						CASE
 							WHEN nullif(btrim(_rec.notes), '''') IS NOT NULL
-							THEN ''Advice: '' || _rec.notes
+							THEN ''Notes: '' || _rec.notes
 						END
 					),
 					''''
