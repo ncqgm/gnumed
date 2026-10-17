@@ -42,7 +42,6 @@ BEGIN
 				discontinued,
 				discontinue_reason,
 				planned_duration,
-				notes4providers,
 				notes4patient
 			) VALUES (
 				_rec.pk_encounter,
@@ -59,8 +58,20 @@ BEGIN
 				_rec.discontinued,
 				_rec.discontinue_reason,
 				_rec.duration,
-				_rec.notes,
-				_rec.aim
+				NULLIF (
+					concat_ws (
+						chr(10),
+						CASE
+							WHEN nullif(btrim(_rec.aim), '''') IS NOT NULL
+							THEN ''Aim: '' || _rec.aim
+						END,
+						CASE
+							WHEN nullif(btrim(_rec.notes), '''') IS NOT NULL
+							THEN ''Advice: '' || _rec.notes
+						END
+					),
+					''''
+				)
 			) RETURNING pk INTO _pk_clin_intake;
 		END IF;
 	END LOOP;
