@@ -45,7 +45,6 @@ import re
 import json
 import uuid
 import base64
-import shutil
 import hashlib
 import logging
 import tempfile

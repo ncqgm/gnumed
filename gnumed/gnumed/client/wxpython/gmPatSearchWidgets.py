@@ -36,6 +36,7 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmCfgDB
 from Gnumed.pycommon import gmCfgINI
 from Gnumed.pycommon import gmNetworkTools
+from Gnumed.pycommon import gmCrypto
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
@@ -44,6 +45,7 @@ from Gnumed.business import gmPraxis
 from Gnumed.business import gmCA_MSVA
 from Gnumed.business import gmPersonSearch
 from Gnumed.business import gmProviderInbox
+from Gnumed.business import gmPatientTransplant
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmAuthWidgets
@@ -191,9 +193,6 @@ def export_patient_as_transplant_script(parent=None, patient=None) -> str:
 	Returns:
 		Name of the script file or None.
 	"""
-	from Gnumed.business import gmPatientTransplant
-	from Gnumed.pycommon import gmLog
-
 	if patient is None:
 		patient = gmPerson.gmCurrentPatient()
 		if not patient.connected:
@@ -280,7 +279,8 @@ def export_patient_as_transplant_script(parent=None, patient=None) -> str:
 				if conn is not None:
 					conn.close()
 				return None
-			gmLog.add_word2hide(passphrase)
+
+			_log.add_word2hide(passphrase)
 			if len(passphrase) < 5:
 				gmGuiHelpers.gm_show_warning(warning = _('The passphrase must be at least 5 characters long.'), title = title)
 				continue
@@ -294,7 +294,7 @@ def export_patient_as_transplant_script(parent=None, patient=None) -> str:
 
 	wx.BeginBusyCursor()
 	try:
-		fname = gmPatientTransplant.export_patient (
+		fname = gmPatientTransplant.explant_patient (
 			pk_identity = patient.ID,
 			filename = fname,
 			link_obj = conn,
@@ -336,9 +336,6 @@ def import_patient_from_transplant_script(parent=None) -> bool:
 	exist already, asks whether to create a new patient or to
 	add the data to the existing patient.
 	"""
-	from Gnumed.business import gmPatientTransplant
-	from Gnumed.pycommon import gmCrypto
-
 	title = _('Patient transplant: import')
 	dlg = wx.FileDialog (
 		parent = parent,
@@ -369,8 +366,6 @@ def import_patient_from_transplant_script(parent=None) -> bool:
 
 #------------------------------------------------------------
 def __import_transplant_script(parent=None, fname:str=None, title:str=None) -> bool:
-	from Gnumed.business import gmPatientTransplant
-
 	try:
 		meta = gmPatientTransplant.read_script_metadata(fname)
 		config = gmPatientTransplant.read_script_config(fname)
@@ -441,7 +436,7 @@ def __import_transplant_script(parent=None, fname:str=None, title:str=None) -> b
 		while True:
 			wx.BeginBusyCursor()
 			try:
-				result = gmPatientTransplant.import_patient(fname, conn, dry_run = True, **settings)
+				result = gmPatientTransplant.implant_patient(fname, conn, dry_run = True, **settings)
 			finally:
 				wx.EndBusyCursor()
 			_log.debug('transplant dry run: %s', result)
@@ -508,7 +503,7 @@ def __import_transplant_script(parent=None, fname:str=None, title:str=None) -> b
 
 			wx.BeginBusyCursor()
 			try:
-				result = gmPatientTransplant.import_patient(fname, conn, dry_run = False, **settings)
+				result = gmPatientTransplant.implant_patient(fname, conn, dry_run = False, **settings)
 			finally:
 				wx.EndBusyCursor()
 			if result.status != 'imported':
