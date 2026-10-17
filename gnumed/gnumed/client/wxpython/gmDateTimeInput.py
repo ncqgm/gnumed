@@ -130,26 +130,24 @@ class cIntervalPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	# external API
 	#--------------------------------------------------------
 	def SetValue(self, value):
-
 		if isinstance(value, pyDT.timedelta):
 			self.SetText(data = value, suppress_smarts = True)
 			return
 
 		if value is None:
 			value = ''
-
 		super(cIntervalPhraseWheel, self).SetValue(value)
+
 	#--------------------------------------------------------
 	def SetText(self, value='', data=None, suppress_smarts=False):
-
 		if data is not None:
 			if value.strip() == '':
 				value = gmDateTime.format_interval (
 					interval = data,
 					accuracy_wanted = self.display_accuracy
 				)
-
 		super(cIntervalPhraseWheel, self).SetText(value = value, data = data, suppress_smarts = suppress_smarts)
+
 	#--------------------------------------------------------
 	def SetData(self, data=None):
 		if data is None:
@@ -161,11 +159,11 @@ class cIntervalPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			accuracy_wanted = self.display_accuracy
 		)
 		super(cIntervalPhraseWheel, self).SetText(value = value, data = data)
+
 	#--------------------------------------------------------
 	def GetData(self):
 		if len(self._data) == 0:
 			self._set_data_to_first_match()
-
 		return super(cIntervalPhraseWheel, self).GetData()
 
 #============================================================

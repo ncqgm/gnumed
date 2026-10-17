@@ -213,7 +213,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		self._PRW_substance.selection_only = False
 		self._PRW_substance.add_callback_on_lose_focus(callback = self._on_leave_substance)
 		self._PRW_substance.add_callback_on_selection(callback = self._on_substance_selected)
-		#self._PRW_duration.display_accuracy = gmDateTime.ACC_DAYS
+		self._PRW_duration.display_accuracy = gmDateTime.ACC_DAYS
 		self._DPRW_discontinued.add_callback_on_selection(callback = self._on_discontinued_date_changed)
 		self._LCTRL_regimen.set_resize_column()
 		#self._LCTRL_regimen.set_column_widths([wx.LIST_AUTOSIZE])
@@ -436,24 +436,26 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		return True
 
 	#----------------------------------------------------------------
-#	def _validate_duration(self) -> bool:
-#		if self._PRW_duration.GetValue().strip() in ['', gmTools.u_infinity]:
-#			self._PRW_duration.display_as_valid()
-#			return True
-#
-#		if self._PRW_duration.GetData():
-#			self._PRW_duration.display_as_valid()
-#			return True
-#
-#		# no data ...
-#		if gmDateTime.str2interval(self._PRW_duration.GetValue()):
-#			self._PRW_duration.display_as_valid()
-#			return True
-#
-#		self.StatusText = _('Duration: must be an interval')
-#		self._PRW_duration.display_as_valid(False)
-#		self._PRW_duration.SetFocus()
-#		return False
+	def _validate_duration(self) -> bool:
+		if self._PRW_duration.GetValue().strip() in ['', gmTools.u_infinity]:
+			self._PRW_duration.display_as_valid()
+			return True
+
+		if self._PRW_duration.GetData():
+			self._PRW_duration.display_as_valid()
+			return True
+
+		# no data, is input valid ?
+		intv = gmDateTime.str2interval(self._PRW_duration.GetValue())
+		if intv:
+			self._PRW_duration.SetText(data = intv)
+			self._PRW_duration.display_as_valid()
+			return True
+
+		self.StatusText = _('Duration: must be an interval, or empty.')
+		self._PRW_duration.display_as_valid(False)
+		self._PRW_duration.SetFocus()
+		return False
 
 	#----------------------------------------------------------------
 	def __validate_episode_for_update(self) -> bool:
@@ -510,6 +512,9 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		if not self.__validate_start():
 			return False
 
+		if not self._validate_duration():
+			return False
+
 		# we now have either no regimen values or a valid regimen
 		# check substance existence
 		pks_entered_subst = gmMedication.get_substances(return_pks = True, substance = entered_subst)
@@ -558,6 +563,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		is_valid = self.__validate_episode_for_update()
 		is_valid = is_valid and self.__validate_start()
 		is_valid = is_valid and self.__validate_discontinued()
+		is_valid = is_valid and self._validate_duration()
 		if not is_valid:
 			return False
 
@@ -647,13 +653,13 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		intake['notes4providers'] = self._TCTRL_provider_notes.Value.strip()
 		intake['notes4pharmacies'] = self._TCTRL_pharmacy_notes.Value.strip()
 		intake['notes4us'] = self._TCTRL_our_notes.Value.strip()
-#		if self._PRW_duration.Value.strip() in ['', gmTools.u_infinity]:
-#			regimen['planned_duration'] = None
-#		else:
-#			if self._PRW_duration.GetData():
-#				regimen['planned_duration'] = self._PRW_duration.GetData()
-#			else:
-#				regimen['planned_duration'] = gmDateTime.str2interval(self._PRW_duration.Value.strip())
+		if self._PRW_duration.Value.strip() in ['', gmTools.u_infinity]:
+			regimen['planned_duration'] = None
+		else:
+			if self._PRW_duration.GetData():
+				regimen['planned_duration'] = self._PRW_duration.GetData()
+			else:
+				regimen['planned_duration'] = gmDateTime.str2interval(self._PRW_duration.Value.strip())
 		intake.save(conn = conn4tx)
 		conn4tx.commit()
 		conn4tx.close()
@@ -684,13 +690,13 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		self.data['notes4providers'] = self._TCTRL_provider_notes.Value.strip()
 		self.data['notes4pharmacies'] = self._TCTRL_pharmacy_notes.Value.strip()
 		self.data['notes4us'] = self._TCTRL_our_notes.Value.strip()
-#		if self._PRW_duration.Value.strip() in ['', gmTools.u_infinity]:
-#			regimen['planned_duration'] = None
-#		else:
-#			if self._PRW_duration.GetData():
-#				regimen['planned_duration'] = self._PRW_duration.GetData()
-#			else:
-#				regimen['planned_duration'] = gmDateTime.str2interval(self._PRW_duration.Value.strip())
+		if self._PRW_duration.Value.strip() in ['', gmTools.u_infinity]:
+			regimen['planned_duration'] = None
+		else:
+			if self._PRW_duration.GetData():
+				regimen['planned_duration'] = self._PRW_duration.GetData()
+			else:
+				regimen['planned_duration'] = gmDateTime.str2interval(self._PRW_duration.Value.strip())
 		self.data.save()
 		return True
 
@@ -711,8 +717,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		self._TCTRL_schedule.Value = ''
 		self._TCTRL_schedule.Enable()
 		self._TCTRL_comment_on_start.Value = ''
-#		self._PRW_duration.SetText('', None)
-#		self._PRW_duration.Disable()
+		self._PRW_duration.SetText('', None)
 		self._DPRW_discontinued.SetData(None)
 		self._TCTRL_discontinue_reason.SetValue('')
 		self._TCTRL_discontinue_reason.Disable()
@@ -752,15 +757,12 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		else:
 			self._CHBOX_start_unknown.Value = False
 			self._DPRW_started.Enable()
+		if self.data['planned_duration']:
+			self._PRW_duration.SetText(data = self.data['planned_duration'])
 		if self.data['discontinued']:
 			self._DPRW_discontinued.SetData(data = self.data['discontinued'])
 			self._TCTRL_discontinue_reason.Value = gmTools.coalesce(self.data['discontinue_reason'], '')
 			self._TCTRL_discontinue_reason.Enable()
-#		else:
-#			self._CHBOX_start_unknown.Value = True
-#			self._DPRW_started.Disable()
-#			self._DPRW_discontinued.SetData(None)
-#			self._TCTRL_discontinue_reason.Value = ''
 		self.__refresh_regimens()
 		self.__refresh_precautions()
 		self._TCTRL_patient_notes.SetFocus()
@@ -849,21 +851,9 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		else:
 			self._TCTRL_discontinue_reason.Disable()
 
-#	#----------------------------------------------------------------
-#	def _on_manage_components_button_pressed(self, event):
-#		gmSubstanceMgmtWidgets.manage_drug_components()
-
-#	#----------------------------------------------------------------
-#	def _on_manage_substances_button_pressed(self, event):
-#		gmSubstanceMgmtWidgets.manage_substances()
-
-#	#----------------------------------------------------------------
-#	def _on_manage_drug_products_button_pressed(self, event):
-#		gmSubstanceMgmtWidgets.manage_drug_products(parent = self, ignore_OK_button = True)
-
-#	#----------------------------------------------------------------
-#	def _on_manage_doses_button_pressed(self, event):
-#		gmSubstanceMgmtWidgets.manage_substance_doses(parent = self)
+	#----------------------------------------------------------------
+	def _on_manage_substances_button_pressed(self, event):
+		gmSubstanceMgmtWidgets.manage_substances()
 
 	#----------------------------------------------------------------
 	def _on_pregnancy_button_pressed(self, event):
@@ -892,43 +882,33 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 			subst = self._PRW_substance.Value.strip()
 		gmNetworkTools.open_urls_in_browser(urls = gmMedication.generate_renal_insufficiency_urls(search_term = subst))
 
-#	#----------------------------------------------------------------
-#	def _on_discontinued_as_planned_button_pressed(self, event):
-#
-#		self.__refresh_precautions()
-#		if self.data is None:
-#			return
-#
-#		now = gmDateTime.pydt_now_here()
-#		# do we have a (full) plan ?
-#		#if None not in [self.data['started'], self.data['planned_duration']]:
-#		if self.data['started'] and self.data['planned_duration']:
-#			planned_end = self.data['started'] + self.data['planned_duration']
-#			# the plan hasn't ended so [Per plan] can't apply ;-)
-#			if planned_end > now:
-#				text = _('Discontinuation in the future (%s + %s -> %s). Not discontinuing.') % (
-#					self.data['started'].strftime('%x'),
-#					gmDateTime.format_interval_medically(self.data['planned_duration']),
-#					planned_end.strftime('%x')
-#				)
-#				self.StatusText = text
-#				return
-#
-#			self._DPRW_discontinued.SetData(planned_end)
-#			self._TCTRL_discontinue_reason.Enable()
-#			self._TCTRL_discontinue_reason.SetValue('')
-#			return
-#
-#		# we know started but not duration: apparently the plan is to stop today
-#		if self.data['started']:
-#			# but we haven't started yet so we can't stop
-#			if self.data['started'] > now:
-#				self.StatusText = _('Not started yet. Cannot discontinue as of today.')
-#				return
-#
-#		self._DPRW_discontinued.SetData(now)
-#		self._TCTRL_discontinue_reason.Enable()
-#		self._TCTRL_discontinue_reason.SetValue('')
+	#----------------------------------------------------------------
+	def _on_discontinued_as_planned_button_pressed(self, event):
+		self.__refresh_precautions()
+		if self.data is None:
+			return
+
+		# do we have a (full) plan ?
+		if not self._validate_duration() or not self._DPRW_started.date:
+			self.StatusText = _('Must know both start and duration to discontinue "as planned".')
+			return
+
+		now = gmDateTime.pydt_now_here()
+		start = self._DPRW_started.date
+		duration = self._PRW_duration.GetData()
+		planned_end = start + duration
+		# the plan hasn't ended so [Per plan] can't be known yet to apply
+		if planned_end > now:
+			text = _('Discontinuation in the future: %s (%s+%s). Not discontinuing.') % (
+				planned_end.strftime('%x'),
+				start.strftime('%x'),
+				gmDateTime.format_interval_medically(duration)
+			)
+			self.StatusText = text
+			return
+
+		self._DPRW_discontinued.SetData(planned_end)
+		return
 
 	#----------------------------------------------------------------
 	def turn_into_allergy(self, data=None):

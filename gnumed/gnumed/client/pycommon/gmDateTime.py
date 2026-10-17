@@ -618,13 +618,13 @@ def format_interval(interval=None, accuracy_wanted:int=None, none_string:str=Non
 	if accuracy_wanted < ACC_MINUTES:
 		return formatted_intv.strip()
 
-	if parts['mins'] > 0:
-		formatted_intv += ' %s%s' % (int(parts['mins']), tags['minutes'])
+	if parts['minutes'] > 0:
+		formatted_intv += ' %s%s' % (int(parts['minutes']), tags['minutes'])
 	if accuracy_wanted < ACC_SECONDS:
 		return formatted_intv.strip()
 
-	if parts['secs'] > 0:
-		formatted_intv += ' %s%s' % (int(parts['secs']), tags['seconds'])
+	if parts['seconds'] > 0:
+		formatted_intv += ' %s%s' % (int(parts['seconds']), tags['seconds'])
 	return formatted_intv.strip()
 
 #---------------------------------------------------------------------------
@@ -1000,7 +1000,7 @@ def format_apparent_age_medically(age=None):
 		_('s::second_abbreviation').replace('::second_abbreviation', '')
 	)
 #---------------------------------------------------------------------------
-def str2interval(str_interval=None):
+def str2interval(str_interval:str=None) -> pyDT.timedelta | None:
 
 	unit_keys = {
 		'year': _('yYaA_keys_year'),

@@ -46,11 +46,12 @@ class wxgSubstanceIntakeEAPnl(wx.ScrolledWindow):
 		__sline_top = wx.StaticLine(self, wx.ID_ANY)
 		__szr_main.Add(__sline_top, 0, wx.BOTTOM | wx.EXPAND, 3)
 
-		__gszr_main = wx.FlexGridSizer(12, 2, 2, 3)
+		__gszr_main = wx.FlexGridSizer(13, 2, 2, 3)
 		__szr_main.Add(__gszr_main, 0, wx.EXPAND, 0)
 
 		_LBL_substance = wx.StaticText(self, wx.ID_ANY, _("Substance"))
 		_LBL_substance.SetForegroundColour(wx.Colour(255, 0, 0))
+		_LBL_substance.SetToolTip(_("The substance being taken."))
 		__gszr_main.Add(_LBL_substance, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
 		self._PRW_substance = cSubstanceOrDosePhraseWheel(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
@@ -58,43 +59,43 @@ class wxgSubstanceIntakeEAPnl(wx.ScrolledWindow):
 
 		__lbl_dosage = wx.StaticText(self, wx.ID_ANY, _("Amount"))
 		__lbl_dosage.SetForegroundColour(wx.Colour(255, 127, 0))
+		__lbl_dosage.SetToolTip(_("Amount of active ingredient."))
 		__gszr_main.Add(__lbl_dosage, 0, wx.ALIGN_CENTER_VERTICAL, 3)
 
 		__szr_dosage = wx.BoxSizer(wx.HORIZONTAL)
 		__gszr_main.Add(__szr_dosage, 1, wx.EXPAND, 0)
 
 		self._TCTRL_amount = cTextCtrl(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
-		self._TCTRL_amount.SetToolTip(_("Amount of active ingredient."))
 		__szr_dosage.Add(self._TCTRL_amount, 1, wx.EXPAND, 3)
 
 		__lbl_unit = wx.StaticText(self, wx.ID_ANY, _("Unit"))
 		__lbl_unit.SetForegroundColour(wx.Colour(255, 127, 0))
+		__lbl_unit.SetToolTip(_("Units for the amount of active ingredient."))
 		__szr_dosage.Add(__lbl_unit, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 3)
 
 		self._PRW_unit = cUnitPhraseWheel(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
-		self._PRW_unit.SetToolTip(_("Units for the amount of active ingredient."))
 		__szr_dosage.Add(self._PRW_unit, 1, wx.EXPAND | wx.LEFT, 3)
 
 		__lbl_schedule = wx.StaticText(self, wx.ID_ANY, _("Schedule"))
 		__lbl_schedule.SetForegroundColour(wx.Colour(255, 127, 0))
+		__lbl_schedule.SetToolTip(_("The intake schedule describing how to use the dosage."))
 		__gszr_main.Add(__lbl_schedule, 0, 0, 3)
 
 		self._TCTRL_schedule = cTextCtrl(self, wx.ID_ANY, "", style=wx.BORDER_NONE | wx.TE_MULTILINE | wx.TE_WORDWRAP)
-		self._TCTRL_schedule.SetToolTip(_("The intake schedule describing how to use the dosage."))
 		__gszr_main.Add(self._TCTRL_schedule, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 
 		__lbl_started = wx.StaticText(self, wx.ID_ANY, _("Started"))
 		__lbl_started.SetForegroundColour(wx.Colour(255, 127, 0))
+		__lbl_started.SetToolTip(_("The start of substance intake."))
 		__gszr_main.Add(__lbl_started, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
 		__szr_started = wx.BoxSizer(wx.HORIZONTAL)
 		__gszr_main.Add(__szr_started, 1, wx.EXPAND, 0)
 
-		self._BTN_started_today = wx.Button(self, wx.ID_ANY, _(u"&Today →"), style=wx.BU_EXACTFIT)
+		self._BTN_started_today = wx.Button(self, wx.ID_ANY, _(u" &Today →"), style=wx.BU_EXACTFIT)
 		__szr_started.Add(self._BTN_started_today, 0, wx.ALIGN_CENTER_VERTICAL, 3)
 
 		self._DPRW_started = cDateInputPhraseWheel(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
-		self._DPRW_started.SetToolTip(_("The start of substance intake."))
 		__szr_started.Add(self._DPRW_started, 1, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 3)
 
 		self._CHBOX_start_unknown = wx.CheckBox(self, wx.ID_ANY, _("&Unknown"), style=wx.CHK_2STATE)
@@ -104,30 +105,40 @@ class wxgSubstanceIntakeEAPnl(wx.ScrolledWindow):
 		__szr_started.Add(__vline_unknown_comment, 0, wx.EXPAND | wx.LEFT, 5)
 
 		__lbl_comment_on_start = wx.StaticText(self, wx.ID_ANY, _("Comment"))
+		__lbl_comment_on_start.SetToolTip(_("Notes on the start date or whatever is known about the start."))
 		__szr_started.Add(__lbl_comment_on_start, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 5)
 
 		self._TCTRL_comment_on_start = cTextCtrl(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
-		self._TCTRL_comment_on_start.SetToolTip(_("Notes on start date."))
 		__szr_started.Add(self._TCTRL_comment_on_start, 3, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 3)
 
+		__lbl_duration = wx.StaticText(self, wx.ID_ANY, _("Duration"))
+		__lbl_duration.SetToolTip(_("Duration this substance is planned to / has been taken."))
+		__gszr_main.Add(__lbl_duration, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+
+		self._PRW_duration = cIntervalPhraseWheel(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
+		__gszr_main.Add(self._PRW_duration, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
 		__lbl_discontinued = wx.StaticText(self, wx.ID_ANY, _("Stopped"))
+		__lbl_discontinued.SetToolTip(_("The end of substance intake."))
 		__gszr_main.Add(__lbl_discontinued, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 
 		__szr_discontinued = wx.BoxSizer(wx.HORIZONTAL)
 		__gszr_main.Add(__szr_discontinued, 1, wx.EXPAND, 0)
 
-		self._BTN_discontinued_today = wx.Button(self, wx.ID_ANY, _(u"To&day →"), style=wx.BU_EXACTFIT)
+		self._BTN_discontinued_today = wx.Button(self, wx.ID_ANY, _(u" To&day →"), style=wx.BU_EXACTFIT)
 		__szr_discontinued.Add(self._BTN_discontinued_today, 0, wx.ALIGN_CENTER_VERTICAL, 3)
 
 		self._DPRW_discontinued = cDateInputPhraseWheel(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
-		self._DPRW_discontinued.SetToolTip(_("The end of substance intake."))
 		__szr_discontinued.Add(self._DPRW_discontinued, 1, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 3)
 
+		self._BTN_discontinued_as_planned_copy = wx.Button(self, wx.ID_ANY, _(u"← Per &plan "), style=wx.BU_EXACTFIT)
+		__szr_discontinued.Add(self._BTN_discontinued_as_planned_copy, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 3)
+
 		__lbl_comment_on_stop = wx.StaticText(self, wx.ID_ANY, _("Reason"))
+		__lbl_comment_on_stop.SetToolTip(_("Reason for discontinuation."))
 		__szr_discontinued.Add(__lbl_comment_on_stop, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 5)
 
 		self._TCTRL_discontinue_reason = cTextCtrl(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
-		self._TCTRL_discontinue_reason.SetToolTip(_("Reason for discontinuation."))
 		__szr_discontinued.Add(self._TCTRL_discontinue_reason, 3, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 3)
 
 		__lbl_episode = wx.StaticText(self, wx.ID_ANY, _("Episode"))
@@ -187,22 +198,22 @@ class wxgSubstanceIntakeEAPnl(wx.ScrolledWindow):
 
 		self._BTN_heart = wx.Button(self, wx.ID_ANY, _(u"🫀"), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
 		self._BTN_heart.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
-		self._BTN_heart.SetToolTip(_("Cardiac information relevant to this substance."))
+		self._BTN_heart.SetToolTip(_("Cardiological information on this substance."))
 		__szr_mgmt_buttons.Add(self._BTN_heart, 0, wx.EXPAND, 3)
 
 		self._BTN_kidneys = wx.Button(self, wx.ID_ANY, _(u"🫘"), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
 		self._BTN_kidneys.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
-		self._BTN_kidneys.SetToolTip(_("Renal insufficiency information related to this substance."))
+		self._BTN_kidneys.SetToolTip(_("Nephrological information on this substance."))
 		__szr_mgmt_buttons.Add(self._BTN_kidneys, 0, wx.EXPAND | wx.LEFT, 3)
 
 		self._BTN_lungs = wx.Button(self, wx.ID_ANY, _(u"🫁"), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
 		self._BTN_lungs.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
-		self._BTN_lungs.SetToolTip(_("Pulmonary toxicity information."))
+		self._BTN_lungs.SetToolTip(_("Pulmonary information on this substance."))
 		__szr_mgmt_buttons.Add(self._BTN_lungs, 0, wx.EXPAND | wx.LEFT, 3)
 
 		self._BTN_pregnancy = wx.Button(self, wx.ID_ANY, _(u"🤰"), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
 		self._BTN_pregnancy.SetFont(wx.Font(15, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
-		self._BTN_pregnancy.SetToolTip(_("Embryo toxicity information."))
+		self._BTN_pregnancy.SetToolTip(_("Pregnancy related information on this substance."))
 		__szr_mgmt_buttons.Add(self._BTN_pregnancy, 0, wx.EXPAND | wx.LEFT, 3)
 
 		__szr_mgmt_buttons.Add((20, 20), 3, wx.EXPAND, 0)
@@ -210,15 +221,6 @@ class wxgSubstanceIntakeEAPnl(wx.ScrolledWindow):
 		self._BTN_manage_substance = wx.Button(self, wx.ID_ANY, _("Substances"))
 		self._BTN_manage_substance.SetToolTip(_("Manage substances."))
 		__szr_mgmt_buttons.Add(self._BTN_manage_substance, 0, wx.ALIGN_CENTER_VERTICAL, 3)
-
-		self._BTN_manage_doses = wx.Button(self, wx.ID_ANY, _("Doses"))
-		self._BTN_manage_doses.SetToolTip(_("Manage substance doses."))
-		__szr_mgmt_buttons.Add(self._BTN_manage_doses, 0, wx.EXPAND | wx.LEFT, 3)
-
-		self._BTN_manage_component = wx.Button(self, wx.ID_ANY, _("Components"))
-		self._BTN_manage_component.SetToolTip(_("Manage drug components."))
-		self._BTN_manage_component.Enable(False)
-		__szr_mgmt_buttons.Add(self._BTN_manage_component, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 3)
 
 		self._BTN_manage_products = wx.Button(self, wx.ID_ANY, _("Drugs"))
 		self._BTN_manage_products.SetToolTip(_("Manage drug products.\n\nNote that this will not select a component for you. What it does is to let you manage (add/edit/delete) the drug products known to GNUmed from which you can select a component."))
@@ -234,9 +236,9 @@ class wxgSubstanceIntakeEAPnl(wx.ScrolledWindow):
 		__szr_main.Add(self._LCTRL_regimen, 0, wx.EXPAND, 0)
 
 		__gszr_main.AddGrowableRow(2)
-		__gszr_main.AddGrowableRow(7)
 		__gszr_main.AddGrowableRow(8)
-		__gszr_main.AddGrowableRow(10)
+		__gszr_main.AddGrowableRow(9)
+		__gszr_main.AddGrowableRow(11)
 		__gszr_main.AddGrowableCol(1)
 
 		self.SetSizer(__szr_main)
@@ -247,13 +249,12 @@ class wxgSubstanceIntakeEAPnl(wx.ScrolledWindow):
 		self._BTN_started_today.Bind(wx.EVT_BUTTON, self._on_started_today_button_pressed)
 		self._CHBOX_start_unknown.Bind(wx.EVT_CHECKBOX, self._on_start_unknown_checkbox_toggled)
 		self._BTN_discontinued_today.Bind(wx.EVT_BUTTON, self._on_discontinued_today_button_pressed)
+		self._BTN_discontinued_as_planned_copy.Bind(wx.EVT_BUTTON, self._on_discontinued_as_planned_button_pressed)
 		self._BTN_heart.Bind(wx.EVT_BUTTON, self._on_heart_button_pressed)
 		self._BTN_kidneys.Bind(wx.EVT_BUTTON, self._on_kidneys_button_pressed)
 		self._BTN_lungs.Bind(wx.EVT_BUTTON, self._on_lungs_button_pressed)
 		self._BTN_pregnancy.Bind(wx.EVT_BUTTON, self._on_pregnancy_button_pressed)
 		self._BTN_manage_substance.Bind(wx.EVT_BUTTON, self._on_manage_substances_button_pressed)
-		self._BTN_manage_doses.Bind(wx.EVT_BUTTON, self._on_manage_doses_button_pressed)
-		self._BTN_manage_component.Bind(wx.EVT_BUTTON, self._on_manage_components_button_pressed)
 		self._BTN_manage_products.Bind(wx.EVT_BUTTON, self._on_manage_drug_products_button_pressed)
 		# end wxGlade
 
@@ -267,6 +268,10 @@ class wxgSubstanceIntakeEAPnl(wx.ScrolledWindow):
 
 	def _on_discontinued_today_button_pressed(self, event):  # wxGlade: wxgSubstanceIntakeEAPnl.<event_handler>
 		print("Event handler '_on_discontinued_today_button_pressed' not implemented!")
+		event.Skip()
+
+	def _on_discontinued_as_planned_button_pressed(self, event):  # wxGlade: wxgSubstanceIntakeEAPnl.<event_handler>
+		print("Event handler '_on_discontinued_as_planned_button_pressed' not implemented!")
 		event.Skip()
 
 	def _on_heart_button_pressed(self, event):  # wxGlade: wxgSubstanceIntakeEAPnl.<event_handler>
@@ -287,14 +292,6 @@ class wxgSubstanceIntakeEAPnl(wx.ScrolledWindow):
 
 	def _on_manage_substances_button_pressed(self, event):  # wxGlade: wxgSubstanceIntakeEAPnl.<event_handler>
 		print("Event handler '_on_manage_substances_button_pressed' not implemented!")
-		event.Skip()
-
-	def _on_manage_doses_button_pressed(self, event):  # wxGlade: wxgSubstanceIntakeEAPnl.<event_handler>
-		print("Event handler '_on_manage_doses_button_pressed' not implemented!")
-		event.Skip()
-
-	def _on_manage_components_button_pressed(self, event):  # wxGlade: wxgSubstanceIntakeEAPnl.<event_handler>
-		print("Event handler '_on_manage_components_button_pressed' not implemented!")
 		event.Skip()
 
 	def _on_manage_drug_products_button_pressed(self, event):  # wxGlade: wxgSubstanceIntakeEAPnl.<event_handler>
