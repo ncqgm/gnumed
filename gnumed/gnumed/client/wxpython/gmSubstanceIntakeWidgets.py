@@ -654,12 +654,12 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		intake['notes4pharmacies'] = self._TCTRL_pharmacy_notes.Value.strip()
 		intake['notes4us'] = self._TCTRL_our_notes.Value.strip()
 		if self._PRW_duration.Value.strip() in ['', gmTools.u_infinity]:
-			regimen['planned_duration'] = None
+			intake['planned_duration'] = None
 		else:
 			if self._PRW_duration.GetData():
-				regimen['planned_duration'] = self._PRW_duration.GetData()
+				intake['planned_duration'] = self._PRW_duration.GetData()
 			else:
-				regimen['planned_duration'] = gmDateTime.str2interval(self._PRW_duration.Value.strip())
+				intake['planned_duration'] = gmDateTime.str2interval(self._PRW_duration.Value.strip())
 		intake.save(conn = conn4tx)
 		conn4tx.commit()
 		conn4tx.close()
@@ -691,12 +691,12 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 		self.data['notes4pharmacies'] = self._TCTRL_pharmacy_notes.Value.strip()
 		self.data['notes4us'] = self._TCTRL_our_notes.Value.strip()
 		if self._PRW_duration.Value.strip() in ['', gmTools.u_infinity]:
-			regimen['planned_duration'] = None
+			self.data['planned_duration'] = None
 		else:
 			if self._PRW_duration.GetData():
-				regimen['planned_duration'] = self._PRW_duration.GetData()
+				self.data['planned_duration'] = self._PRW_duration.GetData()
 			else:
-				regimen['planned_duration'] = gmDateTime.str2interval(self._PRW_duration.Value.strip())
+				self.data['planned_duration'] = gmDateTime.str2interval(self._PRW_duration.Value.strip())
 		self.data.save()
 		return True
 
@@ -853,6 +853,7 @@ class cSubstanceIntakeEAPnl(wxgSubstanceIntakeEAPnl.wxgSubstanceIntakeEAPnl, gmE
 
 	#----------------------------------------------------------------
 	def _on_manage_substances_button_pressed(self, event):
+		from Gnumed.wxpython import gmSubstanceMgmtWidgets
 		gmSubstanceMgmtWidgets.manage_substances()
 
 	#----------------------------------------------------------------

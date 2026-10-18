@@ -297,7 +297,7 @@ def export_patient_as_transplant_script(parent=None, patient=None) -> str:
 		fname = gmPatientTransplant.explant_patient (
 			pk_identity = patient.ID,
 			filename = fname,
-			link_obj = conn,
+			conn = conn,
 			include_history = include_history,
 			passphrase = passphrase
 		)
