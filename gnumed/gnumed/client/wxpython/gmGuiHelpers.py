@@ -23,6 +23,7 @@ if __name__ == '__main__':
 	_ = lambda x:x
 from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmLog
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.wxpython import gmPhraseWheel
 
@@ -713,6 +714,51 @@ def gm_show_question(question:str=None, title:str=None, cancel_button:bool=False
 		return False
 
 	return None
+
+#-------------------------------------------------------------------------
+def get_passphrase(title:str=None, msg:str=None, min_length:int=5) -> str|None:
+
+	retry_question = _(
+		'Unsuitable passphrase.\n'
+		'\n'
+		'(minimum length: %s, trailing blanks will be stripped)\n'
+		'\n'
+		'Enter a more suitable passphrase ?'
+	) % min_length
+	while True:
+		pwd = wx.GetPasswordFromUser(message = msg, caption = title)
+		pwd = pwd.rstrip()
+		if len(pwd) > min_length:		# minimal weakness check
+			break
+		retry = ask(title = title, question = retry_question)
+		if not retry:
+			return None					# user changed her mind
+
+		gmLog.add_word2hide(pwd)		# confidentiality
+
+	# reget password
+	msg_reenter = _(
+		'Once more enter passphrase for comparison.\n'
+		'\n'
+		'(this will protect you from typos)\n'
+		'\n'
+		'Abort by leaving empty.'
+	)
+	err = _(
+		'Passphrases do not match.\n'
+		'\n'
+		'Retry, or abort with an empty passphrase.'
+	)
+	while True:
+		pwd4comparison = wx.GetPasswordFromUser(message = msg_reenter, caption = title)
+		pwd4comparison = master_pwd4comparison.rstrip()
+		if pwd4comparison == '':
+			return None					# user changed her mind ...
+
+		if pwd == pwd4comparison:
+			break
+		gm_show_error(error = err, title = title)
+	return pwd
 
 #-------------------------------------------------------------------------
 def gm_show_multiline_text(text:str=None, title:str=None, font_fixed_width:bool=False):

@@ -1215,48 +1215,11 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			'\n'
 			'(minimum length: 5, trailing blanks will be stripped)'
 		)
-		q = _(
-			'Insufficient passphrase.\n'
-			'\n'
-			'(minimum length: 5, trailing blanks will be stripped)\n'
-			'\n'
-			'Enter another passphrase ?'
+		return gmGuiHelpers.get_passphrase (
+			title = msg_title,
+			msg = msg,
+			min_length = 5
 		)
-		while True:
-			master_pwd = wx.GetPasswordFromUser(message = msg, caption = msg_title)
-			master_pwd = master_pwd.rstrip()
-			if len(master_pwd) > 4:				# minimal weakness check
-				break
-			retry = gmGuiHelpers.gm_show_question(title = msg_title, question = q)
-			if not retry:
-				return None					# user changed her mind
-
-		gmLog.add_word2hide(master_pwd)		# confidentiality
-		# reget password
-		msg = _(
-			'Once more enter master passphrase for safekeeping of paperwork passphrases.\n'
-			'\n'
-			'(this will protect you from typos)\n'
-			'\n'
-			'Abort by leaving empty.\n'
-			'\n'
-			'Make sure to safely remember the master passphrase. It is NOT stored in GNUmed at all.'
-		)
-		err = _(
-			'Passphrases do not match.\n'
-			'\n'
-			'Retry, or abort with an empty passphrase.'
-		)
-		while True:
-			master_pwd4comparison = wx.GetPasswordFromUser(message = msg, caption = msg_title)
-			master_pwd4comparison = master_pwd4comparison.rstrip()
-			if master_pwd4comparison == '':
-				return None					# user changed her mind ...
-
-			if master_pwd == master_pwd4comparison:
-				break
-			gmGuiHelpers.gm_show_error(error = err, title = msg_title)
-		return master_pwd
 
 	#--------------------------------------------------------
 	def __get_data_password(self, msg_title:str) -> str:
@@ -1265,47 +1228,11 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			'\n'
 			'(minimum length: 5, trailing blanks will be stripped)'
 		)
-		q = _(
-			'Insufficient passphrase.\n'
-			'\n'
-			'(minimum length: 5, trailing blanks will be stripped)\n'
-			'\n'
-			'Enter another passphrase ?'
+		return gmGuiHelpers.get_passphrase (
+			title = msg_title,
+			msg = msg,
+			min_length = 5
 		)
-		while True:
-			obj_passphrase = wx.GetPasswordFromUser(message = msg, caption = msg_title)
-			obj_passphrase = obj_passphrase.rstrip()	# minimal weakness check
-			if len(obj_passphrase) > 4:
-				break
-			retry = gmGuiHelpers.gm_show_question(title = msg_title, question = q)
-			if not retry:
-				return None					# user changed her mind
-
-		gmLog.add_word2hide(obj_passphrase)		# confidentiality
-		# reget password
-		msg = _(
-			'Once more enter passphrase to protect the object with.\n'
-			'\n'
-			'(this will protect you from typos)\n'
-			'\n'
-			'Abort by leaving empty.'
-		)
-		err = _(
-			'Passphrases do not match.\n'
-			'\n'
-			'Retry, or abort with an empty passphrase.'
-		)
-		while True:
-			obj_passphrase4comparison = wx.GetPasswordFromUser(message = msg, caption = msg_title)
-			obj_passphrase4comparison = obj_passphrase4comparison.rstrip()
-			if obj_passphrase4comparison == '':
-				# user changed her mind ...
-				return None
-
-			if obj_passphrase == obj_passphrase4comparison:
-				break
-			gmGuiHelpers.gm_show_error(error = err, title = msg_title)
-		return obj_passphrase
 
 	#--------------------------------------------------------
 	def __get_items_to_work_on(self, msg_title):

@@ -54,6 +54,12 @@ import datetime as pydt
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	_ = lambda x:x
+else:
+	try: _		# do we already have _() ?
+	except NameError:
+		from Gnumed.pycommon import gmI18N
+		gmI18N.activate_locale()
+		gmI18N.install_domain()
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
 
@@ -3347,6 +3353,11 @@ if __name__ == '__main__':
 
 	if sys.argv[1] != 'test':
 		sys.exit()
+
+	del _			# setup a real translation
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain(domain = 'gnumed', prefer_local_catalog = True)
 
 	from Gnumed.pycommon import gmLog
 	gmLog.print_logfile_name()

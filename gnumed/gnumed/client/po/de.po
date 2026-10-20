@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-04 18:16+0200\n"
-"PO-Revision-Date: 2026-10-04 18:21+0200\n"
+"POT-Creation-Date: 2026-10-20 23:45+0200\n"
+"PO-Revision-Date: 2026-10-20 22:49+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -4340,6 +4340,19 @@ msgstr ""
 msgid "Clear document property fields."
 msgstr "Felder für Dokumenteneigenschaften leeren."
 
+msgid "+ &Measurement"
+msgstr "+ &Meßwert"
+
+msgid ""
+"Register a measurement for this patient.\n"
+"\n"
+"Useful for adding measurements from information within documents here in the "
+"incoming area (such as lab reports)."
+msgstr ""
+"Einen Meßwert für diesen Patienten speichern.\n"
+"\n"
+"Nützlich beim Importieren von Dokumenten (wie etwa Laborergebnissen)."
+
 msgid "GNUmed"
 msgstr "GNUmed"
 
@@ -5998,6 +6011,9 @@ msgstr ""
 "Wenn dies nicht Ihre Absicht ist, müssen Sie die Auswahl\n"
 "an Testergebnissen ändern."
 
+msgid "The substance being taken."
+msgstr "Der Name des Wirkstoffs."
+
 msgid "Amount of active ingredient."
 msgstr "Wirkstoffmenge"
 
@@ -6007,26 +6023,32 @@ msgstr "Einheit der Wirkstoffmenge."
 msgid "The intake schedule describing how to use the dosage."
 msgstr "Der Einnahmeplan, der beschreibt, wie die Dosis genommen werden soll."
 
-msgid "&Today →"
-msgstr "&Heute →"
-
 msgid "The start of substance intake."
 msgstr "Beginn der Einnahme."
+
+msgid " &Today →"
+msgstr " &Heute →"
 
 msgid "&Unknown"
 msgstr "&Unbekannt"
 
-msgid "Notes on start date."
+msgid "Notes on the start date or whatever is known about the start."
 msgstr "Notizen zum Beginn."
+
+msgid "Duration this substance is planned to / has been taken."
+msgstr "Wie lange dieser Wirkstoff eingenommen wurde/werden soll."
 
 msgid "Stopped"
 msgstr "Beendet"
 
-msgid "To&day →"
-msgstr "&Heute →"
-
 msgid "The end of substance intake."
 msgstr "Ende der Einnahme."
+
+msgid " To&day →"
+msgstr " &Heute →"
+
+msgid "← Per &plan "
+msgstr "← Nach &Plan "
 
 msgid ""
 "Select, or enter for creation, the episode to which this substance intake "
@@ -6102,22 +6124,26 @@ msgstr "Recherche"
 msgid "🫀"
 msgstr ""
 
-msgid "Cardiac information relevant to this substance."
-msgstr ""
-"Kardiologische Fachinformationen zeigen, die für die Substanz relevant sind."
+msgid "Cardiological information on this substance."
+msgstr "Kardiologische Fachinformationen zum Wirkstoff zeigen."
 
 msgid "🫘"
 msgstr ""
 
-msgid "Renal insufficiency information related to this substance."
-msgstr ""
-"Nephrologische Fachinformationen zeigen, die für die Substanz relevant sind."
+msgid "Nephrological information on this substance."
+msgstr "Nephrologische Fachinformationen zum Wirkstoff zeigen."
 
 msgid "🫁"
 msgstr ""
 
+msgid "Pulmonary information on this substance."
+msgstr "Pulmologische Fachinformationen zum Wirkstoff zeigen."
+
 msgid "🤰"
 msgstr ""
+
+msgid "Pregnancy related information on this substance."
+msgstr "Schwangerschaftsrelevante Fachinformationen zum Wirkstoff zeigen."
 
 msgid "Edit staff details"
 msgstr "Mitarbeiterdaten .ändern"
@@ -8608,6 +8634,197 @@ msgstr "%s weitere Episoden während dieses Kontakts bearbeitet:"
 #, python-format
 msgid "Encounter: %s%s%s"
 msgstr "Konsultation: %s%s%s"
+
+#, python-format
+msgid "Patient mode: %s"
+msgstr "Patientenmodus: %s"
+
+#, python-format
+msgid "Target patient: #%s"
+msgstr "Zielpatient: #%s"
+
+msgid "Staff mapping:"
+msgstr ""
+
+msgid "Rows:"
+msgstr "Zeilen:"
+
+msgid "Reference data:"
+msgstr "Referenzdaten:"
+
+#, python-format
+msgid "Skipped rows: %s (see transplant protocol)"
+msgstr "Übersprungene Zeilen: %s (see Transplantationsprotokoll)"
+
+#, python-format
+msgid ""
+"Cannot check the table [%s] for data of the patient (no permission). Export "
+"as the database owner (gm-dbo)."
+msgstr ""
+"Fehlende Zugriffsrechte für Tabelle [%s]. Kann nicht auf Patientendaten "
+"prüfen. Als Datenbankinhaber (gm-dbo) exportieren!"
+
+#, python-format
+msgid ""
+"The patient has data in the legacy table [%s] which cannot be transplanted."
+msgstr ""
+"Der Patient hat Daten in der Alttabelle [%s], die nicht übertragen werden "
+"können."
+
+msgid ""
+"A bill of the patient contains items of other patients. Cannot transplant."
+msgstr ""
+"Eine Rechnung für den Patienten enthält Einträge anderer Patienten. "
+"Transplantation nicht möglich."
+
+msgid "inverse"
+msgstr ""
+
+msgid "GNUmed audit history (change history) of a transplanted patient"
+msgstr "GNUmed-Änderungshistorie eines übertragenen Patienten"
+
+msgid "Source patient"
+msgstr "Quellpatient"
+
+msgid ""
+"Each entry shows a previous version of a row: who created that version, when "
+"and why it was replaced, and which values changed."
+msgstr ""
+"Jeder Eintrag zeigt die Vorversion einer Zeile: wer legte die Version an, "
+"wann und warum wurde diese ersetzt und welche Werte änderten sich."
+
+#, python-format
+msgid "Incomplete: no access to audit tables: %s"
+msgstr "Nicht komplett: kein Zugriff auf Änderungshistorie in: %s"
+
+msgid "present"
+msgstr ""
+
+msgid "deleted"
+msgstr "gelöscht"
+
+msgid "created"
+msgstr "angelegt"
+
+msgid "replaced"
+msgstr "ersetzt"
+
+msgid ""
+"[gm_transplant] This export has already been imported (see DETAIL for the "
+"identities). Set force to import again, no rows will be duplicated."
+msgstr ""
+
+msgid ""
+"[gm_transplant] The patient may already exist in this database (see DETAIL "
+"for candidates). Set patient mode to \"new\" or set same_patient_as to one "
+"of the candidates."
+msgstr ""
+
+msgid ""
+"[gm_transplant] Database schema does not match the schema of the source "
+"database."
+msgstr ""
+
+msgid "[gm_transplant] Invalid configuration"
+msgstr "[gm_transplant] Ungültige Konfiguration"
+
+msgid "[gm_transplant] Staff problem"
+msgstr ""
+
+msgid ""
+"[gm_transplant] Staff member cannot be mapped and there is no fallback staff "
+"member (set fallback_staff)."
+msgstr ""
+
+msgid "[gm_transplant] Required reference data missing in target database"
+msgstr ""
+
+msgid "[gm_transplant] Verification failed, nothing was imported"
+msgstr ""
+
+msgid ""
+"[gm_transplant] Dry run successful, nothing was imported (see DETAIL for a "
+"summary)."
+msgstr ""
+
+msgid "GNUmed transplant"
+msgstr "GNUmed-Patiententransplantat"
+
+msgid "patient data transplanted from another GNUmed database"
+msgstr ""
+
+msgid "GNUmed transplant protocol"
+msgstr ""
+
+msgid "GNUmed audit history (source database)"
+msgstr ""
+
+msgid "orig."
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"Patient data transplanted from \"{source}\" (source patient #{source_pk}, "
+"export {export_uuid} of {exported_when}), patient mode: {patient_mode}. "
+"Details: documents \"GNUmed transplant protocol\" and \"GNUmed audit "
+"history\"."
+msgstr ""
+
+msgid "Relatives in the source database"
+msgstr ""
+
+msgid "Import"
+msgstr "Import"
+
+msgid "Mode / target patient"
+msgstr ""
+
+msgid "Configuration"
+msgstr "Konfiguration"
+
+msgid "Staff mapping (source -> target)"
+msgstr ""
+
+msgid "Reference data (looked up / created)"
+msgstr ""
+
+msgid "Rows not imported"
+msgstr "nicht übertragene Zeilen"
+
+msgid ""
+"Rows (table | source -> target | status | originally modified by @ when)"
+msgstr ""
+
+#, python-format
+msgid ""
+"This GNUmed version cannot fully transplant patients from this database:\n"
+"\n"
+"%s"
+msgstr ""
+
+#, python-format
+msgid ""
+"Database schema hash [%s] does not match the expected v%s schema hash [%s]."
+msgstr ""
+
+#, python-format
+msgid "Error exporting the patient (%s). Check the log."
+msgstr ""
+
+msgid "Cannot encrypt transplant script (is GnuPG installed ?)."
+msgstr ""
+
+#, python-format
+msgid "[%s] is not a GNUmed transplant script."
+msgstr ""
+
+msgid ""
+"The transplant script is damaged or has been modified below the "
+"configuration block (checksum mismatch)."
+msgstr ""
+
+msgid "The transplant script did not report a result."
+msgstr ""
 
 msgid "Cannot run [arriba] !"
 msgstr "Kann [arriba] nicht ausführen !"
@@ -11827,9 +12044,6 @@ msgstr "Nutzer"
 msgid "Workplace"
 msgstr "Arbeitsplatz"
 
-msgid "Configuration"
-msgstr "Konfiguration"
-
 #, python-format
 msgid "Value [%s] not valid for option <%s>."
 msgstr "Eingabe [%s] nicht zulässig für die Option <%s>."
@@ -14130,6 +14344,42 @@ msgstr "GNUmed: Warnung"
 msgid "GNUmed user question"
 msgstr "GNUmed: Abfrage"
 
+#, python-format
+msgid ""
+"Unsuitable passphrase.\n"
+"\n"
+"(minimum length: %s, trailing blanks will be stripped)\n"
+"\n"
+"Enter a more suitable passphrase ?"
+msgstr ""
+"Ungeeignetes Passwort (Phrase).\n"
+"\n"
+"(mindestens %s Zeichen, anhängende Leerzeichen werden abgeschnitten)\n"
+"\n"
+"Neuer Versuch ?"
+
+msgid ""
+"Once more enter passphrase for comparison.\n"
+"\n"
+"(this will protect you from typos)\n"
+"\n"
+"Abort by leaving empty."
+msgstr ""
+"Geben Sie das Passwort erneut ein.\n"
+"\n"
+"(Dadurch werden Vertipper entdeckt.)\n"
+"\n"
+"Abbrechen durch Leerlassen."
+
+msgid ""
+"Passphrases do not match.\n"
+"\n"
+"Retry, or abort with an empty passphrase."
+msgstr ""
+"Passworte (Phrasen) stimmen nicht überein.\n"
+"\n"
+"Erneut eingeben - oder Abbruch durch leeres Passwort."
+
 msgid "Editing EDC"
 msgstr "ET bearbeiten"
 
@@ -14273,6 +14523,215 @@ msgstr ""
 
 msgid "Merging patients: success"
 msgstr "Patienten zusammenführen: Erfolg"
+
+msgid "Cannot export patient as transplant script. No active patient."
+msgstr ""
+
+msgid "Patient transplant: export"
+msgstr ""
+
+#, python-format
+msgid ""
+"Export ALL data of\n"
+"\n"
+" #%s: %s (%s)\n"
+"\n"
+"as a GNUmed transplant script ?\n"
+"\n"
+"The script allows for transplanting this patient\n"
+"into another GNUmed database.\n"
+"\n"
+"Note: The script contains the complete record\n"
+"of the patient. Treat it as confidential."
+msgstr ""
+
+msgid "Patient transplant: export including change history"
+msgstr ""
+
+msgid ""
+"Without the password of the GNUmed database owner\n"
+"the change history (audit trail) of the patient\n"
+"cannot be exported.\n"
+"\n"
+"Export without change history ?"
+msgstr ""
+
+msgid "Save transplant script as ..."
+msgstr ""
+
+msgid "SQL scripts"
+msgstr ""
+
+msgid ""
+"Encrypt the transplant script (recommended) ?\n"
+"\n"
+"The recipient will need the passphrase."
+msgstr ""
+
+msgid ""
+"Enter passphrase for encrypting the transplant script (at least 5 "
+"characters):"
+msgstr ""
+
+#, python-format
+msgid ""
+"The patient has been exported as transplant script:\n"
+"\n"
+" %s\n"
+"\n"
+"Change history included: %s\n"
+"Encrypted: %s"
+msgstr ""
+
+msgid "Patient transplant: import"
+msgstr ""
+
+msgid "Choose a GNUmed transplant script:"
+msgstr ""
+
+msgid "transplant scripts"
+msgstr ""
+
+msgid "Cannot decrypt the transplant script."
+msgstr ""
+
+msgid ""
+"The transplant script is damaged or has been modified\n"
+"below the configuration block (checksum mismatch).\n"
+"\n"
+"It will not be imported."
+msgstr ""
+
+msgid "Settings in the script:"
+msgstr ""
+
+#, python-format
+msgid ""
+"Import patient from transplant script ?\n"
+"\n"
+" source: %s\n"
+" source patient: #%s\n"
+" exported: %s\n"
+" rows: %s\n"
+" change history included: %s\n"
+"%s\n"
+"The script will first be run as a dry run.\n"
+"You will be asked before anything is imported."
+msgstr ""
+
+msgid "Cannot import transplant script without admin access."
+msgstr ""
+
+#, python-format
+msgid ""
+"This very export has already been imported\n"
+"into the patient(s): %s\n"
+"\n"
+"Import it again anyway ?\n"
+"\n"
+"No data will be duplicated: data imported\n"
+"before will be skipped."
+msgstr ""
+
+#, python-format
+msgid ""
+"The transplant script cannot be imported.\n"
+"\n"
+"%s\n"
+"\n"
+"(SQLSTATE %s, statement %s)\n"
+"\n"
+"Nothing has been changed in the database."
+msgstr ""
+
+#, python-format
+msgid ""
+"The dry run succeeded:\n"
+"\n"
+"%s\n"
+"\n"
+"Import the patient now ?"
+msgstr ""
+
+#, python-format
+msgid ""
+"The patient could not be imported.\n"
+"\n"
+"%s\n"
+"\n"
+"(SQLSTATE %s, statement %s)\n"
+"\n"
+"Nothing has been changed in the database."
+msgstr ""
+
+#, python-format
+msgid "The data has been added to patient #%s."
+msgstr ""
+
+#, python-format
+msgid "The patient has been imported as #%s."
+msgstr ""
+
+#, python-format
+msgid ""
+"%s\n"
+"\n"
+"The transplant protocol (and the change history\n"
+"of the source database, if included) can be found\n"
+"in the document archive of the patient.\n"
+"\n"
+"Activate the patient now ?"
+msgstr ""
+
+msgid "(deactivated)"
+msgstr "(deaktiviert)"
+
+#, python-format
+msgid ""
+"The patient may already exist in this database:\n"
+"\n"
+"%s\n"
+"\n"
+"Add the data to an existing patient, or\n"
+"create a new patient ?"
+msgstr ""
+
+msgid "Add to existing"
+msgstr ""
+
+msgid "Add the data of the transplant script to an existing patient."
+msgstr ""
+
+msgid "Create new patient"
+msgstr "Neuen Patienten anlegen"
+
+msgid "Create a new patient from the transplant script."
+msgstr ""
+
+msgid "Data cannot be added to a deactivated patient."
+msgstr ""
+
+#, python-format
+msgid "Data will be added to patient #%s."
+msgstr ""
+
+msgid "A new patient will be created."
+msgstr ""
+
+#, python-format
+msgid "Rows to be imported: %s"
+msgstr ""
+
+#, python-format
+msgid "Rows already present (skipped): %s"
+msgstr ""
+
+#, python-format
+msgid "Rows which cannot be imported: %s (see protocol)"
+msgstr ""
+
+msgid "Staff mapping (source -> here):"
+msgstr ""
 
 msgid "Lastname"
 msgstr "Nachname"
@@ -15038,48 +15497,6 @@ msgstr ""
 "(mindestens 5 Buchstaben, anhängende Leerzeichen werden entfernt)"
 
 msgid ""
-"Insufficient passphrase.\n"
-"\n"
-"(minimum length: 5, trailing blanks will be stripped)\n"
-"\n"
-"Enter another passphrase ?"
-msgstr ""
-"Unzureichendes Passwort (Phrase).\n"
-"\n"
-"(mindestens 5 Zeichen, anhängende Leerzeichen werden abgeschnitten)\n"
-"\n"
-"Neuer Versuch ?"
-
-msgid ""
-"Once more enter master passphrase for safekeeping of paperwork passphrases.\n"
-"\n"
-"(this will protect you from typos)\n"
-"\n"
-"Abort by leaving empty.\n"
-"\n"
-"Make sure to safely remember the master passphrase. It is NOT stored in "
-"GNUmed at all."
-msgstr ""
-"Geben Sie das Generalpasswort zum Schutz von Dokumentenpassworten erneut "
-"ein.\n"
-"\n"
-"(Dadurch werden Vertipper entdeckt.)\n"
-"\n"
-"Abbrechen durch Leerlassen.\n"
-"\n"
-"Bewahren Sie das Generalpasswort sicher auf. Es wird in GNUmed NICHT "
-"gespeichert."
-
-msgid ""
-"Passphrases do not match.\n"
-"\n"
-"Retry, or abort with an empty passphrase."
-msgstr ""
-"Passworte (Phrasen) stimmen nicht überein.\n"
-"\n"
-"Erneut eingeben - oder Abbruch durch leeres Passwort."
-
-msgid ""
 "Enter passphrase to protect the object with.\n"
 "\n"
 "(minimum length: 5, trailing blanks will be stripped)"
@@ -15087,19 +15504,6 @@ msgstr ""
 "Geben Sie das Passwort zum Schutz von Dokumenten ein.\n"
 "\n"
 "(mindestens 5 Zeichen, anhängende Leerzeichen werden abgeschnitten)"
-
-msgid ""
-"Once more enter passphrase to protect the object with.\n"
-"\n"
-"(this will protect you from typos)\n"
-"\n"
-"Abort by leaving empty."
-msgstr ""
-"Geben Sie das Passwort zum Schutz von Dokumenten erneut ein.\n"
-"\n"
-"(Dadurch werden Vertipper entdeckt.)\n"
-"\n"
-"Abbrechen durch Leerlassen."
 
 msgid "Export area empty. Nothing to do."
 msgstr "Sammelmappe leer. Nichts zu tun."
@@ -16367,6 +16771,14 @@ msgstr "Zwischenablage (&vCard) → Patient"
 msgid "Import demographics from clipboard (vCard) as patient"
 msgstr "Importiere Stammdaten von der Zwischenablage (vCard) als Patienten"
 
+msgid "GNUmed &transplant script \\u2192 patient"
+msgstr ""
+
+msgid ""
+"Import a patient (all data) from a GNUmed transplant script created from "
+"another GNUmed database."
+msgstr ""
+
 msgid "&Import\\u2026"
 msgstr "&Importieren\\u2026"
 
@@ -16392,6 +16804,14 @@ msgstr "Stammdaten der aktiven Person als GDT-Datei exportieren."
 
 msgid "Export demographics of currently active person into vCard file."
 msgstr "Stammdaten der aktiven Person als vCard-Datei exportieren."
+
+msgid "GNUmed &transplant script"
+msgstr ""
+
+msgid ""
+"Export all data of the currently active patient as SQL script for "
+"transplanting the patient into another GNUmed database."
+msgstr ""
 
 msgid "\\u2192 &File as\\u2026"
 msgstr "\\u2192 &Datei als\\u2026"
@@ -18266,6 +18686,9 @@ msgstr "Enddatum (%s) in der Zukunft (jetzt: %s)"
 msgid "Discontinued (%s) before started (%s)"
 msgstr "Enddatum (%s) vor Startdatum (%s)"
 
+msgid "Duration: must be an interval, or empty."
+msgstr "Zeitraum: Muß als Dauer angegeben oder leer sein."
+
 msgid "Required: episode"
 msgstr "Pflichtfeld: Episode"
 
@@ -18297,6 +18720,15 @@ msgstr "Wirkstoff nötig."
 #, python-format
 msgid "[%s]: Some intake(s) already documented."
 msgstr "[%s]: Bereits Gebrauch dokumentiert."
+
+msgid "Must know both start and duration to discontinue \"as planned\"."
+msgstr ""
+"Sowohl Beginn als auch Dauer müssen bekannt sein, damit \"wie geplant\" "
+"beendet werden kann."
+
+#, python-format
+msgid "Discontinuation in the future: %s (%s+%s). Not discontinuing."
+msgstr "Ende in der Zukunft: %s (%s+%s). Endedatum wird nicht gesetzt."
 
 msgid "generic activity"
 msgstr "allgemeine Aktivität"
@@ -18774,9 +19206,6 @@ msgstr "Kann Substanz nicht löschen, da sie in Benutzung ist."
 
 msgid "Substances registered with GNUmed."
 msgstr "In GNUmed registrierte Wirkstoffe."
-
-msgid "Import"
-msgstr "Import"
 
 msgid "Import substances from a drug database."
 msgstr "Wirkstoffe aus einer Medikamentendatenbank importieren."
@@ -20885,6 +21314,38 @@ msgstr "Abbrechen"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
+#~ msgid "Enter the passphrase again:"
+#~ msgstr "Passwort erneut eingeben:"
+
+#~ msgid ""
+#~ "Once more enter master passphrase for safekeeping of paperwork "
+#~ "passphrases.\n"
+#~ "\n"
+#~ "(this will protect you from typos)\n"
+#~ "\n"
+#~ "Abort by leaving empty.\n"
+#~ "\n"
+#~ "Make sure to safely remember the master passphrase. It is NOT stored in "
+#~ "GNUmed at all."
+#~ msgstr ""
+#~ "Geben Sie das Generalpasswort zum Schutz von Dokumentenpassworten erneut "
+#~ "ein.\n"
+#~ "\n"
+#~ "(Dadurch werden Vertipper entdeckt.)\n"
+#~ "\n"
+#~ "Abbrechen durch Leerlassen.\n"
+#~ "\n"
+#~ "Bewahren Sie das Generalpasswort sicher auf. Es wird in GNUmed NICHT "
+#~ "gespeichert."
+
+#~ msgid "Notes on start date."
+#~ msgstr "Notizen zum Beginn."
+
+#~ msgid "Renal insufficiency information related to this substance."
+#~ msgstr ""
+#~ "Nephrologische Fachinformationen zeigen, die für die Substanz relevant "
+#~ "sind."
+
 #, python-format
 #~ msgid "Generic vaccine%s [#%s]%s"
 #~ msgstr "Generischer Impfstoff%s [#%s]%s"
@@ -22142,10 +22603,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ msgid "Unable to load events: %s."
 #~ msgstr "Ereignisse können nicht geladen werden: %s."
 
-#, python-format
-#~ msgid "%d events will be imported."
-#~ msgstr "%d Ereignisse werden importiert."
-
 #~ msgid "The selected timeline has a different time type."
 #~ msgstr "Der ausgewählte Zeitstrahl hat einen anderen Zeit-Typ."
 
@@ -23252,9 +23709,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ msgid "Reset"
 #~ msgstr "Zurücksetzen"
 
-#~ msgid "reset entry"
-#~ msgstr "Eintrag zurücksetzen"
-
 #~ msgid "discard entry and cancel"
 #~ msgstr "Eintrag verwerfen und abbrechen"
 
@@ -23498,9 +23952,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Decrypt"
 #~ msgstr "Entschlüsseln"
-
-#~ msgid "Set pass phrase"
-#~ msgstr "Passwort setzen"
 
 #~ msgid "This is not correctly encrypted text!"
 #~ msgstr "Dies ist kein korrekt verschlüsselter Text!"
@@ -24809,9 +25260,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ msgid "Type of entered value is not compatible with type expected."
 #~ msgstr ""
 #~ "Typ des eingegebenen Werts ist nicht mit dem erwarteten Typ kompatibel."
-
-#~ msgid "saving configuration"
-#~ msgstr "speichere Konfiguration"
 
 #~ msgid ""
 #~ "There is no config definition for this parameter.\n"
@@ -28933,9 +29381,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ "\n"
 #~ "Geben Sie nun Nuternamen und Paßwort\n"
 #~ "im Anmeldedialog von GNUmed ein.\\nLäuft GNUmed jetzt ?"
-
-#~ msgid "GNUmed client controller"
-#~ msgstr "GNUmed-Fernbedienung"
 
 #~ msgid "Clear/Reset"
 #~ msgstr "Leeren/Zurücksetzen"
