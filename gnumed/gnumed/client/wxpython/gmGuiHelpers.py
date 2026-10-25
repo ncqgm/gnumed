@@ -751,7 +751,7 @@ def get_passphrase(title:str=None, msg:str=None, min_length:int=5) -> str|None:
 	)
 	while True:
 		pwd4comparison = wx.GetPasswordFromUser(message = msg_reenter, caption = title)
-		pwd4comparison = master_pwd4comparison.rstrip()
+		pwd4comparison = pwd4comparison.rstrip()
 		if pwd4comparison == '':
 			return None					# user changed her mind ...
 

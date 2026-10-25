@@ -27,7 +27,6 @@ from Gnumed.pycommon import gmPrinting
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmNetworkTools
 from Gnumed.pycommon import gmCfgINI
-from Gnumed.pycommon import gmLog
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmExportArea
