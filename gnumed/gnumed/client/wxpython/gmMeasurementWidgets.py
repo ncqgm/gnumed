@@ -2104,7 +2104,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		self.EndBatch()
 
-		self.AutoSize()
+		# self.AutoSize()
 		self.AdjustScrollbars()
 		self.ForceRefresh()
 
