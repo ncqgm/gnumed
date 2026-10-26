@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-""".\\" ========================================================
-.\\" SPDX-License-Identifier: GPL-2.0-or-later
-.\\" ========================================================
+r""".\" ========================================================
+.\" SPDX-License-Identifier: GPL-2.0-or-later
+.\" ========================================================
 
 .TH GNUmed 1 "%(today)s" "Manual for GNUmed"
 
@@ -816,7 +816,7 @@ def handle_help_request(programmatically_requested:bool=False):
 		input('\nHit <ENTER> to display commandline help\n')
 		if platform.system() == 'Windows':
 			for line in __doc__.split('\n'):
-				print(regex.sub('^\.\w+\s*', '', line, count = 1))
+				print(regex.sub(r'^\.\w+\s*', '', line, count = 1))
 			sys.exit(0)
 
 		man_page_fname = generate_man_page()
