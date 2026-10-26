@@ -2487,6 +2487,9 @@ second line\n
 	def test_wrap():
 		test = 'line 1\nline 2\nline 3'
 
+		print(wrap('asdfaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'), 5)
+		input()
+
 		print("wrap 5-6-7 initial 0, subsequent 0")
 		print(wrap(test, 5))
 		print()
@@ -2811,7 +2814,7 @@ second line\n
 	#test_coalesce()
 	#test_capitalize()
 	#test_csv()
-	test_url_escape_string()
+	#test_url_escape_string()
 	#test_import_module()
 	#test_mkdir()
 	#test_gmPaths()
@@ -2820,7 +2823,7 @@ second line\n
 	#test_bool2subst()
 	#test_get_unique_filename()
 	#test_size2str()
-	#test_wrap()
+	test_wrap()
 	#test_input2decimal()
 	#test_input2int()
 	#test_unwrap()

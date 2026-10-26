@@ -1954,12 +1954,10 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.__repopulate_grid(tests4rows = tests)
 
 	#------------------------------------------------------------
-	def __repopulate_grid(self, tests4rows=None, test_pks2show=None):
+	def __repopulate_grid(self, tests4rows:list=None, test_pks2show:list[int]=None):
 
 		if len(tests4rows) == 0:
 			return
-
-		emr = self.__patient.emr
 
 		self.__row_label_data = tests4rows
 		row_labels = [ '%s%s' % (
@@ -1967,25 +1965,18 @@ class cMeasurementsGrid(wx.grid.Grid):
 				test_type['unified_abbrev']
 			) for test_type in self.__row_label_data
 		]
-
-		self.__col_label_data = [ d['clin_when_day'] for d in emr.get_dates_for_results (
-			tests = test_pks2show,
-			reverse_chronological = True
-		)]
+		emr = self.__patient.emr
+		dates4results = emr.get_dates_for_results(tests = test_pks2show, reverse_chronological = True)
+		self.__col_label_data = [ d['clin_when_day'] for d in dates4results ]
+		del dates4results
 		col_labels = [ date.strftime(self.__date_format) for date in self.__col_label_data ]
-
-		results = emr.get_test_results_by_date (
-			tests = test_pks2show,
-			reverse_chronological = True
-		)
+		results = emr.get_test_results_by_date(tests = test_pks2show, reverse_chronological = True)
 
 		self.BeginBatch()
-
 		# rows
 		self.AppendRows(numRows = len(row_labels))
 		for row_idx in range(len(row_labels)):
 			self.SetRowLabelValue(row_idx, row_labels[row_idx])
-
 		# columns
 		self.AppendCols(numCols = len(col_labels))
 		for col_idx in range(len(col_labels)):
@@ -2015,38 +2006,30 @@ class cMeasurementsGrid(wx.grid.Grid):
 			vals2display = []
 			cell_has_out_of_bounds_value = False
 			for sub_result in self.__cell_data[col_idx][row_idx]:
-
 				if sub_result.is_considered_abnormal:
 					cell_has_out_of_bounds_value = True
-
 				abnormality_indicator = sub_result.formatted_abnormality_indicator
 				if abnormality_indicator is None:
 					abnormality_indicator = ''
 				if abnormality_indicator != '':
 					abnormality_indicator = ' (%s)' % abnormality_indicator[:3]
-
-				missing_review = False
 				# warn on missing review if
-				# a) no review at all exists or
-				if not sub_result['reviewed']:
-					missing_review = True
-				# b) there is a review but
-				else:
-					# current user is reviewer and hasn't reviewed
-					if sub_result['you_are_responsible'] and not sub_result['review_by_you']:
-						missing_review = True
-
+				missing_review = (
+					# a) no review at all exists
+					(not sub_result['reviewed'])
+						or							# or
+					# b) there is a review but current user is reviewer and hasn't reviewed
+					(sub_result['you_are_responsible'] and not sub_result['review_by_you'])
+				)
 				needs_superscript = False
-
-				# can we display the full sub_result length ?
 				if sub_result.is_long_text:
+					needs_superscript = True
 					lines = gmTools.strip_empty_lines (
 						text = sub_result['unified_val'],
 						eol = '\n',
 						return_list = True
 					)
-					needs_superscript = True
-					tmp = lines[0][:7]
+					subresult_line = lines[0][:7]
 				else:
 					val = gmTools.strip_empty_lines (
 						text = sub_result['unified_val'],
@@ -2055,13 +2038,11 @@ class cMeasurementsGrid(wx.grid.Grid):
 					).replace('\n', '//')
 					if len(val) > 8:
 						needs_superscript = True
-						tmp = val[:7]
+						subresult_line = val[:7]
 					else:
-						tmp = '%.8s' % val[:8]
-
+						subresult_line = '%.8s' % val[:8]
 				# abnormal ?
-				tmp = '%s%.6s' % (tmp, abnormality_indicator)
-
+				subresult_line = '%s%.6s' % (subresult_line, abnormality_indicator)
 				# is there a comment ?
 				has_sub_result_comment = gmTools.coalesce (
 					gmTools.coalesce(sub_result['note_test_org'], sub_result['comment']),
@@ -2069,24 +2050,21 @@ class cMeasurementsGrid(wx.grid.Grid):
 				).strip() != ''
 				if has_sub_result_comment:
 					needs_superscript = True
-
 				if needs_superscript:
-					tmp = '%s%s' % (tmp, gmTools.u_superscript_one)
-
+					subresult_line = '%s%s' % (subresult_line, gmTools.u_superscript_one)
 				# lacking a review ?
 				if missing_review:
-					tmp = '%s %s' % (tmp, gmTools.u_writing_hand)
+					subresult_line = '%s %s' % (subresult_line, gmTools.u_writing_hand)
 				else:
 					if sub_result['is_clinically_relevant']:
-						tmp += ' !'
-
+						subresult_line += ' !'
 				# part of a multi-result cell ?
 				if len(self.__cell_data[col_idx][row_idx]) > 1:
-					tmp = '%s %s' % (sub_result['clin_when'].strftime('%H:%M'), tmp)
-
-				vals2display.append(tmp)
+					subresult_line = '%s %s' % (sub_result['clin_when'].strftime('%H:%M'), subresult_line)
+				vals2display.append(subresult_line)
 
 			self.SetCellValue(row_idx, col_idx, '\n'.join(vals2display))
+			self.AutoSizeRow(row_idx) if (len(vals2display) > 1) else None
 			self.SetCellAlignment(row_idx, col_idx, horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
 			# We used to color text in cells holding abnormals
 			# in firebrick red but that would color ALL text (including
@@ -2101,15 +2079,12 @@ class cMeasurementsGrid(wx.grid.Grid):
 			if cell_has_out_of_bounds_value:
 				#self.SetCellBackgroundColour(row_idx, col_idx, 'cornflower blue')
 				self.SetCellBackgroundColour(row_idx, col_idx, 'PALE TURQUOISE')
-
 		self.EndBatch()
 
-		self.AutoSize()
+		#self.AutoSize()			# prevents scrolling the grid when larger than the client area
 		self.AdjustScrollbars()
 		self.ForceRefresh()
-
 		#self.Fit()
-
 		return
 
 	#------------------------------------------------------------

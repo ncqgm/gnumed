@@ -175,6 +175,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			if notes_lines:
 				txt = '\n'.join([ gmTools.wrap(text = nl, width = 55, subsequent_indent = '  ') for nl in notes_lines ])
 				self.SetCellValue(row_idx, 4, txt)
+			self.AutoSizeRow(row_idx) if (len(notes_lines) > 1) else None
 			txt = '%s%s' % (
 				med['episode'],
 				gmTools.coalesce(med['health_issue'], '', ' (%s)')
@@ -221,8 +222,8 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		self.AppendRows(numRows = len(meds))
 		self.__row_data = {}
 		self.__populate_cells(meds, emr)
-		self.AutoSize()
 		self.EndBatch()
+		self.AdjustScrollbars()
 
 	#------------------------------------------------------------
 	def show_info_on_entry(self):
