@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-""".\\" ========================================================
+r""".\\" ========================================================
 .\\" SPDX-License-Identifier: GPL-2.0-or-later
 .\\" ========================================================
 
@@ -100,7 +100,7 @@ Used for debugging. Use The Source, Luke.
 Show version information about the GNUmed client and the
 database it needs.
 .TP
-.B \--help, -h, or -?
+.B \--help, -h, -?
 Show this help.
 
 
@@ -816,7 +816,7 @@ def handle_help_request(programmatically_requested:bool=False):
 		input('\nHit <ENTER> to display commandline help\n')
 		if platform.system() == 'Windows':
 			for line in __doc__.split('\n'):
-				print(regex.sub('^\.\w+\s*', '', line, count = 1))
+				print(regex.sub(r'^\.\w+\s*', '', line, count = 1))
 			sys.exit(0)
 
 		man_page_fname = generate_man_page()
