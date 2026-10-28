@@ -2039,7 +2039,7 @@ SELECT MIN(earliest) FROM (
 		where_parts = ['pk_patient = %(pat)s']
 		args = {'pat': self.pk_patient}
 		if tests is not None:
-			where_parts.append('pk_test_type = ANY(%(epi_pks)s)')
+			where_parts.append('pk_test_type = ANY(%(tests)s)')
 			args['tests'] = tests
 		cmd = """
 			SELECT DISTINCT ON (clin_when_day)
