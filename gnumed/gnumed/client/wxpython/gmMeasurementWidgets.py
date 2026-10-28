@@ -1977,6 +1977,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.AppendRows(numRows = len(row_labels))
 		for row_idx in range(len(row_labels)):
 			self.SetRowLabelValue(row_idx, row_labels[row_idx])
+		self.SetRowLabelSize(wx.grid.GRID_AUTOSIZE)
 		# columns
 		self.AppendCols(numCols = len(col_labels))
 		for col_idx in range(len(col_labels)):
@@ -2082,7 +2083,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 				self.SetCellBackgroundColour(row_idx, col_idx, 'PALE TURQUOISE')
 		self.EndBatch()
 
-		#self.AutoSize()			# prevents scrolling the grid when larger than the client area
+		#self.AutoSize()		# prevents scrolling the grid when larger than the client area
 		self.AutoSizeColumns()  # autosize to the SetMinSize set before
 		self.AdjustScrollbars()
 		self.ForceRefresh()
@@ -2154,34 +2155,24 @@ class cMeasurementsGrid(wx.grid.Grid):
 	# internal helpers
 	#------------------------------------------------------------
 	def __init_ui(self):
-		#self.SetMinSize(wx.DefaultSize)
 		self.SetMinSize((10, 10))
-
 		self.CreateGrid(0, 1)
 		self.EnableEditing(0)
 		self.EnableDragGridSize(1)
-
 		# column labels
-		# setting this screws up the labels: they are cut off and displaced
-		#self.SetColLabelAlignment(wx.ALIGN_CENTER, wx.ALIGN_BOTTOM)
-
+		#self.SetColLabelAlignment(wx.ALIGN_CENTER, wx.ALIGN_BOTTOM)		# setting this screws up the labels: they are cut off and displaced
 		# row labels
-		self.SetRowLabelSize(wx.grid.GRID_AUTOSIZE)		# starting with 2.8.8
-		#self.SetRowLabelSize(150)
 		self.SetRowLabelAlignment(horiz = wx.ALIGN_LEFT, vert = wx.ALIGN_CENTRE)
 		font = self.GetLabelFont()
 		font.SetWeight(wx.FONTWEIGHT_LIGHT)
 		self.SetLabelFont(font)
-
 		# add link to left upper corner
 		url = gmCfgDB.get4user (
 			option = 'external.urls.measurements_encyclopedia',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			default = gmPathLab.URL_test_result_information
 		)
-
 		self.__WIN_corner = self.GetGridCornerLabelWindow()		# a wx.Window instance
-
 		LNK_lab = wxh.HyperlinkCtrl (
 			self.__WIN_corner,
 			-1,
@@ -2190,23 +2181,21 @@ class cMeasurementsGrid(wx.grid.Grid):
 		)
 		LNK_lab.SetURL(url)
 		LNK_lab.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_BACKGROUND))
-		LNK_lab.SetToolTip(_(
+		tt = _(
 			'Navigate to an encyclopedia of measurements\n'
 			'and test methods on the web.\n'
 			'\n'
 			' <%s>'
-		) % url)
-
+		) % url
+		LNK_lab.SetToolTip(tt)
 		SZR_inner = wx.BoxSizer(wx.HORIZONTAL)
-		SZR_inner.Add((20, 20), 1, wx.EXPAND, 0)		# spacer
+		#SZR_inner.Add((20, 20), 1, wx.EXPAND, 0)		# spacer
 		SZR_inner.Add(LNK_lab, 0, wx.ALIGN_CENTER_VERTICAL, 0)		#wx.ALIGN_CENTER wx.EXPAND
 		SZR_inner.Add((20, 20), 1, wx.EXPAND, 0)		# spacer
-
 		SZR_corner = wx.BoxSizer(wx.VERTICAL)
 		SZR_corner.Add((20, 20), 1, wx.EXPAND, 0)		# spacer
 		SZR_corner.Add(SZR_inner, 0, wx.EXPAND)			# inner sizer with centered hyperlink
 		SZR_corner.Add((20, 20), 1, wx.EXPAND, 0)		# spacer
-
 		self.__WIN_corner.SetSizer(SZR_corner)
 		SZR_corner.Fit(self.__WIN_corner)
 
