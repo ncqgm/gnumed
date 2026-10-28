@@ -1981,6 +1981,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.AppendCols(numCols = len(col_labels))
 		for col_idx in range(len(col_labels)):
 			self.SetColLabelValue(col_idx, col_labels[col_idx])
+		self.SetColLabelSize(wx.grid.GRID_AUTOSIZE)
 
 		# cell values (list of test results)
 		for result in results:
@@ -2082,6 +2083,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.EndBatch()
 
 		#self.AutoSize()			# prevents scrolling the grid when larger than the client area
+		self.AutoSizeColumns()  # autosize to the SetMinSize set before
 		self.AdjustScrollbars()
 		self.ForceRefresh()
 		#self.Fit()
