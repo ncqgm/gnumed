@@ -2505,9 +2505,10 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 			self._GRID_results_battery.panel_to_show = pnl
 			#self._GRID_results_battery.Show()
 			self._PNL_results_battery_grid.Show()
-		self._GRID_results_battery.Fit()
-		self._GRID_results_all.Fit()
+		# self._GRID_results_battery.Fit()
+		# self._GRID_results_all.Fit()  # disabled, because it prevents scrolling the grid
 		self.Layout()
+		self._GRID_results_battery.ForceRefresh()
 	#--------------------------------------------------------
 	def _on_panel_selection_modified(self):
 		wx.CallAfter(self.__on_panel_selection_modified)
