@@ -2082,6 +2082,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.EndBatch()
 
 		#self.AutoSize()			# prevents scrolling the grid when larger than the client area
+		self.AutoSizeColumns()  # autosize to the SetMinSize set before
 		self.AdjustScrollbars()
 		self.ForceRefresh()
 		#self.Fit()
