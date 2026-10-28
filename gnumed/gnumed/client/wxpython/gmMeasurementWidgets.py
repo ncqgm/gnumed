@@ -1965,6 +1965,16 @@ class cMeasurementsGrid(wx.grid.Grid):
 				test_type['unified_abbrev']
 			) for test_type in self.__row_label_data
 		]
+
+		# attempt to ID row labels by test/meta type, NOT abbreviations
+		row_idx_by_key = {}
+		for row_idx, test_type in enumerate(self.__row_label_data):
+			if test_type['pk_meta_test_type'] is not None:
+				row_key = ('meta', test_type['pk_meta_test_type'])
+			else:
+				row_key = ('test', test_type['pk_test_type'])
+			row_idx_by_key[row_key] = row_idx
+
 		emr = self.__patient.emr
 		dates4results = emr.get_dates_for_results(tests = test_pks2show, reverse_chronological = True)
 		self.__col_label_data = [ d['clin_when_day'] for d in dates4results ]
@@ -1984,10 +1994,18 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		# cell values (list of test results)
 		for result in results:
-			row_idx = row_labels.index('%s%s' % (
-				gmTools.bool2subst(result['is_fake_meta_type'], '', gmTools.u_sum, ''),
-				result['unified_abbrev']
-			))
+			# row_idx = row_labels.index('%s%s' % (
+			# 	gmTools.bool2subst(result['is_fake_meta_type'], '', gmTools.u_sum, ''),
+			# 	result['unified_abbrev']
+			# ))
+
+			# attempt at placing results at rows by meta/test type, NOT abbreviation
+			if result['pk_meta_test_type'] is not None:
+				row_key = ('meta', result['pk_meta_test_type'])
+			else:
+				row_key = ('test', result['pk_test_type'])
+			row_idx = row_idx_by_key[row_key]
+
 			col_idx = col_labels.index(result['clin_when'].strftime(self.__date_format))
 
 			try:
