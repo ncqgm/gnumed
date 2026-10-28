@@ -2087,7 +2087,6 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.AutoSizeColumns()  # autosize to the SetMinSize set before
 		self.AdjustScrollbars()
 		self.ForceRefresh()
-		#self.Fit()
 		return
 
 	#------------------------------------------------------------
@@ -2494,7 +2493,6 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 		if panel is None:
 			self._TCTRL_panel_comment.SetValue('')
 			self._GRID_results_battery.panel_to_show = None
-			#self._GRID_results_battery.Hide()
 			self._PNL_results_battery_grid.Hide()
 		else:
 			pnl = self._PRW_panel.GetData(as_instance = True)
@@ -2503,10 +2501,10 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 				''
 			))
 			self._GRID_results_battery.panel_to_show = pnl
-			#self._GRID_results_battery.Show()
 			self._PNL_results_battery_grid.Show()
-		# self._GRID_results_battery.Fit()
-		# self._GRID_results_all.Fit()  # disabled, because it prevents scrolling the grid
+		# disabled, because it prevents scrolling the grids
+		#self._GRID_results_battery.Fit()
+		#self._GRID_results_all.Fit()
 		self.Layout()
 		self._GRID_results_battery.ForceRefresh()
 	#--------------------------------------------------------
