@@ -1981,6 +1981,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.AppendCols(numCols = len(col_labels))
 		for col_idx in range(len(col_labels)):
 			self.SetColLabelValue(col_idx, col_labels[col_idx])
+		self.SetColLabelSize(wx.grid.GRID_AUTOSIZE)
 
 		# cell values (list of test results)
 		for result in results:
