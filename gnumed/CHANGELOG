@@ -86,6 +86,7 @@ FIX: forward-port fix for grid selection constant names
 FIX: Py3.13: removed packaging.version from stdlib [thanks María]
 
 DEP: removed LibreOffice forms engine
+DEP: removed old interface for arriba cvd risk calculator
 
 ------------------------------------------------
 # rel-1-8-maint

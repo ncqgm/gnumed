@@ -136,8 +136,6 @@ echo "============"
 
 # external tools
 mkdir -p ./gnumed-client.$CLIENTREV/external-tools/
-run_shellcheck ../../external-tools/gm-install_arriba
-cp -vf ../../external-tools/gm-install_arriba ./gnumed-client.$CLIENTREV/external-tools/
 #run_shellcheck ../../external-tools/gm-download_data
 #cp -vf ../../external-tools/gm-download_data ./gnumed-client.$CLIENTREV/external-tools/
 run_shellcheck ../../external-tools/gm-download_atc
@@ -262,7 +260,6 @@ cp -vf ../../client/gm-from-vcs.conf ./gnumed-client.$CLIENTREV/client/doc/gnume
 cp -vf ../../client/doc/data-packs.conf.example ./gnumed-client.$CLIENTREV/client/doc/
 cp -vf ../../client/doc/man-pages/gm-print_doc.1 ./gnumed-client.$CLIENTREV/client/doc/
 cp -vf ../../client/doc/man-pages/gm_ctl_client.1 ./gnumed-client.$CLIENTREV/client/doc/
-cp -vf ../../client/doc/man-pages/gm-install_arriba.8 ./gnumed-client.$CLIENTREV/client/doc/
 cp -vf ../../client/doc/man-pages/gm-remove_person.1 ./gnumed-client.$CLIENTREV/client/doc/
 cp -vf ../../client/doc/man-pages/gm-convert_file.1 ./gnumed-client.$CLIENTREV/client/doc/
 cp -vf ../../client/doc/man-pages/gm-describe_file.1 ./gnumed-client.$CLIENTREV/client/doc/

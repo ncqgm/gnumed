@@ -206,9 +206,7 @@ touch %{buildroot}/run/gnumed-client.pid
 chmod 0644 %{buildroot}/run/gnumed-client.pid
 
 # German client
-install -Dm 0755 external-tools/gm-install_arriba %{buildroot}%{_sbindir}/gm-install_arriba
 install -Dm 0755 external-tools/gm-download_atc   %{buildroot}%{_datadir}/gnumed/bin/gm-download_atc
-install -Dm 0644 client/doc/gm-install_arriba.8 %{buildroot}%{_mandir}/man8/gm-install_arriba.8*
 
 %check
 desktop-file-validate %{buildroot}/%{_datadir}/applications/gnumed_client.desktop
@@ -253,9 +251,7 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/gnumed_client.
 %{_tmpfilesdir}/gnumed-client.tmpfiles.d.conf
 
 %files de
-%{_sbindir}/gm-install_arriba
 %{_datadir}/gnumed/bin/gm-download_atc
-%{_mandir}/man8/gm-install_arriba.8*
 
 %changelog
 %autochangelog
