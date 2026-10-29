@@ -1954,6 +1954,77 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.__repopulate_grid(tests4rows = tests)
 
 	#------------------------------------------------------------
+	def __row_key_from_test_type_or_result(self, test_type:gmPathLab.cMeasurementType|gmPathLab.cTestResult=None) -> str:
+		if test_type['pk_meta_test_type']:
+			return ('meta', test_type['pk_meta_test_type'])
+
+		return ('test', test_type['pk_test_type'])
+
+	#------------------------------------------------------------
+	def __cell_str_list_from_cell_data(self, data4cell:list[gmPathLab.cTestResult]=None) -> tuple[list[str], bool]:
+		# rebuild cell display string
+		vals2display = []
+		cell_has_out_of_bounds_value = False
+		for sub_result in data4cell:
+			if sub_result.is_considered_abnormal:
+				cell_has_out_of_bounds_value = True
+			abnormality_indicator = sub_result.formatted_abnormality_indicator
+			if abnormality_indicator is None:
+				abnormality_indicator = ''
+			if abnormality_indicator != '':
+				abnormality_indicator = ' (%s)' % abnormality_indicator[:3]
+			# warn on missing review if
+			missing_review = (
+				# a) no review at all exists
+				(not sub_result['reviewed'])
+					or							# or
+				# b) there is a review but current user is reviewer and hasn't reviewed
+				(sub_result['you_are_responsible'] and not sub_result['review_by_you'])
+			)
+			needs_superscript = False
+			if sub_result.is_long_text:
+				needs_superscript = True
+				lines = gmTools.strip_empty_lines (
+					text = sub_result['unified_val'],
+					eol = '\n',
+					return_list = True
+				)
+				subresult_line = lines[0][:7]
+			else:
+				val = gmTools.strip_empty_lines (
+					text = sub_result['unified_val'],
+					eol = '\n',
+					return_list = False
+				).replace('\n', '//')
+				if len(val) > 8:
+					needs_superscript = True
+					subresult_line = val[:7]
+				else:
+					subresult_line = '%.8s' % val[:8]
+			# abnormal ?
+			subresult_line = '%s%.6s' % (subresult_line, abnormality_indicator)
+			# is there a comment ?
+			has_sub_result_comment = gmTools.coalesce (
+				gmTools.coalesce(sub_result['note_test_org'], sub_result['comment']),
+				''
+			).strip() != ''
+			if has_sub_result_comment:
+				needs_superscript = True
+			if needs_superscript:
+				subresult_line = '%s%s' % (subresult_line, gmTools.u_superscript_one)
+			# lacking a review ?
+			if missing_review:
+				subresult_line = '%s %s' % (subresult_line, gmTools.u_writing_hand)
+			else:
+				if sub_result['is_clinically_relevant']:
+					subresult_line += ' !'
+			# part of a multi-result cell ?
+			if len(data4cell) > 1:
+				subresult_line = '%s %s' % (sub_result['clin_when'].strftime('%H:%M'), subresult_line)
+			vals2display.append(subresult_line)
+		return (vals2display, cell_has_out_of_bounds_value)
+
+	#------------------------------------------------------------
 	def __repopulate_grid(self, tests4rows:list=None, test_pks2show:list[int]=None):
 
 		if len(tests4rows) == 0:
@@ -1965,16 +2036,10 @@ class cMeasurementsGrid(wx.grid.Grid):
 				test_type['unified_abbrev']
 			) for test_type in self.__row_label_data
 		]
-
-		# attempt to ID row labels by test/meta type, NOT abbreviations
-		row_idx_by_key = {}
+		# ID row labels by test/meta type, NOT abbreviations
+		map_key2row_idx = {}
 		for row_idx, test_type in enumerate(self.__row_label_data):
-			if test_type['pk_meta_test_type'] is not None:
-				row_key = ('meta', test_type['pk_meta_test_type'])
-			else:
-				row_key = ('test', test_type['pk_test_type'])
-			row_idx_by_key[row_key] = row_idx
-
+			map_key2row_idx[self.__row_key_from_test_type_or_result(test_type)] = row_idx
 		emr = self.__patient.emr
 		dates4results = emr.get_dates_for_results(tests = test_pks2show, reverse_chronological = True)
 		self.__col_label_data = [ d['clin_when_day'] for d in dates4results ]
@@ -1996,93 +2061,21 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		# cell values (list of test results)
 		for result in results:
-			# row_idx = row_labels.index('%s%s' % (
-			# 	gmTools.bool2subst(result['is_fake_meta_type'], '', gmTools.u_sum, ''),
-			# 	result['unified_abbrev']
-			# ))
-
-			# attempt at placing results at rows by meta/test type, NOT abbreviation
-			if result['pk_meta_test_type'] is not None:
-				row_key = ('meta', result['pk_meta_test_type'])
-			else:
-				row_key = ('test', result['pk_test_type'])
-			row_idx = row_idx_by_key[row_key]
-
+			# place results at rows by meta/test type, NOT abbreviation
+			row_idx = map_key2row_idx[self.__row_key_from_test_type_or_result(result)]
 			col_idx = col_labels.index(result['clin_when'].strftime(self.__date_format))
-
 			try:
 				self.__cell_data[col_idx]
 			except KeyError:
 				self.__cell_data[col_idx] = {}
-
-			# the tooltip always shows the youngest sub result details
+			# the tooltip always shows the topmost sub result's details, ensure that that's the most recent
 			if row_idx in self.__cell_data[col_idx]:
 				self.__cell_data[col_idx][row_idx].append(result)
 				self.__cell_data[col_idx][row_idx].sort(key = lambda x: x['clin_when'], reverse = True)
 			else:
 				self.__cell_data[col_idx][row_idx] = [result]
-
 			# rebuild cell display string
-			vals2display = []
-			cell_has_out_of_bounds_value = False
-			for sub_result in self.__cell_data[col_idx][row_idx]:
-				if sub_result.is_considered_abnormal:
-					cell_has_out_of_bounds_value = True
-				abnormality_indicator = sub_result.formatted_abnormality_indicator
-				if abnormality_indicator is None:
-					abnormality_indicator = ''
-				if abnormality_indicator != '':
-					abnormality_indicator = ' (%s)' % abnormality_indicator[:3]
-				# warn on missing review if
-				missing_review = (
-					# a) no review at all exists
-					(not sub_result['reviewed'])
-						or							# or
-					# b) there is a review but current user is reviewer and hasn't reviewed
-					(sub_result['you_are_responsible'] and not sub_result['review_by_you'])
-				)
-				needs_superscript = False
-				if sub_result.is_long_text:
-					needs_superscript = True
-					lines = gmTools.strip_empty_lines (
-						text = sub_result['unified_val'],
-						eol = '\n',
-						return_list = True
-					)
-					subresult_line = lines[0][:7]
-				else:
-					val = gmTools.strip_empty_lines (
-						text = sub_result['unified_val'],
-						eol = '\n',
-						return_list = False
-					).replace('\n', '//')
-					if len(val) > 8:
-						needs_superscript = True
-						subresult_line = val[:7]
-					else:
-						subresult_line = '%.8s' % val[:8]
-				# abnormal ?
-				subresult_line = '%s%.6s' % (subresult_line, abnormality_indicator)
-				# is there a comment ?
-				has_sub_result_comment = gmTools.coalesce (
-					gmTools.coalesce(sub_result['note_test_org'], sub_result['comment']),
-					''
-				).strip() != ''
-				if has_sub_result_comment:
-					needs_superscript = True
-				if needs_superscript:
-					subresult_line = '%s%s' % (subresult_line, gmTools.u_superscript_one)
-				# lacking a review ?
-				if missing_review:
-					subresult_line = '%s %s' % (subresult_line, gmTools.u_writing_hand)
-				else:
-					if sub_result['is_clinically_relevant']:
-						subresult_line += ' !'
-				# part of a multi-result cell ?
-				if len(self.__cell_data[col_idx][row_idx]) > 1:
-					subresult_line = '%s %s' % (sub_result['clin_when'].strftime('%H:%M'), subresult_line)
-				vals2display.append(subresult_line)
-
+			vals2display, cell_has_out_of_bounds_value = self.__cell_str_list_from_cell_data(self.__cell_data[col_idx][row_idx])
 			self.SetCellValue(row_idx, col_idx, '\n'.join(vals2display))
 			self.AutoSizeRow(row_idx) if (len(vals2display) > 1) else None
 			self.SetCellAlignment(row_idx, col_idx, horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
