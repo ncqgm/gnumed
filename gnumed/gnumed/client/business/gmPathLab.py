@@ -2718,7 +2718,7 @@ def __format_test_results_latex(results=None):
 			result['clin_when'].strftime('%Y'),
 			gmTex.tex_escape_string(result['clin_when'].strftime('%b %d'))
 		)
-		dates[col_label] = None
+		dates[col_label] = result['clin_when']
 		try:
 			grid[row_label]
 		except KeyError:
@@ -2727,7 +2727,7 @@ def __format_test_results_latex(results=None):
 			grid[row_label][col_label].append(result)
 		except KeyError:
 			grid[row_label][col_label] = [result]
-	col_labels = sorted(dates, reverse = True)
+	col_labels = sorted(dates, key = dates.get, reverse = True)
 	del dates
 	row_labels = sorted(tests)
 	args = {
