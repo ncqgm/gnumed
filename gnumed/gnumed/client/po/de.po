@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-25 11:28+0100\n"
+"POT-Creation-Date: 2026-11-01 16:18+0100\n"
 "PO-Revision-Date: 2026-10-20 22:49+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
@@ -2611,44 +2611,41 @@ msgstr "Vermerken Sie hier etwaige Impfreaktionen."
 msgid "Any comment you may wish to relate to this vaccination."
 msgstr "Ein Kommentar zu dieser Impfung."
 
+msgid "Spotlight &Panel:"
+msgstr "Test&Profil zeigen:"
+
 msgid "Manage panels"
 msgstr "Profile verwalten"
-
-msgid "All: by day"
-msgstr "Alle: tageweise"
-
-msgid "Manage types"
-msgstr "Verfahren verwalten"
-
-msgid "&List"
-msgstr "&Liste"
-
-msgid "&Select:"
-msgstr "&Auswahl:"
-
-msgid "your unsigned (&Y)"
-msgstr "&Meine unsignierten"
-
-msgid "all unsigned (&A)"
-msgstr "&Alle unsignierten"
-
-msgid "&Actions ... "
-msgstr "&Aufgaben ... "
 
 msgid "Manage test panels."
 msgstr "Meßwertprofile beabeiten."
 
+msgid "All: by day"
+msgstr "Alle: tageweise"
+
 msgid "Switch between modes of the full results display."
 msgstr "Umschalten des Anzeigemodus für alle Meßwerte."
+
+msgid "Manage types"
+msgstr "Verfahren verwalten"
 
 msgid "Manage test types."
 msgstr "Meßverfahren verwalten."
 
+msgid "Results:"
+msgstr "Ergebnisse:"
+
 msgid "Add measurements."
 msgstr "Meßwerte hinzufügen."
 
+msgid "&List"
+msgstr "&Liste"
+
 msgid "Show all measurements in a chronological list."
 msgstr "Alle Messungen in einer chronologischen Liste anzeigen."
+
+msgid "&Select:"
+msgstr "&Auswahl:"
 
 msgid ""
 "Select results according to your choice on the right.\n"
@@ -2665,6 +2662,9 @@ msgstr ""
 "Sie können in der Tabelle natürlich auch manuell Zellen, Zeilen oder Spalten "
 "markieren."
 
+msgid "your unsigned (&Y)"
+msgstr "&Meine unsignierten"
+
 msgid ""
 "Apply selection to those unsigned results for which you are to take "
 "responsibility."
@@ -2672,17 +2672,17 @@ msgstr ""
 "Diejenigen unsignierten Ergebnisse markieren, für die Sie verantwortlich "
 "sind."
 
+msgid "all unsigned (&A)"
+msgstr "&Alle unsignierten"
+
 msgid "Apply selection to all unsigned results."
 msgstr "Markieren auf alle unsignierten Meßwerte anwenden."
 
+msgid "&Actions ... "
+msgstr "&Aufgaben ... "
+
 msgid "Invoke actions on the selected measurements."
 msgstr "Bestimmte Aufgaben mit den markierten Ergebnisse erledigen."
-
-msgid "Spotlight &Panel:"
-msgstr "Test&Profil zeigen:"
-
-msgid "Results:"
-msgstr "Ergebnisse:"
 
 msgid "Reload identity from the database."
 msgstr "Personendaten erneut aus der Datenbank laden."
