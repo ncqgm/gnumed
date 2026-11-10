@@ -567,10 +567,18 @@ class cSubstanceDose(gmBusinessDBObject.cBusinessDBObject):
 			SELECT EXISTS (
 				SELECT 1
 				FROM clin.v_intakes
-				WHERE pk_dose = %(pk)s
-				LIMIT 1
+				WHERE
+					pk_substance = %(pk_substance)s
+						AND
+					amount = %(amount)s
+						AND
+					unit = %(unit)s
 			)"""
-		args = {'pk': self.pk_obj}
+		args = {
+			'pk_substance': self._payload['pk_substance'],
+			'amount': self._payload['amount'],
+			'unit': self._payload['unit']
+		}
 
 		rows = gmPG2.run_ro_queries(queries = [{'sql': cmd, 'args': args}])
 		return rows[0][0]
