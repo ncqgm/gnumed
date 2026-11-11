@@ -2121,7 +2121,6 @@ class gmTopLevelFrame(wx.Frame):
 			'codes',
 			'ref_data_sources',
 			'meds_substances',
-			'meds_doses',
 			'meds_vaccines',
 			'orgs',
 			'labs',
@@ -2138,6 +2137,7 @@ class gmTopLevelFrame(wx.Frame):
 			'hints',
 			'db_translations',
 			'workplaces'
+			#'meds_doses',
 			#,'meds_components'
 			#,'meds_drugs'
 		]
@@ -2160,12 +2160,12 @@ class gmTopLevelFrame(wx.Frame):
 			'db_translations': _('String translations in the database'),
 			'meds_vaccines': _('Medications: vaccines'),
 			'meds_substances': _('Medications: base substances'),
-			'meds_doses':      _('Medications: substance dosage'),
 			'workplaces': _('Workplace profiles (which plugins to load)'),
 			'billables': _('Billable items'),
 			'ref_data_sources': _('Reference data sources'),
 			'gender_defs': _('Gender definitions')
 			,'codes': _('Codes and their respective terms')
+			#'meds_doses':      _('Medications: substance dosage'),
 			#,'meds_components': _('Medications: drug components')
 			#,'meds_drugs':      _('Medications: drug products and generic drugs')
 		}
@@ -2184,7 +2184,6 @@ class gmTopLevelFrame(wx.Frame):
 			'orgs': gmOrganizationWidgets.manage_orgs,
 			'adr': gmAddressWidgets.manage_addresses,
 			'meds_substances': gmSubstanceMgmtWidgets.manage_substances,
-			'meds_doses': gmSubstanceMgmtWidgets.manage_substance_doses,
 			'meds_vaccines': gmVaccWidgets.manage_vaccines,
 			'patient_tags': gmDemographicsWidgets.manage_tag_images,
 			'communication_channel_types': gmContactWidgets.manage_comm_channel_types,
@@ -2194,6 +2193,7 @@ class gmTopLevelFrame(wx.Frame):
 			'test_panels': gmMeasurementWidgets.manage_test_panels,
 			'gender_defs': gmDemographicsWidgets.manage_gender_definitions
 			,'codes': gmCodingWidgets.browse_coded_terms
+			#,'meds_doses': gmSubstanceMgmtWidgets.manage_substance_doses
 			#,'meds_components': gmSubstanceMgmtWidgets.manage_drug_components
 			#,'meds_drugs': gmSubstanceMgmtWidgets.manage_drug_products
 		}
