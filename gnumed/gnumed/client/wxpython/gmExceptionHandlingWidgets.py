@@ -117,6 +117,40 @@ def __handle_exceptions_on_shutdown(t, v, tb):
 	return True
 
 #-------------------------------------------------------------------------
+def __handle_disk_full_error(t, v, tb):
+
+	if t != OSError:
+		return False
+
+	if not hasattr(v, 'errno'):
+		return False
+
+	if v.errno != 28:		# ENOSPC
+		return False
+
+	f1 = getattr(v, 'filename', '?')
+	f1 = os.path.split(f1)[0]
+	f2 = getattr(v, 'filename2', '?')
+	f2 = os.path.split(f2)[0]
+	wx.EndBusyCursor()
+	_log.error('ENOSPC [ERRNO 28] no space left on device ([%s] [%s])', f1, f2)
+	gmGuiHelpers.gm_show_error (
+		title = _('No space left on device'),
+		error = _(
+			'GNUmed detected that a storage device may be out of space.\n'
+			'\n'
+			'The following directory names may provide hints as to which device might be affected:\n'
+			'\n'
+			'1: %s\n'
+			'\n'
+			'2: %s\n'
+			'\n'
+			'Please ensure sufficient disk space.\n'
+		) % (f1, f2)
+	)
+	return True
+
+#-------------------------------------------------------------------------
 def __handle_import_error(t, v, tb):
 
 	if t == OSError:
@@ -238,6 +272,9 @@ def handle_uncaught_exception_wx(t, v, tb):
 		return
 
 	if __handle_import_error(t, v, tb):
+		return
+
+	if __handle_disk_full_error(t, v, tb):
 		return
 
 	if __handle_wxgtk_assertion(t, v, tb):

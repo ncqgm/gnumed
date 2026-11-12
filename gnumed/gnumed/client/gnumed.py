@@ -874,8 +874,10 @@ def __migrate_old_user_gnumed_conf():
 def setup_paths_and_files():
 	"""Create needed paths in user home directory."""
 
+	# tmp dir
 	paths = gmTools.gmPaths(app_name = 'gnumed')	# wxPython not available yet
 	print("Temp dir:", paths.tmp_dir)
+	_cfg.set_option(option = 'keep-tmp-dir', value = _cfg.get(option = 'debug'))
 	# user work dir
 	readme = """GNUmed Electronic Medical Record
 
@@ -1291,15 +1293,14 @@ def shutdown_logging():
 
 #==========================================================
 def shutdown_tmp_dir():
-
 	tmp_dir = gmTools.gmPaths().tmp_dir
-
-	if _cfg.get(option = 'debug'):
-		_log.debug('not removing tmp dir (--debug mode): %s', tmp_dir)
+	if _cfg.get(option = 'keep-tmp-dir'):
+		_log.debug('not removing tmp dir (probably --debug mode): %s', tmp_dir)
 		return
 
 	_log.warning('removing tmp dir: %s', tmp_dir)
 	shutil.rmtree(tmp_dir, True)
+
 
 #==========================================================
 # main - launch the GNUmed wxPython GUI client

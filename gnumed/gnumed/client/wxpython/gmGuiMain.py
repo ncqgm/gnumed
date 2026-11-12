@@ -2286,6 +2286,7 @@ class gmTopLevelFrame(wx.Frame):
 		part['obj_comment'] = 'XML-Daten'
 		part['filename'] = 'arriba-result.xml'
 		part.save()
+
 	#----------------------------------------------
 	def __on_acs_risk_assessment(self, evt):
 		cmd = gmCfgDB.get4user (
@@ -3151,6 +3152,21 @@ class gmTopLevelFrame(wx.Frame):
 		"""
 		_log.debug('gmTopLevelFrame._clean_exit() start')
 
+		# ask about fate of temp dir
+		if _cfg.get(option = 'debug'):
+			title = _('Removal of temporary directory')
+			question = _('Do you want to remove the temporary directory or to keep it for debugging ?')
+			keep = gmGuiHelpers.ask (
+				title = title,
+				question = question,
+				buttons = [
+					{'label': _('&Keep##tx: keep temp dir'), 'tooltip': _('Do NOT remove temporary directory but rather keep it on disk.'), 'default': True},
+					{'label': _('&Remove##tx: remove temp dir'), 'tooltip': _('Remove temporary directory.'), 'default': False},
+					{'label': _("Don't know##tx: whether to remove temp dir or not"), 'tooltip': _('I do not know.'), 'default': False}
+				]
+			)
+			_cfg.set_option(option = 'keep-tmp-dir', value = (keep is True))
+
 		# shut down backend notifications listener
 		if 'no_db_listener' not in _cfg.get(option = 'special'):
 			listener = gmBackendListener.gmBackendListener()
@@ -3579,6 +3595,7 @@ class gmApp(wx.App):
 		_log.info('we should be saving ourselves from here')
 		gmLog.flush()
 		print('unhandled event detected: QUERY_END_SESSION')
+
 	#----------------------------------------------
 	def _on_end_session(self, *args, **kwargs):
 		wx.Bell()
@@ -3587,6 +3604,7 @@ class gmApp(wx.App):
 		_log.warning('unhandled event detected: END_SESSION')
 		gmLog.flush()
 		print('unhandled event detected: END_SESSION')
+
 	#----------------------------------------------
 	def _on_app_activated(self, evt):
 		if evt.GetActive():
@@ -3596,8 +3614,8 @@ class gmApp(wx.App):
 				gmHooks.run_hook_script(hook = 'app_activated')
 		else:
 			gmHooks.run_hook_script(hook = 'app_deactivated')
-
 		evt.Skip()
+
 	#----------------------------------------------
 	def _on_user_activity(self, evt):
 		self.user_activity_detected = True
