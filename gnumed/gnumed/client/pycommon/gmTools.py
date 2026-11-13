@@ -258,15 +258,10 @@ def create_directory_description_file(directory:str=None, readme:str=None, suffi
 	return True
 
 #---------------------------------------------------------------------------
-def rmdir(directory:str) -> int:
-	"""Remove a directory _and_ its content.
-
-	Returns:
-		Count of items that were not removable. IOW, 0 = success.
-	"""
+def __rmdir(directory:str=None) -> int:
 	#-------------------------------
 	def _on_rm_error(func, path, exc):
-		_log.error('error while shutil.rmtree(%s)', path, exc_info=exc)
+		_log.error('error while shutil.rmtree(%s)', path, exc_info = exc)
 		return True
 
 	#-------------------------------
@@ -279,8 +274,29 @@ def rmdir(directory:str) -> int:
 	return error_count
 
 #---------------------------------------------------------------------------
+def rmdir(directory:str=None, delayed:bool=False) -> int:
+	"""Remove a directory _and_ its content, including subdirectories and the directory entry itself.
+
+	Args:
+		delayed: if True, run deletion in a thread, will not return success state
+
+	Returns:
+		Count of items that were not removable. IOW, 0 = success.
+	"""
+	#-------------------------------
+	if not delayed:
+		return __rmdir(directory)
+
+	from GNUmed.pycommon import gmWorkerThread
+	gmWorkerThreadexecute_in_worker_thread (
+		payload_function = __rm_dir,
+		payload_kwargs = {'directory': directory},
+		worker_name = 'delayed_dir_deletion'
+	)
+
+#---------------------------------------------------------------------------
 def rm_dir_content(directory:str) -> bool:
-	"""Remove the content of _directory_.
+	"""Remove content of a directory but leave directory itself in place.
 	"""
 	_log.debug('cleaning out [%s]', directory)
 	try:
@@ -811,6 +827,33 @@ def remove_file(filename:str, log_error:bool=True, force:bool=False) -> bool:
 		if log_error:
 			_log.exception('cannot os.replace(%s)', filename)
 	return False
+
+#---------------------------------------------------------------------------
+def __remove_files(files:list[str]=None, log_error:bool=True, force:bool=False) -> bool:
+	status = True
+	for fname in files:
+		status = status and remove_file(fname, log_error = log_error, force = force)
+	return status
+
+#---------------------------------------------------------------------------
+def remove_files(files:list[str]=None, log_error:bool=True, force:bool=False, delayed:bool=False) -> bool:
+	if not delayed:
+		return __remove_files (
+			files = files,
+			log_error = log_error,
+			force = force
+		)
+
+	from GNUmed.pycommon import gmWorkerThread
+	gmWorkerThreadexecute_in_worker_thread (
+		payload_function = __remove_files,
+		payload_kwargs = {
+			'files': files,
+			'log_error': log_error,
+			'force': force
+		},
+		worker_name = 'delayed_files_deletion'
+	)
 
 #---------------------------------------------------------------------------
 def rename_file(filename:str, new_filename:str, overwrite:bool=False, allow_symlink:bool=False, allow_hardlink:bool=True) -> bool:
