@@ -130,16 +130,6 @@ else
 	echo "found"
 fi
 
-echo -n " 'aspell' spell checker... "
-BIN=`which aspell`
-if [ "x${BIN}x" == "xx" ]; then
-	echo ""
-	echo "  INFO : You don't seem to have the 'aspell' command installed."
-	echo "  INFO : It is available with your OS."
-else
-	echo "found"
-fi
-
 echo -n " 'konsolekalender' KOrganizer controller... "
 BIN=`which konsolekalendar`
 if [ "x${BIN}x" == "xx" ]; then
@@ -166,17 +156,6 @@ if [ "x${BIN}x" == "xx" ]; then
 	echo ""
 	echo "  INFO : You don't seem to have the 'pdflatex' command installed."
 	echo "  INFO : It is used to turn form templates into printable PDFs."
-else
-	echo "found"
-fi
-
-echo -n " 'kprinter4' command... "
-BIN=`which kprinter4`
-if [ "x${BIN}x" == "xx" ]; then
-	echo ""
-	echo "  INFO : You don't seem to have the 'kprinter4' command installed."
-	echo "  INFO : It is used to print files from KDE."
-	echo "  INFO : On Windows it is not needed."
 else
 	echo "found"
 fi
@@ -416,16 +395,6 @@ else
 	echo "found"
 fi
 
-echo -n " 'Ginkgo CADx' DICOM viewer... "
-BIN=`which ginkgocadx`
-if [ "x${BIN}x" == "xx" ]; then
-	echo ""
-	echo "  INFO : You don't seem to have the 'ginkgocadx' command installed."
-	echo "  INFO : This is the recommended DICOM viewer on Linux."
-else
-	echo "found"
-fi
-
 echo -n " 'qpdf' command... "
 BIN=`which qpdf`
 if [ "x${BIN}x" == "xx" ]; then
@@ -525,6 +494,37 @@ echo ""
 #	echo ""
 #	echo "  INFO : You don't seem to have the 'gm-download_data' command installed."
 #	echo "  INFO : It is used to download data files from within GNUmed."
+#else
+#	echo "found"
+#fi
+
+#echo -n " 'Ginkgo CADx' DICOM viewer... "
+#BIN=`which ginkgocadx`
+#if [ "x${BIN}x" == "xx" ]; then
+#	echo ""
+#	echo "  INFO : You don't seem to have the 'ginkgocadx' command installed."
+#	echo "  INFO : This is the recommended DICOM viewer on Linux."
+#else
+#	echo "found"
+#fi
+
+#echo -n " 'aspell' spell checker... "
+#BIN=`which aspell`
+#if [ "x${BIN}x" == "xx" ]; then
+#	echo ""
+#	echo "  INFO : You don't seem to have the 'aspell' command installed."
+#	echo "  INFO : It is available with your OS."
+#else
+#	echo "found"
+#fi
+
+#echo -n " 'kprinter4' command... "
+#BIN=`which kprinter4`
+#if [ "x${BIN}x" == "xx" ]; then
+#	echo ""
+#	echo "  INFO : You don't seem to have the 'kprinter4' command installed."
+#	echo "  INFO : It is used to print files from KDE."
+#	echo "  INFO : On Windows it is not needed."
 #else
 #	echo "found"
 #fi
