@@ -24,6 +24,7 @@ from Gnumed.pycommon import gmMimeLib
 
 
 _log = logging.getLogger('gm.img_ui')
+_cfg = gmCfgINI.gmCfgData()
 
 #============================================================
 from Gnumed.wxGladeWidgets.wxgSingleFileImageViewerPnl import wxgSingleFileImageViewerPnl
@@ -88,6 +89,8 @@ class cSingleFileImageViewerPnl(wxgSingleFileImageViewerPnl):
 		if filename == self.__filename:
 			return
 
+		if self.__image_pages and not _cfg.get(option = 'debug'):
+			gmTools.remove_files(files = self.__image_pages, delayed = True)
 		self.__current_page = 0
 		if not filename:
 			self.__image_pages = []
