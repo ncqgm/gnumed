@@ -14,7 +14,7 @@
 # those probably need some adjustment from package maintainers:
 
 GM_LOG_BASE="/var/log/gnumed/server"
-GM_SERVER_DIR="/var/lib/gnumed/server/bootstrap"
+GM_SERVER_DIR="/usr/lib/gnumed/server/bootstrap"
 
 #==============================================================
 # do not run twice
