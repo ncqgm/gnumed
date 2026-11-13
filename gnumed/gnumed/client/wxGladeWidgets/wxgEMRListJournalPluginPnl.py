@@ -45,7 +45,7 @@ class wxgEMRListJournalPluginPnl(wx.Panel):
 		self._CHBOX_exclude = wx.CheckBox(self, wx.ID_ANY, _("Apply filters"), style=wx.CHK_2STATE)
 		__szr_top.Add(self._CHBOX_exclude, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 3)
 
-		self._BTN_config = wx.Button(self, wx.ID_ANY, _(u" ⚙ "), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
+		self._BTN_config = wx.Button(self, wx.ID_ANY, _(u" ☰ "), style=wx.BORDER_NONE | wx.BU_EXACTFIT)
 		self._BTN_config.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
 		self._BTN_config.SetToolTip(_("Configure filters."))
 		__szr_top.Add(self._BTN_config, 0, wx.EXPAND, 0)
