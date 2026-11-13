@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-01 16:18+0100\n"
+"POT-Creation-Date: 2026-11-13 20:13+0100\n"
 "PO-Revision-Date: 2026-10-20 22:49+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
@@ -5044,7 +5044,7 @@ msgstr "Nach Zeitpunkt der letzten Bearbeitung des jeweiligen Eintrags ordnen."
 msgid "Apply filters"
 msgstr "Filter anwenden"
 
-msgid " ⚙ "
+msgid " ☰ "
 msgstr ""
 
 msgid "Configure filters."
@@ -10012,6 +10012,23 @@ msgstr ""
 "%s\n"
 "%s\n"
 "vor %s"
+
+msgid "No space left on device"
+msgstr ""
+
+#, python-format
+msgid ""
+"GNUmed detected that a storage device may be out of space.\n"
+"\n"
+"The following directory names may provide hints as to which device might be "
+"affected:\n"
+"\n"
+"1: %s\n"
+"\n"
+"2: %s\n"
+"\n"
+"Please ensure sufficient disk space.\n"
+msgstr ""
 
 msgid "Missing GNUmed module"
 msgstr "Fehlendes GNUmed-Modul"
@@ -18194,9 +18211,6 @@ msgstr "Medikamente: Impfstoffe"
 msgid "Medications: base substances"
 msgstr "Medikamente: Wirkstoffe"
 
-msgid "Medications: substance dosage"
-msgstr "Medikamente: Wirkstoffdosierungen"
-
 msgid "Workplace profiles (which plugins to load)"
 msgstr "Arbeitsplatz-Profile (Laden welcher Plugins)"
 
@@ -18424,6 +18438,33 @@ msgstr "Kann Mitarbeiter nicht anlegen. Kein Patient aktiv."
 
 msgid "Cannot delete patient. No patient active."
 msgstr "Kann Patienten nicht löschen. Kein Patient aktiv."
+
+msgid "Removal of temporary directory"
+msgstr "Temporäres Verzeichnis entfernen"
+
+msgid ""
+"Do you want to remove the temporary directory or to keep it for debugging ?"
+msgstr ""
+"Soll das temporäre Verzeichnis gelöscht oder behalten werden (zur "
+"Fehlersuche) ?"
+
+msgid "&Keep##tx: keep temp dir"
+msgstr "Be&halten"
+
+msgid "Do NOT remove temporary directory but rather keep it on disk."
+msgstr "Temporäres Verzeichnis NICHT löschen sondern bestehenlassen."
+
+msgid "&Remove##tx: remove temp dir"
+msgstr "Ent&fernen"
+
+msgid "Remove temporary directory."
+msgstr "Temporäres Verzeichnis entfernen."
+
+msgid "Don't know##tx: whether to remove temp dir or not"
+msgstr "kA"
+
+msgid "I do not know."
+msgstr "Kein Ahnung."
 
 msgid ""
 "You have to manually close this window to finalize shutting down GNUmed."
@@ -21313,6 +21354,9 @@ msgstr "Abbrechen"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
+
+#~ msgid "Medications: substance dosage"
+#~ msgstr "Medikamente: Wirkstoffdosierungen"
 
 #~ msgid "Enter the passphrase again:"
 #~ msgstr "Passwort erneut eingeben:"
