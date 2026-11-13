@@ -21,6 +21,7 @@ else:
 		gmI18N.install_domain()
 
 from Gnumed.pycommon import gmMimeLib
+from Gnumed.pycommon import gmCfgINI
 
 
 _log = logging.getLogger('gm.img_ui')
