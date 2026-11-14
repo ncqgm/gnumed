@@ -512,6 +512,9 @@ def __convert_pdf_to_image(filename:str=None, verbose:bool=False, max_pages:int=
 	if not success:
 		return None
 
+	# cleanup
+	_log.debug('tmp file cleanup: %s', image_pages)
+	gmTools.remove_files(files = image_pages, delayed = True)
 	return tiff_name
 
 #-----------------------------------------------------------------------------------

@@ -287,9 +287,9 @@ def rmdir(directory:str=None, delayed:bool=False) -> int:
 	if not delayed:
 		return __rmdir(directory)
 
-	from GNUmed.pycommon import gmWorkerThread
-	gmWorkerThreadexecute_in_worker_thread (
-		payload_function = __rm_dir,
+	from Gnumed.pycommon import gmWorkerThread
+	gmWorkerThread.execute_in_worker_thread (
+		payload_function = __rmdir,
 		payload_kwargs = {'directory': directory},
 		worker_name = 'delayed_dir_deletion'
 	)
@@ -844,8 +844,8 @@ def remove_files(files:list[str]=None, log_error:bool=True, force:bool=False, de
 			force = force
 		)
 
-	from GNUmed.pycommon import gmWorkerThread
-	gmWorkerThreadexecute_in_worker_thread (
+	from Gnumed.pycommon import gmWorkerThread
+	gmWorkerThread.execute_in_worker_thread (
 		payload_function = __remove_files,
 		payload_kwargs = {
 			'files': files,

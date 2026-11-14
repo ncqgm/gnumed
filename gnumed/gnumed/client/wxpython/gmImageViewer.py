@@ -20,6 +20,7 @@ else:
 		gmI18N.activate_locale()
 		gmI18N.install_domain()
 
+from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmCfgINI
 
