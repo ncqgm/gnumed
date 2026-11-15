@@ -402,7 +402,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 				lines.append('')
 				lines.append(_('Medications and Substances'))
 			for m in meds:
-				lines.extend(m.format(left_margin = (left_margin + 1)))
+				lines.append(m.format(left_margin = (left_margin + 1)))
 			del meds
 
 		# hospitalizations
