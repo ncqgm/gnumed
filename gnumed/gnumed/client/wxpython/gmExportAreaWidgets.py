@@ -810,7 +810,10 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		generate_metadata = dlg._CHBOX_generate_metadata.IsChecked()
 		#use_subdir = dlg._CHBOX_use_subdirectory.IsChecked()
 		encrypt = dlg._CHBOX_encrypt.IsChecked()
-		convert2pdf = dlg._CHBOX_convert2pdf.IsChecked()
+		if encrypt:
+			convert2pdf = dlg._CHBOX_convert2pdf.IsChecked()
+		else:
+			convert2pdf = False
 		dlg.DestroyLater()
 		if choice == wx.ID_CANCEL:
 			return
