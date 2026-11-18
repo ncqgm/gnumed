@@ -233,7 +233,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			return
 		if len(selections) == 0:
 			return
-		if self.ignore_OK_button:
+		if self.__ignore_OK_button:
 			return
 		self._BTN_ok.Enable(True)
 		self._BTN_ok.SetDefault()
