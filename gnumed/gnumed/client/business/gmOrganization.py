@@ -15,6 +15,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmBusinessDBObject
+from Gnumed.pycommon import gmDispatcher
 
 from Gnumed.business import gmDemographicRecord
 
@@ -469,8 +470,12 @@ def delete_org_unit(unit:int=None) -> bool:
 			#--		)
 	try:
 		gmPG2.run_rw_queries(queries = [{'sql': cmd, 'args': args}])
-	except gmPG2.dbapi.errors.ForeignKeyViolation:
+	except (
+		gmPG2.dbapi.errors.ForeignKeyViolation,
+		gmPG2.dbapi.errors.RestrictViolation
+		):
 		_log.exception('error deleting org unit')
+		gmDispatcher.send(signal = 'statustext', msg = _('Could not remove the organizational unit: it may be in use. Check log for details.'), beep = False)
 		return False
 
 	return True
