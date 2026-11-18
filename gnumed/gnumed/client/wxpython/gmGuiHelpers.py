@@ -728,7 +728,7 @@ def get_passphrase(title:str=None, msg:str=None, min_length:int=5) -> str|None:
 	while True:
 		pwd = wx.GetPasswordFromUser(message = msg, caption = title)
 		pwd = pwd.rstrip()
-		if len(pwd) > min_length:		# minimal weakness check
+		if len(pwd) >= min_length:		# minimal weakness check
 			break
 		retry = ask(title = title, question = retry_question)
 		if not retry:
