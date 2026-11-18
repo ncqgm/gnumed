@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-29 16:19-0300\n"
-"PO-Revision-Date: 2026-10-29 16:14-0300\n"
+"POT-Creation-Date: 2026-11-18 15:39-0300\n"
+"PO-Revision-Date: 2026-11-18 15:42-0300\n"
 "Last-Translator: Maria Scappini <mscappiniv@gmail.com>\n"
 "Language-Team: colombiano <es@li.org>\n"
 "Language: es\n"
@@ -1030,7 +1030,7 @@ msgid "&Add"
 msgstr "Añad&ir"
 
 msgid "&Remove"
-msgstr "&Remover"
+msgstr "&Quitar"
 
 msgid "A short description for this test panel."
 msgstr "Breve descripción de este panel de pruebas."
@@ -1042,7 +1042,7 @@ msgid "Add the selected LOINC to the test panel."
 msgstr "Agregar el LOINC escogido al panel de pruebas."
 
 msgid "Remove selected LOINC from test panel."
-msgstr "Remover el LOINC escogido del panel de pruebas."
+msgstr "Quitar el LOINC escogido del panel de pruebas."
 
 msgid "Description"
 msgstr "Descripción"
@@ -1299,10 +1299,10 @@ msgid "The organization this unit belongs to."
 msgstr "La organización a la que pertenece esta unidad."
 
 msgid "The name of the organizational unit."
-msgstr "El nombre de la unidad organizativa."
+msgstr "El nombre de la unidad organizacional."
 
 msgid "The category of the organizational unit."
-msgstr "La categoría de la unidad organizativa."
+msgstr "La categoría de la unidad organizacional."
 
 msgid "Organization"
 msgstr "Organización"
@@ -1437,7 +1437,7 @@ msgid "Add"
 msgstr "Añadir"
 
 msgid "Remove"
-msgstr "Remover"
+msgstr "Quitar"
 
 msgid ""
 "Enter the name of the substance.\n"
@@ -1713,8 +1713,8 @@ msgstr ""
 msgid "Apply filters"
 msgstr "Aplicar filtros"
 
-msgid " ⚙ "
-msgstr " ⚙ "
+msgid " ☰ "
+msgstr " ☰ "
 
 msgid "Configure filters."
 msgstr "Configurar filtros."
@@ -1770,7 +1770,7 @@ msgstr "El principio activo de este medicamento genérico."
 
 msgid "Enter the amount of substance (such as the \"5\" in \"5mg/ml\")."
 msgstr ""
-"Ingrese la cantidad de principio activo (como el \"5\" en \"5 mg/ml\")."
+"Ingrese la concentración del principio activo (como el \"5\" en \"5 mg/ml\")."
 
 msgid "The unit of the amount of substance (such as the \"mg\" in \"5mg/ml\")."
 msgstr ""
@@ -1781,15 +1781,15 @@ msgid ""
 "empty it means \"per delivery unit\" (such as tablet, sachet, capsule, "
 "suppository)."
 msgstr ""
-"La unidad de la cantidad de referencia (como el \"ml\" en \"5 mg/ml\"). Si "
-"se deja vacío, significa \"por unidad de entrega\" (como tableta, sobre, "
+"La unidad de la concentración de referencia (como el \"ml\" en \"5 mg/ml\"). "
+"Si se deja vacío, significa \"por unidad de entrega\" (como tableta, sobre, "
 "cápsula, supositorio)."
 
 msgid "Drug name"
 msgstr "Nombre del medicamento"
 
 msgid "Amount"
-msgstr "Cantidad"
+msgstr "Concentración"
 
 msgid "per"
 msgstr "por"
@@ -1914,7 +1914,7 @@ msgid "Contribute"
 msgstr "Contribuir"
 
 msgid "Plot"
-msgstr "Gráfico"
+msgstr "Graficar"
 
 msgid "Wait.List"
 msgstr "Lista de espera"
@@ -2141,7 +2141,7 @@ msgid ""
 "Note that this summary spans all the problems discussed during this "
 "encounter."
 msgstr ""
-"También conocida como la Valoración/Evaluación de la Consulta/Visita (VDC).\n"
+"También conocida como la Evaluación de la Consulta (EDC).\n"
 "\n"
 "Opcionalmente resume el resultado o evaluación de la consulta desde el punto "
 "de vista del médico.\n"
@@ -2642,10 +2642,10 @@ msgid "Add entries from scanner/disc/clipboard to incoming area."
 msgstr "Agregar ítems al área entrante desde el escáner/disco/portapapeles."
 
 msgid " &Remove "
-msgstr " &Remover "
+msgstr " &Eliminar "
 
 msgid "Remove highlighted entry from incoming area."
-msgstr "Remover/quitar el ítem resaltado del área entrante."
+msgstr "Eliminar/quitar el ítem resaltado del área entrante."
 
 msgid "&Unassign"
 msgstr "&Desasignar"
@@ -4858,10 +4858,10 @@ msgid "The substance being taken."
 msgstr "La sustancia a registrar para el paciente."
 
 msgid "Amount of active ingredient."
-msgstr "Cantidad del principio activo."
+msgstr "Concentración o cantidad del principio activo."
 
 msgid "Units for the amount of active ingredient."
-msgstr "Unidades para la cantidad del principio activo."
+msgstr "Unidad de medida para la concentración del principio activo."
 
 msgid "The intake schedule describing how to use the dosage."
 msgstr ""
@@ -5228,7 +5228,7 @@ msgid "A comment on this lab."
 msgstr "Un comentario sobre este laboratorio."
 
 msgid "Org.Unit"
-msgstr "Unidad organizativa"
+msgstr "Unidad org."
 
 msgid "About GNUmed"
 msgstr "Acerca de GNUmed"
@@ -5883,7 +5883,7 @@ msgid "Edit staff details"
 msgstr "Editar detalles del personal"
 
 msgid "Discharge staff"
-msgstr "Remover personal"
+msgstr "Deshabilitar personal"
 
 msgid "Enlist current patient"
 msgstr "Inscribir paciente actual"
@@ -5898,7 +5898,7 @@ msgid "Edit details of selected staff member."
 msgstr "Editar detalles del personal escogido."
 
 msgid "Discharge the selected person from the staff list."
-msgstr "Remover a la persona escogida de la lista del personal."
+msgstr "Quitar a la persona escogida de la lista del personal."
 
 msgid "Add a new user to the GNUmed system."
 msgstr "Agregar un nuevo usuario a GNUmed."
@@ -6231,7 +6231,7 @@ msgid "Store selected/all documents in document archive."
 msgstr "Almacenar los documentos escogidos/todos en el archivo documental."
 
 msgid "Remove the selected documents."
-msgstr "Remover/quitar los documentos escogidos."
+msgstr "Eliminar/quitar los documentos escogidos."
 
 msgid "&Print"
 msgstr "I&mprimir"
@@ -6295,7 +6295,7 @@ msgid "&Show missing"
 msgstr "&Mostrar faltantes"
 
 msgid "Check to show panel tests which lack results."
-msgstr "Marcar para mostrar pruebas del panel sin resultados."
+msgstr "Marque para mostrar en el panel los parámetros sin resultados."
 
 msgid "Mandatory: A code for this billable."
 msgstr "Obligatorio: un código para este ítem facturable."
@@ -6403,7 +6403,7 @@ msgid "Programmer forgot tooltip for left extra button."
 msgstr "El programador olvidó el tooltip para el botón extra izquierdo."
 
 msgid "Add &another"
-msgstr "&Añadir otro"
+msgstr "Aña&dir otro"
 
 msgid "Save data into database and clear fields for another value."
 msgstr ""
@@ -6739,7 +6739,7 @@ msgid "RFE"
 msgstr "MDC"
 
 msgid "AOE"
-msgstr "VDC"
+msgstr "EDC"
 
 msgid ""
 "An error occurred while retrieving a text\n"
@@ -7862,7 +7862,7 @@ msgid "Progress note"
 msgstr "Nota de progreso"
 
 msgid "Test result"
-msgstr "Resultado de examen"
+msgstr "Mediciones/resultados de laboratorio"
 
 msgid "Substance intake"
 msgstr "Ingesta de sustancia"
@@ -8388,6 +8388,13 @@ msgstr " (de su clínica)"
 #, python-format
 msgid "Organization: %s (%s)"
 msgstr "Organización: %s (%s)"
+
+msgid ""
+"Could not remove the organizational unit: it may be in use. Check log for "
+"details."
+msgstr ""
+"No se pudo eliminar la unidad organizacional: podría estar en uso. Más "
+"detalles en el registro (log)."
 
 msgid "A: Sign"
 msgstr "A: Signo"
@@ -12968,7 +12975,7 @@ msgid "Panels"
 msgstr "Paneles"
 
 msgid "Most recent"
-msgstr "Más reciente"
+msgstr "Más recientes"
 
 msgid ""
 "lab_grid_date_format::%Y\n"
@@ -13873,6 +13880,34 @@ msgid ""
 msgstr ""
 "El contenido no es válido. Debe coincidir con la expresión regular: [%%s]. "
 "<%s>"
+
+msgid "No space left on device"
+msgstr "No queda espacio libre en el dispositivo"
+
+#, python-format
+msgid ""
+"GNUmed detected that a storage device may be out of space.\n"
+"\n"
+"The following directory names may provide hints as to which device might be "
+"affected:\n"
+"\n"
+"1: %s\n"
+"\n"
+"2: %s\n"
+"\n"
+"Please ensure sufficient disk space.\n"
+msgstr ""
+"GNUmed ha detectado que un dispositivo de almacenamiento podría estar sin "
+"espacio.\n"
+"\n"
+"Los siguientes nombres de directorios podrían dar pistas sobre el "
+"dispositivo afectado:\n"
+"\n"
+"1: %s\n"
+"\n"
+"2: %s\n"
+"\n"
+"Por favor, asegúrese de que haya suficiente espacio en disco.\n"
 
 msgid "Missing GNUmed module"
 msgstr "Falta un módulo de GNUmed"
@@ -15086,7 +15121,7 @@ msgid "Debugging ..."
 msgstr "Depuración ..."
 
 msgid "About database"
-msgstr "Acerca de base de datos"
+msgstr "Acerca de la base de datos"
 
 msgid "Show information about the current database."
 msgstr "Mostrar información sobre la base de datos actual."
@@ -15968,9 +16003,6 @@ msgstr "Medicaciones: vacunas"
 msgid "Medications: base substances"
 msgstr "Medicaciones: sustancias base"
 
-msgid "Medications: substance dosage"
-msgstr "Medicaciones: dosificación de sustancias"
-
 msgid "Workplace profiles (which plugins to load)"
 msgstr "Perfiles de lugares trabajo (qué módulos cargar)"
 
@@ -16208,6 +16240,31 @@ msgstr "No se puede agregar un miembro del personal. No hay paciente activo."
 msgid "Cannot delete patient. No patient active."
 msgstr "No se puede eliminar el paciente. No hay paciente activo."
 
+msgid "Removal of temporary directory"
+msgstr "Eliminación del directorio temporal"
+
+msgid ""
+"Do you want to remove the temporary directory or to keep it for debugging ?"
+msgstr "¿Desea eliminar el directorio temporal, o dejarlo para depuración?"
+
+msgid "&Keep##tx: keep temp dir"
+msgstr "&Dejarlo"
+
+msgid "Do NOT remove temporary directory but rather keep it on disk."
+msgstr "NO eliminar el directorio temporal, dejarlo en el disco."
+
+msgid "&Remove##tx: remove temp dir"
+msgstr "&Eliminarlo"
+
+msgid "Remove temporary directory."
+msgstr "Eliminar el directorio temporal."
+
+msgid "Don't know##tx: whether to remove temp dir or not"
+msgstr "No sé"
+
+msgid "I do not know."
+msgstr "No lo sé."
+
 msgid ""
 "You have to manually close this window to finalize shutting down GNUmed."
 msgstr ""
@@ -16383,7 +16440,7 @@ msgid "EMR: T&imeline"
 msgstr "RME: &Linea de Tiempo"
 
 msgid "Medication"
-msgstr "Medicación"
+msgstr "Meds"
 
 msgid "&Vaccinations"
 msgstr "&Vacunaciones"
@@ -16535,7 +16592,7 @@ msgid "Provider &inbox"
 msgstr "Buzón del Usuar&io"
 
 msgid "Notes"
-msgstr "Notas SOAP"
+msgstr "Notas"
 
 msgid "&Notes"
 msgstr "&Notas"
@@ -17777,7 +17834,7 @@ msgstr "MDC: %s"
 
 #, python-format
 msgid "AOE: %s"
-msgstr "VDC: %s"
+msgstr "EDC: %s"
 
 #, python-format
 msgid "Cannot edit \"%s\"."
@@ -17845,11 +17902,11 @@ msgid "Chart entry type"
 msgstr "Tipo de entrada"
 
 msgid "Database table"
-msgstr "Tabla en base de datos"
+msgstr "Tabla en la base de datos"
 
 #, python-format
 msgid "Chart entry type \"%s\" options:"
-msgstr "Opciones para el tipo de entrada en ficha \"%s\":"
+msgstr "Opciones para el tipo de entrada \"%s\":"
 
 msgid "Modified"
 msgstr "Modificado"
@@ -18934,7 +18991,7 @@ msgid "Cancel Login."
 msgstr "Cancelar inicio de sesión."
 
 msgid "&Help"
-msgstr "&Ayuda"
+msgstr "A&yuda"
 
 msgid "Help for login screen"
 msgstr "Ayuda para la pantalla de inicio de sesión"
@@ -20149,12 +20206,13 @@ msgid ""
 "must be in the execution path. The command will\n"
 "be passed the filename to %(l10n_action)s."
 msgstr ""
-"No se puede %(l10n_action)s la parte del documento - comando %(l10n_action)s "
-"no encontrado.\n"
+"No se pudo %(l10n_action)s la parte del documento - no se encontró el "
+"comando para %(l10n_action)s.\n"
 "\n"
-"Debe existir gm-%(action)s_doc o gm-%(action)s_doc.bat\n"
-"en la ruta de ejecución. Se pasará el nombre del archivo\n"
-"al comando para %(l10n_action)s."
+"Asegúrsese de que ya sea gm-%(action)s_doc o gm-%(action)s_doc.bat existan "
+"en la\n"
+"ruta de ejecución. Se pasará el nombre del archivo al comando para "
+"%(l10n_action)s."
 
 #, python-format
 msgid "Processing document part: %s"
@@ -20187,10 +20245,10 @@ msgid "print"
 msgstr "imprimir"
 
 msgid "fax"
-msgstr "fax"
+msgstr "enviar por fax"
 
 msgid "mail"
-msgstr "correo"
+msgstr "enviar por correo"
 
 msgid "Save document part to directory ..."
 msgstr "Guardar parte del documento en el directorio ..."
@@ -20450,7 +20508,7 @@ msgid ""
 "Select the procedure you want to edit !\n"
 msgstr ""
 "\n"
-"¡Escoja el procedimiento que desea editar!\n"
+"Escoja el procedimiento que desea editar.\n"
 
 msgid "Editing performed procedures ..."
 msgstr "Editando procedimientos realizados ..."
@@ -21765,6 +21823,9 @@ msgstr "Detalles del sistema de codificación"
 
 msgid "Select one or more codes that apply."
 msgstr "Escoja uno o más códigos aplicables."
+
+#~ msgid "Medications: substance dosage"
+#~ msgstr "Medicaciones: dosificación de sustancias"
 
 #~ msgid "Notes on start date."
 #~ msgstr "Notas sobre la fecha de inicio."
