@@ -45,6 +45,8 @@ class wxgFancySoapEditorPnl(wx.Panel):
 		self._TCTRL_aoe.SetToolTip(_("Also known as the Assessment of Encounter/Visit (AOE)\n\nOptionally summarizes the outcome/assessment of the consultation from the doctors point of view.\n\nNote that this summary spans all the problems discussed during this encounter."))
 		__szr_aoe.Add(self._TCTRL_aoe, 2, wx.EXPAND | wx.RIGHT, 5)
 
+		__szr_right.Add((20, 20), 0, 0, 0)
+
 		from Gnumed.wxpython.gmNarrativeWidgets import cSoapNoteInputNotebook
 		self._NB_soap_editors = cSoapNoteInputNotebook(self, wx.ID_ANY, style=0)
 		__szr_right.Add(self._NB_soap_editors, 4, wx.EXPAND, 3)
