@@ -1,6 +1,8 @@
 This directory contains wxGlade *.wxg XML files which are
 used to generate boilerplate Python classes defining the
-basic GUI layout.
+basic GUI layout. Their license is
+
+	"SPDX-License-Identifier: GPL-2.0-or-later"
 
 The generated classes (in client/wxGladeWidgets/) are then
 used as base classes to inherit from for actual GUI classes
