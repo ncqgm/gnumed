@@ -3242,7 +3242,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		self._TCTRL_previous_value.SetValue('')
 		# it doesn't make much sense to show the most
 		# recent value when editing an existing one
-		if self.data is not None:
+		if self.data is not None and self.mode != 'new_from_existing':
 			return
 
 		if self._PRW_test.GetData() is None:
