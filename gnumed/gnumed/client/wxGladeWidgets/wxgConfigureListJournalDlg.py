@@ -18,7 +18,7 @@ class wxgConfigureListJournalDlg(wx.Dialog):
 		# begin wxGlade: wxgConfigureListJournalDlg.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER
 		wx.Dialog.__init__(self, *args, **kwds)
-		self.SetTitle(_("dialog"))
+		self.SetTitle(_("EMR List filtering options"))
 
 		__szr_main = wx.BoxSizer(wx.VERTICAL)
 
