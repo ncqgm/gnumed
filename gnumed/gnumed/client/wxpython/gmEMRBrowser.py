@@ -1888,7 +1888,7 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 
 	#--------------------------------------------------------
 	def __configure_filter_rules(self):
-		dlg = cConfigureListJournalDlg(self, -1)
+		dlg = cConfigureListJournalDlg(self, -1, title = _('EMR list journal filters'))
 		result = dlg.ShowModal()
 		if result == wx.ID_OK:
 			self.__filter_rules = dlg.save_filter_rules()

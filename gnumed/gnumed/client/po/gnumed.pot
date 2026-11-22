@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-18 22:49+0100\n"
+"POT-Creation-Date: 2026-11-22 13:23+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4154,9 +4154,6 @@ msgid "Unit"
 msgstr ""
 
 msgid "pro"
-msgstr ""
-
-msgid "dialog"
 msgstr ""
 
 msgid "Filter out SOAP categories, regardless of chart entry type:"
@@ -17710,6 +17707,9 @@ msgid "Chart entry type \"%s\" options:"
 msgstr ""
 
 msgid "Happened"
+msgstr ""
+
+msgid "EMR list journal filters"
 msgstr ""
 
 #, python-format

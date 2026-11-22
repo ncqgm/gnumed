@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-18 22:49+0100\n"
+"POT-Creation-Date: 2026-11-22 13:23+0100\n"
 "PO-Revision-Date: 2026-10-20 22:49+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
@@ -4742,9 +4742,6 @@ msgstr "Einheit"
 
 msgid "pro"
 msgstr "per"
-
-msgid "dialog"
-msgstr "Dialog"
 
 msgid "Filter out SOAP categories, regardless of chart entry type:"
 msgstr "ABDT-Kategorien ausblenden, unabhängig vom Typ des Karteieintrags:"
@@ -20274,6 +20271,9 @@ msgstr "Optionen für Karteieinträge vom Typ \"%s\":"
 msgid "Happened"
 msgstr "Passiert"
 
+msgid "EMR list journal filters"
+msgstr "Filter für Krankenblattlistung"
+
 #, python-format
 msgid "Cannot understand item [%s]."
 msgstr "Eintragstyp [%s] unbekannt."
@@ -21359,6 +21359,9 @@ msgstr "Abbrechen"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
+
+#~ msgid "dialog"
+#~ msgstr "Dialog"
 
 #~ msgid "Medications: substance dosage"
 #~ msgstr "Medikamente: Wirkstoffdosierungen"
