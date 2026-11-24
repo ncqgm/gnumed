@@ -48,6 +48,7 @@ NEW: remove explicit gm-fingerprint_db.py
 NEW: run --tool=fingerprint_db if started as gm-fingerprint_db(.py)
 NEW: placeholder: $praxis_address_map_url$
 NEW: vaccinations: Chikungunya
+NEW: patient record transplantation [thanks Marc]
 
 IMPROVED: GUI: show current patient/provider in window titles
 IMPROVED: placeholder: $current_provider_name$
@@ -99,6 +100,7 @@ FIX: forward-port fix for grid selection constant names
 FIX: Py3.13: removed packaging.version from stdlib [thanks María]
 
 DEP: removed LibreOffice forms engine
+DEP: removed old interface for arriba cvd risk calculator
 
 	23.0
 
