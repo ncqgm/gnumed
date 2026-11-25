@@ -2605,12 +2605,12 @@ def review_tests(parent=None, tests=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
-	if len(tests) > 10:
-		test_count = len(tests)
+	test_count = len(tests)
+	if test_count > 10:
 		tests2show = None
 	else:
-		test_count = None
 		tests2show = tests
+		test_count = None
 	dlg = cMeasurementsReviewDlg(parent, -1, tests = tests2show, test_count = test_count)
 	decision = dlg.ShowModal()
 	if decision != wx.ID_APPLY:
@@ -2654,13 +2654,17 @@ class cMeasurementsReviewDlg(wxgMeasurementsReviewDlg.wxgMeasurementsReviewDlg):
 		try:
 			tests = kwargs['tests']
 			del kwargs['tests']
-			test_count = len(tests)
-			try: del kwargs['test_count']
-			except KeyError: pass
 		except KeyError:
 			tests = None
+		try:
 			test_count = kwargs['test_count']
 			del kwargs['test_count']
+		except KeyError:
+			test_count = None
+		assert gmTools.xor(tests, test_count, mutually_exclusive_values = [None]), '<test> and <test_count> must not both be None'
+
+		if tests:
+			test_count = len(tests)
 
 		wxgMeasurementsReviewDlg.wxgMeasurementsReviewDlg.__init__(self, *args, **kwargs)
 
@@ -2676,16 +2680,14 @@ class cMeasurementsReviewDlg(wxgMeasurementsReviewDlg.wxgMeasurementsReviewDlg):
 					) for t in tests
 				]
 			)
-
 		self._LBL_tests.SetLabel(msg)
-
 		if test_count == 1:
 			self._TCTRL_comment.Enable(True)
 			self._TCTRL_comment.SetValue(gmTools.coalesce(tests[0]['review_comment'], ''))
 			if tests[0]['you_are_responsible']:
 				self._CHBOX_responsible.Enable(False)
-
 		self.Fit()
+
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
