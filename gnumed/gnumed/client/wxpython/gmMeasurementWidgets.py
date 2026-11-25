@@ -2657,7 +2657,7 @@ class cMeasurementsReviewDlg(wxgMeasurementsReviewDlg.wxgMeasurementsReviewDlg):
 			test_count = len(tests)
 			try: del kwargs['test_count']
 			except KeyError: pass
-		except KeyError:
+		except (KeyError, TypeError):
 			tests = None
 			test_count = kwargs['test_count']
 			del kwargs['test_count']
