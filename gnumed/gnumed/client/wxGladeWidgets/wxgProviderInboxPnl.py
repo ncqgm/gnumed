@@ -36,7 +36,7 @@ class wxgProviderInboxPnl(wx.ScrolledWindow):
 		__lbl_items = wx.StaticText(self, wx.ID_ANY, _("Messages:"))
 		__szr_items.Add(__lbl_items, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT | wx.RIGHT, 3)
 
-		self._RBTN_relevant_messages = wx.RadioButton(self, wx.ID_ANY, _("&Relevant"), style=wx.RB_GROUP)
+		self._RBTN_relevant_messages = wx.RadioButton(self, wx.ID_ANY, _("&Relevant##tx: filter inbox messages, only non-expired and not-programmed"), style=wx.RB_GROUP)
 		self._RBTN_relevant_messages.SetToolTip(_("Show relevant messages only (excludes expired and not-yet-due messages)."))
 		self._RBTN_relevant_messages.SetValue(1)
 		__szr_items.Add(self._RBTN_relevant_messages, 0, wx.EXPAND | wx.RIGHT, 5)
