@@ -896,7 +896,8 @@ def manage_bills(parent=None, patient=None):
 		'\n'
 		'Note that deleting invoices may also be unlawful (again, as opposed to bills).\n'
 		'\n'
-		'Make sure to abide by applicable law !'
+		'Make sure to abide by applicable law !\n'
+		'\n'
 	)
 	return gmListWidgets.get_choices_from_list (
 		parent = parent,
