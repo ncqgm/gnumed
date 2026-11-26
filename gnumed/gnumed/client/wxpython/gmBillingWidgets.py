@@ -759,10 +759,10 @@ def revert_bill(parent=None, bill:gmBilling.cBill=None):
 	old_bill_lines = []
 	old_bill_lines.append(bill.format())
 	old_bill_lines.append('')
-	success = gmBilling.delete_bill(pk_bill = bill['pk_bill'])
 	for item in items:
 		old_bill_lines.append(item.format())
 		old_bill_lines.append('')
+	success = gmBilling.delete_bill(pk_bill = bill['pk_bill'])
 	fname = gmTools.get_unique_filename(prefix = 'gm-bill-', suffix = '.txt')
 	with open(fname, mode = 'wt', encoding = 'utf8', errors = 'replace') as bill_file:
 		bill_file.write('This is the content of the old bill.\n')
