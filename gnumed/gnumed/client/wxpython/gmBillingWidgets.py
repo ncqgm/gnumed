@@ -850,6 +850,10 @@ def manage_bills(parent=None, patient=None):
 		return edit_bill(parent = parent, bill = bill, single_entry = True)
 
 	#------------------------------------------------------------
+	def revert(bill):
+		return revert_bill(parent = parent, bill = bill)
+
+	#------------------------------------------------------------
 	def delete(bill):
 		return delete_bill(parent = parent, bill = bill)
 
@@ -915,7 +919,7 @@ def manage_bills(parent=None, patient=None):
 		right_extra_button = (
 			_('Revert##tx: as in: delete the bill and return its items onto the general charge list of the patient'),
 			_('Revert the bill and RETURN its items to the charge list.'),
-			revert_bill
+			revert
 		),
 		list_tooltip_callback = get_tooltip
 	)
