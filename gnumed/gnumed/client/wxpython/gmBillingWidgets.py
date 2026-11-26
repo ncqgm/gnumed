@@ -749,6 +749,14 @@ def revert_bill(parent=None, bill:gmBilling.cBill=None):
 	if not bill:
 		return
 
+	do_it = gmGuiHelpers.ask(question =_(
+		'Truly revert bill and return bill items to charge list ?\n'
+		'\n'
+		'This can not be undone.'
+	))
+	if not do_it:
+		return False
+
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 	patient_pk = bill['pk_patient']
