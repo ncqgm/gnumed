@@ -751,6 +751,14 @@ def revert_bill(parent=None, bill:gmBilling.cBill=None):
 	if not bill:
 		return
 
+	do_it = gmGuiHelpers.ask(question =_(
+		'Truly revert bill and return bill items to charge list ?\n'
+		'\n'
+		'This can not be undone.'
+	))
+	if not do_it:
+		return False
+
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 	patient_pk = bill['pk_patient']
@@ -759,10 +767,10 @@ def revert_bill(parent=None, bill:gmBilling.cBill=None):
 	old_bill_lines = []
 	old_bill_lines.append(bill.format())
 	old_bill_lines.append('')
-	success = gmBilling.delete_bill(pk_bill = bill['pk_bill'])
 	for item in items:
 		old_bill_lines.append(item.format())
 		old_bill_lines.append('')
+	success = gmBilling.delete_bill(pk_bill = bill['pk_bill'])
 	fname = gmTools.get_unique_filename(prefix = 'gm-bill-', suffix = '.txt')
 	with open(fname, mode = 'wt', encoding = 'utf8', errors = 'replace') as bill_file:
 		bill_file.write('This is the content of the old bill.\n')
@@ -852,6 +860,10 @@ def manage_bills(parent=None, patient=None):
 		return edit_bill(parent = parent, bill = bill, single_entry = True)
 
 	#------------------------------------------------------------
+	def revert(bill):
+		return revert_bill(parent = parent, bill = bill)
+
+	#------------------------------------------------------------
 	def delete(bill):
 		return delete_bill(parent = parent, bill = bill)
 
@@ -918,7 +930,7 @@ def manage_bills(parent=None, patient=None):
 		right_extra_button = (
 			_('Revert##tx: as in: delete the bill and return its items onto the general charge list of the patient'),
 			_('Revert the bill and RETURN its items to the charge list.'),
-			revert_bill
+			revert
 		),
 		list_tooltip_callback = get_tooltip
 	)
