@@ -86,7 +86,9 @@ def manage_billables(parent=None):
 		if billable.is_in_use:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete this billable item. It is in use.'), beep = True)
 			return False
-		return gmBilling.delete_billable(pk_billable = billable['pk_billable'])
+
+		gmBilling.delete_billable(pk_billable = billable['pk_billable'])
+		return True
 	#------------------------------------------------------------
 	def get_tooltip(item):
 		if item is None:
